@@ -5,8 +5,20 @@ Knuckledragger is an attempt at creating a down to earth, highly automated inter
 ## Installation
 
 ```bash
+python3 -m pip install git+https://github.com/philzook58/knuckledragger.git
+```
+
+Or to install locally
+
+```bash
+git clone https://github.com/philzook58/knuckledragger.git
+cd knuckledragger
 python3 -m pip install -e .
 ```
+
+## Blog Posts
+
+- [Knuckledragger: Experimenting with a Python Proof Assistant](https://www.philipzucker.com/python-itp/)
 
 ## Design
 

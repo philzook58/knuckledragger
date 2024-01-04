@@ -1,0 +1,25 @@
+[project]
+name = "knuckledragger"
+version = "0.1.1"
+authors = ["Philip Zucker <philzook58@gmail.com>"]
+description = "Interactive Theorem Prover"
+readme = "README.md"
+license = { file="LICENSE" }
+repository = "https://github.com/philzook58/knuckledragger"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+homepage = "https://github.com/philzook58/knuckledragger"
+
+[project.dependencies]
+z3-solver = "^4.8"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+]
+
