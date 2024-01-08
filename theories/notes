@@ -1,3 +1,7 @@
+Hmm. Z3 ctx object. Should I be using tha somehow?
+I can't controlis the user happens to add a recfundefinition to the local context that is bad.
+
+
 
 sympy
 calcium
