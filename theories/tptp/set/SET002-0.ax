@@ -1,0 +1,118 @@
+%--------------------------------------------------------------------------
+% File     : SET002-0 : TPTP v8.2.0. Released v1.0.0.
+% Domain   : Set Theory
+% Axioms   : Set theory axioms
+% Version  : [MOW76] axioms : Biased.
+% English  :
+
+% Refs     : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+% Source   : [ANL]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :   21 (   3 unt;   3 nHn;  15 RR)
+%            Number of literals    :   45 (   0 equ;  23 neg)
+%            Maximal clause size   :    3 (   2 avg)
+%            Maximal term depth    :    2 (   1 avg)
+%            Number of predicates  :    4 (   4 usr;   0 prp; 2-2 aty)
+%            Number of functors    :    5 (   5 usr;   1 con; 0-2 aty)
+%            Number of variables   :   48 (   5 sgn)
+% SPC      : 
+
+% Comments :
+%--------------------------------------------------------------------------
+%-----Definition of the empty set.
+cnf(empty_set,axiom,
+    ~ member(X,empty_set) ).
+
+%-----Subset axioms. These are the same as in SET001-0.ax
+cnf(membership_in_subsets,axiom,
+    ( ~ member(Element,Subset)
+    | ~ subset(Subset,Superset)
+    | member(Element,Superset) ) ).
+
+cnf(subsets_axiom1,axiom,
+    ( subset(Subset,Superset)
+    | member(member_of_1_not_of_2(Subset,Superset),Subset) ) ).
+
+cnf(subsets_axiom2,axiom,
+    ( ~ member(member_of_1_not_of_2(Subset,Superset),Superset)
+    | subset(Subset,Superset) ) ).
+
+%-----Axioms of complementation.
+cnf(member_of_set_or_complement,axiom,
+    ( member(X,Xs)
+    | member(X,complement(Xs)) ) ).
+
+cnf(not_member_of_set_and_complement,axiom,
+    ( ~ member(X,Xs)
+    | ~ member(X,complement(Xs)) ) ).
+
+%-----Axioms of union.
+cnf(member_of_set1_is_member_of_union,axiom,
+    ( ~ member(X,Xs)
+    | member(X,union(Xs,Ys)) ) ).
+
+cnf(member_of_set2_is_member_of_union,axiom,
+    ( ~ member(X,Ys)
+    | member(X,union(Xs,Ys)) ) ).
+
+cnf(member_of_union_is_member_of_one_set,axiom,
+    ( ~ member(X,union(Xs,Ys))
+    | member(X,Xs)
+    | member(X,Ys) ) ).
+
+%-----Axioms of intersection.
+cnf(member_of_both_is_member_of_intersection,axiom,
+    ( ~ member(X,Xs)
+    | ~ member(X,Ys)
+    | member(X,intersection(Xs,Ys)) ) ).
+
+cnf(member_of_intersection_is_member_of_set1,axiom,
+    ( ~ member(X,intersection(Xs,Ys))
+    | member(X,Xs) ) ).
+
+cnf(member_of_intersection_is_member_of_set2,axiom,
+    ( ~ member(X,intersection(Xs,Ys))
+    | member(X,Ys) ) ).
+
+%-----Set equality axioms.
+cnf(set_equal_sets_are_subsets1,axiom,
+    ( ~ equal_sets(Subset,Superset)
+    | subset(Subset,Superset) ) ).
+
+cnf(set_equal_sets_are_subsets2,axiom,
+    ( ~ equal_sets(Superset,Subset)
+    | subset(Subset,Superset) ) ).
+
+cnf(subsets_are_set_equal_sets,axiom,
+    ( ~ subset(Set1,Set2)
+    | ~ subset(Set2,Set1)
+    | equal_sets(Set2,Set1) ) ).
+
+%-----Equality axioms.
+cnf(reflexivity_for_set_equal,axiom,
+    equal_sets(Xs,Xs) ).
+
+cnf(symmetry_for_set_equal,axiom,
+    ( ~ equal_sets(Xs,Ys)
+    | equal_sets(Ys,Xs) ) ).
+
+cnf(transitivity_for_set_equal,axiom,
+    ( ~ equal_sets(Xs,Ys)
+    | ~ equal_sets(Ys,Zs)
+    | equal_sets(Xs,Zs) ) ).
+
+cnf(reflexivity_for_equal_elements,axiom,
+    equal_elements(X,X) ).
+
+cnf(symmetry_for_equal_elements,axiom,
+    ( ~ equal_elements(X,Y)
+    | equal_elements(Y,X) ) ).
+
+cnf(transitivity_for_equal_elements,axiom,
+    ( ~ equal_elements(X,Y)
+    | ~ equal_elements(Y,Z)
+    | equal_elements(X,Z) ) ).
+
+%--------------------------------------------------------------------------

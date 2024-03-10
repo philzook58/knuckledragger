@@ -1,0 +1,118 @@
+%--------------------------------------------------------------------------
+% File     : CAT003-0 : TPTP v8.2.0. Released v1.0.0.
+% Domain   : Category Theory
+% Axioms   : Category theory axioms
+% Version  : [Sco79] axioms : Reduced > Complete.
+% English  :
+
+% Refs     : [Sco79] Scott (1979), Identity and Existence in Intuitionist L
+% Source   : [ANL]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :   17 (   3 unt;   2 nHn;  12 RR)
+%            Number of literals    :   37 (  15 equ;  17 neg)
+%            Maximal clause size   :    4 (   2 avg)
+%            Maximal term depth    :    3 (   1 avg)
+%            Number of predicates  :    3 (   2 usr;   0 prp; 1-2 aty)
+%            Number of functors    :    4 (   4 usr;   0 con; 1-2 aty)
+%            Number of variables   :   31 (   4 sgn)
+% SPC      : 
+
+% Comments : Axioms simplified by Art Quaife.
+%--------------------------------------------------------------------------
+%----Non-standard in that E(x) stands for "x exists", i.e. a system for
+%----intuitionistic logic.  Viewed classically, this can be taken
+%----as a partitioning of models M into elements of E and other elements
+%----of M; then Scott's quantifiers are relativized to range only over
+%----E, whereas free variables range over all of M.
+%----Quaife has this written: (this looks really weird, but results from
+%----having = here stand for equivalence, and it is a strange fact from
+%----Scott's conception that all non-existent things are equivalent. all
+%----x all y ((x == y) | E(x) | E(y))).
+
+%-----Restricted equality axioms
+cnf(equivalence_implies_existence1,axiom,
+    ( ~ equivalent(X,Y)
+    | there_exists(X) ) ).
+
+cnf(equivalence_implies_existence2,axiom,
+    ( ~ equivalent(X,Y)
+    | X = Y ) ).
+
+cnf(existence_and_equality_implies_equivalence1,axiom,
+    ( ~ there_exists(X)
+    | X != Y
+    | equivalent(X,Y) ) ).
+
+%-----Category theory axioms
+cnf(domain_has_elements,axiom,
+    ( ~ there_exists(domain(X))
+    | there_exists(X) ) ).
+
+cnf(codomain_has_elements,axiom,
+    ( ~ there_exists(codomain(X))
+    | there_exists(X) ) ).
+
+cnf(composition_implies_domain,axiom,
+    ( ~ there_exists(compose(X,Y))
+    | there_exists(domain(X)) ) ).
+
+cnf(domain_codomain_composition1,axiom,
+    ( ~ there_exists(compose(X,Y))
+    | domain(X) = codomain(Y) ) ).
+
+cnf(domain_codomain_composition2,axiom,
+    ( ~ there_exists(domain(X))
+    | domain(X) != codomain(Y)
+    | there_exists(compose(X,Y)) ) ).
+
+cnf(associativity_of_compose,axiom,
+    compose(X,compose(Y,Z)) = compose(compose(X,Y),Z) ).
+
+cnf(compose_domain,axiom,
+    compose(X,domain(X)) = X ).
+
+cnf(compose_codomain,axiom,
+    compose(codomain(X),X) = X ).
+
+%-----Axioms from Scott proven dependant by Quaife (with OTTER)
+
+%-----Restricted equality axioms
+cnf(equivalence_implies_existence3,axiom,
+    ( ~ equivalent(X,Y)
+    | there_exists(Y) ) ).
+
+cnf(existence_and_equality_implies_equivalence2,axiom,
+    ( ~ there_exists(X)
+    | ~ there_exists(Y)
+    | X != Y
+    | equivalent(X,Y) ) ).
+
+%-----Category theory axioms
+cnf(composition_implies_codomain,axiom,
+    ( ~ there_exists(compose(X,Y))
+    | there_exists(codomain(X)) ) ).
+
+%-----Axiom of indiscernibles
+cnf(indiscernibles1,axiom,
+    ( there_exists(f1(X,Y))
+    | X = Y ) ).
+
+cnf(indiscernibles2,axiom,
+    ( X = f1(X,Y)
+    | Y = f1(X,Y)
+    | X = Y ) ).
+
+cnf(indiscernibles3,axiom,
+    ( X != f1(X,Y)
+    | Y != f1(X,Y)
+    | X = Y ) ).
+
+%----definition of functor: morphisms of categories; i.e. functions -that
+%----are strict :    E(f(x)) -> E(x).
+%-----         total :     E(x) -> E(f(x)).
+%-----         preserving: f(dom(x)) = dom(f(x)).
+%-----                     f(cod(x)) = cod(f(x)).
+%-----             E(star(x,y)) -> (f(star(x,y)) = star(f(x),f(y))).
+%--------------------------------------------------------------------------

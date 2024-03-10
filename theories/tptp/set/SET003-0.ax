@@ -1,0 +1,709 @@
+%--------------------------------------------------------------------------
+% File     : SET003-0 : TPTP v8.2.0. Released v1.0.0.
+% Domain   : Set Theory
+% Axioms   : Set theory axioms based on Godel set theory
+% Version  : [BL+86] axioms.
+% English  :
+
+% Refs     : [BL+86] Boyer et al. (1986), Set Theory in First-Order Logic:
+%          : [Wos88] Wos (1988), Automated Reasoning - 33 Basic Research Pr
+%          : [McC92] McCune (1992), Email to G. Sutcliffe
+% Source   : [McC92]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :  141 (  11 unt;  20 nHn; 118 RR)
+%            Number of literals    :  355 (  47 equ; 197 neg)
+%            Maximal clause size   :    8 (   2 avg)
+%            Maximal term depth    :    4 (   1 avg)
+%            Number of predicates  :   14 (  13 usr;   0 prp; 1-5 aty)
+%            Number of functors    :   59 (  59 usr;   6 con; 0-5 aty)
+%            Number of variables   :  320 (  28 sgn)
+% SPC      : 
+
+% Comments : Requires EQU001-0.ax
+%          : These axioms are based on Godel's axioms for set theory.
+%          : These axioms are also used in [Wos88] p.225.
+%--------------------------------------------------------------------------
+%----Axiom A-1, little sets are sets (omitted because all objects are sets)
+
+%----Axiom A-2, elements of sets are little sets.
+cnf(a2,axiom,
+    ( ~ member(X,Y)
+    | little_set(X) ) ).
+
+%----Axiom A-3, principle of extensionality
+cnf(extensionality1,axiom,
+    ( little_set(f1(X,Y))
+    | X = Y ) ).
+
+cnf(extensionality2,axiom,
+    ( member(f1(X,Y),X)
+    | member(f1(X,Y),Y)
+    | X = Y ) ).
+
+cnf(extensionality3,axiom,
+    ( ~ member(f1(X,Y),X)
+    | ~ member(f1(X,Y),Y)
+    | X = Y ) ).
+
+%----Axiom a-4, existence of nonordered pair
+cnf(non_ordered_pair1,axiom,
+    ( ~ member(U,non_ordered_pair(X,Y))
+    | U = X
+    | U = Y ) ).
+
+cnf(non_ordered_pair2,axiom,
+    ( member(U,non_ordered_pair(X,Y))
+    | ~ little_set(U)
+    | U != X ) ).
+
+cnf(non_ordered_pair3,axiom,
+    ( member(U,non_ordered_pair(X,Y))
+    | ~ little_set(U)
+    | U != Y ) ).
+
+cnf(non_ordered_pair4,axiom,
+    little_set(non_ordered_pair(X,Y)) ).
+
+%----Definition of singleton set
+cnf(singleton_set,axiom,
+    singleton_set(X) = non_ordered_pair(X,X) ).
+
+%----Definition of ordered pair
+cnf(ordered_pair,axiom,
+    ordered_pair(X,Y) = non_ordered_pair(singleton_set(X),non_ordered_pair(X,Y)) ).
+
+%----Definition of ordered pair predicate
+cnf(ordered_pair_predicate1,axiom,
+    ( ~ ordered_pair_predicate(X)
+    | little_set(f2(X)) ) ).
+
+cnf(ordered_pair_predicate2,axiom,
+    ( ~ ordered_pair_predicate(X)
+    | little_set(f3(X)) ) ).
+
+cnf(ordered_pair_predicate3,axiom,
+    ( ~ ordered_pair_predicate(X)
+    | X = ordered_pair(f2(X),f3(X)) ) ).
+
+cnf(ordered_pair_predicate4,axiom,
+    ( ordered_pair_predicate(X)
+    | ~ little_set(Y)
+    | ~ little_set(Z)
+    | X != ordered_pair(Y,Z) ) ).
+
+%----Axiom of first
+cnf(first1,axiom,
+    ( ~ member(Z,first(X))
+    | little_set(f4(Z,X)) ) ).
+
+cnf(first2,axiom,
+    ( ~ member(Z,first(X))
+    | little_set(f5(Z,X)) ) ).
+
+cnf(first3,axiom,
+    ( ~ member(Z,first(X))
+    | X = ordered_pair(f4(Z,X),f5(Z,X)) ) ).
+
+cnf(first4,axiom,
+    ( ~ member(Z,first(X))
+    | member(Z,f4(Z,X)) ) ).
+
+cnf(first5,axiom,
+    ( member(Z,first(X))
+    | ~ little_set(U)
+    | ~ little_set(V)
+    | X != ordered_pair(U,V)
+    | ~ member(Z,U) ) ).
+
+%----Axiom of second
+cnf(second1,axiom,
+    ( ~ member(Z,second(X))
+    | little_set(f6(Z,X)) ) ).
+
+cnf(second2,axiom,
+    ( ~ member(Z,second(X))
+    | little_set(f7(Z,X)) ) ).
+
+cnf(second3,axiom,
+    ( ~ member(Z,second(X))
+    | X = ordered_pair(f6(Z,X),f7(Z,X)) ) ).
+
+cnf(second4,axiom,
+    ( ~ member(Z,second(X))
+    | member(Z,f7(Z,X)) ) ).
+
+cnf(second5,axiom,
+    ( member(Z,second(X))
+    | ~ little_set(U)
+    | ~ little_set(V)
+    | X != ordered_pair(U,V)
+    | ~ member(Z,V) ) ).
+
+%----Axiom B-1, element relation
+cnf(element_relation1,axiom,
+    ( ~ member(Z,estin)
+    | ordered_pair_predicate(Z) ) ).
+
+cnf(element_relation2,axiom,
+    ( ~ member(Z,estin)
+    | member(first(Z),second(Z)) ) ).
+
+cnf(element_relation3,axiom,
+    ( member(Z,estin)
+    | ~ little_set(Z)
+    | ~ ordered_pair_predicate(Z)
+    | ~ member(first(Z),second(Z)) ) ).
+
+%----Axiom B-2, intersection
+cnf(intersection1,axiom,
+    ( ~ member(Z,intersection(X,Y))
+    | member(Z,X) ) ).
+
+cnf(intersection2,axiom,
+    ( ~ member(Z,intersection(X,Y))
+    | member(Z,Y) ) ).
+
+cnf(intersection3,axiom,
+    ( member(Z,intersection(X,Y))
+    | ~ member(Z,X)
+    | ~ member(Z,Y) ) ).
+
+%----Axiom B-3, complement
+cnf(complement1,axiom,
+    ( ~ member(Z,complement(X))
+    | ~ member(Z,X) ) ).
+
+cnf(complement2,axiom,
+    ( member(Z,complement(X))
+    | ~ little_set(Z)
+    | member(Z,X) ) ).
+
+%----Definition of union
+cnf(union,axiom,
+    union(X,Y) = complement(intersection(complement(X),complement(Y))) ).
+
+%----Axiom B-4, domain
+cnf(domain1,axiom,
+    ( ~ member(Z,domain_of(X))
+    | ordered_pair_predicate(f8(Z,X)) ) ).
+
+cnf(domain2,axiom,
+    ( ~ member(Z,domain_of(X))
+    | member(f8(Z,X),X) ) ).
+
+cnf(domain3,axiom,
+    ( ~ member(Z,domain_of(X))
+    | Z = first(f8(Z,X)) ) ).
+
+cnf(domain4,axiom,
+    ( member(Z,domain_of(X))
+    | ~ little_set(Z)
+    | ~ ordered_pair_predicate(Xp)
+    | ~ member(Xp,X)
+    | Z != first(Xp) ) ).
+
+%----Axiom B-5, cross product
+cnf(cross_product1,axiom,
+    ( ~ member(Z,cross_product(X,Y))
+    | ordered_pair_predicate(Z) ) ).
+
+cnf(cross_product2,axiom,
+    ( ~ member(Z,cross_product(X,Y))
+    | member(first(Z),X) ) ).
+
+cnf(cross_product3,axiom,
+    ( ~ member(Z,cross_product(X,Y))
+    | member(second(Z),Y) ) ).
+
+cnf(cross_product4,axiom,
+    ( member(Z,cross_product(X,Y))
+    | ~ little_set(Z)
+    | ~ ordered_pair_predicate(Z)
+    | ~ member(first(Z),X)
+    | ~ member(second(Z),Y) ) ).
+
+%----Axiom B-6, converse
+cnf(converse1,axiom,
+    ( ~ member(Z,converse(X))
+    | ordered_pair_predicate(Z) ) ).
+
+cnf(converse2,axiom,
+    ( ~ member(Z,converse(X))
+    | member(ordered_pair(second(Z),first(Z)),X) ) ).
+
+cnf(converse3,axiom,
+    ( member(Z,converse(X))
+    | ~ little_set(Z)
+    | ~ ordered_pair_predicate(Z)
+    | ~ member(ordered_pair(second(Z),first(Z)),X) ) ).
+
+%----Axiom B-7, rotate_right
+cnf(rotate_right1,axiom,
+    ( ~ member(Z,rotate_right(X))
+    | little_set(f9(Z,X)) ) ).
+
+cnf(rotate_right2,axiom,
+    ( ~ member(Z,rotate_right(X))
+    | little_set(f10(Z,X)) ) ).
+
+cnf(rotate_right3,axiom,
+    ( ~ member(Z,rotate_right(X))
+    | little_set(f11(Z,X)) ) ).
+
+cnf(rotate_right4,axiom,
+    ( ~ member(Z,rotate_right(X))
+    | Z = ordered_pair(f9(Z,X),ordered_pair(f10(Z,X),f11(Z,X))) ) ).
+
+cnf(rotate_right5,axiom,
+    ( ~ member(Z,rotate_right(X))
+    | member(ordered_pair(f10(Z,X),ordered_pair(f11(Z,X),f9(Z,X))),X) ) ).
+
+cnf(rotate_right6,axiom,
+    ( member(Z,rotate_right(X))
+    | ~ little_set(Z)
+    | ~ little_set(U)
+    | ~ little_set(V)
+    | ~ little_set(W)
+    | Z != ordered_pair(U,ordered_pair(V,W))
+    | ~ member(ordered_pair(V,ordered_pair(W,U)),X) ) ).
+
+%----Axiom B-8, flip_range
+cnf(flip_range1,axiom,
+    ( ~ member(Z,flip_range_of(X))
+    | little_set(f12(Z,X)) ) ).
+
+cnf(flip_range2,axiom,
+    ( ~ member(Z,flip_range_of(X))
+    | little_set(f13(Z,X)) ) ).
+
+cnf(flip_range3,axiom,
+    ( ~ member(Z,flip_range_of(X))
+    | little_set(f14(Z,X)) ) ).
+
+cnf(flip_range4,axiom,
+    ( ~ member(Z,flip_range_of(X))
+    | Z = ordered_pair(f12(Z,X),ordered_pair(f13(Z,X),f14(Z,X))) ) ).
+
+cnf(flip_range5,axiom,
+    ( ~ member(Z,flip_range_of(X))
+    | member(ordered_pair(f12(Z,X),ordered_pair(f14(Z,X),f13(Z,X))),X) ) ).
+
+cnf(flip_range6,axiom,
+    ( member(Z,flip_range_of(X))
+    | ~ little_set(Z)
+    | ~ little_set(U)
+    | ~ little_set(V)
+    | ~ little_set(W)
+    | Z != ordered_pair(U,ordered_pair(V,W))
+    | ~ member(ordered_pair(U,ordered_pair(W,V)),X) ) ).
+
+%----Definition of successor
+cnf(successor,axiom,
+    successor(X) = union(X,singleton_set(X)) ).
+
+%----Definition of empty set
+cnf(empty_set,axiom,
+    ~ member(Z,empty_set) ).
+
+%----Definition of universal set
+cnf(universal_set,axiom,
+    ( member(Z,universal_set)
+    | ~ little_set(Z) ) ).
+
+%----Axiom C-1, infinity
+cnf(infinity1,axiom,
+    little_set(infinity) ).
+
+cnf(infinity2,axiom,
+    member(empty_set,infinity) ).
+
+cnf(infinity3,axiom,
+    ( ~ member(X,infinity)
+    | member(successor(X),infinity) ) ).
+
+%----Axiom C-2, sigma (union of elements)
+cnf(sigma1,axiom,
+    ( ~ member(Z,sigma(X))
+    | member(f16(Z,X),X) ) ).
+
+cnf(sigma2,axiom,
+    ( ~ member(Z,sigma(X))
+    | member(Z,f16(Z,X)) ) ).
+
+cnf(sigma3,axiom,
+    ( member(Z,sigma(X))
+    | ~ member(Y,X)
+    | ~ member(Z,Y) ) ).
+
+cnf(sigma4,axiom,
+    ( ~ little_set(U)
+    | little_set(sigma(U)) ) ).
+
+%----Definition of subset
+cnf(subset1,axiom,
+    ( ~ subset(X,Y)
+    | ~ member(U,X)
+    | member(U,Y) ) ).
+
+cnf(subset2,axiom,
+    ( subset(X,Y)
+    | member(f17(X,Y),X) ) ).
+
+cnf(subset3,axiom,
+    ( subset(X,Y)
+    | ~ member(f17(X,Y),Y) ) ).
+
+%----Definition of proper subset
+cnf(proper_subset1,axiom,
+    ( ~ proper_subset(X,Y)
+    | subset(X,Y) ) ).
+
+cnf(proper_subset2,axiom,
+    ( ~ proper_subset(X,Y)
+    | X != Y ) ).
+
+cnf(proper_subset3,axiom,
+    ( proper_subset(X,Y)
+    | ~ subset(X,Y)
+    | X = Y ) ).
+
+%----Axiom C-3, powerset
+cnf(powerset1,axiom,
+    ( ~ member(Z,powerset(X))
+    | subset(Z,X) ) ).
+
+cnf(powerset2,axiom,
+    ( member(Z,powerset(X))
+    | ~ little_set(Z)
+    | ~ subset(Z,X) ) ).
+
+cnf(powerset3,axiom,
+    ( ~ little_set(U)
+    | little_set(powerset(U)) ) ).
+
+%----Definition of relation
+cnf(relation1,axiom,
+    ( ~ relation(Z)
+    | ~ member(X,Z)
+    | ordered_pair_predicate(X) ) ).
+
+cnf(relation2,axiom,
+    ( relation(Z)
+    | member(f18(Z),Z) ) ).
+
+cnf(relation3,axiom,
+    ( relation(Z)
+    | ~ ordered_pair_predicate(f18(Z)) ) ).
+
+%----Definition of single-valued set
+cnf(single_valued_set1,axiom,
+    ( ~ single_valued_set(X)
+    | ~ little_set(U)
+    | ~ little_set(V)
+    | ~ little_set(W)
+    | ~ member(ordered_pair(U,V),X)
+    | ~ member(ordered_pair(U,W),X)
+    | V = W ) ).
+
+cnf(single_valued_set2,axiom,
+    ( single_valued_set(X)
+    | little_set(f19(X)) ) ).
+
+cnf(single_valued_set3,axiom,
+    ( single_valued_set(X)
+    | little_set(f20(X)) ) ).
+
+cnf(single_valued_set4,axiom,
+    ( single_valued_set(X)
+    | little_set(f21(X)) ) ).
+
+cnf(single_valued_set5,axiom,
+    ( single_valued_set(X)
+    | member(ordered_pair(f19(X),f20(X)),X) ) ).
+
+cnf(single_valued_set6,axiom,
+    ( single_valued_set(X)
+    | member(ordered_pair(f19(X),f21(X)),X) ) ).
+
+cnf(single_valued_set7,axiom,
+    ( single_valued_set(X)
+    | f20(X) != f21(X) ) ).
+
+%----Definition of function
+cnf(function1,axiom,
+    ( ~ function(Xf)
+    | relation(Xf) ) ).
+
+cnf(function2,axiom,
+    ( ~ function(Xf)
+    | single_valued_set(Xf) ) ).
+
+cnf(function3,axiom,
+    ( function(Xf)
+    | ~ relation(Xf)
+    | ~ single_valued_set(Xf) ) ).
+
+%----Axiom C-4, image and substitution
+cnf(image_and_substitution1,axiom,
+    ( ~ member(Z,image(X,Xf))
+    | ordered_pair_predicate(f22(Z,X,Xf)) ) ).
+
+cnf(image_and_substitution2,axiom,
+    ( ~ member(Z,image(X,Xf))
+    | member(f22(Z,X,Xf),Xf) ) ).
+
+cnf(image_and_substitution3,axiom,
+    ( ~ member(Z,image(X,Xf))
+    | member(first(f22(Z,X,Xf)),X) ) ).
+
+cnf(image_and_substitution4,axiom,
+    ( ~ member(Z,image(X,Xf))
+    | second(f22(Z,X,Xf)) = Z ) ).
+
+cnf(image_and_substitution5,axiom,
+    ( member(Z,image(X,Xf))
+    | ~ little_set(Z)
+    | ~ ordered_pair_predicate(Y)
+    | ~ member(Y,Xf)
+    | ~ member(first(Y),X)
+    | second(Y) != Z ) ).
+
+cnf(image_and_substitution6,axiom,
+    ( ~ little_set(X)
+    | ~ function(Xf)
+    | little_set(image(X,Xf)) ) ).
+
+%----Definition of disjoint
+cnf(disjoint1,axiom,
+    ( ~ disjoint(X,Y)
+    | ~ member(U,X)
+    | ~ member(U,Y) ) ).
+
+cnf(disjoint2,axiom,
+    ( disjoint(X,Y)
+    | member(f23(X,Y),X) ) ).
+
+cnf(disjoint3,axiom,
+    ( disjoint(X,Y)
+    | member(f23(X,Y),Y) ) ).
+
+%----Axiom D, regularity
+cnf(regularity1,axiom,
+    ( X = empty_set
+    | member(f24(X),X) ) ).
+
+cnf(regularity2,axiom,
+    ( X = empty_set
+    | disjoint(f24(X),X) ) ).
+
+%----Axiom E, choice
+cnf(choice1,axiom,
+    function(f25) ).
+
+cnf(choice2,axiom,
+    ( ~ little_set(X)
+    | X = empty_set
+    | member(f26(X),X) ) ).
+
+cnf(choice3,axiom,
+    ( ~ little_set(X)
+    | X = empty_set
+    | member(ordered_pair(X,f26(X)),f25) ) ).
+
+%----Definition of range_of
+cnf(range_of1,axiom,
+    ( ~ member(Z,range_of(X))
+    | ordered_pair_predicate(f27(Z,X)) ) ).
+
+cnf(range_of2,axiom,
+    ( ~ member(Z,range_of(X))
+    | member(f27(Z,X),X) ) ).
+
+cnf(range_of3,axiom,
+    ( ~ member(Z,range_of(X))
+    | Z = second(f27(Z,X)) ) ).
+
+cnf(range_of4,axiom,
+    ( member(Z,range_of(X))
+    | ~ little_set(Z)
+    | ~ ordered_pair_predicate(Xp)
+    | ~ member(Xp,X)
+    | Z != second(Xp) ) ).
+
+%----Definition of identity relation
+cnf(identity_relation1,axiom,
+    ( ~ member(Z,identity_relation)
+    | ordered_pair_predicate(Z) ) ).
+
+cnf(identity_relation2,axiom,
+    ( ~ member(Z,identity_relation)
+    | first(Z) = second(Z) ) ).
+
+cnf(identity_relation3,axiom,
+    ( member(Z,identity_relation)
+    | ~ little_set(Z)
+    | ~ ordered_pair_predicate(Z)
+    | first(Z) != second(Z) ) ).
+
+%----Definition of restrict
+cnf(restrict,axiom,
+    restrict(X,Y) = intersection(X,cross_product(Y,universal_set)) ).
+
+%----Definition of one-to-one function
+cnf(one_to_one_function1,axiom,
+    ( ~ one_to_one_function(Xf)
+    | function(Xf) ) ).
+
+cnf(one_to_one_function2,axiom,
+    ( ~ one_to_one_function(Xf)
+    | function(converse(Xf)) ) ).
+
+cnf(one_to_one_function3,axiom,
+    ( one_to_one_function(Xf)
+    | ~ function(Xf)
+    | ~ function(converse(Xf)) ) ).
+
+%----Definition of apply
+cnf(apply1,axiom,
+    ( ~ member(Z,apply(Xf,Y))
+    | ordered_pair_predicate(f28(Z,Xf,Y)) ) ).
+
+cnf(apply2,axiom,
+    ( ~ member(Z,apply(Xf,Y))
+    | member(f28(Z,Xf,Y),Xf) ) ).
+
+cnf(apply3,axiom,
+    ( ~ member(Z,apply(Xf,Y))
+    | first(f28(Z,Xf,Y)) = Y ) ).
+
+cnf(apply4,axiom,
+    ( ~ member(Z,apply(Xf,Y))
+    | member(Z,second(f28(Z,Xf,Y))) ) ).
+
+cnf(apply5,axiom,
+    ( member(Z,apply(Xf,Y))
+    | ~ ordered_pair_predicate(W)
+    | ~ member(W,Xf)
+    | first(W) != Y
+    | ~ member(Z,second(W)) ) ).
+
+%----Definition of apply to 2 arguments
+cnf(apply_to_two_arguments,axiom,
+    apply_to_two_arguments(Xf,X,Y) = apply(Xf,ordered_pair(X,Y)) ).
+
+%----Definition of maps
+cnf(maps1,axiom,
+    ( ~ maps(Xf,X,Y)
+    | function(Xf) ) ).
+
+cnf(maps2,axiom,
+    ( ~ maps(Xf,X,Y)
+    | domain_of(Xf) = X ) ).
+
+cnf(maps3,axiom,
+    ( ~ maps(Xf,X,Y)
+    | subset(range_of(Xf),Y) ) ).
+
+cnf(maps4,axiom,
+    ( maps(Xf,X,Y)
+    | ~ function(Xf)
+    | domain_of(Xf) != X
+    | ~ subset(range_of(Xf),Y) ) ).
+
+%----Definition of closed
+cnf(closed1,axiom,
+    ( ~ closed(Xs,Xf)
+    | little_set(Xs) ) ).
+
+cnf(closed2,axiom,
+    ( ~ closed(Xs,Xf)
+    | little_set(Xf) ) ).
+
+cnf(closed3,axiom,
+    ( ~ closed(Xs,Xf)
+    | maps(Xf,cross_product(Xs,Xs),Xs) ) ).
+
+cnf(closed4,axiom,
+    ( closed(Xs,Xf)
+    | ~ little_set(Xs)
+    | ~ little_set(Xf)
+    | ~ maps(Xf,cross_product(Xs,Xs),Xs) ) ).
+
+%----Definition of compose
+cnf(compose1,axiom,
+    ( ~ member(Z,compose(Xf,Xg))
+    | little_set(f29(Z,Xf,Xg)) ) ).
+
+cnf(compose2,axiom,
+    ( ~ member(Z,compose(Xf,Xg))
+    | little_set(f30(Z,Xf,Xg)) ) ).
+
+cnf(compose3,axiom,
+    ( ~ member(Z,compose(Xf,Xg))
+    | little_set(f31(Z,Xf,Xg)) ) ).
+
+cnf(compose4,axiom,
+    ( ~ member(Z,compose(Xf,Xg))
+    | Z = ordered_pair(f29(Z,Xf,Xg),f30(Z,Xf,Xg)) ) ).
+
+cnf(compose5,axiom,
+    ( ~ member(Z,compose(Xf,Xg))
+    | member(ordered_pair(f29(Z,Xf,Xg),f31(Z,Xf,Xg)),Xf) ) ).
+
+cnf(compose6,axiom,
+    ( ~ member(Z,compose(Xf,Xg))
+    | member(ordered_pair(f31(Z,Xf,Xg),f30(Z,Xf,Xg)),Xg) ) ).
+
+cnf(compose7,axiom,
+    ( member(Z,compose(Xf,Xg))
+    | ~ little_set(Z)
+    | ~ little_set(X)
+    | ~ little_set(Y)
+    | ~ little_set(W)
+    | Z != ordered_pair(X,Y)
+    | ~ member(ordered_pair(X,W),Xf)
+    | ~ member(ordered_pair(W,Y),Xg) ) ).
+
+%----Definition of a homomorphism
+cnf(homomorphism1,axiom,
+    ( ~ homomorphism(Xh,Xs1,Xf1,Xs2,Xf2)
+    | closed(Xs1,Xf1) ) ).
+
+cnf(homomorphism2,axiom,
+    ( ~ homomorphism(Xh,Xs1,Xf1,Xs2,Xf2)
+    | closed(Xs2,Xf2) ) ).
+
+cnf(homomorphism3,axiom,
+    ( ~ homomorphism(Xh,Xs1,Xf1,Xs2,Xf2)
+    | maps(Xh,Xs1,Xs2) ) ).
+
+cnf(homomorphism4,axiom,
+    ( ~ homomorphism(Xh,Xs1,Xf1,Xs2,Xf2)
+    | ~ member(X,Xs1)
+    | ~ member(Y,Xs1)
+    | apply(Xh,apply_to_two_arguments(Xf1,X,Y)) = apply_to_two_arguments(Xf2,apply(Xh,X),apply(Xh,Y)) ) ).
+
+cnf(homomorphism5,axiom,
+    ( homomorphism(Xh,Xs1,Xf1,Xs2,Xf2)
+    | ~ closed(Xs1,Xf1)
+    | ~ closed(Xs2,Xf2)
+    | ~ maps(Xh,Xs1,Xs2)
+    | member(f32(Xh,Xs1,Xf1,Xs2,Xf2),Xs1) ) ).
+
+cnf(homomorphism6,axiom,
+    ( homomorphism(Xh,Xs1,Xf1,Xs2,Xf2)
+    | ~ closed(Xs1,Xf1)
+    | ~ closed(Xs2,Xf2)
+    | ~ maps(Xh,Xs1,Xs2)
+    | member(f33(Xh,Xs1,Xf1,Xs2,Xf2),Xs1) ) ).
+
+cnf(homomorphism7,axiom,
+    ( homomorphism(Xh,Xs1,Xf1,Xs2,Xf2)
+    | ~ closed(Xs1,Xf1)
+    | ~ closed(Xs2,Xf2)
+    | ~ maps(Xh,Xs1,Xs2)
+    | apply(Xh,apply_to_two_arguments(Xf1,f32(Xh,Xs1,Xf1,Xs2,Xf2),f33(Xh,Xs1,Xf1,Xs2,Xf2))) != apply_to_two_arguments(Xf2,apply(Xh,f32(Xh,Xs1,Xf1,Xs2,Xf2)),apply(Xh,f33(Xh,Xs1,Xf1,Xs2,Xf2))) ) ).
+
+%--------------------------------------------------------------------------

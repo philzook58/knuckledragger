@@ -1,0 +1,50 @@
+%--------------------------------------------------------------------------
+% File     : SET001-0 : TPTP v8.2.0. Released v1.0.0.
+% Domain   : Set Theory
+% Axioms   : Membership and subsets
+% Version  : [LS74] axioms.
+% English  :
+
+% Refs     : [LS74]  Lawrence & Starkey (1974), Experimental tests of resol
+% Source   : [SPRFN]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :    6 (   0 unt;   1 nHn;   5 RR)
+%            Number of literals    :   14 (   0 equ;   7 neg)
+%            Maximal clause size   :    3 (   2 avg)
+%            Maximal term depth    :    2 (   1 avg)
+%            Number of predicates  :    3 (   3 usr;   0 prp; 2-2 aty)
+%            Number of functors    :    1 (   1 usr;   0 con; 2-2 aty)
+%            Number of variables   :   13 (   0 sgn)
+% SPC      : 
+
+% Comments :
+%--------------------------------------------------------------------------
+cnf(membership_in_subsets,axiom,
+    ( ~ member(Element,Subset)
+    | ~ subset(Subset,Superset)
+    | member(Element,Superset) ) ).
+
+cnf(subsets_axiom1,axiom,
+    ( subset(Subset,Superset)
+    | member(member_of_1_not_of_2(Subset,Superset),Subset) ) ).
+
+cnf(subsets_axiom2,axiom,
+    ( ~ member(member_of_1_not_of_2(Subset,Superset),Superset)
+    | subset(Subset,Superset) ) ).
+
+cnf(set_equal_sets_are_subsets1,axiom,
+    ( ~ equal_sets(Subset,Superset)
+    | subset(Subset,Superset) ) ).
+
+cnf(set_equal_sets_are_subsets2,axiom,
+    ( ~ equal_sets(Superset,Subset)
+    | subset(Subset,Superset) ) ).
+
+cnf(subsets_are_set_equal_sets,axiom,
+    ( ~ subset(Set1,Set2)
+    | ~ subset(Set2,Set1)
+    | equal_sets(Set2,Set1) ) ).
+
+%--------------------------------------------------------------------------

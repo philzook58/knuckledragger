@@ -1,0 +1,356 @@
+%------------------------------------------------------------------------------
+% File     : SET009^0 : TPTP v8.2.0. Released v3.6.0.
+% Domain   : Set Theory
+% Axioms   : Binary relations
+% Version  : [Nei08] axioms.
+% English  : Lots of stuff about binary relations. A binary relation is just
+%            anything of type $i > $i > $o. Many properties and some proofs
+%            can be found in chapter 2 of [BN99].
+
+% Refs     : [BN99]  Baader & Nipkow (1999), Term Rewriting and All That
+%          : [Nei08] Neis (2008), Email to Geoff Sutcliffe
+% Source   : [Nei08]
+% Names    : rel.ax [Nei08]
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :   58 (  29 unt;  29 typ;  29 def)
+%            Number of atoms       :   91 (  33 equ;   0 cnn)
+%            Maximal formula atoms :    1 (   1 avg)
+%            Number of connectives :  158 (   4   ~;   4   |;  12   &; 122   @)
+%                                         (   0 <=>;  16  =>;   0  <=;   0 <~>)
+%            Maximal formula depth :    1 (   1 avg; 122 nst)
+%            Number of types       :    2 (   0 usr)
+%            Number of type conns  :  197 ( 197   >;   0   *;   0   +;   0  <<)
+%            Number of symbols     :   30 (  29 usr;   0 con; 1-3 aty)
+%            Number of variables   :   86 (  43   ^  38   !;   5   ?;  86   :)
+% SPC      : 
+
+% Comments :
+%------------------------------------------------------------------------------
+%----BASICS
+%----Subrelation
+thf(subrel_type,type,
+    subrel: ( $i > $i > $o ) > ( $i > $i > $o ) > $o ).
+
+thf(subrel,definition,
+    ( subrel
+    = ( ^ [R: $i > $i > $o,S: $i > $i > $o] :
+        ! [X: $i,Y: $i] :
+          ( ( R @ X @ Y )
+         => ( S @ X @ Y ) ) ) ) ).
+
+%----Inverse
+thf(inv_type,type,
+    inv: ( $i > $i > $o ) > $i > $i > $o ).
+
+thf(inverse,definition,
+    ( inv
+    = ( ^ [R: $i > $i > $o,X: $i,Y: $i] : ( R @ Y @ X ) ) ) ).
+
+%----IDEMPOTENCY, INFLATION, MONOTONICITY
+%----Idempotency
+thf(idem_type,type,
+    idem: ( ( $i > $i > $o ) > $i > $i > $o ) > $o ).
+
+thf(idempotent,definition,
+    ( idem
+    = ( ^ [F: ( $i > $i > $o ) > $i > $i > $o] :
+        ! [R: $i > $i > $o] :
+          ( ( F @ ( F @ R ) )
+          = ( F @ R ) ) ) ) ).
+
+%----Being inflationary
+thf(infl_type,type,
+    infl: ( ( $i > $i > $o ) > $i > $i > $o ) > $o ).
+
+thf(inflationary,definition,
+    ( infl
+    = ( ^ [F: ( $i > $i > $o ) > $i > $i > $o] :
+        ! [R: $i > $i > $o] : ( subrel @ R @ ( F @ R ) ) ) ) ).
+
+%----Monotonicity
+thf(mono_type,type,
+    mono: ( ( $i > $i > $o ) > $i > $i > $o ) > $o ).
+
+thf(monotonic,definition,
+    ( mono
+    = ( ^ [F: ( $i > $i > $o ) > $i > $i > $o] :
+        ! [R: $i > $i > $o,S: $i > $i > $o] :
+          ( ( subrel @ R @ S )
+         => ( subrel @ ( F @ R ) @ ( F @ S ) ) ) ) ) ).
+
+%----REFLEXIVITY, IRREFLEXIVITY, AND REFLEXIVE CLOSURE
+%----Reflexivity
+thf(refl_type,type,
+    refl: ( $i > $i > $o ) > $o ).
+
+thf(reflexive,definition,
+    ( refl
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i] : ( R @ X @ X ) ) ) ).
+
+%----Irreflexivity
+thf(irrefl_type,type,
+    irrefl: ( $i > $i > $o ) > $o ).
+
+thf(irreflexive,definition,
+    ( irrefl
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i] :
+          ~ ( R @ X @ X ) ) ) ).
+
+%----Reflexive closure
+thf(rc_type,type,
+    rc: ( $i > $i > $o ) > $i > $i > $o ).
+
+thf(reflexive_closure,definition,
+    ( rc
+    = ( ^ [R: $i > $i > $o,X: $i,Y: $i] :
+          ( ( X = Y )
+          | ( R @ X @ Y ) ) ) ) ).
+
+%----SYMMETRY, ANTISYMMETRY, ASYMMETRY, AND SYMMETRIC CLOSURE
+%----Symmetry
+thf(symm_type,type,
+    symm: ( $i > $i > $o ) > $o ).
+
+thf(symmetric,definition,
+    ( symm
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i] :
+          ( ( R @ X @ Y )
+         => ( R @ Y @ X ) ) ) ) ).
+
+%----Antisymmetry
+thf(antisymm_type,type,
+    antisymm: ( $i > $i > $o ) > $o ).
+
+thf(antisymmetric,definition,
+    ( antisymm
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i] :
+          ( ( ( R @ X @ Y )
+            & ( R @ Y @ X ) )
+         => ( X = Y ) ) ) ) ).
+
+%----Asymmetry
+thf(asymm_type,type,
+    asymm: ( $i > $i > $o ) > $o ).
+
+thf(asymmetric,definition,
+    ( asymm
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i] :
+          ( ( R @ X @ Y )
+         => ~ ( R @ Y @ X ) ) ) ) ).
+
+%----Symmetric closure
+thf(sc_type,type,
+    sc: ( $i > $i > $o ) > $i > $i > $o ).
+
+thf(symmetric_closure,definition,
+    ( sc
+    = ( ^ [R: $i > $i > $o,X: $i,Y: $i] :
+          ( ( R @ Y @ X )
+          | ( R @ X @ Y ) ) ) ) ).
+
+%----TRANSITIVITY AND TRANSITIVE CLOSURE
+%----Transitivity
+thf(trans_type,type,
+    trans: ( $i > $i > $o ) > $o ).
+
+thf(transitive,definition,
+    ( trans
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i,Z: $i] :
+          ( ( ( R @ X @ Y )
+            & ( R @ Y @ Z ) )
+         => ( R @ X @ Z ) ) ) ) ).
+
+%----Transitive closure
+thf(tc_type,type,
+    tc: ( $i > $i > $o ) > $i > $i > $o ).
+
+% the transitive closure of R is the smallest transitive
+% relation containing R (thanks, Chad!)
+thf(transitive_closure,definition,
+    ( tc
+    = ( ^ [R: $i > $i > $o,X: $i,Y: $i] :
+        ! [S: $i > $i > $o] :
+          ( ( ( trans @ S )
+            & ( subrel @ R @ S ) )
+         => ( S @ X @ Y ) ) ) ) ).
+
+%----TRANSITIVE REFLEXIVE CLOSURE AND TRANSITIVE REFLEXIVE SYMMETRIC CLOSURE
+%----Transitive reflexive closure
+thf(trc_type,type,
+    trc: ( $i > $i > $o ) > $i > $i > $o ).
+
+thf(transitive_reflexive_closure,definition,
+    ( trc
+    = ( ^ [R: $i > $i > $o] : ( rc @ ( tc @ R ) ) ) ) ).
+
+%----Transitive reflexive symmetric closure
+thf(trsc_type,type,
+    trsc: ( $i > $i > $o ) > $i > $i > $o ).
+
+thf(transitive_reflexive_symmetric_closure,definition,
+    ( trsc
+    = ( ^ [R: $i > $i > $o] : ( sc @ ( rc @ ( tc @ R ) ) ) ) ) ).
+
+%----ORDERS
+%----Being a partial order
+thf(po_type,type,
+    po: ( $i > $i > $o ) > $o ).
+
+thf(partial_order,definition,
+    ( po
+    = ( ^ [R: $i > $i > $o] :
+          ( ( refl @ R )
+          & ( antisymm @ R )
+          & ( trans @ R ) ) ) ) ).
+
+%----Being a strict (partial) order
+thf(so_type,type,
+    so: ( $i > $i > $o ) > $o ).
+
+thf(strict_order,definition,
+    ( so
+    = ( ^ [R: $i > $i > $o] :
+          ( ( asymm @ R )
+          & ( trans @ R ) ) ) ) ).
+
+%----Totality
+thf(total_type,type,
+    total: ( $i > $i > $o ) > $o ).
+
+thf(total,definition,
+    ( total
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i] :
+          ( ( X = Y )
+          | ( R @ X @ Y )
+          | ( R @ Y @ X ) ) ) ) ).
+
+%----TERMINATION AND INDUCTION
+%----Termination
+thf(term_type,type,
+    term: ( $i > $i > $o ) > $o ).
+
+% axiomatisation: any non-empty subset has an R-maximal element
+thf(terminating,definition,
+    ( term
+    = ( ^ [R: $i > $i > $o] :
+        ! [A: $i > $o] :
+          ( ? [X: $i] : ( A @ X )
+         => ? [X: $i] :
+              ( ( A @ X )
+              & ! [Y: $i] :
+                  ( ( A @ Y )
+                 => ~ ( R @ X @ Y ) ) ) ) ) ) ).
+
+%----Satisfying the induction principle
+thf(ind_type,type,
+    ind: ( $i > $i > $o ) > $o ).
+
+thf(satisfying_the_induction_principle,definition,
+    ( ind
+    = ( ^ [R: $i > $i > $o] :
+        ! [P: $i > $o] :
+          ( ! [X: $i] :
+              ( ! [Y: $i] :
+                  ( ( tc @ R @ X @ Y )
+                 => ( P @ Y ) )
+             => ( P @ X ) )
+         => ! [X: $i] : ( P @ X ) ) ) ) ).
+
+%----NORMALIZATION
+%----In normal form
+thf(innf_type,type,
+    innf: ( $i > $i > $o ) > $i > $o ).
+
+thf(in_normal_form,definition,
+    ( innf
+    = ( ^ [R: $i > $i > $o,X: $i] :
+          ~ ? [Y: $i] : ( R @ X @ Y ) ) ) ).
+
+%----Normal form of
+thf(nfof_type,type,
+    nfof: ( $i > $i > $o ) > $i > $i > $o ).
+
+thf(normal_form_of,definition,
+    ( nfof
+    = ( ^ [R: $i > $i > $o,X: $i,Y: $i] :
+          ( ( trc @ R @ Y @ X )
+          & ( innf @ R @ X ) ) ) ) ).
+
+%----Normalization
+thf(norm_type,type,
+    norm: ( $i > $i > $o ) > $o ).
+
+thf(normalizing,definition,
+    ( norm
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i] :
+        ? [Y: $i] : ( nfof @ R @ Y @ X ) ) ) ).
+
+%----CONFLUENCE AND FRIENDS
+%----Joinability
+thf(join_type,type,
+    join: ( $i > $i > $o ) > $i > $i > $o ).
+
+thf(joinable,definition,
+    ( join
+    = ( ^ [R: $i > $i > $o,X: $i,Y: $i] :
+        ? [Z: $i] :
+          ( ( trc @ R @ X @ Z )
+          & ( trc @ R @ Y @ Z ) ) ) ) ).
+
+%----Local confluence
+thf(lconfl_type,type,
+    lconfl: ( $i > $i > $o ) > $o ).
+
+thf(locally_confluent,definition,
+    ( lconfl
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i,Z: $i] :
+          ( ( ( R @ X @ Z )
+            & ( R @ X @ Y ) )
+         => ( join @ R @ Z @ Y ) ) ) ) ).
+
+%----Semi confluence
+thf(sconfl_type,type,
+    sconfl: ( $i > $i > $o ) > $o ).
+
+thf(semi_confluent,definition,
+    ( sconfl
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i,Z: $i] :
+          ( ( ( R @ X @ Z )
+            & ( trc @ R @ X @ Y ) )
+         => ( join @ R @ Z @ Y ) ) ) ) ).
+
+%----Confluence
+thf(confl_type,type,
+    confl: ( $i > $i > $o ) > $o ).
+
+thf(confluent,definition,
+    ( confl
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i,Z: $i] :
+          ( ( ( trc @ R @ X @ Z )
+            & ( trc @ R @ X @ Y ) )
+         => ( join @ R @ Z @ Y ) ) ) ) ).
+
+%----Church-Rosser property
+thf(cr_type,type,
+    cr: ( $i > $i > $o ) > $o ).
+
+thf(church_rosser,definition,
+    ( cr
+    = ( ^ [R: $i > $i > $o] :
+        ! [X: $i,Y: $i] :
+          ( ( trsc @ R @ X @ Y )
+         => ( join @ R @ X @ Y ) ) ) ) ).
+
+%------------------------------------------------------------------------------

@@ -1,0 +1,94 @@
+%------------------------------------------------------------------------------
+% File     : SET006+4 : TPTP v8.2.0. Released v3.2.0.
+% Domain   : Set Theory
+% Axioms   : Ordinal numbers for the SET006+0 set theory axioms
+% Version  : [Pas05] axioms.
+% English  :
+
+% Refs     : [Pas05] Pastre (2005), Email to G. Sutcliffe
+% Source   : [Pas05]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    8 (   0 unt;   0 def)
+%            Number of atoms       :   36 (   1 equ)
+%            Maximal formula atoms :   11 (   4 avg)
+%            Number of connectives :   29 (   1   ~;   1   |;  12   &)
+%                                         (   7 <=>;   8  =>;   0  <=;   0 <~>)
+%            Maximal formula depth :   11 (   7 avg)
+%            Maximal term depth    :    3 (   1 avg)
+%            Number of predicates  :    8 (   7 usr;   0 prp; 1-3 aty)
+%            Number of functors    :    6 (   6 usr;   2 con; 0-3 aty)
+%            Number of variables   :   28 (  26   !;   2   ?)
+% SPC      : 
+
+% Comments : Requires SET006+0.ax
+%------------------------------------------------------------------------------
+%---- Ordinal numbers and strict order relations
+fof(ordinal_number,axiom,
+    ! [A] :
+      ( member(A,on)
+    <=> ( set(A)
+        & strict_well_order(member_predicate,A)
+        & ! [X] :
+            ( member(X,A)
+           => subset(X,A) ) ) ) ).
+
+fof(strict_well_order,axiom,
+    ! [R,E] :
+      ( strict_well_order(R,E)
+    <=> ( strict_order(R,E)
+        & ! [A] :
+            ( ( subset(A,E)
+              & ? [X] : member(X,A) )
+           => ? [Y] : least(Y,R,A) ) ) ) ).
+
+fof(least,axiom,
+    ! [R,E,M] :
+      ( least(M,R,E)
+    <=> ( member(M,E)
+        & ! [X] :
+            ( member(X,E)
+           => ( M = X
+              | apply(R,M,X) ) ) ) ) ).
+
+fof(rel_member,axiom,
+    ! [X,Y] :
+      ( apply(member_predicate,X,Y)
+    <=> member(X,Y) ) ).
+
+fof(strict_order,axiom,
+    ! [R,E] :
+      ( strict_order(R,E)
+    <=> ( ! [X,Y] :
+            ( ( member(X,E)
+              & member(Y,E) )
+           => ~ ( apply(R,X,Y)
+                & apply(R,Y,X) ) )
+        & ! [X,Y,Z] :
+            ( ( member(X,E)
+              & member(Y,E)
+              & member(Z,E) )
+           => ( ( apply(R,X,Y)
+                & apply(R,Y,Z) )
+             => apply(R,X,Z) ) ) ) ) ).
+
+fof(set_member,axiom,
+    ! [X] :
+      ( set(X)
+     => ! [Y] :
+          ( member(Y,X)
+         => set(Y) ) ) ).
+
+fof(initial_segment,axiom,
+    ! [X,R,A,Y] :
+      ( member(Y,initial_segment(X,R,A))
+    <=> ( member(Y,A)
+        & apply(R,Y,X) ) ) ).
+
+fof(successor,axiom,
+    ! [A,X] :
+      ( member(X,suc(A))
+    <=> member(X,union(A,singleton(A))) ) ).
+
+%------------------------------------------------------------------------------

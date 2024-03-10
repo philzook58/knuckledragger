@@ -1,0 +1,43 @@
+%--------------------------------------------------------------------------
+% File     : GEO001-1 : TPTP v8.2.0. Released v1.0.0.
+% Domain   : Geometry (Tarskian)
+% Axioms   : Colinearity axioms for the GEO001 geometry axioms
+% Version  : [MOW76] axioms.
+% English  :
+
+% Refs     : [Tar59] Tarski (1959), What is Elementary Geometry?
+%          : [MOW76] McCharen et al. (1976), Problems and Experiments for a
+% Source   : [ANL]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :    4 (   0 unt;   1 nHn;   4 RR)
+%            Number of literals    :   10 (   0 equ;   4 neg)
+%            Maximal clause size   :    4 (   2 avg)
+%            Maximal term depth    :    1 (   1 avg)
+%            Number of predicates  :    2 (   2 usr;   0 prp; 3-3 aty)
+%            Number of functors    :    0 (   0 usr;   0 con; --- aty)
+%            Number of variables   :   12 (   0 sgn)
+% SPC      : 
+
+% Comments : Requires GEO001-0.ax
+%--------------------------------------------------------------------------
+cnf(colinearity1,axiom,
+    ( ~ colinear(X,Y,Z)
+    | between(X,Y,Z)
+    | between(Y,X,Z)
+    | between(X,Z,Y) ) ).
+
+cnf(colinearity2,axiom,
+    ( ~ between(X,Y,Z)
+    | colinear(X,Y,Z) ) ).
+
+cnf(colinearity3,axiom,
+    ( ~ between(Y,X,Z)
+    | colinear(X,Y,Z) ) ).
+
+cnf(colinearity4,axiom,
+    ( ~ between(X,Z,Y)
+    | colinear(X,Y,Z) ) ).
+
+%--------------------------------------------------------------------------

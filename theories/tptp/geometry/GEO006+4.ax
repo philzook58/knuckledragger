@@ -1,0 +1,50 @@
+%------------------------------------------------------------------------------
+% File     : GEO006+4 : TPTP v8.2.0. Released v3.3.0.
+% Domain   : Geometry (Constructive)
+% Axioms   : Classical orthogonality
+% Version  : [vPl95] axioms.
+% English  :
+
+% Refs     : [vPl95] von Plato (1995), The Axioms of Constructive Geometry
+% Source   : [ILTP]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    3 (   0 unt;   0 def)
+%            Number of atoms       :   11 (   0 equ)
+%            Maximal formula atoms :    6 (   3 avg)
+%            Number of connectives :   20 (  12   ~;   3   |;   3   &)
+%                                         (   0 <=>;   2  =>;   0  <=;   0 <~>)
+%            Maximal formula depth :    8 (   7 avg)
+%            Maximal term depth    :    1 (   1 avg)
+%            Number of predicates  :    2 (   2 usr;   0 prp; 2-2 aty)
+%            Number of functors    :    0 (   0 usr;   0 con; --- aty)
+%            Number of variables   :    8 (   8   !;   0   ?)
+% SPC      : 
+
+% Comments : Requires GEO006+0, GEO006+2 ????????
+%------------------------------------------------------------------------------
+%----Incompatibility of parallelism and orthogonality
+fof(coipo1,axiom,
+    ! [L,M] :
+      ~ ( ~ convergent_lines(L,M)
+        & ~ unorthogonal_lines(L,M) ) ).
+
+%----Transitivity of nonobliqueness
+fof(cotno1,axiom,
+    ! [L,M,N] :
+      ( ( ( ~ convergent_lines(L,M)
+          | ~ unorthogonal_lines(L,M) )
+        & ( ~ convergent_lines(L,N)
+          | ~ unorthogonal_lines(L,N) ) )
+     => ( ~ convergent_lines(M,N)
+        | ~ unorthogonal_lines(M,N) ) ) ).
+
+%----Uniqueness axiom for orthogonality
+fof(couo1,axiom,
+    ! [L,M,N] :
+      ( ( ~ unorthogonal_lines(L,M)
+        & ~ unorthogonal_lines(L,N) )
+     => ~ convergent_lines(M,N) ) ).
+
+%------------------------------------------------------------------------------

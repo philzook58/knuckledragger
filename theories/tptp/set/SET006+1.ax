@@ -1,0 +1,198 @@
+%------------------------------------------------------------------------------
+% File     : SET006+1 : TPTP v8.2.0. Bugfixed v2.2.1.
+% Domain   : Set Theory
+% Axioms   : Mapping axioms for the SET006+0 set theory axioms
+% Version  : [Pas99] axioms.
+% English  :
+
+% Refs     : [Pas99] Pastre (1999), Email to G. Sutcliffe
+% Source   : [Pas99]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :   17 (   0 unt;   0 def)
+%            Number of atoms       :   99 (   3 equ)
+%            Maximal formula atoms :   11 (   5 avg)
+%            Number of connectives :   82 (   0   ~;   0   |;  46   &)
+%                                         (  20 <=>;  16  =>;   0  <=;   0 <~>)
+%            Maximal formula depth :   19 (  11 avg)
+%            Maximal term depth    :    2 (   1 avg)
+%            Number of predicates  :   14 (  13 usr;   0 prp; 2-6 aty)
+%            Number of functors    :    6 (   6 usr;   0 con; 2-5 aty)
+%            Number of variables   :  105 (  97   !;   8   ?)
+% SPC      : 
+
+% Comments : Requires SET006+0.ax
+% Bugfixes : v2.2.1 - compose_function and inverse_function fixed.
+%------------------------------------------------------------------------------
+%----Axiom and properties of mappings
+fof(maps,axiom,
+    ! [F,A,B] :
+      ( maps(F,A,B)
+    <=> ( ! [X] :
+            ( member(X,A)
+           => ? [Y] :
+                ( member(Y,B)
+                & apply(F,X,Y) ) )
+        & ! [X,Y1,Y2] :
+            ( ( member(X,A)
+              & member(Y1,B)
+              & member(Y2,B) )
+           => ( ( apply(F,X,Y1)
+                & apply(F,X,Y2) )
+             => Y1 = Y2 ) ) ) ) ).
+
+fof(compose_predicate,axiom,
+    ! [H,G,F,A,B,C] :
+      ( compose_predicate(H,G,F,A,B,C)
+    <=> ! [X,Z] :
+          ( ( member(X,A)
+            & member(Z,C) )
+         => ( apply(H,X,Z)
+          <=> ? [Y] :
+                ( member(Y,B)
+                & apply(F,X,Y)
+                & apply(G,Y,Z) ) ) ) ) ).
+
+fof(compose_function,axiom,
+    ! [G,F,A,B,C,X,Z] :
+      ( ( member(X,A)
+        & member(Z,C) )
+     => ( apply(compose_function(G,F,A,B,C),X,Z)
+      <=> ? [Y] :
+            ( member(Y,B)
+            & apply(F,X,Y)
+            & apply(G,Y,Z) ) ) ) ).
+
+fof(equal_maps,axiom,
+    ! [F,G,A,B] :
+      ( equal_maps(F,G,A,B)
+    <=> ! [X,Y1,Y2] :
+          ( ( member(X,A)
+            & member(Y1,B)
+            & member(Y2,B) )
+         => ( ( apply(F,X,Y1)
+              & apply(G,X,Y2) )
+           => Y1 = Y2 ) ) ) ).
+
+fof(identity,axiom,
+    ! [F,A] :
+      ( identity(F,A)
+    <=> ! [X] :
+          ( member(X,A)
+         => apply(F,X,X) ) ) ).
+
+fof(injective,axiom,
+    ! [F,A,B] :
+      ( injective(F,A,B)
+    <=> ! [X1,X2,Y] :
+          ( ( member(X1,A)
+            & member(X2,A)
+            & member(Y,B) )
+         => ( ( apply(F,X1,Y)
+              & apply(F,X2,Y) )
+           => X1 = X2 ) ) ) ).
+
+fof(surjective,axiom,
+    ! [F,A,B] :
+      ( surjective(F,A,B)
+    <=> ! [Y] :
+          ( member(Y,B)
+         => ? [E] :
+              ( member(E,A)
+              & apply(F,E,Y) ) ) ) ).
+
+fof(one_to_one,axiom,
+    ! [F,A,B] :
+      ( one_to_one(F,A,B)
+    <=> ( injective(F,A,B)
+        & surjective(F,A,B) ) ) ).
+
+fof(inverse_predicate,axiom,
+    ! [G,F,A,B] :
+      ( inverse_predicate(G,F,A,B)
+    <=> ! [X,Y] :
+          ( ( member(X,A)
+            & member(Y,B) )
+         => ( apply(F,X,Y)
+          <=> apply(G,Y,X) ) ) ) ).
+
+fof(inverse_function,axiom,
+    ! [F,A,B,X,Y] :
+      ( ( member(X,A)
+        & member(Y,B) )
+     => ( apply(F,X,Y)
+      <=> apply(inverse_function(F,A,B),Y,X) ) ) ).
+
+fof(image2,axiom,
+    ! [F,A,Y] :
+      ( member(Y,image2(F,A))
+    <=> ? [X] :
+          ( member(X,A)
+          & apply(F,X,Y) ) ) ).
+
+fof(image3,axiom,
+    ! [F,A,B,Y] :
+      ( member(Y,image3(F,A,B))
+    <=> ( member(Y,B)
+        & ? [X] :
+            ( member(X,A)
+            & apply(F,X,Y) ) ) ) ).
+
+fof(inverse_image2,axiom,
+    ! [F,B,X] :
+      ( member(X,inverse_image2(F,B))
+    <=> ? [Y] :
+          ( member(Y,B)
+          & apply(F,X,Y) ) ) ).
+
+fof(inverse_image3,axiom,
+    ! [F,B,A,X] :
+      ( member(X,inverse_image3(F,B,A))
+    <=> ( member(X,A)
+        & ? [Y] :
+            ( member(Y,B)
+            & apply(F,X,Y) ) ) ) ).
+
+fof(increasing_function,axiom,
+    ! [F,A,R,B,S] :
+      ( increasing(F,A,R,B,S)
+    <=> ! [X1,Y1,X2,Y2] :
+          ( ( member(X1,A)
+            & member(Y1,B)
+            & member(X2,A)
+            & member(Y2,B)
+            & apply(R,X1,X2)
+            & apply(F,X1,Y1)
+            & apply(F,X2,Y2) )
+         => apply(S,Y1,Y2) ) ) ).
+
+fof(decreasing_function,axiom,
+    ! [F,A,R,B,S] :
+      ( decreasing(F,A,R,B,S)
+    <=> ! [X1,Y1,X2,Y2] :
+          ( ( member(X1,A)
+            & member(Y1,B)
+            & member(X2,A)
+            & member(Y2,B)
+            & apply(R,X1,X2)
+            & apply(F,X1,Y1)
+            & apply(F,X2,Y2) )
+         => apply(S,Y2,Y1) ) ) ).
+
+fof(isomorphism,axiom,
+    ! [F,A,R,B,S] :
+      ( isomorphism(F,A,R,B,S)
+    <=> ( maps(F,A,B)
+        & one_to_one(F,A,B)
+        & ! [X1,Y1,X2,Y2] :
+            ( ( member(X1,A)
+              & member(Y1,B)
+              & member(X2,A)
+              & member(Y2,B)
+              & apply(F,X1,Y1)
+              & apply(F,X2,Y2) )
+           => ( apply(R,X1,X2)
+            <=> apply(S,Y1,Y2) ) ) ) ) ).
+
+%------------------------------------------------------------------------------

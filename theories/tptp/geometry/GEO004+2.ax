@@ -1,0 +1,107 @@
+%--------------------------------------------------------------------------
+% File     : GEO004+2 : TPTP v8.2.0. Released v2.4.0.
+% Domain   : Geometry (Oriented curves)
+% Axioms   : Oriented curves
+% Version  : [EHK99] axioms.
+% English  :
+
+% Refs     : [KE99]  Kulik & Eschenbach (1999), A Geometry of Oriented Curv
+%          : [EHK99] Eschenbach et al. (1999), Representing Simple Trajecto
+% Source   : [EHK99]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :   10 (   1 unt;   0 def)
+%            Number of atoms       :   39 (   5 equ)
+%            Maximal formula atoms :    7 (   3 avg)
+%            Number of connectives :   32 (   3   ~;   1   |;  13   &)
+%                                         (  10 <=>;   5  =>;   0  <=;   0 <~>)
+%            Maximal formula depth :   10 (   7 avg)
+%            Maximal term depth    :    2 (   1 avg)
+%            Number of predicates  :    9 (   8 usr;   0 prp; 1-4 aty)
+%            Number of functors    :    1 (   1 usr;   0 con; 1-1 aty)
+%            Number of variables   :   36 (  32   !;   4   ?)
+% SPC      : 
+
+% Comments : Requires GEO004+0.ax GEO004+1.ax
+%--------------------------------------------------------------------------
+fof(between_o_defn,axiom,
+    ! [O,P,Q,R] :
+      ( between_o(O,P,Q,R)
+    <=> ( ( ordered_by(O,P,Q)
+          & ordered_by(O,Q,R) )
+        | ( ordered_by(O,R,Q)
+          & ordered_by(O,Q,P) ) ) ) ).
+
+fof(start_point_defn,axiom,
+    ! [P,O] :
+      ( start_point(P,O)
+    <=> ( incident_o(P,O)
+        & ! [Q] :
+            ( ( P != Q
+              & incident_o(Q,O) )
+           => ordered_by(O,P,Q) ) ) ) ).
+
+fof(finish_point_defn,axiom,
+    ! [P,O] :
+      ( finish_point(P,O)
+    <=> ( incident_o(P,O)
+        & ! [Q] :
+            ( ( P != Q
+              & incident_o(Q,O) )
+           => ordered_by(O,Q,P) ) ) ) ).
+
+fof(o1,axiom,
+    ! [O,P,Q] :
+      ( ordered_by(O,P,Q)
+     => ( incident_o(P,O)
+        & incident_o(Q,O) ) ) ).
+
+fof(o2,axiom,
+    ! [O] :
+    ? [C] :
+      ( open(C)
+      & ! [P] :
+          ( incident_o(P,O)
+        <=> incident_c(P,C) ) ) ).
+
+fof(o3,axiom,
+    ! [P,Q,R,O] :
+      ( between_o(O,P,Q,R)
+    <=> ? [C] :
+          ( ! [P] :
+              ( incident_o(P,O)
+            <=> incident_c(P,C) )
+          & between_c(C,P,Q,R) ) ) ).
+
+fof(o4,axiom,
+    ! [O] :
+    ? [P] : start_point(P,O) ).
+
+fof(o5,axiom,
+    ! [P,Q,C] :
+      ( ( open(C)
+        & P != Q
+        & incident_c(P,C)
+        & incident_c(Q,C) )
+     => ? [O] :
+          ( ! [R] :
+              ( incident_o(R,O)
+            <=> incident_c(R,C) )
+          & ordered_by(O,P,Q) ) ) ).
+
+fof(o6,axiom,
+    ! [O1,O2] :
+      ( ! [P,Q] :
+          ( ordered_by(O1,P,Q)
+        <=> ordered_by(O2,P,Q) )
+     => O1 = O2 ) ).
+
+fof(underlying_curve_defn,axiom,
+    ! [C,O] :
+      ( C = underlying_curve(O)
+    <=> ! [P] :
+          ( incident_o(P,O)
+        <=> incident_c(P,C) ) ) ).
+
+%--------------------------------------------------------------------------

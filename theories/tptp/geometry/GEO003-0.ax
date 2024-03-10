@@ -1,0 +1,275 @@
+%--------------------------------------------------------------------------
+% File     : GEO003-0 : TPTP v8.2.0. Released v1.0.0.
+% Domain   : Geometry (Hilbert)
+% Axioms   : Hilbert geometry axioms
+% Version  : [Ben92] axioms.
+% English  :
+
+% Refs     : [Ben92] Benana992), Recognising Unnecessary Clauses in Res
+% Source   : [Ben92]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :   31 (   1 unt;  18 nHn;  31 RR)
+%            Number of literals    :  174 (  43 equ; 103 neg)
+%            Maximal clause size   :   16 (   5 avg)
+%            Maximal term depth    :    2 (   1 avg)
+%            Number of predicates  :    6 (   5 usr;   0 prp; 1-3 aty)
+%            Number of functors    :   10 (  10 usr;   1 con; 0-3 aty)
+%            Number of variables   :   70 (   0 sgn)
+% SPC      : 
+
+% Comments :
+%--------------------------------------------------------------------------
+%----Axiom 1 : For any two distinct points, there is a unique line through
+%----them.
+cnf(axiom_G1A,axiom,
+    ( on(Z1,line_from_to(Z1,Z2))
+    | Z1 = Z2
+    | ~ point(Z1)
+    | ~ point(Z2) ) ).
+
+cnf(axiom_G1B,axiom,
+    ( on(Z2,line_from_to(Z1,Z2))
+    | Z1 = Z2
+    | ~ point(Z1)
+    | ~ point(Z2) ) ).
+
+cnf(axiom_G1C,axiom,
+    ( line(line_from_to(Z1,Z2))
+    | Z1 = Z2
+    | ~ point(Z1)
+    | ~ point(Z2) ) ).
+
+cnf(axiom_G1D,axiom,
+    ( ~ on(Z1,Y3)
+    | Z1 = Z2
+    | ~ on(Z2,Y3)
+    | Y3 = Y4
+    | ~ on(Z1,Y4)
+    | ~ on(Z2,Y4)
+    | ~ point(Z1)
+    | ~ point(Z2)
+    | ~ line(Y3)
+    | ~ line(Y4) ) ).
+
+%----For any line, there are at least two points on the line.
+cnf(axiom_G2A,axiom,
+    ( on(point_1_on_line(Y1),Y1)
+    | ~ line(Y1) ) ).
+
+cnf(axiom_G2B,axiom,
+    ( on(point_2_on_line(Y1),Y1)
+    | ~ line(Y1) ) ).
+
+cnf(axiom_G2C,axiom,
+    ( point(point_1_on_line(Y1))
+    | ~ line(Y1) ) ).
+
+cnf(axiom_G2D,axiom,
+    ( point(point_2_on_line(Y1))
+    | ~ line(Y1) ) ).
+
+cnf(axiom_G2E,axiom,
+    ( point_1_on_line(Y1) != point_2_on_line(Y1)
+    | ~ line(Y1) ) ).
+
+%----For any line, there is a point not on the line.
+cnf(axiom_G3A,axiom,
+    ( ~ on(point_not_on_line(Y1),Y1)
+    | ~ line(Y1) ) ).
+
+cnf(axiom_G3B,axiom,
+    ( point(point_not_on_line(Y1))
+    | ~ line(Y1) ) ).
+
+%----There exists at least one line
+cnf(axiom_G4A,axiom,
+    line(at_least_one_line) ).
+
+%----For any plane there is a point on the plane.
+cnf(axiom_G5A,axiom,
+    ( ~ plane(Z1)
+    | on(point_on_plane(Z1),Z1) ) ).
+
+cnf(axiom_G5B,axiom,
+    ( ~ plane(Z1)
+    | point(point_on_plane(Z1)) ) ).
+
+%----For any plane there is a point not on the plane.
+cnf(axiom_G6A,axiom,
+    ( ~ plane(Z1)
+    | ~ on(point_not_on_plane(Z1),Z1) ) ).
+
+cnf(axiom_G6B,axiom,
+    ( ~ plane(Z1)
+    | point(point_not_on_plane(Z1)) ) ).
+
+%----For any three non-collinear points there is a unique plane through
+%----them.
+cnf(axiom_G7A,axiom,
+    ( on(X1,plane_for_points(X1,X2,X3))
+    | ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | collinear(X1,X2,X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3 ) ).
+
+cnf(axiom_G7B,axiom,
+    ( on(X2,plane_for_points(X1,X2,X3))
+    | ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | collinear(X1,X2,X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3 ) ).
+
+cnf(axiom_G7C,axiom,
+    ( on(X3,plane_for_points(X1,X2,X3))
+    | ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | collinear(X1,X2,X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3 ) ).
+
+cnf(axiom_G7D,axiom,
+    ( plane(plane_for_points(X1,X2,X3))
+    | ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | collinear(X1,X2,X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3 ) ).
+
+cnf(axiom_G7E,axiom,
+    ( ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | collinear(X1,X2,X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3
+    | ~ on(X1,Z1)
+    | ~ on(X2,Z1)
+    | ~ on(X3,Z1)
+    | ~ plane(Z1)
+    | ~ on(X1,Z2)
+    | ~ on(X2,Z2)
+    | ~ on(X3,Z2)
+    | ~ plane(Z2)
+    | Z1 = Z2 ) ).
+
+%----If two points of a line are in the same plane then every point
+%----of that line is in the plane.
+cnf(axiom_G8A,axiom,
+    ( ~ on(X1,Y1)
+    | ~ on(X2,Y1)
+    | ~ on(X1,Z1)
+    | ~ on(X2,Z1)
+    | ~ plane(Z1)
+    | ~ point(X1)
+    | ~ point(X2)
+    | ~ line(Y1)
+    | X1 = X2
+    | on(Y1,Z1) ) ).
+
+%----If two planes have a point in common they have at least one more
+%----point in common.
+cnf(axiom_G9A,axiom,
+    ( ~ plane(Z1)
+    | ~ plane(Z2)
+    | Z1 = Z2
+    | ~ on(X1,Z1)
+    | ~ on(X1,Z2)
+    | ~ point(X1)
+    | on(common_point_on_planes(Z1,Z2,X1),Z1) ) ).
+
+cnf(axiom_G9B,axiom,
+    ( ~ plane(Z1)
+    | ~ plane(Z2)
+    | Z1 = Z2
+    | ~ on(X1,Z1)
+    | ~ on(X1,Z2)
+    | ~ point(X1)
+    | on(common_point_on_planes(Z1,Z2,X1),Z2) ) ).
+
+cnf(axiom_G9C,axiom,
+    ( ~ plane(Z1)
+    | ~ plane(Z2)
+    | Z1 = Z2
+    | ~ on(X1,Z1)
+    | ~ on(X1,Z2)
+    | ~ point(X1)
+    | point(common_point_on_planes(Z1,Z2,X1)) ) ).
+
+cnf(axiom_G9D,axiom,
+    ( ~ plane(Z1)
+    | ~ plane(Z2)
+    | Z1 = Z2
+    | ~ on(X1,Z1)
+    | ~ on(X1,Z2)
+    | ~ point(X1)
+    | X1 != common_point_on_planes(Z1,Z2,X1) ) ).
+
+%----Three distinct points are collinear if and only if there is a line
+%----through them.
+cnf(axiom_G10A,axiom,
+    ( ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3
+    | on(X1,line_through_3_points(X1,X2,X3))
+    | ~ collinear(X1,X2,X3) ) ).
+
+cnf(axiom_G10B,axiom,
+    ( ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3
+    | on(X2,line_through_3_points(X1,X2,X3))
+    | ~ collinear(X1,X2,X3) ) ).
+
+cnf(axiom_G10C,axiom,
+    ( ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3
+    | on(X3,line_through_3_points(X1,X2,X3))
+    | ~ collinear(X1,X2,X3) ) ).
+
+cnf(axiom_G10D,axiom,
+    ( ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3
+    | line(line_through_3_points(X1,X2,X3))
+    | ~ collinear(X1,X2,X3) ) ).
+
+cnf(axiom_G10E,axiom,
+    ( collinear(X1,X2,X3)
+    | ~ on(X1,Y)
+    | ~ on(X2,Y)
+    | ~ on(X3,Y)
+    | ~ point(X1)
+    | ~ point(X2)
+    | ~ point(X3)
+    | X1 = X2
+    | X1 = X3
+    | X2 = X3
+    | ~ line(Y) ) ).
+
+%--------------------------------------------------------------------------

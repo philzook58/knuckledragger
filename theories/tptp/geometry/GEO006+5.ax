@@ -1,0 +1,57 @@
+%------------------------------------------------------------------------------
+% File     : GEO006+5 : TPTP v8.2.0. Released v3.3.0.
+% Domain   : Geometry (Constructive)
+% Axioms   : Rules of construction
+% Version  : [vPl95] axioms.
+% English  :
+
+% Refs     : [vPl95] von Plato (1995), The Axioms of Constructive Geometry
+% Source   : [ILTP]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of formulae    :    4 (   0 unt;   0 def)
+%            Number of atoms       :   14 (   0 equ)
+%            Maximal formula atoms :    4 (   3 avg)
+%            Number of connectives :   10 (   0   ~;   0   |;   6   &)
+%                                         (   0 <=>;   4  =>;   0  <=;   0 <~>)
+%            Maximal formula depth :    6 (   6 avg)
+%            Maximal term depth    :    2 (   1 avg)
+%            Number of predicates  :    4 (   4 usr;   0 prp; 1-2 aty)
+%            Number of functors    :    4 (   4 usr;   0 con; 2-2 aty)
+%            Number of variables   :    8 (   8   !;   0   ?)
+% SPC      : 
+
+% Comments : Requires GEO006+[0-4]
+%------------------------------------------------------------------------------
+%----Connecting line of points A and B
+fof(con1,axiom,
+    ! [A,B] :
+      ( ( point(A)
+        & point(B)
+        & distinct_points(A,B) )
+     => line(line_connecting(A,B)) ) ).
+
+%----Intersection point of lines L and M
+fof(int1,axiom,
+    ! [L,M] :
+      ( ( line(L)
+        & line(M)
+        & convergent_lines(L,M) )
+     => point(intersection_point(L,M)) ) ).
+
+%----Parallel lines
+fof(par1,axiom,
+    ! [L,A] :
+      ( ( line(L)
+        & point(A) )
+     => line(parallel_through_point(L,A)) ) ).
+
+%----Orthogonal lines
+fof(orth1,axiom,
+    ! [L,A] :
+      ( ( line(L)
+        & point(A) )
+     => line(orthogonal_through_point(L,A)) ) ).
+
+%------------------------------------------------------------------------------

@@ -1,0 +1,120 @@
+%--------------------------------------------------------------------------
+% File     : SET004-1 : TPTP v8.2.0. Bugfixed v1.0.1.
+% Domain   : Set Theory (Boolean Algebra definitions)
+% Axioms   : Set theory (Boolean algebra) axioms based on NBG set theory
+% Version  : [Qua92a] axioms.
+% English  :
+
+% Refs     : [Qua92a] Quaife (1992), Automated Deduction in von Neumann-Bern
+%          : [Qua92b] Quaife (1992), Email to G. Sutcliffe
+% Source   : [Qua92b]
+% Names    :
+
+% Status   : Satisfiable
+% Syntax   : Number of clauses     :   21 (   8 unt;   0 nHn;  17 RR)
+%            Number of literals    :   37 (  10 equ;  16 neg)
+%            Maximal clause size   :    3 (   1 avg)
+%            Maximal term depth    :    5 (   2 avg)
+%            Number of predicates  :    5 (   4 usr;   0 prp; 1-3 aty)
+%            Number of functors    :   26 (  26 usr;   7 con; 0-3 aty)
+%            Number of variables   :   38 (   7 sgn)
+% SPC      : 
+
+% Comments : Requires SET004-0.ax
+%          : Not all of these definitions appear in [Qua92a]. Some were
+%            extracted from [Qua92b]
+% Bugfixes : v1.0.1 - Duplicate axioms single_valued_term_defn? removed.
+%--------------------------------------------------------------------------
+%----(CO25DEF): Definition of compose_class(x) term, where x may
+%----be a class. Not in [Quaife, 1992].
+cnf(compose_class_definition1,axiom,
+    subclass(compose_class(X),cross_product(universal_class,universal_class)) ).
+
+cnf(compose_class_definition2,axiom,
+    ( ~ member(ordered_pair(Y,Z),compose_class(X))
+    | compose(X,Y) = Z ) ).
+
+cnf(compose_class_definition3,axiom,
+    ( ~ member(ordered_pair(Y,Z),cross_product(universal_class,universal_class))
+    | compose(X,Y) != Z
+    | member(ordered_pair(Y,Z),compose_class(X)) ) ).
+
+%----(CO20DEF): Definition of composition_function. Not in [Quaife,
+%----1992].
+cnf(definition_of_composition_function1,axiom,
+    subclass(composition_function,cross_product(universal_class,cross_product(universal_class,universal_class))) ).
+
+cnf(definition_of_composition_function2,axiom,
+    ( ~ member(ordered_pair(X,ordered_pair(Y,Z)),composition_function)
+    | compose(X,Y) = Z ) ).
+
+cnf(definition_of_composition_function3,axiom,
+    ( ~ member(ordered_pair(X,Y),cross_product(universal_class,universal_class))
+    | member(ordered_pair(X,ordered_pair(Y,compose(X,Y))),composition_function) ) ).
+
+%----(DODEF11): Definition of domain_relation by the class existence
+%----theorem. Not in [Quaife, 19992].
+cnf(definition_of_domain_relation1,axiom,
+    subclass(domain_relation,cross_product(universal_class,universal_class)) ).
+
+cnf(definition_of_domain_relation2,axiom,
+    ( ~ member(ordered_pair(X,Y),domain_relation)
+    | domain_of(X) = Y ) ).
+
+cnf(definition_of_domain_relation3,axiom,
+    ( ~ member(X,universal_class)
+    | member(ordered_pair(X,domain_of(X)),domain_relation) ) ).
+
+%----(SV2DEF) Definitions of terms for (SV3) Called FU2DEF in Quaife's
+%----email
+cnf(single_valued_term_defn1,axiom,
+    first(not_subclass_element(compose(X,inverse(X)),identity_relation)) = single_valued1(X) ).
+
+cnf(single_valued_term_defn2,axiom,
+    second(not_subclass_element(compose(X,inverse(X)),identity_relation)) = single_valued2(X) ).
+
+cnf(single_valued_term_defn3,axiom,
+    domain(X,image(inverse(X),singleton(single_valued1(X))),single_valued2(X)) = single_valued3(X) ).
+
+%----(CO14DEF): Definition of singleton relation.
+cnf(compose_can_define_singleton,axiom,
+    intersection(complement(compose(element_relation,complement(identity_relation))),element_relation) = singleton_relation ).
+
+%----(AP15): definition of application function. Not in [Qua92]
+cnf(application_function_defn1,axiom,
+    subclass(application_function,cross_product(universal_class,cross_product(universal_class,universal_class))) ).
+
+cnf(application_function_defn2,axiom,
+    ( ~ member(ordered_pair(X,ordered_pair(Y,Z)),application_function)
+    | member(Y,domain_of(X)) ) ).
+
+cnf(application_function_defn3,axiom,
+    ( ~ member(ordered_pair(X,ordered_pair(Y,Z)),application_function)
+    | apply(X,Y) = Z ) ).
+
+cnf(application_function_defn4,axiom,
+    ( ~ member(ordered_pair(X,ordered_pair(Y,Z)),cross_product(universal_class,cross_product(universal_class,universal_class)))
+    | ~ member(Y,domain_of(X))
+    | member(ordered_pair(X,ordered_pair(Y,apply(X,Y))),application_function) ) ).
+
+%----Definition of maps. Not in [Qua92].
+%----a:xf:a:x:a:y:(maps(xf,x,y) <=> function(xf) & domain(xf)
+%----= x & range(xf) < y).
+cnf(maps1,axiom,
+    ( ~ maps(Xf,X,Y)
+    | function(Xf) ) ).
+
+cnf(maps2,axiom,
+    ( ~ maps(Xf,X,Y)
+    | domain_of(Xf) = X ) ).
+
+cnf(maps3,axiom,
+    ( ~ maps(Xf,X,Y)
+    | subclass(range_of(Xf),Y) ) ).
+
+cnf(maps4,axiom,
+    ( ~ function(Xf)
+    | ~ subclass(range_of(Xf),Y)
+    | maps(Xf,domain_of(Xf),Y) ) ).
+
+%--------------------------------------------------------------------------
