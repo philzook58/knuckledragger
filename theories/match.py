@@ -1,3 +1,4 @@
+from knuckledrag2 import *
 
 global_var_env = {}
 
@@ -19,6 +20,13 @@ class MetaVar(Term):
         else:
             return self.name + str(self.level)
 
+    def __eq__(self, other):
+        if not isinstance(other, MetaVar):
+            return False
+        return (self.name == other.name) and (self.level == other.level)
+    def __hash__(self):
+        return hash((self.name, self.level))
+
 # A little clunky
 def open_vars_aux(term, metas):
     if isinstance(term, Var):
@@ -27,7 +35,9 @@ def open_vars_aux(term, metas):
         else:
             return term
     if isinstance(term, FunApp):
-        return FunApp(term.name, map(lambda t: open_vars_aux(t, metas), term.args))
+        #We force the list right away
+        args = list(map(lambda t: open_vars_aux(t, metas), term.args))
+        return FunApp(term.name, args)
     if isinstance(term, BindApp):
         metas_pruned = metas.copy()
         bound_names = map(lambda v: v.name, term.vars)
@@ -62,6 +72,14 @@ class Subst():
 
     def __setitem__(self, key, newval):
         self.assgn[key] = newval
+
+    def __contains__(self, key):
+        return key in self.assgn
+
+    # tedious; python doesn't like dicts with wonky keys
+    def __str__(self):
+        s = (", ".join("{}: {}".format(k, v) for k, v in self.assgn.items()))
+        return "{{ {} }}".format(s)
 
     def apply(self, term):
         # this would be better/easier with a visitor
@@ -149,3 +167,12 @@ def match(pattern, term):
     matcher = Matcher(pattern, term, EmptySubst())
     matcher.apply()
     return matcher.subst
+
+if __name__ == "__main__":
+    x = Var('x')
+    A = lambda t:Atom('A', [t])
+    B = lambda t:Atom('A', [t])
+    three = Var('3')
+    matcher = ForAll([x], A(x))
+    matchee = A(three)
+    print(match(open_bound(matcher), matchee))

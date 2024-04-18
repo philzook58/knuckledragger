@@ -156,22 +156,6 @@ class Solver():
         # writetotemp file. Call vampire.
 
 
-x, y, z = Vars("x y z")
-def path(x, y): return Atom("path", [x, y])
-def edge(x, y): return Atom("edge", [x, y])
-
-
-a, b, c = Consts("a b c")
-
-s = Solver()
-s.add(edge(a, b))
-s.add(edge(b, c))
-s.add(ForAll([x, y], path(x, y) <= edge(x, y)))
-s.add(ForAll([x, y], edge(x, y) > path(x, y)))
-s.add(ForAll([x, y, z], path(x, z) <= (edge(x, y) & path(y, z))))
-s.solve(execname="vampire")
-
-
 class Proof(object):
     def __init__(self, formula, DO_NOT_USE_trusted=False, reason=None):
         if DO_NOT_USE_trusted:
@@ -215,23 +199,6 @@ def modus(conc, *hyps, sanity=True):
     else:
         raise Exception("modus failed")
 
-
-ax1 = axiom(edge(a, b))
-ax2 = axiom(edge(b, c))
-
-path_base = axiom(ForAll([x, y], path(x, y) <= edge(x, y)))
-path_trans = axiom(ForAll([x, y, z], path(x, z) <= (edge(x, y) & path(y, z))))
-
-path_ac = modus(path(a, c), ax1, ax2, path_base, path_trans)
-print(path_ac)
-
-
-def even(x): return Atom("even", x)
-def odd(x): return Atom("odd", x)
-
-
-even_def = axiom(ForAll([x], even(x) == Exists([y], x=2*y)))
-
 '''
 Schema
 
@@ -262,3 +229,34 @@ def Goal():
 
 
 '''
+
+if __name__ == "__main__":
+
+
+    even_def = axiom(ForAll([x], even(x) == Exists([y], x=2*y)))
+    
+    
+    x, y, z = Vars("x y z")
+    def path(x, y): return Atom("path", [x, y])
+    def edge(x, y): return Atom("edge", [x, y])
+
+    
+    
+    a, b, c = Consts("a b c")
+    
+    s = Solver()
+    s.add(edge(a, b))
+    s.add(edge(b, c))
+    s.add(ForAll([x, y], path(x, y) <= edge(x, y)))
+    s.add(ForAll([x, y], edge(x, y) > path(x, y)))
+    s.add(ForAll([x, y, z], path(x, z) <= (edge(x, y) & path(y, z))))
+    s.solve(execname="vampire")
+    
+    ax1 = axiom(edge(a, b))
+    ax2 = axiom(edge(b, c))
+    
+    path_base = axiom(ForAll([x, y], path(x, y) <= edge(x, y)))
+    path_trans = axiom(ForAll([x, y, z], path(x, z) <= (edge(x, y) & path(y, z))))
+    
+    path_ac = modus(path(a, c), ax1, ax2, path_base, path_trans)
+    print(path_ac)
