@@ -24,6 +24,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    "myst_parser",
 ]
 autosummary_generate = True
 
@@ -46,6 +47,11 @@ napoleon_preprocess_types = False
 napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
+# Optional: Set the file suffixes that MyST will handle
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 

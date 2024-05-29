@@ -19,6 +19,9 @@ python3 -m pip install -e .
 ## Blog Posts
 
 - [Knuckledragger: Experimenting with a Python Proof Assistant](https://www.philipzucker.com/python-itp/)
+- [Experiments in the Irrationality of Sqrt 2 with SMT](https://www.philipzucker.com/sqrt2/)
+- [Peano Nats in Interactive SMT](https://www.philipzucker.com/sqrt2_2/)
+- [Proving Sum n = n*(n-1)/2 and that 1/n tends to 0](https://www.philipzucker.com/analysis_knuckle/)
 
 ## Design
 
