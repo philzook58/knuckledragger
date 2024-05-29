@@ -9,6 +9,7 @@ n, m, k = Consts("n m k", Nat)
 
 
 def induct(P):
+    """An induction axiom schema for natural numbers."""
     return axiom(
         Implies(
             And(P(Nat.zero), ForAll([n], Implies(P(n), P(Nat.succ(n))))),

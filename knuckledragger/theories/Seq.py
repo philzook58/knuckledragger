@@ -1,4 +1,5 @@
-from knuckledragger.theories import Nat, Real
-from z3 import *
+import knuckledragger.theories.Nat as Nat
+import knuckledragger.theories.Real as Real
+from z3 import ArraySort
 
-Seq = ArraySort(Nat, R)
+Seq = ArraySort(Nat.Nat, Real.R)
