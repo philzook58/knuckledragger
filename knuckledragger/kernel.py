@@ -10,7 +10,7 @@ class Proof:
     admit: bool
 
 
-# It is unlikely that users should be accessing `Proof` directly.
+# It is unlikely that users should be accessing the `Proof` constructor directly.
 # This is not ironclad. If you really want the Proof constructor, I can't stop you.
 __Proof = Proof
 Proof = None
@@ -21,10 +21,14 @@ def lemma(thm: z3.BoolRef, by: list[Proof] = [], admit=False) -> Proof:
 
     In essence `prove(Implies(by, thm))`.
 
+    :param thm: The theorem to prove.
     Args:
-        thm: The theorem to prove.
-        by: A list of previously proved lemmas.
-        admit: If True, admit the theorem without proof.
+        thm (z3.BoolRef): The theorem to prove.
+        by (list[Proof]): A list of previously proved lemmas.
+        admit     (bool): If True, admit the theorem without proof.
+
+    Returns:
+        Proof: A proof object of thm
 
     >>> lemma(BoolVal(True))
 
@@ -49,7 +53,7 @@ def lemma(thm: z3.BoolRef, by: list[Proof] = [], admit=False) -> Proof:
         return __Proof(thm, by, False)
 
 
-def axiom(thm: z3.BoolRef, reason=None) -> Proof:
+def axiom(thm: z3.BoolRef, reason=[]) -> Proof:
     """Assert an axiom.
 
     Axioms are necessary and useful. But you must use great care.

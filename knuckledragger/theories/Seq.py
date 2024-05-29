@@ -1,5 +1,6 @@
-import knuckledragger.theories.Nat as Nat
-import knuckledragger.theories.Real as Real
+from knuckledragger.theories.Nat import Nat
+from knuckledragger.theories.Real import R
 from z3 import ArraySort
 
-Seq = ArraySort(Nat.Nat, Real.R)
+"""A Sequence type of Nat -> R"""
+Seq = ArraySort(Nat, R)

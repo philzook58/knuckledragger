@@ -13,7 +13,6 @@ Welcome to knuckledragger's documentation!
    :recursive:
 
    knuckledragger
-   knuckledragger.theories
 
 Indices and tables
 ==================

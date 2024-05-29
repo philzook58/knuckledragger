@@ -1,12 +1,11 @@
+"""Importing this module will add some syntactic sugar to Z3.
+
+- Bool supports `&`, `|`, `~`
+- Sorts supports `>>` for ArraySort
+"""
+
 import z3
 
-"""Notation
-
-Importing this module will add some syntactic sugar to Z3.
-
-- Bool supports &, |, ~
-- Sorts supports >> for ArraySort
-"""
 
 z3.BoolRef.__and__ = lambda self, other: z3.And(self, other)
 z3.BoolRef.__or__ = lambda self, other: z3.Or(self, other)
