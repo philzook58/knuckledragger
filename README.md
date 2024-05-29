@@ -1,4 +1,4 @@
-# knuckledragger
+# Introduction
 
 Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. It is not attempting to be the most interesting, expressive, or flexible logic in the world. The goal is to support applications like software verification, calculus, equational reasoning, and numerical bounds.
 

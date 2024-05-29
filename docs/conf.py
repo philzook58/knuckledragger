@@ -52,6 +52,11 @@ source_suffix = {
     ".rst": "restructuredtext",
     ".md": "markdown",
 }
+
+# Optionally, ensure that MyST is the default parser for Markdown files
+source_parsers = {
+    ".md": "myst_parser",
+}
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
