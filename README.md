@@ -2,6 +2,8 @@
 
 Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. It is not attempting to be the most interesting, expressive, or flexible logic in the world. The goal is to support applications like software verification, calculus, equational reasoning, and numerical bounds.
 
+A tutorial can be used online at [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/philzook58/knuckledragger/blob/main/tutorial.ipynb)
+
 ## Installation
 
 ```bash

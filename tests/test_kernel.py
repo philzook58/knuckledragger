@@ -6,6 +6,9 @@ import knuckledragger.theories.Nat
 import knuckledragger.theories.Int
 import knuckledragger.theories.Real
 
+import knuckledragger.theories.List
+import knuckledragger.theories.Seq
+
 
 def test_true_infer():
     lemma(BoolVal(True))
