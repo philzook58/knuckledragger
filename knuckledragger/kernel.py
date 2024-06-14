@@ -1,6 +1,9 @@
 import z3
 from dataclasses import dataclass
 from typing import Any
+import logging
+
+logger = logging.getLogger("knuckeldragger")
 
 
 @dataclass(frozen=True)
@@ -9,8 +12,11 @@ class Proof(z3.Z3PPObject):
     reason: list[Any]
     admit: bool
 
+    def _repr_html_(self):
+        return "&#8870;" + repr(self.thm)
+
     def __repr__(self):
-        return "&ctdot; &#8870;" + repr(self.thm)
+        return "|- " + repr(self.thm)
 
 
 # It is unlikely that users should be accessing the `Proof` constructor directly.
@@ -19,11 +25,17 @@ __Proof = Proof
 Proof = None
 
 
+def is_proof(p):
+    return isinstance(p, __Proof)
+
+
 class LemmaError(Exception):
     pass
 
 
-def lemma(thm: z3.BoolRef, by: list[Proof] = [], admit=False) -> Proof:
+def lemma(
+    thm: z3.BoolRef, by: list[Proof] = [], admit=False, timeout=1000, dump=False
+) -> Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
     In essence `prove(Implies(by, thm))`.
@@ -43,21 +55,29 @@ def lemma(thm: z3.BoolRef, by: list[Proof] = [], admit=False) -> Proof:
 
     """
     if admit:
-        print("Admitting lemma {}".format(thm))
+        logger.warn("Admitting lemma {}".format(thm))
         return __Proof(thm, by, True)
     else:
         s = z3.Solver()
-        for p in by:
+        s.set("timeout", timeout)
+        for n, p in enumerate(by):
             if not isinstance(p, __Proof):
                 raise LemmaError("In by reasons:", p, "is not a Proof object")
-            s.add(p.thm)
-        s.add(z3.Not(thm))
+            s.assert_and_track(p.thm, "by_{}".format(n))
+        s.assert_and_track(z3.Not(thm), "knuckledragger_goal")
+        if dump:
+            print(s.sexpr())
         res = s.check()
         if res != z3.unsat:
             if res == z3.sat:
                 raise LemmaError(thm, "Countermodel", s.model())
             raise LemmaError("lemma", thm, res)
-        return __Proof(thm, by, False)
+        else:
+            core = s.unsat_core()
+            assert z3.Bool("knuckledragger_goal") in core
+            if len(core) < len(by) + 1:
+                print("WARNING: Unneeded assumptions. Used", core)
+            return __Proof(thm, by, False)
 
 
 def axiom(thm: z3.BoolRef, reason=[]) -> Proof:

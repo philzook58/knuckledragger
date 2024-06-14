@@ -8,10 +8,14 @@ from knuckledragger import axiom, lemma
 Z = IntSort()
 x, y = Ints("x y")
 
+
 Nat = Datatype("Nat")
+"""Nat = succ(pred Nat) | zero)"""
 Nat.declare("zero")
 Nat.declare("succ", ("pred", Nat))
 Nat = Nat.create()
+
+
 n, m, k = Consts("n m k", Nat)
 
 
@@ -27,14 +31,15 @@ def induct(P):
     )
 
 
-#: reify : Nat -> Z maps a natural number to the built in Z3 integers
 reify = Function("reify", Nat, Z)
+# """reify  Nat  Z maps a natural number to the built in Z3 integers"""
 reify_def = axiom(
     ForAll([n], reify(n) == If(Nat.is_zero(n), 0, reify(Nat.pred(n)) + 1))
 )
 
-#: reflect : Z -> Nat maps an integer to a natural number
+
 reflect = Function("reflect", Z, Nat)
+# """reflect  Z  Nat maps an integer to a natural number"""
 reflect_def = axiom(
     ForAll([x], reflect(x) == If(x <= 0, Nat.zero, Nat.succ(reflect(x - 1))))
 )

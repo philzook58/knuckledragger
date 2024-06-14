@@ -20,5 +20,16 @@ def test_false_infer():
 
 
 def test_explosion():
-    a = axiom(RealVal(1) == RealVal(0), "False axiom")
-    lemma(BoolVal(False), by=[a])
+    a = axiom(BoolVal(False), "False axiom")
+    with pytest.raises(Exception) as e_info:
+        lemma(BoolVal(True), by=[a])
+
+
+from knuckledragger.utils import calc
+
+
+def test_calc():
+    x, y, z = Ints("x y z")
+    l1 = axiom(x == y)
+    l2 = axiom(y == z)
+    calc(x, l1, y, l2, z)
