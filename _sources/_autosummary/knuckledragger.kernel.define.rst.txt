@@ -1,0 +1,6 @@
+knuckledragger.kernel.define
+============================
+
+.. currentmodule:: knuckledragger.kernel
+
+.. autofunction:: define

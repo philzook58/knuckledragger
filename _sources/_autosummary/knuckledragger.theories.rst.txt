@@ -1,0 +1,39 @@
+knuckledragger.theories
+=======================
+
+.. automodule:: knuckledragger.theories
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   knuckledragger.theories.Int
+   knuckledragger.theories.List
+   knuckledragger.theories.Nat
+   knuckledragger.theories.Real
+   knuckledragger.theories.Seq
+
+
+
+.. literalinclude:: ../../knuckledragger/theories.py
+   :language: python

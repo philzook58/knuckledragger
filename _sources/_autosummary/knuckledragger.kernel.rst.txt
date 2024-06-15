@@ -1,0 +1,43 @@
+knuckledragger.kernel
+=====================
+
+.. automodule:: knuckledragger.kernel
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      axiom
+      define
+      is_proof
+      lemma
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      LemmaError
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/kernel.py
+   :language: python

@@ -1,0 +1,27 @@
+knuckledragger.theories.Real
+============================
+
+.. automodule:: knuckledragger.theories.Real
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/theories/Real.py
+   :language: python

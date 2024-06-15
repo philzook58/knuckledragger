@@ -1,0 +1,6 @@
+knuckledragger.kernel.axiom
+===========================
+
+.. currentmodule:: knuckledragger.kernel
+
+.. autofunction:: axiom

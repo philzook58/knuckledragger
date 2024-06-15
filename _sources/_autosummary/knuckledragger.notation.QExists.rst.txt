@@ -1,0 +1,6 @@
+knuckledragger.notation.QExists
+===============================
+
+.. currentmodule:: knuckledragger.notation
+
+.. autofunction:: QExists

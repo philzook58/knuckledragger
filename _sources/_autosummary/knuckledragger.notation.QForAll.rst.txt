@@ -1,0 +1,6 @@
+knuckledragger.notation.QForAll
+===============================
+
+.. currentmodule:: knuckledragger.notation
+
+.. autofunction:: QForAll

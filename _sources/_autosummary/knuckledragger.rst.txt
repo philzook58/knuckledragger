@@ -1,0 +1,38 @@
+﻿knuckledragger
+==============
+
+.. automodule:: knuckledragger
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   knuckledragger.kernel
+   knuckledragger.notation
+   knuckledragger.theories
+   knuckledragger.utils
+
+
+
+.. literalinclude:: ../../knuckledragger.py
+   :language: python

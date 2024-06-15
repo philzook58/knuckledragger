@@ -1,0 +1,27 @@
+knuckledragger.theories.List
+============================
+
+.. automodule:: knuckledragger.theories.List
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/theories/List.py
+   :language: python

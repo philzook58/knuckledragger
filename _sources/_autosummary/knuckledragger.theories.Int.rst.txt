@@ -1,0 +1,27 @@
+knuckledragger.theories.Int
+===========================
+
+.. automodule:: knuckledragger.theories.Int
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/theories/Int.py
+   :language: python
