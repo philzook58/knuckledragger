@@ -33,3 +33,14 @@ def test_calc():
     l1 = axiom(x == y)
     l2 = axiom(y == z)
     calc(x, l1, y, l2, z)
+
+
+def test_tptp():
+    x = Int("x")
+    assert And(x > 4, x <= 7).tptp() == "($greater(x,4) & $lesseq(x,7))"
+    assert IntSort().tptp() == "$int"
+    assert BoolSort().tptp() == "$o"
+    assert (
+        ArraySort(ArraySort(BoolSort(), IntSort()), IntSort()).tptp()
+        == "(($o > $int) > $int)"
+    )

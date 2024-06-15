@@ -4,6 +4,7 @@ Defines an algebraic datatype for the Peano natural numbers and useful functions
 
 from z3 import Datatype, ForAll, And, Implies, Consts, If, Function, IntSort, Ints
 from knuckledragger import axiom, lemma
+import knuckledragger.notation as notation
 
 Z = IntSort()
 x, y = Ints("x y")
@@ -65,3 +66,7 @@ add = Function("add", Nat, Nat, Nat)
 add_def = axiom(
     ForAll([n, m], add(n, m) == If(Nat.is_zero(n), m, Nat.succ(add(Nat.pred(n), m))))
 )
+notation.add.register(Nat, add)
+
+
+add_0_n = lemma(ForAll([n], Nat.zero + n == n), by=[add_def])
