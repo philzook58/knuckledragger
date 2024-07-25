@@ -1,34 +1,39 @@
-from numpy import isin
 from knuckledragger.kernel import lemma, is_proof
 import z3
-from operator import eq
 import subprocess
+import sys
 
 
-def calc(*args, vars=None, by=[], op=eq):
+class Calc:
     """
     calc is for equational reasoning.
     One can write a sequence of formulas interspersed with useful lemmas.
-    Inequational chaining can be done via op=lambda x,y: x <= y
     """
 
-    def thm(lhs, rhs):
-        if vars == None:
-            return op(lhs, rhs)
-        else:
-            return z3.ForAll(vars, op(lhs, rhs))
+    def __init__(self, vars, lhs):
+        # TODO: hyps=None for conditional rewriting. assumpt, assume=[]
+        self.vars = vars
+        self.terms = [lhs]
+        self.lemmas = []
 
-    lemmas = []
-    local_by = []
-    lhs = args[0]
-    for arg in args[1:]:
-        if is_proof(arg):
-            local_by.append(arg)
+    def ForAll(self, body):
+        if len(self.vars) == 0:
+            return body
         else:
-            lemmas.append(lemma(thm(lhs, arg), by=by + local_by))
-            lhs = arg
-            local_by = []
-    return lemma(thm(args[0], args[-1]), by=by + lemmas)
+            return z3.ForAll(self.vars, body)
+
+    def eq(self, rhs, by=[]):
+        self.lemmas.append(lemma(self.ForAll(self.terms[-1] == rhs), by=by))
+        self.terms.append(rhs)
+        return self
+
+    # TODO: lt, le, gt, ge chaining. Or custom op.
+
+    def __repr__(self):
+        return "... = " + repr(self.terms[-1])
+
+    def qed(self):
+        return lemma(self.ForAll(self.terms[0] == self.terms[-1]), by=self.lemmas)
 
 
 def lemma_smt(thm: z3.BoolRef, by=[], sig=[]) -> list[str]:
@@ -166,3 +171,13 @@ def lemma_tptp(thm: z3.BoolRef, by=[], sig=[], timeout=None, command=None):
             capture_output=True,
         )
         return res
+
+
+def lemma_db():
+    """Scan all modules for Proof objects and return a dictionary of them."""
+    db = {}
+    for modname, mod in sys.modules.items():
+        thms = {name: thm for name, thm in mod.__dict__.items() if is_proof(thm)}
+        if len(thms) > 0:
+            db[modname] = thms
+    return db

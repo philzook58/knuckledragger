@@ -25,14 +25,14 @@ def test_explosion():
         lemma(BoolVal(True), by=[a])
 
 
-from knuckledragger.utils import calc
+from knuckledragger.utils import Calc
 
 
 def test_calc():
     x, y, z = Ints("x y z")
     l1 = axiom(x == y)
     l2 = axiom(y == z)
-    calc(x, l1, y, l2, z)
+    Calc([], x).eq(y, by=[l1]).eq(z, by=[l2]).qed()
 
 
 def test_tptp():

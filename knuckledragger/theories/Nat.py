@@ -3,7 +3,7 @@ Defines an algebraic datatype for the Peano natural numbers and useful functions
 """
 
 from z3 import Datatype, ForAll, And, Implies, Consts, If, Function, IntSort, Ints
-from knuckledragger import axiom, lemma
+from knuckledragger import axiom, lemma, define
 import knuckledragger.notation as notation
 
 Z = IntSort()
@@ -41,13 +41,14 @@ reify_def = axiom(
 
 reflect = Function("reflect", Z, Nat)
 # """reflect  Z  Nat maps an integer to a natural number"""
-reflect_def = axiom(
-    ForAll([x], reflect(x) == If(x <= 0, Nat.zero, Nat.succ(reflect(x - 1))))
-)
+# reflect_def = axiom(
+#    ForAll([x], reflect(x) == If(x <= 0, Nat.zero, Nat.succ(reflect(x - 1))))
+# )
+reflect = define("reflect", [x], If(x <= 0, Nat.zero, Nat.succ(reflect(x - 1))))
 
 reflect_reify = lemma(
     ForAll([n], reflect(reify(n)) == n),
-    by=[reflect_def, reify_def, induct(lambda n: reflect(reify(n)) == n)],
+    by=[reflect.defn, reify_def, induct(lambda n: reflect(reify(n)) == n)],
 )
 
 reify_ge_0 = lemma(

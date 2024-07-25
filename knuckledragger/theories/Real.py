@@ -1,8 +1,9 @@
-from z3 import RealSort, ForAll, Function, Reals, If
+import z3
+from z3 import ForAll, Function
 from knuckledragger import lemma, axiom
 
-R = RealSort()
-x, y, z = Reals("x y z")
+R = z3.RealSort()
+x, y, z = z3.Reals("x y z")
 
 plus = Function("plus", R, R, R)
 plus_def = axiom(ForAll([x, y], plus(x, y) == x + y), "definition")
@@ -10,7 +11,7 @@ plus_def = axiom(ForAll([x, y], plus(x, y) == x + y), "definition")
 plus_0 = lemma(ForAll([x], plus(x, 0) == x), by=[plus_def])
 plus_comm = lemma(ForAll([x, y], plus(x, y) == plus(y, x)), by=[plus_def])
 plus_assoc = lemma(
-    ForAll([x, y, z], plus(x, plus(y, z)) == plus(plus(x, y), z)), by=[plus_def]
+    z3.ForAll([x, y, z], plus(x, plus(y, z)) == plus(plus(x, y), z)), by=[plus_def]
 )
 
 mul = Function("mul", R, R, R)
@@ -28,4 +29,7 @@ mul_distrib = lemma(
 )
 
 abs = Function("abs", R, R)
-abs_def = axiom(ForAll([x], abs(x) == If(x >= 0, x, -x)), "definition")
+abs_def = axiom(ForAll([x], abs(x) == z3.If(x >= 0, x, -x)), "definition")
+
+RFun = z3.ArraySort(R, R)
+RSeq = z3.ArraySort(z3.IntSort(), R)

@@ -80,23 +80,27 @@ def lemma(
             return __Proof(thm, by, False)
 
 
-def axiom(thm: z3.BoolRef, reason=[]) -> Proof:
+def axiom(thm: z3.BoolRef, by=[]) -> Proof:
     """Assert an axiom.
 
     Axioms are necessary and useful. But you must use great care.
 
     Args:
         thm: The axiom to assert.
-        reason: A python object explaining why the axiom should exist. Often a string explaining the axiom.
+        by: A python object explaining why the axiom should exist. Often a string explaining the axiom.
     """
-    return __Proof(thm, reason, admit=False)
+    return __Proof(thm, by, admit=True)
 
 
-__sig = {}
+defn: dict[z3.FuncDecl, Proof] = {}
+"""
+defn holds definitional axioms for function symbols.
+"""
+z3.FuncDeclRef.defn = property(lambda self: defn[self])
 
 
 def define(
-    name: str, args: list[z3.ExprRef], defn: z3.ExprRef
+    name: str, args: list[z3.ExprRef], defn_expr: z3.ExprRef
 ) -> tuple[z3.FuncDeclRef, __Proof]:
     """Define a non recursive definition. Useful for shorthand and abstraction.
 
@@ -108,13 +112,17 @@ def define(
     Returns:
         tuple[z3.FuncDeclRef, __Proof]: A tuple of the defined term and the proof of the definition.
     """
-    sorts = [arg.sort() for arg in args] + [defn.sort()]
+    sorts = [arg.sort() for arg in args] + [defn_expr.sort()]
     f = z3.Function(name, *sorts)
-    def_ax = axiom(z3.ForAll(args, f(*args) == defn), reason="definition")
+    if len(args) > 0:
+        def_ax = axiom(z3.ForAll(args, f(*args) == defn_expr), by="definition")
+    else:
+        def_ax = axiom(f(*args) == defn_expr, by="definition")
     # assert f not in __sig or __sig[f].eq(   def_ax.thm)  # Check for redefinitions. This is kind of painful. Hmm.
     # Soft warning is more pleasant.
-    if f not in __sig or __sig[f].eq(def_ax.thm):
-        __sig[f] = def_ax.thm
+    if f not in defn or defn[f].thm.eq(def_ax.thm):
+        defn[f] = def_ax
     else:
-        print("WARNING: Redefining function", f, "from", __sig[f], "to", def_ax.thm)
-    return f, def_ax
+        print("WARNING: Redefining function", f, "from", defn[f], "to", def_ax.thm)
+        defn[f] = def_ax
+    return f

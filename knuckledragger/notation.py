@@ -53,6 +53,25 @@ class SortDispatch:
 add = SortDispatch(z3.ArithRef.__add__)
 z3.ExprRef.__add__ = lambda x, y: add(x, y)
 
+sub = SortDispatch(z3.ArithRef.__sub__)
+z3.ExprRef.__sub__ = lambda x, y: sub(x, y)
+
+mul = SortDispatch(z3.ArithRef.__mul__)
+z3.ExprRef.__mul__ = lambda x, y: mul(x, y)
+
+and_ = SortDispatch()
+z3.ExprRef.__and__ = lambda x, y: and_(x, y)
+
+or_ = SortDispatch()
+z3.ExprRef.__or__ = lambda x, y: or_(x, y)
+
+lt = SortDispatch(z3.ArithRef.__lt__)
+z3.ExprRef.__lt__ = lambda x, y: lt(x, y)
+
+le = SortDispatch(z3.ArithRef.__le__)
+z3.ExprRef.__le__ = lambda x, y: le(x, y)
+
+
 """
 mul = SortDispatch(z3.ArithRef.__mul__)
 z3.ExprRef.__mul__ = mul
