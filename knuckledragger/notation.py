@@ -1,7 +1,9 @@
 """Importing this module will add some syntactic sugar to Z3.
 
+- Expr overload by single dispatch
 - Bool supports `&`, `|`, `~`
 - Sorts supports `>>` for ArraySort
+- Datatypes support accessor notation
 """
 
 import z3
@@ -59,6 +61,9 @@ z3.ExprRef.__sub__ = lambda x, y: sub(x, y)
 mul = SortDispatch(z3.ArithRef.__mul__)
 z3.ExprRef.__mul__ = lambda x, y: mul(x, y)
 
+div = SortDispatch(z3.ArithRef.__div__)
+z3.ExprRef.__truediv__ = lambda x, y: div(x, y)
+
 and_ = SortDispatch()
 z3.ExprRef.__and__ = lambda x, y: and_(x, y)
 
@@ -85,3 +90,25 @@ z3.ExprRef.__matmul__ = matmul
 le = SortDispatch()
 z3.ExprRef.__le__ = le
 """
+
+
+def lookup_cons_recog(self, k):
+    """
+    Enable "dot" syntax for fields of z3 datatypes
+    """
+    sort = self.sort()
+    recog = "is_" == k[:3] if len(k) > 3 else False
+    for i in range(sort.num_constructors()):
+        cons = sort.constructor(i)
+        if recog:
+            if cons.name() == k[3:]:
+                recog = sort.recognizer(i)
+                return recog(self)
+        else:
+            for j in range(cons.arity()):
+                acc = sort.accessor(i, j)
+                if acc.name() == k:
+                    return acc(self)
+
+
+z3.DatatypeRef.__getattr__ = lookup_cons_recog

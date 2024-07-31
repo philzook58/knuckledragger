@@ -44,3 +44,12 @@ def test_tptp():
         ArraySort(ArraySort(BoolSort(), IntSort()), IntSort()).tptp()
         == "(($o > $int) > $int)"
     )
+
+
+def test_datatype():
+    Foo = Datatype("Foo")
+    Foo.declare("foo", ("bar", IntSort()), ("baz", BoolSort()))
+    Foo = Foo.create()
+    x = Foo.foo(1, True)
+    assert z3.simplify(x.bar).eq(z3.IntVal(1))
+    assert z3.simplify(x.baz).eq(z3.BoolVal(True))

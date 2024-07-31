@@ -92,16 +92,22 @@ def axiom(thm: z3.BoolRef, by=[]) -> Proof:
     return __Proof(thm, by, admit=True)
 
 
-defn: dict[z3.FuncDecl, Proof] = {}
+@dataclass(frozen=True)
+class Defn:
+    name: str
+    args: list[z3.ExprRef]
+    body: z3.ExprRef
+    ax: Proof
+
+
+defns: dict[z3.FuncDecl, Defn] = {}
 """
 defn holds definitional axioms for function symbols.
 """
-z3.FuncDeclRef.defn = property(lambda self: defn[self])
+z3.FuncDeclRef.defn = property(lambda self: defns[self].ax)
 
 
-def define(
-    name: str, args: list[z3.ExprRef], defn_expr: z3.ExprRef
-) -> tuple[z3.FuncDeclRef, __Proof]:
+def define(name: str, args: list[z3.ExprRef], body: z3.ExprRef) -> z3.FuncDeclRef:
     """Define a non recursive definition. Useful for shorthand and abstraction.
 
     Args:
@@ -112,17 +118,18 @@ def define(
     Returns:
         tuple[z3.FuncDeclRef, __Proof]: A tuple of the defined term and the proof of the definition.
     """
-    sorts = [arg.sort() for arg in args] + [defn_expr.sort()]
+    sorts = [arg.sort() for arg in args] + [body.sort()]
     f = z3.Function(name, *sorts)
     if len(args) > 0:
-        def_ax = axiom(z3.ForAll(args, f(*args) == defn_expr), by="definition")
+        def_ax = axiom(z3.ForAll(args, f(*args) == body), by="definition")
     else:
-        def_ax = axiom(f(*args) == defn_expr, by="definition")
+        def_ax = axiom(f(*args) == body, by="definition")
     # assert f not in __sig or __sig[f].eq(   def_ax.thm)  # Check for redefinitions. This is kind of painful. Hmm.
     # Soft warning is more pleasant.
-    if f not in defn or defn[f].thm.eq(def_ax.thm):
-        defn[f] = def_ax
+    defn = Defn(name, args, body, def_ax)
+    if f not in defns or defns[f].ax.thm.eq(def_ax.thm):
+        defns[f] = defn
     else:
-        print("WARNING: Redefining function", f, "from", defn[f], "to", def_ax.thm)
-        defn[f] = def_ax
+        print("WARNING: Redefining function", f, "from", defns[f].ax, "to", def_ax.thm)
+        defns[f] = defn
     return f
