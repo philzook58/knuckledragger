@@ -31,7 +31,7 @@ python3 -m pip install -e .
 
 ## Design
 
-Using widespread and commonly supported languages gives a huge leg up in terms of tooling and audience. To my knowledge, this has not been attempted for an interactive proof assistant.
+Using widespread and commonly supported languages gives a huge leg up in terms of tooling and audience.
 
 It is not desirable or within my capabilities to build a giant universe in which to live. The goal is to take a subtle blade and bolt together things that already exist.
 
@@ -39,8 +39,8 @@ The de Bruijn criterion is going to be bent or broken in certain senses. The ker
 
 Soundness will be attempted, accidental misuse will be made difficult but not impossible.
 
-Core functionality comes from Z3 and other ATPs. To some degree, this is a metalayer to guide automated provers down proofs they could perhaps do on their own, but of course would get lost. The core logic is more or less multi-sorted first order logic. Perhaps a set theory (ZFC,NBG) built on this is appropriate in some circumstances. Hopefully considerations like this are not necessary and only attempted for amusement.
+Core functionality comes from Z3 and other ATPs. To some degree, this is a metalayer to guide automated provers down proofs they could perhaps do on their own, but of course would get lost. The core logic is more or less multi-sorted first order logic.
 
 A big feature that ATP do not often support is induction, definitions, and other axiom schema. These are supported.
 
-A hope is to be able to use easy access to Jupyter, copilot, ML ecosystems, sympy, cvxpy, numpy, scipy, calcium, sage, singular will make metaprogramming this system very powerful. I maintain the option to just trust these results but hopefully they can be translated into arguments the kernel can understand.
+A hope is to be able to use easy access to Jupyter, copilot, ML ecosystems, sympy, cvxpy, numpy, scipy, calcium, flint, sage, singular will make metaprogramming this system very powerful. I maintain the option to just trust these results but hopefully they can be translated into arguments the kernel can understand.
