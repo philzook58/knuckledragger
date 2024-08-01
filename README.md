@@ -31,20 +31,22 @@ python3 -m pip install -e .
 
 ## Design
 
-Using widespread and commonly supported languages gives a huge leg up in terms of tooling and audience.
-
 It is not desirable or within my capabilities to build a giant universe in which to live. The goal is to take a subtle blade and bolt together things that already exist.
 
-The de Bruijn criterion is going to be bent or broken in certain senses. Attention is paid to what is kernel and what is not. Proof objects are basically trees recording chains of lemmas from Automated Theorem Prover (ATP) calls.
+Using widespread and commonly supported languages gives a huge leg up in terms of tooling and audience. Python is the modern lingua franca of computing. It has a first class interactive experience and extensive bindings to projects in other languages.
 
-Soundness will be attempted, accidental misuse will be made difficult but not impossible.
+Core functionality comes from [Z3](https://github.com/Z3Prover/z3). The Z3 python api is a de facto standard. The term and formula data structures of knuckledragger are literally Z3 python terms and formula. To some degree, knuckledragger is a metalayer to guide Z3 through proofs it could perhaps do on its own, but it would get lost.
 
-Core functionality comes from [Z3](https://github.com/Z3Prover/z3) and other ATPs. To some degree, knuckledragger is a metalayer to guide automated provers down proofs they could perhaps do on their own, but of course would get lost.
+A hope is to be able to use easy access to [Jupyter](https://jupyter.org/), [copilot](https://copilot.microsoft.com/), ML ecosystems, [sympy](https://www.sympy.org/), [cvxpy](https://www.cvxpy.org/), [numpy](https://numpy.org/), [scipy](https://scipy.org/), [Julia](https://github.com/JuliaPy/PythonCall.jl), [Prolog](https://www.swi-prolog.org/pldoc/man?section=janus-call-prolog), [Maude](https://fadoss.github.io/maude-bindings/), [calcium](https://fredrikj.net/calcium/), [flint](https://fredrikj.net/python-flint/), [Mathematica](https://reference.wolfram.com/language/WolframClientForPython/), and [sage](https://www.sagemath.org/) will make metaprogramming in this system very powerful. I maintain the option to just trust these results but hopefully they can be translated into arguments the kernel can understand.
+
+The core logic is more or less multi-sorted first order logic aka [SMT-LIB2](https://smt-lib.org/).
+
+Big features that ATPs do not often support are induction, definitions, and other axiom schema. Knuckledragger supports these.
 
 Other theorem provers of interest: [cvc5](https://cvc5.github.io/), [Vampire](https://vprover.github.io/), [eprover](https://wwwlehre.dhbw-stuttgart.de/~sschulz/E/E.html), [Twee](https://nick8325.github.io/twee/), [egglog](https://egglog-python.readthedocs.io/latest/), [nanoCoP](https://leancop.de/nanocop/).
 
-The core logic is more or less multi-sorted first order logic.
+The de Bruijn criterion is going to be bent or broken in certain senses. Attention is paid to what is kernel and what is not. Proof objects are basically trees recording chains of lemmas discharged by Automated Theorem Prover (ATP) calls. Soundness will be attempted, accidental misuse will be made difficult but not impossible.
 
-Big features that ATPs do not often support is induction, definitions, and other axiom schema. These are supported.
+Isabelle and ACL2 are the strongest influences. If you want dependent type theory, you are at a level of investment and sophistication that is behooves you to be in another system. Should there be a strong automated DTT solver someday, I will reconsider.
 
-A hope is to be able to use easy access to [Jupyter](https://jupyter.org/), [copilot](https://copilot.microsoft.com/), ML ecosystems, [sympy](https://www.sympy.org/), [cvxpy](https://www.cvxpy.org/), [numpy](https://numpy.org/), scipy, [Julia](https://github.com/JuliaPy/PythonCall.jl), [Prolog](https://www.swi-prolog.org/pldoc/man?section=janus-call-prolog), [calcium](https://fredrikj.net/calcium/), [flint](https://fredrikj.net/python-flint/), and [sage](https://www.sagemath.org/) will make metaprogramming this system very powerful. I maintain the option to just trust these results but hopefully they can be translated into arguments the kernel can understand.
+I maintain the right to change my mind about anything.
