@@ -32,7 +32,7 @@ jobs:
     - name: Lint with Ruff
       run: |
         ruff check --output-format=github .
-  continue-on-error: true
+      continue-on-error: true
     - name: Test with pytest
       run: |
         pytest
