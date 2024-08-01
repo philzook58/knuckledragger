@@ -1,8 +1,12 @@
 import z3
 from z3 import ForAll, Function
 from knuckledragger import lemma, axiom
+import knuckledragger as kd
 
 R = z3.RealSort()
+RFun = z3.ArraySort(R, R)
+RSeq = z3.ArraySort(z3.IntSort(), R)
+
 x, y, z = z3.Reals("x y z")
 
 plus = Function("plus", R, R, R)
@@ -28,8 +32,21 @@ mul_distrib = lemma(
     by=[mul_def, plus_def],
 )
 
-abs = Function("abs", R, R)
-abs_def = axiom(ForAll([x], abs(x) == z3.If(x >= 0, x, -x)), "definition")
 
-RFun = z3.ArraySort(R, R)
-RSeq = z3.ArraySort(z3.IntSort(), R)
+abs = kd.define("abs", [x], z3.If(x >= 0, x, -x))
+
+abs_idem = kd.lemma(ForAll([x], abs(abs(x)) == abs(x)), by=[abs.defn])
+abd_neg = kd.lemma(ForAll([x], abs(-x) == abs(x)), by=[abs.defn])
+abs_ge_0 = kd.lemma(ForAll([x], abs(x) >= 0), by=[abs.defn])
+
+nonneg = kd.define("nonneg", [x], abs(x) == x)
+nonneg_ge_0 = kd.lemma(ForAll([x], nonneg(x) == (x >= 0)), by=[nonneg.defn, abs.defn])
+
+max = kd.define("max", [x, y], z3.If(x >= y, x, y))
+max_comm = kd.lemma(ForAll([x, y], max(x, y) == max(y, x)), by=[max.defn])
+max_assoc = kd.lemma(
+    ForAll([x, y, z], max(x, max(y, z)) == max(max(x, y), z)), by=[max.defn]
+)
+max_idem = kd.lemma(ForAll([x], max(x, x) == x), by=[max.defn])
+max_ge = kd.lemma(ForAll([x, y], max(x, y) >= x), by=[max.defn])
+max_ge_2 = kd.lemma(ForAll([x, y], max(x, y) >= y), by=[max.defn])
