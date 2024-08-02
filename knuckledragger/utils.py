@@ -59,12 +59,12 @@ def lemma_smt(thm: z3.BoolRef, by=[], sig=[]) -> list[str]:
     return output
 
 
-def open_binder(l: z3.QuantifierRef):
+def open_binder(lam: z3.QuantifierRef):
     vars = [
-        z3.Const(l.var_name(i).upper(), l.var_sort(i))
-        for i in reversed(range(l.num_vars()))
+        z3.Const(lam.var_name(i).upper(), lam.var_sort(i))
+        for i in reversed(range(lam.num_vars()))
     ]
-    return vars, z3.substitute_vars(l.body(), *vars)
+    return vars, z3.substitute_vars(lam.body(), *vars)
 
 
 def expr_to_tptp(expr: z3.ExprRef):
@@ -124,19 +124,19 @@ z3.ExprRef.tptp = expr_to_tptp
 
 
 def z3_sort_tptp(sort: z3.SortRef):
-    match sort.name():
-        case "Int":
-            return "$int"
-        case "Bool":
-            return "$o"
-        case "Real":
-            return "$real"
-        case "Array":
-            return "({} > {})".format(
-                z3_sort_tptp(sort.domain()), z3_sort_tptp(sort.range())
-            )
-        case x:
-            return x.lower()
+    name = sort.name()
+    if name == "Int":
+        return "$int"
+    elif name == "Bool":
+        return "$o"
+    elif name == "Real":
+        return "$real"
+    elif name == "Array":
+        return "({} > {})".format(
+            z3_sort_tptp(sort.domain()), z3_sort_tptp(sort.range())
+        )
+    else:
+        return name.lower()
 
 
 z3.SortRef.tptp = z3_sort_tptp
@@ -159,7 +159,7 @@ def lemma_tptp(thm: z3.BoolRef, by=[], sig=[], timeout=None, command=None):
         if is_proof(e):
             output.append(f"tff(hyp, axiom, {e.thm.tptp()} ).")
     output.append(f"tff(goal,conjecture,{thm.tptp()} ).")
-    if command == None:
+    if command is None:
         return output
     else:
         with open("/tmp/temp.p", "w") as f:

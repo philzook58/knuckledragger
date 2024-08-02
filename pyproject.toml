@@ -17,3 +17,6 @@ homepage = "https://github.com/philzook58/knuckledragger"
 
 [project.optional-dependencies]
 dev = ["pytest>=6.0"]
+
+[tool.ruff]
+exclude = ["thoughts/"]

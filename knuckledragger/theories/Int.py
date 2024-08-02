@@ -1,4 +1,4 @@
 from z3 import IntSort
-from knuckledragger import lemma, axiom
+import knuckledragger as kd
 
 Z = IntSort()

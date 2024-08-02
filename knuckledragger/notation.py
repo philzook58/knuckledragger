@@ -37,7 +37,7 @@ z3.SortRef.__rshift__ = lambda self, other: z3.ArraySort(self, other)
 
 class SortDispatch:
     """
-    Sort dispatch is modelled after functools.singledispatch
+    Sort dispatch is modeled after functools.singledispatch
     It allows for dispatching on the sort of the first argument
     """
 
@@ -75,21 +75,6 @@ z3.ExprRef.__lt__ = lambda x, y: lt(x, y)
 
 le = SortDispatch(z3.ArithRef.__le__)
 z3.ExprRef.__le__ = lambda x, y: le(x, y)
-
-
-"""
-mul = SortDispatch(z3.ArithRef.__mul__)
-z3.ExprRef.__mul__ = mul
-
-sub = SortDispatch(z3.ArithRef.__sub__)
-z3.ExprRef.__sub__ = sub
-
-matmul = SortDispatch()
-z3.ExprRef.__matmul__ = matmul
-
-le = SortDispatch()
-z3.ExprRef.__le__ = le
-"""
 
 
 def lookup_cons_recog(self, k):
