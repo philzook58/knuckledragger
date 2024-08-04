@@ -2,14 +2,16 @@ import pytest
 from knuckledragger import lemma, axiom
 import z3
 
+import knuckledragger as kd
 import knuckledragger.theories.Nat
 import knuckledragger.theories.Int
-import knuckledragger.theories.Real
+import knuckledragger.theories.Real as R
 
 import knuckledragger.theories.List
 import knuckledragger.theories.Seq
 
-from knuckledragger.utils import Calc
+from knuckledragger import Calc
+import knuckledragger.utils
 
 
 def test_true_infer():
@@ -52,3 +54,26 @@ def test_datatype():
     x = Foo.foo(1, True)
     assert z3.simplify(x.bar).eq(z3.IntVal(1))
     assert z3.simplify(x.baz).eq(z3.BoolVal(True))
+
+
+def test_qforall():
+    x, y = z3.Reals("x y")
+    assert kd.QForAll([x], x > 0).eq(z3.ForAll([x], x > 0))
+    assert kd.QForAll([x], x == 10, x == 14, x > 0).eq(
+        z3.ForAll([x], z3.Implies(z3.And(x == 10, x == 14), x > 0))
+    )
+    assert kd.QForAll([x, y], x > 0, y > 0).eq(
+        z3.ForAll([x, y], z3.Implies(x > 0, y > 0))
+    )
+    x.wf = x >= 0
+    assert kd.QForAll([x], x == 14).eq(z3.ForAll([x], z3.Implies(x >= 0, x == 14)))
+
+
+def test_simp():
+    assert kd.utils.simp(R.max(8, R.max(3, 4))).eq(z3.RealVal(8))
+    assert kd.utils.simp2(R.max(8, R.max(3, 4))).eq(z3.RealVal(8))
+
+
+def test_record():
+    foo = kd.notation.Record("foo", ("bar", z3.IntSort()), ("baz", z3.BoolSort()))
+    assert z3.simplify(foo.mk(1, True).bar).eq(z3.IntVal(1))

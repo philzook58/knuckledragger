@@ -34,7 +34,12 @@ class LemmaError(Exception):
 
 
 def lemma(
-    thm: z3.BoolRef, by: list[Proof] = [], admit=False, timeout=1000, dump=False
+    thm: z3.BoolRef,
+    by: list[Proof] = [],
+    admit=False,
+    timeout=1000,
+    dump=False,
+    solver=z3.Solver,
 ) -> Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
@@ -58,7 +63,7 @@ def lemma(
         logger.warn("Admitting lemma {}".format(thm))
         return __Proof(thm, by, True)
     else:
-        s = z3.Solver()
+        s = solver()
         s.set("timeout", timeout)
         for n, p in enumerate(by):
             if not isinstance(p, __Proof):
@@ -108,7 +113,9 @@ z3.FuncDeclRef.defn = property(lambda self: defns[self].ax)
 
 
 def define(name: str, args: list[z3.ExprRef], body: z3.ExprRef) -> z3.FuncDeclRef:
-    """Define a non recursive definition. Useful for shorthand and abstraction.
+    """
+    Define a non recursive definition. Useful for shorthand and abstraction. Does not currently defend against ill formed definitions.
+    TODO: Check for bad circularity, record dependencies
 
     Args:
         name: The name of the term to define.
@@ -133,3 +140,23 @@ def define(name: str, args: list[z3.ExprRef], body: z3.ExprRef) -> z3.FuncDeclRe
         print("WARNING: Redefining function", f, "from", defns[f].ax, "to", def_ax.thm)
         defns[f] = defn
     return f
+
+
+def define_fix(name: str, args: list[z3.ExprRef], retsort, fix_lam) -> z3.FuncDeclRef:
+    """
+    Define a recursive definition.
+    """
+    sorts = [arg.sort() for arg in args]
+    sorts.append(retsort)
+    f = z3.Function(name, *sorts)
+
+    # wrapper to record calls
+    calls = set()
+
+    def record_f(*args):
+        calls.add(args)
+        return f(*args)
+
+    defn = define(name, args, fix_lam(record_f))
+    # TODO: check for well foundedness/termination, custom induction principle.
+    return defn

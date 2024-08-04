@@ -2,38 +2,27 @@ from knuckledragger.kernel import lemma, is_proof
 import z3
 import subprocess
 import sys
+import knuckledragger as kd
 
 
-class Calc:
-    """
-    calc is for equational reasoning.
-    One can write a sequence of formulas interspersed with useful lemmas.
-    """
+def simp(t: z3.ExprRef) -> z3.ExprRef:
+    expr = z3.FreshConst(t.sort(), prefix="knuckle_goal")
+    G = z3.Goal()
+    for v in kd.kernel.defns.values():
+        G.add(v.ax.thm)
+    G.add(expr == t)
+    G2 = z3.Then(z3.Tactic("demodulator"), z3.Tactic("simplify")).apply(G)[0]
+    return G2[len(G2) - 1].children()[1]
 
-    def __init__(self, vars, lhs):
-        # TODO: hyps=None for conditional rewriting. assumpt, assume=[]
-        self.vars = vars
-        self.terms = [lhs]
-        self.lemmas = []
 
-    def ForAll(self, body):
-        if len(self.vars) == 0:
-            return body
-        else:
-            return z3.ForAll(self.vars, body)
-
-    def eq(self, rhs, by=[]):
-        self.lemmas.append(lemma(self.ForAll(self.terms[-1] == rhs), by=by))
-        self.terms.append(rhs)
-        return self
-
-    # TODO: lt, le, gt, ge chaining. Or custom op.
-
-    def __repr__(self):
-        return "... = " + repr(self.terms[-1])
-
-    def qed(self):
-        return lemma(self.ForAll(self.terms[0] == self.terms[-1]), by=self.lemmas)
+def simp2(t: z3.ExprRef) -> z3.ExprRef:
+    expr = z3.FreshConst(t.sort(), prefix="knuckle_goal")
+    G = z3.Goal()
+    for v in kd.kernel.defns.values():
+        G.add(v.ax.thm)
+    G.add(expr == t)
+    G2 = z3.Tactic("elim-predicates").apply(G)[0]
+    return G2[len(G2) - 1].children()[1]
 
 
 def lemma_smt(thm: z3.BoolRef, by=[], sig=[]) -> list[str]:
@@ -73,7 +62,7 @@ def expr_to_tptp(expr: z3.ExprRef):
     elif isinstance(expr, z3.QuantifierRef):
         vars, body = open_binder(expr)
         body = expr_to_tptp(body)
-        vs = ", ".join([v.sexpr() + ":" + z3_sort_tptp(v.sort()) for v in vars])
+        vs = ", ".join([v.sexpr() + ":" + sort_to_tptp(v.sort()) for v in vars])
         if expr.is_forall():
             return f"(![{vs}] : {body})"
         elif expr.is_exists():
@@ -123,7 +112,7 @@ def expr_to_tptp(expr: z3.ExprRef):
 z3.ExprRef.tptp = expr_to_tptp
 
 
-def z3_sort_tptp(sort: z3.SortRef):
+def sort_to_tptp(sort: z3.SortRef):
     name = sort.name()
     if name == "Int":
         return "$int"
@@ -133,13 +122,13 @@ def z3_sort_tptp(sort: z3.SortRef):
         return "$real"
     elif name == "Array":
         return "({} > {})".format(
-            z3_sort_tptp(sort.domain()), z3_sort_tptp(sort.range())
+            sort_to_tptp(sort.domain()), sort_to_tptp(sort.range())
         )
     else:
         return name.lower()
 
 
-z3.SortRef.tptp = z3_sort_tptp
+z3.SortRef.tptp = sort_to_tptp
 
 
 def lemma_tptp(thm: z3.BoolRef, by=[], sig=[], timeout=None, command=None):

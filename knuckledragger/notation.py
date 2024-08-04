@@ -7,29 +7,45 @@
 """
 
 import z3
-
+import knuckledragger as kd
 
 z3.BoolRef.__and__ = lambda self, other: z3.And(self, other)
 z3.BoolRef.__or__ = lambda self, other: z3.Or(self, other)
 z3.BoolRef.__invert__ = lambda self: z3.Not(self)
 
 
-def QForAll(vars, hyp, conc):
+def QForAll(vs, *hyp_conc):
     """Quantified ForAll
 
-    Shorthand for `ForAll(vars, Implies(hyp, conc))`
+    Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`
+
+    If variables have a property `wf` attached, this is added as a hypothesis.
 
     """
-    return z3.ForAll(vars, z3.Implies(hyp, conc))
+    conc = hyp_conc[-1]
+    hyps = hyp_conc[:-1]
+    hyps = [v.wf for v in vs if hasattr(v, "wf")] + list(hyps)
+    if len(hyps) == 0:
+        return z3.ForAll(vs, conc)
+    elif len(hyps) == 1:
+        return z3.ForAll(vs, z3.Implies(hyps[0], conc))
+    else:
+        hyp = z3.And(hyps)
+        return z3.ForAll(vs, z3.Implies(hyp, conc))
 
 
-def QExists(vars, hyp, conc):
+def QExists(vs, *concs):
     """Quantified Exists
 
-    Shorthand for `Exists(vars, And(hyp, conc))`
+    Shorthand for `ForAll(vars, And(conc[0], conc[1], ...))`
 
+    If variables have a property `wf` attached, this is anded into the properties.
     """
-    return z3.Exists(vars, z3.And(hyp, conc))
+    concs = [v.wf for v in vs if hasattr(v, "wf")] + list(concs)
+    if len(concs) == 1:
+        z3.Exists(vars, concs[0])
+    else:
+        z3.Exists(vars, z3.And(concs))
 
 
 z3.SortRef.__rshift__ = lambda self, other: z3.ArraySort(self, other)
@@ -41,15 +57,22 @@ class SortDispatch:
     It allows for dispatching on the sort of the first argument
     """
 
-    def __init__(self, default=None):
+    def __init__(self, default=None, name=None):
         self.methods = {}
         self.default = default
+        self.name = name
 
     def register(self, sort, func):
         self.methods[sort] = func
 
     def __call__(self, *args, **kwargs):
         return self.methods.get(args[0].sort(), self.default)(*args, **kwargs)
+
+    def define(self, args, body):
+        assert isinstance(self.name, str)
+        defn = kd.define(self.name, args, body)
+        self.register(args[0].sort(), defn)
+        return defn
 
 
 add = SortDispatch(z3.ArithRef.__add__)
@@ -97,3 +120,13 @@ def lookup_cons_recog(self, k):
 
 
 z3.DatatypeRef.__getattr__ = lookup_cons_recog
+
+
+def Record(name, *fields):
+    """
+    Define a record datatype
+    """
+    rec = z3.Datatype(name)
+    rec.declare("mk", *fields)
+    rec = rec.create()
+    return rec
