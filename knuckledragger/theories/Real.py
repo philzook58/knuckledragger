@@ -50,3 +50,12 @@ max_assoc = kd.lemma(
 max_idem = kd.lemma(ForAll([x], max(x, x) == x), by=[max.defn])
 max_ge = kd.lemma(ForAll([x, y], max(x, y) >= x), by=[max.defn])
 max_ge_2 = kd.lemma(ForAll([x, y], max(x, y) >= y), by=[max.defn])
+
+min = kd.define("min", [x, y], z3.If(x <= y, x, y))
+min_comm = kd.lemma(ForAll([x, y], min(x, y) == min(y, x)), by=[min.defn])
+min_assoc = kd.lemma(
+    ForAll([x, y, z], min(x, min(y, z)) == min(min(x, y), z)), by=[min.defn]
+)
+min_idem = kd.lemma(ForAll([x], min(x, x) == x), by=[min.defn])
+min_le = kd.lemma(ForAll([x, y], min(x, y) <= x), by=[min.defn])
+min_le_2 = kd.lemma(ForAll([x, y], min(x, y) <= y), by=[min.defn])

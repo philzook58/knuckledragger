@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 import logging
 
-logger = logging.getLogger("knuckeldragger")
+logger = logging.getLogger("knuckledragger")
 
 
 @dataclass(frozen=True)
@@ -65,11 +65,11 @@ def lemma(
     else:
         s = solver()
         s.set("timeout", timeout)
-        for n, p in enumerate(by):
+        for p in by:
             if not isinstance(p, __Proof):
                 raise LemmaError("In by reasons:", p, "is not a Proof object")
-            s.assert_and_track(p.thm, "by_{}".format(n))
-        s.assert_and_track(z3.Not(thm), "knuckledragger_goal")
+            s.add(p.thm)
+        s.add(z3.Not(thm))
         if dump:
             print(s.sexpr())
         res = s.check()
@@ -78,10 +78,6 @@ def lemma(
                 raise LemmaError(thm, "Countermodel", s.model())
             raise LemmaError("lemma", thm, res)
         else:
-            core = s.unsat_core()
-            assert z3.Bool("knuckledragger_goal") in core
-            if len(core) < len(by) + 1:
-                print("WARNING: Unneeded assumptions. Used", core)
             return __Proof(thm, by, False)
 
 

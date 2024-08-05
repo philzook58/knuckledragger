@@ -1,38 +1,38 @@
 import pytest
-from knuckledragger import lemma, axiom
 import z3
 
 import knuckledragger as kd
 import knuckledragger.theories.Nat
 import knuckledragger.theories.Int
 import knuckledragger.theories.Real as R
+import knuckledragger.theories.Complex as C
+import knuckledragger.theories.Interval
 
-import knuckledragger.theories.List
-import knuckledragger.theories.Seq
+import knuckledragger.theories.Seq as ThSeq
 
 from knuckledragger import Calc
 import knuckledragger.utils
 
 
 def test_true_infer():
-    lemma(z3.BoolVal(True))
+    kd.lemma(z3.BoolVal(True))
 
 
 def test_false_infer():
     with pytest.raises(Exception) as _:
-        lemma(z3.BoolVal(False))
+        kd.lemma(z3.BoolVal(False))
 
 
 def test_explosion():
-    a = axiom(z3.BoolVal(False), "False axiom")
+    a = kd.axiom(z3.BoolVal(False), "False axiom")
     with pytest.raises(Exception) as _:
-        lemma(z3.BoolVal(True), by=[a])
+        kd.lemma(z3.BoolVal(True), by=[a])
 
 
 def test_calc():
     x, y, z = z3.Ints("x y z")
-    l1 = axiom(x == y)
-    l2 = axiom(y == z)
+    l1 = kd.axiom(x == y)
+    l2 = kd.axiom(y == z)
     Calc([], x).eq(y, by=[l1]).eq(z, by=[l2]).qed()
 
 
@@ -77,3 +77,7 @@ def test_simp():
 def test_record():
     foo = kd.notation.Record("foo", ("bar", z3.IntSort()), ("baz", z3.BoolSort()))
     assert z3.simplify(foo.mk(1, True).bar).eq(z3.IntVal(1))
+
+
+def test_seq():
+    ThSeq.induct(z3.IntSort(), lambda x: x == x)

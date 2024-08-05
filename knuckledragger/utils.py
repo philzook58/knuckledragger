@@ -12,6 +12,7 @@ def simp(t: z3.ExprRef) -> z3.ExprRef:
         G.add(v.ax.thm)
     G.add(expr == t)
     G2 = z3.Then(z3.Tactic("demodulator"), z3.Tactic("simplify")).apply(G)[0]
+    # TODO make this extraction more robust
     return G2[len(G2) - 1].children()[1]
 
 
