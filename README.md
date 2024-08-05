@@ -24,10 +24,12 @@ python3 -m pip install -e .
 
 ## Blog Posts
 
-- [Knuckledragger: Experimenting with a Python Proof Assistant](https://www.philipzucker.com/python-itp/)
-- [Experiments in the Irrationality of Sqrt 2 with SMT](https://www.philipzucker.com/sqrt2/)
-- [Peano Nats in Interactive SMT](https://www.philipzucker.com/sqrt2_2/)
+- [State of Knuckledragger, a Semi-Automated Python Proof Assistant](https://www.philipzucker.com/state_o_knuck/)
 - [Proving Sum n = n*(n-1)/2 and that 1/n tends to 0](https://www.philipzucker.com/analysis_knuckle/)
+- [Peano Nats in Interactive SMT](https://www.philipzucker.com/sqrt2_2/)
+- [Experiments in the Irrationality of Sqrt 2 with SMT](https://www.philipzucker.com/sqrt2/)
+- [Knuckledragger Update: ATP for Python Interactive Theorem Proving](https://www.philipzucker.com/knuckledrag2/)
+- [Knuckledragger: Experimenting with a Python Proof Assistant](https://www.philipzucker.com/python-itp/)
 
 ## Design
 
