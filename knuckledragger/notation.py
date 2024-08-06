@@ -84,6 +84,9 @@ z3.ExprRef.__sub__ = lambda x, y: sub(x, y)
 mul = SortDispatch(z3.ArithRef.__mul__, name="mul")
 z3.ExprRef.__mul__ = lambda x, y: mul(x, y)
 
+neg = SortDispatch(z3.ArithRef.__neg__, name="neg")
+z3.ExprRef.__neg__ = lambda x: neg(x)
+
 div = SortDispatch(z3.ArithRef.__div__, name="div")
 z3.ExprRef.__truediv__ = lambda x, y: div(x, y)
 
@@ -130,3 +133,46 @@ def Record(name, *fields):
     rec.declare("mk", *fields)
     rec = rec.create()
     return rec
+
+
+class Cond:
+    """
+    Cond is a useful way to build up giant if-then-else expressions.
+    """
+
+    def __init__(self):
+        self.clauses = []
+        self.cur_case = None
+        self.other = None
+        self.sort = None
+        self.default = None
+
+    def when(self, c: z3.BoolRef) -> "Cond":
+        assert self.cur_case is None
+        assert isinstance(c, z3.BoolRef)
+        self.cur_case = c
+        return self
+
+    def then(self, e: z3.ExprRef) -> "Cond":
+        assert self.cur_case is not None
+        if self.sort is not None:
+            assert e.sort() == self.sort
+        else:
+            self.sort = e.sort()
+        self.clauses.append((self.cur_case, e))
+        self.cur_case = None
+        return self
+
+    def otherwise(self, e: z3.ExprRef) -> z3.ExprRef:
+        assert self.default is None
+        assert self.sort == e.sort()
+        self.default = e
+        return self.expr()
+
+    def expr(self) -> z3.ExprRef:
+        assert self.default is not None
+        assert self.cur_case is None
+        acc = self.default
+        for c, e in reversed(self.clauses):
+            acc = z3.If(c, e, acc)
+        return acc

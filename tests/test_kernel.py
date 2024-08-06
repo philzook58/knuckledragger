@@ -81,3 +81,56 @@ def test_record():
 
 def test_seq():
     ThSeq.induct(z3.IntSort(), lambda x: x == x)
+
+
+def test_cons():
+    c = kd.notation.Cond()
+    assert (
+        c.when(z3.BoolVal(True))
+        .then(z3.IntVal(1))
+        .otherwise(z3.IntVal(2))
+        .eq(z3.If(z3.BoolVal(True), z3.IntVal(1), z3.IntVal(2)))
+    )
+    c = kd.notation.Cond()
+    assert (
+        c.when(z3.BoolVal(True))
+        .then(z3.IntVal(1))
+        .when(z3.BoolVal(False))
+        .then(z3.Int("y"))
+        .otherwise(z3.IntVal(2))
+        .eq(
+            z3.If(
+                z3.BoolVal(True),
+                z3.IntVal(1),
+                z3.If(z3.BoolVal(False), z3.Int("y"), z3.IntVal(2)),
+            )
+        )
+    )
+
+
+def test_match():
+    x, y, z = z3.Reals("x y z")
+    Var = z3.Var
+    R = z3.RealSort()
+    assert kd.utils.z3_match(x, Var(0, R)) == {Var(0, R): x}
+    assert kd.utils.z3_match(x + y, Var(0, R) + Var(1, R)) == {
+        Var(0, R): x,
+        Var(1, R): y,
+    }
+    assert kd.utils.z3_match(x + y, Var(0, R) + Var(0, R)) == None
+    assert kd.utils.z3_match(x + y + x, Var(0, R) + Var(1, R) + Var(0, R)) == {
+        Var(0, R): x,
+        Var(1, R): y,
+    }
+    assert kd.utils.z3_match(x + y + x * 6, Var(0, R) + Var(1, R) + Var(2, R)) == {
+        Var(0, R): x,
+        Var(1, R): y,
+        Var(2, R): x * 6,
+    }
+    assert kd.utils.z3_match(
+        x + y + x * 6 == 0, z3.ForAll([x, y, z], x + y + z == 0)
+    ) == {
+        Var(2, R): x,
+        Var(1, R): y,
+        Var(0, R): x * 6,
+    }

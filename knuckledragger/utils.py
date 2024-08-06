@@ -3,6 +3,7 @@ import z3
 import subprocess
 import sys
 import knuckledragger as kd
+from typing import Optional
 
 
 def simp(t: z3.ExprRef) -> z3.ExprRef:
@@ -47,6 +48,37 @@ def lemma_smt(thm: z3.BoolRef, by=[], sig=[]) -> list[str]:
     output.append("(assert " + z3.Not(thm).sexpr() + ")")
     output.append("(check-sat)")
     return output
+
+
+def z3_match(t: z3.ExprRef, pat: z3.ExprRef) -> Optional[dict[z3.ExprRef, z3.ExprRef]]:
+    """
+    Pattern match t against pat. Variables are constructed as `z3.Var(i, sort)`.
+    Returns substitution dict if match succeeds.
+    Returns None if match fails.
+    Outer quantifier (Exists, ForAll, Lambda) in pat is ignored.
+    """
+    if z3.is_quantifier(pat):
+        pat = pat.body()
+    subst = {}
+    todo = [(t, pat)]
+    while len(todo) > 0:
+        t, pat = todo.pop()
+        if t.eq(pat):
+            continue
+        if z3.is_var(pat):
+            if pat in subst:
+                if not subst[pat].eq(t):
+                    return None
+            else:
+                subst[pat] = t
+        elif z3.is_app(t) and z3.is_app(pat):
+            if pat.decl() == t.decl():
+                todo.extend(zip(t.children(), pat.children()))
+            else:
+                return None
+        else:
+            raise Exception("Unexpected subterm or subpattern", t, pat)
+    return subst
 
 
 def open_binder(lam: z3.QuantifierRef):

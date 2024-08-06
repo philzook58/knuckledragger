@@ -25,6 +25,7 @@ kd.notation.div.register(C, div)
 
 C0 = C.mk(0, 0)
 C1 = C.mk(1, 0)
+Ci = C.mk(0, 1)
 
 add_zero = kd.lemma(z3.ForAll([z], z + C0 == z), by=[add.defn])
 mul_zero = kd.lemma(z3.ForAll([z], z * C0 == C0), by=[mul.defn])

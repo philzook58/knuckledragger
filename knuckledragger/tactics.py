@@ -1,5 +1,7 @@
 import knuckledragger as kd
 import z3
+from enum import IntEnum
+import operator as op
 
 
 class Calc:
@@ -8,30 +10,88 @@ class Calc:
     One can write a sequence of formulas interspersed with useful lemmas.
     """
 
+    class _Mode(IntEnum):
+        EQ = 0
+        LE = 1
+        LT = 2
+        GT = 3
+        GE = 4
+
+        def str(self):
+            names = ["==", "<=", "<", ">", ">="]
+            return names[self]
+
+        @property
+        def op(self):
+            ops = [op.eq, op.le, op.lt, op.gt, op.ge]
+            return ops[self]
+
+        def trans(self, y):
+            if self == y or self == self.EQ:
+                return True
+            else:
+                if self == self.LE and y == self.LT or self == self.GE and y == self.GT:
+                    return True
+                else:
+                    return False
+
     def __init__(self, vars, lhs):
         # TODO: hyps=None for conditional rewriting. assumpt, assume=[]
         self.vars = vars
         self.terms = [lhs]
         self.lemmas = []
+        self.mode = self._Mode.EQ
 
-    def ForAll(self, body):
+    def _forall(self, body):
         if len(self.vars) == 0:
             return body
         else:
             return z3.ForAll(self.vars, body)
 
     def eq(self, rhs, by=[]):
-        self.lemmas.append(kd.lemma(self.ForAll(self.terms[-1] == rhs), by=by))
+        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] == rhs), by=by))
         self.terms.append(rhs)
         return self
 
-    # TODO: lt, le, gt, ge chaining. Or custom op.
+    def _set_mode(self, newmode):
+        if not self.mode.trans(newmode):
+            raise kd.kernel.LemmaError(
+                "Cannot change from", self.mode, "to", newmode, "in Calc"
+            )
+        self.mode = newmode
+
+    def le(self, rhs, by=[]):
+        self._set_mode(Calc._Mode.LE)
+        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] <= rhs), by=by))
+        self.terms.append(rhs)
+        return self
+
+    def lt(self, rhs, by=[]):
+        self._set_mode(Calc._Mode.LT)
+        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] < rhs), by=by))
+        self.terms.append(rhs)
+        return self
+
+    def ge(self, rhs, by=[]):
+        self._set_mode(Calc._Mode.GE)
+        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] >= rhs), by=by))
+        self.terms.append(rhs)
+        return self
+
+    def gt(self, rhs, by=[]):
+        self._set_mode(Calc._Mode.GT)
+        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] > rhs), by=by))
+        self.terms.append(rhs)
+        return self
 
     def __repr__(self):
-        return "... = " + repr(self.terms[-1])
+        return "... " + str(self.mode) + " " + repr(self.terms[-1])
 
     def qed(self):
-        return kd.lemma(self.ForAll(self.terms[0] == self.terms[-1]), by=self.lemmas)
+        return kd.lemma(
+            self._forall(self.mode.op(self.terms[0], self.terms[-1])),
+            by=self.lemmas,
+        )
 
 
 def lemma(
