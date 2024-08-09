@@ -1,7 +1,8 @@
+from . import smt
 from . import kernel
 from . import notation
 from . import tactics
-import knuckledragger.smt as smt
+
 
 lemma = tactics.lemma
 axiom = kernel.axiom

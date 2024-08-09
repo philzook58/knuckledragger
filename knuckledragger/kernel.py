@@ -122,17 +122,7 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
         tuple[smt.FuncDeclRef, __Proof]: A tuple of the defined term and the proof of the definition.
     """
     sorts = [arg.sort() for arg in args] + [body.sort()]
-    print(sorts)
     f = smt.Function(name, *sorts)
-    print(f.range())
-    print(f.arity())
-    print(f.domain(0))
-    print(f(*args).sort())
-    print(body.sort())
-    f(*args) == body
-    # import cvc5
-
-    # print(cvc5.__version__)
     if len(args) > 0:
         def_ax = axiom(smt.ForAll(args, f(*args) == body), by="definition")
     else:
