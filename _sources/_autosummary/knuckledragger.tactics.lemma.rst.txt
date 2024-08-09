@@ -1,0 +1,6 @@
+knuckledragger.tactics.lemma
+============================
+
+.. currentmodule:: knuckledragger.tactics
+
+.. autofunction:: lemma

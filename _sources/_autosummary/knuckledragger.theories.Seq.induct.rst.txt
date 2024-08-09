@@ -1,0 +1,6 @@
+knuckledragger.theories.Seq.induct
+==================================
+
+.. currentmodule:: knuckledragger.theories.Seq
+
+.. autofunction:: induct

@@ -1,0 +1,6 @@
+knuckledragger.utils.expr\_to\_tptp
+===================================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: expr_to_tptp

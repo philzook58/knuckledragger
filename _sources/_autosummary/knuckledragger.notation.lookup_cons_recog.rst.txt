@@ -1,0 +1,6 @@
+knuckledragger.notation.lookup\_cons\_recog
+===========================================
+
+.. currentmodule:: knuckledragger.notation
+
+.. autofunction:: lookup_cons_recog

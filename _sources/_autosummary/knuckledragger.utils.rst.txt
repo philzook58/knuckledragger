@@ -1,0 +1,43 @@
+knuckledragger.utils
+====================
+
+.. automodule:: knuckledragger.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      expr_to_tptp
+      lemma_db
+      lemma_smt
+      lemma_tptp
+      open_binder
+      simp
+      simp2
+      sort_to_tptp
+      subterms
+      z3_match
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/utils.py
+   :language: python

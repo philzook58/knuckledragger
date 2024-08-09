@@ -1,0 +1,44 @@
+knuckledragger.notation
+=======================
+
+.. automodule:: knuckledragger.notation
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      QExists
+      QForAll
+      Record
+      lookup_cons_recog
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cond
+      SortDispatch
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/notation.py
+   :language: python

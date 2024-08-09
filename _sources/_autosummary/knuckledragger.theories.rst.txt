@@ -1,0 +1,41 @@
+knuckledragger.theories
+=======================
+
+.. automodule:: knuckledragger.theories
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   Complex
+   Int
+   Interval
+   Nat
+   Real
+   Seq
+   Vec
+
+
+
+.. literalinclude:: ../../knuckledragger/theories.py
+   :language: python

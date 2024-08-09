@@ -1,0 +1,6 @@
+knuckledragger.utils.lemma\_db
+==============================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: lemma_db

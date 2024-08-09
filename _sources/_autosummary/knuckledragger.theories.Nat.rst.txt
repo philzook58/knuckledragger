@@ -1,0 +1,40 @@
+knuckledragger.theories.Nat
+===========================
+
+.. automodule:: knuckledragger.theories.Nat
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      Nat
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      induct
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/theories/Nat.py
+   :language: python

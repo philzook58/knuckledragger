@@ -1,0 +1,56 @@
+knuckledragger.kernel
+=====================
+
+.. automodule:: knuckledragger.kernel
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      defns
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      axiom
+      define
+      define_fix
+      is_proof
+      lemma
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Defn
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      LemmaError
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/kernel.py
+   :language: python

@@ -1,0 +1,6 @@
+knuckledragger.utils.lemma\_tptp
+================================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: lemma_tptp

@@ -1,0 +1,6 @@
+knuckledragger.utils.open\_binder
+=================================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: open_binder

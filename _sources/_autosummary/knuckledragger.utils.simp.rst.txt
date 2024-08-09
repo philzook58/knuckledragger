@@ -1,0 +1,6 @@
+knuckledragger.utils.simp
+=========================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: simp

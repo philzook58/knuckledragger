@@ -1,0 +1,6 @@
+knuckledragger.kernel.define\_fix
+=================================
+
+.. currentmodule:: knuckledragger.kernel
+
+.. autofunction:: define_fix

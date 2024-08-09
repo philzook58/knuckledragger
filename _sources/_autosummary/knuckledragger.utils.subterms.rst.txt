@@ -1,0 +1,6 @@
+knuckledragger.utils.subterms
+=============================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: subterms

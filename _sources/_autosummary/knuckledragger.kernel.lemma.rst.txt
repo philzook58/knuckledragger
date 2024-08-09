@@ -1,0 +1,6 @@
+knuckledragger.kernel.lemma
+===========================
+
+.. currentmodule:: knuckledragger.kernel
+
+.. autofunction:: lemma

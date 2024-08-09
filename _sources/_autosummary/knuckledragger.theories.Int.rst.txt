@@ -1,0 +1,34 @@
+knuckledragger.theories.Int
+===========================
+
+.. automodule:: knuckledragger.theories.Int
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      induct_nat
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/theories/Int.py
+   :language: python

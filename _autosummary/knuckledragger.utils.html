@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>knuckledragger.utils &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="knuckledragger.utils.expr_to_tptp" href="knuckledragger.utils.expr_to_tptp.html" />
+    <link rel="prev" title="knuckledragger.theories.Vec" href="knuckledragger.theories.Vec.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="knuckledragger.html">knuckledragger</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="knuckledragger.kernel.html">knuckledragger.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="knuckledragger.notation.html">knuckledragger.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="knuckledragger.tactics.html">knuckledragger.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="knuckledragger.theories.html">knuckledragger.theories</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">knuckledragger.utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.expr_to_tptp.html">knuckledragger.utils.expr_to_tptp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.lemma_db.html">knuckledragger.utils.lemma_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.lemma_smt.html">knuckledragger.utils.lemma_smt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.lemma_tptp.html">knuckledragger.utils.lemma_tptp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.open_binder.html">knuckledragger.utils.open_binder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.simp.html">knuckledragger.utils.simp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.simp2.html">knuckledragger.utils.simp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.sort_to_tptp.html">knuckledragger.utils.sort_to_tptp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.subterms.html">knuckledragger.utils.subterms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="knuckledragger.utils.z3_match.html">knuckledragger.utils.z3_match</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="knuckledragger.html">knuckledragger</a></li>
+      <li class="breadcrumb-item active">knuckledragger.utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/knuckledragger.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-knuckledragger.utils">
+<span id="knuckledragger-utils"></span><h1>knuckledragger.utils<a class="headerlink" href="#module-knuckledragger.utils" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="knuckledragger.utils.expr_to_tptp.html#knuckledragger.utils.expr_to_tptp" title="knuckledragger.utils.expr_to_tptp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expr_to_tptp</span></code></a>(expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knuckledragger.utils.lemma_db.html#knuckledragger.utils.lemma_db" title="knuckledragger.utils.lemma_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lemma_db</span></code></a>()</p></td>
+<td><p>Scan all modules for Proof objects and return a dictionary of them.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="knuckledragger.utils.lemma_smt.html#knuckledragger.utils.lemma_smt" title="knuckledragger.utils.lemma_smt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lemma_smt</span></code></a>(thm[, by, sig])</p></td>
+<td><p>Replacement for lemma that returns smtlib string for experimentation with other solvers</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knuckledragger.utils.lemma_tptp.html#knuckledragger.utils.lemma_tptp" title="knuckledragger.utils.lemma_tptp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lemma_tptp</span></code></a>(thm[, by, sig, timeout, command])</p></td>
+<td><p>Returns tptp strings</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="knuckledragger.utils.open_binder.html#knuckledragger.utils.open_binder" title="knuckledragger.utils.open_binder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_binder</span></code></a>(lam)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knuckledragger.utils.simp.html#knuckledragger.utils.simp" title="knuckledragger.utils.simp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simp</span></code></a>(t)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="knuckledragger.utils.simp2.html#knuckledragger.utils.simp2" title="knuckledragger.utils.simp2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simp2</span></code></a>(t)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knuckledragger.utils.sort_to_tptp.html#knuckledragger.utils.sort_to_tptp" title="knuckledragger.utils.sort_to_tptp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_to_tptp</span></code></a>(sort)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="knuckledragger.utils.subterms.html#knuckledragger.utils.subterms" title="knuckledragger.utils.subterms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subterms</span></code></a>(t)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knuckledragger.utils.z3_match.html#knuckledragger.utils.z3_match" title="knuckledragger.utils.z3_match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">z3_match</span></code></a>(t, pat)</p></td>
+<td><p>Pattern match t against pat.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">knuckledragger.kernel</span> <span class="kn">import</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">is_proof</span>
+<span class="kn">import</span> <span class="nn">z3</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">knuckledragger</span> <span class="k">as</span> <span class="nn">kd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+
+<span class="k">def</span> <span class="nf">simp</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;knuckle_goal&quot;</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">Goal</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">defns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">thm</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">expr</span> <span class="o">==</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">G2</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">Then</span><span class="p">(</span><span class="n">z3</span><span class="o">.</span><span class="n">Tactic</span><span class="p">(</span><span class="s2">&quot;demodulator&quot;</span><span class="p">),</span> <span class="n">z3</span><span class="o">.</span><span class="n">Tactic</span><span class="p">(</span><span class="s2">&quot;simplify&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">G</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># TODO make this extraction more robust</span>
+    <span class="k">return</span> <span class="n">G2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">G2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">simp2</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;knuckle_goal&quot;</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">Goal</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">defns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">thm</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">expr</span> <span class="o">==</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">G2</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">Tactic</span><span class="p">(</span><span class="s2">&quot;elim-predicates&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">G</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">G2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">G2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">lemma_smt</span><span class="p">(</span><span class="n">thm</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[],</span> <span class="n">sig</span><span class="o">=</span><span class="p">[])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replacement for lemma that returns smtlib string for experimentation with other solvers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;;;declarations&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sig</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">sexpr</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">SortRef</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(declare-sort &quot;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="n">sexpr</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; 0)&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span><span class="o">.</span><span class="n">sexpr</span><span class="p">())</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;;;axioms&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">by</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_proof</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(assert &quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">sexpr</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;;;goal&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(assert &quot;</span> <span class="o">+</span> <span class="n">z3</span><span class="o">.</span><span class="n">Not</span><span class="p">(</span><span class="n">thm</span><span class="p">)</span><span class="o">.</span><span class="n">sexpr</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(check-sat)&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+
+<span class="k">def</span> <span class="nf">z3_match</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">pat</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pattern match t against pat. Variables are constructed as `z3.Var(i, sort)`.</span>
+<span class="sd">    Returns substitution dict if match succeeds.</span>
+<span class="sd">    Returns None if match fails.</span>
+<span class="sd">    Outer quantifier (Exists, ForAll, Lambda) in pat is ignored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">z3</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>
+        <span class="n">pat</span> <span class="o">=</span> <span class="n">pat</span><span class="o">.</span><span class="n">body</span><span class="p">()</span>
+    <span class="n">subst</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">pat</span><span class="p">)]</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">todo</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">pat</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">z3</span><span class="o">.</span><span class="n">is_var</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">subst</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">subst</span><span class="p">[</span><span class="n">pat</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">subst</span><span class="p">[</span><span class="n">pat</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="k">elif</span> <span class="n">z3</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">and</span> <span class="n">z3</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pat</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">decl</span><span class="p">():</span>
+                <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="p">(),</span> <span class="n">pat</span><span class="o">.</span><span class="n">children</span><span class="p">()))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unexpected subterm or subpattern&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">pat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subst</span>
+
+
+<span class="k">def</span> <span class="nf">open_binder</span><span class="p">(</span><span class="n">lam</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">):</span>
+    <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">z3</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="n">lam</span><span class="o">.</span><span class="n">var_name</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">lam</span><span class="o">.</span><span class="n">var_sort</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lam</span><span class="o">.</span><span class="n">num_vars</span><span class="p">()))</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="nb">vars</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">substitute_vars</span><span class="p">(</span><span class="n">lam</span><span class="o">.</span><span class="n">body</span><span class="p">(),</span> <span class="o">*</span><span class="nb">vars</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">expr_to_tptp</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">IntNumRef</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">as_string</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">):</span>
+        <span class="nb">vars</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">open_binder</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">expr_to_tptp</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+        <span class="n">vs</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">sexpr</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">sort_to_tptp</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">sort</span><span class="p">())</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">expr</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(![</span><span class="si">{</span><span class="n">vs</span><span class="si">}</span><span class="s2">] : </span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">elif</span> <span class="n">expr</span><span class="o">.</span><span class="n">is_exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(?[</span><span class="si">{</span><span class="n">vs</span><span class="si">}</span><span class="s2">] : </span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">elif</span> <span class="n">expr</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">():</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(^[</span><span class="si">{</span><span class="n">vs</span><span class="si">}</span><span class="s2">] : </span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">expr_to_tptp</span><span class="p">,</span> <span class="n">expr</span><span class="o">.</span><span class="n">children</span><span class="p">()))</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$true&quot;</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$false&quot;</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;and&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; &amp; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;or&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;=&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;=&gt;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2"> =&gt; </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;not&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;~(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;ite&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$ite(</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$less(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$lesseq(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$greater(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$greatereq(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$sum(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$difference(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$product(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$quotient(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">head</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">children</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+
+<span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="n">tptp</span> <span class="o">=</span> <span class="n">expr_to_tptp</span>
+
+
+<span class="k">def</span> <span class="nf">sort_to_tptp</span><span class="p">(</span><span class="n">sort</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">SortRef</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">sort</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Int&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$int&quot;</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Bool&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$o&quot;</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Real&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;$real&quot;</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Array&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2"> &gt; </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">sort_to_tptp</span><span class="p">(</span><span class="n">sort</span><span class="o">.</span><span class="n">domain</span><span class="p">()),</span> <span class="n">sort_to_tptp</span><span class="p">(</span><span class="n">sort</span><span class="o">.</span><span class="n">range</span><span class="p">())</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="n">z3</span><span class="o">.</span><span class="n">SortRef</span><span class="o">.</span><span class="n">tptp</span> <span class="o">=</span> <span class="n">sort_to_tptp</span>
+
+
+<span class="k">def</span> <span class="nf">lemma_tptp</span><span class="p">(</span><span class="n">thm</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[],</span> <span class="n">sig</span><span class="o">=</span><span class="p">[],</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns tptp strings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sig</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">):</span>
+            <span class="n">dom</span> <span class="o">=</span> <span class="s2">&quot; * &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">domain</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">tptp</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">arity</span><span class="p">())])</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tff(sig, type, </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="si">}</span><span class="s2"> : (</span><span class="si">{</span><span class="n">dom</span><span class="si">}</span><span class="s2">) &gt; </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">range</span><span class="p">()</span><span class="o">.</span><span class="n">tptp</span><span class="p">()</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">SortRef</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tff(sig, type, </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">tptp</span><span class="p">()</span><span class="si">}</span><span class="s2"> : $tType).&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tff(sig, type, </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">sexpr</span><span class="p">()</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span><span class="o">.</span><span class="n">tptp</span><span class="p">()</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">by</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_proof</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tff(hyp, axiom, </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">tptp</span><span class="p">()</span><span class="si">}</span><span class="s2"> ).&quot;</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tff(goal,conjecture,</span><span class="si">{</span><span class="n">thm</span><span class="o">.</span><span class="n">tptp</span><span class="p">()</span><span class="si">}</span><span class="s2"> ).&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">output</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/temp.p&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/tmp/temp.p&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">command</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+
+<span class="k">def</span> <span class="nf">subterms</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">z3</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">]</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">todo</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">x</span>
+        <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">lemma_db</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scan all modules for Proof objects and return a dictionary of them.&quot;&quot;&quot;</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">modname</span><span class="p">,</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">thms</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">thm</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">thm</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">is_proof</span><span class="p">(</span><span class="n">thm</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">thms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">db</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">thms</span>
+    <span class="k">return</span> <span class="n">db</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="knuckledragger.theories.Vec.html" class="btn btn-neutral float-left" title="knuckledragger.theories.Vec" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="knuckledragger.utils.expr_to_tptp.html" class="btn btn-neutral float-right" title="knuckledragger.utils.expr_to_tptp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+knuckledragger.utils.z3\_match
+==============================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: z3_match

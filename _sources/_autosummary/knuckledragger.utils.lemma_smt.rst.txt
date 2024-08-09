@@ -1,0 +1,6 @@
+knuckledragger.utils.lemma\_smt
+===============================
+
+.. currentmodule:: knuckledragger.utils
+
+.. autofunction:: lemma_smt

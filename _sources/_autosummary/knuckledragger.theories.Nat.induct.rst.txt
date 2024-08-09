@@ -1,0 +1,6 @@
+knuckledragger.theories.Nat.induct
+==================================
+
+.. currentmodule:: knuckledragger.theories.Nat
+
+.. autofunction:: induct

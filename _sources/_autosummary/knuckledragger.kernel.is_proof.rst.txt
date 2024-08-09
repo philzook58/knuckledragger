@@ -1,0 +1,6 @@
+knuckledragger.kernel.is\_proof
+===============================
+
+.. currentmodule:: knuckledragger.kernel
+
+.. autofunction:: is_proof

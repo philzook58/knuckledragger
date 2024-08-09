@@ -1,0 +1,6 @@
+knuckledragger.notation.Record
+==============================
+
+.. currentmodule:: knuckledragger.notation
+
+.. autofunction:: Record

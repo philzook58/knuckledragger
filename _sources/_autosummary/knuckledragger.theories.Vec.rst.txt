@@ -1,0 +1,27 @@
+knuckledragger.theories.Vec
+===========================
+
+.. automodule:: knuckledragger.theories.Vec
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../knuckledragger/theories/Vec.py
+   :language: python
