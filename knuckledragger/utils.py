@@ -195,6 +195,14 @@ def lemma_tptp(thm: z3.BoolRef, by=[], sig=[], timeout=None, command=None):
         return res
 
 
+def subterms(t: z3.ExprRef):
+    todo = [t]
+    while len(todo) > 0:
+        x = todo.pop()
+        yield x
+        todo.extend(x.children())
+
+
 def lemma_db():
     """Scan all modules for Proof objects and return a dictionary of them."""
     db = {}

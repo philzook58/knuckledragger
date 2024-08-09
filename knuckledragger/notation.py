@@ -130,8 +130,9 @@ def Record(name, *fields):
     Define a record datatype
     """
     rec = z3.Datatype(name)
-    rec.declare("mk", *fields)
+    rec.declare(name, *fields)
     rec = rec.create()
+    rec.mk = rec.constructor(0)
     return rec
 
 

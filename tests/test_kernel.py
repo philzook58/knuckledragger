@@ -134,3 +134,8 @@ def test_match():
         Var(1, R): y,
         Var(0, R): x * 6,
     }
+
+
+def test_subterms():
+    x, y = z3.Ints("x y")
+    assert set(kd.utils.subterms(x + y + x)) == {x, y, x, x + y, x + y + x}

@@ -36,7 +36,7 @@ mul_distrib = lemma(
 abs = kd.define("abs", [x], z3.If(x >= 0, x, -x))
 
 abs_idem = kd.lemma(ForAll([x], abs(abs(x)) == abs(x)), by=[abs.defn])
-abd_neg = kd.lemma(ForAll([x], abs(-x) == abs(x)), by=[abs.defn])
+abs_neg = kd.lemma(ForAll([x], abs(-x) == abs(x)), by=[abs.defn])
 abs_ge_0 = kd.lemma(ForAll([x], abs(x) >= 0), by=[abs.defn])
 
 nonneg = kd.define("nonneg", [x], abs(x) == x)

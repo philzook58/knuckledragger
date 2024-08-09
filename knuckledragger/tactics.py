@@ -17,7 +17,7 @@ class Calc:
         GT = 3
         GE = 4
 
-        def str(self):
+        def __str__(self):
             names = ["==", "<=", "<", ">", ">="]
             return names[self]
 
@@ -27,6 +27,7 @@ class Calc:
             return ops[self]
 
         def trans(self, y):
+            """Allowed transitions"""
             if self == y or self == self.EQ:
                 return True
             else:
@@ -35,14 +36,18 @@ class Calc:
                 else:
                     return False
 
-    def __init__(self, vars, lhs):
-        # TODO: hyps=None for conditional rewriting. assumpt, assume=[]
+    def __init__(self, vars, lhs, assume=[]):
         self.vars = vars
         self.terms = [lhs]
         self.lemmas = []
+        self.assume = assume
         self.mode = self._Mode.EQ
 
     def _forall(self, body):
+        if len(self.assume) == 1:
+            body = z3.Implies(self.assume[0], body)
+        elif len(self.assume) > 1:
+            body = z3.Implies(z3.And(self.assume), body)
         if len(self.vars) == 0:
             return body
         else:

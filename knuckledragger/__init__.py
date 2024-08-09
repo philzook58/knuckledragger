@@ -9,6 +9,8 @@ define = kernel.define
 
 QForAll = notation.QForAll
 QExists = notation.QExists
+Cond = notation.Cond
+Record = notation.Record
 
 Calc = tactics.Calc
 
