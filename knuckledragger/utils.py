@@ -1,63 +1,65 @@
 from knuckledragger.kernel import lemma, is_proof
-import z3
+import knuckledragger.smt as smt
 import subprocess
 import sys
 import knuckledragger as kd
 from typing import Optional
 
 
-def simp(t: z3.ExprRef) -> z3.ExprRef:
-    expr = z3.FreshConst(t.sort(), prefix="knuckle_goal")
-    G = z3.Goal()
+def simp(t: smt.ExprRef) -> smt.ExprRef:
+    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
+    G = smt.Goal()
     for v in kd.kernel.defns.values():
         G.add(v.ax.thm)
     G.add(expr == t)
-    G2 = z3.Then(z3.Tactic("demodulator"), z3.Tactic("simplify")).apply(G)[0]
+    G2 = smt.Then(smt.Tactic("demodulator"), smt.Tactic("simplify")).apply(G)[0]
     # TODO make this extraction more robust
     return G2[len(G2) - 1].children()[1]
 
 
-def simp2(t: z3.ExprRef) -> z3.ExprRef:
-    expr = z3.FreshConst(t.sort(), prefix="knuckle_goal")
-    G = z3.Goal()
+def simp2(t: smt.ExprRef) -> smt.ExprRef:
+    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
+    G = smt.Goal()
     for v in kd.kernel.defns.values():
         G.add(v.ax.thm)
     G.add(expr == t)
-    G2 = z3.Tactic("elim-predicates").apply(G)[0]
+    G2 = smt.Tactic("elim-predicates").apply(G)[0]
     return G2[len(G2) - 1].children()[1]
 
 
-def lemma_smt(thm: z3.BoolRef, by=[], sig=[]) -> list[str]:
+def lemma_smt(thm: smt.BoolRef, by=[], sig=[]) -> list[str]:
     """
     Replacement for lemma that returns smtlib string for experimentation with other solvers
     """
     output = []
     output.append(";;declarations")
     for f in sig:
-        if isinstance(f, z3.FuncDeclRef):
+        if isinstance(f, smt.FuncDeclRef):
             output.append(f.sexpr())
-        elif isinstance(f, z3.SortRef):
+        elif isinstance(f, smt.SortRef):
             output.append("(declare-sort " + f.sexpr() + " 0)")
-        elif isinstance(f, z3.ExprRef):
+        elif isinstance(f, smt.ExprRef):
             output.append(f.decl().sexpr())
     output.append(";;axioms")
     for e in by:
         if is_proof(e):
             output.append("(assert " + e.thm.sexpr() + ")")
     output.append(";;goal")
-    output.append("(assert " + z3.Not(thm).sexpr() + ")")
+    output.append("(assert " + smt.Not(thm).sexpr() + ")")
     output.append("(check-sat)")
     return output
 
 
-def z3_match(t: z3.ExprRef, pat: z3.ExprRef) -> Optional[dict[z3.ExprRef, z3.ExprRef]]:
+def z3_match(
+    t: smt.ExprRef, pat: smt.ExprRef
+) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
     """
-    Pattern match t against pat. Variables are constructed as `z3.Var(i, sort)`.
+    Pattern match t against pat. Variables are constructed as `smt.Var(i, sort)`.
     Returns substitution dict if match succeeds.
     Returns None if match fails.
     Outer quantifier (Exists, ForAll, Lambda) in pat is ignored.
     """
-    if z3.is_quantifier(pat):
+    if smt.is_quantifier(pat):
         pat = pat.body()
     subst = {}
     todo = [(t, pat)]
@@ -65,13 +67,13 @@ def z3_match(t: z3.ExprRef, pat: z3.ExprRef) -> Optional[dict[z3.ExprRef, z3.Exp
         t, pat = todo.pop()
         if t.eq(pat):
             continue
-        if z3.is_var(pat):
+        if smt.is_var(pat):
             if pat in subst:
                 if not subst[pat].eq(t):
                     return None
             else:
                 subst[pat] = t
-        elif z3.is_app(t) and z3.is_app(pat):
+        elif smt.is_app(t) and smt.is_app(pat):
             if pat.decl() == t.decl():
                 todo.extend(zip(t.children(), pat.children()))
             else:
@@ -81,18 +83,18 @@ def z3_match(t: z3.ExprRef, pat: z3.ExprRef) -> Optional[dict[z3.ExprRef, z3.Exp
     return subst
 
 
-def open_binder(lam: z3.QuantifierRef):
+def open_binder(lam: smt.QuantifierRef):
     vars = [
-        z3.Const(lam.var_name(i).upper(), lam.var_sort(i))
+        smt.Const(lam.var_name(i).upper(), lam.var_sort(i))
         for i in reversed(range(lam.num_vars()))
     ]
-    return vars, z3.substitute_vars(lam.body(), *vars)
+    return vars, smt.substitute_vars(lam.body(), *vars)
 
 
-def expr_to_tptp(expr: z3.ExprRef):
-    if isinstance(expr, z3.IntNumRef):
+def expr_to_tptp(expr: smt.ExprRef):
+    if isinstance(expr, smt.IntNumRef):
         return str(expr.as_string())
-    elif isinstance(expr, z3.QuantifierRef):
+    elif isinstance(expr, smt.QuantifierRef):
         vars, body = open_binder(expr)
         body = expr_to_tptp(body)
         vs = ", ".join([v.sexpr() + ":" + sort_to_tptp(v.sort()) for v in vars])
@@ -142,10 +144,10 @@ def expr_to_tptp(expr: z3.ExprRef):
         return f"{head}({', '.join(children)})"
 
 
-z3.ExprRef.tptp = expr_to_tptp
+smt.ExprRef.tptp = expr_to_tptp
 
 
-def sort_to_tptp(sort: z3.SortRef):
+def sort_to_tptp(sort: smt.SortRef):
     name = sort.name()
     if name == "Int":
         return "$int"
@@ -161,21 +163,21 @@ def sort_to_tptp(sort: z3.SortRef):
         return name.lower()
 
 
-z3.SortRef.tptp = sort_to_tptp
+smt.SortRef.tptp = sort_to_tptp
 
 
-def lemma_tptp(thm: z3.BoolRef, by=[], sig=[], timeout=None, command=None):
+def lemma_tptp(thm: smt.BoolRef, by=[], sig=[], timeout=None, command=None):
     """
     Returns tptp strings
     """
     output = []
     for f in sig:
-        if isinstance(f, z3.FuncDeclRef):
+        if isinstance(f, smt.FuncDeclRef):
             dom = " * ".join([f.domain(i).tptp() for i in range(f.arity())])
             output.append(f"tff(sig, type, {f.name()} : ({dom}) > {f.range().tptp()}).")
-        elif isinstance(f, z3.SortRef):
+        elif isinstance(f, smt.SortRef):
             output.append(f"tff(sig, type, {f.tptp()} : $tType).")
-        elif isinstance(f, z3.ExprRef):
+        elif isinstance(f, smt.ExprRef):
             output.append(f"tff(sig, type, {f.sexpr()} : {f.sort().tptp()}).")
     for e in by:
         if is_proof(e):
@@ -195,7 +197,7 @@ def lemma_tptp(thm: z3.BoolRef, by=[], sig=[], timeout=None, command=None):
         return res
 
 
-def subterms(t: z3.ExprRef):
+def subterms(t: smt.ExprRef):
     todo = [t]
     while len(todo) > 0:
         x = todo.pop()

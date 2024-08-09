@@ -2,7 +2,17 @@
 Defines an algebraic datatype for the Peano natural numbers and useful functions and properties.
 """
 
-from z3 import Datatype, ForAll, And, Implies, Consts, If, Function, IntSort, Ints
+from knuckledragger.smt import (
+    Datatype,
+    ForAll,
+    And,
+    Implies,
+    Consts,
+    If,
+    Function,
+    IntSort,
+    Ints,
+)
 from knuckledragger import axiom, lemma, define
 import knuckledragger.notation as notation
 
@@ -33,7 +43,7 @@ def induct(P):
 
 
 reify = Function("reify", Nat, Z)
-# """reify  Nat  Z maps a natural number to the built in Z3 integers"""
+# """reify  Nat  Z maps a natural number to the built in smt integers"""
 reify_def = axiom(
     ForAll([n], reify(n) == If(Nat.is_zero(n), 0, reify(Nat.pred(n)) + 1))
 )

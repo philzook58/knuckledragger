@@ -1,30 +1,30 @@
-import z3
+import knuckledragger.smt as smt
 
-z3.BoolRef.__and__ = lambda self, other: z3.And(self, other)
-z3.BoolRef.__or__ = lambda self, other: z3.Or(self, other)
-z3.BoolRef.__invert__ = lambda self: z3.Not(self)
+smt.BoolRef.__and__ = lambda self, other: smt.And(self, other)
+smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)
+smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 
 
 # Should this be in helpers?
 def QForAll(vars, hyp, conc):
     """Quantified ForAll"""
-    return z3.ForAll(vars, z3.Implies(hyp, conc))
+    return smt.ForAll(vars, smt.Implies(hyp, conc))
 
 
 def QExists(vars, hyp, conc):
     """Quantified Exists"""
-    return z3.Exists(vars, z3.And(hyp, conc))
+    return smt.Exists(vars, smt.And(hyp, conc))
 
 
-# z3.ArrayRef.__call__ = lambda self, other: self[other]
-z3.SortRef.__rshift__ = lambda self, other: z3.ArraySort(self, other)
-# z3.SortRef.__mul__ = lambda self, other: z3.TupleSort(self.ctx, [self, other])
+# smt.ArrayRef.__call__ = lambda self, other: self[other]
+smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)
+# smt.SortRef.__mul__ = lambda self, other: smt.TupleSort(self.ctx, [self, other])
 
-# z3.ExprRef.head = property(lambda self: self.decl().kind())
-# z3.ExprRef.args = property(lambda self: [self.arg(i) for i in range(self.num_args())])
-# z3.ExprRef.__match_args__ = ["head", "args"]
+# smt.ExprRef.head = property(lambda self: self.decl().kind())
+# smt.ExprRef.args = property(lambda self: [self.arg(i) for i in range(self.num_args())])
+# smt.ExprRef.__match_args__ = ["head", "args"]
 
-# z3.QuantifierRef.open_term = property(lambda self: vars = FreshConst() (return vars, subst(self.body, [])))
-# z3.QuantifierRef.__match_args__ = ["open_term"]
+# smt.QuantifierRef.open_term = property(lambda self: vars = FreshConst() (return vars, subst(self.body, [])))
+# smt.QuantifierRef.__match_args__ = ["open_term"]
 
-# z3.QuantifierRef.__matmul__ = lambda self, other: z3.substitute(self.body, zip([z3.Var(n) for n in range(len(other)) , other]))
+# smt.QuantifierRef.__matmul__ = lambda self, other: smt.substitute(self.body, zip([smt.Var(n) for n in range(len(other)) , other]))

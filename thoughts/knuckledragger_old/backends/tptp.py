@@ -1,61 +1,61 @@
-from z3 import *
+from smt import *
 
 
-def z3_to_tptp(expr):
+def smt_to_tptp(expr):
     if isinstance(expr, BoolRef):
-        if expr.decl().kind() == Z3_OP_TRUE:
+        if expr.decl().kind() == smt_OP_TRUE:
             return "$true"
-        if expr.decl().kind() == Z3_OP_FALSE:
+        if expr.decl().kind() == smt_OP_FALSE:
             return "$false"
-        if expr.decl().kind() == Z3_OP_AND:
+        if expr.decl().kind() == smt_OP_AND:
             return "({})".format(" & ".join([z3_to_tptp(x) for x in expr.children()]))
-        if expr.decl().kind() == Z3_OP_OR:
+        if expr.decl().kind() == smt_OP_OR:
             return "({})".format(" | ".join([z3_to_tptp(x) for x in expr.children()]))
-        if expr.decl().kind() == Z3_OP_NOT:
+        if expr.decl().kind() == smt_OP_NOT:
             return "~({})".format(z3_to_tptp(expr.children()[0]))
-        if expr.decl().kind() == Z3_OP_IMPLIES:
+        if expr.decl().kind() == smt_OP_IMPLIES:
             return "({} => {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_EQ:
+        if expr.decl().kind() == smt_OP_EQ:
             return "({} = {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_DISTINCT:
+        if expr.decl().kind() == smt_OP_DISTINCT:
             return "({} != {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_ITE:
+        if expr.decl().kind() == smt_OP_ITE:
             return "ite({}, {}, {})".format(
-                z3_to_tptp(expr.children()[0]),
-                z3_to_tptp(expr.children()[1]),
-                z3_to_tptp(expr.children()[2]),
+                smt_to_tptp(expr.children()[0]),
+                smt_to_tptp(expr.children()[1]),
+                smt_to_tptp(expr.children()[2]),
             )
-        if expr.decl().kind() == Z3_OP_LE:
+        if expr.decl().kind() == smt_OP_LE:
             return "({} <= {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_GE:
+        if expr.decl().kind() == smt_OP_GE:
             return "({} >= {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_LT:
+        if expr.decl().kind() == smt_OP_LT:
             return "({} < {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_GT:
+        if expr.decl().kind() == smt_OP_GT:
             return "({} > {})".format(z3_to_tptp)
-        if expr.decl().kind() == Z3_OP_ADD:
+        if expr.decl().kind() == smt_OP_ADD:
             return "({} + {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_SUB:
+        if expr.decl().kind() == smt_OP_SUB:
             return "({} - {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
-        if expr.decl().kind() == Z3_OP_MUL:
+        if expr.decl().kind() == smt_OP_MUL:
             return "({} * {})".format(
-                z3_to_tptp(expr.children()[0]), z3_to_tptp(expr.children()[1])
+                smt_to_tptp(expr.children()[0]), smt_to_tptp(expr.children()[1])
             )
         else:
             assert False

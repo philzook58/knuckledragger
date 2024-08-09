@@ -1,5 +1,5 @@
 import pytest
-import z3
+import knuckledragger.smt as smt
 
 import knuckledragger as kd
 import knuckledragger.theories.Nat
@@ -15,103 +15,105 @@ import knuckledragger.utils
 
 
 def test_true_infer():
-    kd.lemma(z3.BoolVal(True))
+    kd.lemma(smt.BoolVal(True))
 
 
 def test_false_infer():
     with pytest.raises(Exception) as _:
-        kd.lemma(z3.BoolVal(False))
+        kd.lemma(smt.BoolVal(False))
 
 
 def test_explosion():
-    a = kd.axiom(z3.BoolVal(False), "False axiom")
+    a = kd.axiom(smt.BoolVal(False), "False axiom")
     with pytest.raises(Exception) as _:
-        kd.lemma(z3.BoolVal(True), by=[a])
+        kd.lemma(smt.BoolVal(True), by=[a])
 
 
 def test_calc():
-    x, y, z = z3.Ints("x y z")
+    x, y, z = smt.Ints("x y z")
     l1 = kd.axiom(x == y)
     l2 = kd.axiom(y == z)
     Calc([], x).eq(y, by=[l1]).eq(z, by=[l2]).qed()
 
 
 def test_tptp():
-    x = z3.Int("x")
-    assert z3.And(x > 4, x <= 7).tptp() == "($greater(x,4) & $lesseq(x,7))"
-    assert z3.IntSort().tptp() == "$int"
-    assert z3.BoolSort().tptp() == "$o"
+    x = smt.Int("x")
+    assert smt.And(x > 4, x <= 7).tptp() == "($greater(x,4) & $lesseq(x,7))"
+    assert smt.IntSort().tptp() == "$int"
+    assert smt.BoolSort().tptp() == "$o"
     assert (
-        z3.ArraySort(z3.ArraySort(z3.BoolSort(), z3.IntSort()), z3.IntSort()).tptp()
+        smt.ArraySort(
+            smt.ArraySort(smt.BoolSort(), smt.IntSort()), smt.IntSort()
+        ).tptp()
         == "(($o > $int) > $int)"
     )
 
 
 def test_datatype():
-    Foo = z3.Datatype("Foo")
-    Foo.declare("foo", ("bar", z3.IntSort()), ("baz", z3.BoolSort()))
+    Foo = smt.Datatype("Foo")
+    Foo.declare("foo", ("bar", smt.IntSort()), ("baz", smt.BoolSort()))
     Foo = Foo.create()
     x = Foo.foo(1, True)
-    assert z3.simplify(x.bar).eq(z3.IntVal(1))
-    assert z3.simplify(x.baz).eq(z3.BoolVal(True))
+    assert smt.simplify(x.bar).eq(smt.IntVal(1))
+    assert smt.simplify(x.baz).eq(smt.BoolVal(True))
 
 
 def test_qforall():
-    x, y = z3.Reals("x y")
-    assert kd.QForAll([x], x > 0).eq(z3.ForAll([x], x > 0))
+    x, y = smt.Reals("x y")
+    assert kd.QForAll([x], x > 0).eq(smt.ForAll([x], x > 0))
     assert kd.QForAll([x], x == 10, x == 14, x > 0).eq(
-        z3.ForAll([x], z3.Implies(z3.And(x == 10, x == 14), x > 0))
+        smt.ForAll([x], smt.Implies(smt.And(x == 10, x == 14), x > 0))
     )
     assert kd.QForAll([x, y], x > 0, y > 0).eq(
-        z3.ForAll([x, y], z3.Implies(x > 0, y > 0))
+        smt.ForAll([x, y], smt.Implies(x > 0, y > 0))
     )
     x.wf = x >= 0
-    assert kd.QForAll([x], x == 14).eq(z3.ForAll([x], z3.Implies(x >= 0, x == 14)))
+    assert kd.QForAll([x], x == 14).eq(smt.ForAll([x], smt.Implies(x >= 0, x == 14)))
 
 
 def test_simp():
-    assert kd.utils.simp(R.max(8, R.max(3, 4))).eq(z3.RealVal(8))
-    assert kd.utils.simp2(R.max(8, R.max(3, 4))).eq(z3.RealVal(8))
+    assert kd.utils.simp(R.max(8, R.max(3, 4))).eq(smt.RealVal(8))
+    assert kd.utils.simp2(R.max(8, R.max(3, 4))).eq(smt.RealVal(8))
 
 
 def test_record():
-    foo = kd.notation.Record("foo", ("bar", z3.IntSort()), ("baz", z3.BoolSort()))
-    assert z3.simplify(foo.mk(1, True).bar).eq(z3.IntVal(1))
+    foo = kd.notation.Record("foo", ("bar", smt.IntSort()), ("baz", smt.BoolSort()))
+    assert smt.simplify(foo.mk(1, True).bar).eq(smt.IntVal(1))
 
 
 def test_seq():
-    ThSeq.induct(z3.IntSort(), lambda x: x == x)
+    ThSeq.induct(smt.IntSort(), lambda x: x == x)
 
 
 def test_cons():
     c = kd.notation.Cond()
     assert (
-        c.when(z3.BoolVal(True))
-        .then(z3.IntVal(1))
-        .otherwise(z3.IntVal(2))
-        .eq(z3.If(z3.BoolVal(True), z3.IntVal(1), z3.IntVal(2)))
+        c.when(smt.BoolVal(True))
+        .then(smt.IntVal(1))
+        .otherwise(smt.IntVal(2))
+        .eq(smt.If(smt.BoolVal(True), smt.IntVal(1), smt.IntVal(2)))
     )
     c = kd.notation.Cond()
     assert (
-        c.when(z3.BoolVal(True))
-        .then(z3.IntVal(1))
-        .when(z3.BoolVal(False))
-        .then(z3.Int("y"))
-        .otherwise(z3.IntVal(2))
+        c.when(smt.BoolVal(True))
+        .then(smt.IntVal(1))
+        .when(smt.BoolVal(False))
+        .then(smt.Int("y"))
+        .otherwise(smt.IntVal(2))
         .eq(
-            z3.If(
-                z3.BoolVal(True),
-                z3.IntVal(1),
-                z3.If(z3.BoolVal(False), z3.Int("y"), z3.IntVal(2)),
+            smt.If(
+                smt.BoolVal(True),
+                smt.IntVal(1),
+                smt.If(smt.BoolVal(False), smt.Int("y"), smt.IntVal(2)),
             )
         )
     )
 
 
 def test_match():
-    x, y, z = z3.Reals("x y z")
-    Var = z3.Var
-    R = z3.RealSort()
+    x, y, z = smt.Reals("x y z")
+    Var = smt.Var
+    R = smt.RealSort()
     assert kd.utils.z3_match(x, Var(0, R)) == {Var(0, R): x}
     assert kd.utils.z3_match(x + y, Var(0, R) + Var(1, R)) == {
         Var(0, R): x,
@@ -128,7 +130,7 @@ def test_match():
         Var(2, R): x * 6,
     }
     assert kd.utils.z3_match(
-        x + y + x * 6 == 0, z3.ForAll([x, y, z], x + y + z == 0)
+        x + y + x * 6 == 0, smt.ForAll([x, y, z], x + y + z == 0)
     ) == {
         Var(2, R): x,
         Var(1, R): y,
@@ -137,5 +139,5 @@ def test_match():
 
 
 def test_subterms():
-    x, y = z3.Ints("x y")
+    x, y = smt.Ints("x y")
     assert set(kd.utils.subterms(x + y + x)) == {x, y, x, x + y, x + y + x}
