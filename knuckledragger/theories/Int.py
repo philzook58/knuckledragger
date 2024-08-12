@@ -1,12 +1,12 @@
 import knuckledragger as kd
-import z3
+import knuckledragger.smt as smt
 
-Z = z3.IntSort()
+Z = smt.IntSort()
 
 
 def induct_nat(P):
     return kd.axiom(
-        z3.And(P(0), kd.QForAll([n], n >= 0, P(n), P(n + 1)))
+        smt.And(P(0), kd.QForAll([n], n >= 0, P(n), P(n + 1)))
         # ---------------------------------------------------
         == kd.QForAll([n], n >= 0, P(n))
     )

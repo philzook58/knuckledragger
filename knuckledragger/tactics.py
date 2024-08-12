@@ -1,5 +1,5 @@
 import knuckledragger as kd
-import z3
+import knuckledragger.smt as smt
 from enum import IntEnum
 import operator as op
 
@@ -45,13 +45,13 @@ class Calc:
 
     def _forall(self, body):
         if len(self.assume) == 1:
-            body = z3.Implies(self.assume[0], body)
+            body = smt.Implies(self.assume[0], body)
         elif len(self.assume) > 1:
-            body = z3.Implies(z3.And(self.assume), body)
+            body = smt.Implies(smt.And(self.assume), body)
         if len(self.vars) == 0:
             return body
         else:
-            return z3.ForAll(self.vars, body)
+            return smt.ForAll(self.vars, body)
 
     def eq(self, rhs, by=[]):
         self.lemmas.append(kd.lemma(self._forall(self.terms[-1] == rhs), by=by))
@@ -100,12 +100,12 @@ class Calc:
 
 
 def lemma(
-    thm: z3.BoolRef,
+    thm: smt.BoolRef,
     by: list[kd.kernel.Proof] = [],
     admit=False,
     timeout=1000,
     dump=False,
-    solver=z3.Solver,
+    solver=smt.Solver,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
@@ -113,7 +113,7 @@ def lemma(
 
     :param thm: The theorem to prove.
     Args:
-        thm (z3.BoolRef): The theorem to prove.
+        thm (smt.BoolRef): The theorem to prove.
         by (list[Proof]): A list of previously proved lemmas.
         admit     (bool): If True, admit the theorem without proof.
 
@@ -136,17 +136,17 @@ def lemma(
             if not kd.kernel.is_proof(p):
                 raise kd.kernel.LemmaError("In by reasons:", p, "is not a Proof object")
             s.assert_and_track(p.thm, "by_{}".format(n))
-        s.assert_and_track(z3.Not(thm), "knuckledragger_goal")
+        s.assert_and_track(smt.Not(thm), "knuckledragger_goal")
         if dump:
             print(s.sexpr())
         res = s.check()
-        if res != z3.unsat:
-            if res == z3.sat:
-                raise kd.kernel.LemmaError(thm, "Countermodel", s.model())
-            raise kd.kernel.LemmaError("lemma", thm, res)
+        if res != smt.unsat:
+            if res == smt.sat:
+                raise kd.kernel.LemmaError(thm, by, "Countermodel", s.model())
+            raise kd.kernel.LemmaError("lemma", thm, by, res)
         else:
             core = s.unsat_core()
-            if not z3.Bool("knuckledragger_goal") in core:
+            if not smt.Bool("knuckledragger_goal") in core:
                 raise kd.kernel.LemmaError(
                     thm,
                     core,

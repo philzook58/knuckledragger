@@ -1,5 +1,5 @@
 from typing import Any, Tuple, List
-from z3 import *
+from smt import *
 import subprocess
 
 Form = Any
@@ -33,7 +33,7 @@ def trust(form: Form) -> Thm:
 
 
 def infer(hyps: List[Thm], conc: Form, timeout=1000) -> Thm:
-    """Use Z3 as giant inference step"""
+    """Use smt as giant inference step"""
     s = Solver()
     for hyp in hyps:
         check(hyp)
@@ -41,9 +41,9 @@ def infer(hyps: List[Thm], conc: Form, timeout=1000) -> Thm:
     s.add(Not(conc))
     s.set("timeout", timeout)
     res = s.check()
-    if res != z3.unsat:
+    if res != smt.unsat:
         print(s.sexpr())
-        if res == z3.sat:
+        if res == smt.sat:
             print(s.model())
         assert False, res
     return trust(conc)

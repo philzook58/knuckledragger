@@ -1,18 +1,18 @@
 import knuckledragger as kd
-import z3
+import knuckledragger.smt as smt
 
 # TODO: seq needs well formedness condition inherited from elements
 
 
-def induct(T: z3.SortRef, P) -> kd.kernel.Proof:
-    z = z3.FreshConst(T, prefix="z")
-    sort = z3.SeqSort(T)
-    x, y = z3.FreshConst(sort), z3.FreshConst(sort)
+def induct(T: smt.SortRef, P) -> kd.kernel.Proof:
+    z = smt.FreshConst(T, prefix="z")
+    sort = smt.SeqSort(T)
+    x, y = smt.FreshConst(sort), smt.FreshConst(sort)
     return kd.axiom(
-        z3.And(
-            P(z3.Empty(sort)),
-            kd.QForAll([z], P(z3.Unit(z))),
-            kd.QForAll([x, y], P(x), P(y), P(z3.Concat(x, y))),
+        smt.And(
+            P(smt.Empty(sort)),
+            kd.QForAll([z], P(smt.Unit(z))),
+            kd.QForAll([x, y], P(x), P(y), P(smt.Concat(x, y))),
         )  # -------------------------------------------------
         == kd.QForAll([x], P(x))
     )

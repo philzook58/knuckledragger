@@ -1,7 +1,8 @@
+from . import smt
 from . import kernel
 from . import notation
 from . import tactics
-import z3
+
 
 lemma = tactics.lemma
 axiom = kernel.axiom
@@ -14,7 +15,7 @@ Record = notation.Record
 
 Calc = tactics.Calc
 
-R = z3.RealSort()
-Z = z3.IntSort()
+R = smt.RealSort()
+Z = smt.IntSort()
 RSeq = Z >> R
 RFun = R >> R

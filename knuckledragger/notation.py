@@ -1,4 +1,4 @@
-"""Importing this module will add some syntactic sugar to Z3.
+"""Importing this module will add some syntactic sugar to smt.
 
 - Expr overload by single dispatch
 - Bool supports `&`, `|`, `~`
@@ -6,12 +6,12 @@
 - Datatypes support accessor notation
 """
 
-import z3
+import knuckledragger.smt as smt
 import knuckledragger as kd
 
-z3.BoolRef.__and__ = lambda self, other: z3.And(self, other)
-z3.BoolRef.__or__ = lambda self, other: z3.Or(self, other)
-z3.BoolRef.__invert__ = lambda self: z3.Not(self)
+smt.BoolRef.__and__ = lambda self, other: smt.And(self, other)
+smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)
+smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 
 
 def QForAll(vs, *hyp_conc):
@@ -26,12 +26,12 @@ def QForAll(vs, *hyp_conc):
     hyps = hyp_conc[:-1]
     hyps = [v.wf for v in vs if hasattr(v, "wf")] + list(hyps)
     if len(hyps) == 0:
-        return z3.ForAll(vs, conc)
+        return smt.ForAll(vs, conc)
     elif len(hyps) == 1:
-        return z3.ForAll(vs, z3.Implies(hyps[0], conc))
+        return smt.ForAll(vs, smt.Implies(hyps[0], conc))
     else:
-        hyp = z3.And(hyps)
-        return z3.ForAll(vs, z3.Implies(hyp, conc))
+        hyp = smt.And(hyps)
+        return smt.ForAll(vs, smt.Implies(hyp, conc))
 
 
 def QExists(vs, *concs):
@@ -43,12 +43,12 @@ def QExists(vs, *concs):
     """
     concs = [v.wf for v in vs if hasattr(v, "wf")] + list(concs)
     if len(concs) == 1:
-        z3.Exists(vars, concs[0])
+        smt.Exists(vars, concs[0])
     else:
-        z3.Exists(vars, z3.And(concs))
+        smt.Exists(vars, smt.And(concs))
 
 
-z3.SortRef.__rshift__ = lambda self, other: z3.ArraySort(self, other)
+smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)
 
 
 class SortDispatch:
@@ -75,37 +75,37 @@ class SortDispatch:
         return defn
 
 
-add = SortDispatch(z3.ArithRef.__add__, name="add")
-z3.ExprRef.__add__ = lambda x, y: add(x, y)
+add = SortDispatch(smt.ArithRef.__add__, name="add")
+smt.ExprRef.__add__ = lambda x, y: add(x, y)
 
-sub = SortDispatch(z3.ArithRef.__sub__, name="sub")
-z3.ExprRef.__sub__ = lambda x, y: sub(x, y)
+sub = SortDispatch(smt.ArithRef.__sub__, name="sub")
+smt.ExprRef.__sub__ = lambda x, y: sub(x, y)
 
-mul = SortDispatch(z3.ArithRef.__mul__, name="mul")
-z3.ExprRef.__mul__ = lambda x, y: mul(x, y)
+mul = SortDispatch(smt.ArithRef.__mul__, name="mul")
+smt.ExprRef.__mul__ = lambda x, y: mul(x, y)
 
-neg = SortDispatch(z3.ArithRef.__neg__, name="neg")
-z3.ExprRef.__neg__ = lambda x: neg(x)
+neg = SortDispatch(smt.ArithRef.__neg__, name="neg")
+smt.ExprRef.__neg__ = lambda x: neg(x)
 
-div = SortDispatch(z3.ArithRef.__div__, name="div")
-z3.ExprRef.__truediv__ = lambda x, y: div(x, y)
+div = SortDispatch(smt.ArithRef.__div__, name="div")
+smt.ExprRef.__truediv__ = lambda x, y: div(x, y)
 
 and_ = SortDispatch()
-z3.ExprRef.__and__ = lambda x, y: and_(x, y)
+smt.ExprRef.__and__ = lambda x, y: and_(x, y)
 
 or_ = SortDispatch()
-z3.ExprRef.__or__ = lambda x, y: or_(x, y)
+smt.ExprRef.__or__ = lambda x, y: or_(x, y)
 
-lt = SortDispatch(z3.ArithRef.__lt__, name="lt")
-z3.ExprRef.__lt__ = lambda x, y: lt(x, y)
+lt = SortDispatch(smt.ArithRef.__lt__, name="lt")
+smt.ExprRef.__lt__ = lambda x, y: lt(x, y)
 
-le = SortDispatch(z3.ArithRef.__le__, name="le")
-z3.ExprRef.__le__ = lambda x, y: le(x, y)
+le = SortDispatch(smt.ArithRef.__le__, name="le")
+smt.ExprRef.__le__ = lambda x, y: le(x, y)
 
 
 def lookup_cons_recog(self, k):
     """
-    Enable "dot" syntax for fields of z3 datatypes
+    Enable "dot" syntax for fields of smt datatypes
     """
     sort = self.sort()
     recog = "is_" == k[:3] if len(k) > 3 else False
@@ -122,14 +122,14 @@ def lookup_cons_recog(self, k):
                     return acc(self)
 
 
-z3.DatatypeRef.__getattr__ = lookup_cons_recog
+smt.DatatypeRef.__getattr__ = lookup_cons_recog
 
 
 def Record(name, *fields):
     """
     Define a record datatype
     """
-    rec = z3.Datatype(name)
+    rec = smt.Datatype(name)
     rec.declare(name, *fields)
     rec = rec.create()
     rec.mk = rec.constructor(0)
@@ -148,13 +148,13 @@ class Cond:
         self.sort = None
         self.default = None
 
-    def when(self, c: z3.BoolRef) -> "Cond":
+    def when(self, c: smt.BoolRef) -> "Cond":
         assert self.cur_case is None
-        assert isinstance(c, z3.BoolRef)
+        assert isinstance(c, smt.BoolRef)
         self.cur_case = c
         return self
 
-    def then(self, e: z3.ExprRef) -> "Cond":
+    def then(self, e: smt.ExprRef) -> "Cond":
         assert self.cur_case is not None
         if self.sort is not None:
             assert e.sort() == self.sort
@@ -164,16 +164,16 @@ class Cond:
         self.cur_case = None
         return self
 
-    def otherwise(self, e: z3.ExprRef) -> z3.ExprRef:
+    def otherwise(self, e: smt.ExprRef) -> smt.ExprRef:
         assert self.default is None
         assert self.sort == e.sort()
         self.default = e
         return self.expr()
 
-    def expr(self) -> z3.ExprRef:
+    def expr(self) -> smt.ExprRef:
         assert self.default is not None
         assert self.cur_case is None
         acc = self.default
         for c, e in reversed(self.clauses):
-            acc = z3.If(c, e, acc)
+            acc = smt.If(c, e, acc)
         return acc
