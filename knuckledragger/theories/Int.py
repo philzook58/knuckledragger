@@ -10,3 +10,8 @@ def induct_nat(P):
         # ---------------------------------------------------
         == kd.QForAll([n], n >= 0, P(n))
     )
+
+
+Nat = kd.Record("Nat", ("val", Z))
+x, y, z = smt.Consts("x y z", Nat)
+kd.notation.wf.register(Nat, lambda x: x.val >= 0)

@@ -2,6 +2,7 @@ from . import smt
 from . import kernel
 from . import notation
 from . import tactics
+from . import utils
 
 
 lemma = tactics.lemma

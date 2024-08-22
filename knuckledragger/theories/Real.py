@@ -9,6 +9,13 @@ RSeq = smt.ArraySort(smt.IntSort(), R)
 
 x, y, z = smt.Reals("x y z")
 
+f, g = smt.Consts("f g", RFun)
+kd.notation.add.define([f, g], smt.Lambda([x], f[x] + g[x]))
+kd.notation.sub.define([f, g], smt.Lambda([x], f[x] - g[x]))
+kd.notation.mul.define([f, g], smt.Lambda([x], f[x] * g[x]))
+kd.notation.div.define([f, g], smt.Lambda([x], f[x] / g[x]))
+
+
 plus = Function("plus", R, R, R)
 plus_def = axiom(ForAll([x, y], plus(x, y) == x + y), "definition")
 
@@ -33,7 +40,7 @@ mul_distrib = lemma(
 )
 
 
-abs = kd.define("abs", [x], smt.If(x >= 0, x, -x))
+abs = kd.define("absR", [x], smt.If(x >= 0, x, -x))
 
 abs_idem = kd.lemma(ForAll([x], abs(abs(x)) == abs(x)), by=[abs.defn])
 abs_neg = kd.lemma(ForAll([x], abs(-x) == abs(x)), by=[abs.defn])
@@ -59,3 +66,42 @@ min_assoc = kd.lemma(
 min_idem = kd.lemma(ForAll([x], min(x, x) == x), by=[min.defn])
 min_le = kd.lemma(ForAll([x, y], min(x, y) <= x), by=[min.defn])
 min_le_2 = kd.lemma(ForAll([x, y], min(x, y) <= y), by=[min.defn])
+
+
+exp = smt.Function("exp", kd.R, kd.R)
+exp_add = kd.axiom(smt.ForAll([x, y], exp(x + y) == exp(x) * exp(y)))
+exp_lower = kd.axiom(
+    smt.ForAll([x], exp(x) >= 1 + x)
+)  # tight low approximation at x = 0.
+exp_pos = kd.axiom(smt.ForAll([x], exp(x) > 0))  # maybe we can derive this one?
+
+exp_zero = kd.lemma(smt.ForAll([x], exp(0) == 1), by=[exp_add, exp_pos])
+
+exp_div = kd.lemma(smt.ForAll([x, y], exp(x) * exp(-x) == 1), by=[exp_add, exp_zero])
+exp_nzero = kd.lemma(smt.ForAll([x], exp(x) != 0), by=[exp_div])
+exp_inv = kd.lemma(smt.ForAll([x], exp(-x) == 1 / exp(x)), by=[exp_div])
+
+
+# Inverses
+sqrt = Function("sqrt", R, R)
+sqrt_defn = kd.axiom(
+    kd.QForAll([x], x >= 0, smt.And(sqrt(x) >= 0, sqrt(x) * sqrt(x) == x))
+)
+
+
+floor = kd.define("floor", [x], smt.ToReal(smt.ToInt(x)))
+n = smt.Int("n")
+int_real_galois_lt = kd.lemma(ForAll([x, n], (x < smt.ToReal(n)) == (smt.ToInt(x) < n)))
+int_real_galois_le = kd.lemma(
+    ForAll([x, n], (smt.ToReal(n) <= x) == (n <= smt.ToInt(x)))
+)
+
+_2 = kd.lemma(ForAll([x], smt.ToInt(floor(x)) == smt.ToInt(x)), by=[floor.defn])
+floor_idem = kd.lemma(ForAll([x], floor(floor(x)) == floor(x)), by=[floor.defn, _2])
+floor_le = kd.lemma(ForAll([x], floor(x) <= x), by=[floor.defn])
+floor_gt = kd.lemma(ForAll([x], x < floor(x) + 1), by=[floor.defn])
+
+c = kd.Calc([n, x], smt.ToReal(n) <= x)
+c.eq(n <= smt.ToInt(x))
+c.eq(smt.ToReal(n) <= floor(x), by=[floor.defn])
+floor_minint = c.qed(defns=False)

@@ -1,11 +1,26 @@
+"""
+This is a shim file to enable the use of cvc5 and vampire as default solvers.
+This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" or "vampire" before importing knuckledragger.
+"""
+
 import os
 
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
+VAMPIRESOLVER = "vampire"
 solver = os.getenv("KNUCKLE_SOLVER")
 if solver is None or solver == Z3SOLVER:
     solver = "z3"
     from z3 import *
+
+    Z3Solver = Solver
+elif solver == VAMPIRESOLVER:
+    from z3 import *
+    from knuckledragger.solvers import VampireSolver
+
+    Z3Solver = Solver
+    Solver = VampireSolver
+
 elif solver == CVC5SOLVER:
     import cvc5
     from cvc5.pythonic import *

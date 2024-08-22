@@ -6,7 +6,10 @@ import knuckledragger.theories.Nat
 import knuckledragger.theories.Int
 import knuckledragger.theories.Real as R
 import knuckledragger.theories.Complex as C
-import knuckledragger.theories.Interval
+import knuckledragger.theories.Vec as Vec
+
+if smt.solver != smt.VAMPIRESOLVER:
+    import knuckledragger.theories.Interval
 
 import knuckledragger.theories.Seq as ThSeq
 
@@ -67,8 +70,11 @@ def test_qforall():
     assert kd.QForAll([x, y], x > 0, y > 0).eq(
         smt.ForAll([x, y], smt.Implies(x > 0, y > 0))
     )
-    x.wf = x >= 0
-    assert kd.QForAll([x], x == 14).eq(smt.ForAll([x], smt.Implies(x >= 0, x == 14)))
+    Nat = kd.theories.Int.Nat
+    x = smt.Const("x", Nat)
+    assert kd.QForAll([x], x == Nat.mk(14)).eq(
+        smt.ForAll([x], smt.Implies(x.wf(), x == Nat.mk(14)))
+    )
 
 
 def test_simp():
@@ -141,3 +147,10 @@ def test_match():
 def test_subterms():
     x, y = smt.Ints("x y")
     assert set(kd.utils.subterms(x + y + x)) == {x, y, x, x + y, x + y + x}
+
+
+def test_pred():
+    Even = kd.Record(
+        "Even", ("val", kd.Z), ("div2", kd.Z), pred=lambda x: 2 * x.div2 == x.val
+    )
+    kd.lemma(Even(0, 0).wf())

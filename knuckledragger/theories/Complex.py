@@ -13,15 +13,13 @@ kd.notation.mul.register(C, mul)
 conj = kd.define("conj", [z], C.mk(z.re, -z.im))
 
 
-div = kd.define(
-    "div",
+div = kd.notation.div.define(
     [z1, z2],
     C.mk(
         (z1.re * z2.re + z1.im * z2.im) / (z2.re**2 + z2.im**2),
         (z1.im * z2.re - z1.re * z2.im) / (z2.re**2 + z2.im**2),
     ),
 )
-kd.notation.div.register(C, div)
 
 C0 = C.mk(0, 0)
 C1 = C.mk(1, 0)
@@ -39,10 +37,10 @@ mul_comm = kd.lemma(smt.ForAll([z, w], z * w == w * z), by=[mul.defn])
 # unstable perfoamnce.
 # mul_div = kd.lemma(ForAll([z,w], Implies(w != C0, z == z * w / w)), by=[div.defn, mul.defn], timeout=1000)
 ##mul_div = Calc()
-div_one = kd.lemma(smt.ForAll([z], z / C1 == z), by=[div.defn])
-div_inv = kd.lemma(
-    smt.ForAll([z], smt.Implies(z != C0, z / z == C1)), by=[div.defn], admit=True
-)
+# div_one = kd.lemma(smt.ForAll([z], z / C1 == z), by=[div.defn])
+# div_inv = kd.lemma(
+#    smt.ForAll([z], smt.Implies(z != C0, z / z == C1)), by=[div.defn], admit=True
+# )
 
 # inv = kd.define("inv", [z], )
 

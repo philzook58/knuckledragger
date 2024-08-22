@@ -14,40 +14,6 @@ smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)
 smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 
 
-def QForAll(vs, *hyp_conc):
-    """Quantified ForAll
-
-    Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`
-
-    If variables have a property `wf` attached, this is added as a hypothesis.
-
-    """
-    conc = hyp_conc[-1]
-    hyps = hyp_conc[:-1]
-    hyps = [v.wf for v in vs if hasattr(v, "wf")] + list(hyps)
-    if len(hyps) == 0:
-        return smt.ForAll(vs, conc)
-    elif len(hyps) == 1:
-        return smt.ForAll(vs, smt.Implies(hyps[0], conc))
-    else:
-        hyp = smt.And(hyps)
-        return smt.ForAll(vs, smt.Implies(hyp, conc))
-
-
-def QExists(vs, *concs):
-    """Quantified Exists
-
-    Shorthand for `ForAll(vars, And(conc[0], conc[1], ...))`
-
-    If variables have a property `wf` attached, this is anded into the properties.
-    """
-    concs = [v.wf for v in vs if hasattr(v, "wf")] + list(concs)
-    if len(concs) == 1:
-        smt.Exists(vars, concs[0])
-    else:
-        smt.Exists(vars, smt.And(concs))
-
-
 smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)
 
 
@@ -87,7 +53,7 @@ smt.ExprRef.__mul__ = lambda x, y: mul(x, y)
 neg = SortDispatch(smt.ArithRef.__neg__, name="neg")
 smt.ExprRef.__neg__ = lambda x: neg(x)
 
-div = SortDispatch(smt.ArithRef.__div__, name="div")
+div = SortDispatch(smt.ArithRef.__div__, name="div_")
 smt.ExprRef.__truediv__ = lambda x, y: div(x, y)
 
 and_ = SortDispatch()
@@ -101,6 +67,44 @@ smt.ExprRef.__lt__ = lambda x, y: lt(x, y)
 
 le = SortDispatch(smt.ArithRef.__le__, name="le")
 smt.ExprRef.__le__ = lambda x, y: le(x, y)
+
+
+wf = SortDispatch(name="wf")
+smt.ExprRef.wf = lambda x: wf(x)
+
+
+def QForAll(vs, *hyp_conc):
+    """Quantified ForAll
+
+    Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`
+
+    If variables have a property `wf` attached, this is added as a hypothesis.
+
+    """
+    conc = hyp_conc[-1]
+    hyps = hyp_conc[:-1]
+    hyps = [v.wf() for v in vs if v.sort() in wf.methods] + list(hyps)
+    if len(hyps) == 0:
+        return smt.ForAll(vs, conc)
+    elif len(hyps) == 1:
+        return smt.ForAll(vs, smt.Implies(hyps[0], conc))
+    else:
+        hyp = smt.And(hyps)
+        return smt.ForAll(vs, smt.Implies(hyp, conc))
+
+
+def QExists(vs, *concs):
+    """Quantified Exists
+
+    Shorthand for `ForAll(vars, And(conc[0], conc[1], ...))`
+
+    If variables have a property `wf` attached, this is anded into the properties.
+    """
+    concs = [v.wf() for v in vs if v.sort() in wf.methods] + list(concs)
+    if len(concs) == 1:
+        smt.Exists(vars, concs[0])
+    else:
+        smt.Exists(vars, smt.And(concs))
 
 
 def lookup_cons_recog(self, k):
@@ -125,7 +129,19 @@ def lookup_cons_recog(self, k):
 smt.DatatypeRef.__getattr__ = lookup_cons_recog
 
 
-def Record(name, *fields):
+def datatype_call(self, *args):
+    """
+    Enable "call" syntax for constructors of smt datatypes
+    """
+    # TODO: could also enable keyword syntax
+    assert self.num_constructors() == 1
+    return self.constructor(0)(*args)
+
+
+smt.DatatypeSortRef.__call__ = datatype_call
+
+
+def Record(name, *fields, pred=None):
     """
     Define a record datatype
     """
@@ -133,6 +149,8 @@ def Record(name, *fields):
     rec.declare(name, *fields)
     rec = rec.create()
     rec.mk = rec.constructor(0)
+    if pred is not None:
+        wf.register(rec, lambda x: pred(x))
     return rec
 
 

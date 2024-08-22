@@ -92,11 +92,15 @@ class Calc:
     def __repr__(self):
         return "... " + str(self.mode) + " " + repr(self.terms[-1])
 
-    def qed(self):
+    def qed(self, **kwargs):
         return kd.lemma(
             self._forall(self.mode.op(self.terms[0], self.terms[-1])),
             by=self.lemmas,
+            **kwargs,
         )
+
+
+simps = {}
 
 
 def lemma(
@@ -106,6 +110,8 @@ def lemma(
     timeout=1000,
     dump=False,
     solver=smt.Solver,
+    defns=True,
+    simps=simps,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
@@ -136,6 +142,11 @@ def lemma(
             if not kd.kernel.is_proof(p):
                 raise kd.kernel.LemmaError("In by reasons:", p, "is not a Proof object")
             s.assert_and_track(p.thm, "by_{}".format(n))
+        if defns:
+            for v in kd.kernel.defns.values():
+                s.add(v.ax.thm)
+        for v in simps.values():
+            s.add(v)
         s.assert_and_track(smt.Not(thm), "knuckledragger_goal")
         if dump:
             print(s.sexpr())

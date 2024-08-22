@@ -205,6 +205,17 @@ def subterms(t: smt.ExprRef):
         todo.extend(x.children())
 
 
+def sorts(t: smt.ExprRef):
+    for t in subterms(t):
+        yield t.sort()
+
+
+def decls(t: smt.ExprRef):
+    for t in subterms(t):
+        if smt.is_app(t):
+            yield t.decl()
+
+
 def lemma_db():
     """Scan all modules for Proof objects and return a dictionary of them."""
     db = {}
