@@ -23,7 +23,7 @@ class SortDispatch:
     It allows for dispatching on the sort of the first argument
     """
 
-    def __init__(self, default=None, name=None):
+    def __init__(self, name=None, default=None):
         self.methods = {}
         self.default = default
         self.name = name
@@ -41,19 +41,22 @@ class SortDispatch:
         return defn
 
 
-add = SortDispatch(smt.ArithRef.__add__, name="add")
+add = SortDispatch(name="add")
 smt.ExprRef.__add__ = lambda x, y: add(x, y)
 
-sub = SortDispatch(smt.ArithRef.__sub__, name="sub")
+radd = SortDispatch(name="radd")
+smt.ExprRef.__radd__ = lambda x, y: radd(x, y)
+
+sub = SortDispatch(name="sub")
 smt.ExprRef.__sub__ = lambda x, y: sub(x, y)
 
-mul = SortDispatch(smt.ArithRef.__mul__, name="mul")
+mul = SortDispatch(name="mul")
 smt.ExprRef.__mul__ = lambda x, y: mul(x, y)
 
-neg = SortDispatch(smt.ArithRef.__neg__, name="neg")
+neg = SortDispatch(name="neg")
 smt.ExprRef.__neg__ = lambda x: neg(x)
 
-div = SortDispatch(smt.ArithRef.__div__, name="div_")
+div = SortDispatch(name="div_")
 smt.ExprRef.__truediv__ = lambda x, y: div(x, y)
 
 and_ = SortDispatch()
@@ -62,10 +65,10 @@ smt.ExprRef.__and__ = lambda x, y: and_(x, y)
 or_ = SortDispatch()
 smt.ExprRef.__or__ = lambda x, y: or_(x, y)
 
-lt = SortDispatch(smt.ArithRef.__lt__, name="lt")
+lt = SortDispatch(name="lt")
 smt.ExprRef.__lt__ = lambda x, y: lt(x, y)
 
-le = SortDispatch(smt.ArithRef.__le__, name="le")
+le = SortDispatch(name="le")
 smt.ExprRef.__le__ = lambda x, y: le(x, y)
 
 
@@ -107,7 +110,7 @@ def QExists(vs, *concs):
         smt.Exists(vars, smt.And(concs))
 
 
-def lookup_cons_recog(self, k):
+def _lookup_constructor_recog(self, k):
     """
     Enable "dot" syntax for fields of smt datatypes
     """
@@ -126,7 +129,7 @@ def lookup_cons_recog(self, k):
                     return acc(self)
 
 
-smt.DatatypeRef.__getattr__ = lookup_cons_recog
+smt.DatatypeRef.__getattr__ = _lookup_constructor_recog
 
 
 def datatype_call(self, *args):
@@ -149,49 +152,61 @@ def Record(name, *fields, pred=None):
     rec.declare(name, *fields)
     rec = rec.create()
     rec.mk = rec.constructor(0)
-    if pred is not None:
+    wf_cond = [n for (n, (_, sort)) in enumerate(fields) if sort in wf.methods]
+    if pred is None and len(wf_cond) == 1:
+        acc = rec.accessor(0, wf_cond[0])
+        wf.register(rec, lambda x: rec.accessor(0, acc(x).wf()))
+    elif pred is None and len(wf_cond) > 1:
+        wf.register(
+            rec, lambda x: smt.And(*[rec.accessor(0, n)(x).wf() for n in wf_cond])
+        )
+    elif pred is not None and len(wf_cond) == 0:
         wf.register(rec, lambda x: pred(x))
+    elif pred is not None and len(wf_cond) > 0:
+        wf.register(
+            rec,
+            lambda x: smt.And(pred(x), *[rec.accessor(0, n)(x).wf() for n in wf_cond]),
+        )
+
     return rec
 
 
-class Cond:
-    """
-    Cond is a useful way to build up giant if-then-else expressions.
-    """
+def cond(*cases, default=None) -> smt.ExprRef:
+    sort = cases[0][1].sort()
+    if default is None:
+        s = smt.Solver()
+        s.add(smt.Not(smt.Or([c for c, t in cases])))
+        res = s.check()
+        if res == smt.sat:
+            raise Exception("Cases not exhaustive. Fix or give default", s.model())
+        elif res != smt.unsat:
+            raise Exception("Solver error. Give default", res)
+        else:
+            default = smt.FreshConst(sort, prefix="unreachable")
+    acc = default
+    for c, t in reversed(cases):
+        if t.sort() != sort:
+            raise Exception("Sort mismatch in cond", t, sort)
+        acc = smt.If(c, t, acc)
+    return acc
 
+
+class Cond:
     def __init__(self):
-        self.clauses = []
-        self.cur_case = None
-        self.other = None
-        self.sort = None
+        self.cases = []
         self.default = None
 
-    def when(self, c: smt.BoolRef) -> "Cond":
-        assert self.cur_case is None
-        assert isinstance(c, smt.BoolRef)
-        self.cur_case = c
+    def when(self, cond: smt.BoolRef):
+        self.cases.append((cond, None))
         return self
 
-    def then(self, e: smt.ExprRef) -> "Cond":
-        assert self.cur_case is not None
-        if self.sort is not None:
-            assert e.sort() == self.sort
-        else:
-            self.sort = e.sort()
-        self.clauses.append((self.cur_case, e))
-        self.cur_case = None
+    def then(self, thn: smt.ExprRef):
+        self.cases[-1] = (self.cases[-1][0], thn)
         return self
 
-    def otherwise(self, e: smt.ExprRef) -> smt.ExprRef:
-        assert self.default is None
-        assert self.sort == e.sort()
-        self.default = e
-        return self.expr()
+    def otherwise(self, els: smt.ExprRef):
+        self.default = els
+        return self
 
     def expr(self) -> smt.ExprRef:
-        assert self.default is not None
-        assert self.cur_case is None
-        acc = self.default
-        for c, e in reversed(self.clauses):
-            acc = smt.If(c, e, acc)
-        return acc
+        return cond(*self.cases, default=self.default)

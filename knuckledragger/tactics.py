@@ -168,3 +168,30 @@ def lemma(
             return kd.kernel.lemma(
                 thm, by, admit=admit, timeout=timeout, dump=dump, solver=solver
             )
+
+
+class Lemma:
+    # Isar style forward proof
+    def __init__(self, goal):
+        self.goal = goal
+        self.lemmas = []
+        self.vars = []
+        self.hyps = []
+
+    def intro(self, vars):  # fix
+        self.vars.extend(vars)
+        return self
+
+    def assume(self, hyps):
+        self.hyps.extend(hyps)
+        return self
+
+    def _wrap(self, form):
+        return smt.ForAll(self.vars, smt.Implies(smt.And(self.hyps), form))
+
+    def have(self, conc, **kwargs):
+        self.lemmas.append(lemma(self._wrap(conc), **kwargs))
+        return self
+
+    def qed(self):
+        return lemma(self.goal, by=self.lemmas)

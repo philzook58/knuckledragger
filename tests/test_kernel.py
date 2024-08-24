@@ -91,7 +91,8 @@ def test_seq():
     ThSeq.induct(smt.IntSort(), lambda x: x == x)
 
 
-def test_cons():
+"""
+def test_cond():
     c = kd.notation.Cond()
     assert (
         c.when(smt.BoolVal(True))
@@ -114,6 +115,30 @@ def test_cons():
             )
         )
     )
+"""
+
+
+def test_cond():
+    x = smt.Real("x")
+    assert kd.cond(
+        (x > 0, 3 * x), (x < 0, 2 * x), (x == 0, 5 * x), default=smt.Real("undefined")
+    ).eq(
+        smt.If(
+            x > 0,
+            3 * x,
+            smt.If(x < 0, 2 * x, smt.If(x == 0, 5 * x, smt.Real("undefined"))),
+        )
+    )
+    with pytest.raises(Exception) as _:
+        kd.cond((x < 0, 2 * x), (x > 0, 3 * x))
+
+
+def test_Lemma():
+    x = smt.Int("x")
+    l = kd.tactics.Lemma(x != x + 1)
+    l.intro([smt.Int("x")])
+    l.have(x != x + 1)
+    l.qed()
 
 
 def test_match():
