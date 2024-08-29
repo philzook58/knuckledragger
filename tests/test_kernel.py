@@ -1,20 +1,18 @@
 import pytest
-import knuckledragger.smt as smt
+import kdrag.smt as smt
 
-import knuckledragger as kd
-import knuckledragger.theories.Nat
-import knuckledragger.theories.Int
-import knuckledragger.theories.Real as R
-import knuckledragger.theories.Complex as C
-import knuckledragger.theories.Vec as Vec
+import kdrag as kd
+import kdrag.theories.Nat
+import kdrag.theories.Int
+import kdrag.theories.Real as R
 
 if smt.solver != smt.VAMPIRESOLVER:
-    import knuckledragger.theories.Interval
+    import kdrag.theories.Interval
 
-import knuckledragger.theories.Seq as ThSeq
+import kdrag.theories.Seq as ThSeq
 
-from knuckledragger import Calc
-import knuckledragger.utils
+from kdrag import Calc
+import kdrag.utils
 
 
 def test_true_infer():
@@ -179,3 +177,11 @@ def test_pred():
         "Even", ("val", kd.Z), ("div2", kd.Z), pred=lambda x: 2 * x.div2 == x.val
     )
     kd.lemma(Even(0, 0).wf())
+
+
+def test_induct():
+    List = smt.Datatype("List")
+    List.declare("nil")
+    List.declare("cons", ("head", smt.IntSort()), ("tail", List))
+    List = List.create()
+    assert kd.utils.induct(List) != None
