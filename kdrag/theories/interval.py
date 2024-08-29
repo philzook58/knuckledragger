@@ -1,5 +1,5 @@
 import kdrag as kd
-import kdrag.theories.Real as R
+import kdrag.theories.real as R
 import kdrag.smt as smt
 
 Interval = kd.notation.Record("Interval", ("lo", kd.R), ("hi", kd.R))

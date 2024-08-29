@@ -1,5 +1,5 @@
 import kdrag as kd
-import kdrag.theories.Real as R
+import kdrag.theories.real as R
 
 norm2 = kd.notation.SortDispatch(name="norm2")
 dot = kd.notation.SortDispatch(name="dot")

@@ -2,14 +2,14 @@ import pytest
 import kdrag.smt as smt
 
 import kdrag as kd
-import kdrag.theories.Nat
-import kdrag.theories.Int
-import kdrag.theories.Real as R
+import kdrag.theories.nat
+import kdrag.theories.int
+import kdrag.theories.real as R
 
 if smt.solver != smt.VAMPIRESOLVER:
-    import kdrag.theories.Interval
+    import kdrag.theories.interval
 
-import kdrag.theories.Seq as ThSeq
+import kdrag.theories.seq as ThSeq
 
 from kdrag import Calc
 import kdrag.utils
@@ -68,7 +68,7 @@ def test_qforall():
     assert kd.QForAll([x, y], x > 0, y > 0).eq(
         smt.ForAll([x, y], smt.Implies(x > 0, y > 0))
     )
-    Nat = kd.theories.Int.Nat
+    Nat = kd.theories.int.Nat
     x = smt.Const("x", Nat)
     assert kd.QForAll([x], x == Nat.mk(14)).eq(
         smt.ForAll([x], smt.Implies(x.wf(), x == Nat.mk(14)))
