@@ -152,11 +152,15 @@ def datatype_call(self, *args):
 
 smt.DatatypeSortRef.__call__ = datatype_call
 
+records = {}
+
 
 def Record(name, *fields, pred=None):
     """
     Define a record datatype
     """
+    if name in records:
+        raise Exception("Record already defined", name)
     rec = smt.Datatype(name)
     rec.declare(name, *fields)
     rec = rec.create()
@@ -176,6 +180,7 @@ def Record(name, *fields, pred=None):
             rec,
             lambda x: smt.And(pred(x), *[rec.accessor(0, n)(x).wf() for n in wf_cond]),
         )
+    records[name] = rec
 
     return rec
 

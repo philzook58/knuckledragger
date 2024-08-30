@@ -13,6 +13,6 @@ def induct_nat(P):
     )
 
 
-Nat = kd.Record("Nat", ("val", Z))
-n, m, k = smt.Consts("n m k", Nat)
-kd.notation.wf.register(Nat, lambda x: x.val >= 0)
+NatI = kd.Record("NatI", ("val", Z))
+n, m, k = smt.Consts("n m k", NatI)
+kd.notation.wf.register(NatI, lambda x: x.val >= 0)

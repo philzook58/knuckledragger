@@ -3,7 +3,9 @@ import kdrag.smt as smt
 
 import kdrag as kd
 import kdrag.theories.nat
+
 import kdrag.theories.int
+
 import kdrag.theories.real as R
 
 if smt.solver != smt.VAMPIRESOLVER:
@@ -68,10 +70,10 @@ def test_qforall():
     assert kd.QForAll([x, y], x > 0, y > 0).eq(
         smt.ForAll([x, y], smt.Implies(x > 0, y > 0))
     )
-    Nat = kd.theories.int.Nat
-    x = smt.Const("x", Nat)
-    assert kd.QForAll([x], x == Nat.mk(14)).eq(
-        smt.ForAll([x], smt.Implies(x.wf(), x == Nat.mk(14)))
+    NatI = kd.theories.int.NatI
+    x = smt.Const("x", NatI)
+    assert kd.QForAll([x], x == NatI.mk(14)).eq(
+        smt.ForAll([x], smt.Implies(x.wf(), x == NatI.mk(14)))
     )
 
 
