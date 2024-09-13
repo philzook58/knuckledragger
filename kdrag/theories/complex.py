@@ -1,5 +1,6 @@
 import kdrag as kd
 import kdrag.smt as smt
+import kdrag.theories.real as real
 
 C = kd.notation.Record("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
 
@@ -47,3 +48,42 @@ mul_comm = kd.lemma(smt.ForAll([z, w], z * w == w * z), by=[mul.defn])
 # conjugate
 # polar
 norm2 = kd.define("norm2", [z], z * conj(z))
+
+t, s = smt.Reals("t s")
+expi = kd.define("expi", [t], C.mk(real.cos(t), real.sin(t)))
+
+# expi_mul = kd.lemma(
+#   smt.ForAll([t, s], expi(t) * expi(s) == expi(t + s)),
+#    by=[expi.defn, mul.defn, real.sin_add, real.cos_add],
+# )
+
+c = kd.tactics.Calc([t, s], expi(t) * expi(s))
+c.eq(C.mk(real.cos(t), real.sin(t)) * C.mk(real.cos(s), real.sin(s)), by=[expi.defn])
+c.eq(
+    C.mk(
+        real.cos(t) * real.cos(s) - real.sin(t) * real.sin(s),
+        real.cos(t) * real.sin(s) + real.sin(t) * real.cos(s),
+    ),
+    by=[mul.defn],
+)
+_1 = c.qed()
+# c.eq(C.mk(real.cos(t + s), real.sin(t + s)), by=[real.cos_add, real.sin_add])
+c = kd.tactics.Calc([t, s], C.mk(real.cos(t + s), real.sin(t + s)))
+c.eq(expi(t + s), by=[expi.defn])
+expi_mul = c.qed()
+_2 = c.qed()
+
+_3 = kd.lemma(
+    kd.QForAll(
+        [t, s],
+        C.mk(
+            real.cos(t) * real.cos(s) - real.sin(t) * real.sin(s),
+            real.cos(t) * real.sin(s) + real.sin(t) * real.cos(s),
+        )
+        == C.mk(real.cos(t + s), real.sin(t + s)),
+    ),
+    by=[real.cos_add, real.sin_add],
+)
+expi_mul = kd.lemma(
+    kd.QForAll([t, s], expi(t) * expi(s) == expi(t + s)), by=[_1, _2, _3], admit=True
+)

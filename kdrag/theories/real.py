@@ -10,10 +10,10 @@ RSeq = smt.ArraySort(smt.IntSort(), R)
 x, y, z = smt.Reals("x y z")
 
 f, g = smt.Consts("f g", RFun)
-kd.notation.add.define([f, g], smt.Lambda([x], f[x] + g[x]))
-kd.notation.sub.define([f, g], smt.Lambda([x], f[x] - g[x]))
-kd.notation.mul.define([f, g], smt.Lambda([x], f[x] * g[x]))
-kd.notation.div.define([f, g], smt.Lambda([x], f[x] / g[x]))
+fadd = kd.notation.add.define([f, g], smt.Lambda([x], f[x] + g[x]))
+fsub = kd.notation.sub.define([f, g], smt.Lambda([x], f[x] - g[x]))
+fmul = kd.notation.mul.define([f, g], smt.Lambda([x], f[x] * g[x]))
+fdiv = kd.notation.div.define([f, g], smt.Lambda([x], f[x] / g[x]))
 
 add = kd.define("add", [x, y], x + y)
 
@@ -23,19 +23,34 @@ add_assoc = lemma(
     smt.ForAll([x, y, z], add(x, add(y, z)) == add(add(x, y), z)), by=[add.defn]
 )
 
-mul = Function("mul", R, R, R)
-mul_def = axiom(ForAll([x, y], mul(x, y) == x * y), "definition")
-
-mul_zero = lemma(ForAll([x], mul(x, 0) == 0), by=[mul_def])
-mul_1 = lemma(ForAll([x], mul(x, 1) == x), by=[mul_def])
-mul_comm = lemma(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul_def])
+mul = kd.define("mul", [x, y], x * y)
+mul_zero = lemma(ForAll([x], mul(x, 0) == 0), by=[mul.defn])
+mul_1 = lemma(ForAll([x], mul(x, 1) == x), by=[mul.defn])
+mul_comm = lemma(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
 mul_assoc = lemma(
-    ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)), by=[mul_def], admit=True
+    ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)), by=[mul.defn], admit=True
 )
 mul_distrib = lemma(
     ForAll([x, y, z], mul(x, add(y, z)) == add(mul(x, y), mul(x, z))),
-    by=[mul_def, add.defn],
+    by=[mul.defn, add.defn],
 )
+
+
+def abstract_arith(t: smt.ExprRef) -> smt.ExprRef:
+    """
+    Z3 has difficult ematching over arithmetic expressions.
+    Abstracting them to uninterpreted functions can help.
+    """
+    if smt.is_var(t):
+        return t
+    if smt.is_app(t):
+        if t.decl() == (x + y).decl():
+            return add(abstract_arith(t.arg(0)), abstract_arith(t.arg(1)))
+        elif t.decl() == (x * y).decl():
+            return mul(abstract_arith(t.arg(0)), abstract_arith(t.arg(1)))
+        else:
+            f = t.decl()
+            return f(*[abstract_arith(c) for c in t.children()])
 
 
 abs = kd.define("absR", [x], smt.If(x >= 0, x, -x))
@@ -116,6 +131,8 @@ pow_add = kd.axiom(
     kd.QForAll([x, y, z], x >= 0, pow(x, y + z) == pow(x, y) * pow(x, z))
 )
 pow_one = kd.lemma(kd.QForAll([x], pow(x, 1) == x), by=[pow.defn])
+pow_two = kd.lemma(kd.QForAll([x], pow(x, 2) == x * x), by=[pow.defn])
+pow_three = kd.lemma(kd.QForAll([x], pow(x, 3) == x * x * x), by=[pow.defn])
 # pow_zero = kd.kernel.lemma(kd.QForAll([x], x > 0, pow(x, 0) == 1), by=[pow.defn])
 kd.kernel.lemma(smt.Implies(x > 0, x**0 == 1))
 # pow_pos = kd.lemma(kd.QForAll([x, y], x > 0, pow(x, y) > 0), by=[pow.defn])
@@ -140,7 +157,7 @@ _1 = kd.kernel.lemma(smt.Implies(x >= 0, (x**2) ** 0.5 == x))
 sqrt_sqr = kd.lemma(kd.QForAll([x], x >= 0, sqrt(sqr(x)) == x), by=[_1], admit=True)
 
 
-exp = smt.Function("exp", kd.R, kd.R)
+exp = smt.Const("exp", kd.R >> kd.R)
 exp_add = kd.axiom(smt.ForAll([x, y], exp(x + y) == exp(x) * exp(y)))
 exp_lower = kd.axiom(
     smt.ForAll([x], exp(x) >= 1 + x)
@@ -154,8 +171,17 @@ exp_nzero = kd.lemma(smt.ForAll([x], exp(x) != 0), by=[exp_div])
 exp_inv = kd.lemma(smt.ForAll([x], exp(-x) == 1 / exp(x)), by=[exp_div])
 
 
-cos = smt.Function("cos", kd.R, kd.R)
-sin = smt.Function("sin", kd.R, kd.R)
+ln = smt.Function("ln", kd.R, kd.R)
+ln_exp = kd.axiom(smt.ForAll([x], ln(exp(x)) == x))
+# TODO. some of these are redundant depending on the range of ln being R.
+ln_mul = kd.axiom(kd.QForAll([x, y], x > 0, y > 0, ln(x * y) == ln(x) + ln(y)))
+ln_one = kd.lemma(smt.ForAll([x], ln(1) == 0), by=[ln_exp, exp_zero])
+
+exp_ln = kd.axiom(kd.QForAll([x], x > 0, exp(ln(x)) == x))
+
+
+cos = smt.Const("cos", kd.R >> kd.R)
+sin = smt.Const("sin", kd.R >> kd.R)
 
 pythag = kd.axiom(smt.ForAll([x], cos(x) ** 2 + sin(x) ** 2 == 1))
 cos_abs_le = kd.lemma(smt.ForAll([x], abs(cos(x)) <= 1), by=[pythag, abs.defn])
@@ -183,3 +209,18 @@ EReal.declare("inf")
 EReal.declare("neg_inf")
 EReal.declare("NaN")
 EReal = EReal.create()
+
+
+ident = kd.define("ident", [], smt.Lambda([x], x))
+const = kd.define("const", [x], smt.K(smt.RealSort(), x))
+X = ident()
+
+# Since not all functions are differentiable, the connection of deriv to the analytic definition of derivative is a proof obligation
+deriv = smt.Function("deriv", RFun, RFun)
+deriv_const = kd.axiom(ForAll([x], deriv(const(x)) == const(0)))
+deriv_ident = kd.axiom(deriv(X) == const(1))
+deriv_sin = kd.axiom(deriv(sin) == cos)
+deriv_cos = kd.axiom(deriv(smt.Lambda([x], cos(x))) == smt.Lambda([x], -sin(x)))
+deriv_exp = kd.axiom(deriv(exp) == exp)
+deriv_add = kd.axiom(ForAll([f, g], deriv(f + g) == deriv(f) + deriv(g)))
+deriv_mul = kd.axiom(ForAll([f, g], deriv(f * g) == deriv(f) * g + f * deriv(g)))

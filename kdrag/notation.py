@@ -16,6 +16,8 @@ smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 
 smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)
 
+smt.ArrayRef.__call__ = lambda self, arg: self[arg]
+
 
 class SortDispatch:
     """
@@ -183,6 +185,10 @@ def Record(name, *fields, pred=None):
     records[name] = rec
 
     return rec
+
+
+def NewType(name, sort, pred=None):
+    return Record(name, ("val", sort), pred=pred)
 
 
 def cond(*cases, default=None) -> smt.ExprRef:

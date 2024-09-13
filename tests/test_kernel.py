@@ -3,10 +3,9 @@ import kdrag.smt as smt
 
 import kdrag as kd
 import kdrag.theories.nat
-
 import kdrag.theories.int
-
 import kdrag.theories.real as R
+import kdrag.theories.complex as complex
 
 if smt.solver != smt.VAMPIRESOLVER:
     import kdrag.theories.interval
@@ -187,3 +186,7 @@ def test_induct():
     List.declare("cons", ("head", smt.IntSort()), ("tail", List))
     List = List.create()
     assert kd.utils.induct(List) != None
+
+
+# TODO: test unsound
+# take each module and run z3 on it for 10 seconds. It better come back unknown

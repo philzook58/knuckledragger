@@ -38,9 +38,10 @@ class Calc:
 
     def __init__(self, vars, lhs, assume=[]):
         self.vars = vars
-        self.terms = [lhs]
-        self.lemmas = []
+        self.lhs = lhs
+        self.iterm = lhs  # intermediate term
         self.assume = assume
+        self.lemma = kd.kernel.lemma(self._forall(lhs == lhs))
         self.mode = self._Mode.EQ
 
     def _forall(self, body):
@@ -53,9 +54,16 @@ class Calc:
         else:
             return smt.ForAll(self.vars, body)
 
+    def _lemma(self, rhs, by):
+        op = self.mode.op
+        l = kd.lemma(self._forall(op(self.iterm, rhs)), by=by)
+        self.lemma = kd.kernel.lemma(
+            self._forall(op(self.lhs, rhs)), by=[l, self.lemma]
+        )
+        self.iterm = rhs
+
     def eq(self, rhs, by=[]):
-        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] == rhs), by=by))
-        self.terms.append(rhs)
+        self._lemma(rhs, by)
         return self
 
     def _set_mode(self, newmode):
@@ -67,37 +75,29 @@ class Calc:
 
     def le(self, rhs, by=[]):
         self._set_mode(Calc._Mode.LE)
-        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] <= rhs), by=by))
-        self.terms.append(rhs)
+        self._lemma(rhs, by)
         return self
 
     def lt(self, rhs, by=[]):
         self._set_mode(Calc._Mode.LT)
-        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] < rhs), by=by))
-        self.terms.append(rhs)
+        self._lemma(rhs, by)
         return self
 
     def ge(self, rhs, by=[]):
         self._set_mode(Calc._Mode.GE)
-        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] >= rhs), by=by))
-        self.terms.append(rhs)
+        self._lemma(rhs, by)
         return self
 
     def gt(self, rhs, by=[]):
         self._set_mode(Calc._Mode.GT)
-        self.lemmas.append(kd.lemma(self._forall(self.terms[-1] > rhs), by=by))
-        self.terms.append(rhs)
+        self._lemma(rhs, by)
         return self
 
     def __repr__(self):
         return "... " + str(self.mode) + " " + repr(self.terms[-1])
 
     def qed(self, **kwargs):
-        return kd.lemma(
-            self._forall(self.mode.op(self.terms[0], self.terms[-1])),
-            by=self.lemmas,
-            **kwargs,
-        )
+        return self.lemma
 
 
 simps = {}
@@ -150,6 +150,23 @@ def lemma(
         s.assert_and_track(smt.Not(thm), "knuckledragger_goal")
         if dump:
             print(s.sexpr())
+            print(smt.solver)
+            if smt.solver == smt.Z3SOLVER:
+                """
+                def log_instance(pr, clause, myst):
+                    print(type(pr))
+                    if pr.decl().name() == "inst":
+                        q = pr.arg(0)
+                        for ch in pr.children():
+                            if ch.decl().name() == "bind":
+                                print("Binding")
+                                print(q)
+                                print(ch.children())
+                                break
+
+                onc = smt.OnClause(s, log_instance)
+                """
+                onc = smt.OnClause(s, lambda pr, clause, myst: print(pr, clause, myst))
         res = s.check()
         if res != smt.unsat:
             if res == smt.sat:
@@ -163,7 +180,7 @@ def lemma(
                     core,
                     "Inconsistent lemmas. Goal is not used for proof. Something has gone awry.",
                 )
-            if len(core) < len(by) + 1:
+            if dump and len(core) < len(by) + 1:
                 print("WARNING: Unneeded assumptions. Used", core, thm)
             return kd.kernel.lemma(
                 thm, by, admit=admit, timeout=timeout, dump=dump, solver=solver
