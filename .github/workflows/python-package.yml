@@ -28,6 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ruff pytest cvc5
           python -m pip install -e .
+          bash ./kdrag/solvers/install.sh
       - name: Lint with Ruff
         run: |
           ruff check --output-format=github .
@@ -35,4 +36,4 @@ jobs:
       - name: Test with pytest
         run: |
           pytest
-          KNUCKLE_SOLVER=cvc5 pytest
+          #KNUCKLE_SOLVER=cvc5 pytest

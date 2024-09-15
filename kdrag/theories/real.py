@@ -23,6 +23,12 @@ add_assoc = lemma(
     smt.ForAll([x, y, z], add(x, add(y, z)) == add(add(x, y), z)), by=[add.defn]
 )
 
+sub = kd.define("sub", [x, y], x - y)
+sub_0 = lemma(ForAll([x], sub(x, 0) == x), by=[sub.defn])
+sub_add = lemma(
+    ForAll([x, y, z], (add(x, y) == z) == (x == sub(z, y))), by=[sub.defn, add.defn]
+)
+
 mul = kd.define("mul", [x, y], x * y)
 mul_zero = lemma(ForAll([x], mul(x, 0) == 0), by=[mul.defn])
 mul_1 = lemma(ForAll([x], mul(x, 1) == x), by=[mul.defn])
@@ -46,6 +52,8 @@ def abstract_arith(t: smt.ExprRef) -> smt.ExprRef:
     if smt.is_app(t):
         if t.decl() == (x + y).decl():
             return add(abstract_arith(t.arg(0)), abstract_arith(t.arg(1)))
+        elif t.decl() == (x - y).decl():
+            return sub(abstract_arith(t.arg(0)), abstract_arith(t.arg(1)))
         elif t.decl() == (x * y).decl():
             return mul(abstract_arith(t.arg(0)), abstract_arith(t.arg(1)))
         else:
@@ -224,3 +232,49 @@ deriv_cos = kd.axiom(deriv(smt.Lambda([x], cos(x))) == smt.Lambda([x], -sin(x)))
 deriv_exp = kd.axiom(deriv(exp) == exp)
 deriv_add = kd.axiom(ForAll([f, g], deriv(f + g) == deriv(f) + deriv(g)))
 deriv_mul = kd.axiom(ForAll([f, g], deriv(f * g) == deriv(f) * g + f * deriv(g)))
+
+
+"""
+# wrong. delta needs to be > 0
+# two sided limit
+lim = smt.Function("lim", RFun, R, R)
+eps, delta, l, p = smt.Reals("eps delta l p")
+has_lim = kd.define(
+    "has_lim",
+    [f, p, l],
+    kd.QForAll(
+        [eps],
+        eps > 0,
+        smt.Exists([delta], kd.QForAll([x], abs(x - p) < delta, abs(f(x) - l) < eps)),
+    ),
+)
+delta = smt.Const("delta", R >> R)
+has_lim_mod = kd.define(
+    "has_lim_mod",
+    [f, p, l, delta],
+    kd.QForAll([eps, x], eps > 0, abs(x - p) < delta(eps), abs(f(x) - l) < eps),
+)
+
+has_lim_seal = kd.lemma(
+    kd.QForAll([f, p, l, delta], has_lim_mod(f, p, l, delta), has_lim(f, p, l)),
+    by=[has_lim_mod.defn, has_lim.defn],
+    admit=True,
+)
+
+import kdrag.solvers
+
+l1 = smt.Real("l1")
+delta1 = smt.Const("delta1", R >> R)
+has_lim_add = kd.kernel.lemma(
+    kd.QForAll(
+        [f, g, p, l, l1, delta, delta1],
+        has_lim_mod(f, p, l, delta),
+        has_lim_mod(g, p, l, delta1),
+        has_lim_mod(
+            f + g, p, l + l1, smt.Lambda([eps], min(delta[eps / 2], delta1[eps / 2]))
+        ),
+    ),
+    by=[fadd.defn, has_lim_mod.defn, min.defn],
+    # solver=kd.solvers.VampireSolver,
+)
+"""

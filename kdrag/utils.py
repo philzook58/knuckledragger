@@ -122,6 +122,12 @@ def expr_to_tptp(expr: smt.ExprRef):
         return "~({})".format(children[0])
     elif head == "ite":
         return "$ite({}, {}, {})".format(*children)
+    elif head == "select":
+        return "({} @ {})".format(*children)
+    elif head == "distinct":
+        if len(children) == 2:
+            return "({} != {})".format(*children)
+        return "$distinct({})".format(", ".join(children))
     elif head == "<":
         return "$less({},{})".format(*children)
     elif head == "<=":
@@ -141,7 +147,8 @@ def expr_to_tptp(expr: smt.ExprRef):
     else:
         if len(children) == 0:
             return head
-        return f"{head}({', '.join(children)})"
+        return f"({head} @ {' @ '.join(children)})"
+        # return f"{head}({', '.join(children)})"
 
 
 smt.ExprRef.tptp = expr_to_tptp
