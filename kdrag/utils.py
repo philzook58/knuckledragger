@@ -91,13 +91,19 @@ def open_binder(lam: smt.QuantifierRef):
     return vars, smt.substitute_vars(lam.body(), *vars)
 
 
-def expr_to_tptp(expr: smt.ExprRef):
+def mangle_decl(d: smt.FuncDeclRef):
+    return d.name() + "_" + format(d.get_id() - 0x80000000, "x")
+
+
+def expr_to_tptp(expr: smt.ExprRef, thf=True):
     if isinstance(expr, smt.IntNumRef):
         return str(expr.as_string())
     elif isinstance(expr, smt.QuantifierRef):
         vars, body = open_binder(expr)
         body = expr_to_tptp(body)
-        vs = ", ".join([v.sexpr() + ":" + sort_to_tptp(v.sort()) for v in vars])
+        vs = ", ".join(
+            [mangle_decl(v.decl()) + ":" + sort_to_tptp(v.sort()) for v in vars]
+        )
         if expr.is_forall():
             return f"(![{vs}] : {body})"
         elif expr.is_exists():
@@ -120,7 +126,10 @@ def expr_to_tptp(expr: smt.ExprRef):
         return "({} => {})".format(children[0], children[1])
     elif head == "not":
         return "~({})".format(children[0])
-    elif head == "ite":
+    elif head == "if":
+        # if thf:
+        #    return "($ite @ {} @ {} @ {})".format(*children)
+        # else:
         return "$ite({}, {}, {})".format(*children)
     elif head == "select":
         return "({} @ {})".format(*children)
@@ -139,16 +148,26 @@ def expr_to_tptp(expr: smt.ExprRef):
     elif head == "+":
         return "$sum({},{})".format(*children)
     elif head == "-":
-        return "$difference({},{})".format(*children)
+        if len(children) == 1:
+            return "$difference(0,{})".format(children[0])
+        else:
+            return "$difference({},{})".format(*children)
     elif head == "*":
         return "$product({},{})".format(*children)
     elif head == "/":
         return "$quotient({},{})".format(*children)
+    elif head == "^":
+        return "$power({},{})".format(
+            *children
+        )  # This is not a built in tptp function though
     else:
+        head = mangle_decl(expr.decl())
         if len(children) == 0:
             return head
-        return f"({head} @ {' @ '.join(children)})"
-        # return f"{head}({', '.join(children)})"
+        if thf:
+            return f"({head} @ {' @ '.join(children)})"
+        else:
+            return f"{head}({', '.join(children)})"
 
 
 smt.ExprRef.tptp = expr_to_tptp

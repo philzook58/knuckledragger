@@ -40,7 +40,7 @@ def test_calc():
 
 def test_tptp():
     x = smt.Int("x")
-    assert smt.And(x > 4, x <= 7).tptp() == "($greater(x,4) & $lesseq(x,7))"
+    assert smt.And(x > 4, x <= 7).tptp() == "($greater(x_80,4) & $lesseq(x_80,7))"
     assert smt.IntSort().tptp() == "$int"
     assert smt.BoolSort().tptp() == "$o"
     assert (

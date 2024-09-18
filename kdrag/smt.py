@@ -4,6 +4,7 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 """
 
 import os
+from . import config
 
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
@@ -20,6 +21,7 @@ elif solver == VAMPIRESOLVER:
 
     Z3Solver = Solver
     Solver = VampireSolver
+
 
 elif solver == CVC5SOLVER:
     import cvc5
@@ -68,3 +70,5 @@ else:
     raise ValueError(
         "Unknown solver in environment variable KNUCKLE_SOLVER: {}".format(solver)
     )
+
+config.solver = Solver

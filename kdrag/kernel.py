@@ -2,6 +2,7 @@ import kdrag.smt as smt
 from dataclasses import dataclass
 from typing import Any
 import logging
+from . import config
 
 logger = logging.getLogger("knuckledragger")
 
@@ -39,7 +40,7 @@ def lemma(
     admit=False,
     timeout=1000,
     dump=False,
-    solver=smt.Solver,
+    solver=None,
 ) -> Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
@@ -60,9 +61,11 @@ def lemma(
 
     """
     if admit:
-        logger.warn("Admitting lemma {}".format(thm))
+        logger.warning("Admitting lemma {}".format(thm))
         return __Proof(thm, by, True)
     else:
+        if solver is None:
+            solver = config.solver
         s = solver()
         s.set("timeout", timeout)
         for p in by:

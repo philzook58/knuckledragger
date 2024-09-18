@@ -2,6 +2,7 @@ import kdrag as kd
 import kdrag.smt as smt
 from enum import IntEnum
 import operator as op
+from . import config
 
 
 class Calc:
@@ -109,7 +110,7 @@ def lemma(
     admit=False,
     timeout=1000,
     dump=False,
-    solver=smt.Solver,
+    solver=None,
     defns=True,
     simps=simps,
 ) -> kd.kernel.Proof:
@@ -136,6 +137,8 @@ def lemma(
             thm, by, admit=admit, timeout=timeout, dump=dump, solver=solver
         )
     else:
+        if solver is None:
+            solver = config.solver
         s = solver()
         s.set("timeout", timeout)
         for n, p in enumerate(by):
