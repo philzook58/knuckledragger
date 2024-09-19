@@ -8,6 +8,7 @@ from . import utils as utils
 lemma = tactics.lemma
 axiom = kernel.axiom
 define = kernel.define
+Proof = kernel.Proof
 
 QForAll = notation.QForAll
 QExists = notation.QExists

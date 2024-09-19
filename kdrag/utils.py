@@ -109,6 +109,10 @@ def expr_to_tptp(expr: smt.ExprRef, thf=True):
         elif expr.is_exists():
             return f"(?[{vs}] : {body})"
         elif expr.is_lambda():
+            if not thf:
+                raise Exception(
+                    "Lambda not supported in tff tptp format. Try a thf solver", expr
+                )
             return f"(^[{vs}] : {body})"
     children = list(map(expr_to_tptp, expr.children()))
     head = expr.decl().name()

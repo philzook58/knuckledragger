@@ -4,6 +4,7 @@ from kdrag.solvers import (
     EProverTHFSolver,
     MultiSolver,
     ZipperpositionSolver,
+    TweeSolver,
 )
 import kdrag.smt as smt
 import kdrag.theories.real as real
@@ -107,6 +108,13 @@ def test_vampirethf():
         ),
         solver=EProverTHFSolver,
     )
+
+    s = TweeSolver()
+    x, y, z = smt.Consts("x y z", S)
+    s.add(x == y)
+    s.add(y == z)
+    s.add(smt.Not(x == z))
+    s.check()
     """
     f = smt.Const("f", smt.BoolSort() >> (smt.BoolSort() >> smt.IntSort()))
     kd.kernel.lemma(

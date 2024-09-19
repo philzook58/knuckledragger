@@ -21,6 +21,7 @@ echo "Installing LEO-III"
 # https://github.com/leoprover/Leo-III/releases
 wget -nc https://github.com/leoprover/Leo-III/releases/download/v1.7.15/leo3-v1.7.15.jar -O leo3.jar
 
+
 echo "Installing Eprover"
 git -C eprover pull || git clone https://github.com/eprover/eprover.git --depth 1
 cd eprover
@@ -28,3 +29,8 @@ cd eprover
 make rebuild
 cp ./PROVER/eprover-ho ..
 cd ..
+
+echo "Installing Twee"
+# https://github.com/nick8325/twee/releases
+wget -nc https://github.com/nick8325/twee/releases/download/2.4.2/twee-2.4.2-linux-amd64 -O twee
+chmod +x twee

@@ -87,7 +87,7 @@ induct = SortDispatch(name="induct")
 smt.ExprRef.induct = lambda x, P: induct(x, P)
 
 
-def QForAll(vs, *hyp_conc):
+def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
     """Quantified ForAll
 
     Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`
@@ -107,7 +107,7 @@ def QForAll(vs, *hyp_conc):
         return smt.ForAll(vs, smt.Implies(hyp, conc))
 
 
-def QExists(vs, *concs):
+def QExists(vs: list[smt.ExprRef], *concs) -> smt.BoolRef:
     """Quantified Exists
 
     Shorthand for `ForAll(vars, And(conc[0], conc[1], ...))`
@@ -119,6 +119,16 @@ def QExists(vs, *concs):
         smt.Exists(vars, concs[0])
     else:
         smt.Exists(vars, smt.And(concs))
+
+
+def ExistsUnique(v: smt.ExprRef, *concs) -> smt.BoolRef:
+    """Unique Existence"""
+    y: smt.ExprRef = smt.FreshConst(v.sort(), prefix="y")
+    concs_y = [smt.substitute(conc, (v, y)) for conc in concs]
+    return smt.And(
+        QExists([v], *concs),
+        QForAll([v, y], *concs, *concs_y, v == y),
+    )
 
 
 def _lookup_constructor_recog(self, k):

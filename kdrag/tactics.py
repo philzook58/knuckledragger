@@ -215,3 +215,11 @@ class Lemma:
 
     def qed(self):
         return lemma(self.goal, by=self.lemmas)
+
+
+def consider(x: smt.ExprRef) -> kd.kernel.Proof:
+    """
+    Axiom schema. We may give a fresh name to any constant. An "anonymous" form of define.
+    TODO: Arguably this should go into kernel?
+    """
+    return kd.axiom(smt.FreshConst(x.sort(), prefix="consider") == x)
