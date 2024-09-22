@@ -11,7 +11,7 @@ logger = logging.getLogger("knuckledragger")
 class Proof(smt.Z3PPObject):
     thm: smt.BoolRef
     reason: list[Any]
-    admit: bool
+    admit: bool = False
 
     def _repr_html_(self):
         return "&#8870;" + repr(self.thm)
@@ -159,3 +159,60 @@ def define_fix(name: str, args: list[smt.ExprRef], retsort, fix_lam) -> smt.Func
     defn = define(name, args, fix_lam(record_f))
     # TODO: check for well foundedness/termination, custom induction principle.
     return defn
+
+
+def consider(x: smt.ExprRef) -> Proof:
+    """
+    Axiom schema. We may give a fresh name to any constant. An "anonymous" form of define.
+    The purpose of this is to seed the solver with interesting terms.
+    Pointing out the interesting terms is sometimes the essence of a proof.
+    """
+    return axiom(smt.FreshConst(x.sort(), prefix="consider") == x)
+
+
+def fresh_const(q: smt.QuantifierRef):
+    return [
+        smt.FreshConst(q.var_sort(i), prefix=q.var_name(i)) for i in range(q.num_vars())
+    ]
+
+
+def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
+    """
+    Instantiate a universally quantified formula.
+    This is forall elimination
+    """
+    assert is_proof(pf) and pf.thm.is_forall()
+
+    return __Proof(smt.substitute_vars(pf.thm.body(), *reversed(ts)), reason=[pf])
+
+
+def forget(ts: list[smt.ExprRef], pf: Proof) -> Proof:
+    """
+    "Forget" a term using existentials. This is existential introduction.
+    """
+    assert is_proof(pf)
+    vs = fresh_const(pf.thm)
+    return __Proof(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), reason=[pf])
+
+
+def skolem(pf: Proof) -> tuple[list[smt.ExprRef], Proof]:
+    """
+    Skolemize an existential quantifier.
+    """
+    assert is_proof(pf) and pf.thm.is_exists()
+
+    skolems = fresh_const(pf.thm)
+    return skolems, __Proof(
+        smt.substitute_vars(pf.thm.body(), *reversed(skolems)), reason=[pf]
+    )
+
+
+def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
+    """
+    Herbrandize a theorem.
+    It is sufficient to prove a theorem for fresh consts to prove a universal.
+    Note: Perhaps lambdaized form is better?
+    """
+    assert thm.is_forall()
+    herbs = fresh_const(thm)
+    return herbs, __Proof(smt.Implies(smt.substitute_vars(thm, *reversed(herbs)), thm))

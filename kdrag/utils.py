@@ -27,29 +27,6 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
     return G2[len(G2) - 1].children()[1]
 
 
-def lemma_smt(thm: smt.BoolRef, by=[], sig=[]) -> list[str]:
-    """
-    Replacement for lemma that returns smtlib string for experimentation with other solvers
-    """
-    output = []
-    output.append(";;declarations")
-    for f in sig:
-        if isinstance(f, smt.FuncDeclRef):
-            output.append(f.sexpr())
-        elif isinstance(f, smt.SortRef):
-            output.append("(declare-sort " + f.sexpr() + " 0)")
-        elif isinstance(f, smt.ExprRef):
-            output.append(f.decl().sexpr())
-    output.append(";;axioms")
-    for e in by:
-        if is_proof(e):
-            output.append("(assert " + e.thm.sexpr() + ")")
-    output.append(";;goal")
-    output.append("(assert " + smt.Not(thm).sexpr() + ")")
-    output.append("(check-sat)")
-    return output
-
-
 def z3_match(
     t: smt.ExprRef, pat: smt.ExprRef
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
@@ -95,21 +72,31 @@ def mangle_decl(d: smt.FuncDeclRef):
     return d.name() + "_" + format(d.get_id() - 0x80000000, "x")
 
 
-def expr_to_tptp(expr: smt.ExprRef, thf=True):
+def expr_to_tptp(expr: smt.ExprRef, format="thf"):
     if isinstance(expr, smt.IntNumRef):
         return str(expr.as_string())
     elif isinstance(expr, smt.QuantifierRef):
         vars, body = open_binder(expr)
         body = expr_to_tptp(body)
-        vs = ", ".join(
-            [mangle_decl(v.decl()) + ":" + sort_to_tptp(v.sort()) for v in vars]
-        )
+        if format == "fof":
+            vs = ", ".join([mangle_decl(v.decl()) for v in vars])
+            type_preds = " & ".join(
+                [f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl())}))" for v in vars]
+            )
+        else:
+            vs = ", ".join(
+                [mangle_decl(v.decl()) + ":" + sort_to_tptp(v.sort()) for v in vars]
+            )
         if expr.is_forall():
+            if format == "fof":
+                return f"(![{vs}] : ({type_preds}) => {body})"
             return f"(![{vs}] : {body})"
         elif expr.is_exists():
+            if format == "fof":
+                return f"(?[{vs}] : ({type_preds}) & {body})"
             return f"(?[{vs}] : {body})"
         elif expr.is_lambda():
-            if not thf:
+            if format != "thf":
                 raise Exception(
                     "Lambda not supported in tff tptp format. Try a thf solver", expr
                 )
@@ -168,13 +155,10 @@ def expr_to_tptp(expr: smt.ExprRef, thf=True):
         head = mangle_decl(expr.decl())
         if len(children) == 0:
             return head
-        if thf:
+        if format == "thf":
             return f"({head} @ {' @ '.join(children)})"
         else:
             return f"{head}({', '.join(children)})"
-
-
-smt.ExprRef.tptp = expr_to_tptp
 
 
 def sort_to_tptp(sort: smt.SortRef):
@@ -191,40 +175,6 @@ def sort_to_tptp(sort: smt.SortRef):
         )
     else:
         return name.lower()
-
-
-smt.SortRef.tptp = sort_to_tptp
-
-
-def lemma_tptp(thm: smt.BoolRef, by=[], sig=[], timeout=None, command=None):
-    """
-    Returns tptp strings
-    """
-    output = []
-    for f in sig:
-        if isinstance(f, smt.FuncDeclRef):
-            dom = " * ".join([f.domain(i).tptp() for i in range(f.arity())])
-            output.append(f"tff(sig, type, {f.name()} : ({dom}) > {f.range().tptp()}).")
-        elif isinstance(f, smt.SortRef):
-            output.append(f"tff(sig, type, {f.tptp()} : $tType).")
-        elif isinstance(f, smt.ExprRef):
-            output.append(f"tff(sig, type, {f.sexpr()} : {f.sort().tptp()}).")
-    for e in by:
-        if is_proof(e):
-            output.append(f"tff(hyp, axiom, {e.thm.tptp()} ).")
-    output.append(f"tff(goal,conjecture,{thm.tptp()} ).")
-    if command is None:
-        return output
-    else:
-        with open("/tmp/temp.p", "w") as f:
-            f.writelines(output)
-        command.append("/tmp/temp.p")
-        res = subprocess.run(
-            command,
-            timeout=timeout,
-            capture_output=True,
-        )
-        return res
 
 
 def subterms(t: smt.ExprRef):

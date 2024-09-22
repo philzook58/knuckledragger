@@ -1,4 +1,5 @@
 import pytest
+from traitlets import Int
 import kdrag.smt as smt
 
 import kdrag as kd
@@ -40,14 +41,46 @@ def test_calc():
 
 def test_tptp():
     x = smt.Int("x")
-    assert smt.And(x > 4, x <= 7).tptp() == "($greater(x_80,4) & $lesseq(x_80,7))"
-    assert smt.IntSort().tptp() == "$int"
-    assert smt.BoolSort().tptp() == "$o"
     assert (
-        smt.ArraySort(
-            smt.ArraySort(smt.BoolSort(), smt.IntSort()), smt.IntSort()
-        ).tptp()
+        kd.utils.expr_to_tptp(smt.And(x > 4, x <= 7))
+        == "($greater(x_80,4) & $lesseq(x_80,7))"
+    )
+    assert kd.utils.sort_to_tptp(smt.IntSort()) == "$int"
+    assert kd.utils.sort_to_tptp(smt.BoolSort()) == "$o"
+    assert (
+        kd.utils.sort_to_tptp(
+            smt.ArraySort(smt.ArraySort(smt.BoolSort(), smt.IntSort()), smt.IntSort())
+        )
         == "(($o > $int) > $int)"
+    )
+
+
+def test_fof():
+    x = smt.Int("x")
+    assert (
+        kd.utils.expr_to_tptp(smt.ForAll([x], smt.And(x > 4, x <= 7)), format="fof")
+        == "(![X_134] : ($int(X_134))) => ($greater(X_134,4) & $lesseq(X_134,7)))"
+    )
+
+
+def test_skolem():
+    x, y = smt.Ints("x y")
+    z = smt.Real("z")
+
+    thm = smt.Exists([x, y, z], smt.And(x == x, y == y, z == z))
+    pf = kd.kernel.lemma(thm)
+    vs, pf1 = kd.kernel.skolem(pf)
+    print(vs, pf1)
+    assert smt.Exists(vs, pf1.thm).body().eq(thm.body())
+
+    thm = smt.ForAll([x, y, z], smt.And(x == x, y == y, z == z))
+    pf = kd.kernel.lemma(thm)
+    assert kd.kernel.instan(
+        [smt.IntVal(3), smt.IntVal(4), smt.RealVal(5)], pf
+    ).thm == smt.And(
+        smt.IntVal(3) == smt.IntVal(3),
+        smt.IntVal(4) == smt.IntVal(4),
+        smt.RealVal(5) == smt.RealVal(5),
     )
 
 
