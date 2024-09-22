@@ -1,5 +1,4 @@
 import pytest
-from traitlets import Int
 import kdrag.smt as smt
 
 import kdrag as kd
