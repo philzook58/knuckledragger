@@ -1,6 +1,6 @@
 import sys
 import subprocess
-from . import binpath
+from . import binpath, install_solvers
 
 
 def run_subprocess(command, args):
@@ -14,14 +14,17 @@ def run_subprocess(command, args):
 
 
 def main():
+    usage_string = "Usage: python3 -m kdrag.solvers (install | vampire | vampire-ho | eprover | twee | nanocopi) [args...]"
     if len(sys.argv) < 2:
-        print("Usage: script_name <command> [args...]")
+        print(usage_string)
         sys.exit(1)
 
     command = sys.argv[1]
     args = sys.argv[2:]
 
-    if command == "vampire":
+    if command == "install":
+        install_solvers()
+    elif command == "vampire":
         run_subprocess(binpath("vampire"), args)
     if command == "vampire-ho":
         run_subprocess(binpath("vampire-ho"), args)
@@ -33,6 +36,7 @@ def main():
         run_subprocess(binpath("nanoCoP-i20/nanocopi.sh"), args)
     else:
         print(f"Unknown command: {command}")
+        print(usage_string)
         sys.exit(1)
 
 
