@@ -262,9 +262,9 @@ class VampireSolver(BaseSolver):
                 "smtcomp",
                 "--input_syntax",
                 "smtlib2",  # "--ignore_unrecognized_logic", "on",
-                "-t",
-                str(self.options["timeout"] // 100) + "d",
             ]
+            if "timeout" in self.options:
+                cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
             if len(self.assert_tracks) > 0:
                 cmd.extend(["--output_mode", "ucore"])
             else:

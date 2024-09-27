@@ -4,7 +4,7 @@
 
 <img src="https://raw.githubusercontent.com/philzook58/knuckledragger/main/logo.webp" alt="drawing" width="200" align="left"/>
 
-Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. It is not attempting to be the most interesting, expressive, or flexible logic in the world. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds. A no-install colab tutorial is available [here](http://colab.research.google.com/github/philzook58/knuckledragger/blob/main/tutorial.ipynb)
+Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. It is not attempting to be the most interesting, expressive, or flexible logic in the world. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.
 
 <br clear="left"/>
 
@@ -58,3 +58,5 @@ The de Bruijn criterion is going to be bent or broken in certain senses. Attenti
 Isabelle and ACL2 are the strongest influences. If you want dependent type theory, you are at a level of investment and sophistication that it behooves you to be in another system. Should there be a strong automated DTT solver someday, I will reconsider.
 
 I maintain the right to change my mind about anything.
+
+TODO: A no-install WIP colab tutorial is available [here](http://colab.research.google.com/github/philzook58/knuckledragger/blob/main/tutorial.ipynb)

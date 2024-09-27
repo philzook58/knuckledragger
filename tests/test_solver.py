@@ -182,3 +182,24 @@ def test_nanocopi():
     s.add(smt.Or(p, smt.Not(p)))
     assert s.check() == smt.unsat
 """
+
+
+def test_tao():
+    # https://www.philipzucker.com/tao_algebra/
+    T = smt.DeclareSort("T")
+    x, y, z = smt.Consts("x y z", T)
+    mul = smt.Function("mul", T, T, T)
+    kd.notation.mul.define([x, y], mul(x, y))
+
+    def check(s):
+        s.add(smt.ForAll([x, y], (x * x) * y == y * x))
+        s.add(smt.Not(smt.ForAll([x, y], x * y == y * x)))
+        return s.check()
+
+    assert check(TweeSolver()) == smt.unsat
+    assert check(VampireTHFSolver()) == smt.unsat
+    assert check(EProverTHFSolver()) == smt.unsat
+    assert check(MultiSolver()) == smt.unsat
+    assert check(ZipperpositionSolver()) == smt.unsat
+    assert check(smt.Solver()) == smt.unsat
+    assert check(solvers.VampireSolver()) == smt.unsat
