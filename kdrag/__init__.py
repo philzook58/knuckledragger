@@ -14,6 +14,7 @@ QForAll = notation.QForAll
 QExists = notation.QExists
 cond = notation.cond
 Record = notation.Record
+NewType = notation.NewType
 
 Calc = tactics.Calc
 

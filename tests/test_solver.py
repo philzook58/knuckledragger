@@ -6,6 +6,7 @@ from kdrag.solvers import (
     ZipperpositionSolver,
     TweeSolver,
 )
+import kdrag.solvers as solvers
 import kdrag.smt as smt
 import kdrag.theories.real as real
 
@@ -171,3 +172,13 @@ def test_vampirethf():
     %  --mode {best|fo-complete-basic|ho-comb-complete|ho-competitive
     %|ho-complete-basic|ho-pragmatic|lambda-free-extensional|lambda-free-intensional|lambda-free-purify-extensional|lambda-free-purify-intensional}
     """
+
+
+"""
+TODO: Yeah, the entire refutation idea doesn't work here.
+def test_nanocopi():
+    s = solvers.NanoCopISolver()
+    p, q, r = smt.Bools("p q r")
+    s.add(smt.Or(p, smt.Not(p)))
+    assert s.check() == smt.unsat
+"""

@@ -15,6 +15,16 @@ fsub = kd.notation.sub.define([f, g], smt.Lambda([x], f[x] - g[x]))
 fmul = kd.notation.mul.define([f, g], smt.Lambda([x], f[x] * g[x]))
 fdiv = kd.notation.div.define([f, g], smt.Lambda([x], f[x] / g[x]))
 
+poly = smt.Function("poly", RFun, smt.BoolSort())
+kd.axiom(ForAll([x], poly(smt.K(smt.RealSort(), x))))
+kd.axiom(poly(smt.Lambda([x], x)))
+kd.axiom(kd.QForAll([f, g], poly(f), poly(g), poly(f + g)))
+kd.axiom(kd.QForAll([f, g], poly(f), poly(g), poly(f * g)))
+
+
+NReal = kd.NewType("NReal", R)
+
+
 add = kd.define("add", [x, y], x + y)
 
 add_0 = lemma(ForAll([x], add(x, 0) == x), by=[add.defn])

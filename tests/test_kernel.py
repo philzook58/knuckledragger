@@ -6,6 +6,8 @@ import kdrag.theories.nat
 import kdrag.theories.int
 import kdrag.theories.real as R
 import kdrag.theories.complex as complex
+import kdrag.theories.zf as zf
+import re
 
 if smt.solver != smt.VAMPIRESOLVER:
     import kdrag.theories.interval
@@ -56,9 +58,9 @@ def test_tptp():
 
 def test_fof():
     x = smt.Int("x")
-    assert (
-        kd.utils.expr_to_tptp(smt.ForAll([x], smt.And(x > 4, x <= 7)), format="fof")
-        == "(![X_134] : ($int(X_134))) => ($greater(X_134,4) & $lesseq(X_134,7)))"
+    assert re.match(
+        r"\(!\[X_(?P<var_num>[a-zA-Z0-9]+)\] : \(\$greater\(X_(?P=var_num),4\) & \$lesseq\(X_(?P=var_num),7\)\)\)",
+        kd.utils.expr_to_tptp(smt.ForAll([x], smt.And(x > 4, x <= 7)), format="fof"),
     )
 
 

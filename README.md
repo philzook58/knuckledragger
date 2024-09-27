@@ -22,6 +22,12 @@ cd knuckledragger
 python3 -m pip install -e .
 ```
 
+To install extra solvers
+
+```bash
+./install.sh
+```
+
 ## Blog Posts
 
 - [State of Knuckledragger, a Semi-Automated Python Proof Assistant](https://www.philipzucker.com/state_o_knuck/)

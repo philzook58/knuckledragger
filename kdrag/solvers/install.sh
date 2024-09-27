@@ -26,7 +26,7 @@ echo "Installing Eprover"
 git -C eprover pull || git clone https://github.com/eprover/eprover.git --depth 1
 cd eprover
 ./configure --enable-ho
-make rebuild
+make
 cp ./PROVER/eprover-ho ..
 cd ..
 
@@ -34,3 +34,7 @@ echo "Installing Twee"
 # https://github.com/nick8325/twee/releases
 wget -nc https://github.com/nick8325/twee/releases/download/2.4.2/twee-2.4.2-linux-amd64 -O twee
 chmod +x twee
+
+echo "Installing nanoCoP-i"
+wget https://www.leancop.de/nanocop-i/programs/nanoCoP-i20.tar.gz
+tar -xzf nanoCoP-i20.tar.gz

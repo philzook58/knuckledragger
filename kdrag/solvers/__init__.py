@@ -54,6 +54,11 @@ class BaseSolver:
         (n == m).decl(),
         (n <= m).decl(),
     ]
+    predefined_sorts = [
+        "Int",
+        "Real",
+        "Bool",
+    ]
     # Some are polymorphic so decl doesn't work
     predefined_names = [
         "=",
@@ -88,10 +93,12 @@ class BaseSolver:
         self.assert_tracks = []
         self.options = {}
 
-    def add(self, thm):
+    def add(self, thm: smt.BoolRef):
+        assert isinstance(thm, smt.BoolRef)
         self.adds.append(thm)
 
-    def assert_and_track(self, thm, name):
+    def assert_and_track(self, thm: smt.BoolRef, name: str):
+        assert isinstance(thm, smt.BoolRef)
         self.assert_tracks.append((thm, name))
 
     def check(self):
@@ -113,44 +120,47 @@ class BaseSolver:
             sorts = set()
             predefined = set()
 
-            # Write sorts in TPTP THF format
-            for sort in collect_sorts(
-                self.adds + [thm for thm, name in self.assert_tracks]
-            ):
-                # Write sort declarations (only for user-defined sorts)
-                name = sort.name()
-                if name not in ["Int", "Real", "Bool"]:
-                    fp.write(
-                        f"{format}({name.lower()}_type, type, {kd.utils.sort_to_tptp(sort)} : $tType ).\n"
-                    )
-                if isinstance(sort, smt.DatatypeSortRef):
-                    # TODO: add constructors and injectivity axioms
-                    for i in range(sort.num_constructors()):
-                        predefined.add(sort.constructor(i))
-                        predefined.add(sort.recognizer(i))
-                        for j in range(sort.constructor(i).arity()):
-                            predefined.add(sort.accessor(i, j))
+            if format != "fof":
+                # Write sorts in TPTP THF format
+                for sort in collect_sorts(
+                    self.adds + [thm for thm, name in self.assert_tracks]
+                ):
+                    # Write sort declarations (only for user-defined sorts)
+                    name = sort.name()
+                    if name not in self.predefined_sorts:
+                        if format != "fof":
+                            fp.write(
+                                f"{format}({name.lower()}_type, type, {kd.utils.sort_to_tptp(sort)} : $tType ).\n"
+                            )
+                    if isinstance(sort, smt.DatatypeSortRef):
+                        # TODO: add constructors and injectivity axioms
+                        for i in range(sort.num_constructors()):
+                            predefined.add(sort.constructor(i))
+                            predefined.add(sort.recognizer(i))
+                            for j in range(sort.constructor(i).arity()):
+                                predefined.add(sort.accessor(i, j))
 
-            # Declare all function symbols in TPTP THF format
-            fp.write("% Declarations\n")
-            for f in collect_decls(
-                self.adds + [thm for thm, name in self.assert_tracks]
-            ):
-                if f not in predefined and f.name() not in self.predefined_names:
-                    if f.arity() == 0:
-                        fp.write(
-                            f"{format}({f.name()}_type, type, {kd.utils.mangle_decl(f)} : {kd.utils.sort_to_tptp(f.range())} ).\n"
-                        )
-                    else:
-                        dom_tptp = " > ".join(
-                            [
-                                kd.utils.sort_to_tptp(f.domain(i))
-                                for i in range(f.arity())
-                            ]
-                        )
-                        fp.write(
-                            f"{format}({f.name()}_decl, type, {kd.utils.mangle_decl(f)} : {dom_tptp} > {kd.utils.sort_to_tptp(f.range())}).\n"
-                        )
+                # Declare all function symbols in TPTP THF format
+                fp.write("% Declarations\n")
+                for f in collect_decls(
+                    self.adds + [thm for thm, name in self.assert_tracks]
+                ):
+                    if f not in predefined and f.name() not in self.predefined_names:
+                        if f.arity() == 0:
+                            fp.write(
+                                f"{format}({f.name()}_type, type, {kd.utils.mangle_decl(f)} : {kd.utils.sort_to_tptp(f.range())} ).\n"
+                            )
+                        else:
+                            joiner = " > " if format == "thf" else " * "
+                            dom_tptp = joiner.join(
+                                [
+                                    kd.utils.sort_to_tptp(f.domain(i))
+                                    for i in range(f.arity())
+                                ]
+                            )
+                            fp.write(
+                                f"{format}({f.name()}_decl, type, {kd.utils.mangle_decl(f)} : {dom_tptp} > {kd.utils.sort_to_tptp(f.range())}).\n"
+                            )
 
             # Write axioms and assertions in TPTP THF format
             fp.write("% Axioms and assertions\n")
@@ -222,6 +232,10 @@ class VampireSolver(BaseSolver):
                         predefined.add(sort.recognizer(i))
                         for j in range(sort.constructor(i).arity()):
                             predefined.add(sort.accessor(i, j))
+                elif isinstance(sort, smt.ArraySortRef):
+                    continue
+                elif sort.name() not in self.predefined_sorts:
+                    fp.write(f"(declare-sort {sort.name()} 0)\n")
             # Declare all function symbols
             fp.write(";;declarations\n")
             for f in collect_decls(
@@ -379,7 +393,24 @@ class TweeSolver(BaseSolver):
 
 
 class NanoCopISolver(BaseSolver):
-    pass
+    def check(self):
+        filename = "/tmp/nanocopi.p"
+        self.write_tptp(filename, format="fof")
+        cmd = [
+            binpath("nanoCoP-i20/nanocopi.sh"),
+            filename,
+        ]
+        if "timeout" in self.options:
+            cmd.extend(str(self.options["timeout"] // 1000 + 1))
+
+        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if b"intuitionistically Satisfiable" in self.res.stdout:
+            return smt.sat
+        elif b"intuitionistically Unsatisfiable" in self.res.stdout:
+            return smt.unsat
+        else:
+            return smt.unknown
 
 
 class MultiSolver(BaseSolver):

@@ -61,6 +61,7 @@ def z3_match(
 
 
 def open_binder(lam: smt.QuantifierRef):
+    # Open with capitalized names to match tptp conventions
     vars = [
         smt.Const(lam.var_name(i).upper(), lam.var_sort(i))
         for i in reversed(range(lam.num_vars()))
@@ -68,32 +69,52 @@ def open_binder(lam: smt.QuantifierRef):
     return vars, smt.substitute_vars(lam.body(), *vars)
 
 
-def mangle_decl(d: smt.FuncDeclRef):
-    return d.name() + "_" + format(d.get_id() - 0x80000000, "x")
+def mangle_decl(d: smt.FuncDeclRef, env=[]):
+    # single quoted (for operators) + underscore + hex id
+    id_, name = d.get_id(), d.name()
+    assert id_ >= 0x80000000
+    if d in env:
+        return d.name() + "_" + format(id_ - 0x80000000, "x")
+    else:
+        return d.name() + "_" + format(id_ - 0x80000000, "x")
+        # TODO: single quote is not working.
+        # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
 
 
-def expr_to_tptp(expr: smt.ExprRef, format="thf"):
+def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
+    if env is None:
+        env = []
     if isinstance(expr, smt.IntNumRef):
         return str(expr.as_string())
     elif isinstance(expr, smt.QuantifierRef):
         vars, body = open_binder(expr)
-        body = expr_to_tptp(body)
+        env = env + [v.decl() for v in vars]
+        body = expr_to_tptp(body, env=env, format=format, theories=theories)
         if format == "fof":
-            vs = ", ".join([mangle_decl(v.decl()) for v in vars])
+            vs = ", ".join([mangle_decl(v.decl(), env) for v in vars])
             type_preds = " & ".join(
-                [f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl())}))" for v in vars]
+                [
+                    f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl(), env)}))"
+                    for v in vars
+                ]
             )
         else:
             vs = ", ".join(
-                [mangle_decl(v.decl()) + ":" + sort_to_tptp(v.sort()) for v in vars]
+                [
+                    mangle_decl(v.decl(), env) + ":" + sort_to_tptp(v.sort())
+                    for v in vars
+                ]
             )
         if expr.is_forall():
             if format == "fof":
-                return f"(![{vs}] : ({type_preds}) => {body})"
+                # TODO: is adding type predicates necessary?
+                # return f"(![{vs}] : ({type_preds}) => {body})"
+                return f"(![{vs}] : {body})"
             return f"(![{vs}] : {body})"
         elif expr.is_exists():
             if format == "fof":
-                return f"(?[{vs}] : ({type_preds}) & {body})"
+                # return f"(?[{vs}] : ({type_preds}) & {body})"
+                return f"(?[{vs}] : {body})"
             return f"(?[{vs}] : {body})"
         elif expr.is_lambda():
             if format != "thf":
@@ -101,7 +122,11 @@ def expr_to_tptp(expr: smt.ExprRef, format="thf"):
                     "Lambda not supported in tff tptp format. Try a thf solver", expr
                 )
             return f"(^[{vs}] : {body})"
-    children = list(map(expr_to_tptp, expr.children()))
+    assert smt.is_app(expr)
+    children = [
+        expr_to_tptp(c, env=env, format=format, theories=theories)
+        for c in expr.children()
+    ]
     head = expr.decl().name()
     if head == "true":
         return "$true"
@@ -123,42 +148,45 @@ def expr_to_tptp(expr: smt.ExprRef, format="thf"):
         # else:
         return "$ite({}, {}, {})".format(*children)
     elif head == "select":
+        assert format == "thf"
         return "({} @ {})".format(*children)
     elif head == "distinct":
         if len(children) == 2:
             return "({} != {})".format(*children)
         return "$distinct({})".format(", ".join(children))
-    elif head == "<":
-        return "$less({},{})".format(*children)
-    elif head == "<=":
-        return "$lesseq({},{})".format(*children)
-    elif head == ">":
-        return "$greater({},{})".format(*children)
-    elif head == ">=":
-        return "$greatereq({},{})".format(*children)
-    elif head == "+":
-        return "$sum({},{})".format(*children)
-    elif head == "-":
-        if len(children) == 1:
-            return "$difference(0,{})".format(children[0])
-        else:
-            return "$difference({},{})".format(*children)
-    elif head == "*":
-        return "$product({},{})".format(*children)
-    elif head == "/":
-        return "$quotient({},{})".format(*children)
-    elif head == "^":
-        return "$power({},{})".format(
-            *children
-        )  # This is not a built in tptp function though
+
+    if theories:
+        if head == "<":
+            return "$less({},{})".format(*children)
+        elif head == "<=":
+            return "$lesseq({},{})".format(*children)
+        elif head == ">":
+            return "$greater({},{})".format(*children)
+        elif head == ">=":
+            return "$greatereq({},{})".format(*children)
+        elif head == "+":
+            return "$sum({},{})".format(*children)
+        elif head == "-":
+            if len(children) == 1:
+                return "$difference(0,{})".format(children[0])
+            else:
+                return "$difference({},{})".format(*children)
+        elif head == "*":
+            return "$product({},{})".format(*children)
+        elif head == "/":
+            return "$quotient({},{})".format(*children)
+        # elif head == "^":
+        #    return "$power({},{})".format(
+        #        *children
+        #    )  # This is not a built in tptp function though
+    # default assume regular term
+    head = mangle_decl(expr.decl(), env)
+    if len(children) == 0:
+        return head
+    if format == "thf":
+        return f"({head} @ {' @ '.join(children)})"
     else:
-        head = mangle_decl(expr.decl())
-        if len(children) == 0:
-            return head
-        if format == "thf":
-            return f"({head} @ {' @ '.join(children)})"
-        else:
-            return f"{head}({', '.join(children)})"
+        return f"{head}({', '.join(children)})"
 
 
 def sort_to_tptp(sort: smt.SortRef):
