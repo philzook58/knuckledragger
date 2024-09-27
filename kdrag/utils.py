@@ -1,6 +1,5 @@
 from kdrag.kernel import is_proof
 import kdrag.smt as smt
-import subprocess
 import sys
 import kdrag as kd
 from typing import Optional
@@ -203,6 +202,11 @@ def sort_to_tptp(sort: smt.SortRef):
         )
     else:
         return name.lower()
+
+
+def expr_to_lean(expr: smt.ExprRef):
+    # TODO
+    pass
 
 
 def subterms(t: smt.ExprRef):

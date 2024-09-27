@@ -107,6 +107,9 @@ class BaseSolver:
     def unsat_core(self):
         raise NotImplementedError
 
+    def proof(self):
+        return self.res.stdout
+
     def set(self, option, value):
         self.options[option] = value
 
