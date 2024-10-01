@@ -277,7 +277,7 @@ class VampireSolver(BaseSolver):
         if b"unsat\n" in res or b"% SZS status Unsatisfiable" in res:
             self.status = smt.unsat
             return smt.unsat
-        elif res == "sat":
+        elif b"sat\n" in res or b"% SZS status Satisfiable" in res:
             return smt.sat
         else:
             return smt.unknown
@@ -447,10 +447,13 @@ class MultiSolver(BaseSolver):
 
     def check(self, strict=False):
         # TODO: This is working very sporadically
+        """
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=len(self.solvers)
         ) as executor:
-            results = list(executor.map(lambda s: s.check(), self.solvers))
+                results = list(executor.map(lambda s: s.check(), self.solvers))
+        """
+        results = list(map(lambda s: s.check(), self.solvers))
         if smt.sat in results and smt.unsat in results:
             raise Exception(
                 "Inconsistent results from solvers",

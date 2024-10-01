@@ -12,6 +12,7 @@ Knuckledragger is an attempt at creating a down to earth, highly automated inter
 
 ```bash
 python3 -m pip install git+https://github.com/philzook58/knuckledragger.git
+python3 -m kdrag.solvers install # install extra solvers
 ```
 
 Or to install locally
@@ -20,12 +21,7 @@ Or to install locally
 git clone https://github.com/philzook58/knuckledragger.git
 cd knuckledragger
 python3 -m pip install -e .
-```
-
-To install extra solvers
-
-```bash
-./install.sh
+./install.sh # install extra solvers
 ```
 
 ## Blog Posts

@@ -26,7 +26,7 @@ def main():
         install_solvers()
     elif command == "vampire":
         run_subprocess(binpath("vampire"), args)
-    if command == "vampire-ho":
+    elif command == "vampire-ho":
         run_subprocess(binpath("vampire-ho"), args)
     elif command == "eprover":
         run_subprocess(binpath("eprover-ho"), args)

@@ -9,6 +9,7 @@ from kdrag.solvers import (
 import kdrag.solvers as solvers
 import kdrag.smt as smt
 import kdrag.theories.real as real
+import shutil
 
 
 def test_vampirethf():
@@ -77,9 +78,10 @@ def test_vampirethf():
     s.add(smt.BoolVal(False))
     assert s.check() == smt.unsat
 
-    s = ZipperpositionSolver()
-    s.add(smt.BoolVal(True))
-    assert s.check() == smt.unknown
+    if shutil.which("zipperposition") is not None:
+        s = ZipperpositionSolver()
+        s.add(smt.BoolVal(True))
+        assert s.check() == smt.unknown
 
     # s = MultiSolver()
     # s.add(smt.BoolVal(True))

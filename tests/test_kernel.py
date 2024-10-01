@@ -6,7 +6,6 @@ import kdrag.theories.nat
 import kdrag.theories.int
 import kdrag.theories.real as R
 import kdrag.theories.complex as complex
-import kdrag.theories.zf as zf
 import re
 
 if smt.solver != smt.VAMPIRESOLVER:

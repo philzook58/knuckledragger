@@ -228,6 +228,12 @@ EReal.declare("neg_inf")
 EReal.declare("NaN")
 EReal = EReal.create()
 
+EPosReal = smt.Datatype("EPosReal")
+EPosReal.declare("real", ("val", smt.RealSort()))
+EPosReal.declare("inf")
+EPosReal = EPosReal.create()
+x_p = smt.Const("x", EPosReal)
+kd.notation.wf.define([x_p], smt.Implies(x_p.is_real, x_p.val >= 0))
 
 ident = kd.define("ident", [], smt.Lambda([x], x))
 const = kd.define("const", [x], smt.K(smt.RealSort(), x))
