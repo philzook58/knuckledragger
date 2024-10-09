@@ -33,6 +33,9 @@ class SortDispatch:
     def register(self, sort, func):
         self.methods[sort] = func
 
+    def __getitem__(self, sort):
+        return self.methods[sort]
+
     def __call__(self, *args, **kwargs):
         res = self.methods.get(args[0].sort(), self.default)
         if res is None:
@@ -85,6 +88,9 @@ smt.ExprRef.wf = lambda x: wf(x)
 
 induct = SortDispatch(name="induct")
 smt.ExprRef.induct = lambda x, P: induct(x, P)
+
+getitem = SortDispatch(name="getitem")
+smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)
 
 
 def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:

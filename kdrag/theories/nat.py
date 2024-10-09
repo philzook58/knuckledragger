@@ -13,6 +13,7 @@ from kdrag.smt import (
     IntSort,
     Ints,
 )
+import kdrag as kd
 from kdrag import axiom, lemma, define
 import kdrag.notation as notation
 
@@ -72,12 +73,14 @@ succ_homo = lemma(
     by=[reify_def, induct(lambda n: reify(Nat.succ(n)) == 1 + reify(n))],
 )
 
-
+"""
 add = Function("add", Nat, Nat, Nat)
 add_def = axiom(
     ForAll([n, m], add(n, m) == If(Nat.is_zero(n), m, Nat.succ(add(Nat.pred(n), m))))
 )
+
 notation.add.register(Nat, add)
-
-
-add_0_n = lemma(ForAll([n], Nat.zero + n == n), by=[add_def])
+"""
+add = Function("add", Nat, Nat, Nat)
+add = kd.notation.add.define([n, m], If(n.is_zero, m, Nat.succ(add(n.pred, m))))
+add_0_n = kd.kernel.lemma(ForAll([n], Nat.zero + n == n), by=[add.defn])

@@ -36,12 +36,16 @@ wget -nc https://github.com/nick8325/twee/releases/download/2.4.2/twee-2.4.2-lin
 chmod +x twee
 
 echo "Installing nanoCoP-i"
-wget https://www.leancop.de/nanocop-i/programs/nanoCoP-i20.tar.gz
+wget -nc https://www.leancop.de/nanocop-i/programs/nanoCoP-i20.tar.gz
 tar -xzf nanoCoP-i20.tar.gz
 
 # Waldemister https://www.mpi-inf.mpg.de/departments/automation-of-logic/software/waldmeister
 # wget https://www.mpi-inf.mpg.de/fileadmin/inf/rg1/Documents/wm-feb18-linux.tgz
 
 # Prover9 and Mace4
-# https://github.com/ai4reason/Prover9
-# git -C Prover9 pull || git clone https://github.com/ai4reason/Prover9 --depth 1
+echo "Installing Prover9"
+https://github.com/ai4reason/Prover9
+git -C Prover9 pull || git clone https://github.com/ai4reason/Prover9 --depth 1
+cd Prover9
+make all
+cd ..

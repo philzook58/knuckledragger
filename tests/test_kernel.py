@@ -223,3 +223,42 @@ def test_induct():
 
 # TODO: test unsound
 # take each module and run z3 on it for 10 seconds. It better come back unknown
+
+
+def test_beta():
+    x = smt.Int("x")
+    y = smt.Bool("y")
+    t = smt.Lambda([x, y], x + 1)
+    assert kd.kernel.beta_conv(t, smt.IntVal(3), smt.BoolVal(True)).thm.eq(
+        t[smt.IntVal(3), smt.BoolVal(True)] == smt.IntVal(3) + smt.IntVal(1)
+    )
+    t = smt.Lambda([x], x)
+    assert kd.kernel.beta_conv(t, smt.IntVal(42)).thm.eq(
+        t[smt.IntVal(42)] == smt.IntVal(42)
+    )
+
+
+def test_lambda_def():
+    # test that the lambda has been removed by the definition mechanism
+    x, y = smt.Ints("x y")
+    z, w = smt.Bools("z w")
+    test = kd.define("test", [x], smt.Lambda([x], x))
+    assert test.defn.thm.body().eq(smt.ForAll([x, y], test(x)[y] == y).body())
+
+    test = kd.define("test2", [], smt.Lambda([z, x], z))
+    # print("body", test.defn.thm.body())
+    # print("ax", smt.ForAll([z, x], test[z, x] == z).body())
+    assert test.defn.thm.body().eq(smt.ForAll([z, x], test[z, x] == z).body())
+    # print(smt.ForAll([y, x, z, w], test(y, x)[z, w] == x + y).body())
+    # print(test.defn.thm.body())
+    # assert test.defn.thm.body().eq(
+    #    smt.ForAll([y, x, z, w], test(y, x)[z, w] == x + y).body()
+    # )
+
+
+def test_generate():
+    assert len(list(kd.utils.generate(smt.BitVecSort(2)))) == 4
+    Foo = kd.NewType(
+        "Foo", smt.IntSort(), pred=lambda x: smt.And(x.val >= 0, x.val < 10)
+    )
+    assert len(list(kd.utils.generate(Foo))) == 10

@@ -109,6 +109,13 @@ defns: dict[smt.FuncDecl, Defn] = {}
 defn holds definitional axioms for function symbols.
 """
 smt.FuncDeclRef.defn = property(lambda self: defns[self].ax)
+smt.ExprRef.defn = property(lambda self: defns[self.decl()].ax)
+
+
+def fresh_const(q: smt.QuantifierRef):
+    return [
+        smt.FreshConst(q.var_sort(i), prefix=q.var_name(i)) for i in range(q.num_vars())
+    ]
 
 
 def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDeclRef:
@@ -126,10 +133,24 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     """
     sorts = [arg.sort() for arg in args] + [body.sort()]
     f = smt.Function(name, *sorts)
-    if len(args) > 0:
-        def_ax = axiom(smt.ForAll(args, f(*args) == body), by="definition")
+
+    # TODO: This is getting too hairy for the kernel? Reassess. Maybe just a lambda flag? Autolift?
+    if smt.is_quantifier(body) and body.is_lambda():
+        # It is worth it to avoid having lambdas in definition.
+        vs = fresh_const(body)
+        # print(vs, f(*args)[tuple(vs)])
+        # print(smt.substitute_vars(body.body(), *vs))
+        def_ax = axiom(
+            smt.ForAll(
+                args + vs,
+                f(*args)[tuple(vs)] == smt.substitute_vars(body.body(), *reversed(vs)),
+            ),
+            by="definition",
+        )
+    elif len(args) == 0:
+        def_ax = axiom(f() == body, by="definition")
     else:
-        def_ax = axiom(f(*args) == body, by="definition")
+        def_ax = axiom(smt.ForAll(args, f(*args) == body), by="definition")
     # assert f not in __sig or __sig[f].eq(   def_ax.thm)  # Check for redefinitions. This is kind of painful. Hmm.
     # Soft warning is more pleasant.
     defn = Defn(name, args, body, def_ax)
@@ -138,7 +159,10 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     else:
         print("WARNING: Redefining function", f, "from", defns[f].ax, "to", def_ax.thm)
         defns[f] = defn
-    return f
+    if len(args) == 0:
+        return f()  # Convenience
+    else:
+        return f
 
 
 def define_fix(name: str, args: list[smt.ExprRef], retsort, fix_lam) -> smt.FuncDeclRef:
@@ -168,12 +192,6 @@ def consider(x: smt.ExprRef) -> Proof:
     Pointing out the interesting terms is sometimes the essence of a proof.
     """
     return axiom(smt.FreshConst(x.sort(), prefix="consider") == x)
-
-
-def fresh_const(q: smt.QuantifierRef):
-    return [
-        smt.FreshConst(q.var_sort(i), prefix=q.var_name(i)) for i in range(q.num_vars())
-    ]
 
 
 def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
@@ -213,6 +231,18 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     It is sufficient to prove a theorem for fresh consts to prove a universal.
     Note: Perhaps lambdaized form is better?
     """
-    assert thm.is_forall()
+    assert smt.is_quantifier(thm) and thm.is_forall()
     herbs = fresh_const(thm)
-    return herbs, __Proof(smt.Implies(smt.substitute_vars(thm, *reversed(herbs)), thm))
+    return herbs, __Proof(
+        smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
+        reason="herband",
+    )
+
+
+def beta_conv(lam: smt.QuantifierRef, *args) -> Proof:
+    """
+    Beta conversion for lambda calculus.
+    """
+    assert len(args) == lam.num_vars()
+    assert smt.is_quantifier(lam) and lam.is_lambda()
+    return axiom(lam[args] == smt.substitute_vars(lam.body(), *reversed(args)))

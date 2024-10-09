@@ -22,7 +22,7 @@ kd.axiom(kd.QForAll([f, g], poly(f), poly(g), poly(f + g)))
 kd.axiom(kd.QForAll([f, g], poly(f), poly(g), poly(f * g)))
 
 
-NReal = kd.NewType("NReal", R)
+# NReal = kd.NewType("NReal", R)
 
 
 add = kd.define("add", [x, y], x + y)
@@ -237,7 +237,7 @@ kd.notation.wf.define([x_p], smt.Implies(x_p.is_real, x_p.val >= 0))
 
 ident = kd.define("ident", [], smt.Lambda([x], x))
 const = kd.define("const", [x], smt.K(smt.RealSort(), x))
-X = ident()
+X = ident
 
 # Since not all functions are differentiable, the connection of deriv to the analytic definition of derivative is a proof obligation
 deriv = smt.Function("deriv", RFun, RFun)

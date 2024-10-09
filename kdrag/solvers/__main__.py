@@ -34,6 +34,8 @@ def main():
         run_subprocess(binpath("twee"), args)
     elif command == "nanocopi":
         run_subprocess(binpath("nanoCoP-i20/nanocopi.sh"), args)
+    elif command == "prover9":
+        run_subprocess(binpath("Prover9/bin/prover9"), args)
     else:
         print(f"Unknown command: {command}")
         print(usage_string)

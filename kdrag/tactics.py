@@ -220,18 +220,25 @@ class Lemma:
 class Lemma2:
     # Isar style forward proof
     def __init__(self, goal: smt.BoolRef):
-        self.goal = goal
+        self.cur_goal = goal
         self.lemmas = []
         self.thm = goal
 
-    def intro(self):
-        vs, goal = kd.kernel.herb(self.goal)
+    def intros(self):
+        vs, goal = kd.kernel.herb(self.cur_goal)
         self.lemmas.append(goal)
-        self.goal = goal.thm.arg(0)
+        self.cur_goal = goal.thm.arg(0)
         return vs
 
     def exists(self, t):
         kd.kernel.forget(self.goal, t)
+
+    def apply(self, pf: kd.kernel.Proof):
+        pass
+        # TODO.
+        # self.lemmas.append(pf)
+        # self.cur_goal = pf.thm.arg(0)
+        # return self
 
     def assume(self, hyps):
         self.goal.arg(0)
@@ -243,6 +250,9 @@ class Lemma2:
     def have(self, conc, **kwargs):
         self.lemmas.append(lemma(self._wrap(conc), **kwargs))
         return self
+
+    def __repr__(self):
+        return "?|- " + repr(self.cur_goal)
 
     def qed(self):
         return lemma(self.thm, by=self.lemmas)

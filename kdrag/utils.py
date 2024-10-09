@@ -68,6 +68,50 @@ def open_binder(lam: smt.QuantifierRef):
     return vars, smt.substitute_vars(lam.body(), *vars)
 
 
+"""
+def apply_horn(thm: smt.BoolRef, horn: smt.BoolRef) -> smt.BoolRef:
+    pat = horn
+    obl = []
+    if smt.is_quantifier(pat) and pat.is_forall():
+        pat = pat.body()
+    while True:
+        if smt.is_implies(pat):
+            obl.append(pat.arg(0))
+            pat = pat.arg(1)
+        else:
+            break
+    return kd.utils.z3_match(thm, pat)
+
+
+def horn_split(horn: smt.BoolRef) -> smt.BoolRef:
+    body = []
+    vs = []
+    while True:
+        if smt.is_quantifier(horn) and horn.is_forall():
+            vs1, horn = open_binder(horn)
+            vs.extend(vs1)
+        if smt.is_implies(horn):
+            body.append(horn.arg(0))
+            horn = horn.arg(1)
+        else:
+            break
+    head = horn
+    return vs, body, head
+"""
+
+
+def generate(sort: smt.SortRef):
+    s = smt.Solver()
+    x, y = smt.Consts("x y", sort)
+    s.add(x == y)
+    if sort in kd.notation.wf.methods:
+        s.add(kd.notation.wf(x))
+    while s.check() == smt.sat:
+        m = s.model()
+        yield m.eval(x)
+        s.add(x != m.eval(x))
+
+
 def mangle_decl(d: smt.FuncDeclRef, env=[]):
     # single quoted (for operators) + underscore + hex id
     id_, name = d.get_id(), d.name()
@@ -258,3 +302,48 @@ def induct(DT: smt.DatatypeSortRef):
     x = smt.FreshConst(DT, prefix="x")
     conc = kd.QForAll([x], P[x])
     return smt.Implies(smt.And(hyps), conc)
+
+
+import os
+import glob
+import inspect
+
+
+def prompt(prompt: str):
+    """
+    Get the root directory of the current package, find all .py files within
+    that directory, and concatenate their contents into a single string separated by `---`.
+
+    Returns:
+        str: A single string with all .py files concatenated, separated by `---`.
+    """
+    excluded_subdirs = ["eprover"]
+    current_file = inspect.getfile(inspect.currentframe())
+    root_dir = os.path.dirname(os.path.abspath(current_file))
+
+    py_files = glob.glob(
+        os.path.join(root_dir, "theories", "**", "*.py"), recursive=True
+    )
+
+    combined_content = [
+        """
+    The following is the code of the python project Knuckledragger.
+    It is a semiautomated theorem prover that uses z3py and other solvers to disharge obligations.
+    The syntax tree is literally z3.
+    The Proof datatype is a protected wrapped z3 BoolRef object.
+    Proofs largely proceed by stating small steps with reference to previously proofs in the `by` parameter of `lemma` 
+    \n\n\n
+    """
+    ]
+    for file_path in py_files:
+        if any(
+            excluded in os.path.relpath(file_path, root_dir).split(os.sep)
+            for excluded in excluded_subdirs
+        ):
+            continue
+        with open(file_path, "r", encoding="utf-8") as file:
+            combined_content += "\n\n\n---" + file_path + "\n\n\n"
+            combined_content += file.read()
+    combined_content += "\n\n\n" + prompt + "\n\n\n"
+
+    return "".join(combined_content)
