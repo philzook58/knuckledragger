@@ -10,13 +10,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["z3-solver >= 4.8"]
+dependencies = ["z3-solver >= 4.8", "egglog"]
 [project.urls]
 homepage = "https://github.com/philzook58/knuckledragger"
 
 
 [project.optional-dependencies]
 dev = ["pytest>=6.0"]
-
-[tool.ruff]
-exclude = ["thoughts/"]

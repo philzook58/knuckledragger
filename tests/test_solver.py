@@ -10,6 +10,7 @@ import kdrag.solvers as solvers
 import kdrag.smt as smt
 import kdrag.theories.real as real
 import shutil
+from kdrag.solvers.untrusted import EgglogSolver
 
 
 def test_vampirethf():
@@ -205,3 +206,14 @@ def test_tao():
     assert check(ZipperpositionSolver()) == smt.unsat
     assert check(smt.Solver()) == smt.unsat
     assert check(solvers.VampireSolver()) == smt.unsat
+
+
+def test_egglog():
+    e = EgglogSolver(debug=True)
+    x, y, z = smt.Consts("x y z", smt.IntSort())
+    f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    e.add(x == y)
+    e.add(smt.ForAll([x], f(x) == f(f(y))))
+    e.let("t", f(f(x)))
+    e.run(10)
+    assert e.extract(f(x)) == ["(f (x))"]
