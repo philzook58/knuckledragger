@@ -420,7 +420,6 @@ class MultiSolver(BaseSolver):
     solver_classes = [
         VampireTHFSolver,
         EProverTHFSolver,
-        ZipperpositionSolver,
         LeoIIISolver,
     ]
     if shutil.which("zipperposition") is not None:

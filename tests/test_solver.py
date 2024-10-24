@@ -203,7 +203,8 @@ def test_tao():
     assert check(VampireTHFSolver()) == smt.unsat
     assert check(EProverTHFSolver()) == smt.unsat
     assert check(MultiSolver()) == smt.unsat
-    assert check(ZipperpositionSolver()) == smt.unsat
+    if shutil.which("zipperposition") is not None:
+        assert check(ZipperpositionSolver()) == smt.unsat
     assert check(smt.Solver()) == smt.unsat
     assert check(solvers.VampireSolver()) == smt.unsat
 
