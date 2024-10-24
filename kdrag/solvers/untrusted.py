@@ -30,7 +30,7 @@ class EgglogSolver(solvers.BaseSolver):
     def run_cmd(self, cmd: str):
         if self.debug:
             print(cmd)
-        commands = self.egraph.parse_program(cmd)
+        commands = eggbnd.parse_program(cmd)
         return self.egraph.run_program(*commands)
 
     def add(self, rule: smt.ExprRef):
