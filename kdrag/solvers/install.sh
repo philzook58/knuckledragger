@@ -44,8 +44,15 @@ tar -xzf nanoCoP-i20.tar.gz
 
 # Prover9 and Mace4
 echo "Installing Prover9"
-https://github.com/ai4reason/Prover9
 git -C Prover9 pull || git clone https://github.com/ai4reason/Prover9 --depth 1
 cd Prover9
 make all
+cd ..
+
+
+# Kissat
+echo "Installing Kissat"
+git -C kissat pull || git clone https://github.com/arminbiere/kissat.git --depth 1
+cd kissat
+./configure && make test
 cd ..

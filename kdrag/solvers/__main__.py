@@ -14,7 +14,7 @@ def run_subprocess(command, args):
 
 
 def main():
-    usage_string = "Usage: python3 -m kdrag.solvers (install | vampire | vampire-ho | eprover | twee | nanocopi) [args...]"
+    usage_string = "Usage: python3 -m kdrag.solvers (install | vampire | vampire-ho | eprover | twee | nanocopi | prover9 | kissat) [args...]"
     if len(sys.argv) < 2:
         print(usage_string)
         sys.exit(1)
@@ -36,6 +36,8 @@ def main():
         run_subprocess(binpath("nanoCoP-i20/nanocopi.sh"), args)
     elif command == "prover9":
         run_subprocess(binpath("Prover9/bin/prover9"), args)
+    elif command == "kissat":
+        run_subprocess(binpath("kissat/build/kissat"), args)
     else:
         print(f"Unknown command: {command}")
         print(usage_string)

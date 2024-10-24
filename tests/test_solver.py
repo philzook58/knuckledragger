@@ -5,6 +5,7 @@ from kdrag.solvers import (
     MultiSolver,
     ZipperpositionSolver,
     TweeSolver,
+    SATSolver,
 )
 import kdrag.solvers as solvers
 import kdrag.smt as smt
@@ -218,3 +219,13 @@ def test_egglog():
     e.let("t", f(f(x)))
     e.run(10)
     assert e.extract(f(x)) == ["(f (x))"]
+
+
+def test_satsolver():
+    s = SATSolver()
+    x, y, z = smt.Bools("x y z")
+    s.add(x == y)
+    s.add(y == z)
+    assert s.check() == smt.sat
+    s.add(x != z)
+    assert s.check() == smt.unsat

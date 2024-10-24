@@ -18,10 +18,10 @@ def z3_to_egglog(e: smt.ExprRef, vars=[]):
 
 
 class EgglogSolver(solvers.BaseSolver):
+    # TODO. Many other things are predefined
     predefined_names = ["="]
 
     def __init__(self, debug=False):
-        print("WARNING: EgglogSolver is not yet intended for use in proofs.")
         self.egraph = eggbnd.EGraph()
         self.sorts = set()
         self.decls = set()

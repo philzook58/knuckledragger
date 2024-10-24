@@ -395,6 +395,31 @@ class TweeSolver(BaseSolver):
         return self.check_tptp_status(self.res.stdout)
 
 
+class SATSolver:
+    def __init__(self):
+        self.G = smt.Goal()
+        self.cmd = [binpath("kissat/build/kissat"), "--relaxed"]
+
+    def add(self, clause):
+        self.G.add(clause)
+
+    def check(self, debug=False):
+        t = smt.Then("simplify", "bit-blast", "tseitin-cnf")
+        c = t(self.G)
+        assert len(c) == 1
+        with open("/tmp/sat.cnf", "w") as f:
+            f.write(c[0].dimacs())
+            f.flush()
+        self.res = subprocess.run(self.cmd + ["/tmp/sat.cnf"], capture_output=True)
+        res = self.res.stdout.decode()
+        if "s SATISFIABLE" in res:
+            return smt.sat
+        elif "s UNSATISFIABLE" in res:
+            return smt.unsat
+        else:
+            return smt.unknown
+
+
 class NanoCopISolver(BaseSolver):
     def check(self):
         filename = "/tmp/nanocopi.p"
