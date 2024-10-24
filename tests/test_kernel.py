@@ -5,7 +5,10 @@ import kdrag as kd
 import kdrag.theories.nat
 import kdrag.theories.int
 import kdrag.theories.real as R
+import kdrag.theories.bitvec as bitvec
 import kdrag.theories.complex as complex
+import kdrag.theories.algebra.group as group
+
 import re
 
 if smt.solver != smt.VAMPIRESOLVER:
@@ -262,3 +265,7 @@ def test_generate():
         "Foo", smt.IntSort(), pred=lambda x: smt.And(x.val >= 0, x.val < 10)
     )
     assert len(list(kd.utils.generate(Foo))) == 10
+
+
+def test_bv():
+    bv8 = bitvec.BVTheory(8)

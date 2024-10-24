@@ -101,9 +101,10 @@ def horn_split(horn: smt.BoolRef) -> smt.BoolRef:
 
 
 def generate(sort: smt.SortRef):
+    """A generator of values for a sort"""
     s = smt.Solver()
     x, y = smt.Consts("x y", sort)
-    s.add(x == y)
+    s.add(x == y)  # trick to actually have x in model
     if sort in kd.notation.wf.methods:
         s.add(kd.notation.wf(x))
     while s.check() == smt.sat:
