@@ -26,7 +26,7 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
     return G2[len(G2) - 1].children()[1]
 
 
-def z3_match(
+def pmatch(
     t: smt.ExprRef, pat: smt.ExprRef
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
     """
@@ -66,6 +66,41 @@ def open_binder(lam: smt.QuantifierRef):
         for i in reversed(range(lam.num_vars()))
     ]
     return vars, smt.substitute_vars(lam.body(), *vars)
+
+
+def occurs(x, t):
+    if smt.is_var(t):
+        return x.eq(t)
+    if smt.is_app(t):
+        return any(occurs(x, t.arg(i)) for i in range(t.num_args()))
+    return False
+
+
+def unify(p1, p2):
+    subst = {}
+    todo = [(p1, p2)]
+    while todo:
+        p1, p2 = todo.pop()  # we could pop _any_ of the todos, not just the top.
+        if p1.eq(p2):  # delete
+            continue
+        elif smt.is_var(p1):  # elim
+            if occurs(p1, p2):
+                return None
+            todo = [
+                (smt.substitute(t1, (p1, p2)), smt.substitute(t2, (p1, p2)))
+                for (t1, t2) in todo
+            ]
+            subst = {k: smt.substitute(v, (p1, p2)) for k, v in subst.items()}
+            subst[p1] = p2
+        elif smt.is_var(p2):  # orient
+            todo.append((p2, p1))
+        elif smt.is_app(p1):  # decompose
+            if not smt.is_app(p2) or p1.decl() != p2.decl():
+                return None
+            todo.extend(zip(p1.children(), p2.children()))
+        else:
+            raise Exception("unexpected case", p1, p2)
+    return subst
 
 
 """

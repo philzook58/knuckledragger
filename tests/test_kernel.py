@@ -17,7 +17,7 @@ if smt.solver != smt.VAMPIRESOLVER:
 import kdrag.theories.seq as ThSeq
 
 from kdrag import Calc
-import kdrag.utils
+import kdrag.utils as utils
 
 
 def test_true_infer():
@@ -180,22 +180,22 @@ def test_match():
     x, y, z = smt.Reals("x y z")
     Var = smt.Var
     R = smt.RealSort()
-    assert kd.utils.z3_match(x, Var(0, R)) == {Var(0, R): x}
-    assert kd.utils.z3_match(x + y, Var(0, R) + Var(1, R)) == {
+    assert kd.utils.pmatch(x, Var(0, R)) == {Var(0, R): x}
+    assert kd.utils.pmatch(x + y, Var(0, R) + Var(1, R)) == {
         Var(0, R): x,
         Var(1, R): y,
     }
-    assert kd.utils.z3_match(x + y, Var(0, R) + Var(0, R)) == None
-    assert kd.utils.z3_match(x + y + x, Var(0, R) + Var(1, R) + Var(0, R)) == {
+    assert kd.utils.pmatch(x + y, Var(0, R) + Var(0, R)) == None
+    assert kd.utils.pmatch(x + y + x, Var(0, R) + Var(1, R) + Var(0, R)) == {
         Var(0, R): x,
         Var(1, R): y,
     }
-    assert kd.utils.z3_match(x + y + x * 6, Var(0, R) + Var(1, R) + Var(2, R)) == {
+    assert kd.utils.pmatch(x + y + x * 6, Var(0, R) + Var(1, R) + Var(2, R)) == {
         Var(0, R): x,
         Var(1, R): y,
         Var(2, R): x * 6,
     }
-    assert kd.utils.z3_match(
+    assert kd.utils.pmatch(
         x + y + x * 6 == 0, smt.ForAll([x, y, z], x + y + z == 0)
     ) == {
         Var(2, R): x,
@@ -269,3 +269,22 @@ def test_generate():
 
 def test_bv():
     bv8 = bitvec.BVTheory(8)
+
+
+def test_unify():
+    x, y, z = (
+        smt.Var(0, smt.IntSort()),
+        smt.Var(1, smt.IntSort()),
+        smt.Var(2, smt.IntSort()),
+    )
+    assert utils.unify(smt.IntVal(3), smt.IntVal(3)) == {}
+    assert utils.unify(smt.IntVal(3), smt.IntVal(4)) == None
+    assert utils.unify(x, smt.IntVal(3)) == {x: smt.IntVal(3)}
+    assert utils.unify(x, y) == {x: y}
+    assert utils.unify(x + x, y + y) == {x: y}
+    assert utils.unify(x + x, y + z) == {x: y, z: y}
+    assert utils.unify(x + y, y + z) == {x: z, y: z}
+    assert utils.unify(y + z, x + y) == {y: x, z: x}
+    # non terminating if no occurs check
+    assert utils.unify((x + x) + x, x + (x + x)) == None
+    assert utils.unify(1 + x, x) == None
