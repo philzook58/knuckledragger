@@ -192,6 +192,37 @@ class BaseSolver:
         else:
             raise Exception("Unexpected return from solver", res)
 
+    def write_smt(self, fp):
+        fp.write("(set-logic ALL)\n")
+        # Gather up all datatypes referenced
+        sorts = set()
+        predefined = set()
+        for sort in collect_sorts(
+            self.adds + [thm for thm, name in self.assert_tracks]
+        ):
+            if isinstance(sort, smt.DatatypeSortRef):
+                fp.write(smtlib_datatypes([sort]))
+                for i in range(sort.num_constructors()):
+                    predefined.add(sort.constructor(i))
+                    predefined.add(sort.recognizer(i))
+                    for j in range(sort.constructor(i).arity()):
+                        predefined.add(sort.accessor(i, j))
+            elif isinstance(sort, smt.ArraySortRef):
+                continue
+            elif sort.name() not in self.predefined_sorts:
+                fp.write(f"(declare-sort {sort.name()} 0)\n")
+        # Declare all function symbols
+        fp.write(";;declarations\n")
+        for f in collect_decls(self.adds + [thm for thm, name in self.assert_tracks]):
+            if f not in predefined and f.name() not in self.predefined_names:
+                fp.write(f.sexpr())
+                fp.write("\n")
+        fp.write(";;axioms\n")
+        for e in self.adds:
+            fp.write("(assert " + e.sexpr() + ")\n")
+        for thm, name in self.assert_tracks:
+            fp.write("(assert (! " + thm.sexpr() + " :named " + name + "))\n")
+
 
 def collect_sorts(exprs):
     sorts = set()
@@ -221,37 +252,7 @@ class VampireSolver(BaseSolver):
 
     def check(self):
         with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
-            fp.write("(set-logic ALL)\n")
-            # Gather up all datatypes referenced
-            sorts = set()
-            predefined = set()
-            for sort in collect_sorts(
-                self.adds + [thm for thm, name in self.assert_tracks]
-            ):
-                if isinstance(sort, smt.DatatypeSortRef):
-                    fp.write(smtlib_datatypes([sort]))
-                    for i in range(sort.num_constructors()):
-                        predefined.add(sort.constructor(i))
-                        predefined.add(sort.recognizer(i))
-                        for j in range(sort.constructor(i).arity()):
-                            predefined.add(sort.accessor(i, j))
-                elif isinstance(sort, smt.ArraySortRef):
-                    continue
-                elif sort.name() not in self.predefined_sorts:
-                    fp.write(f"(declare-sort {sort.name()} 0)\n")
-            # Declare all function symbols
-            fp.write(";;declarations\n")
-            for f in collect_decls(
-                self.adds + [thm for thm, name in self.assert_tracks]
-            ):
-                if f not in predefined and f.name() not in self.predefined_names:
-                    fp.write(f.sexpr())
-                    fp.write("\n")
-            fp.write(";;axioms\n")
-            for e in self.adds:
-                fp.write("(assert " + e.sexpr() + ")\n")
-            for thm, name in self.assert_tracks:
-                fp.write("(assert (! " + thm.sexpr() + " :named " + name + "))\n")
+            self.write_smt(fp)
             fp.write("(check-sat)\n")
             fp.flush()
             # print(fp.readlines())
@@ -281,6 +282,40 @@ class VampireSolver(BaseSolver):
             return smt.sat
         else:
             return smt.unknown
+
+    def query(self, q):
+        with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
+            # TODO: Since some sorts may be needed to be collected from the query, we're missing them
+            # However, if you introduce new stuff in the query, that's kind of weird. Still useful possibly without fixing this.
+            # self.add(smt.Not(q))
+            self.write_smt(fp)
+            # self.adds.pop()
+            fp.write(f"(assert-not {q.sexpr()})")
+            fp.write("(check-sat)\n")
+            fp.flush()
+            # print(fp.readlines())
+            cmd = [
+                binpath("vampire"),
+                fp.name,
+                "--mode",
+                "casc",
+                "--question_answering",
+                "synthesis",
+                "--proof",
+                "off",
+                "--input_syntax",
+                "smtlib2",  # "--ignore_unrecognized_logic", "on",
+            ]
+            if "timeout" in self.options:
+                cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
+
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        res = self.res.stdout
+        return [
+            line for line in res.decode().splitlines() if "% SZS answers Tuple" in line
+        ]
 
     def unsat_core(self):
         assert self.status == smt.unsat

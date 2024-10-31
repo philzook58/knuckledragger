@@ -229,3 +229,18 @@ def test_satsolver():
     assert s.check() == smt.sat
     s.add(x != z)
     assert s.check() == smt.unsat
+
+
+def test_vampire_question_answer():
+    s = solvers.VampireSolver()
+    x, y, z = smt.Ints("x y z")
+    res = s.query(smt.Exists([x], x > 3))
+    assert len(res) == 1
+    assert "% SZS answers Tuple" in s.res.stdout.decode()
+    T = smt.DeclareSort("T")
+    y = smt.Const("y", T)
+    f = smt.Function("f", T, smt.BoolSort())
+    s = solvers.VampireSolver()
+    s.add(f(y))
+    res = s.query(smt.Exists([y], f(y)))
+    assert res == ["% SZS answers Tuple [[y]|_] for vampire"]
