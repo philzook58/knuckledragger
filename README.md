@@ -33,6 +33,13 @@ python3 -m pip install -e .
 - [Knuckledragger Update: ATP for Python Interactive Theorem Proving](https://www.philipzucker.com/knuckledrag2/)
 - [Knuckledragger: Experimenting with a Python Proof Assistant](https://www.philipzucker.com/python-itp/)
 
+## Knuckledragger isn't Python
+
+The design is based around the chaining of calls to z3. Python is a useful platform, but the core of the design can be ported to many languages.
+
+- [SBV](https://hackage.haskell.org/package/sbv-11.0/docs/Data-SBV-Tools-KnuckleDragger.html) - Haskell
+- Yours here!
+
 ## Design
 
 It is not desirable or within my capabilities to build a giant universe in which to live. The goal is to take a subtle blade and bolt together things that already exist.
