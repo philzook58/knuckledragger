@@ -5,6 +5,7 @@ import os
 import concurrent.futures
 import logging
 import shutil
+import re
 
 logger = logging.getLogger("knuckledragger")
 
@@ -262,7 +263,10 @@ class VampireSolver(BaseSolver):
                 "--mode",
                 "smtcomp",
                 "--input_syntax",
-                "smtlib2",  # "--ignore_unrecognized_logic", "on",
+                "smtlib2",
+                # "--ignore_unrecognized_logic", "on",
+                # "--proof_extra" "fast" / "full"
+                # "--latex_output" "/tmp/vampire.tex"
             ]
             if "timeout" in self.options:
                 cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
@@ -300,7 +304,7 @@ class VampireSolver(BaseSolver):
                 "--mode",
                 "casc",
                 "--question_answering",
-                "synthesis",
+                "synthesis",  # "answer_literal"
                 "--proof",
                 "off",
                 "--input_syntax",
@@ -328,6 +332,15 @@ class VampireSolver(BaseSolver):
         )
         cores = [smt.Bool(core) for core in cores]
         return cores
+
+    def proof(self):
+        res = []
+        # https://github.com/teorth/equational_theories/blob/main/equational_theories/Generated/VampireProven/src/vampire_proofs_cyc.py
+        for eqnum, statement, reason in re.findall(
+            r"(\d+)\. ([^[]+) \[([^\]]+)\]", self.res.stdout.decode()
+        ):
+            res.append((int(eqnum), statement, reason))  # TODO: Deeper parsing
+        return res
 
 
 class VampireTHFSolver(BaseSolver):

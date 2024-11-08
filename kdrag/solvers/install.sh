@@ -56,3 +56,9 @@ git -C kissat pull || git clone https://github.com/arminbiere/kissat.git --depth
 cd kissat
 ./configure && make test
 cd ..
+
+echo "Installing Gappa"
+wget -nc https://gappa.gitlabpages.inria.fr/releases/gappa-1.4.2.tar.gz
+tar -xzf gappa-1.4.2.tar.gz
+cd gappa-1.4.2
+./configure && ./remake

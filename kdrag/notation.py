@@ -64,6 +64,9 @@ smt.ExprRef.__mul__ = lambda x, y: mul(x, y)
 rmul = SortDispatch(name="rmul")
 smt.ExprRef.__rmul__ = lambda x, y: rmul(x, y)
 
+matmul = SortDispatch(name="matmul")
+smt.ExprRef.__matmul__ = lambda x, y: matmul(x, y)
+
 neg = SortDispatch(name="neg")
 smt.ExprRef.__neg__ = lambda x: neg(x)
 
@@ -122,9 +125,9 @@ def QExists(vs: list[smt.ExprRef], *concs) -> smt.BoolRef:
     """
     concs = [v.wf() for v in vs if v.sort() in wf.methods] + list(concs)
     if len(concs) == 1:
-        smt.Exists(vars, concs[0])
+        smt.Exists(vs, concs[0])
     else:
-        smt.Exists(vars, smt.And(concs))
+        smt.Exists(vs, smt.And(concs))
 
 
 def ExistsUnique(v: smt.ExprRef, *concs) -> smt.BoolRef:
