@@ -95,7 +95,9 @@ class GappaSolver(solvers.BaseSolver):
         with open("/tmp/gappa.g", "w") as fp:
             fp.write("{" + gappa_of_bool(smt.And(self.adds)) + "}")
             fp.flush()
-        self.res = subprocess.run(["gappa", "/tmp/gappa.g"], capture_output=True)
+        self.res = subprocess.run(
+            [solvers.binpath("gappa/src/gappa"), "/tmp/gappa.g"], capture_output=True
+        )
         return self.res
 
     def bound(self, e: smt.ExprRef):
@@ -104,5 +106,7 @@ class GappaSolver(solvers.BaseSolver):
                 f"{{ {gappa_of_bool(smt.And(self.adds))} -> {gappa_of_real(e)} in ?}}"
             )
             fp.flush()
-        self.res = subprocess.run(["gappa", "/tmp/gappa.g"], capture_output=True)
+        self.res = subprocess.run(
+            [solvers.binpath("gappa/src/gappa"), "/tmp/gappa.g"], capture_output=True
+        )
         return self.res

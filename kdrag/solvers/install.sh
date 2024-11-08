@@ -60,6 +60,7 @@ cd ..
 echo "Installing Gappa"
 sudo apt-get install -y libmpfr-dev libgmp-dev libboost-all-dev
 wget -nc https://gappa.gitlabpages.inria.fr/releases/gappa-1.4.2.tar.gz
-tar -xzf gappa-1.4.2.tar.gz
-cd gappa-1.4.2
+mkdir -p gappa
+tar -xzf gappa-1.4.2.tar.gz -C gappa/ --strip-components=1
+cd gappa
 ./configure && ./remake
