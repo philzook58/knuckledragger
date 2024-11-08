@@ -225,6 +225,9 @@ sin_neg = kd.axiom(smt.ForAll([x], sin(-x) == -sin(x)))
 cos_add = kd.axiom(smt.ForAll([x, y], cos(x + y) == cos(x) * cos(y) - sin(x) * sin(y)))
 sin_add = kd.axiom(smt.ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * sin(y)))
 
+tan = kd.define("tan", [x], sin(x) / cos(x))
+atan = smt.Const("atan", kd.R >> kd.R)
+
 
 EReal = smt.Datatype("EReal")
 EReal.declare("real", ("val", smt.RealSort()))

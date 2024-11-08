@@ -10,7 +10,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["z3-solver >= 4.8", "egglog"]
+dependencies = ["z3-solver >= 4.8", "egglog", "python-flint", "sympy"]
 [project.urls]
 homepage = "https://github.com/philzook58/knuckledragger"
 

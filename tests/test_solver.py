@@ -257,3 +257,12 @@ def test_gappa():
     s.add(smt.Implies(smt.And(x <= 2, x >= -1 / 128), x * x <= 4))
     s.check()
     s.bound(x * x)
+
+
+import flint
+
+
+def test_flint():
+    gappa.flint_bnd(real.pi, {})
+    x = smt.Real("x")
+    gappa.flint_bnd(real.sin(x), {x: flint.arb.pi()})
