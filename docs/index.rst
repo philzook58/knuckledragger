@@ -12,7 +12,7 @@ Welcome to knuckledragger's documentation!
    :toctree: _autosummary
    :recursive:
 
-   knuckledragger
+   kdrag
 
 Indices and tables
 ==================
