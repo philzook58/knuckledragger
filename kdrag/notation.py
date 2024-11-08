@@ -1,9 +1,17 @@
-"""Importing this module will add some syntactic sugar to smt.
+"""
+The `SortDispatch` system enables z3 sort based dispatch akin to ` functools.singledispatch`.
+This is the mechanism for operator overloading in knuckledragger.
+
+A special overloadable operation is the "well-formed" predicate `wf`.
+Using the QForAll and QExists quantifiers will automatically insert `wf` calls for the appropriate sorts.
+In this way, we can achieve an effect similar to refinement types.
+
+Importing this module will add some syntactic sugar to smt.
 
 - Expr overload by single dispatch
 - Bool supports `&`, `|`, `~`
 - Sorts supports `>>` for ArraySort
-- Datatypes support accessor notation
+- Datatypes support accessor notation `l.is_cons`, `l.hd`, `l.tl` etc.
 """
 
 import kdrag.smt as smt
@@ -178,7 +186,9 @@ records = {}
 
 def Record(name, *fields, pred=None):
     """
-    Define a record datatype
+    Define a record datatype.
+    The optional argument `pred` will add a well-formedness condition to the record
+    giving something akin to a refinement type.
     """
     if name in records:
         raise Exception("Record already defined", name)
@@ -211,6 +221,11 @@ def NewType(name, sort, pred=None):
 
 
 def cond(*cases, default=None) -> smt.ExprRef:
+    """
+    Helper for chained ifs defined by cases.
+    Each case is a tuple of a bool condition and a term.
+    If default is not given, a check is performed for totality.
+    """
     sort = cases[0][1].sort()
     if default is None:
         s = smt.Solver()

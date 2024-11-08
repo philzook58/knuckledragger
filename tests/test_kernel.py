@@ -2,19 +2,19 @@ import pytest
 import kdrag.smt as smt
 
 import kdrag as kd
-import kdrag.theories.nat
+import kdrag.theories.datatypes.nat
 import kdrag.theories.int
 import kdrag.theories.real as R
 import kdrag.theories.bitvec as bitvec
 import kdrag.theories.complex as complex
 import kdrag.theories.algebra.group as group
-
+import kdrag.theories.datatypes as datatypes
 import re
 
 if smt.solver != smt.VAMPIRESOLVER:
     import kdrag.theories.interval
 
-import kdrag.theories.seq as ThSeq
+import kdrag.theories.seq as seq
 
 from kdrag import Calc
 import kdrag.utils as utils
@@ -123,7 +123,8 @@ def test_record():
 
 
 def test_seq():
-    ThSeq.induct(smt.IntSort(), lambda x: x == x)
+    seq.induct(smt.IntSort(), lambda x: x == x)
+    seq.Seq(smt.IntSort())
 
 
 """
@@ -221,7 +222,7 @@ def test_induct():
     List.declare("nil")
     List.declare("cons", ("head", smt.IntSort()), ("tail", List))
     List = List.create()
-    assert kd.utils.induct(List) != None
+    assert datatypes.induct(List) != None
 
 
 # TODO: test unsound
