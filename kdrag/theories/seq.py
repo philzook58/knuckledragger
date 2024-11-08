@@ -1,6 +1,9 @@
 import kdrag as kd
 import kdrag.smt as smt
 
+"""
+Built in smtlib theory of finite sequences.
+"""
 # TODO: seq needs well formedness condition inherited from elements
 
 

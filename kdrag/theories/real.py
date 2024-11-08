@@ -3,6 +3,11 @@ from kdrag.smt import ForAll, Function
 from kdrag import lemma, axiom
 import kdrag as kd
 
+"""
+Definitions about the reals.
+Transcendental functions and bounds.
+
+"""
 R = smt.RealSort()
 RFun = smt.ArraySort(R, R)
 RSeq = smt.ArraySort(smt.IntSort(), R)

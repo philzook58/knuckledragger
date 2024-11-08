@@ -98,6 +98,10 @@ def axiom(thm: smt.BoolRef, by=[]) -> Proof:
 
 @dataclass(frozen=True)
 class Defn:
+    """
+    A record storing definition. It is useful to record definitions as special axioms because we often must unfold them.
+    """
+
     name: str
     args: list[smt.ExprRef]
     body: smt.ExprRef
@@ -113,6 +117,7 @@ smt.ExprRef.defn = property(lambda self: defns[self.decl()].ax)
 
 
 def fresh_const(q: smt.QuantifierRef):
+    """Generate fresh constants of same sort as quantifier."""
     return [
         smt.FreshConst(q.var_sort(i), prefix=q.var_name(i)) for i in range(q.num_vars())
     ]
@@ -187,8 +192,8 @@ def define_fix(name: str, args: list[smt.ExprRef], retsort, fix_lam) -> smt.Func
 
 def consider(x: smt.ExprRef) -> Proof:
     """
-    Axiom schema. We may give a fresh name to any constant. An "anonymous" form of define.
     The purpose of this is to seed the solver with interesting terms.
+    Axiom schema. We may give a fresh name to any constant. An "anonymous" form of define.
     Pointing out the interesting terms is sometimes the essence of a proof.
     """
     return axiom(smt.FreshConst(x.sort(), prefix="consider") == x)

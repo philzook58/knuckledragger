@@ -3,6 +3,9 @@ import kdrag.smt as smt
 import kdrag.theories.real as R
 import functools
 
+"""
+Linear Algebra
+"""
 norm2 = kd.notation.SortDispatch(name="norm2")
 dot = kd.notation.SortDispatch(name="dot")
 

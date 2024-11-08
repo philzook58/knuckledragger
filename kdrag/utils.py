@@ -6,6 +6,7 @@ from typing import Optional, NamedTuple
 
 
 def simp(t: smt.ExprRef) -> smt.ExprRef:
+    """simplify a term using z3 built in simplifier"""
     expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
     G = smt.Goal()
     for v in kd.kernel.defns.values():
@@ -17,6 +18,7 @@ def simp(t: smt.ExprRef) -> smt.ExprRef:
 
 
 def simp2(t: smt.ExprRef) -> smt.ExprRef:
+    """simplify a term using z3 built in simplifier"""
     expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
     G = smt.Goal()
     for v in kd.kernel.defns.values():
@@ -62,6 +64,7 @@ def pmatch_db(
 def pmatch(
     t: smt.ExprRef, vs: list[smt.ExprRef], pat: smt.ExprRef
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+    """Pattern match t against pat considering vs as variables. Returns substitution dictionary if succeeds"""
     subst = {}
     todo = [(t, pat)]
     while len(todo) > 0:
@@ -97,6 +100,8 @@ def rewrite1(
 
 
 class Rule(NamedTuple):
+    """A rewrite rule tuple"""
+
     vs: list[smt.ExprRef]
     lhs: smt.ExprRef
     rhs: smt.ExprRef
@@ -133,6 +138,7 @@ def rule_of_theorem(thm: smt.BoolRef) -> Rule:
 
 
 def decl_index(rules: list[Rule]) -> dict[smt.FuncDeclRef, Rule]:
+    """Build a dictionary of rules indexed by their lhs head function declaration."""
     return {lhs.decl(): (vs, lhs, rhs) for vs, lhs, rhs in rules}
 
 
@@ -148,6 +154,7 @@ def rewrite_star(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
 
 
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
+    """Open a quantifier with fresh variables"""
     # Open with capitalized names to match tptp conventions
     vars = [
         smt.Const(lam.var_name(i).upper(), lam.var_sort(i))
@@ -157,6 +164,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
 
 
 def occurs(x, t):
+    """Does x occur in t?"""
     if smt.is_var(t):
         return x.eq(t)
     if smt.is_app(t):
@@ -164,7 +172,10 @@ def occurs(x, t):
     return False
 
 
-def unify_db(p1, p2):
+def unify_db(
+    p1: smt.ExprRef, p2: smt.ExprRef
+) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+    """Unification using de Bruijn indices as variables"""
     subst = {}
     todo = [(p1, p2)]
     while todo:
@@ -224,7 +235,7 @@ def horn_split(horn: smt.BoolRef) -> smt.BoolRef:
 
 
 def generate(sort: smt.SortRef):
-    """A generator of values for a sort"""
+    """A generator of values for a sort. Repeatedly calls z3 to get a new value."""
     s = smt.Solver()
     x, y = smt.Consts("x y", sort)
     s.add(x == y)  # trick to actually have x in model
@@ -237,6 +248,7 @@ def generate(sort: smt.SortRef):
 
 
 def mangle_decl(d: smt.FuncDeclRef, env=[]):
+    """Mangle a declaration to a tptp name. SMTLib supports type based overloading, TPTP does not."""
     # single quoted (for operators) + underscore + hex id
     id_, name = d.get_id(), d.name()
     assert id_ >= 0x80000000
@@ -249,6 +261,7 @@ def mangle_decl(d: smt.FuncDeclRef, env=[]):
 
 
 def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
+    """Pretty print expr as TPTP"""
     if env is None:
         env = []
     if isinstance(expr, smt.IntNumRef):
@@ -357,6 +370,7 @@ def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
 
 
 def sort_to_tptp(sort: smt.SortRef):
+    """Pretty print sort as tptp"""
     name = sort.name()
     if name == "Int":
         return "$int"
@@ -378,6 +392,7 @@ def expr_to_lean(expr: smt.ExprRef):
 
 
 def subterms(t: smt.ExprRef):
+    """Generate all subterms of a term"""
     todo = [t]
     while len(todo) > 0:
         x = todo.pop()
@@ -386,11 +401,13 @@ def subterms(t: smt.ExprRef):
 
 
 def sorts(t: smt.ExprRef):
+    """Generate all sorts in a term"""
     for t in subterms(t):
         yield t.sort()
 
 
 def decls(t: smt.ExprRef):
+    """Return all function declarations in a term."""
     for t in subterms(t):
         if smt.is_app(t):
             yield t.decl()
@@ -435,6 +452,8 @@ import inspect
 
 def prompt(prompt: str):
     """
+    Ask an AI.
+
     Get the root directory of the current package, find all .py files within
     that directory, and concatenate their contents into a single string separated by `---`.
 

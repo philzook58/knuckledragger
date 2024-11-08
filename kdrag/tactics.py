@@ -7,7 +7,7 @@ from . import config
 
 class Calc:
     """
-    calc is for equational reasoning.
+    Calc is for equational reasoning.
     One can write a sequence of formulas interspersed with useful lemmas.
     """
 

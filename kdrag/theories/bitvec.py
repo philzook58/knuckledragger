@@ -1,6 +1,10 @@
 import kdrag as kd
 import kdrag.smt as smt
 
+"""
+Theorems about bitvectors. These are theorems about the built in smtlib bitvector types
+"""
+
 
 class BVTheory:
     def __init__(self, N):
