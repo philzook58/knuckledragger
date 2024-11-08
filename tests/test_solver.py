@@ -11,7 +11,8 @@ import kdrag.solvers as solvers
 import kdrag.smt as smt
 import kdrag.theories.real as real
 import shutil
-from kdrag.solvers.untrusted import EgglogSolver
+from kdrag.solvers.egglog import EgglogSolver
+import kdrag.solvers.gappa as gappa
 
 
 def test_vampirethf():
@@ -244,3 +245,15 @@ def test_vampire_question_answer():
     s.add(f(y))
     res = s.query(smt.Exists([y], f(y)))
     assert res == ["% SZS answers Tuple [[y]|_] for vampire"]
+
+
+def test_gappa():
+    x, y = smt.Reals("x y")
+    assert (
+        gappa.gappa_of_bool(smt.Implies(smt.And(x <= 2, x >= -2 / 8), x * x <= 4))
+        == "(((x <= 2) /\\ (x >= -0.25)) -> ((x * x) <= 4))"
+    )
+    s = gappa.GappaSolver()
+    s.add(smt.Implies(smt.And(x <= 2, x >= -1 / 128), x * x <= 4))
+    s.check()
+    s.bound(x * x)
