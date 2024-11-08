@@ -337,7 +337,7 @@ def induct(DT: smt.DatatypeSortRef):
         hyps.append(acc)
     x = smt.FreshConst(DT, prefix="x")
     conc = kd.QForAll([x], P[x])
-    return smt.Implies(smt.And(hyps), conc)
+    return smt.ForAll([P], smt.Implies(smt.And(hyps), conc))
 
 
 import os
