@@ -180,22 +180,22 @@ def test_match():
     x, y, z = smt.Reals("x y z")
     Var = smt.Var
     R = smt.RealSort()
-    assert kd.utils.pmatch(x, Var(0, R)) == {Var(0, R): x}
-    assert kd.utils.pmatch(x + y, Var(0, R) + Var(1, R)) == {
+    assert kd.utils.pmatch_db(x, Var(0, R)) == {Var(0, R): x}
+    assert kd.utils.pmatch_db(x + y, Var(0, R) + Var(1, R)) == {
         Var(0, R): x,
         Var(1, R): y,
     }
-    assert kd.utils.pmatch(x + y, Var(0, R) + Var(0, R)) == None
-    assert kd.utils.pmatch(x + y + x, Var(0, R) + Var(1, R) + Var(0, R)) == {
+    assert kd.utils.pmatch_db(x + y, Var(0, R) + Var(0, R)) == None
+    assert kd.utils.pmatch_db(x + y + x, Var(0, R) + Var(1, R) + Var(0, R)) == {
         Var(0, R): x,
         Var(1, R): y,
     }
-    assert kd.utils.pmatch(x + y + x * 6, Var(0, R) + Var(1, R) + Var(2, R)) == {
+    assert kd.utils.pmatch_db(x + y + x * 6, Var(0, R) + Var(1, R) + Var(2, R)) == {
         Var(0, R): x,
         Var(1, R): y,
         Var(2, R): x * 6,
     }
-    assert kd.utils.pmatch(
+    assert kd.utils.pmatch_db(
         x + y + x * 6 == 0, smt.ForAll([x, y, z], x + y + z == 0)
     ) == {
         Var(2, R): x,
@@ -277,14 +277,28 @@ def test_unify():
         smt.Var(1, smt.IntSort()),
         smt.Var(2, smt.IntSort()),
     )
-    assert utils.unify(smt.IntVal(3), smt.IntVal(3)) == {}
-    assert utils.unify(smt.IntVal(3), smt.IntVal(4)) == None
-    assert utils.unify(x, smt.IntVal(3)) == {x: smt.IntVal(3)}
-    assert utils.unify(x, y) == {x: y}
-    assert utils.unify(x + x, y + y) == {x: y}
-    assert utils.unify(x + x, y + z) == {x: y, z: y}
-    assert utils.unify(x + y, y + z) == {x: z, y: z}
-    assert utils.unify(y + z, x + y) == {y: x, z: x}
+    assert utils.unify_db(smt.IntVal(3), smt.IntVal(3)) == {}
+    assert utils.unify_db(smt.IntVal(3), smt.IntVal(4)) == None
+    assert utils.unify_db(x, smt.IntVal(3)) == {x: smt.IntVal(3)}
+    assert utils.unify_db(x, y) == {x: y}
+    assert utils.unify_db(x + x, y + y) == {x: y}
+    assert utils.unify_db(x + x, y + z) == {x: y, z: y}
+    assert utils.unify_db(x + y, y + z) == {x: z, y: z}
+    assert utils.unify_db(y + z, x + y) == {y: x, z: x}
     # non terminating if no occurs check
-    assert utils.unify((x + x) + x, x + (x + x)) == None
-    assert utils.unify(1 + x, x) == None
+    assert utils.unify_db((x + x) + x, x + (x + x)) == None
+    assert utils.unify_db(1 + x, x) == None
+
+
+def test_rewrite():
+    x, y, z = smt.Reals("x y z")
+    succ_0 = smt.ForAll([x], x + 0 == x)
+    succ_0_rule = utils.rule_of_theorem(succ_0)
+    vs, lhs, rhs = succ_0_rule
+    assert utils.rewrite1(y + 0, vs, lhs, rhs).eq(y)
+    t = (y + 0) + 0
+    assert utils.rewrite(t, [succ_0_rule]).eq(y)
+    assert utils.rewrite_star(t, [succ_0_rule]).eq(y)
+
+    succ_0 = kd.lemma(succ_0)
+    assert kd.tactics.simp(t, by=[succ_0]).thm.eq(t == y)

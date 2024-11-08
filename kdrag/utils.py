@@ -2,7 +2,7 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional
+from typing import Optional, NamedTuple
 
 
 def simp(t: smt.ExprRef) -> smt.ExprRef:
@@ -26,7 +26,7 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
     return G2[len(G2) - 1].children()[1]
 
 
-def pmatch(
+def pmatch_db(
     t: smt.ExprRef, pat: smt.ExprRef
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
     """
@@ -59,7 +59,95 @@ def pmatch(
     return subst
 
 
-def open_binder(lam: smt.QuantifierRef):
+def pmatch(
+    t: smt.ExprRef, vs: list[smt.ExprRef], pat: smt.ExprRef
+) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+    subst = {}
+    todo = [(t, pat)]
+    while len(todo) > 0:
+        t, pat = todo.pop()
+        if t.eq(pat):
+            continue
+        if pat in vs:
+            if pat in subst:
+                if not subst[pat].eq(t):
+                    return None
+            else:
+                subst[pat] = t
+        elif smt.is_app(t) and smt.is_app(pat):
+            if pat.decl() == t.decl():
+                todo.extend(zip(t.children(), pat.children()))
+            else:
+                return None
+        else:
+            raise Exception("Unexpected subterm or subpattern in pmatch", t, pat)
+    return subst
+
+
+def rewrite1(
+    t: smt.ExprRef, vs: list[smt.ExprRef], lhs: smt.ExprRef, rhs: smt.ExprRef
+) -> Optional[smt.ExprRef]:
+    """
+    Rewrite at root a single time.
+    """
+    subst = pmatch(t, vs, lhs)
+    if subst is not None:
+        return smt.substitute(rhs, *subst.items())
+    return None
+
+
+class Rule(NamedTuple):
+    vs: list[smt.ExprRef]
+    lhs: smt.ExprRef
+    rhs: smt.ExprRef
+
+
+def rewrite(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
+    """
+    Sweep through term once performing rewrites.
+    """
+    if smt.is_app(t):
+        t = t.decl()(*[rewrite(arg, rules) for arg in t.children()])  # rewrite children
+        for vs, lhs, rhs in rules:
+            res = rewrite1(t, vs, lhs, rhs)
+            if res is not None:
+                t = res
+    return t
+
+
+def rule_of_theorem(thm: smt.BoolRef) -> Rule:
+    """
+    Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple
+    """
+    vs = []
+    while smt.is_quantifier(thm):
+        if thm.is_forall():
+            vs1, thm = open_binder(thm)
+            vs.extend(vs1)
+        else:
+            raise Exception("Not a universal quantifier", thm)
+    if not smt.is_eq(thm):
+        raise Exception("Not an equation", thm)
+    lhs, rhs = thm.children()
+    return Rule(vs, lhs, rhs)
+
+
+def decl_index(rules: list[Rule]) -> dict[smt.FuncDeclRef, Rule]:
+    return {lhs.decl(): (vs, lhs, rhs) for vs, lhs, rhs in rules}
+
+
+def rewrite_star(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
+    """
+    Repeat rewrite until no more rewrites are possible.
+    """
+    while True:
+        t1 = rewrite(t, rules)
+        if t1.eq(t):
+            return t1
+        t = t1
+
+
+def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
     # Open with capitalized names to match tptp conventions
     vars = [
         smt.Const(lam.var_name(i).upper(), lam.var_sort(i))
@@ -76,7 +164,7 @@ def occurs(x, t):
     return False
 
 
-def unify(p1, p2):
+def unify_db(p1, p2):
     subst = {}
     todo = [(p1, p2)]
     while todo:

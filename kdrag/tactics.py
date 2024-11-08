@@ -190,6 +190,12 @@ def lemma(
             )
 
 
+def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.Proof:
+    rules = [kd.utils.rule_of_theorem(lem.thm) for lem in by]
+    t1 = kd.utils.rewrite(t, rules)
+    return lemma(t == t1, by=by, **kwargs)
+
+
 class Lemma:
     # Isar style forward proof
     def __init__(self, goal):
