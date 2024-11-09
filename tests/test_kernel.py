@@ -45,8 +45,11 @@ def test_calc():
 def test_tptp():
     x = smt.Int("x")
     assert (
-        kd.utils.expr_to_tptp(smt.And(x > 4, x <= 7))
-        == "($greater(x_80,4) & $lesseq(x_80,7))"
+        re.match(
+            r"\(\$greater\(x_[0-9a-f]+,4\) & \$lesseq\(x_[0-9a-f]+,7\)\)",
+            kd.utils.expr_to_tptp(smt.And(x > 4, x <= 7)),
+        )
+        is not None
     )
     assert kd.utils.sort_to_tptp(smt.IntSort()) == "$int"
     assert kd.utils.sort_to_tptp(smt.BoolSort()) == "$o"

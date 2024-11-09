@@ -67,7 +67,14 @@ sub = SortDispatch(name="sub")
 smt.ExprRef.__sub__ = lambda x, y: sub(x, y)
 
 mul = SortDispatch(name="mul")
-smt.ExprRef.__mul__ = lambda x, y: mul(x, y)
+
+
+def test(x, y):
+    print("mul", x, x.sort(), y)
+    return mul(x, y)
+
+
+smt.ExprRef.__mul__ = lambda x, y: test(x, y)  # mul(x, y)
 
 rmul = SortDispatch(name="rmul")
 smt.ExprRef.__rmul__ = lambda x, y: rmul(x, y)
