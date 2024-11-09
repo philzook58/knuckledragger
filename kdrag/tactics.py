@@ -37,7 +37,7 @@ class Calc:
                 else:
                     return False
 
-    def __init__(self, vars, lhs, assume=[]):
+    def __init__(self, vars: list[smt.ExprRef], lhs: smt.ExprRef, assume=[]):
         self.vars = vars
         self.lhs = lhs
         self.iterm = lhs  # intermediate term
