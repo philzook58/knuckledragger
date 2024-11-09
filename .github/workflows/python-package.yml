@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install ruff pytest cvc5
-          python -m pip install -e .
+          python -m pip install -e .[dev]
           bash ./kdrag/solvers/install.sh
       - name: Lint with Ruff
         run: |
