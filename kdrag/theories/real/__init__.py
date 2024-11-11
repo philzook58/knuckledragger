@@ -229,6 +229,9 @@ tan = kd.define("tan", [x], sin(x) / cos(x))
 atan = smt.Const("atan", kd.R >> kd.R)
 
 
+comp = kd.define("comp", [f, g], smt.Lambda([x], f(g(x))))
+kd.notation.matmul.register(RFun, comp)
+
 EReal = smt.Datatype("EReal")
 EReal.declare("real", ("val", smt.RealSort()))
 EReal.declare("inf")
@@ -247,6 +250,23 @@ ident = kd.define("ident", [], smt.Lambda([x], x))
 const = kd.define("const", [x], smt.K(smt.RealSort(), x))
 X = ident
 
+
+# TODO. Should be less axioms
+lim = smt.Function("lim", RFun, R, R)
+lim_at = smt.Function("lim_at", RFun, R, smt.RealSort())
+
+has_diff_at = smt.Function("has_diff_at", RFun, R, R, smt.BoolSort())
+diff_at = kd.define("diff_at", [f, x], smt.Exists([y], has_diff_at(f, x, y)))
+cont_at = smt.Function("cont_at", RFun, R, smt.BoolSort())
+
+is_diff = kd.define("is_diff", [f], smt.ForAll([x], diff_at(f, x)))
+is_cont = kd.define("is_cont", [f], smt.ForAll([x], cont_at(f, x)))
+diff_cont = kd.axiom(kd.QForAll([f], is_diff(f), is_cont(f)))
+
+sin_diff = kd.axiom(is_diff(sin))
+sin_cont = kd.lemma(is_cont(sin), by=[sin_diff, diff_cont])
+
+
 # Since not all functions are differentiable, the connection of deriv to the analytic definition of derivative is a proof obligation
 deriv = smt.Function("deriv", RFun, RFun)
 deriv_const = kd.axiom(ForAll([x], deriv(const(x)) == const(0)))
@@ -256,3 +276,8 @@ deriv_cos = kd.axiom(deriv(smt.Lambda([x], cos(x))) == smt.Lambda([x], -sin(x)))
 deriv_exp = kd.axiom(deriv(exp) == exp)
 deriv_add = kd.axiom(ForAll([f, g], deriv(f + g) == deriv(f) + deriv(g)))
 deriv_mul = kd.axiom(ForAll([f, g], deriv(f * g) == deriv(f) * g + f * deriv(g)))
+
+is_integ = smt.Function("is_integ", RFun, smt.BoolSort())
+
+
+# Bounds

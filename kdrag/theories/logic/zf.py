@@ -8,6 +8,13 @@ Class = ZFSet >> smt.BoolSort()
 P, Q = smt.Consts("P Q", Class)
 klass = kd.define("klass", [A], smt.Lambda([x], elem(x, A)))
 
+zf_db = []
+
+
+def slemma(thm, by=[], **kwargs):
+    return kd.lemma(thm, by=by + zf_db, **kwargs)
+
+
 emp = smt.Const("emp", ZFSet)
 emp_ax = kd.axiom(smt.ForAll([x], smt.Not(elem(x, emp))))
 
@@ -25,4 +32,5 @@ sep_ax = kd.axiom(
     kd.QForAll([P, A, x], elem(x, sep(A, P)) == smt.And(P[x], elem(x, A)))
 )
 
+zf_db.extend([emp_ax, upair_ax, ext_ax, sep_ax])
 le = kd.notation.le.define([A, B], kd.QForAll([x], elem(x, A), elem(x, B)))

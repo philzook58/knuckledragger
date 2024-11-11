@@ -306,3 +306,14 @@ def test_rewrite():
 
     succ_0 = kd.lemma(succ_0)
     assert kd.tactics.simp(t, by=[succ_0]).thm.eq(t == y)
+
+
+def test_apply():
+    x, y, z = smt.Reals("x y z")
+    path = smt.Function("path", smt.RealSort(), smt.RealSort(), smt.BoolSort())
+    edge = smt.Function("edge", smt.RealSort(), smt.RealSort(), smt.BoolSort())
+    head = path(x, z)
+    body = smt.And(path(x, y), edge(y, z))
+    assert utils.apply(path(1, 3), [x, y, z], head, body).eq(
+        smt.And(path(1, y), edge(y, 3))
+    )

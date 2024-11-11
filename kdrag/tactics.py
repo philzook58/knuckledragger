@@ -55,16 +55,16 @@ class Calc:
         else:
             return smt.ForAll(self.vars, body)
 
-    def _lemma(self, rhs, by):
+    def _lemma(self, rhs, by, **kwargs):
         op = self.mode.op
-        l = kd.lemma(self._forall(op(self.iterm, rhs)), by=by)
+        l = kd.lemma(self._forall(op(self.iterm, rhs)), by=by, **kwargs)
         self.lemma = kd.kernel.lemma(
-            self._forall(op(self.lhs, rhs)), by=[l, self.lemma]
+            self._forall(op(self.lhs, rhs)), by=[l, self.lemma], **kwargs
         )
         self.iterm = rhs
 
-    def eq(self, rhs, by=[]):
-        self._lemma(rhs, by)
+    def eq(self, rhs, by=[], **kwargs):
+        self._lemma(rhs, by, **kwargs)
         return self
 
     def _set_mode(self, newmode):

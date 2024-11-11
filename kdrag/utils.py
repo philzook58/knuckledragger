@@ -71,7 +71,7 @@ def pmatch(
         t, pat = todo.pop()
         if t.eq(pat):
             continue
-        if pat in vs:
+        if any(pat.eq(v) for v in vs):
             if pat in subst:
                 if not subst[pat].eq(t):
                     return None
@@ -97,6 +97,12 @@ def rewrite1(
     if subst is not None:
         return smt.substitute(rhs, *subst.items())
     return None
+
+
+def apply(
+    goal: smt.BoolRef, vs: list[smt.ExprRef], head: smt.BoolRef, body: smt.BoolRef
+) -> smt.BoolRef:
+    return rewrite1(goal, vs, head, body)
 
 
 class Rule(NamedTuple):
@@ -202,6 +208,32 @@ def unify_db(
     return subst
 
 
+class HornClause(NamedTuple):
+    vs: list[smt.ExprRef]
+    head: smt.BoolRef
+    body: list[smt.BoolRef]
+
+
+def horn_of_theorem(thm: smt.BoolRef) -> HornClause:
+    """Unpack theorem of form `forall vs, body => head` into a HornClause tuple"""
+    vs = []
+    while smt.is_quantifier(thm):
+        if thm.is_forall():
+            vs1, thm = open_binder(thm)
+            vs.extend(vs1)
+        else:
+            raise Exception("Not a universal quantifier", thm)
+    if not smt.is_implies(thm):
+        return HornClause(vs, thm, [])
+    else:
+        body, head = thm.children()
+        if smt.is_and(body):
+            body = list(body.children())
+        else:
+            body = [body]
+        return HornClause(vs, head, body)
+
+
 """
 def apply_horn(thm: smt.BoolRef, horn: smt.BoolRef) -> smt.BoolRef:
     pat = horn
@@ -251,11 +283,14 @@ def mangle_decl(d: smt.FuncDeclRef, env=[]):
     """Mangle a declaration to a tptp name. SMTLib supports type based overloading, TPTP does not."""
     # single quoted (for operators) + underscore + hex id
     id_, name = d.get_id(), d.name()
+    name = name.replace("!", "bang")
+    # TODO: mangling of operators is busted
+    # name = name.replace("*", "star")
     assert id_ >= 0x80000000
     if d in env:
-        return d.name() + "_" + format(id_ - 0x80000000, "x")
+        return name + "_" + format(id_ - 0x80000000, "x")
     else:
-        return d.name() + "_" + format(id_ - 0x80000000, "x")
+        return name + "_" + format(id_ - 0x80000000, "x")
         # TODO: single quote is not working.
         # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
 
