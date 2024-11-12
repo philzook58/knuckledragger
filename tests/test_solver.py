@@ -259,10 +259,31 @@ def test_gappa():
     s.bound(x * x)
 
 
-import flint
+import re
 
 
-def test_flint():
-    gappa.flint_bnd(real.pi, {})
-    x = smt.Real("x")
-    gappa.flint_bnd(real.sin(x), {x: flint.arb.pi()})
+def test_fof():
+    x = smt.Int("x")
+    assert re.match(
+        r"\(!\[X_(?P<var_num>[a-zA-Z0-9]+)\] : \(\$greater\(X_(?P=var_num),4\) & \$lesseq\(X_(?P=var_num),7\)\)\)",
+        kd.solvers.expr_to_tptp(smt.ForAll([x], smt.And(x > 4, x <= 7)), format="fof"),
+    )
+
+
+def test_tptp():
+    x = smt.Int("x")
+    assert (
+        re.match(
+            r"\(\$greater\(x_[0-9a-f]+,4\) & \$lesseq\(x_[0-9a-f]+,7\)\)",
+            kd.solvers.expr_to_tptp(smt.And(x > 4, x <= 7)),
+        )
+        is not None
+    )
+    assert kd.solvers.sort_to_tptp(smt.IntSort()) == "$int"
+    assert kd.solvers.sort_to_tptp(smt.BoolSort()) == "$o"
+    assert (
+        kd.solvers.sort_to_tptp(
+            smt.ArraySort(smt.ArraySort(smt.BoolSort(), smt.IntSort()), smt.IntSort())
+        )
+        == "(($o > $int) > $int)"
+    )

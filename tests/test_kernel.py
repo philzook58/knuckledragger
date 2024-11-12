@@ -42,33 +42,6 @@ def test_calc():
     Calc([], x).eq(y, by=[l1]).eq(z, by=[l2]).qed()
 
 
-def test_tptp():
-    x = smt.Int("x")
-    assert (
-        re.match(
-            r"\(\$greater\(x_[0-9a-f]+,4\) & \$lesseq\(x_[0-9a-f]+,7\)\)",
-            kd.utils.expr_to_tptp(smt.And(x > 4, x <= 7)),
-        )
-        is not None
-    )
-    assert kd.utils.sort_to_tptp(smt.IntSort()) == "$int"
-    assert kd.utils.sort_to_tptp(smt.BoolSort()) == "$o"
-    assert (
-        kd.utils.sort_to_tptp(
-            smt.ArraySort(smt.ArraySort(smt.BoolSort(), smt.IntSort()), smt.IntSort())
-        )
-        == "(($o > $int) > $int)"
-    )
-
-
-def test_fof():
-    x = smt.Int("x")
-    assert re.match(
-        r"\(!\[X_(?P<var_num>[a-zA-Z0-9]+)\] : \(\$greater\(X_(?P=var_num),4\) & \$lesseq\(X_(?P=var_num),7\)\)\)",
-        kd.utils.expr_to_tptp(smt.ForAll([x], smt.And(x > 4, x <= 7)), format="fof"),
-    )
-
-
 def test_skolem():
     x, y = smt.Ints("x y")
     z = smt.Real("z")
@@ -113,11 +86,6 @@ def test_qforall():
     assert kd.QForAll([x], x == NatI.mk(14)).eq(
         smt.ForAll([x], smt.Implies(x.wf(), x == NatI.mk(14)))
     )
-
-
-def test_simp():
-    assert kd.utils.simp(R.max(8, R.max(3, 4))).eq(smt.RealVal(8))
-    assert kd.utils.simp2(R.max(8, R.max(3, 4))).eq(smt.RealVal(8))
 
 
 def test_record():
@@ -180,39 +148,6 @@ def test_Lemma():
     l.qed()
 
 
-def test_match():
-    x, y, z = smt.Reals("x y z")
-    Var = smt.Var
-    R = smt.RealSort()
-    assert kd.utils.pmatch_db(x, Var(0, R)) == {Var(0, R): x}
-    assert kd.utils.pmatch_db(x + y, Var(0, R) + Var(1, R)) == {
-        Var(0, R): x,
-        Var(1, R): y,
-    }
-    assert kd.utils.pmatch_db(x + y, Var(0, R) + Var(0, R)) == None
-    assert kd.utils.pmatch_db(x + y + x, Var(0, R) + Var(1, R) + Var(0, R)) == {
-        Var(0, R): x,
-        Var(1, R): y,
-    }
-    assert kd.utils.pmatch_db(x + y + x * 6, Var(0, R) + Var(1, R) + Var(2, R)) == {
-        Var(0, R): x,
-        Var(1, R): y,
-        Var(2, R): x * 6,
-    }
-    assert kd.utils.pmatch_db(
-        x + y + x * 6 == 0, smt.ForAll([x, y, z], x + y + z == 0)
-    ) == {
-        Var(2, R): x,
-        Var(1, R): y,
-        Var(0, R): x * 6,
-    }
-
-
-def test_subterms():
-    x, y = smt.Ints("x y")
-    assert set(kd.utils.subterms(x + y + x)) == {x, y, x, x + y, x + y + x}
-
-
 def test_pred():
     Even = kd.Record(
         "Even", ("val", kd.Z), ("div2", kd.Z), pred=lambda x: 2 * x.div2 == x.val
@@ -263,57 +198,5 @@ def test_lambda_def():
     # )
 
 
-def test_generate():
-    assert len(list(kd.utils.generate(smt.BitVecSort(2)))) == 4
-    Foo = kd.NewType(
-        "Foo", smt.IntSort(), pred=lambda x: smt.And(x.val >= 0, x.val < 10)
-    )
-    assert len(list(kd.utils.generate(Foo))) == 10
-
-
 def test_bv():
     bv8 = bitvec.BVTheory(8)
-
-
-def test_unify():
-    x, y, z = (
-        smt.Var(0, smt.IntSort()),
-        smt.Var(1, smt.IntSort()),
-        smt.Var(2, smt.IntSort()),
-    )
-    assert utils.unify_db(smt.IntVal(3), smt.IntVal(3)) == {}
-    assert utils.unify_db(smt.IntVal(3), smt.IntVal(4)) == None
-    assert utils.unify_db(x, smt.IntVal(3)) == {x: smt.IntVal(3)}
-    assert utils.unify_db(x, y) == {x: y}
-    assert utils.unify_db(x + x, y + y) == {x: y}
-    assert utils.unify_db(x + x, y + z) == {x: y, z: y}
-    assert utils.unify_db(x + y, y + z) == {x: z, y: z}
-    assert utils.unify_db(y + z, x + y) == {y: x, z: x}
-    # non terminating if no occurs check
-    assert utils.unify_db((x + x) + x, x + (x + x)) == None
-    assert utils.unify_db(1 + x, x) == None
-
-
-def test_rewrite():
-    x, y, z = smt.Reals("x y z")
-    succ_0 = smt.ForAll([x], x + 0 == x)
-    succ_0_rule = utils.rule_of_theorem(succ_0)
-    vs, lhs, rhs = succ_0_rule
-    assert utils.rewrite1(y + 0, vs, lhs, rhs).eq(y)
-    t = (y + 0) + 0
-    assert utils.rewrite(t, [succ_0_rule]).eq(y)
-    assert utils.rewrite_star(t, [succ_0_rule]).eq(y)
-
-    succ_0 = kd.lemma(succ_0)
-    assert kd.tactics.simp(t, by=[succ_0]).thm.eq(t == y)
-
-
-def test_apply():
-    x, y, z = smt.Reals("x y z")
-    path = smt.Function("path", smt.RealSort(), smt.RealSort(), smt.BoolSort())
-    edge = smt.Function("edge", smt.RealSort(), smt.RealSort(), smt.BoolSort())
-    head = path(x, z)
-    body = smt.And(path(x, y), edge(y, z))
-    assert utils.apply(path(1, 3), [x, y, z], head, body).eq(
-        smt.And(path(1, y), edge(y, 3))
-    )

@@ -28,6 +28,18 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
     return G2[len(G2) - 1].children()[1]
 
 
+# TODO: Doesn't seem to do anything?
+# def factor(t: smt.ExprRef) -> smt.ExprRef:
+#    """factor a term using z3 built in tactic"""
+#    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
+#    G = smt.Goal()
+#    for v in kd.kernel.defns.values():
+#        G.add(v.ax.thm)
+#    G.add(expr == t)
+#    G2 = smt.Tactic("factor").apply(G)[0]
+#    return G2[len(G2) - 1].children()[1]
+
+
 def pmatch_db(
     t: smt.ExprRef, pat: smt.ExprRef
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
@@ -77,8 +89,8 @@ def pmatch(
                     return None
             else:
                 subst[pat] = t
-        elif smt.is_app(t) and smt.is_app(pat):
-            if pat.decl() == t.decl():
+        elif smt.is_app(pat):
+            if smt.is_app(t) and pat.decl() == t.decl():
                 todo.extend(zip(t.children(), pat.children()))
             else:
                 return None
@@ -208,6 +220,40 @@ def unify_db(
     return subst
 
 
+def quant_kind_eq(t1: smt.ExprRef, t2: smt.ExprRef) -> bool:
+    """Check both quantifiers are of the same kind"""
+    return (
+        t1.is_forall() == t2.is_forall()
+        and t1.is_exists() == t2.is_exists()
+        and t1.is_lambda() == t2.is_lambda()
+    )
+
+
+def alpha_eq(t1, t2):
+    if t1.eq(t2):  # fast path
+        return True
+    elif smt.is_quantifier(t1):
+        if (
+            smt.is_quantifier(t2)
+            and quant_kind_eq(t1, t2)
+            and t1.num_vars() == t2.num_vars()
+            and [t1.var_sort(i) == t2.var_sort(i) for i in range(t1.num_vars())]
+        ):
+            vs, body1 = open_binder(t1)
+            body2 = smt.substitute_vars(t2.body(), *reversed(vs))
+            return alpha_eq(body1, body2)
+        else:
+            return False
+    elif smt.is_app(t1):
+        if smt.is_app(t2) and t1.decl() == t2.decl():
+            return all(alpha_eq(t1.arg(i), t2.arg(i)) for i in range(t1.num_args()))
+        else:
+            return False
+    else:
+        raise Exception(f"Unexpected terms in alpha_eq", t1, t2)
+    # could instead maybe use a solver check or simplify tactic on Goal(t1 == t2)
+
+
 class HornClause(NamedTuple):
     vs: list[smt.ExprRef]
     head: smt.BoolRef
@@ -277,148 +323,6 @@ def generate(sort: smt.SortRef):
         m = s.model()
         yield m.eval(x)
         s.add(x != m.eval(x))
-
-
-def mangle_decl(d: smt.FuncDeclRef, env=[]):
-    """Mangle a declaration to a tptp name. SMTLib supports type based overloading, TPTP does not."""
-    # single quoted (for operators) + underscore + hex id
-    id_, name = d.get_id(), d.name()
-    name = name.replace("!", "bang")
-    # TODO: mangling of operators is busted
-    # name = name.replace("*", "star")
-    assert id_ >= 0x80000000
-    if d in env:
-        return name + "_" + format(id_ - 0x80000000, "x")
-    else:
-        return name + "_" + format(id_ - 0x80000000, "x")
-        # TODO: single quote is not working.
-        # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
-
-
-def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
-    """Pretty print expr as TPTP"""
-    if env is None:
-        env = []
-    if isinstance(expr, smt.IntNumRef):
-        return str(expr.as_string())
-    elif isinstance(expr, smt.QuantifierRef):
-        vars, body = open_binder(expr)
-        env = env + [v.decl() for v in vars]
-        body = expr_to_tptp(body, env=env, format=format, theories=theories)
-        if format == "fof":
-            vs = ", ".join([mangle_decl(v.decl(), env) for v in vars])
-            type_preds = " & ".join(
-                [
-                    f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl(), env)}))"
-                    for v in vars
-                ]
-            )
-        else:
-            vs = ", ".join(
-                [
-                    mangle_decl(v.decl(), env) + ":" + sort_to_tptp(v.sort())
-                    for v in vars
-                ]
-            )
-        if expr.is_forall():
-            if format == "fof":
-                # TODO: is adding type predicates necessary?
-                # return f"(![{vs}] : ({type_preds}) => {body})"
-                return f"(![{vs}] : {body})"
-            return f"(![{vs}] : {body})"
-        elif expr.is_exists():
-            if format == "fof":
-                # return f"(?[{vs}] : ({type_preds}) & {body})"
-                return f"(?[{vs}] : {body})"
-            return f"(?[{vs}] : {body})"
-        elif expr.is_lambda():
-            if format != "thf":
-                raise Exception(
-                    "Lambda not supported in tff tptp format. Try a thf solver", expr
-                )
-            return f"(^[{vs}] : {body})"
-    assert smt.is_app(expr)
-    children = [
-        expr_to_tptp(c, env=env, format=format, theories=theories)
-        for c in expr.children()
-    ]
-    head = expr.decl().name()
-    if head == "true":
-        return "$true"
-    elif head == "false":
-        return "$false"
-    elif head == "and":
-        return "({})".format(" & ".join(children))
-    elif head == "or":
-        return "({})".format(" | ".join(children))
-    elif head == "=":
-        return "({} = {})".format(children[0], children[1])
-    elif head == "=>":
-        return "({} => {})".format(children[0], children[1])
-    elif head == "not":
-        return "~({})".format(children[0])
-    elif head == "if":
-        # if thf:
-        #    return "($ite @ {} @ {} @ {})".format(*children)
-        # else:
-        return "$ite({}, {}, {})".format(*children)
-    elif head == "select":
-        assert format == "thf"
-        return "({} @ {})".format(*children)
-    elif head == "distinct":
-        if len(children) == 2:
-            return "({} != {})".format(*children)
-        return "$distinct({})".format(", ".join(children))
-
-    if theories:
-        if head == "<":
-            return "$less({},{})".format(*children)
-        elif head == "<=":
-            return "$lesseq({},{})".format(*children)
-        elif head == ">":
-            return "$greater({},{})".format(*children)
-        elif head == ">=":
-            return "$greatereq({},{})".format(*children)
-        elif head == "+":
-            return "$sum({},{})".format(*children)
-        elif head == "-":
-            if len(children) == 1:
-                return "$difference(0,{})".format(children[0])
-            else:
-                return "$difference({},{})".format(*children)
-        elif head == "*":
-            return "$product({},{})".format(*children)
-        elif head == "/":
-            return "$quotient({},{})".format(*children)
-        # elif head == "^":
-        #    return "$power({},{})".format(
-        #        *children
-        #    )  # This is not a built in tptp function though
-    # default assume regular term
-    head = mangle_decl(expr.decl(), env)
-    if len(children) == 0:
-        return head
-    if format == "thf":
-        return f"({head} @ {' @ '.join(children)})"
-    else:
-        return f"{head}({', '.join(children)})"
-
-
-def sort_to_tptp(sort: smt.SortRef):
-    """Pretty print sort as tptp"""
-    name = sort.name()
-    if name == "Int":
-        return "$int"
-    elif name == "Bool":
-        return "$o"
-    elif name == "Real":
-        return "$real"
-    elif name == "Array":
-        return "({} > {})".format(
-            sort_to_tptp(sort.domain()), sort_to_tptp(sort.range())
-        )
-    else:
-        return name.lower()
 
 
 def expr_to_lean(expr: smt.ExprRef):

@@ -281,3 +281,6 @@ is_integ = smt.Function("is_integ", RFun, smt.BoolSort())
 
 
 # Bounds
+# https://arxiv.org/pdf/0708.3721
+# Marc Daumas, David Lester, and César Munoz. 2008. Verified real number calculations:
+# A library for interval arithmetic. IEEE Trans. Comput. 58, 2 (2008), 226–237.

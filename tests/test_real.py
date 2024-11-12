@@ -2,6 +2,8 @@ import kdrag as kd
 from kdrag.theories.real import *
 import kdrag.smt as smt
 import kdrag.solvers as solvers
+import kdrag.theories.real as real
+import kdrag.theories.real.sympy
 
 
 def test_abstract():
@@ -68,3 +70,12 @@ def lim():
     # l = kd.Lemma(has_lim(const(0), 0, 0))
     # l.fixes(eps)
     # l.
+
+
+import flint
+
+
+def test_flint():
+    real.sympy.flint_bnd(real.pi, {})
+    x = smt.Real("x")
+    real.sympy.flint_bnd(real.sin(x), {x: flint.arb.pi()})

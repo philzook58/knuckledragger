@@ -39,6 +39,148 @@ def smtlib_datatypes(dts: list[smt.DatatypeSortRef]) -> str:
     )
 
 
+def mangle_decl(d: smt.FuncDeclRef, env=[]):
+    """Mangle a declaration to a tptp name. SMTLib supports type based overloading, TPTP does not."""
+    # single quoted (for operators) + underscore + hex id
+    id_, name = d.get_id(), d.name()
+    name = name.replace("!", "bang")
+    # TODO: mangling of operators is busted
+    # name = name.replace("*", "star")
+    assert id_ >= 0x80000000
+    if d in env:
+        return name + "_" + format(id_ - 0x80000000, "x")
+    else:
+        return name + "_" + format(id_ - 0x80000000, "x")
+        # TODO: single quote is not working.
+        # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
+
+
+def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
+    """Pretty print expr as TPTP"""
+    if env is None:
+        env = []
+    if isinstance(expr, smt.IntNumRef):
+        return str(expr.as_string())
+    elif isinstance(expr, smt.QuantifierRef):
+        vars, body = kd.utils.open_binder(expr)
+        env = env + [v.decl() for v in vars]
+        body = expr_to_tptp(body, env=env, format=format, theories=theories)
+        if format == "fof":
+            vs = ", ".join([mangle_decl(v.decl(), env) for v in vars])
+            type_preds = " & ".join(
+                [
+                    f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl(), env)}))"
+                    for v in vars
+                ]
+            )
+        else:
+            vs = ", ".join(
+                [
+                    mangle_decl(v.decl(), env) + ":" + sort_to_tptp(v.sort())
+                    for v in vars
+                ]
+            )
+        if expr.is_forall():
+            if format == "fof":
+                # TODO: is adding type predicates necessary?
+                # return f"(![{vs}] : ({type_preds}) => {body})"
+                return f"(![{vs}] : {body})"
+            return f"(![{vs}] : {body})"
+        elif expr.is_exists():
+            if format == "fof":
+                # return f"(?[{vs}] : ({type_preds}) & {body})"
+                return f"(?[{vs}] : {body})"
+            return f"(?[{vs}] : {body})"
+        elif expr.is_lambda():
+            if format != "thf":
+                raise Exception(
+                    "Lambda not supported in tff tptp format. Try a thf solver", expr
+                )
+            return f"(^[{vs}] : {body})"
+    assert smt.is_app(expr)
+    children = [
+        expr_to_tptp(c, env=env, format=format, theories=theories)
+        for c in expr.children()
+    ]
+    head = expr.decl().name()
+    if head == "true":
+        return "$true"
+    elif head == "false":
+        return "$false"
+    elif head == "and":
+        return "({})".format(" & ".join(children))
+    elif head == "or":
+        return "({})".format(" | ".join(children))
+    elif head == "=":
+        return "({} = {})".format(children[0], children[1])
+    elif head == "=>":
+        return "({} => {})".format(children[0], children[1])
+    elif head == "not":
+        return "~({})".format(children[0])
+    elif head == "if":
+        # if thf:
+        #    return "($ite @ {} @ {} @ {})".format(*children)
+        # else:
+        return "$ite({}, {}, {})".format(*children)
+    elif head == "select":
+        assert format == "thf"
+        return "({} @ {})".format(*children)
+    elif head == "distinct":
+        if len(children) == 2:
+            return "({} != {})".format(*children)
+        return "$distinct({})".format(", ".join(children))
+
+    if theories:
+        if head == "<":
+            return "$less({},{})".format(*children)
+        elif head == "<=":
+            return "$lesseq({},{})".format(*children)
+        elif head == ">":
+            return "$greater({},{})".format(*children)
+        elif head == ">=":
+            return "$greatereq({},{})".format(*children)
+        elif head == "+":
+            return "$sum({},{})".format(*children)
+        elif head == "-":
+            if len(children) == 1:
+                return "$difference(0,{})".format(children[0])
+            else:
+                return "$difference({},{})".format(*children)
+        elif head == "*":
+            return "$product({},{})".format(*children)
+        elif head == "/":
+            return "$quotient({},{})".format(*children)
+        # elif head == "^":
+        #    return "$power({},{})".format(
+        #        *children
+        #    )  # This is not a built in tptp function though
+    # default assume regular term
+    head = mangle_decl(expr.decl(), env)
+    if len(children) == 0:
+        return head
+    if format == "thf":
+        return f"({head} @ {' @ '.join(children)})"
+    else:
+        return f"{head}({', '.join(children)})"
+
+
+def sort_to_tptp(sort: smt.SortRef):
+    """Pretty print sort as tptp"""
+    name = sort.name()
+    if name == "Int":
+        return "$int"
+    elif name == "Bool":
+        return "$o"
+    elif name == "Real":
+        return "$real"
+    elif name == "Array":
+        return "({} > {})".format(
+            sort_to_tptp(sort.domain()), sort_to_tptp(sort.range())
+        )
+    else:
+        return name.lower()
+
+
 class BaseSolver:
     x, y, z = smt.Reals("x y z")
     n, m, k = smt.Ints("n m k")
@@ -134,7 +276,7 @@ class BaseSolver:
                     if name not in self.predefined_sorts:
                         if format != "fof":
                             fp.write(
-                                f"{format}({name.lower()}_type, type, {kd.utils.sort_to_tptp(sort)} : $tType ).\n"
+                                f"{format}({name.lower()}_type, type, {sort_to_tptp(sort)} : $tType ).\n"
                             )
                     if isinstance(sort, smt.DatatypeSortRef):
                         # TODO: add constructors and injectivity axioms
@@ -152,29 +294,26 @@ class BaseSolver:
                     if f not in predefined and f.name() not in self.predefined_names:
                         if f.arity() == 0:
                             fp.write(
-                                f"{format}({f.name()}_type, type, {kd.utils.mangle_decl(f)} : {kd.utils.sort_to_tptp(f.range())} ).\n"
+                                f"{format}({f.name()}_type, type, {mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
                             )
                         else:
                             joiner = " > " if format == "thf" else " * "
                             dom_tptp = joiner.join(
-                                [
-                                    kd.utils.sort_to_tptp(f.domain(i))
-                                    for i in range(f.arity())
-                                ]
+                                [sort_to_tptp(f.domain(i)) for i in range(f.arity())]
                             )
                             fp.write(
-                                f"{format}({f.name()}_decl, type, {kd.utils.mangle_decl(f)} : {dom_tptp} > {kd.utils.sort_to_tptp(f.range())}).\n"
+                                f"{format}({f.name()}_decl, type, {mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
                             )
 
             # Write axioms and assertions in TPTP THF format
             fp.write("% Axioms and assertions\n")
             for i, e in enumerate(self.adds):
                 fp.write(
-                    f"{format}(ax_{i}, axiom, {kd.utils.expr_to_tptp(e, format=format)}).\n"
+                    f"{format}(ax_{i}, axiom, {expr_to_tptp(e, format=format)}).\n"
                 )
             for thm, name in self.assert_tracks:
                 fp.write(
-                    f"{format}({name}, axiom, {kd.utils.expr_to_tptp(thm, format=format)}).\n"
+                    f"{format}({name}, axiom, {expr_to_tptp(thm, format=format)}).\n"
                 )
             # fp.write("tff(goal, conjecture, $false).\n")
 
