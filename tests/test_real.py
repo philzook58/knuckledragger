@@ -79,6 +79,23 @@ def test_flint():
     real.sympy.flint_bnd(real.pi, {})
     x = smt.Real("x")
     real.sympy.flint_bnd(real.sin(x), {x: flint.arb.pi()})
+    assert (
+        real.sympy.interp_flint(smt.RatVal(232, 1), {}).mid().str()
+        == "232.000000000000"
+    )
+    kd.kernel.lemma(
+        kd.QForAll([x], -5 <= x, x <= 5, sin(x) <= 1),
+        by=[real.sympy.flint_bnd(real.sin(x), {x: flint.arb(0, 10)})],
+    )
+    assert (
+        "1.00000000000000e+100"
+        in real.sympy.interp_flint(
+            smt.RealVal(10**100),
+            {},
+        )
+        .mid()
+        .str()
+    )
 
 
 import sympy

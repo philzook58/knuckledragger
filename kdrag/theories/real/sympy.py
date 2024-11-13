@@ -32,6 +32,8 @@ def interp_flint(e, env):
         return flint_decls[e.arg(0)](
             *[interp_flint(arg, env) for arg in e.children()[1:]]
         )
+    elif smt.is_rational_value(e):
+        return flint.arb(e.numerator_as_long()) / flint.arb(e.denominator_as_long())
     elif smt.is_app(e) and e.decl() in flint_decls:
         decl = e.decl()
         return flint_decls[decl](*[interp_flint(arg, env) for arg in e.children()])
