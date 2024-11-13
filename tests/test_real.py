@@ -79,3 +79,49 @@ def test_flint():
     real.sympy.flint_bnd(real.pi, {})
     x = smt.Real("x")
     real.sympy.flint_bnd(real.sin(x), {x: flint.arb.pi()})
+
+
+import sympy
+
+
+def test_sympy():
+    assert real.sympy.z3_of_sympy(real.sympy.interp_sympy(real.pi)).eq(real.pi)
+    x, y, z = smt.Reals("x y z")
+    sx, sy, sz = sympy.symbols("x y z")
+    env = {x: sx, y: sy, z: sz}
+    rev_env = {v: k for k, v in env.items()}
+
+    def round_trip(e):
+        assert real.sympy.z3_of_sympy(
+            real.sympy.interp_sympy(e, env=env), env=rev_env
+        ).eq(e)
+
+    round_trip(x + y)
+    round_trip(x * y)
+    assert real.sympy.z3_of_sympy(
+        real.sympy.interp_sympy(x - y, env=env), env=rev_env
+    ).eq(x + -1 * y)
+    assert real.sympy.z3_of_sympy(
+        real.sympy.interp_sympy(x / y, env=env), env=rev_env
+    ).eq(x * y**-1)
+    # round_trip(real.sqrt(x))
+    # assert real.sin == real.sin(x).decl()
+    round_trip(real.sin(real.cos(real.exp(x))))
+
+
+def test_sympy_manip():
+    x, y, z = smt.Reals("x y z")
+    assert real.sympy.factor([x], x**2 + 2 * x + 1).eq((1 + x) ** 2)
+    assert real.sympy.factor([x], x**2 - 1).eq((1 + x) * (-1 + x))
+
+    def ptree(e):
+        if smt.is_app(e):
+            return (e.decl().name(), [ptree(arg) for arg in e.children()])
+        else:
+            return e.sexpr()
+
+    add = (x + y).decl()
+    mul = (x * y).decl()
+    assert real.sympy.expand([x], (1 + x) ** 2).eq(add(1, x**2, 2 * x))
+    assert real.sympy.expand([x, y], x * (x + 2 * y)).eq(x**2 + mul(2, x, y))
+    kd.kernel.lemma(real.sympy.expand([x], (1 + x) ** 2) == 1 + 2 * x + x**2)

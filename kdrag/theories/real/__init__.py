@@ -284,3 +284,28 @@ is_integ = smt.Function("is_integ", RFun, smt.BoolSort())
 # https://arxiv.org/pdf/0708.3721
 # Marc Daumas, David Lester, and César Munoz. 2008. Verified real number calculations:
 # A library for interval arithmetic. IEEE Trans. Comput. 58, 2 (2008), 226–237.
+
+
+def sqrt_upper(x, n):
+    assert n >= 0
+    if n == 0:
+        return x + 1
+    else:
+        y = sqrt_upper(x, n - 1)
+        return (y + x / y) / 2
+
+
+def sqrt_lower(n, x):
+    assert n >= 0
+    return x / sqrt_upper(x, n)
+
+
+def sqrt_bnd(n):
+    x = smt.Real("x")
+    return kd.axiom(
+        kd.QForAll(
+            [x],
+            x >= 0,
+            smt.And(sqrt_lower(x, n) <= sqrt(x), sqrt(x) <= sqrt_upper(x, n)),
+        )
+    )

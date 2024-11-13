@@ -10,6 +10,7 @@ def test_simp():
     assert kd.utils.simp2(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
 
 
+"""
 def test_match():
     x, y, z = smt.Reals("x y z")
     Var = smt.Var
@@ -36,6 +37,83 @@ def test_match():
         Var(1, R): y,
         Var(0, R): x * 6,
     }
+"""
+
+
+def test_pmatch():
+    x, y, z = smt.Ints("x y z")
+    F, G = smt.Consts("F G", smt.ArraySort(smt.IntSort(), smt.IntSort()))
+    assert utils.pmatch([x], x, smt.IntVal(4)) == {x: smt.IntVal(4)}
+    assert utils.pmatch([x], smt.IntVal(3), smt.IntVal(3)) == {}
+    assert utils.pmatch([x], smt.IntVal(3), smt.IntVal(4)) == None
+    assert utils.pmatch([x], x, smt.IntVal(3)) == {x: smt.IntVal(3)}
+    assert utils.pmatch([x], x + x, smt.IntVal(3) + smt.IntVal(4)) == None
+    assert utils.pmatch([x], x + x, smt.IntVal(3) + smt.IntVal(3)) == {x: smt.IntVal(3)}
+    assert utils.pmatch([y], x + x, smt.IntVal(3) + smt.IntVal(3)) == None
+    assert utils.pmatch([x, y], x + y, smt.IntVal(3) + smt.IntVal(4)) == {
+        x: smt.IntVal(3),
+        y: smt.IntVal(4),
+    }
+
+    # alpha equiv terms should utils.pmatch
+    assert utils.pmatch([], smt.Lambda([x], x == x), smt.Lambda([y], y == y)) == {}
+    t = smt.Lambda([x, y], x + y)
+    vs, body = utils.open_binder(t)
+    assert utils.pmatch([], t, smt.Lambda(vs, body)) == {}
+
+    assert utils.alpha_eq(
+        utils.pmatch([F], smt.Lambda([x], F[x]), smt.Lambda([x], x + 3))[F],
+        smt.Lambda([x], x + 3),
+    )
+    assert utils.alpha_eq(
+        utils.pmatch([F], smt.Lambda([x], F[x]), smt.Lambda([y], y + 3))[F],
+        smt.Lambda([z], z + 3),
+    )
+    assert utils.alpha_eq(
+        utils.pmatch([F], smt.Lambda([x], F[x]), smt.Lambda([x], G[x]))[F],
+        smt.Lambda([x], G[x]),
+    )
+
+    # Failing examples
+    # should we allow this?
+    # utils.pmatch([F], F[3], G[3]). Seems obvious what the answer should be {F:G}, but we're opening up a can of worms
+
+    assert (
+        utils.pmatch(
+            [F], smt.Lambda([x, y], F), smt.Lambda([x, y], smt.Lambda([z], x + 3))
+        )
+        == None
+    )
+
+    # This is the sort of thing you have to do if you want to apply an induction principle about (forall P) to a goal.
+    P = smt.Const("P", smt.ArraySort(smt.IntSort(), smt.BoolSort()))
+    assert utils.alpha_eq(
+        utils.pmatch(
+            [P], smt.ForAll([x], P[x]), smt.ForAll([y], smt.Or(y == 0, y > 0))
+        )[P],
+        smt.Lambda([z], smt.Or(z == 0, z > 0)),
+    )
+
+    assert (
+        utils.pmatch([F, G], smt.Lambda([x, y], F[y] + F[y]), smt.Lambda([x, y], x + y))
+        == None
+    )
+    assert (
+        utils.pmatch([F, G], smt.Lambda([x, y], F[y] + F[x]), smt.Lambda([x, y], x + y))
+        == None
+    )
+    assert utils.alpha_eq(
+        utils.pmatch(
+            [F, G], smt.Lambda([x, y], F[x] + F[y]), smt.Lambda([x, y], x + y)
+        )[F],
+        smt.Lambda([x], x),
+    )
+
+
+def test_pmatch2():
+    x, y, z = smt.Ints("x y z")
+    F, G = smt.Consts("F G", smt.ArraySort(smt.IntSort(), smt.IntSort()))
+    assert utils.pmatch([F], smt.Lambda([x, y], F[x]), smt.Lambda([x, y], G[y])) == None
 
 
 def test_subterms():

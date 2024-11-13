@@ -1,3 +1,4 @@
+from re import L
 import kdrag as kd
 import kdrag.smt as smt
 from enum import IntEnum
@@ -226,21 +227,37 @@ class Lemma:
 class Lemma2:
     # Isar style forward proof
     def __init__(self, goal: smt.BoolRef):
-        self.cur_goal = goal
+        # self.cur_goal = goal
         self.lemmas = []
         self.thm = goal
+        self.goals = [goal]
 
     def intros(self):
-        vs, goal = kd.kernel.herb(self.cur_goal)
-        self.lemmas.append(goal)
-        self.cur_goal = goal.thm.arg(0)
+        goal = self.goals.pop()
+        vs, herb_lemma = kd.kernel.herb(goal)
+        self.lemmas.append(herb_lemma)
+        self.goals.append(goal.thm.arg(0))
         return vs
 
-    def exists(self, t):
-        kd.kernel.forget(self.goal, t)
+    def cases(self):
+        pass
+
+    def split(self):
+        goal = self.goals.pop()
+        if smt.is_and(goal):
+            goals.extend(goal.children())
+        else:
+            raise ValueError("Split failed. Not an and")
+
+    def exists(self, *ts):
+        goal = self.goals.pop()
+        # kd.kernel.forget(self.goal, t)
+        self.goals.append(utils.instan(goal, *ts))
 
     def apply(self, pf: kd.kernel.Proof):
-        pass
+        goal = self.goals.pop()
+        self.lemmas.append(pf)
+        self.goals.append(utils.apply(goal, pf.thm))
         # TODO.
         # self.lemmas.append(pf)
         # self.cur_goal = pf.thm.arg(0)
@@ -258,7 +275,7 @@ class Lemma2:
         return self
 
     def __repr__(self):
-        return "?|- " + repr(self.cur_goal)
+        return "?|- " + repr(self.goals[-1])
 
     def qed(self):
         return lemma(self.thm, by=self.lemmas)

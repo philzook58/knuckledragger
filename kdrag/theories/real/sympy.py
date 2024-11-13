@@ -82,7 +82,7 @@ sympy_decls = {
     real.cos: sympy.cos,
     real.tan: sympy.tan,
     real.atan: sympy.atan,
-    real.pow: op.pow,
+    real.pi.decl(): sympy.pi,
     (a + b).decl(): sympy.Add,
     (a * b).decl(): sympy.Mul,
     (a / b).decl(): op.truediv,
@@ -90,35 +90,59 @@ sympy_decls = {
     (a**b).decl(): sympy.Pow,
     (a == b).decl(): sympy.Eq,
 }
+sympy_consts = {
+    real.pi: sympy.pi,
+}
 rev_sympy_decls = {v: k for k, v in sympy_decls.items()}
+rev_sympy_consts = {v: k for k, v in sympy_consts.items()}
 
 
-def interp_sympy(e: smt.ExprRef, env: dict[smt.ExprRef, sympy.Expr]) -> sympy.Expr:
+def interp_sympy(e: smt.ExprRef, env: dict[smt.ExprRef, sympy.Expr] = {}) -> sympy.Expr:
     if e in env:
         return env[e]
+    elif e in sympy_consts:
+        return sympy_consts[e]
+    elif smt.is_rational_value(e):
+        return sympy.Rational(e.numerator_as_long(), e.denominator_as_long())
+    elif smt.is_select(e) and e.arg(0) in sympy_decls:
+        return sympy_decls[e.arg(0)](
+            *[interp_sympy(arg, env) for arg in e.children()[1:]]
+        )
     elif smt.is_app(e) and e.decl() in sympy_decls:
         decl = e.decl()
         return sympy_decls[decl](*[interp_sympy(arg, env) for arg in e.children()])
-    assert False, f"Can't interpret {e} into sympy"
+    else:
+        raise ValueError(f"Can't interpret {e} into sympy")
 
 
-def sympyify(e: smt.ExprRef) -> sympy.Expr:
-    return interp_sympy(e, {})
-
-
-"""
-def z3_of_sympy(x: sympy.Expr, env: dict[sympy.Expr, smt.ExprRef]) -> smt.ExprRef:
-    decl = rev_sympy_decls.get(x.func)
+def z3_of_sympy(x: sympy.Expr, env: dict[sympy.Expr, smt.ExprRef] = {}) -> smt.ExprRef:
     if x in env:
         return env[x]
-    elif decl is not None:
-        return decl(*[z3_of_sympy(arg) for arg in x.args])
+    elif x in rev_sympy_consts:
+        return rev_sympy_consts[x]
+    elif x.is_constant() and x.is_rational:
+        num, denom = x.as_numer_denom()
+        return smt.RatVal(int(num), int(denom))
+    elif x.func in rev_sympy_decls:
+        decl = rev_sympy_decls[x.func]
+        return decl(*[z3_of_sympy(arg, env) for arg in x.args])
     else:
         raise ValueError("Can't interpret", x, "from sympy into z3")
 
 
-def factor(vs, e: smt.ExprRef):
-    env1 = {e: sympy.symbols(e.name()) for e in vs}
-    env2 = {v: k for k, v in env1.items()}
-    return sympy.interp_sympy(e, env1).factor()
-"""
+def wrap_sympy(f):
+    def wrapped(vs, e: smt.ExprRef, **kwargs):
+        env1 = {e: sympy.symbols(e.decl().name()) for e in vs}
+        env2 = {v: k for k, v in env1.items()}
+        e_sym = interp_sympy(e, env1)
+        t = z3_of_sympy(f(e_sym, **kwargs), env2)
+        return t
+
+    return wrapped
+
+
+factor = wrap_sympy(sympy.factor)
+expand = wrap_sympy(sympy.expand)
+simplify = wrap_sympy(sympy.simplify)
+expand_trig = wrap_sympy(sympy.expand_trig)
+collect = wrap_sympy(sympy.collect)

@@ -40,62 +40,70 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
 #    return G2[len(G2) - 1].children()[1]
 
 
-def pmatch_db(
-    t: smt.ExprRef, pat: smt.ExprRef
-) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
-    """
-    Pattern match t against pat. Variables are constructed as `smt.Var(i, sort)`.
-    Returns substitution dict if match succeeds.
-    Returns None if match fails.
-    Outer quantifier (Exists, ForAll, Lambda) in pat is ignored.
-    """
-    if smt.is_quantifier(pat):
-        pat = pat.body()
-    subst = {}
-    todo = [(t, pat)]
-    while len(todo) > 0:
-        t, pat = todo.pop()
-        if t.eq(pat):
-            continue
-        if smt.is_var(pat):
-            if pat in subst:
-                if not subst[pat].eq(t):
-                    return None
-            else:
-                subst[pat] = t
-        elif smt.is_app(t) and smt.is_app(pat):
-            if pat.decl() == t.decl():
-                todo.extend(zip(t.children(), pat.children()))
-            else:
-                return None
-        else:
-            raise Exception("Unexpected subterm or subpattern", t, pat)
-    return subst
-
-
 def pmatch(
-    t: smt.ExprRef, vs: list[smt.ExprRef], pat: smt.ExprRef
+    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
-    """Pattern match t against pat considering vs as variables. Returns substitution dictionary if succeeds"""
+    """
+    Pattern match t against pat considering vs as variables. Returns substitution dictionary if succeeds
+    https://www.philipzucker.com/ho_unify/
+    """
+    if pat.sort() != t.sort():
+        raise Exception("Sort mismatch", pat, t)
     subst = {}
-    todo = [(t, pat)]
-    while len(todo) > 0:
-        t, pat = todo.pop()
-        if t.eq(pat):
-            continue
-        if any(pat.eq(v) for v in vs):
+    todo = [(pat, t)]
+    no_escape = []
+
+    def is_var(x):
+        return any(x.eq(v) for v in vs)
+
+    def check_escape(x):
+        if any(x.eq(v) for v in no_escape):
+            return False
+        else:
+            return all(check_escape(c) for c in x.children())
+
+    while todo:
+        pat, t = todo.pop()
+        print(todo, pat, t, subst)
+        if is_var(pat):  # regular pattern
             if pat in subst:
-                if not subst[pat].eq(t):
+                if not alpha_eq(subst[pat], t):
                     return None
             else:
-                subst[pat] = t
-        elif smt.is_app(pat):
-            if smt.is_app(t) and pat.decl() == t.decl():
-                todo.extend(zip(t.children(), pat.children()))
-            else:
+                if check_escape(t):  # check_escape is relative of occurs_check
+                    subst[pat] = t
+                else:
+                    return None
+        elif smt.is_select(pat) and is_var(pat.arg(0)):
+            #  higher order pattern. "select" is smt speak for apply.
+            # F[x,y,z] = t ---> F = Lambda([x,y,z], t)
+            F = pat.arg(0)
+            allowedvars = pat.children()[1:]
+            if any(
+                v not in no_escape for v in allowedvars
+            ):  # TODO: this is probably wrong
+                raise Exception(
+                    "Improper higher order pattern", pat
+                )  # we could relax this to do syntactic unification here.
+            t1 = smt.Lambda(allowedvars, t)
+            todo.append((F, t1))
+        elif smt.is_quantifier(pat):
+            if (
+                not smt.is_quantifier(t)
+                or not quant_kind_eq(t, pat)
+                or t.num_vars() != pat.num_vars()
+            ):
                 return None
+            vs1, patbody = open_binder(pat)
+            no_escape.extend(vs1)
+            tbody = smt.substitute_vars(t.body(), *reversed(vs1))
+            todo.append((patbody, tbody))
+        elif smt.is_app(pat):
+            if not smt.is_app(t) or pat.decl() != t.decl():
+                return None
+            todo.extend(zip(pat.children(), t.children()))
         else:
-            raise Exception("Unexpected subterm or subpattern in pmatch", t, pat)
+            raise Exception("Unexpected pattern", t, pat)
     return subst
 
 
@@ -105,7 +113,7 @@ def rewrite1(
     """
     Rewrite at root a single time.
     """
-    subst = pmatch(t, vs, lhs)
+    subst = pmatch(vs, lhs, t)
     if subst is not None:
         return smt.substitute(rhs, *subst.items())
     return None
@@ -174,11 +182,11 @@ def rewrite_star(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
     """Open a quantifier with fresh variables"""
     # Open with capitalized names to match tptp conventions
-    vars = [
-        smt.Const(lam.var_name(i).upper(), lam.var_sort(i))
-        for i in reversed(range(lam.num_vars()))
+    vs = [
+        smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper())
+        for i in range(lam.num_vars())
     ]
-    return vars, smt.substitute_vars(lam.body(), *vars)
+    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
 def occurs(x, t):

@@ -209,6 +209,19 @@ def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     return __Proof(smt.substitute_vars(pf.thm.body(), *reversed(ts)), reason=[pf])
 
 
+def instan2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
+    """
+    Instantiate a universally quantified formula.
+    This is forall elimination
+    """
+    assert smt.is_quantifier(thm) and thm.is_forall()
+
+    return __Proof(
+        smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
+        reason="forall_elim",
+    )
+
+
 def forget(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     """
     "Forget" a term using existentials. This is existential introduction.
@@ -218,10 +231,23 @@ def forget(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     return __Proof(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), reason=[pf])
 
 
+def forget2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
+    """
+    "Forget" a term using existentials. This is existential introduction.
+    forget easily follows.
+    """
+    vs = fresh_const(thm)
+    return __Proof(
+        smt.Implies(thm, smt.Exists(vs, smt.substitute(thm, *zip(ts, vs)))),
+        reason="exists_intro",
+    )
+
+
 def skolem(pf: Proof) -> tuple[list[smt.ExprRef], Proof]:
     """
     Skolemize an existential quantifier.
     """
+    # TODO: Hmm. Maybe we don't need to have a Proof? Lessen this to thm.
     assert is_proof(pf) and pf.thm.is_exists()
 
     skolems = fresh_const(pf.thm)

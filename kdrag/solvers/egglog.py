@@ -8,13 +8,17 @@ import kdrag.solvers as solvers
 solvers.collect_decls
 
 
+def mangle_name(name):
+    return name.replace("!", "_bang_")
+
+
 def z3_to_egglog(e: smt.ExprRef, vars=[]):
     """a simple sexpr traversal, but we wrap 0-arity constants in parens and vars in no parens to match egglog's syntax"""
     if e in vars:
-        return e.sexpr()
+        return mangle_name(e.sexpr())
     else:
         head, args = e.decl(), e.children()
-        return f"({head.name()} {' '.join(z3_to_egglog(a, vars) for a in args)})"
+        return f"({mangle_name(head.name())} {' '.join(z3_to_egglog(a, vars) for a in args)})"
 
 
 class EgglogSolver(solvers.BaseSolver):

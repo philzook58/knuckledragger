@@ -265,7 +265,7 @@ import re
 def test_fof():
     x = smt.Int("x")
     assert re.match(
-        r"\(!\[X_(?P<var_num>[a-zA-Z0-9]+)\] : \(\$greater\(X_(?P=var_num),4\) & \$lesseq\(X_(?P=var_num),7\)\)\)",
+        r"\(!\[Xbang[0-9]+_(?P<var_num>[a-zA-Z0-9]+)\] : \(\$greater\(Xbang[0-9]+_(?P=var_num),4\) & \$lesseq\(Xbang[0-9]+_(?P=var_num),7\)\)\)",
         kd.solvers.expr_to_tptp(smt.ForAll([x], smt.And(x > 4, x <= 7)), format="fof"),
     )
 
