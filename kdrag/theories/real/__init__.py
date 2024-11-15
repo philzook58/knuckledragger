@@ -12,6 +12,14 @@ R = smt.RealSort()
 RFun = smt.ArraySort(R, R)
 RSeq = smt.ArraySort(smt.IntSort(), R)
 
+real_db = []
+real_simp = []
+
+
+def rlemma(thm, by=[], **kwargs):
+    return kd.lemma(thm, by + real_db + real_simp, **kwargs)
+
+
 x, y, z = smt.Reals("x y z")
 
 f, g = smt.Consts("f g", RFun)
@@ -250,10 +258,64 @@ ident = kd.define("ident", [], smt.Lambda([x], x))
 const = kd.define("const", [x], smt.K(smt.RealSort(), x))
 X = ident
 
+# https://en.wikipedia.org/wiki/Cauchy_sequence
+a = smt.Const("a", RSeq)
+mod = smt.Const("mod", smt.ArraySort(smt.RealSort(), smt.IntSort()))
+N, m, n, k = smt.Ints("N m n k")
+eps = smt.Real("eps")
+is_cauchy = kd.define(
+    "is_cauchy",
+    [a],
+    kd.QForAll(
+        [eps],
+        eps > 0,
+        smt.Exists([N], kd.QForAll([m, k], m > N, k > N, abs(a[m] - a[k]) < eps)),
+    ),
+)
+cauchy_mod = kd.define(
+    "cauchy_mod",
+    [a, mod],
+    kd.QForAll(
+        [eps],
+        eps > 0,
+        kd.QForAll([m, k], m > mod[eps], k > mod[eps], abs(a[m] - a[k]) < eps),
+    ),
+)
+is_convergent = kd.define(
+    "is_convergent",
+    [a],
+    kd.QForAll(
+        [eps],
+        eps > 0,
+        smt.Exists([N], kd.QForAll([m], m > N, smt.Exists([x], abs(a[m] - x) < eps))),
+    ),
+)
+seqsum = Function("seqsum", RSeq, R)
+# is_sum_convergent =
 
 # TODO. Should be less axioms
+# https://en.wikipedia.org/wiki/Limit_of_a_function
+delta, p, L = smt.Reals("delta p L")
+has_lim_at = kd.define(
+    "has_lim_at",
+    [f, p, L],
+    kd.QForAll(
+        [eps],
+        eps > smt.RealVal(0),
+        kd.QExists(
+            [delta],
+            delta > 0,
+            kd.QForAll(
+                [x],
+                smt.RealVal(0) < abs(x - p),
+                abs(x - p) < delta,
+                abs(f[x] - L) < eps,
+            ),
+        ),
+    ),
+)
 lim = smt.Function("lim", RFun, R, R)
-lim_at = smt.Function("lim_at", RFun, R, smt.RealSort())
+lim_def = kd.axiom(kd.QForAll([f, x, y], has_lim_at(f, x, y), lim(f, x) == y))
 
 has_diff_at = smt.Function("has_diff_at", RFun, R, R, smt.BoolSort())
 diff_at = kd.define("diff_at", [f, x], smt.Exists([y], has_diff_at(f, x, y)))
@@ -277,8 +339,11 @@ deriv_exp = kd.axiom(deriv(exp) == exp)
 deriv_add = kd.axiom(ForAll([f, g], deriv(f + g) == deriv(f) + deriv(g)))
 deriv_mul = kd.axiom(ForAll([f, g], deriv(f * g) == deriv(f) * g + f * deriv(g)))
 
+# Many notions of integrable.
 is_integ = smt.Function("is_integ", RFun, smt.BoolSort())
 
+Powser = kd.NewType("Powser", RSeq)
+# is_convergent_at
 
 # Bounds
 # https://arxiv.org/pdf/0708.3721
@@ -309,3 +374,8 @@ def sqrt_bnd(n):
             smt.And(sqrt_lower(x, n) <= sqrt(x), sqrt(x) <= sqrt_upper(x, n)),
         )
     )
+
+
+def sin_lower(n, x):
+    assert n >= 0
+    sum(x**n)

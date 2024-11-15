@@ -360,6 +360,18 @@ def decls(t: smt.ExprRef):
             yield t.decl()
 
 
+def is_value(t: smt.ExprRef):
+    return (
+        smt.is_int_value(t)
+        or smt.is_rational_value(t)
+        or smt.is_algebraic_value(t)
+        or smt.is_bv_value(t)
+        or smt.is_true(t)
+        or smt.is_false(t)
+        or smt.is_string_value(t)
+    )
+
+
 def lemma_db():
     """Scan all modules for Proof objects and return a dictionary of them."""
     db = {}

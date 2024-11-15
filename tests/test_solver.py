@@ -244,7 +244,9 @@ def test_vampire_question_answer():
     s = solvers.VampireSolver()
     s.add(f(y))
     res = s.query(smt.Exists([y], f(y)))
-    assert res == ["% SZS answers Tuple [[y]|_] for vampire"]
+    assert re.fullmatch(
+        r"\% SZS answers Tuple \[\[y_[0-9a-f]*\]\|_\] for vampire", res[0]
+    )
 
 
 def test_gappa():

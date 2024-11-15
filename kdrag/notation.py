@@ -133,9 +133,9 @@ def QExists(vs: list[smt.ExprRef], *concs) -> smt.BoolRef:
     """
     concs = [v.wf() for v in vs if v.sort() in wf.methods] + list(concs)
     if len(concs) == 1:
-        smt.Exists(vs, concs[0])
+        return smt.Exists(vs, concs[0])
     else:
-        smt.Exists(vs, smt.And(concs))
+        return smt.Exists(vs, smt.And(concs))
 
 
 def ExistsUnique(v: smt.ExprRef, *concs) -> smt.BoolRef:

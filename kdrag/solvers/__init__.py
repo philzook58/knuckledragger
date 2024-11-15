@@ -1,3 +1,4 @@
+from operator import is_
 import kdrag as kd
 import kdrag.smt as smt
 import subprocess
@@ -22,21 +23,6 @@ def install_solvers():
 def run(cmd, args, **kwargs):
     cmd = [binpath(cmd)] + args
     return subprocess.run(cmd, **kwargs)
-
-
-def smtlib_datatypes(dts: list[smt.DatatypeSortRef]) -> str:
-    s = smt.Z3Solver()
-    for dt in dts:
-        x = smt.Const("x", dt)
-        s.add(smt.Exists([x], x == x))  # trivial constraint
-    return (
-        s.to_smt2()
-        .replace("(check-sat)", "")
-        .replace(
-            """; benchmark generated from python API\n(set-info :status unknown)\n""",
-            "",
-        )
-    )
 
 
 def mangle_decl(d: smt.FuncDeclRef, env=[]):
@@ -181,6 +167,90 @@ def sort_to_tptp(sort: smt.SortRef):
         return name.lower()
 
 
+# Some are polymorphic so decl doesn't work
+# predefined theory symbols don't need function declarations
+predefined_names = [
+    "=",
+    "if",
+    "and",
+    "or",
+    "not",
+    "=>",
+    "select",
+    "store",
+    "=>",
+    ">",
+    "<",
+    ">=",
+    "<=",
+    "+",
+    "-",
+    "*",
+    "/",
+    "^",
+    "is",
+    "Int",
+    "Real",
+    "abs",
+    "distinct",
+    "true",
+    "false",
+]
+
+
+def expr_to_smtlib(expr: smt.ExprRef):
+    if smt.is_quantifier(expr):
+        quantifier = (
+            "forall" if expr.is_forall() else "exists" if expr.is_exists() else "lambda"
+        )
+        vs, body = kd.utils.open_binder(expr)
+        vs = " ".join([f"({mangle_decl(v.decl())} {v.sort()})" for v in vs])
+        # vs = " ".join(
+        #    [f"({expr.var_name(i)} {expr.var_sort(i)})" for i in range(expr.num_vars())]
+        # )
+
+        return f"({quantifier} ({vs}) {expr_to_smtlib(body)})"
+    elif kd.utils.is_value(expr):
+        return expr.sexpr()
+    elif smt.is_const(expr):
+        if expr.decl().name() in predefined_names:
+            return expr.decl().name()
+        return mangle_decl(expr.decl())
+    elif smt.is_app(expr):
+        decl = expr.decl()
+        name = decl.name()
+        children = " ".join([expr_to_smtlib(c) for c in expr.children()])
+        if name in predefined_names:
+            return f"({name} {children})"
+        else:
+            return f"({mangle_decl(decl)} {children})"
+    elif smt.is_var(expr):
+        assert False
+    else:
+        return expr.sexpr()
+
+
+def funcdecl_smtlib(decl: smt.FuncDeclRef):
+    dom = " ".join([(decl.domain(i).name()) for i in range(decl.arity())])
+    return f"(declare-fun {mangle_decl(decl)} ({dom}) {decl.range().name()})"
+
+
+# TODO. We need to mangle the declarations
+def smtlib_datatypes(dts: list[smt.DatatypeSortRef]) -> str:
+    s = smt.Z3Solver()
+    for dt in dts:
+        x = smt.Const("x", dt)
+        s.add(smt.Exists([x], x == x))  # trivial constraint
+    return (
+        s.to_smt2()
+        .replace("(check-sat)", "")
+        .replace(
+            """; benchmark generated from python API\n(set-info :status unknown)\n""",
+            "",
+        )
+    )
+
+
 class BaseSolver:
     x, y, z = smt.Reals("x y z")
     n, m, k = smt.Ints("n m k")
@@ -201,34 +271,6 @@ class BaseSolver:
         "Int",
         "Real",
         "Bool",
-    ]
-    # Some are polymorphic so decl doesn't work
-    predefined_names = [
-        "=",
-        "if",
-        "and",
-        "or",
-        "not",
-        "=>",
-        "select",
-        "store",
-        "=>",
-        ">",
-        "<",
-        ">=",
-        "<=",
-        "+",
-        "-",
-        "*",
-        "/",
-        "^",
-        "is",
-        "Int",
-        "Real",
-        "abs",
-        "distinct",
-        "true",
-        "false",
     ]
 
     def __init__(self):
@@ -291,7 +333,7 @@ class BaseSolver:
                 for f in collect_decls(
                     self.adds + [thm for thm, name in self.assert_tracks]
                 ):
-                    if f not in predefined and f.name() not in self.predefined_names:
+                    if f not in predefined and f.name() not in predefined_names:
                         if f.arity() == 0:
                             fp.write(
                                 f"{format}({f.name()}_type, type, {mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
@@ -354,14 +396,15 @@ class BaseSolver:
         # Declare all function symbols
         fp.write(";;declarations\n")
         for f in collect_decls(self.adds + [thm for thm, name in self.assert_tracks]):
-            if f not in predefined and f.name() not in self.predefined_names:
-                fp.write(f.sexpr())
+            if f not in predefined and f.name() not in predefined_names:
+                fp.write(funcdecl_smtlib(f))
                 fp.write("\n")
         fp.write(";;axioms\n")
         for e in self.adds:
-            fp.write("(assert " + e.sexpr() + ")\n")
+            # We can't use e.sexpr() because we need to mangle overloaded names
+            fp.write("(assert " + expr_to_smtlib(e) + ")\n")
         for thm, name in self.assert_tracks:
-            fp.write("(assert (! " + thm.sexpr() + " :named " + name + "))\n")
+            fp.write("(assert (! " + expr_to_smtlib(thm) + " :named " + name + "))\n")
 
 
 def collect_sorts(exprs):
@@ -433,7 +476,7 @@ class VampireSolver(BaseSolver):
             # self.add(smt.Not(q))
             self.write_smt(fp)
             # self.adds.pop()
-            fp.write(f"(assert-not {q.sexpr()})")
+            fp.write(f"(assert-not {expr_to_smtlib(q)})")
             fp.write("(check-sat)\n")
             fp.flush()
             # print(fp.readlines())
