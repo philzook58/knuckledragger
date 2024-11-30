@@ -1,0 +1,27 @@
+kdrag.config
+============
+
+.. automodule:: kdrag.config
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/config.py
+   :language: python

@@ -1,0 +1,177 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to knuckledragger’s documentation! &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="kdrag" href="_autosummary/kdrag.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/kdrag.html">kdrag</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Welcome to knuckledragger’s documentation!</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="welcome-to-knuckledragger-s-documentation">
+<h1>Welcome to knuckledragger’s documentation!<a class="headerlink" href="#welcome-to-knuckledragger-s-documentation" title="Link to this heading"></a></h1>
+<section id="knuckledragger">
+<h2>Knuckledragger<a class="headerlink" href="#knuckledragger" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="http://colab.research.google.com/github/philzook58/knuckledragger/blob/main/tutorial.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<img src="https://raw.githubusercontent.com/philzook58/knuckledragger/main/logo.webp" alt="drawing" width="200" align="left"/>
+<p>Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. It is not attempting to be the most interesting, expressive, or flexible logic in the world. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.</p>
+<br clear="left"/>
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/philzook58/knuckledragger.git
+python3<span class="w"> </span>-m<span class="w"> </span>kdrag.solvers<span class="w"> </span>install<span class="w"> </span><span class="c1"># install extra solvers</span>
+</pre></div>
+</div>
+<p>Or to install locally</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/philzook58/knuckledragger.git
+<span class="nb">cd</span><span class="w"> </span>knuckledragger
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+./install.sh<span class="w"> </span><span class="c1"># install extra solvers</span>
+</pre></div>
+</div>
+</section>
+<section id="blog-posts">
+<h3>Blog Posts<a class="headerlink" href="#blog-posts" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.philipzucker.com/state_o_knuck/">State of Knuckledragger, a Semi-Automated Python Proof Assistant</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/analysis_knuckle/">Proving Sum n = n*(n-1)/2 and that 1/n tends to 0</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/sqrt2_2/">Peano Nats in Interactive SMT</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/sqrt2/">Experiments in the Irrationality of Sqrt 2 with SMT</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckledrag2/">Knuckledragger Update: ATP for Python Interactive Theorem Proving</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/python-itp/">Knuckledragger: Experimenting with a Python Proof Assistant</a></p></li>
+</ul>
+</section>
+<section id="knuckledragger-isn-t-python">
+<h3>Knuckledragger isn’t Python<a class="headerlink" href="#knuckledragger-isn-t-python" title="Link to this heading"></a></h3>
+<p>The design is based around the chaining of calls to z3. Python is a useful platform, but the core of the design can be ported to many languages.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://hackage.haskell.org/package/sbv-11.0/docs/Data-SBV-Tools-KnuckleDragger.html">SBV</a> - Haskell</p></li>
+<li><p>Yours here!</p></li>
+</ul>
+</section>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading"></a></h3>
+<p>It is not desirable or within my capabilities to build a giant universe in which to live. The goal is to take a subtle blade and bolt together things that already exist.</p>
+<p>Using widespread and commonly supported languages gives a huge leg up in terms of tooling and audience. Python is the modern lingua franca of computing. It has a first class interactive experience and extensive bindings to projects in other languages.</p>
+<p>Core functionality comes from <a class="reference external" href="https://github.com/Z3Prover/z3">Z3</a>. The Z3 python api is a de facto standard. The term and formula data structures of knuckledragger are literally z3 python terms and formula. To some degree, knuckledragger is a metalayer to guide smt through proofs it could perhaps do on its own, but it would get lost.</p>
+<p>A hope is to be able to use easy access to <a class="reference external" href="https://jupyter.org/">Jupyter</a>, <a class="reference external" href="https://copilot.microsoft.com/">copilot</a>, ML ecosystems, <a class="reference external" href="https://www.sympy.org/">sympy</a>, <a class="reference external" href="https://www.cvxpy.org/">cvxpy</a>, <a class="reference external" href="https://numpy.org/">numpy</a>, <a class="reference external" href="https://scipy.org/">scipy</a>, <a class="reference external" href="https://egglog-python.readthedocs.io/latest/">egglog</a>, <a class="reference external" href="https://github.com/JuliaPy/PythonCall.jl">Julia</a>, <a class="reference external" href="https://www.swi-prolog.org/pldoc/man?section=janus-call-prolog">Prolog</a>, <a class="reference external" href="https://fadoss.github.io/maude-bindings/">Maude</a>, <a class="reference external" href="https://fredrikj.net/calcium/">calcium</a>, <a class="reference external" href="https://fredrikj.net/python-flint/">flint</a>, <a class="reference external" href="https://reference.wolfram.com/language/WolframClientForPython/">Mathematica</a>, and <a class="reference external" href="https://www.sagemath.org/">sage</a> will make metaprogramming in this system very powerful. I maintain the option to just trust these results but hopefully they can be translated into arguments the kernel can understand.</p>
+<p>The core logic is more or less multi-sorted first order logic aka <a class="reference external" href="https://smt-lib.org/">SMT-LIB2</a>.</p>
+<p>Big features that ATPs do not often support are induction, definitions, and other axiom schema. Knuckledragger supports these.</p>
+<p>Other theorem provers of interest: <a class="reference external" href="https://cvc5.github.io/">cvc5</a>, <a class="reference external" href="https://vprover.github.io/">Vampire</a>, <a class="reference external" href="https://wwwlehre.dhbw-stuttgart.de/~sschulz/E/E.html">eprover</a>, <a class="reference external" href="https://nick8325.github.io/twee/">Twee</a>, <a class="reference external" href="https://leancop.de/nanocop/">nanoCoP</a>.</p>
+<p>The de Bruijn criterion is going to be bent or broken in certain senses. Attention is paid to what is kernel and what is not. Proof objects are basically trees recording chains of lemmas discharged by Automated Theorem Prover (ATP) calls. Soundness will be attempted, accidental misuse will be made difficult but not impossible.</p>
+<p>Isabelle and ACL2 are the strongest influences. If you want dependent type theory, you are at a level of investment and sophistication that it behooves you to be in another system. Should there be a strong automated DTT solver someday, I will reconsider.</p>
+<p>I maintain the right to change my mind about anything.</p>
+<p>TODO: A no-install WIP colab tutorial is available <a class="reference external" href="http://colab.research.google.com/github/philzook58/knuckledragger/blob/main/tutorial.ipynb">here</a></p>
+</section>
+</section>
+<div class="toctree-wrapper compound">
+</div>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/kdrag.html#module-kdrag" title="kdrag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kdrag</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="_autosummary/kdrag.html" class="btn btn-neutral float-right" title="kdrag" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

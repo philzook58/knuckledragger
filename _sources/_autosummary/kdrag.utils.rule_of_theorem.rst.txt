@@ -1,0 +1,6 @@
+kdrag.utils.rule\_of\_theorem
+=============================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: rule_of_theorem

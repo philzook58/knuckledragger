@@ -1,0 +1,6 @@
+kdrag.theories.vec.FinSort
+==========================
+
+.. currentmodule:: kdrag.theories.vec
+
+.. autofunction:: FinSort

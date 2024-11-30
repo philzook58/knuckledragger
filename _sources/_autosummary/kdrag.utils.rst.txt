@@ -1,0 +1,63 @@
+kdrag.utils
+===========
+
+.. automodule:: kdrag.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      alpha_eq
+      apply
+      decl_index
+      decls
+      expr_to_lean
+      generate
+      horn_of_theorem
+      is_value
+      lemma_db
+      occurs
+      open_binder
+      pmatch
+      prompt
+      quant_kind_eq
+      rewrite
+      rewrite1
+      rewrite_star
+      rule_of_theorem
+      simp
+      simp2
+      sorts
+      subterms
+      unify_db
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      HornClause
+      Rule
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/utils.py
+   :language: python

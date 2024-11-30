@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.interp\_sympy
+=======================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: interp_sympy

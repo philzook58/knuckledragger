@@ -1,0 +1,27 @@
+kdrag.smt
+=========
+
+.. automodule:: kdrag.smt
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/smt.py
+   :language: python

@@ -1,0 +1,42 @@
+kdrag.theories.datatypes
+========================
+
+.. automodule:: kdrag.theories.datatypes
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      induct
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   nat
+
+
+
+.. literalinclude:: ../../kdrag/theories/datatypes.py
+   :language: python

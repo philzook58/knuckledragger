@@ -1,0 +1,65 @@
+kdrag.kernel
+============
+
+.. automodule:: kdrag.kernel
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      defns
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      axiom
+      beta_conv
+      consider
+      define
+      define_fix
+      forget
+      forget2
+      fresh_const
+      herb
+      instan
+      instan2
+      is_proof
+      lemma
+      skolem
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Defn
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      LemmaError
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/kernel.py
+   :language: python
