@@ -13,6 +13,7 @@ import kdrag.theories.real as real
 import shutil
 from kdrag.solvers.egglog import EgglogSolver
 import kdrag.solvers.gappa as gappa
+import kdrag.solvers.aprove
 
 
 def test_vampirethf():
@@ -288,4 +289,14 @@ def test_tptp():
             smt.ArraySort(smt.ArraySort(smt.BoolSort(), smt.IntSort()), smt.IntSort())
         )
         == "(($o > $int) > $int)"
+    )
+
+
+def test_aprove():
+    plus = smt.Function("plus", smt.IntSort(), smt.IntSort(), smt.IntSort())
+    x, y, z = smt.Ints("x y z")
+    succ = smt.Function("succ", smt.IntSort(), smt.IntSort())
+    zero = smt.IntVal(0)
+    kd.solvers.aprove.run_aprove(
+        [x, y], [plus(x, zero) == x, plus(x, succ(y)) == succ(plus(x, y))]
     )

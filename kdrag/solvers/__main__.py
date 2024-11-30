@@ -38,6 +38,8 @@ def main():
         run_subprocess(binpath("Prover9/bin/prover9"), args)
     elif command == "kissat":
         run_subprocess(binpath("kissat/build/kissat"), args)
+    elif command == "aprove":
+        run_subprocess("java", ["-ea", "-jar", binpath("aprove.jar")] + args)
     else:
         print(f"Unknown command: {command}")
         print(usage_string)

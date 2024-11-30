@@ -187,7 +187,7 @@ predefined_names = [
     "-",
     "*",
     "/",
-    "^",
+    # "^",
     "is",
     "Int",
     "Real",
@@ -198,13 +198,22 @@ predefined_names = [
 ]
 
 
+def mangle_decl_smtlib(d: smt.FuncDeclRef):
+    """Mangle a declaration to remove overloading"""
+    id_, name = d.get_id(), d.name()
+    assert id_ >= 0x80000000
+    return name + "_" + format(id_ - 0x80000000, "x")
+
+
 def expr_to_smtlib(expr: smt.ExprRef):
     if smt.is_quantifier(expr):
         quantifier = (
             "forall" if expr.is_forall() else "exists" if expr.is_exists() else "lambda"
         )
         vs, body = kd.utils.open_binder(expr)
-        vs = " ".join([f"({mangle_decl(v.decl())} {v.sort()})" for v in vs])
+        vs = " ".join(
+            [f"({mangle_decl_smtlib(v.decl())} {v.sort().sexpr()})" for v in vs]
+        )
         # vs = " ".join(
         #    [f"({expr.var_name(i)} {expr.var_sort(i)})" for i in range(expr.num_vars())]
         # )
@@ -215,15 +224,17 @@ def expr_to_smtlib(expr: smt.ExprRef):
     elif smt.is_const(expr):
         if expr.decl().name() in predefined_names:
             return expr.decl().name()
-        return mangle_decl(expr.decl())
+        return mangle_decl_smtlib(expr.decl())
     elif smt.is_app(expr):
         decl = expr.decl()
         name = decl.name()
         children = " ".join([expr_to_smtlib(c) for c in expr.children()])
         if name in predefined_names:
+            if name == "if":
+                name = "ite"
             return f"({name} {children})"
         else:
-            return f"({mangle_decl(decl)} {children})"
+            return f"({mangle_decl_smtlib(decl)} {children})"
     elif smt.is_var(expr):
         assert False
     else:
@@ -231,8 +242,8 @@ def expr_to_smtlib(expr: smt.ExprRef):
 
 
 def funcdecl_smtlib(decl: smt.FuncDeclRef):
-    dom = " ".join([(decl.domain(i).name()) for i in range(decl.arity())])
-    return f"(declare-fun {mangle_decl(decl)} ({dom}) {decl.range().name()})"
+    dom = " ".join([(decl.domain(i).sexpr()) for i in range(decl.arity())])
+    return f"(declare-fun {mangle_decl_smtlib(decl)} ({dom}) {decl.range().sexpr()})"
 
 
 # TODO. We need to mangle the declarations

@@ -64,3 +64,7 @@ mkdir -p gappa
 tar -xzf gappa-1.4.2.tar.gz -C gappa/ --strip-components=1
 cd gappa
 ./configure && ./remake
+
+# https://github.com/aprove-developers/aprove-releases/releases
+echo "Installing aProve
+wget -nc https://github.com/aprove-developers/aprove-releases/releases/download/master_2024_06_16/aprove.jar

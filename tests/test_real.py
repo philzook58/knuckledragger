@@ -142,3 +142,8 @@ def test_sympy_manip():
     assert real.sympy.expand([x], (1 + x) ** 2).eq(add(1, x**2, 2 * x))
     assert real.sympy.expand([x, y], x * (x + 2 * y)).eq(x**2 + mul(2, x, y))
     kd.kernel.lemma(real.sympy.expand([x], (1 + x) ** 2) == 1 + 2 * x + x**2)
+
+
+def test_vampire():
+    # test vampire with more significxant set of features
+    kd.lemma(smt.BoolVal(True), solver=solvers.VampireSolver)
