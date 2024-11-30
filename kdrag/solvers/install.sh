@@ -66,5 +66,5 @@ cd gappa
 ./configure && ./remake
 
 # https://github.com/aprove-developers/aprove-releases/releases
-echo "Installing aProve
+echo "Installing aProve"
 wget -nc https://github.com/aprove-developers/aprove-releases/releases/download/master_2024_06_16/aprove.jar
