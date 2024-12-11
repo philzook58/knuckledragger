@@ -3,6 +3,7 @@ import kdrag.smt as smt
 import sys
 import kdrag as kd
 from typing import Optional, NamedTuple
+from enum import Enum
 
 
 def simp(t: smt.ExprRef) -> smt.ExprRef:
@@ -347,6 +348,15 @@ def subterms(t: smt.ExprRef):
         todo.extend(x.children())
 
 
+def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
+    if t.eq(t2):
+        return True
+    elif smt.is_app(t2):
+        return any(is_subterm(t, c) for c in t2.children())
+    else:
+        return False
+
+
 def sorts(t: smt.ExprRef):
     """Generate all sorts in a term"""
     for t in subterms(t):
@@ -427,3 +437,133 @@ def prompt(prompt: str):
     combined_content += "\n\n\n" + prompt + "\n\n\n"
 
     return "".join(combined_content)
+
+
+class Order(Enum):
+    EQ = 0  # Equal
+    GR = 1  # Greater
+    NGE = 2  # Not Greater or Equal
+
+
+def lpo(vs: list[smt.ExprRef], t1: smt.ExprRef, t2: smt.ExprRef) -> Order:
+    """
+    Lexicographic path ordering.
+    Based on https://www21.in.tum.de/~nipkow/TRaAT/programs/termorders.ML
+    TODO add ordering parameter.
+    """
+
+    def is_var(x):
+        return any(x.eq(v) for v in vs)
+
+    if is_var(t2):
+        if t1.eq(t2):
+            return Order.EQ
+        elif is_subterm(t2, t1):
+            return Order.GR
+        else:
+            return Order.NGE
+    elif is_var(t1):
+        return Order.NGE
+    elif smt.is_app(t1) and smt.is_app(t2):
+        decl1, decl2 = t1.decl(), t2.decl()
+        args1, args2 = t1.children(), t2.children()
+        if all(lpo(vs, a, t2) == Order.NGE for a in args1):
+            if decl1 == decl2:
+                if all(lpo(vs, t1, a) == Order.GR for a in args2):
+                    for a1, a2 in zip(args1, args2):
+                        ord = lpo(vs, a1, a2)
+                        if ord == Order.GR:
+                            return Order.GR
+                        elif ord == Order.NGE:
+                            return Order.NGE
+                    return Order.EQ
+                else:
+                    return Order.NGE
+            elif (decl1.name(), decl1.get_id()) > (decl2.name(), decl2.get_id()):
+                if all(lpo(vs, t1, a) == Order.GR for a in args2):
+                    return Order.GR
+                else:
+                    return Order.NGE
+
+            else:
+                return Order.NGE
+        else:
+            return Order.GR
+    else:
+        raise Exception("Unexpected terms in lpo", t1, t2)
+
+
+def kbo(vs: list[smt.ExprRef], t1: smt.ExprRef, t2: smt.ExprRef) -> Order:
+    """
+    Knuth Bendix Ordering, naive implementation.
+    All weights are 1.
+    """
+    if t1.eq(t2):
+        return Order.EQ
+
+    def is_var(x):
+        return any(x.eq(v) for v in vs)
+
+    def vcount(t):
+        todo = [t]
+        vcount1 = {v: 0 for v in vs}
+        while todo:
+            t = todo.pop()
+            if is_var(t):
+                vcount1[t] += 1
+            elif smt.is_app(t):
+                todo.extend(t.children())
+        return vcount1
+
+    vcount1, vcount2 = vcount(t1), vcount(t2)
+    if not all(vcount1[v] >= vcount2[v] for v in vs):
+        return Order.NGE
+
+    def weight(t):
+        todo = [t]
+        w = 0
+        while todo:
+            t = todo.pop()
+            w += 1
+            if smt.is_app(t):
+                todo.extend(t.children())
+        return w
+
+    w1, w2 = weight(t1), weight(t2)
+    if w1 > w2:
+        return Order.GR
+    elif w1 < w2:
+        return Order.NGE
+    else:
+        if is_var(t2):  # KBO2a
+            decl = t1.decl()
+            if decl.arity() != 1:
+                return Order.NGE
+            while not t1.eq(t2):
+                if t1.decl() != decl:
+                    return Order.NGE
+                else:
+                    t1 = t1.arg(0)
+            return Order.GR
+        elif is_var(t1):
+            return Order.NGE
+        elif smt.is_app(t1) and smt.is_app(t2):
+            decl1, decl2 = t1.decl(), t2.decl()
+            if decl1 == decl2:  # KBO2c
+                args1, args2 = t1.children(), t2.children()
+                for a1, a2 in zip(args1, args2):
+                    ord = kbo(vs, a1, a2)
+                    if ord == Order.GR:
+                        return Order.GR
+                    elif ord == Order.NGE:
+                        return Order.NGE
+                raise Exception("Unexpected equality reached in kbo")
+            elif (decl1.name(), decl1.get_id()) > (
+                decl2.name(),
+                decl2.get_id(),
+            ):  # KBO2b
+                return Order.GR
+            else:
+                return Order.NGE
+        else:
+            raise Exception("Unexpected terms in kbo", t1, t2)

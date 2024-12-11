@@ -197,3 +197,51 @@ def test_factor():
     print(utils.factor(x * y + x * z))
     assert utils.factor(x**2 + 2 * x + 1).eq((x + 1) ** 2)
 """
+
+
+def test_lpo():
+    x, y, z, e = smt.Ints("x y z e")
+    assert utils.lpo([x], x, x) == utils.Order.EQ
+    assert utils.lpo([y], x, x) == utils.Order.EQ
+    assert utils.lpo([x], x, y) == utils.Order.NGE
+    assert utils.lpo([x, y], x, y) == utils.Order.NGE
+    assert utils.lpo([x], x, y) == utils.Order.NGE
+    assert utils.lpo([], y, x) == utils.Order.GR
+    assert utils.lpo([], x, y) == utils.Order.NGE
+    assert utils.lpo([], x + y, x) == utils.Order.GR
+    assert utils.lpo([x], x + y, y) == utils.Order.GR
+    f = smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort())
+    i = smt.Function("i", smt.IntSort(), smt.IntSort())
+    assert utils.lpo([x], f(x, e), x) == utils.Order.GR
+    assert utils.lpo([x], y + x, x) == utils.Order.GR
+    assert utils.lpo([x, y], y + x, x) == utils.Order.GR
+    assert utils.lpo([], f(x, x), x) == utils.Order.GR
+    assert utils.lpo([], x, f(x, x)) == utils.Order.NGE
+    assert utils.lpo([], i(e), e) == utils.Order.GR
+    assert utils.lpo([x, y], i(f(x, y)), f(i(x), i(y))) == utils.Order.GR
+    assert utils.lpo([x, y, z], f(f(x, y), z), f(x, f(y, z))) == utils.Order.GR
+    assert utils.lpo([x, y, z], f(x, f(y, z)), f(f(x, y), z)) == utils.Order.NGE
+
+
+def test_kbo():
+    x, y, z, e = smt.Ints("x y z e")
+    assert utils.kbo([x], x, x) == utils.Order.EQ
+    assert utils.kbo([y], x, x) == utils.Order.EQ
+    assert utils.kbo([x], x, y) == utils.Order.NGE
+    assert utils.kbo([x, y], x, y) == utils.Order.NGE
+    assert utils.kbo([x], x, y) == utils.Order.NGE
+    assert utils.kbo([], y, x) == utils.Order.GR
+    assert utils.kbo([], x, y) == utils.Order.NGE
+    assert utils.kbo([], x + y, x) == utils.Order.GR
+    assert utils.kbo([x], x + y, y) == utils.Order.GR
+    f = smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort())
+    i = smt.Function("i", smt.IntSort(), smt.IntSort())
+    assert utils.kbo([x], f(x, e), x) == utils.Order.GR
+    assert utils.kbo([x], y + x, x) == utils.Order.GR
+    assert utils.kbo([x, y], y + x, x) == utils.Order.GR
+    assert utils.kbo([], f(x, x), x) == utils.Order.GR
+    assert utils.kbo([], x, f(x, x)) == utils.Order.NGE
+    assert utils.kbo([], i(e), e) == utils.Order.GR
+    assert utils.kbo([x, y], f(i(x), i(y)), i(f(x, y))) == utils.Order.GR
+    assert utils.kbo([x, y, z], f(f(x, y), z), f(x, f(y, z))) == utils.Order.GR
+    assert utils.kbo([x, y, z], f(x, f(y, z)), f(f(x, y), z)) == utils.Order.NGE
