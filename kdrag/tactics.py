@@ -250,26 +250,35 @@ class Lemma:
         self.goals[-1] = (ctx, lemma.thm.arg(0))
         return self
 
-    def apply(self, pf: kd.kernel.Proof):
+    def apply(self, pf: kd.kernel.Proof, rev=False):
         ctx, goal = self.goals.pop()
         thm = pf.thm
         if smt.is_quantifier(thm) and thm.is_forall():
             vs, thm = kd.utils.open_binder(thm)
         else:
             vs = []
-        if not smt.is_implies(thm):
-            head = thm
-            body = smt.BoolVal(True)
+        if smt.is_implies(thm):
+            pat = thm.arg(1)
+        elif smt.is_eq(thm):
+            if rev:
+                pat = thm.arg(1)
+            else:
+                pat = thm.arg(0)
         else:
-            body, head = thm.children()
-        subst = kd.utils.pmatch(vs, head, goal)
+            pat = thm
+        subst = kd.utils.pmatch(vs, pat, goal)
         if subst is None:
-            raise ValueError(f"Apply tactic failed to goal {goal} lemma {pf}")
+            raise ValueError(f"Apply tactic failed to apply lemma {pf} to goal {goal} ")
         else:
             pf1 = kd.kernel.instan([subst[v] for v in vs], pf)
             self.lemmas.append(pf1)
             if smt.is_implies(pf1.thm):
                 self.goals.append((ctx, pf1.thm.arg(0)))
+            elif smt.is_eq(pf1.thm):
+                if rev:
+                    self.goals.append((ctx, pf1.thm.arg(0)))
+                else:
+                    self.goals.append((ctx, pf1.thm.arg(1)))
         return self
 
     def assumption(self):

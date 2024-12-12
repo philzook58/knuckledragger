@@ -232,6 +232,14 @@ def expr_to_smtlib(expr: smt.ExprRef):
         if name in predefined_names:
             if name == "if":
                 name = "ite"
+            elif name == "is":
+                dt = decl.domain(0)
+                assert isinstance(dt, smt.DatatypeSortRef)
+                # find out which
+                for i in range(dt.num_constructors()):
+                    if decl == dt.recognizer(i):
+                        name = f"(_ is {mangle_decl_smtlib(dt.constructor(i))})"
+                        break
             return f"({name} {children})"
         else:
             return f"({mangle_decl_smtlib(decl)} {children})"
@@ -248,18 +256,21 @@ def funcdecl_smtlib(decl: smt.FuncDeclRef):
 
 # TODO. We need to mangle the declarations
 def smtlib_datatypes(dts: list[smt.DatatypeSortRef]) -> str:
-    s = smt.Z3Solver()
+    res = []
     for dt in dts:
-        x = smt.Const("x", dt)
-        s.add(smt.Exists([x], x == x))  # trivial constraint
-    return (
-        s.to_smt2()
-        .replace("(check-sat)", "")
-        .replace(
-            """; benchmark generated from python API\n(set-info :status unknown)\n""",
-            "",
-        )
-    )
+        res.append(f"(declare-datatypes (({dt.name()} 0)) ((")
+        for i in range(dt.num_constructors()):
+            c = dt.constructor(i)
+            res.append(f" ({mangle_decl_smtlib(c)}")
+            for j in range(c.arity()):
+                acc = dt.accessor(i, j)
+                res.append(f" ({mangle_decl_smtlib(acc)} {acc.range()})")
+            res.append(")")
+        res.append(")))\n")
+    return "".join(res)
+
+
+# (declare-datatypes ((EPosReal 0)) (((real (val Real)) (inf))))
 
 
 class BaseSolver:
@@ -471,7 +482,11 @@ class VampireSolver(BaseSolver):
             self.res = subprocess.run(
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
+        with open("/tmp/vampire.smt2", "r") as fp:
+            print("\n".join(fp.readlines()))
         res = self.res.stdout
+        print(self.res.stdout)
+        print(self.res.stderr)
         if b"unsat\n" in res or b"% SZS status Unsatisfiable" in res:
             self.status = smt.unsat
             return smt.unsat
