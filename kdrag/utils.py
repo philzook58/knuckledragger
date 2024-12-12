@@ -65,7 +65,6 @@ def pmatch(
 
     while todo:
         pat, t = todo.pop()
-        print(todo, pat, t, subst)
         if is_var(pat):  # regular pattern
             if pat in subst:
                 if not alpha_eq(subst[pat], t):
@@ -497,6 +496,7 @@ def kbo(vs: list[smt.ExprRef], t1: smt.ExprRef, t2: smt.ExprRef) -> Order:
     """
     Knuth Bendix Ordering, naive implementation.
     All weights are 1.
+    Source: Term Rewriting and All That section 5.4.4
     """
     if t1.eq(t2):
         return Order.EQ

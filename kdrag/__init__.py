@@ -17,6 +17,7 @@ Record = notation.Record
 NewType = notation.NewType
 
 Calc = tactics.Calc
+Lemma = tactics.Lemma
 
 R = smt.RealSort()
 Z = smt.IntSort()

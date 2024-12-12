@@ -199,83 +199,97 @@ def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.
 
 class Lemma:
     # Isar style forward proof
-    def __init__(self, goal):
-        self.goal = goal
-        self.lemmas = []
-        self.vars = []
-        self.hyps = []
-
-    def intro(self, vars):  # fix
-        self.vars.extend(vars)
-        return self
-
-    def assume(self, hyps):
-        self.hyps.extend(hyps)
-        return self
-
-    def _wrap(self, form):
-        return smt.ForAll(self.vars, smt.Implies(smt.And(self.hyps), form))
-
-    def have(self, conc, **kwargs):
-        self.lemmas.append(lemma(self._wrap(conc), **kwargs))
-        return self
-
-    def qed(self):
-        return lemma(self.goal, by=self.lemmas)
-
-
-class Lemma2:
-    # Isar style forward proof
     def __init__(self, goal: smt.BoolRef):
         # self.cur_goal = goal
         self.lemmas = []
         self.thm = goal
-        self.goals = [goal]
+        self.goals = [([], goal)]
 
     def intros(self):
-        goal = self.goals.pop()
-        vs, herb_lemma = kd.kernel.herb(goal)
-        self.lemmas.append(herb_lemma)
-        self.goals.append(goal.thm.arg(0))
-        return vs
+        ctx, goal = self.goals.pop()
+        if smt.is_quantifier(goal) and goal.is_forall():
+            vs, herb_lemma = kd.kernel.herb(goal)
+            self.lemmas.append(herb_lemma)
+            self.goals.append((ctx, herb_lemma.thm.arg(0)))
+            return vs
+        elif smt.is_implies(goal):
+            self.goals.append((ctx + [goal.arg(0)], goal.arg(1)))
+            return self
 
-    def cases(self):
-        pass
+    def cases(self, t):
+        ctx, goal = self.goals.pop()
+        if t.sort() == smt.BoolSort():
+            self.goals.append((ctx + [smt.Not(t)], goal))
+            self.goals.append((ctx + [t], goal))
+        elif isinstance(t, smt.DatatypeRef):
+            dsort = t.sort()
+            for i in reversed(range(dsort.num_constructors())):
+                self.goals.append((ctx + [dsort.recognizer(i)(t)], goal))
+        else:
+            raise ValueError("Cases failed. Not a bool or datatype")
+        return self
+
+    def auto(self):
+        ctx, goal = self.goals[-1]
+        self.lemmas.append(lemma(smt.Implies(smt.And(ctx), goal)))
+        self.goals.pop()
+        return self
 
     def split(self):
-        goal = self.goals.pop()
+        ctx, goal = self.goals[-1]
         if smt.is_and(goal):
-            goals.extend(goal.children())
+            self.goals.pop()
+            self.goals.extend([(ctx, c) for c in goal.children()])
         else:
             raise ValueError("Split failed. Not an and")
 
     def exists(self, *ts):
-        goal = self.goals.pop()
-        # kd.kernel.forget(self.goal, t)
-        self.goals.append(utils.instan(goal, *ts))
-
-    def apply(self, pf: kd.kernel.Proof):
-        goal = self.goals.pop()
-        self.lemmas.append(pf)
-        self.goals.append(utils.apply(goal, pf.thm))
-        # TODO.
-        # self.lemmas.append(pf)
-        # self.cur_goal = pf.thm.arg(0)
-        # return self
-
-    def assume(self, hyps):
-        self.goal.arg(0)
+        ctx, goal = self.goals[-1]
+        lemma = kd.kernel.forget2(ts, goal)
+        self.lemmas.append(lemma)
+        self.goals[-1] = (ctx, lemma.thm.arg(0))
         return self
 
-    def _wrap(self, form):
-        return smt.ForAll(self.vars, smt.Implies(smt.And(self.hyps), form))
+    def apply(self, pf: kd.kernel.Proof):
+        ctx, goal = self.goals.pop()
+        thm = pf.thm
+        if smt.is_quantifier(thm) and thm.is_forall():
+            vs, thm = kd.utils.open_binder(thm)
+        else:
+            vs = []
+        if not smt.is_implies(thm):
+            head = thm
+            body = smt.BoolVal(True)
+        else:
+            body, head = thm.children()
+        subst = kd.utils.pmatch(vs, head, goal)
+        if subst is None:
+            raise ValueError(f"Apply tactic failed to goal {goal} lemma {pf}")
+        else:
+            pf1 = kd.kernel.instan([subst[v] for v in vs], pf)
+            self.lemmas.append(pf1)
+            if smt.is_implies(pf1.thm):
+                self.goals.append((ctx, pf1.thm.arg(0)))
+        return self
+
+    def assumption(self):
+        ctx, goal = self.goals.pop()
+        if any([goal.eq(h) for h in ctx]):
+            return self
+        else:
+            raise ValueError("Assumption tactic failed", goal, ctx)
 
     def have(self, conc, **kwargs):
-        self.lemmas.append(lemma(self._wrap(conc), **kwargs))
+        ctx, goal = self.goals.pop()
+        self.lemmas.append(lemma(smt.Implies(smt.And(ctx), conc)), **kwargs)
+        self.goals.append((ctx + [conc], conc))
         return self
 
     def __repr__(self):
-        return "?|- " + repr(self.goals[-1])
+        if len(self.goals) == 0:
+            return "Nothing to do. Hooray!"
+        ctx, goal = self.goals[-1]
+        return repr(ctx) + " ?|- " + repr(goal)
 
     def qed(self):
         return lemma(self.thm, by=self.lemmas)

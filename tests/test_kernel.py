@@ -143,8 +143,34 @@ def test_cond():
 def test_Lemma():
     x = smt.Int("x")
     l = kd.tactics.Lemma(x != x + 1)
-    l.intro([smt.Int("x")])
     l.have(x != x + 1)
+    l.assumption()
+    l.qed()
+
+    p, q, r = smt.Bools("p q r")
+    l = kd.tactics.Lemma(smt.Implies(p, p))
+    l.qed()
+
+    l = kd.tactics.Lemma(kd.QForAll([p, q], p, q, p))
+    p1, q1 = l.intros()
+    l.intros()
+    l.cases(p1)
+    l.auto()
+    l.auto()
+    l.qed()
+
+    y = smt.Int("y")
+    l = kd.tactics.Lemma(smt.Exists([x, y], smt.And(x == 2, y == 3)))
+    l.exists(smt.IntVal(2), smt.IntVal(3))
+    l.auto()
+    l.qed()
+
+    x, y, z = smt.Ints("x y z")
+    P = smt.Function("P", smt.IntSort(), smt.BoolSort())
+    myax = kd.axiom(smt.ForAll([z], P(z)))
+    l = kd.tactics.Lemma(kd.QForAll([x], P(x)))
+    x1 = l.intros()
+    l.apply(myax)
     l.qed()
 
 
@@ -200,3 +226,15 @@ def test_lambda_def():
 
 def test_bv():
     bv8 = bitvec.BVTheory(8)
+
+
+def test_forget():
+    x, y = smt.Ints("x y")
+    assert kd.kernel.forget2(
+        [smt.IntVal(2), smt.IntVal(3)], smt.Exists([x, y], smt.And(x == 2, y == 3))
+    ).thm.eq(
+        smt.Implies(
+            smt.And(smt.IntVal(2) == 2, smt.IntVal(3) == 3),
+            smt.Exists([x, y], smt.And(x == 2, y == 3)),
+        )
+    )

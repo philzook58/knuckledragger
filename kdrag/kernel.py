@@ -225,20 +225,22 @@ def instan2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
 def forget(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     """
     "Forget" a term using existentials. This is existential introduction.
+    This could be derived from forget2
     """
     assert is_proof(pf)
-    vs = fresh_const(pf.thm)
+    vs = [smt.FreshConst(t.sort()) for t in ts]
     return __Proof(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), reason=[pf])
 
 
 def forget2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     """
     "Forget" a term using existentials. This is existential introduction.
+    `thm` is an existential formula, and `ts` are terms to substitute those variables with.
     forget easily follows.
     """
-    vs = fresh_const(thm)
+    assert smt.is_quantifier(thm) and thm.is_exists()
     return __Proof(
-        smt.Implies(thm, smt.Exists(vs, smt.substitute(thm, *zip(ts, vs)))),
+        smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
         reason="exists_intro",
     )
 
