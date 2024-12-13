@@ -49,7 +49,7 @@ def pmatch(
     https://www.philipzucker.com/ho_unify/
     """
     if pat.sort() != t.sort():
-        raise Exception("Sort mismatch", pat, t)
+        return None
     subst = {}
     todo = [(pat, t)]
     no_escape = []
@@ -105,6 +105,19 @@ def pmatch(
         else:
             raise Exception("Unexpected pattern", t, pat)
     return subst
+
+
+def pmatch_rec(
+    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef
+) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+    todo = [t]
+    while todo:
+        t = todo.pop()
+        subst = pmatch(vs, pat, t)
+        if subst is not None:
+            return subst
+        elif smt.is_app(t):
+            todo.extend(t.children())
 
 
 def rewrite1(

@@ -173,6 +173,96 @@ def test_Lemma():
     l.apply(myax)
     l.qed()
 
+    p, q = smt.Bools("p q")
+    l = kd.Lemma(smt.Implies(p, smt.Or(p, q)))
+    l.intros()
+    l.left()
+    l.auto()
+    l.qed()
+
+    l = kd.Lemma(smt.Implies(q, smt.Or(p, p, p, q, p)))
+    l.intros()
+    l.left(3)
+    l.auto()
+    l.qed()
+
+    l = kd.Lemma(smt.Implies(p, smt.Or(q, q, q, p)))
+    l.intros()
+    l.right()
+    l.qed()
+
+    x = smt.Int("x")
+    sqr = kd.define("sqr", [x], x * x)
+    l = kd.Lemma(smt.ForAll([x], sqr(x) == x * x))
+    l.intros()
+    l.unfold(sqr)
+    l.auto()
+    l.qed()
+    l = kd.Lemma(smt.ForAll([x], sqr(sqr(x)) == x * x * x * x))
+    l.intros()
+    l.unfold(sqr)
+    l.unfold(sqr)
+    l.auto()
+    l.qed()
+
+    x, y = smt.Ints("x y")
+    even = kd.define("even", [x], smt.Exists([y], x == 2 * y))
+    odd = kd.define("odd", [x], smt.Exists([y], x == 2 * y + 1))
+
+    evdef2 = kd.lemma(
+        smt.ForAll([x], even(x) == smt.Exists([y], x == 2 * y)), by=[even.defn]
+    )
+    l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
+    x1 = l.intros()
+    l.intros()
+    l.apply(even.defn, rev=True)
+    l.rewrite(even.defn, at=0, rev=True)
+    y1 = l.einstan(0)
+    l.exists(y1 + 1)
+    l.auto()
+    l.qed()
+    # kd.kernel.lemma(kd.QForAll([x], even(x), even(x+2)), by=[even.defn])
+    # l.exists(y1 + 1)
+    # evdef2.thm.body()
+
+    l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
+    [
+        x1 := l.intros(),
+        l.intros(),
+        l.apply(even.defn, rev=True),
+        l.rewrite(even.defn, at=0, rev=True),
+        y1 := l.einstan(0),
+        l.exists(y1 + 1),
+        l.auto(),
+    ]
+    l.qed()
+
+    IntList = smt.Datatype("IntList")
+    IntList.declare("nil")
+    IntList.declare("cons", ("car", smt.IntSort()), ("cdr", IntList))
+    IntList = IntList.create()
+
+    x, y = smt.Consts("x y", IntList)
+    z = smt.Int("z")
+
+    l = kd.lemma(
+        smt.ForAll(
+            [x], smt.Or(x == IntList.nil, smt.Exists([y, z], x == IntList.cons(z, y)))
+        )
+    )
+    l = kd.Lemma(
+        smt.ForAll(
+            [x], smt.Or(x == IntList.nil, smt.Exists([z, y], x == IntList.cons(z, y)))
+        )
+    )
+    [
+        x1 := l.intros(),
+        l.cases(x1),
+        [l.left(), l.auto()],
+        [l.right(), l.exists(x1.car, x1.cdr), l.auto()],
+    ]
+    l.qed()
+
 
 def test_pred():
     Even = kd.Record(

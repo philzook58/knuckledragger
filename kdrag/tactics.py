@@ -4,6 +4,7 @@ import kdrag.smt as smt
 from enum import IntEnum
 import operator as op
 from . import config
+from typing import NamedTuple
 
 
 class Calc:
@@ -197,58 +198,191 @@ def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.
     return lemma(t == t1, by=by, **kwargs)
 
 
+class Sequent(NamedTuple):
+    ctx: list[smt.BoolRef]
+    goal: smt.BoolRef
+
+    def __repr__(self):
+        return repr(self.ctx) + " ?|- " + repr(self.goal)
+
+
 class Lemma:
-    # Isar style forward proof
     def __init__(self, goal: smt.BoolRef):
-        # self.cur_goal = goal
         self.lemmas = []
         self.thm = goal
-        self.goals = [([], goal)]
+        self.goals = [Sequent([], goal)]
+
+    def fixes(self):
+        ctx, goal = self.goals[-1]
+        if smt.is_quantifier(goal) and goal.is_forall():
+            self.goals.pop()
+            vs, herb_lemma = kd.kernel.herb(goal)
+            self.lemmas.append(herb_lemma)
+            self.goals.append(Sequent(ctx, herb_lemma.thm.arg(0)))
+            return vs
+        else:
+            raise ValueError(f"fixes tactic failed. Not a forall {goal}")
 
     def intros(self):
         ctx, goal = self.goals.pop()
         if smt.is_quantifier(goal) and goal.is_forall():
             vs, herb_lemma = kd.kernel.herb(goal)
             self.lemmas.append(herb_lemma)
-            self.goals.append((ctx, herb_lemma.thm.arg(0)))
-            return vs
+            self.goals.append(Sequent(ctx, herb_lemma.thm.arg(0)))
+            if len(vs) == 1:
+                return vs[0]
+            else:
+                return vs
         elif smt.is_implies(goal):
-            self.goals.append((ctx + [goal.arg(0)], goal.arg(1)))
-            return self
+            self.goals.append(Sequent(ctx + [goal.arg(0)], goal.arg(1)))
+            return self.top_goal()
+        elif smt.is_not(goal):
+            self.goals.append((ctx + [goal.arg(0)], smt.BoolVal(False)))
+            return
+        else:
+            raise ValueError("Intros failed.")
 
     def cases(self, t):
         ctx, goal = self.goals.pop()
         if t.sort() == smt.BoolSort():
-            self.goals.append((ctx + [smt.Not(t)], goal))
-            self.goals.append((ctx + [t], goal))
+            self.goals.append(Sequent(ctx + [smt.Not(t)], goal))
+            self.goals.append(Sequent(ctx + [t], goal))
         elif isinstance(t, smt.DatatypeRef):
             dsort = t.sort()
             for i in reversed(range(dsort.num_constructors())):
-                self.goals.append((ctx + [dsort.recognizer(i)(t)], goal))
+                self.goals.append(Sequent(ctx + [dsort.recognizer(i)(t)], goal))
         else:
             raise ValueError("Cases failed. Not a bool or datatype")
-        return self
+        return self.top_goal()
 
     def auto(self):
         ctx, goal = self.goals[-1]
         self.lemmas.append(lemma(smt.Implies(smt.And(ctx), goal)))
         self.goals.pop()
-        return self
+        return self.top_goal()
 
-    def split(self):
+    def einstan(self, n):
         ctx, goal = self.goals[-1]
-        if smt.is_and(goal):
+        formula = ctx[n]
+        if smt.is_quantifier(formula) and formula.is_exists():
             self.goals.pop()
-            self.goals.extend([(ctx, c) for c in goal.children()])
+            fs, einstan_lemma = kd.kernel.einstan(formula)
+            self.lemmas.append(einstan_lemma)
+            self.goals.append(
+                Sequent(ctx[:n] + [einstan_lemma.thm.arg(1)] + ctx[n + 1 :], goal)
+            )
+            if len(fs) == 1:
+                return fs[0]
+            else:
+                return fs
         else:
-            raise ValueError("Split failed. Not an and")
+            raise ValueError("Einstan failed. Not an exists")
+
+    def split(self, at=None):
+        ctx, goal = self.goals[-1]
+        if at is None:
+            if smt.is_and(goal):
+                self.goals.pop()
+                self.goals.extend([Sequent(ctx, c) for c in goal.children()])
+            if smt.is_eq(goal):
+                self.goals.pop()
+                self.goals.append(Sequent(ctx, smt.Implies(goal.arg(0), goal.arg(1))))
+                self.goals.append(Sequent(ctx, smt.Implies(goal.arg(1), goal.arg(0))))
+            else:
+                raise ValueError("Split failed")
+        else:
+            if smt.is_or(ctx[at]):
+                self.goals.pop()
+                for c in ctx[at].children():
+                    self.goals.append(Sequent(ctx[:at] + [c] + ctx[at + 1 :], goal))
+            if smt.is_and(ctx[at]):
+                self.goals.pop()
+                self.goals.append(
+                    Sequent(ctx[:at] + ctx[at].children() + ctx[at + 1 :], goal)
+                )
+            else:
+                raise ValueError("Split failed")
+
+    def left(self, n=0):
+        ctx, goal = self.goals[-1]
+        if smt.is_or(goal):
+            if n is None:
+                n = 0
+            self.goals[-1] = Sequent(ctx, goal.arg(n))
+            return self.top_goal()
+        else:
+            raise ValueError("Left failed. Not an or")
+
+    def right(self):
+        ctx, goal = self.goals[-1]
+        if smt.is_or(goal):
+            self.goals[-1] = Sequent(ctx, goal.arg(goal.num_args() - 1))
+            return self.top_goal()
+        else:
+            raise ValueError("Right failed. Not an or")
 
     def exists(self, *ts):
         ctx, goal = self.goals[-1]
         lemma = kd.kernel.forget2(ts, goal)
         self.lemmas.append(lemma)
-        self.goals[-1] = (ctx, lemma.thm.arg(0))
-        return self
+        self.goals[-1] = Sequent(ctx, lemma.thm.arg(0))
+        return self.top_goal()
+
+    def rewrite(self, rule, at=None, rev=False):
+        """
+        `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.
+        """
+        ctx, goal = self.goals[-1]
+        if isinstance(rule, int):
+            rulethm = ctx[rule]
+        elif kd.kernel.is_proof(rule):
+            rulethm = rule.thm
+        if smt.is_quantifier(rulethm) and rulethm.is_forall():
+            vs, body = kd.utils.open_binder(rulethm)
+        else:
+            vs = []
+            body = rulethm
+        if smt.is_eq(body):
+            lhs, rhs = body.arg(0), body.arg(1)
+            if rev:
+                lhs, rhs = rhs, lhs
+        else:
+            raise ValueError(f"Rewrite tactic failed. Not an equality {rulethm}")
+        if at is None:
+            target = goal
+        elif isinstance(at, int):
+            target = ctx[at]
+        else:
+            raise ValueError(
+                "Rewrite tactic failed. `at` is not an index into the context"
+            )
+        subst = kd.utils.pmatch_rec(vs, lhs, target)
+        if subst is None:
+            raise ValueError(
+                f"Rewrite tactic failed to apply lemma {rulethm} to goal {goal}"
+            )
+        else:
+            self.goals.pop()
+            lhs1 = smt.substitute(lhs, *[(v, t) for v, t in subst.items()])
+            rhs1 = smt.substitute(rhs, *[(v, t) for v, t in subst.items()])
+            target: smt.BoolRef = smt.substitute(target, (lhs1, rhs1))
+            self.lemmas.append(kd.kernel.instan2([subst[v] for v in vs], rulethm))
+            if kd.kernel.is_proof(rule):
+                self.lemmas.append(rule)
+            if at is None:
+                self.goals.append(Sequent(ctx, target))
+            else:
+                self.goals.append(Sequent(ctx[:at] + [target] + ctx[at + 1 :], goal))
+            return self.top_goal()
+
+    def rw(self, rule, at=None, rev=False):
+        return self.rewrite(rule, at=at, rev=rev)
+
+    def unfold(self, decl: smt.FuncDeclRef):
+        if hasattr(decl, "defn"):
+            return self.rewrite(decl.defn)
+        else:
+            raise ValueError("Unfold failed. Not a defined function")
 
     def apply(self, pf: kd.kernel.Proof, rev=False):
         ctx, goal = self.goals.pop()
@@ -273,32 +407,38 @@ class Lemma:
             pf1 = kd.kernel.instan([subst[v] for v in vs], pf)
             self.lemmas.append(pf1)
             if smt.is_implies(pf1.thm):
-                self.goals.append((ctx, pf1.thm.arg(0)))
+                self.goals.append(Sequent(ctx, pf1.thm.arg(0)))
             elif smt.is_eq(pf1.thm):
                 if rev:
-                    self.goals.append((ctx, pf1.thm.arg(0)))
+                    self.goals.append(Sequent(ctx, pf1.thm.arg(0)))
                 else:
-                    self.goals.append((ctx, pf1.thm.arg(1)))
-        return self
+                    self.goals.append(Sequent(ctx, pf1.thm.arg(1)))
+        return self.top_goal()
 
     def assumption(self):
         ctx, goal = self.goals.pop()
         if any([goal.eq(h) for h in ctx]):
-            return self
+            return self.top_goal()
         else:
             raise ValueError("Assumption tactic failed", goal, ctx)
 
     def have(self, conc, **kwargs):
         ctx, goal = self.goals.pop()
         self.lemmas.append(lemma(smt.Implies(smt.And(ctx), conc)), **kwargs)
-        self.goals.append((ctx + [conc], conc))
-        return self
+        self.goals.append(Sequent(ctx + [conc], conc))
+        return self.top_goal()
 
-    def __repr__(self):
+    # TODO
+    # def search():
+    # def calc
+
+    def top_goal(self):
         if len(self.goals) == 0:
             return "Nothing to do. Hooray!"
-        ctx, goal = self.goals[-1]
-        return repr(ctx) + " ?|- " + repr(goal)
+        return self.goals[-1]
+
+    def __repr__(self):
+        return repr(self.top_goal())
 
     def qed(self):
-        return lemma(self.thm, by=self.lemmas)
+        return kd.kernel.lemma(self.thm, by=self.lemmas)

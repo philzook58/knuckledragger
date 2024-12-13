@@ -204,17 +204,18 @@ def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     Instantiate a universally quantified formula.
     This is forall elimination
     """
-    assert is_proof(pf) and pf.thm.is_forall()
+    assert is_proof(pf) and pf.thm.is_forall() and len(ts) == pf.thm.num_vars()
 
     return __Proof(smt.substitute_vars(pf.thm.body(), *reversed(ts)), reason=[pf])
 
 
 def instan2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     """
-    Instantiate a universally quantified formula.
+    Instantiate a universally quantified formula
+    `forall xs, P(xs) -> P(ts)`
     This is forall elimination
     """
-    assert smt.is_quantifier(thm) and thm.is_forall()
+    assert smt.is_quantifier(thm) and thm.is_forall() and len(ts) == thm.num_vars()
 
     return __Proof(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
@@ -232,16 +233,34 @@ def forget(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     return __Proof(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), reason=[pf])
 
 
-def forget2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
+def forget2(ts: list[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     """
     "Forget" a term using existentials. This is existential introduction.
+    `P(ts) -> exists xs, P(xs)`
     `thm` is an existential formula, and `ts` are terms to substitute those variables with.
     forget easily follows.
+    https://en.wikipedia.org/wiki/Existential_generalization
     """
-    assert smt.is_quantifier(thm) and thm.is_exists()
+    assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
     return __Proof(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
         reason="exists_intro",
+    )
+
+
+def einstan(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
+    """
+    Skolemize an existential quantifier.
+    `exists xs, P(xs) -> P(cs)` for fresh cs
+    https://en.wikipedia.org/wiki/Existential_instantiation
+    """
+    # TODO: Hmm. Maybe we don't need to have a Proof? Lessen this to thm.
+    assert smt.is_quantifier(thm) and thm.is_exists()
+
+    skolems = fresh_const(thm)
+    return skolems, __Proof(
+        smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
+        reason=["einstan"],
     )
 
 
@@ -262,7 +281,7 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     """
     Herbrandize a theorem.
     It is sufficient to prove a theorem for fresh consts to prove a universal.
-    Note: Perhaps lambdaized form is better?
+    Note: Perhaps lambdaized form is better? Return vars and lamda that could receive `|- P[vars]`
     """
     assert smt.is_quantifier(thm) and thm.is_forall()
     herbs = fresh_const(thm)
