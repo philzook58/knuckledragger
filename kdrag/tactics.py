@@ -199,6 +199,7 @@ def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.
 
 
 class GoalCtx(NamedTuple):
+    # TODO: also put eigenvariables, unification variables in here
     ctx: list[smt.BoolRef]
     goal: smt.BoolRef
 
@@ -242,6 +243,15 @@ class Lemma:
         else:
             raise ValueError("Intros failed.")
 
+    def z3simp(self):
+        oldgoal = self.goals[-1].goal
+        newgoal = smt.simplify(oldgoal)
+        if newgoal.eq(oldgoal):
+            raise ValueError("Simplify failed. Goal is already simplified.")
+        self.lemmas.append(kd.kernel.lemma(oldgoal == newgoal))
+        self.goals[-1] = self.goals[-1]._replace(goal=newgoal)
+        return self.top_goal()
+
     def cases(self, t):
         ctx, goal = self.goals.pop()
         if t.sort() == smt.BoolSort():
@@ -255,9 +265,9 @@ class Lemma:
             raise ValueError("Cases failed. Not a bool or datatype")
         return self.top_goal()
 
-    def auto(self):
+    def auto(self, **kwargs):
         ctx, goal = self.goals[-1]
-        self.lemmas.append(lemma(smt.Implies(smt.And(ctx), goal)))
+        self.lemmas.append(lemma(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.goals.pop()
         return self.top_goal()
 
@@ -284,12 +294,13 @@ class Lemma:
             if smt.is_and(goal):
                 self.goals.pop()
                 self.goals.extend([GoalCtx(ctx, c) for c in goal.children()])
-            if smt.is_eq(goal):
+            elif smt.is_eq(goal):
                 self.goals.pop()
                 self.goals.append(GoalCtx(ctx, smt.Implies(goal.arg(0), goal.arg(1))))
                 self.goals.append(GoalCtx(ctx, smt.Implies(goal.arg(1), goal.arg(0))))
             else:
-                raise ValueError("Split failed")
+                raise ValueError("Unexpected case in goal for split tactic", goal)
+            return self.top_goal()
         else:
             if smt.is_or(ctx[at]):
                 self.goals.pop()
@@ -302,6 +313,7 @@ class Lemma:
                 )
             else:
                 raise ValueError("Split failed")
+            return self.top_goal()
 
     def left(self, n=0):
         ctx, goal = self.goals[-1]

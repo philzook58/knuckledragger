@@ -26,6 +26,7 @@ python3 -m pip install -e .
 
 ## Blog Posts
 
+- ['Lean-style' Tactics in Knuckledragger](https://www.philipzucker.com/knuckle_lemma/)
 - [State of Knuckledragger, a Semi-Automated Python Proof Assistant](https://www.philipzucker.com/state_o_knuck/)
 - [Proving Sum n = n*(n-1)/2 and that 1/n tends to 0](https://www.philipzucker.com/analysis_knuckle/)
 - [Peano Nats in Interactive SMT](https://www.philipzucker.com/sqrt2_2/)
