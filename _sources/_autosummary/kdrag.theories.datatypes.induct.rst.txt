@@ -1,0 +1,6 @@
+kdrag.theories.datatypes.induct
+===============================
+
+.. currentmodule:: kdrag.theories.datatypes
+
+.. autofunction:: induct

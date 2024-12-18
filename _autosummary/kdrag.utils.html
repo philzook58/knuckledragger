@@ -1,0 +1,833 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.utils &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.utils.alpha_eq" href="kdrag.utils.alpha_eq.html" />
+    <link rel="prev" title="kdrag.theories.vec.Vec" href="kdrag.theories.vec.Vec.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.alpha_eq.html">kdrag.utils.alpha_eq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.apply.html">kdrag.utils.apply</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.decl_index.html">kdrag.utils.decl_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.decls.html">kdrag.utils.decls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.expr_to_lean.html">kdrag.utils.expr_to_lean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.generate.html">kdrag.utils.generate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.horn_of_theorem.html">kdrag.utils.horn_of_theorem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.is_subterm.html">kdrag.utils.is_subterm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.is_value.html">kdrag.utils.is_value</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.kbo.html">kdrag.utils.kbo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.lemma_db.html">kdrag.utils.lemma_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.lpo.html">kdrag.utils.lpo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.occurs.html">kdrag.utils.occurs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.open_binder.html">kdrag.utils.open_binder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.pmatch.html">kdrag.utils.pmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.pmatch_rec.html">kdrag.utils.pmatch_rec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.prompt.html">kdrag.utils.prompt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.quant_kind_eq.html">kdrag.utils.quant_kind_eq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.rewrite.html">kdrag.utils.rewrite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.rewrite1.html">kdrag.utils.rewrite1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.rewrite_star.html">kdrag.utils.rewrite_star</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.rule_of_theorem.html">kdrag.utils.rule_of_theorem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.simp.html">kdrag.utils.simp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.simp2.html">kdrag.utils.simp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.sorts.html">kdrag.utils.sorts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.subterms.html">kdrag.utils.subterms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.unify_db.html">kdrag.utils.unify_db</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+      <li class="breadcrumb-item active">kdrag.utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.utils">
+<span id="kdrag-utils"></span><h1>kdrag.utils<a class="headerlink" href="#module-kdrag.utils" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.alpha_eq.html#kdrag.utils.alpha_eq" title="kdrag.utils.alpha_eq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">alpha_eq</span></code></a>(t1, t2)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.apply.html#kdrag.utils.apply" title="kdrag.utils.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(goal, vs, head, body)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.decl_index.html#kdrag.utils.decl_index" title="kdrag.utils.decl_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decl_index</span></code></a>(rules)</p></td>
+<td><p>Build a dictionary of rules indexed by their lhs head function declaration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.decls.html#kdrag.utils.decls" title="kdrag.utils.decls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decls</span></code></a>(t)</p></td>
+<td><p>Return all function declarations in a term.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.expr_to_lean.html#kdrag.utils.expr_to_lean" title="kdrag.utils.expr_to_lean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expr_to_lean</span></code></a>(expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.generate.html#kdrag.utils.generate" title="kdrag.utils.generate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate</span></code></a>(sort)</p></td>
+<td><p>A generator of values for a sort.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.horn_of_theorem.html#kdrag.utils.horn_of_theorem" title="kdrag.utils.horn_of_theorem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">horn_of_theorem</span></code></a>(thm)</p></td>
+<td><p>Unpack theorem of form <cite>forall vs, body =&gt; head</cite> into a HornClause tuple</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.is_subterm.html#kdrag.utils.is_subterm" title="kdrag.utils.is_subterm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_subterm</span></code></a>(t, t2)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.is_value.html#kdrag.utils.is_value" title="kdrag.utils.is_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_value</span></code></a>(t)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.kbo.html#kdrag.utils.kbo" title="kdrag.utils.kbo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kbo</span></code></a>(vs, t1, t2)</p></td>
+<td><p>Knuth Bendix Ordering, naive implementation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.lemma_db.html#kdrag.utils.lemma_db" title="kdrag.utils.lemma_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lemma_db</span></code></a>()</p></td>
+<td><p>Scan all modules for Proof objects and return a dictionary of them.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.lpo.html#kdrag.utils.lpo" title="kdrag.utils.lpo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lpo</span></code></a>(vs, t1, t2)</p></td>
+<td><p>Lexicographic path ordering.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.occurs.html#kdrag.utils.occurs" title="kdrag.utils.occurs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">occurs</span></code></a>(x, t)</p></td>
+<td><p>Does x occur in t?</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.open_binder.html#kdrag.utils.open_binder" title="kdrag.utils.open_binder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_binder</span></code></a>(lam)</p></td>
+<td><p>Open a quantifier with fresh variables</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.pmatch.html#kdrag.utils.pmatch" title="kdrag.utils.pmatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pmatch</span></code></a>(vs, pat, t)</p></td>
+<td><p>Pattern match t against pat considering vs as variables.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.pmatch_rec.html#kdrag.utils.pmatch_rec" title="kdrag.utils.pmatch_rec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pmatch_rec</span></code></a>(vs, pat, t)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.prompt.html#kdrag.utils.prompt" title="kdrag.utils.prompt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prompt</span></code></a>(prompt)</p></td>
+<td><p>Ask an AI.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.quant_kind_eq.html#kdrag.utils.quant_kind_eq" title="kdrag.utils.quant_kind_eq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quant_kind_eq</span></code></a>(t1, t2)</p></td>
+<td><p>Check both quantifiers are of the same kind</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.rewrite.html#kdrag.utils.rewrite" title="kdrag.utils.rewrite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rewrite</span></code></a>(t, rules)</p></td>
+<td><p>Sweep through term once performing rewrites.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.rewrite1.html#kdrag.utils.rewrite1" title="kdrag.utils.rewrite1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rewrite1</span></code></a>(t, vs, lhs, rhs)</p></td>
+<td><p>Rewrite at root a single time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.rewrite_star.html#kdrag.utils.rewrite_star" title="kdrag.utils.rewrite_star"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rewrite_star</span></code></a>(t, rules)</p></td>
+<td><p>Repeat rewrite until no more rewrites are possible.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.rule_of_theorem.html#kdrag.utils.rule_of_theorem" title="kdrag.utils.rule_of_theorem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_of_theorem</span></code></a>(thm)</p></td>
+<td><p>Unpack theorem of form <cite>forall vs, lhs = rhs</cite> into a Rule tuple</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.simp.html#kdrag.utils.simp" title="kdrag.utils.simp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simp</span></code></a>(t)</p></td>
+<td><p>simplify a term using z3 built in simplifier</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.simp2.html#kdrag.utils.simp2" title="kdrag.utils.simp2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simp2</span></code></a>(t)</p></td>
+<td><p>simplify a term using z3 built in simplifier</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.sorts.html#kdrag.utils.sorts" title="kdrag.utils.sorts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sorts</span></code></a>(t)</p></td>
+<td><p>Generate all sorts in a term</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.utils.subterms.html#kdrag.utils.subterms" title="kdrag.utils.subterms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subterms</span></code></a>(t)</p></td>
+<td><p>Generate all subterms of a term</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.unify_db.html#kdrag.utils.unify_db" title="kdrag.utils.unify_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unify_db</span></code></a>(p1, p2)</p></td>
+<td><p>Unification using de Bruijn indices as variables</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HornClause</span></code>(vs, head, body)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Order</span></code>(value[, names, module, qualname, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rule</span></code>(vs, lhs, rhs)</p></td>
+<td><p>A rewrite rule tuple</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kdrag.kernel</span> <span class="kn">import</span> <span class="n">is_proof</span>
+<span class="kn">import</span> <span class="nn">kdrag.smt</span> <span class="k">as</span> <span class="nn">smt</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">kdrag</span> <span class="k">as</span> <span class="nn">kd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">NamedTuple</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+
+
+<span class="k">def</span> <span class="nf">simp</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;simplify a term using z3 built in simplifier&quot;&quot;&quot;</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;knuckle_goal&quot;</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Goal</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">defns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">thm</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">expr</span> <span class="o">==</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">G2</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Then</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Tactic</span><span class="p">(</span><span class="s2">&quot;demodulator&quot;</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">Tactic</span><span class="p">(</span><span class="s2">&quot;simplify&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">G</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># TODO make this extraction more robust</span>
+    <span class="k">return</span> <span class="n">G2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">G2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">simp2</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;simplify a term using z3 built in simplifier&quot;&quot;&quot;</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;knuckle_goal&quot;</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Goal</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">defns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">thm</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">expr</span> <span class="o">==</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">G2</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Tactic</span><span class="p">(</span><span class="s2">&quot;elim-predicates&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">G</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">G2</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">G2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="c1"># TODO: Doesn&#39;t seem to do anything?</span>
+<span class="c1"># def factor(t: smt.ExprRef) -&gt; smt.ExprRef:</span>
+<span class="c1">#    &quot;&quot;&quot;factor a term using z3 built in tactic&quot;&quot;&quot;</span>
+<span class="c1">#    expr = smt.FreshConst(t.sort(), prefix=&quot;knuckle_goal&quot;)</span>
+<span class="c1">#    G = smt.Goal()</span>
+<span class="c1">#    for v in kd.kernel.defns.values():</span>
+<span class="c1">#        G.add(v.ax.thm)</span>
+<span class="c1">#    G.add(expr == t)</span>
+<span class="c1">#    G2 = smt.Tactic(&quot;factor&quot;).apply(G)[0]</span>
+<span class="c1">#    return G2[len(G2) - 1].children()[1]</span>
+
+
+<span class="k">def</span> <span class="nf">pmatch</span><span class="p">(</span>
+    <span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">pat</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pattern match t against pat considering vs as variables. Returns substitution dictionary if succeeds</span>
+<span class="sd">    https://www.philipzucker.com/ho_unify/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pat</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">!=</span> <span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">subst</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pat</span><span class="p">,</span> <span class="n">t</span><span class="p">)]</span>
+    <span class="n">no_escape</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">is_var</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">check_escape</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">no_escape</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">check_escape</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+
+    <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="n">pat</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">is_var</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>  <span class="c1"># regular pattern</span>
+            <span class="k">if</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">subst</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">alpha_eq</span><span class="p">(</span><span class="n">subst</span><span class="p">[</span><span class="n">pat</span><span class="p">],</span> <span class="n">t</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">check_escape</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>  <span class="c1"># check_escape is relative of occurs_check</span>
+                    <span class="n">subst</span><span class="p">[</span><span class="n">pat</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_select</span><span class="p">(</span><span class="n">pat</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_var</span><span class="p">(</span><span class="n">pat</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+            <span class="c1">#  higher order pattern. &quot;select&quot; is smt speak for apply.</span>
+            <span class="c1"># F[x,y,z] = t ---&gt; F = Lambda([x,y,z], t)</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">pat</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">allowedvars</span> <span class="o">=</span> <span class="n">pat</span><span class="o">.</span><span class="n">children</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">no_escape</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">allowedvars</span>
+            <span class="p">):</span>  <span class="c1"># TODO: this is probably wrong</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                    <span class="s2">&quot;Improper higher order pattern&quot;</span><span class="p">,</span> <span class="n">pat</span>
+                <span class="p">)</span>  <span class="c1"># we could relax this to do syntactic unification here.</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">allowedvars</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">F</span><span class="p">,</span> <span class="n">t1</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="ow">not</span> <span class="n">quant_kind_eq</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">pat</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">num_vars</span><span class="p">()</span> <span class="o">!=</span> <span class="n">pat</span><span class="o">.</span><span class="n">num_vars</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">vs1</span><span class="p">,</span> <span class="n">patbody</span> <span class="o">=</span> <span class="n">open_binder</span><span class="p">(</span><span class="n">pat</span><span class="p">)</span>
+            <span class="n">no_escape</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">vs1</span><span class="p">)</span>
+            <span class="n">tbody</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute_vars</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">body</span><span class="p">(),</span> <span class="o">*</span><span class="nb">reversed</span><span class="p">(</span><span class="n">vs1</span><span class="p">))</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">patbody</span><span class="p">,</span> <span class="n">tbody</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pat</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span> <span class="o">!=</span> <span class="n">t</span><span class="o">.</span><span class="n">decl</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">pat</span><span class="o">.</span><span class="n">children</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unexpected pattern&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">pat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subst</span>
+
+
+<span class="k">def</span> <span class="nf">pmatch_rec</span><span class="p">(</span>
+    <span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">pat</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]]:</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">subst</span> <span class="o">=</span> <span class="n">pmatch</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">pat</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">subst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">subst</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">rewrite1</span><span class="p">(</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">lhs</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rewrite at root a single time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">subst</span> <span class="o">=</span> <span class="n">pmatch</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">subst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="o">*</span><span class="n">subst</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">apply</span><span class="p">(</span>
+    <span class="n">goal</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span> <span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">head</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">rewrite1</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="n">vs</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Rule</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A rewrite rule tuple&quot;&quot;&quot;</span>
+
+    <span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]</span>
+    <span class="n">lhs</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+    <span class="n">rhs</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+
+
+<span class="k">def</span> <span class="nf">rewrite</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">rules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Rule</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sweep through term once performing rewrites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">decl</span><span class="p">()(</span><span class="o">*</span><span class="p">[</span><span class="n">rewrite</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">rules</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="p">()])</span>  <span class="c1"># rewrite children</span>
+        <span class="k">for</span> <span class="n">vs</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">rewrite1</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">vs</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">res</span>
+    <span class="k">return</span> <span class="n">t</span>
+
+
+<span class="k">def</span> <span class="nf">rule_of_theorem</span><span class="p">(</span><span class="n">thm</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rule</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">thm</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">thm</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="n">vs1</span><span class="p">,</span> <span class="n">thm</span> <span class="o">=</span> <span class="n">open_binder</span><span class="p">(</span><span class="n">thm</span><span class="p">)</span>
+            <span class="n">vs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">vs1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not a universal quantifier&quot;</span><span class="p">,</span> <span class="n">thm</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">thm</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not an equation&quot;</span><span class="p">,</span> <span class="n">thm</span><span class="p">)</span>
+    <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span> <span class="o">=</span> <span class="n">thm</span><span class="o">.</span><span class="n">children</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Rule</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">decl_index</span><span class="p">(</span><span class="n">rules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Rule</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">,</span> <span class="n">Rule</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a dictionary of rules indexed by their lhs head function declaration.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">lhs</span><span class="o">.</span><span class="n">decl</span><span class="p">():</span> <span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">for</span> <span class="n">vs</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">rewrite_star</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">rules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Rule</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Repeat rewrite until no more rewrites are possible.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">rewrite</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">rules</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t1</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">t1</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t1</span>
+
+
+<span class="k">def</span> <span class="nf">open_binder</span><span class="p">(</span><span class="n">lam</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Open a quantifier with fresh variables&quot;&quot;&quot;</span>
+    <span class="c1"># Open with capitalized names to match tptp conventions</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">lam</span><span class="o">.</span><span class="n">var_sort</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">prefix</span><span class="o">=</span><span class="n">lam</span><span class="o">.</span><span class="n">var_name</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lam</span><span class="o">.</span><span class="n">num_vars</span><span class="p">())</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">vs</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute_vars</span><span class="p">(</span><span class="n">lam</span><span class="o">.</span><span class="n">body</span><span class="p">(),</span> <span class="o">*</span><span class="nb">reversed</span><span class="p">(</span><span class="n">vs</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">occurs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Does x occur in t?&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_var</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">occurs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">num_args</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">unify_db</span><span class="p">(</span>
+    <span class="n">p1</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">p2</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unification using de Bruijn indices as variables&quot;&quot;&quot;</span>
+    <span class="n">subst</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)]</span>
+    <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>  <span class="c1"># we could pop _any_ of the todos, not just the top.</span>
+        <span class="k">if</span> <span class="n">p1</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">p2</span><span class="p">):</span>  <span class="c1"># delete</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_var</span><span class="p">(</span><span class="n">p1</span><span class="p">):</span>  <span class="c1"># elim</span>
+            <span class="k">if</span> <span class="n">occurs</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)),</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)))</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span> <span class="ow">in</span> <span class="n">todo</span>
+            <span class="p">]</span>
+            <span class="n">subst</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">subst</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">subst</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span> <span class="o">=</span> <span class="n">p2</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_var</span><span class="p">(</span><span class="n">p2</span><span class="p">):</span>  <span class="c1"># orient</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p2</span><span class="p">,</span> <span class="n">p1</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">p1</span><span class="p">):</span>  <span class="c1"># decompose</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span> <span class="ow">or</span> <span class="n">p1</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span> <span class="o">!=</span> <span class="n">p2</span><span class="o">.</span><span class="n">decl</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">p1</span><span class="o">.</span><span class="n">children</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">children</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;unexpected case&quot;</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subst</span>
+
+
+<span class="k">def</span> <span class="nf">quant_kind_eq</span><span class="p">(</span><span class="n">t1</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check both quantifiers are of the same kind&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">t1</span><span class="o">.</span><span class="n">is_forall</span><span class="p">()</span> <span class="o">==</span> <span class="n">t2</span><span class="o">.</span><span class="n">is_forall</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="n">t1</span><span class="o">.</span><span class="n">is_exists</span><span class="p">()</span> <span class="o">==</span> <span class="n">t2</span><span class="o">.</span><span class="n">is_exists</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="n">t1</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">()</span> <span class="o">==</span> <span class="n">t2</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">()</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">alpha_eq</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">t1</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>  <span class="c1"># fast path</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">t1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">quant_kind_eq</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">t1</span><span class="o">.</span><span class="n">num_vars</span><span class="p">()</span> <span class="o">==</span> <span class="n">t2</span><span class="o">.</span><span class="n">num_vars</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="p">[</span><span class="n">t1</span><span class="o">.</span><span class="n">var_sort</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="n">t2</span><span class="o">.</span><span class="n">var_sort</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">num_vars</span><span class="p">())]</span>
+        <span class="p">):</span>
+            <span class="n">vs</span><span class="p">,</span> <span class="n">body1</span> <span class="o">=</span> <span class="n">open_binder</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span>
+            <span class="n">body2</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute_vars</span><span class="p">(</span><span class="n">t2</span><span class="o">.</span><span class="n">body</span><span class="p">(),</span> <span class="o">*</span><span class="nb">reversed</span><span class="p">(</span><span class="n">vs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">alpha_eq</span><span class="p">(</span><span class="n">body1</span><span class="p">,</span> <span class="n">body2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">t1</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span> <span class="o">==</span> <span class="n">t2</span><span class="o">.</span><span class="n">decl</span><span class="p">():</span>
+            <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">alpha_eq</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">t2</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">num_args</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected terms in alpha_eq&quot;</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span>
+    <span class="c1"># could instead maybe use a solver check or simplify tactic on Goal(t1 == t2)</span>
+
+
+<span class="k">class</span> <span class="nc">HornClause</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">]</span>
+    <span class="n">head</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span>
+    <span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">horn_of_theorem</span><span class="p">(</span><span class="n">thm</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HornClause</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unpack theorem of form `forall vs, body =&gt; head` into a HornClause tuple&quot;&quot;&quot;</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">thm</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">thm</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="n">vs1</span><span class="p">,</span> <span class="n">thm</span> <span class="o">=</span> <span class="n">open_binder</span><span class="p">(</span><span class="n">thm</span><span class="p">)</span>
+            <span class="n">vs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">vs1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not a universal quantifier&quot;</span><span class="p">,</span> <span class="n">thm</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_implies</span><span class="p">(</span><span class="n">thm</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HornClause</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">thm</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">body</span><span class="p">,</span> <span class="n">head</span> <span class="o">=</span> <span class="n">thm</span><span class="o">.</span><span class="n">children</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_and</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="p">[</span><span class="n">body</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">HornClause</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">def apply_horn(thm: smt.BoolRef, horn: smt.BoolRef) -&gt; smt.BoolRef:</span>
+<span class="sd">    pat = horn</span>
+<span class="sd">    obl = []</span>
+<span class="sd">    if smt.is_quantifier(pat) and pat.is_forall():</span>
+<span class="sd">        pat = pat.body()</span>
+<span class="sd">    while True:</span>
+<span class="sd">        if smt.is_implies(pat):</span>
+<span class="sd">            obl.append(pat.arg(0))</span>
+<span class="sd">            pat = pat.arg(1)</span>
+<span class="sd">        else:</span>
+<span class="sd">            break</span>
+<span class="sd">    return kd.utils.z3_match(thm, pat)</span>
+
+
+<span class="sd">def horn_split(horn: smt.BoolRef) -&gt; smt.BoolRef:</span>
+<span class="sd">    body = []</span>
+<span class="sd">    vs = []</span>
+<span class="sd">    while True:</span>
+<span class="sd">        if smt.is_quantifier(horn) and horn.is_forall():</span>
+<span class="sd">            vs1, horn = open_binder(horn)</span>
+<span class="sd">            vs.extend(vs1)</span>
+<span class="sd">        if smt.is_implies(horn):</span>
+<span class="sd">            body.append(horn.arg(0))</span>
+<span class="sd">            horn = horn.arg(1)</span>
+<span class="sd">        else:</span>
+<span class="sd">            break</span>
+<span class="sd">    head = horn</span>
+<span class="sd">    return vs, body, head</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="n">sort</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A generator of values for a sort. Repeatedly calls z3 to get a new value.&quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Solver</span><span class="p">()</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span>  <span class="c1"># trick to actually have x in model</span>
+    <span class="k">if</span> <span class="n">sort</span> <span class="ow">in</span> <span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">wf</span><span class="o">.</span><span class="n">methods</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">wf</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">while</span> <span class="n">s</span><span class="o">.</span><span class="n">check</span><span class="p">()</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">sat</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">m</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">m</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">expr_to_lean</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+    <span class="c1"># TODO</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">subterms</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate all subterms of a term&quot;&quot;&quot;</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">]</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">todo</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">x</span>
+        <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">is_subterm</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">is_subterm</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">t2</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">sorts</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate all sorts in a term&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">subterms</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">decls</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return all function declarations in a term.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">subterms</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">t</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">is_value</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">is_int_value</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_rational_value</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_algebraic_value</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_bv_value</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_true</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_false</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_string_value</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">lemma_db</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scan all modules for Proof objects and return a dictionary of them.&quot;&quot;&quot;</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">modname</span><span class="p">,</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">thms</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">thm</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">thm</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">is_proof</span><span class="p">(</span><span class="n">thm</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">thms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">db</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">thms</span>
+    <span class="k">return</span> <span class="n">db</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+
+<span class="k">def</span> <span class="nf">prompt</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ask an AI.</span>
+
+<span class="sd">    Get the root directory of the current package, find all .py files within</span>
+<span class="sd">    that directory, and concatenate their contents into a single string separated by `---`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: A single string with all .py files concatenated, separated by `---`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">excluded_subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;eprover&quot;</span><span class="p">]</span>
+    <span class="n">current_file</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())</span>
+    <span class="n">root_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">current_file</span><span class="p">))</span>
+
+    <span class="n">py_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s2">&quot;theories&quot;</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">,</span> <span class="s2">&quot;*.py&quot;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">combined_content</span> <span class="o">=</span> <span class="p">[</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The following is the code of the python project Knuckledragger.</span>
+<span class="sd">    It is a semiautomated theorem prover that uses z3py and other solvers to disharge obligations.</span>
+<span class="sd">    The syntax tree is literally z3.</span>
+<span class="sd">    The Proof datatype is a protected wrapped z3 BoolRef object.</span>
+<span class="sd">    Proofs largely proceed by stating small steps with reference to previously proofs in the `by` parameter of `lemma` </span>
+<span class="sd">    \n\n\n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">py_files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">excluded</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">excluded</span> <span class="ow">in</span> <span class="n">excluded_subdirs</span>
+        <span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">combined_content</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">---&quot;</span> <span class="o">+</span> <span class="n">file_path</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">&quot;</span>
+            <span class="n">combined_content</span> <span class="o">+=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">combined_content</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combined_content</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Order</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">EQ</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Equal</span>
+    <span class="n">GR</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Greater</span>
+    <span class="n">NGE</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># Not Greater or Equal</span>
+
+
+<span class="k">def</span> <span class="nf">lpo</span><span class="p">(</span><span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">t1</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Order</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lexicographic path ordering.</span>
+<span class="sd">    Based on https://www21.in.tum.de/~nipkow/TRaAT/programs/termorders.ML</span>
+<span class="sd">    TODO add ordering parameter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">is_var</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_var</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t1</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">EQ</span>
+        <span class="k">elif</span> <span class="n">is_subterm</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="n">t1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+    <span class="k">elif</span> <span class="n">is_var</span><span class="p">(</span><span class="n">t1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+    <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+        <span class="n">decl1</span><span class="p">,</span> <span class="n">decl2</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">decl</span><span class="p">(),</span> <span class="n">t2</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+        <span class="n">args1</span><span class="p">,</span> <span class="n">args2</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">children</span><span class="p">(),</span> <span class="n">t2</span><span class="o">.</span><span class="n">children</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">lpo</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span> <span class="o">==</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">decl1</span> <span class="o">==</span> <span class="n">decl2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">lpo</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args2</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">args1</span><span class="p">,</span> <span class="n">args2</span><span class="p">):</span>
+                        <span class="nb">ord</span> <span class="o">=</span> <span class="n">lpo</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">ord</span> <span class="o">==</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+                        <span class="k">elif</span> <span class="nb">ord</span> <span class="o">==</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+                    <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">EQ</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">decl1</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span> <span class="n">decl1</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">decl2</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span> <span class="n">decl2</span><span class="o">.</span><span class="n">get_id</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">lpo</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args2</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unexpected terms in lpo&quot;</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">kbo</span><span class="p">(</span><span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">t1</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Order</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Knuth Bendix Ordering, naive implementation.</span>
+<span class="sd">    All weights are 1.</span>
+<span class="sd">    Source: Term Rewriting and All That section 5.4.4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">t1</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">EQ</span>
+
+    <span class="k">def</span> <span class="nf">is_var</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">vcount</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">]</span>
+        <span class="n">vcount1</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">}</span>
+        <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">is_var</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+                <span class="n">vcount1</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+                <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">vcount1</span>
+
+    <span class="n">vcount1</span><span class="p">,</span> <span class="n">vcount2</span> <span class="o">=</span> <span class="n">vcount</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span> <span class="n">vcount</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">vcount1</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vcount2</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+
+    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">]</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">w</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+                <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">w</span>
+
+    <span class="n">w1</span><span class="p">,</span> <span class="n">w2</span> <span class="o">=</span> <span class="n">weight</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span> <span class="n">weight</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">w1</span> <span class="o">&gt;</span> <span class="n">w2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+    <span class="k">elif</span> <span class="n">w1</span> <span class="o">&lt;</span> <span class="n">w2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_var</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>  <span class="c1"># KBO2a</span>
+            <span class="n">decl</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">decl</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">t1</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">t1</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span> <span class="o">!=</span> <span class="n">decl</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">t1</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+        <span class="k">elif</span> <span class="n">is_var</span><span class="p">(</span><span class="n">t1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t2</span><span class="p">):</span>
+            <span class="n">decl1</span><span class="p">,</span> <span class="n">decl2</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">decl</span><span class="p">(),</span> <span class="n">t2</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">decl1</span> <span class="o">==</span> <span class="n">decl2</span><span class="p">:</span>  <span class="c1"># KBO2c</span>
+                <span class="n">args1</span><span class="p">,</span> <span class="n">args2</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">children</span><span class="p">(),</span> <span class="n">t2</span><span class="o">.</span><span class="n">children</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">args1</span><span class="p">,</span> <span class="n">args2</span><span class="p">):</span>
+                    <span class="nb">ord</span> <span class="o">=</span> <span class="n">kbo</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">ord</span> <span class="o">==</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+                    <span class="k">elif</span> <span class="nb">ord</span> <span class="o">==</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unexpected equality reached in kbo&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">decl1</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span> <span class="n">decl1</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span> <span class="o">&gt;</span> <span class="p">(</span>
+                <span class="n">decl2</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+                <span class="n">decl2</span><span class="o">.</span><span class="n">get_id</span><span class="p">(),</span>
+            <span class="p">):</span>  <span class="c1"># KBO2b</span>
+                <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">GR</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Order</span><span class="o">.</span><span class="n">NGE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unexpected terms in kbo&quot;</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.vec.Vec.html" class="btn btn-neutral float-left" title="kdrag.theories.vec.Vec" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.utils.alpha_eq.html" class="btn btn-neutral float-right" title="kdrag.utils.alpha_eq" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

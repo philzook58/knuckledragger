@@ -1,0 +1,6 @@
+kdrag.notation.Record
+=====================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: Record

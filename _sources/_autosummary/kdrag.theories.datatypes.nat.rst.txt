@@ -1,0 +1,41 @@
+kdrag.theories.datatypes.nat
+============================
+
+.. automodule:: kdrag.theories.datatypes.nat
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      Nat
+      succ_homo
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      induct
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/datatypes/nat.py
+   :language: python
