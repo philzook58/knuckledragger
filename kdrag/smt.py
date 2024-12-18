@@ -72,3 +72,13 @@ else:
     )
 
 config.solver = Solver
+
+
+def Eq(x, y):
+    """Python __eq__ resolution rules flips the order if y is a subclass of x.
+    This function corrects that."""
+    e = x == y
+    if type(x) is not type(y) and issubclass(type(y), type(x)):
+        return e.decl()(e.arg(1), e.arg(0))
+    else:
+        return e

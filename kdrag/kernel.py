@@ -148,14 +148,16 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
         def_ax = axiom(
             smt.ForAll(
                 args + vs,
-                f(*args)[tuple(vs)] == smt.substitute_vars(body.body(), *reversed(vs)),
+                smt.Eq(
+                    f(*args)[tuple(vs)], smt.substitute_vars(body.body(), *reversed(vs))
+                ),
             ),
             by="definition",
         )
     elif len(args) == 0:
-        def_ax = axiom(f() == body, by="definition")
+        def_ax = axiom(smt.Eq(f(), body), by="definition")
     else:
-        def_ax = axiom(smt.ForAll(args, f(*args) == body), by="definition")
+        def_ax = axiom(smt.ForAll(args, smt.Eq(f(*args), body)), by="definition")
     # assert f not in __sig or __sig[f].eq(   def_ax.thm)  # Check for redefinitions. This is kind of painful. Hmm.
     # Soft warning is more pleasant.
     defn = Defn(name, args, body, def_ax)
@@ -196,7 +198,7 @@ def consider(x: smt.ExprRef) -> Proof:
     Axiom schema. We may give a fresh name to any constant. An "anonymous" form of define.
     Pointing out the interesting terms is sometimes the essence of a proof.
     """
-    return axiom(smt.FreshConst(x.sort(), prefix="consider") == x)
+    return axiom(smt.Eq(smt.FreshConst(x.sort(), prefix="consider"), x))
 
 
 def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
@@ -297,4 +299,4 @@ def beta_conv(lam: smt.QuantifierRef, *args) -> Proof:
     """
     assert len(args) == lam.num_vars()
     assert smt.is_quantifier(lam) and lam.is_lambda()
-    return axiom(lam[args] == smt.substitute_vars(lam.body(), *reversed(args)))
+    return axiom(smt.Eq(lam[args], smt.substitute_vars(lam.body(), *reversed(args))))

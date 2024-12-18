@@ -209,14 +209,14 @@ def test_Lemma():
     even = kd.define("even", [x], smt.Exists([y], x == 2 * y))
     odd = kd.define("odd", [x], smt.Exists([y], x == 2 * y + 1))
 
-    evdef2 = kd.lemma(
+    evdef2 = kd.kernel.lemma(
         smt.ForAll([x], even(x) == smt.Exists([y], x == 2 * y)), by=[even.defn]
     )
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
     x1 = l.intros()
     l.intros()
-    l.apply(even.defn, rev=True)
-    l.rewrite(even.defn, at=0, rev=True)
+    l.apply(even.defn)
+    l.rewrite(even.defn, at=0)
     y1 = l.einstan(0)
     l.exists(y1 + 1)
     l.auto()
@@ -229,8 +229,8 @@ def test_Lemma():
     [
         x1 := l.intros(),
         l.intros(),
-        l.apply(even.defn, rev=True),
-        l.rewrite(even.defn, at=0, rev=True),
+        l.apply(even.defn),
+        l.rewrite(even.defn, at=0),
         y1 := l.einstan(0),
         l.exists(y1 + 1),
         l.auto(),
@@ -264,6 +264,13 @@ def test_Lemma():
     l.qed()
 
 
+def test_eq():
+    x, y = smt.Ints("x y")
+    assert smt.Eq(smt.IntVal(2) + smt.IntVal(3), smt.IntVal(5)).arg(1).eq(smt.IntVal(5))
+    assert smt.Eq((x >= 14), smt.Exists([y], x == 2 * y)).arg(0).eq(x >= 14)
+    assert smt.Eq((x >= 14), x >= 13).arg(0).eq(x >= 14)
+
+
 def test_pred():
     Even = kd.Record(
         "Even", ("val", kd.Z), ("div2", kd.Z), pred=lambda x: 2 * x.div2 == x.val
@@ -292,7 +299,7 @@ def test_beta():
     )
     t = smt.Lambda([x], x)
     assert kd.kernel.beta_conv(t, smt.IntVal(42)).thm.eq(
-        t[smt.IntVal(42)] == smt.IntVal(42)
+        smt.Eq(t[smt.IntVal(42)], smt.IntVal(42))
     )
 
 
