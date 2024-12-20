@@ -1,3 +1,7 @@
+"""
+Various term manipulation helpers. Pattern matchers, unifiers, rewriters, term orderings, etc.
+"""
+
 from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
@@ -79,12 +83,17 @@ def pmatch(
             # F[x,y,z] = t ---> F = Lambda([x,y,z], t)
             F = pat.arg(0)
             allowedvars = pat.children()[1:]
+            """
             if any(
                 v not in no_escape for v in allowedvars
             ):  # TODO: this is probably wrong
                 raise Exception(
                     "Improper higher order pattern", pat
                 )  # we could relax this to do syntactic unification here.
+            """
+            # By commenting this out, I've enabled non obviously bound constants
+            # other option: Just lift them all out.
+            # smt.subsitute(t, *[zip(a,a.FreshConst("")) for a for allowed_vars])
             t1 = smt.Lambda(allowedvars, t)
             todo.append((F, t1))
         elif smt.is_quantifier(pat):
@@ -196,7 +205,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
     """Open a quantifier with fresh variables"""
     # Open with capitalized names to match tptp conventions
     vs = [
-        smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper())
+        smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper().split("!")[0])
         for i in range(lam.num_vars())
     ]
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))

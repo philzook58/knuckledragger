@@ -1,3 +1,7 @@
+"""
+Facilities for pretty printing and calling external solvers
+"""
+
 from operator import is_
 import kdrag as kd
 import kdrag.smt as smt

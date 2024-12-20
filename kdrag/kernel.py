@@ -1,3 +1,7 @@
+"""
+The kernel hold core proof datatypes and core inference rules. By and large, all proofs must flow through this module.
+"""
+
 import kdrag.smt as smt
 from dataclasses import dataclass
 from typing import Any
@@ -118,8 +122,10 @@ smt.ExprRef.defn = property(lambda self: defns[self.decl()].ax)
 
 def fresh_const(q: smt.QuantifierRef):
     """Generate fresh constants of same sort as quantifier."""
+    # .split("!") is to remove ugly multiple freshness from names
     return [
-        smt.FreshConst(q.var_sort(i), prefix=q.var_name(i)) for i in range(q.num_vars())
+        smt.FreshConst(q.var_sort(i), prefix=q.var_name(i).split("!")[0])
+        for i in range(q.num_vars())
     ]
 
 

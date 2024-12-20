@@ -14,6 +14,7 @@ Importing this module will add some syntactic sugar to smt.
 - Datatypes support accessor notation `l.is_cons`, `l.hd`, `l.tl` etc.
 """
 
+from numpy import record
 import kdrag.smt as smt
 import kdrag as kd
 
@@ -98,7 +99,7 @@ wf = SortDispatch(name="wf")
 smt.ExprRef.wf = lambda x: wf(x)
 
 induct = SortDispatch(name="induct")
-smt.ExprRef.induct = lambda x, P: induct(x, P)
+smt.ExprRef.induct = lambda x: induct(x)
 
 getitem = SortDispatch(name="getitem")
 smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)
@@ -218,6 +219,74 @@ def Record(name, *fields, pred=None):
 
 def NewType(name, sort, pred=None):
     return Record(name, ("val", sort), pred=pred)
+
+
+def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof:
+    """Build a basic induction principle for an algebraic datatype"""
+    if P is None:
+        P = smt.FreshConst(smt.ArraySort(DT, smt.BoolSort()), prefix="P")
+    hyps = []
+    for i in range(DT.num_constructors()):
+        constructor = DT.constructor(i)
+        args = [
+            smt.FreshConst(constructor.domain(j), prefix="a")
+            for j in range(constructor.arity())
+        ]
+        acc = P(constructor(*args))
+        for arg in args:
+            if arg.sort() == DT:
+                acc = kd.QForAll([arg], P(arg), acc)
+            else:
+                acc = kd.QForAll([arg], acc)
+        hyps.append(acc)
+    if x is None:
+        x = smt.FreshConst(DT, prefix="x")
+        conc = kd.QForAll([x], P(x))
+    else:
+        conc = P(x)
+    if isinstance(P, smt.ExprRef):
+        return kd.axiom(
+            smt.ForAll([P], smt.Implies(smt.And(hyps), conc)), by="induction_axiom"
+        )
+    else:
+        return kd.axiom(
+            smt.ForAll([P], smt.Implies(smt.And(hyps), conc)), by="induction_axiom"
+        )
+
+
+def Inductive(name, strict=True):
+    if strict and name in records:
+        raise Exception(
+            "Datatype with that name already defined. Use keyword strict=False to override",
+            name,
+            # records[name].sexpr(),
+        )
+    dt = smt.Datatype(name)
+    oldcreate = dt.create
+
+    def create():
+        dt = oldcreate()
+        # Sanity check no duplicate names. Causes confusion.
+        if strict:
+            names = set()
+            for i in range(dt.num_constructors()):
+                cons = dt.constructor(i)
+                n = cons.name()
+                if n in names:
+                    raise Exception("Duplicate constructor name", n)
+                names.add(n)
+                for j in range(cons.arity()):
+                    n = dt.accessor(i, j).name()
+                    if n in names:
+                        raise Exception("Duplicate field name", n)
+                    names.add(n)
+        x = smt.FreshConst(dt, prefix="x")
+        kd.notation.induct.register(dt, lambda x: induct_inductive(dt, x=x))
+        records[name] = dt
+        return dt
+
+    dt.create = create
+    return dt
 
 
 def cond(*cases, default=None) -> smt.ExprRef:

@@ -15,6 +15,7 @@ QExists = notation.QExists
 cond = notation.cond
 Record = notation.Record
 NewType = notation.NewType
+Inductive = notation.Inductive
 
 Calc = tactics.Calc
 Lemma = tactics.Lemma
