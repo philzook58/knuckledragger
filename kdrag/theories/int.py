@@ -33,6 +33,11 @@ def induct(x):
 
 kd.notation.induct.register(Z, induct)
 
+x, y, z = smt.Ints("x y z")
+even = kd.define("even", [x], smt.Exists([y], x == 2 * y))
+odd = kd.define("odd", [x], smt.Exists([y], x == 2 * y + 1))
+
+
 NatI = kd.Record("NatI", ("val", Z))
 n, m, k = smt.Consts("n m k", NatI)
 kd.notation.wf.register(NatI, lambda x: x.val >= 0)

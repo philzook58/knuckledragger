@@ -73,10 +73,13 @@ cross = kd.define(
         u.x1 * v.x2 - u.x2 * v.x1, u.x2 * v.x0 - u.x0 * v.x2, u.x0 * v.x1 - u.x1 * v.x0
     ),
 )
+
+# TODO: instability with respect to the `by` ordering. That's bad
 cross_antisym = kd.lemma(
     kd.smt.ForAll([u, v], cross(u, v) == -cross(v, u)),
-    by=[cross.defn, kd.notation.neg[Vec3].defn],
+    by=[kd.notation.neg[Vec3].defn, cross.defn],
 )
+
 # https://en.wikipedia.org/wiki/Vector_algebra_relations
 
 # pythag = kd.lemma(

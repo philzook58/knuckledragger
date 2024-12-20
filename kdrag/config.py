@@ -1,3 +1,7 @@
+"""
+Global configuration of knuckledragger
+"""
+
 solver = None
 # timeout = 1000
 

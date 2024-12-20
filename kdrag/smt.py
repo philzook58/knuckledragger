@@ -1,4 +1,5 @@
 """
+Reexported z3 functionality <https://z3prover.github.io/api/html/namespacez3py.html>
 This is a shim file to enable the use of cvc5 and vampire as default solvers.
 This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" or "vampire" before importing knuckledragger.
 """

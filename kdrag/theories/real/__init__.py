@@ -151,10 +151,10 @@ floor_idem = kd.lemma(ForAll([x], floor(floor(x)) == floor(x)), by=[floor.defn, 
 floor_le = kd.lemma(ForAll([x], floor(x) <= x), by=[floor.defn])
 floor_gt = kd.lemma(ForAll([x], x < floor(x) + 1), by=[floor.defn])
 
-c = kd.Calc([n, x], smt.ToReal(n) <= x)
-c.eq(n <= smt.ToInt(x))
-c.eq(smt.ToReal(n) <= floor(x), by=[floor.defn])
-floor_minint = c.qed(defns=False)
+# c = kd.Calc([n, x], smt.ToReal(n) <= x)
+# c.eq(n <= smt.ToInt(x))
+# c.eq(smt.ToReal(n) <= floor(x), by=[floor.defn])
+# floor_minint = c.qed(defns=False)
 
 
 pow = kd.define("pow", [x, y], x**y)

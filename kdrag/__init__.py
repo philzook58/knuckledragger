@@ -24,3 +24,22 @@ R = smt.RealSort()
 Z = smt.IntSort()
 RSeq = Z >> R
 RFun = R >> R
+
+__all__ = [
+    "lemma",
+    "axiom",
+    "define",
+    "Proof",
+    "QForAll",
+    "QExists",
+    "cond",
+    "Record",
+    "NewType",
+    "Inductive",
+    "Calc",
+    "Lemma",
+    "R",
+    "Z",
+    "RSeq",
+    "RFun",
+]

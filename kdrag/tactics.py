@@ -448,14 +448,16 @@ class Lemma:
             self.lemmas.append(kd.kernel.lemma(ctxgoal.goal.arg(1) == rhs, **kwargs))
             self.goals[-1] = ctxgoal._replace(goal=smt.Eq(ctxgoal.goal.arg(0), rhs))
 
-    def unfold(self, decl: smt.FuncDeclRef):
+    def unfold(self, *decls: smt.FuncDeclRef):
         """
         Unfold the contents of a definition.
         """
-        if hasattr(decl, "defn"):
-            return self.rewrite(decl.defn)
-        else:
-            raise ValueError("Unfold failed. Not a defined function")
+        for decl in decls:
+            if hasattr(decl, "defn"):
+                self.rewrite(decl.defn)
+            else:
+                raise ValueError("Unfold failed. Not a defined function")
+        return self.top_goal()
 
     def apply(self, pf: kd.kernel.Proof, rev=False):
         """
