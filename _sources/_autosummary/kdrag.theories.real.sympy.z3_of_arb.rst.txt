@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.z3\_of\_arb
+=====================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: z3_of_arb

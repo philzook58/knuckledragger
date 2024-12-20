@@ -1,0 +1,6 @@
+kdrag.utils.simp2
+=================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: simp2

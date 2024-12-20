@@ -1,0 +1,6 @@
+kdrag.utils.rewrite\_star
+=========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: rewrite_star

@@ -1,0 +1,44 @@
+kdrag.theories.real.sympy
+=========================
+
+.. automodule:: kdrag.theories.real.sympy
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      collect
+      expand
+      expand_trig
+      factor
+      flint_bnd
+      interp_flint
+      interp_sympy
+      simplify
+      wrap_sympy
+      z3_of_arb
+      z3_of_sympy
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/sympy.py
+   :language: python

@@ -1,0 +1,49 @@
+kdrag.notation
+==============
+
+.. automodule:: kdrag.notation
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      ExistsUnique
+      Inductive
+      NewType
+      QExists
+      QForAll
+      Record
+      cond
+      datatype_call
+      induct_inductive
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cond
+      SortDispatch
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/notation.py
+   :language: python

@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.expand\_trig
+======================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: expand_trig

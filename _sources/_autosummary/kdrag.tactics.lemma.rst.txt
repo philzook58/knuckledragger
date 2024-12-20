@@ -1,0 +1,6 @@
+kdrag.tactics.lemma
+===================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: lemma

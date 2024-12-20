@@ -1,0 +1,6 @@
+kdrag.kernel.lemma
+==================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: lemma

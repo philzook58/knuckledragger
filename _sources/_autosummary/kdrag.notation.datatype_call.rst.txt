@@ -1,0 +1,6 @@
+kdrag.notation.datatype\_call
+=============================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: datatype_call

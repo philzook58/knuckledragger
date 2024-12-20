@@ -1,0 +1,6 @@
+kdrag.solvers.expr\_to\_smtlib
+==============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: expr_to_smtlib
