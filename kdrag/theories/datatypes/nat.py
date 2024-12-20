@@ -37,7 +37,8 @@ add_s_l = kd.kernel.lemma(
 )
 
 _l = kd.Lemma(smt.ForAll([x], add(x, Nat.Z) == x))
-_x = _l.intros()
+print(_l)
+_x = _l.fixes()
 _l.induct(_x)
 _l.auto(by=[add.defn])
 a = _l.intros()

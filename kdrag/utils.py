@@ -46,7 +46,7 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
 
 
 def pmatch(
-    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef
+    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, subst=None
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
     """
     Pattern match t against pat considering vs as variables. Returns substitution dictionary if succeeds
@@ -54,7 +54,8 @@ def pmatch(
     """
     if pat.sort() != t.sort():
         return None
-    subst = {}
+    if subst is None:
+        subst = {}
     todo = [(pat, t)]
     no_escape = []
 

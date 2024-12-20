@@ -227,7 +227,10 @@ class Lemma:
             vs, herb_lemma = kd.kernel.herb(goal)
             self.lemmas.append(herb_lemma)
             self.goals.append(GoalCtx(ctx, herb_lemma.thm.arg(0)))
-            return vs
+            if len(vs) == 1:
+                return vs[0]
+            else:
+                return vs
         else:
             raise ValueError(f"fixes tactic failed. Not a forall {goal}")
 
@@ -235,16 +238,11 @@ class Lemma:
         """
         intros opens an implication. ?|- p -> q becomes p ?|- q
         """
-        ctx, goal = self.goals.pop()
+        ctx, goal = self.goals[-1]
         if smt.is_quantifier(goal) and goal.is_forall():
-            vs, herb_lemma = kd.kernel.herb(goal)
-            self.lemmas.append(herb_lemma)
-            self.goals.append(GoalCtx(ctx, herb_lemma.thm.arg(0)))
-            if len(vs) == 1:
-                return vs[0]
-            else:
-                return vs
-        elif smt.is_implies(goal):
+            return self.fixes()
+        self.goals.pop()
+        if smt.is_implies(goal):
             self.goals.append(GoalCtx(ctx + [goal.arg(0)], goal.arg(1)))
             return self.top_goal()
         elif smt.is_not(goal):
@@ -280,12 +278,14 @@ class Lemma:
         """
         ctx, goal = self.goals.pop()
         if t.sort() == smt.BoolSort():
-            self.goals.append(GoalCtx(ctx + [smt.Not(t)], goal))
-            self.goals.append(GoalCtx(ctx + [t], goal))
+            self.goals.append(GoalCtx(ctx + [t == smt.BoolVal(True)], goal))
+            self.goals.append(GoalCtx(ctx + [t == smt.BoolVal(False)], goal))
         elif isinstance(t, smt.DatatypeRef):
             dsort = t.sort()
             for i in reversed(range(dsort.num_constructors())):
-                self.goals.append(GoalCtx(ctx + [dsort.recognizer(i)(t)], goal))
+                self.goals.append(
+                    GoalCtx(ctx + [dsort.recognizer(i)(t) == smt.BoolVal(True)], goal)
+                )
         else:
             raise ValueError("Cases failed. Not a bool or datatype")
         return self.top_goal()
@@ -334,6 +334,16 @@ class Lemma:
                 self.goals.pop()
                 self.goals.append(GoalCtx(ctx, smt.Implies(goal.arg(0), goal.arg(1))))
                 self.goals.append(GoalCtx(ctx, smt.Implies(goal.arg(1), goal.arg(0))))
+            elif smt.is_distinct(goal):
+                self.goals.pop()
+                for i in range(goal.num_args()):
+                    for j in range(i):
+                        self.goals.append(
+                            GoalCtx(
+                                ctx + [smt.Eq(goal.arg(j), goal.arg(i))],
+                                smt.BoolVal(False),
+                            )
+                        )
             else:
                 raise ValueError("Unexpected case in goal for split tactic", goal)
             return self.top_goal()
@@ -427,7 +437,8 @@ class Lemma:
             lhs1 = smt.substitute(lhs, *[(v, t) for v, t in subst.items()])
             rhs1 = smt.substitute(rhs, *[(v, t) for v, t in subst.items()])
             target: smt.BoolRef = smt.substitute(target, (lhs1, rhs1))
-            self.lemmas.append(kd.kernel.instan2([subst[v] for v in vs], rulethm))
+            if smt.is_quantifier(rulethm) and rulethm.is_forall():
+                self.lemmas.append(kd.kernel.instan2([subst[v] for v in vs], rulethm))
             if kd.kernel.is_proof(rule):
                 self.lemmas.append(rule)
             if at is None:
@@ -443,10 +454,24 @@ class Lemma:
         return self.rewrite(rule, at=at, rev=rev)
 
     def eq(self, rhs, **kwargs):
+        """replace rhs in equational goal"""
         ctxgoal = self.top_goal()
         if smt.is_eq(ctxgoal.goal):
             self.lemmas.append(kd.kernel.lemma(ctxgoal.goal.arg(1) == rhs, **kwargs))
             self.goals[-1] = ctxgoal._replace(goal=smt.Eq(ctxgoal.goal.arg(0), rhs))
+
+    def newgoal(self, newgoal: smt.BoolRef, **kwargs):
+        """
+        Try to show newgoal is sufficient to prove current goal
+        """
+        goalctx = self.top_goal()
+        self.lemmas.append(
+            kd.lemma(
+                smt.Implies(smt.And(goalctx.ctx + [newgoal]), goalctx.goal), **kwargs
+            )
+        )
+        self.goals[-1] = goalctx._replace(goal=newgoal)
+        return self.top_goal()
 
     def unfold(self, *decls: smt.FuncDeclRef):
         """
@@ -507,16 +532,6 @@ class Lemma:
                     for c in reversed(goalctx.goal.children())
                 ]
             )
-        return self.top_goal()
-
-    def newgoal(self, newgoal: smt.BoolRef, **kwargs):
-        goalctx = self.top_goal()
-        self.lemmas.append(
-            kd.lemma(
-                smt.Implies(smt.And(goalctx.ctx + [newgoal]), goalctx.goal), **kwargs
-            )
-        )
-        self.goals[-1] = goalctx._replace(goal=newgoal)
         return self.top_goal()
 
     def clear(self, n: int):

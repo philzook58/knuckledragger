@@ -23,9 +23,9 @@ def induct(x):
                 P[0],
                 kd.QForAll([n], n >= 0, P[n], P[n + 1]),
                 kd.QForAll([n], n <= 0, P[n], P[n - 1]),
-            )
+            ),
             # ---------------------------------------------------
-            == P[x],
+            P[x],
         ),
         by="integer_induction",
     )

@@ -15,9 +15,13 @@ QExists = notation.QExists
 cond = notation.cond
 Record = notation.Record
 NewType = notation.NewType
+
+"""Declare datatypes with auto generated induction principles"""
 Inductive = notation.Inductive
 
+"""Tactic for calculation style proofs"""
 Calc = tactics.Calc
+
 Lemma = tactics.Lemma
 
 R = smt.RealSort()
