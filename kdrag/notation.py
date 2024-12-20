@@ -14,7 +14,6 @@ Importing this module will add some syntactic sugar to smt.
 - Datatypes support accessor notation `l.is_cons`, `l.hd`, `l.tl` etc.
 """
 
-from numpy import record
 import kdrag.smt as smt
 import kdrag as kd
 
