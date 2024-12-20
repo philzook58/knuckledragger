@@ -217,6 +217,7 @@ def Record(name, *fields, pred=None):
 
 
 def NewType(name, sort, pred=None):
+    """Minimal wrapper around a sort for sort based overloading"""
     return Record(name, ("val", sort), pred=pred)
 
 
@@ -254,6 +255,7 @@ def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof
 
 
 def Inductive(name, strict=True):
+    """Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype"""
     if strict and name in records:
         raise Exception(
             "Datatype with that name already defined. Use keyword strict=False to override",

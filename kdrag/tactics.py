@@ -214,6 +214,8 @@ class GoalCtx(NamedTuple):
 
 
 class Lemma:
+    """Tactic class for interactive proofs"""
+
     def __init__(self, goal: smt.BoolRef):
         self.lemmas = []
         self.thm = goal
