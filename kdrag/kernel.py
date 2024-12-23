@@ -30,7 +30,7 @@ __Proof = Proof
 Proof = None
 
 
-def is_proof(p):
+def is_proof(p: __Proof) -> bool:
     return isinstance(p, __Proof)
 
 
@@ -45,7 +45,7 @@ def lemma(
     timeout=1000,
     dump=False,
     solver=None,
-) -> Proof:
+) -> __Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
     In essence `prove(Implies(by, thm))`.
@@ -88,7 +88,7 @@ def lemma(
             return __Proof(thm, by, False)
 
 
-def axiom(thm: smt.BoolRef, by=[]) -> Proof:
+def axiom(thm: smt.BoolRef, by=[]) -> __Proof:
     """Assert an axiom.
 
     Axioms are necessary and useful. But you must use great care.
