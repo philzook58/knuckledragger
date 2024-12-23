@@ -553,6 +553,15 @@ class Lemma:
         self.goals.append(goalctx._replace(goal=smt.ForAll(vs, goalctx.goal)))
         return self.top_goal()
 
+    def show(self, thm: smt.BoolRef):
+        """
+        To document the current goal
+        """
+        goal = self.top_goal().goal
+        if not thm.eq(goal):
+            raise ValueError("Goal does not match", thm, goal)
+        return self.top_goal()
+
     def assumption(self):
         """
         Exact match of goal in the context
