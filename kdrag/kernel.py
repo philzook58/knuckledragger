@@ -59,10 +59,10 @@ def lemma(
     Returns:
         Proof: A proof object of thm
 
-    >>> lemma(BoolVal(True))
-
-    >>> lemma(RealVal(1) >= RealVal(0))
-
+    >>> lemma(smt.BoolVal(True))
+    |- True
+    >>> lemma(smt.RealVal(1) >= smt.RealVal(0))
+    |- 1 >= 0
     """
     if admit:
         logger.warning("Admitting lemma {}".format(thm))

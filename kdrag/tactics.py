@@ -132,9 +132,11 @@ def lemma(
     Returns:
         Proof: A proof object of thm
 
-    >>> lemma(BoolVal(True))
+    >>> lemma(smt.BoolVal(True))
+    |- True
 
-    >>> lemma(RealVal(1) >= RealVal(0))
+    >>> lemma(smt.RealVal(1) >= smt.RealVal(0))
+    |- 1 >= 0
 
     """
     if kd.kernel.is_proof(by):
@@ -394,6 +396,9 @@ class Lemma:
         """
         Give terms `ts` to satisfy an exists goal
         `?|- exists x, p(x)` becomes `?|- p(ts)`
+        >>> x,y = smt.Ints("x y")
+        >>> Lemma(smt.Exists([x], x == y)).exists(y)
+        [] ?|- y == y
         """
         ctx, goal = self.goals[-1]
         lemma = kd.kernel.forget2(ts, goal)
