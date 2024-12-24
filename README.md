@@ -38,6 +38,7 @@ simple_taut = kd.lemma(smt.Implies(p, smt.Or(p, q)))
 assert kd.kernel.is_proof(simple_taut)
 assert not isinstance(simple_taut, smt.ExprRef)
 
+# kd.lemma will throw an error if the theorem is not provable
 try:
     false_lemma = kd.lemma(smt.Implies(p, smt.And(p, q)))
     assert False # This will not be reached
@@ -52,19 +53,21 @@ x = smt.BitVec("x", 32)
 or_idem = kd.lemma(smt.ForAll([x], x | x == x))
 
 ################
+# But the point of Knuckledragger is really for the things Z3 can't do in one shot
 
-# Knuckledragger also support algebraic datatypes and induction
+# Knuckledragger support algebraic datatypes and induction
 Nat = kd.Inductive("Nat", strict=False)
 Zero = Nat.declare("Zero")
 Succ = Nat.declare("Succ", ("pred", Nat))
 Nat = Nat.create()
 
-# We can define an addition function
+# We can define an addition function by cases
 n,m = smt.Consts("n m", Nat)
 add = smt.Function("add", Nat, Nat, Nat)
-add = kd.define("add", [n,m], kd.cond(
-    (n.is_Zero, m),
-    (n.is_Succ, Nat.Succ(add(n.pred, m)))
+add = kd.define("add", [n,m], 
+    kd.cond(
+        (n.is_Zero, m),
+        (n.is_Succ, Nat.Succ(add(n.pred, m)))
 ))
 
 # There is a notation overloading mechanism modelled after python's singledispatch
@@ -75,11 +78,25 @@ add_zero_x = kd.lemma(smt.ForAll([n], Nat.Zero + n == n), by=[add.defn])
 add_succ_x = kd.lemma(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=[add.defn])
 
 # More involved proofs can be more easily done in an interactive tactic
+# Under the hood, this boils down to calls to kd.lemma
+# These proofs are best understood interatively
 l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
-_n = l.fixes()
-l.induct(_n)
+
+# [] ?|- ForAll(n, add(n, Zero) == n)
+_n = l.fixes()            
+
+# [] ?|- add(n!0, Zero) == n!2213
+l.induct(_n)              
+
+# Case n!0 == Nat.Zero
+# [] ?|- add(Zero, Zero) == Zero
 l.auto(by=[add.defn])
+
+# Case n!0 == Nat.Succ(n.pred)
+# [] ?|- ForAll(a!0, Implies(add(a!0, Zero) == a!0, add(Succ(a!0), Zero) == Succ(a!0)))
 l.auto(by=[add.defn])
+
+# Finally the actual Proof is built
 add_x_zero = l.qed()
 
 ##############
