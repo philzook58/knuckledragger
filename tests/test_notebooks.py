@@ -14,3 +14,20 @@ def test_notebook_execution(notebook_path):
     ]
     client = NotebookClient(nb)
     client.execute()
+
+
+import re
+
+
+def test_readme():
+    with open("README.md", "r") as file:
+        content = file.read()
+
+    # Regular expression to match Python code blocks
+    python_code_blocks = re.findall(r"```python\n(.*?)```", content, re.DOTALL)
+
+    if not python_code_blocks:
+        raise ValueError("No Python code blocks found in the README.md file.")
+
+    for i, block in enumerate(python_code_blocks, 1):
+        exec(block)

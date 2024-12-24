@@ -184,7 +184,7 @@ smt.DatatypeSortRef.__call__ = datatype_call
 records = {}
 
 
-def Record(name, *fields, pred=None):
+def Record(name: str, *fields, pred=None) -> smt.DatatypeSortRef:
     """
     Define a record datatype.
     The optional argument `pred` will add a well-formedness condition to the record
@@ -216,7 +216,7 @@ def Record(name, *fields, pred=None):
     return rec
 
 
-def NewType(name, sort, pred=None):
+def NewType(name: str, sort: smt.SortRef, pred=None) -> smt.DatatypeSortRef:
     """Minimal wrapper around a sort for sort based overloading"""
     return Record(name, ("val", sort), pred=pred)
 
@@ -254,7 +254,7 @@ def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof
         )
 
 
-def Inductive(name, strict=True):
+def Inductive(name: str, strict=True) -> smt.DatatypeSortRef:
     """Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype"""
     if strict and name in records:
         raise Exception(

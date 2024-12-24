@@ -319,7 +319,20 @@ lim_def = kd.axiom(kd.QForAll([f, x, y], has_lim_at(f, x, y), lim(f, x) == y))
 
 has_diff_at = smt.Function("has_diff_at", RFun, R, R, smt.BoolSort())
 diff_at = kd.define("diff_at", [f, x], smt.Exists([y], has_diff_at(f, x, y)))
-cont_at = smt.Function("cont_at", RFun, R, smt.BoolSort())
+cont_at = kd.define(
+    "cont_at",
+    [f, x],
+    kd.QForAll(
+        [eps],
+        eps > 0,
+        kd.QExists(
+            [delta],
+            delta > 0,
+            kd.QForAll([y], abs(x - y) < delta, abs(f[x] - f[y]) < eps),
+        ),
+    ),
+)
+# smt.Function("cont_at", RFun, R, smt.BoolSort())
 
 is_diff = kd.define("is_diff", [f], smt.ForAll([x], diff_at(f, x)))
 is_cont = kd.define("is_cont", [f], smt.ForAll([x], cont_at(f, x)))

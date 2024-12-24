@@ -475,13 +475,13 @@ class Lemma:
         self.goals[-1] = goalctx._replace(goal=newgoal)
         return self.top_goal()
 
-    def unfold(self, *decls: smt.FuncDeclRef):
+    def unfold(self, *decls: smt.FuncDeclRef, at=None):
         """
         Unfold the contents of a definition.
         """
         for decl in decls:
             if hasattr(decl, "defn"):
-                self.rewrite(decl.defn)
+                self.rewrite(decl.defn, at=at)
             else:
                 raise ValueError("Unfold failed. Not a defined function")
         return self.top_goal()

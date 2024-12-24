@@ -24,6 +24,106 @@ python3 -m pip install -e .
 ./install.sh # install extra solvers
 ```
 
+## Getting Started
+
+```python
+import kdrag as kd
+import kdrag.smt as smt # smt is literally a reexporting of z3
+
+# Anything Z3 can do on it's own, we can "prove" with no extra work
+p,q = smt.Bools("p q")
+simple_taut = kd.lemma(smt.Implies(p, smt.Or(p, q)))
+
+# The returned objects are `Proof`, not smt.ExprRef` formulas
+assert kd.kernel.is_proof(simple_taut)
+assert not isinstance(simple_taut, smt.ExprRef)
+
+try:
+    false_lemma = kd.lemma(smt.Implies(p, smt.And(p, q)))
+    assert False # This will not be reached
+except kd.kernel.LemmaError as e:
+    pass
+
+# Z3 also supports things like Reals, Ints, BitVectors and strings
+x = smt.Real("x")
+real_trich = kd.lemma(smt.ForAll([x], smt.Or(x < 0, x == 0, 0 < x)))
+
+x = smt.BitVec("x", 32)
+or_idem = kd.lemma(smt.ForAll([x], x | x == x))
+
+################
+
+# Knuckledragger also support algebraic datatypes and induction
+Nat = kd.Inductive("Nat", strict=False)
+Zero = Nat.declare("Zero")
+Succ = Nat.declare("Succ", ("pred", Nat))
+Nat = Nat.create()
+
+# We can define an addition function
+n,m = smt.Consts("n m", Nat)
+add = smt.Function("add", Nat, Nat, Nat)
+add = kd.define("add", [n,m], kd.cond(
+    (n.is_Zero, m),
+    (n.is_Succ, Nat.Succ(add(n.pred, m)))
+))
+
+# There is a notation overloading mechanism modelled after python's singledispatch
+kd.notation.add.register(Nat, add)
+
+# The definitional lemma is not available to the solver unless you give it
+add_zero_x = kd.lemma(smt.ForAll([n], Nat.Zero + n == n), by=[add.defn])
+add_succ_x = kd.lemma(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=[add.defn])
+
+# More involved proofs can be more easily done in an interactive tactic
+l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
+_n = l.fixes()
+l.induct(_n)
+l.auto(by=[add.defn])
+l.auto(by=[add.defn])
+add_x_zero = l.qed()
+
+##############
+
+# But we can also build our own sorts and axiomatic theories.
+# https://en.wikipedia.org/wiki/Group_(mathematics)
+G = smt.DeclareSort("G")
+mul = smt.Function("mul", G, G, G)
+e = smt.Const("e", G)
+inv = smt.Function("inv", G, G)
+
+kd.notation.mul.register(G, mul)
+
+x, y, z = smt.Consts("x y z", G)
+mul_assoc = kd.axiom(smt.ForAll([x, y, z], x * (y * z) == (x * y) * z))
+id_left = kd.axiom(smt.ForAll([x], e * x == x))
+inv_left = kd.axiom(smt.ForAll([x], inv(x) * x == e))
+
+# The Calc tactic can allow one to write explicit equational proofs
+c = kd.Calc([x], x * inv(x))
+c.eq(e * (x * inv(x)), by=[id_left])
+c.eq((inv(inv(x)) * inv(x)) * (x * inv(x)), by=[inv_left])
+c.eq(inv(inv(x)) * ((inv(x) * x) * inv(x)), by=[mul_assoc])
+c.eq(inv(inv(x)) * (e * inv(x)), by=[inv_left])
+c.eq(inv(inv(x)) * inv(x), by=[id_left])
+c.eq(e, by=[inv_left])
+inv_right = c.qed()
+```
+
+For more on using z3py
+
+- <https://ericpony.github.io/z3py-tutorial/guide-examples.htm>
+- The z3 guide <https://microsoft.github.io/z3guide/>
+- The z3py [documentation](https://z3prover.github.io/api/html/namespacez3py.html)
+- <https://github.com/philzook58/z3_tutorial> ([video](https://www.youtube.com/watch?v=56IIrBZy9Rc&feature=youtu.be&ab_channel=BroadInstitute))
+
+For more on interactive theorem proving (This is a lot to take in)
+
+- [Software Foundations](https://softwarefoundations.cis.upenn.edu/) - Coq
+- [Theorem Proving in Lean 4](https://lean-lang.org/theorem_proving_in_lean4/title_page.html)
+- [Mathematics in Lean](https://leanprover-community.github.io/mathematics_in_lean/)
+- [Isabelle Tutorial](https://isabelle.in.tum.de/documentation.html)
+- [HOL Light Tutorial](https://hol-light.github.io/tutorial.pdf)
+
 ## Blog Posts
 
 - ['Lean-style' Tactics in Knuckledragger](https://www.philipzucker.com/knuckle_lemma/)
