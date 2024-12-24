@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.factor
+================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: factor

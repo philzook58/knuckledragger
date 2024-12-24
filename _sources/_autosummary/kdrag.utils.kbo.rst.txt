@@ -1,0 +1,6 @@
+kdrag.utils.kbo
+===============
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: kbo

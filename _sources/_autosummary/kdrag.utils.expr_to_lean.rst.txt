@@ -1,0 +1,6 @@
+kdrag.utils.expr\_to\_lean
+==========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: expr_to_lean

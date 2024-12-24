@@ -1,0 +1,33 @@
+kdrag.theories.datatypes.nat
+============================
+
+.. automodule:: kdrag.theories.datatypes.nat
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      add_assoc
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/datatypes/nat.py
+   :language: python

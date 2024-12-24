@@ -1,0 +1,6 @@
+kdrag.utils.horn\_of\_theorem
+=============================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: horn_of_theorem
