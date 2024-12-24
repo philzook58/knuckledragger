@@ -52,7 +52,9 @@ real_trich = kd.lemma(smt.ForAll([x], smt.Or(x < 0, x == 0, 0 < x)))
 x = smt.BitVec("x", 32)
 or_idem = kd.lemma(smt.ForAll([x], x | x == x))
 
-################
+###################################################################
+###################################################################
+
 # But the point of Knuckledragger is really for the things Z3 can't do in one shot
 
 # Knuckledragger support algebraic datatypes and induction
@@ -79,7 +81,7 @@ add_succ_x = kd.lemma(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=
 
 # More involved proofs can be more easily done in an interactive tactic
 # Under the hood, this boils down to calls to kd.lemma
-# These proofs are best understood interatively
+# These proofs are best understood by seeing the interactive output in a Jupyter notebook
 l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
 
 # [] ?|- ForAll(n, add(n, Zero) == n)
@@ -99,7 +101,8 @@ l.auto(by=[add.defn])
 # Finally the actual Proof is built
 add_x_zero = l.qed()
 
-##############
+###################################################################
+###################################################################
 
 # But we can also build our own sorts and axiomatic theories.
 # https://en.wikipedia.org/wiki/Group_(mathematics)
