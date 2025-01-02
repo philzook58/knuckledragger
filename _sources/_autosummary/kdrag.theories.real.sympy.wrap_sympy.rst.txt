@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.wrap\_sympy
+=====================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: wrap_sympy

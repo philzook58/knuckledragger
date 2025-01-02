@@ -1,0 +1,6 @@
+kdrag.notation.induct\_inductive
+================================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: induct_inductive

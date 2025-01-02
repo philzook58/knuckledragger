@@ -1,0 +1,6 @@
+kdrag.theories.datatypes.list.List
+==================================
+
+.. currentmodule:: kdrag.theories.datatypes.list
+
+.. autofunction:: List

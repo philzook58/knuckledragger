@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.datatypes.nat &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.datatypes.option" href="kdrag.theories.datatypes.option.html" />
+    <link rel="prev" title="kdrag.theories.datatypes.list.List" href="kdrag.theories.datatypes.list.List.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Record"><code class="docutils literal notranslate"><span class="pre">Record()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.lemma"><code class="docutils literal notranslate"><span class="pre">lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.complex.html">kdrag.theories.complex</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="kdrag.theories.datatypes.html">kdrag.theories.datatypes</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.datatypes.list.html">kdrag.theories.datatypes.list</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">kdrag.theories.datatypes.nat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.datatypes.option.html">kdrag.theories.datatypes.option</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.interval.html">kdrag.theories.interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.vec.html">kdrag.theories.vec</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.datatypes.html">kdrag.theories.datatypes</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.datatypes.nat</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.datatypes.nat.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.datatypes.nat">
+<span id="kdrag-theories-datatypes-nat"></span><h1>kdrag.theories.datatypes.nat<a class="headerlink" href="#module-kdrag.theories.datatypes.nat" title="Link to this heading"></a></h1>
+<p>Defines an algebraic datatype for the Peano natural numbers and useful functions and properties.</p>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.datatypes.nat.Nat" title="kdrag.theories.datatypes.nat.Nat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Nat</span></code></a></p></td>
+<td><p>Nat}</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.theories.datatypes.nat.add_assoc" title="kdrag.theories.datatypes.nat.add_assoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_assoc</span></code></a></p></td>
+<td><p>Z = smt.IntSort() x, y = smt.Ints(&quot;x y&quot;) def induct(P):     return axiom(         Implies(             And(P(Nat.zero), ForAll([n], Implies(P(n), P(Nat.succ(n))))),             # -----------------------------------------------------------             ForAll([n], P(n)),         ),         (&quot;nat_induction&quot;, P),     )</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.datatypes.nat.Nat">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.datatypes.nat.</span></span><span class="sig-name descname"><span class="pre">Nat</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Nat</span></em><a class="headerlink" href="#kdrag.theories.datatypes.nat.Nat" title="Link to this definition"></a></dt>
+<dd><p>Nat}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>type Nat = Z | S {pred</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.datatypes.nat.add_assoc">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.datatypes.nat.</span></span><span class="sig-name descname"><span class="pre">add_assoc</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|-</span> <span class="pre">ForAll([x,</span> <span class="pre">y,</span> <span class="pre">z],</span> <span class="pre">add(x,</span> <span class="pre">add(y,</span> <span class="pre">z))</span> <span class="pre">==</span> <span class="pre">add(add(x,</span> <span class="pre">y),</span> <span class="pre">z))</span></em><a class="headerlink" href="#kdrag.theories.datatypes.nat.add_assoc" title="Link to this definition"></a></dt>
+<dd><p>Z = smt.IntSort()
+x, y = smt.Ints(“x y”)
+def induct(P):</p>
+<blockquote>
+<div><dl>
+<dt>return axiom(</dt><dd><dl class="simple">
+<dt>Implies(</dt><dd><p>And(P(Nat.zero), ForAll([n], Implies(P(n), P(Nat.succ(n))))),
+# ———————————————————–
+ForAll([n], P(n)),</p>
+</dd>
+</dl>
+<p>),
+(“nat_induction”, P),</p>
+</dd>
+</dl>
+<p>)</p>
+</div></blockquote>
+<p>reify = Function(“reify”, Nat, Z)
+# reify  Nat  Z maps a natural number to the built in smt integers
+reify_def = axiom(</p>
+<blockquote>
+<div><p>ForAll([n], reify(n) == If(Nat.is_zero(n), 0, reify(Nat.pred(n)) + 1))</p>
+</div></blockquote>
+<p>)</p>
+<p>reflect = Function(“reflect”, Z, Nat)
+# reflect  Z  Nat maps an integer to a natural number
+# reflect_def = axiom(
+#    ForAll([x], reflect(x) == If(x &lt;= 0, Nat.zero, Nat.succ(reflect(x - 1))))
+# )
+reflect = define(“reflect”, [x], If(x &lt;= 0, Nat.zero, Nat.succ(reflect(x - 1))))</p>
+<dl class="simple">
+<dt>reflect_reify = lemma(</dt><dd><p>ForAll([n], reflect(reify(n)) == n),
+by=[reflect.defn, reify_def, induct(lambda n: reflect(reify(n)) == n)],</p>
+</dd>
+</dl>
+<p>)</p>
+<dl class="simple">
+<dt>reify_ge_0 = lemma(</dt><dd><p>ForAll([n], reify(n) &gt;= 0), by=[reify_def, induct(lambda n: reify(n) &gt;= 0)]</p>
+</dd>
+</dl>
+<p>)</p>
+<p>zero_homo = lemma(reify(Nat.zero) == 0, by=[reify_def])</p>
+<dl class="simple">
+<dt>succ_homo = lemma(</dt><dd><p>ForAll([n], reify(Nat.succ(n)) == 1 + reify(n)),
+by=[reify_def, induct(lambda n: reify(Nat.succ(n)) == 1 + reify(n))],</p>
+</dd>
+</dl>
+<p>)</p>
+<p>add = Function(“add”, Nat, Nat, Nat)
+add_def = axiom(</p>
+<blockquote>
+<div><p>ForAll([n, m], add(n, m) == If(Nat.is_zero(n), m, Nat.succ(add(Nat.pred(n), m))))</p>
+</div></blockquote>
+<p>)</p>
+<p>notation.add.register(Nat, add)</p>
+<p>add = Function(“add”, Nat, Nat, Nat)
+add = kd.notation.add.define([n, m], If(n.is_zero, m, Nat.succ(add(n.pred, m))))
+add_0_n = kd.kernel.lemma(ForAll([n], Nat.zero + n == n), by=[add.defn])</p>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines an algebraic datatype for the Peano natural numbers and useful functions and properties.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">kdrag.smt</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Datatype</span><span class="p">,</span>
+    <span class="n">ForAll</span><span class="p">,</span>
+    <span class="n">And</span><span class="p">,</span>
+    <span class="n">Implies</span><span class="p">,</span>
+    <span class="n">Consts</span><span class="p">,</span>
+    <span class="n">If</span><span class="p">,</span>
+    <span class="n">Function</span><span class="p">,</span>
+    <span class="n">IntSort</span><span class="p">,</span>
+    <span class="n">Ints</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">import</span> <span class="nn">kdrag</span> <span class="k">as</span> <span class="nn">kd</span>
+<span class="kn">from</span> <span class="nn">kdrag</span> <span class="kn">import</span> <span class="n">axiom</span><span class="p">,</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">define</span>
+<span class="kn">import</span> <span class="nn">kdrag.smt</span> <span class="k">as</span> <span class="nn">smt</span>
+<span class="kn">import</span> <span class="nn">kdrag.notation</span> <span class="k">as</span> <span class="nn">notation</span>
+
+<span class="n">Nat</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Inductive</span><span class="p">(</span><span class="s2">&quot;Nat&quot;</span><span class="p">)</span>
+<span class="n">Nat</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+<span class="n">Nat</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;pred&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">))</span>
+<span class="n">Nat</span> <span class="o">=</span> <span class="n">Nat</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+<span class="sd">&quot;&quot;&quot;type Nat = Z | S {pred : Nat}&quot;&quot;&quot;</span>
+
+
+<span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;n m k&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)</span>
+
+<span class="n">add</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">,</span> <span class="n">Nat</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)</span>
+<span class="n">add</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">is_Z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Nat</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">pred</span><span class="p">,</span> <span class="n">y</span><span class="p">))))</span>
+<span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Nat</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+
+<span class="n">add_z_l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">Nat</span><span class="o">.</span><span class="n">Z</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">add_s_l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">Nat</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">Nat</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">_l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">_l</span><span class="p">)</span>
+<span class="n">_x</span> <span class="o">=</span> <span class="n">_l</span><span class="o">.</span><span class="n">fixes</span><span class="p">()</span>
+<span class="n">_l</span><span class="o">.</span><span class="n">induct</span><span class="p">(</span><span class="n">_x</span><span class="p">)</span>
+<span class="n">_l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">_l</span><span class="o">.</span><span class="n">intros</span><span class="p">()</span>
+<span class="n">_l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">add_x_zero</span> <span class="o">=</span> <span class="n">_l</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+
+<span class="n">l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+<span class="n">_x1</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">intros</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">induct</span><span class="p">(</span><span class="n">_x1</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">add_Z_r</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+
+<span class="n">l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">==</span> <span class="n">Nat</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))))</span>
+<span class="n">_x1</span><span class="p">,</span> <span class="n">_y1</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">intros</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">induct</span><span class="p">(</span><span class="n">_x1</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">rw</span><span class="p">(</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">simp</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">rw</span><span class="p">(</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">simp</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="n">_z1</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">fixes</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">add_s_r</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+
+<span class="n">l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">add</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
+<span class="n">_x1</span><span class="p">,</span> <span class="n">_y1</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">intros</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">induct</span><span class="p">(</span><span class="n">_x1</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">,</span> <span class="n">add_Z_r</span><span class="p">])</span>
+<span class="n">_z1</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">fixes</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">,</span> <span class="n">add_s_r</span><span class="p">])</span>
+<span class="n">add_comm</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+
+<span class="n">l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span> <span class="o">==</span> <span class="n">add</span><span class="p">(</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">z</span><span class="p">)))</span>
+<span class="n">_x1</span><span class="p">,</span> <span class="n">_y1</span><span class="p">,</span> <span class="n">_z1</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">intros</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">induct</span><span class="p">(</span><span class="n">_x1</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">rw</span><span class="p">(</span><span class="n">add_z_l</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">rw</span><span class="p">(</span><span class="n">add_z_l</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">,</span> <span class="n">add_comm</span><span class="p">])</span>
+<span class="n">add_assoc</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Z = smt.IntSort()</span>
+<span class="sd">x, y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">def induct(P):</span>
+<span class="sd">    return axiom(</span>
+<span class="sd">        Implies(</span>
+<span class="sd">            And(P(Nat.zero), ForAll([n], Implies(P(n), P(Nat.succ(n))))),</span>
+<span class="sd">            # -----------------------------------------------------------</span>
+<span class="sd">            ForAll([n], P(n)),</span>
+<span class="sd">        ),</span>
+<span class="sd">        (&quot;nat_induction&quot;, P),</span>
+<span class="sd">    )</span>
+
+
+<span class="sd">reify = Function(&quot;reify&quot;, Nat, Z)</span>
+<span class="sd"># reify  Nat  Z maps a natural number to the built in smt integers</span>
+<span class="sd">reify_def = axiom(</span>
+<span class="sd">    ForAll([n], reify(n) == If(Nat.is_zero(n), 0, reify(Nat.pred(n)) + 1))</span>
+<span class="sd">)</span>
+
+
+<span class="sd">reflect = Function(&quot;reflect&quot;, Z, Nat)</span>
+<span class="sd"># reflect  Z  Nat maps an integer to a natural number</span>
+<span class="sd"># reflect_def = axiom(</span>
+<span class="sd">#    ForAll([x], reflect(x) == If(x &lt;= 0, Nat.zero, Nat.succ(reflect(x - 1))))</span>
+<span class="sd"># )</span>
+<span class="sd">reflect = define(&quot;reflect&quot;, [x], If(x &lt;= 0, Nat.zero, Nat.succ(reflect(x - 1))))</span>
+
+<span class="sd">reflect_reify = lemma(</span>
+<span class="sd">    ForAll([n], reflect(reify(n)) == n),</span>
+<span class="sd">    by=[reflect.defn, reify_def, induct(lambda n: reflect(reify(n)) == n)],</span>
+<span class="sd">)</span>
+
+<span class="sd">reify_ge_0 = lemma(</span>
+<span class="sd">    ForAll([n], reify(n) &gt;= 0), by=[reify_def, induct(lambda n: reify(n) &gt;= 0)]</span>
+<span class="sd">)</span>
+
+<span class="sd">zero_homo = lemma(reify(Nat.zero) == 0, by=[reify_def])</span>
+
+<span class="sd">succ_homo = lemma(</span>
+<span class="sd">    ForAll([n], reify(Nat.succ(n)) == 1 + reify(n)),</span>
+<span class="sd">    by=[reify_def, induct(lambda n: reify(Nat.succ(n)) == 1 + reify(n))],</span>
+<span class="sd">)</span>
+
+
+<span class="sd">add = Function(&quot;add&quot;, Nat, Nat, Nat)</span>
+<span class="sd">add_def = axiom(</span>
+<span class="sd">    ForAll([n, m], add(n, m) == If(Nat.is_zero(n), m, Nat.succ(add(Nat.pred(n), m))))</span>
+<span class="sd">)</span>
+
+<span class="sd">notation.add.register(Nat, add)</span>
+
+<span class="sd">add = Function(&quot;add&quot;, Nat, Nat, Nat)</span>
+<span class="sd">add = kd.notation.add.define([n, m], If(n.is_zero, m, Nat.succ(add(n.pred, m))))</span>
+<span class="sd">add_0_n = kd.kernel.lemma(ForAll([n], Nat.zero + n == n), by=[add.defn])</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.datatypes.list.List.html" class="btn btn-neutral float-left" title="kdrag.theories.datatypes.list.List" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.datatypes.option.html" class="btn btn-neutral float-right" title="kdrag.theories.datatypes.option" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+kdrag.solvers.sort\_to\_tptp
+============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: sort_to_tptp

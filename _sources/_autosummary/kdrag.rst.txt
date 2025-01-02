@@ -1,0 +1,60 @@
+﻿kdrag
+=====
+
+.. automodule:: kdrag
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      Proof
+      lemma
+      axiom
+      define
+      QForAll
+      QExists
+      cond
+      Record
+      NewType
+      Inductive
+      Calc
+      Lemma
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   all
+   config
+   kernel
+   notation
+   smt
+   solvers
+   tactics
+   theories
+   utils
+
+
+
+.. literalinclude:: ../../kdrag.py
+   :language: python

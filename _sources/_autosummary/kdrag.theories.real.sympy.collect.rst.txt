@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.collect
+=================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: collect

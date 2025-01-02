@@ -1,0 +1,41 @@
+kdrag.theories.vec
+==================
+
+.. automodule:: kdrag.theories.vec
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      FinSort
+      Vec
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      VecTheory
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/vec.py
+   :language: python

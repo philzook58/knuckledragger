@@ -1,0 +1,6 @@
+kdrag.utils.rewrite
+===================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: rewrite

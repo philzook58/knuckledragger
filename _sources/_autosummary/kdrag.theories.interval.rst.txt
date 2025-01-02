@@ -1,0 +1,27 @@
+kdrag.theories.interval
+=======================
+
+.. automodule:: kdrag.theories.interval
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/interval.py
+   :language: python
