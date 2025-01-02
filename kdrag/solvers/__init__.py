@@ -226,8 +226,15 @@ def expr_to_smtlib(expr: smt.ExprRef):
     elif kd.utils.is_value(expr):
         return expr.sexpr()
     elif smt.is_const(expr):
-        if expr.decl().name() in predefined_names:
-            return expr.decl().name()
+        decl = expr.decl()
+        name = decl.name()
+        if name in predefined_names:
+            if name == "and":  # 0-arity applications
+                return "true"
+            elif name == "or":
+                return "false"
+            else:
+                return expr.decl().name()
         return mangle_decl_smtlib(expr.decl())
     elif smt.is_app(expr):
         decl = expr.decl()

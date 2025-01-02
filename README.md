@@ -146,6 +146,7 @@ For more on interactive theorem proving (This is a lot to take in)
 
 ## Blog Posts
 
+- [Translating Cody's Lean Sheffer Stroke Proof to Knuckledragger with ChatGPT](https://www.philipzucker.com/cody_sheffer/)
 - ['Lean-style' Tactics in Knuckledragger](https://www.philipzucker.com/knuckle_lemma/)
 - [State of Knuckledragger, a Semi-Automated Python Proof Assistant](https://www.philipzucker.com/state_o_knuck/)
 - [Proving Sum n = n*(n-1)/2 and that 1/n tends to 0](https://www.philipzucker.com/analysis_knuckle/)
