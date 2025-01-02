@@ -100,7 +100,7 @@ class Calc:
         return self
 
     def __repr__(self):
-        return "... " + str(self.mode) + " " + repr(self.terms[-1])
+        return "... " + str(self.mode) + " " + repr(self.iterm)
 
     def qed(self, **kwargs):
         return self.lemma
@@ -324,6 +324,27 @@ class Lemma:
         else:
             raise ValueError("Einstan failed. Not an exists")
 
+    def instan(self, n, *ts):
+        """
+        Instantiate a universal quantifier in the context.
+
+        >>> x,y = smt.Ints("x y")
+        >>> l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))
+        >>> l.intros()
+        [ForAll(x, x == y)] ?|- True
+        >>> l.instan(0, smt.IntVal(42))
+        [ForAll(x, x == y), 42 == y] ?|- True
+        """
+        goalctx = self.goals[-1]
+        thm = goalctx.ctx[n]
+        if smt.is_quantifier(thm) and thm.is_forall():
+            l = kd.kernel.instan2(ts, thm)
+            self.lemmas.append(l)
+            self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [l.thm.arg(1)])
+            return self.top_goal()
+        else:
+            raise ValueError("Instan failed. Not a forall", thm)
+
     def split(self, at=None):
         """
         `split` breaks apart an `And` or bi-implication `==` goal.
@@ -460,12 +481,37 @@ class Lemma:
         """
         return self.rewrite(rule, at=at, rev=rev)
 
-    def eq(self, rhs, **kwargs):
-        """replace rhs in equational goal"""
+    def symm(self):
+        """
+        Swap left and right hand side of equational goal
+        >>> x,y = smt.Ints("x y")
+        >>> Lemma(x == y).symm()
+        [] ?|- y == x
+        """
         ctxgoal = self.top_goal()
         if smt.is_eq(ctxgoal.goal):
-            self.lemmas.append(kd.kernel.lemma(ctxgoal.goal.arg(1) == rhs, **kwargs))
+            self.goals[-1] = ctxgoal._replace(
+                goal=smt.Eq(ctxgoal.goal.arg(1), ctxgoal.goal.arg(0))
+            )
+            return self.top_goal()
+        else:
+            raise ValueError("Symm tactic failed. Not an equality", ctxgoal.goal)
+
+    def eq(self, rhs, **kwargs):
+        """replace rhs in equational goal"""
+        # TODO: consider allow `by` keyword to reference context`
+        ctxgoal = self.top_goal()
+        if smt.is_eq(ctxgoal.goal):
+            self.lemmas.append(
+                kd.kernel.lemma(
+                    smt.Implies(smt.And(ctxgoal.ctx), ctxgoal.goal.arg(1) == rhs),
+                    **kwargs,
+                )
+            )
             self.goals[-1] = ctxgoal._replace(goal=smt.Eq(ctxgoal.goal.arg(0), rhs))
+            return self.top_goal()
+        else:
+            raise ValueError("Eq tactic failed. Not an equality", ctxgoal.goal)
 
     def newgoal(self, newgoal: smt.BoolRef, **kwargs):
         """
@@ -581,9 +627,11 @@ class Lemma:
         """
         Prove the given formula and add it to the current context
         """
-        ctx, goal = self.goals.pop()
-        self.lemmas.append(lemma(smt.Implies(smt.And(ctx), conc)), **kwargs)
-        self.goals.append(GoalCtx(ctx + [conc], conc))
+        goalctx = self.goals.pop()
+        self.lemmas.append(
+            kd.kernel.lemma(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
+        )
+        self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
         return self.top_goal()
 
     # TODO
@@ -600,8 +648,12 @@ class Lemma:
             return "Nothing to do. Hooray!"
         return repr(self.top_goal())
 
-    def qed(self) -> kd.kernel.Proof:
+    def qed(self, **kwargs) -> kd.kernel.Proof:
         """
         return the actual final `Proof` of the lemma that was defined at the beginning.
         """
-        return kd.kernel.lemma(self.thm, by=self.lemmas)
+        if "by" in kwargs:
+            kwargs["by"] += self.lemmas
+        else:
+            kwargs["by"] = self.lemmas
+        return kd.kernel.lemma(self.thm, **kwargs)

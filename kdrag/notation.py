@@ -87,6 +87,9 @@ smt.ExprRef.__and__ = lambda x, y: and_(x, y)
 or_ = SortDispatch()
 smt.ExprRef.__or__ = lambda x, y: or_(x, y)
 
+invert = SortDispatch(name="invert")
+smt.ExprRef.__invert__ = lambda x: invert(x)
+
 lt = SortDispatch(name="lt")
 smt.ExprRef.__lt__ = lambda x, y: lt(x, y)
 

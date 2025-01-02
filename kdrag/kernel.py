@@ -23,6 +23,9 @@ class Proof(smt.Z3PPObject):
     def __repr__(self):
         return "|- " + repr(self.thm)
 
+    def __call__(self, *args):
+        return instan(args, self)
+
 
 # It is unlikely that users should be accessing the `Proof` constructor directly.
 # This is not ironclad. If you really want the Proof constructor, I can't stop you.

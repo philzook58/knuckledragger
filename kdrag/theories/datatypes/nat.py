@@ -22,6 +22,7 @@ Nat = kd.Inductive("Nat")
 Nat.declare("Z")
 Nat.declare("S", ("pred", Nat))
 Nat = Nat.create()
+"""type Nat = Z | S {pred : Nat}"""
 
 
 n, m, k = smt.Consts("n m k", Nat)
