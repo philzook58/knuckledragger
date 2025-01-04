@@ -27,6 +27,27 @@ smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)
 smt.ArrayRef.__call__ = lambda self, arg: self[arg]
 
 
+def quantifier_call(self, *args):
+    """
+    Instantiate a quantifier. This does substitution
+    >>> x,y = smt.Ints("x y")
+    >>> smt.Lambda([x,y], x + 1)(2,3)
+    2 + 1
+
+    To apply a Lambda without substituting, use square brackets
+    >>> smt.Lambda([x,y], x + 1)[2,3]
+    Select(Lambda([x, y], x + 1), 2, 3)
+    """
+    if self.num_vars() != len(args):
+        raise TypeError("Wrong number of arguments", self, args)
+    return smt.substitute_vars(
+        self.body(), *(smt._py2expr(arg) for arg in reversed(args))
+    )
+
+
+smt.QuantifierRef.__call__ = quantifier_call
+
+
 class SortDispatch:
     """
     Sort dispatch is modeled after functools.singledispatch
@@ -114,6 +135,12 @@ def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
 
     If variables have a property `wf` attached, this is added as a hypothesis.
 
+    There is no downside to always using this compared to `smt.ForAll` and it can avoid some errors.
+
+    >>> x,y = smt.Ints("x y")
+    >>> QForAll([x,y], x > 0, y > 0, x + y > 0)
+    ForAll([x, y], Implies(And(x > 0, y > 0), x + y > 0))
+
     """
     conc = hyp_conc[-1]
     hyps = hyp_conc[:-1]
@@ -187,13 +214,13 @@ smt.DatatypeSortRef.__call__ = datatype_call
 records = {}
 
 
-def Record(name: str, *fields, pred=None) -> smt.DatatypeSortRef:
+def Record(name: str, *fields, pred=None, admit=False) -> smt.DatatypeSortRef:
     """
     Define a record datatype.
     The optional argument `pred` will add a well-formedness condition to the record
     giving something akin to a refinement type.
     """
-    if name in records:
+    if not admit and name in records:
         raise Exception("Record already defined", name)
     rec = smt.Datatype(name)
     rec.declare(name, *fields)
@@ -219,9 +246,24 @@ def Record(name: str, *fields, pred=None) -> smt.DatatypeSortRef:
     return rec
 
 
-def NewType(name: str, sort: smt.SortRef, pred=None) -> smt.DatatypeSortRef:
+def NewType(
+    name: str, sort: smt.SortRef, pred=None, admit=False
+) -> smt.DatatypeSortRef:
     """Minimal wrapper around a sort for sort based overloading"""
-    return Record(name, ("val", sort), pred=pred)
+    return Record(name, ("val", sort), pred=pred, admit=admit)
+
+
+def Enum(name, args, admit=False):
+    """Shorthand for simple enumeration datatypes. Similar to python's Enum.
+    >>> Color = Enum("Color", "Red Green Blue")
+    >>> smt.And(Color.Red != Color.Green, Color.Red != Color.Blue)
+    And(Red != Green, Red != Blue)
+    """
+    T = kd.Inductive(name, admit=admit)
+    for c in args.split():
+        T.declare(c)
+    T = T.create()
+    return T
 
 
 def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof:
@@ -257,9 +299,9 @@ def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof
         )
 
 
-def Inductive(name: str, strict=True) -> smt.DatatypeSortRef:
+def Inductive(name: str, admit=False) -> smt.DatatypeSortRef:
     """Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype"""
-    if strict and name in records:
+    if not admit and name in records:
         raise Exception(
             "Datatype with that name already defined. Use keyword strict=False to override",
             name,
@@ -271,7 +313,7 @@ def Inductive(name: str, strict=True) -> smt.DatatypeSortRef:
     def create():
         dt = oldcreate()
         # Sanity check no duplicate names. Causes confusion.
-        if strict:
+        if not admit:
             names = set()
             for i in range(dt.num_constructors()):
                 cons = dt.constructor(i)
@@ -284,7 +326,6 @@ def Inductive(name: str, strict=True) -> smt.DatatypeSortRef:
                     if n in names:
                         raise Exception("Duplicate field name", n)
                     names.add(n)
-        x = smt.FreshConst(dt, prefix="x")
         kd.notation.induct.register(dt, lambda x: induct_inductive(dt, x=x))
         records[name] = dt
         return dt
@@ -316,6 +357,10 @@ def cond(*cases, default=None) -> smt.ExprRef:
             raise Exception("Sort mismatch in cond", t, sort)
         acc = smt.If(c, t, acc)
     return acc
+
+
+def conde(*cases):
+    return smt.Or([smt.And(c) for c in cases])
 
 
 class Cond:

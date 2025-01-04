@@ -15,6 +15,49 @@ if solver is None or solver == Z3SOLVER:
     solver = "z3"
     from z3 import *
 
+    _py2expr = z3.z3._py2expr
+
+    def is_if(x: z3.ExprRef) -> bool:
+        """
+        Check if an expression is an if-then-else.
+        >>> is_if(z3.If(True, 1, 2))
+        True
+        """
+        return z3.is_app_of(x, z3.Z3_OP_ITE)
+
+    def is_constructor(x: z3.ExprRef) -> bool:
+        """
+        Check if an expression is a constructor.
+        >>> Color = z3.Datatype("Color")
+        >>> Color.declare("red")
+        >>> Color = Color.create()
+        >>> is_constructor(Color.red)
+        True
+        """
+        return z3.is_app_of(x, z3.Z3_OP_DT_CONSTRUCTOR)
+
+    def is_accessor(x: z3.ExprRef) -> bool:
+        """
+        Check if an expression is an accessor.
+        >>> Color = z3.Datatype("Color")
+        >>> Color.declare("red", ("r", z3.IntSort()))
+        >>> Color = Color.create()
+        >>> is_accessor(Color.r(Color.red(3)))
+        True
+        """
+        return z3.is_app_of(x, z3.Z3_OP_DT_ACCESSOR)
+
+    def is_recognizer(x: z3.ExprRef) -> bool:
+        """
+        Check if recognizer.
+                >>> Color = z3.Datatype("Color")
+        >>> Color.declare("red")
+        >>> Color = Color.create()
+        >>> is_recognizer(Color.is_red(Color.red))
+        True
+        """
+        return z3.is_app_of(x, z3.Z3_OP_DT_IS)
+
     Z3Solver = Solver
 elif solver == VAMPIRESOLVER:
     from z3 import *

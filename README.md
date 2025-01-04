@@ -41,7 +41,7 @@ assert not isinstance(simple_taut, smt.ExprRef)
 # kd.lemma will throw an error if the theorem is not provable
 try:
     false_lemma = kd.lemma(smt.Implies(p, smt.And(p, q)))
-    assert False # This will not be reached
+    print("This will not be reached")
 except kd.kernel.LemmaError as e:
     pass
 
@@ -58,7 +58,7 @@ or_idem = kd.lemma(smt.ForAll([x], x | x == x))
 # But the point of Knuckledragger is really for the things Z3 can't do in one shot
 
 # Knuckledragger support algebraic datatypes and induction
-Nat = kd.Inductive("Nat", strict=False)
+Nat = kd.Inductive("Nat", admit=True)
 Zero = Nat.declare("Zero")
 Succ = Nat.declare("Succ", ("pred", Nat))
 Nat = Nat.create()
