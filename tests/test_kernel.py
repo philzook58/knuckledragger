@@ -283,7 +283,10 @@ def test_induct():
     List.declare("nil")
     List.declare("cons", ("head", smt.IntSort()), ("tail", List))
     List = List.create()
-    assert kd.notation.induct_inductive(List) != None
+    x = smt.Const("x", List)
+    assert (
+        kd.notation.induct_inductive(x, smt.Lambda([x], smt.BoolVal(True))) is not None
+    )
 
 
 # TODO: test unsound

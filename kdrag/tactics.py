@@ -560,8 +560,11 @@ class Lemma:
         if subst is None:
             raise ValueError(f"Apply tactic failed to apply lemma {pf} to goal {goal} ")
         else:
-            pf1 = kd.kernel.instan([subst[v] for v in vs], pf)
-            self.lemmas.append(pf1)
+            if len(vs) > 0:
+                pf1 = kd.kernel.instan([subst[v] for v in vs], pf)
+                self.lemmas.append(pf1)
+            else:
+                pf1 = pf
             if smt.is_implies(pf1.thm):
                 self.goals.append(GoalCtx(ctx, pf1.thm.arg(0)))
             elif smt.is_eq(pf1.thm):
@@ -575,15 +578,14 @@ class Lemma:
         """
         Apply an induction lemma instantiated on x.
         """
-        self.apply(x.induct())
+        indlem = x.induct(smt.Lambda([x], self.top_goal().goal))
+        self.lemmas.append(indlem)
+        self.apply(indlem)
         if smt.is_and(self.top_goal().goal):
             # self.split()
             goalctx = self.goals.pop()
             self.goals.extend(
-                [
-                    goalctx._replace(goal=smt.simplify(c))
-                    for c in reversed(goalctx.goal.children())
-                ]
+                [goalctx._replace(goal=c) for c in reversed(goalctx.goal.children())]
             )
         return self.top_goal()
 

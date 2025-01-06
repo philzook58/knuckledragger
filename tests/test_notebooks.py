@@ -3,7 +3,10 @@ import nbformat
 from nbclient import NotebookClient
 
 
-@pytest.mark.parametrize("notebook_path", ["tutorial.ipynb", "examples/nng.ipynb"])
+@pytest.mark.parametrize(
+    "notebook_path",
+    ["tutorial.ipynb", "examples/nng.ipynb", "examples/soft_found/lf/Basics.ipynb"],
+)
 def test_notebook_execution(notebook_path):
     with open(notebook_path, "r", encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)

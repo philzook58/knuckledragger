@@ -34,6 +34,9 @@ NewType = notation.NewType
 Inductive = notation.Inductive
 """Declare datatypes with auto generated induction principles"""
 
+Enum = notation.Enum
+"""Declare simple enumerations"""
+
 Calc = tactics.Calc
 """Tactic class for calculation style proofs"""
 

@@ -122,7 +122,7 @@ wf = SortDispatch(name="wf")
 smt.ExprRef.wf = lambda x: wf(x)
 
 induct = SortDispatch(name="induct")
-smt.ExprRef.induct = lambda x: induct(x)
+smt.ExprRef.induct = lambda x, P: induct(x, P)
 
 getitem = SortDispatch(name="getitem")
 smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)
@@ -266,8 +266,8 @@ def Enum(name, args, admit=False):
     return T
 
 
+"""
 def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof:
-    """Build a basic induction principle for an algebraic datatype"""
     if P is None:
         P = smt.FreshConst(smt.ArraySort(DT, smt.BoolSort()), prefix="P")
     hyps = []
@@ -297,13 +297,39 @@ def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof
         return kd.axiom(
             smt.ForAll([P], smt.Implies(smt.And(hyps), conc)), by="induction_axiom"
         )
+"""
+
+
+def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proof:
+    """Build a basic induction principle for an algebraic datatype"""
+    DT = x.sort()
+    assert isinstance(DT, smt.DatatypeSortRef)
+    """assert (
+        smt.is_quantifier(P) and P.is_lambda()
+    )  # TODO: Hmm. Actually it should just be arraysort"""
+    hyps = []
+    for i in range(DT.num_constructors()):
+        constructor = DT.constructor(i)
+        args = [
+            smt.FreshConst(constructor.domain(j), prefix=DT.accessor(i, j).name())
+            for j in range(constructor.arity())
+        ]
+        acc = P(constructor(*args))
+        for arg in args:
+            if arg.sort() == DT:
+                acc = kd.QForAll([arg], P(arg), acc)
+            else:
+                acc = kd.QForAll([arg], acc)
+        hyps.append(acc)
+    conc = P(x)
+    return kd.axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 
 
 def Inductive(name: str, admit=False) -> smt.DatatypeSortRef:
     """Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype"""
     if not admit and name in records:
         raise Exception(
-            "Datatype with that name already defined. Use keyword strict=False to override",
+            "Datatype with that name already defined. Use keyword admit=True to override",
             name,
             # records[name].sexpr(),
         )
@@ -326,7 +352,7 @@ def Inductive(name: str, admit=False) -> smt.DatatypeSortRef:
                     if n in names:
                         raise Exception("Duplicate field name", n)
                     names.add(n)
-        kd.notation.induct.register(dt, lambda x: induct_inductive(dt, x=x))
+        kd.notation.induct.register(dt, induct_inductive)
         records[name] = dt
         return dt
 
