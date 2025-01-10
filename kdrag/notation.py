@@ -24,7 +24,7 @@ smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 
 smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)
 
-smt.ArrayRef.__call__ = lambda self, arg: self[arg]
+smt.ArrayRef.__call__ = lambda self, *arg: self[arg]
 
 
 def quantifier_call(self, *args):
@@ -52,6 +52,14 @@ class SortDispatch:
     """
     Sort dispatch is modeled after functools.singledispatch
     It allows for dispatching on the sort of the first argument
+
+    >>> my_func = SortDispatch(name="my_func")
+    >>> my_func.register(smt.IntSort(), lambda x: x + 1)
+    >>> my_func.register(smt.BoolSort(), lambda x: smt.Not(x))
+    >>> my_func(smt.IntVal(3))
+    3 + 1
+    >>> my_func(smt.BoolVal(True))
+    Not(True)
     """
 
     def __init__(self, name=None, default=None):
@@ -66,12 +74,18 @@ class SortDispatch:
         return self.methods[sort]
 
     def __call__(self, *args, **kwargs):
-        res = self.methods.get(args[0].sort(), self.default)
+        sort = args[0].sort()
+        res = self.methods.get(sort, self.default)
         if res is None:
-            raise NotImplementedError()
+            raise NotImplementedError(
+                f"No implementation of {self.name} for sort {sort}. Register a definition via {self.name}.register({sort}, your_code)",
+            )
         return res(*args, **kwargs)
 
     def define(self, args, body):
+        """
+        Shorthand to define a new function for this dispatch. Calls kdrag.define.
+        """
         assert isinstance(self.name, str)
         defn = kd.define(self.name, args, body)
         self.register(args[0].sort(), defn)
@@ -119,6 +133,9 @@ smt.ExprRef.__le__ = lambda x, y: le(x, y)
 
 
 wf = SortDispatch(name="wf")
+"""
+`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists.
+"""
 smt.ExprRef.wf = lambda x: wf(x)
 
 induct = SortDispatch(name="induct")
@@ -210,6 +227,20 @@ def datatype_call(self, *args):
 
 
 smt.DatatypeSortRef.__call__ = datatype_call
+
+
+def datatype_iter(self):
+    return (self.constructor(i) for i in range(self.num_constructors()))
+
+
+smt.DatatypeSortRef.__iter__ = datatype_iter
+
+
+def datatype_len(self):
+    return self.num_constructors()
+
+
+smt.DatatypeSortRef.__len__ = datatype_len
 
 records = {}
 
@@ -325,7 +356,7 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proo
     return kd.axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 
 
-def Inductive(name: str, admit=False) -> smt.DatatypeSortRef:
+def Inductive(name: str, admit=False) -> smt.Datatype:
     """Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype"""
     if not admit and name in records:
         raise Exception(
@@ -366,8 +397,22 @@ def cond(*cases, default=None) -> smt.ExprRef:
     Each case is a tuple of a bool condition and a term.
     If default is not given, a check is performed for totality.
     """
-    sort = cases[0][1].sort()
+    sort = None
+    if default is not None and isinstance(default, smt.ExprRef):
+        sort = default.sort()
+    else:
+        for c, t in cases:
+            if not smt.is_bool(c):
+                raise Exception("Condition must be boolean", c)
+            if isinstance(
+                t, smt.ExprRef
+            ):  # looping through allows (some_cond , 0) to be a case if z3 will infer what 0 will be
+                sort = t.sort()
+                break
+        if sort is None:
+            raise Exception("Could not infer return sort")
     if default is None:
+        """ Check totality of cases """
         s = smt.Solver()
         s.add(smt.Not(smt.Or([c for c, t in cases])))
         res = s.check()
@@ -379,7 +424,7 @@ def cond(*cases, default=None) -> smt.ExprRef:
             default = smt.FreshConst(sort, prefix="unreachable")
     acc = default
     for c, t in reversed(cases):
-        if t.sort() != sort:
+        if isinstance(t, smt.ExprRef) and t.sort() != sort:
             raise Exception("Sort mismatch in cond", t, sort)
         acc = smt.If(c, t, acc)
     return acc

@@ -11,8 +11,10 @@ Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
 VAMPIRESOLVER = "vampire"
 solver = os.getenv("KNUCKLE_SOLVER")
+
 if solver is None or solver == Z3SOLVER:
     solver = "z3"
+    import z3
     from z3 import *
 
     _py2expr = z3.z3._py2expr
@@ -50,13 +52,22 @@ if solver is None or solver == Z3SOLVER:
     def is_recognizer(x: z3.ExprRef) -> bool:
         """
         Check if recognizer.
-                >>> Color = z3.Datatype("Color")
+        >>> Color = z3.Datatype("Color")
         >>> Color.declare("red")
         >>> Color = Color.create()
         >>> is_recognizer(Color.is_red(Color.red))
         True
         """
         return z3.is_app_of(x, z3.Z3_OP_DT_IS)
+
+    def is_power(x: z3.ExprRef) -> bool:
+        """
+        Check if an expression is a power.
+        >>> x = z3.Real("x")
+        >>> is_power(x**3)
+        True
+        """
+        return z3.is_app_of(x, z3.Z3_OP_POWER)
 
     Z3Solver = Solver
 elif solver == VAMPIRESOLVER:
