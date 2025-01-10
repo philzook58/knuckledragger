@@ -1,0 +1,6 @@
+kdrag.notation.NewType
+======================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: NewType

@@ -1,0 +1,6 @@
+kdrag.theories.vec.Vec
+======================
+
+.. currentmodule:: kdrag.theories.vec
+
+.. autofunction:: Vec

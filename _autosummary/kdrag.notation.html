@@ -1,0 +1,874 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.notation &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.notation.Enum" href="kdrag.notation.Enum.html" />
+    <link rel="prev" title="kdrag.kernel.skolem" href="kdrag.kernel.skolem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Record"><code class="docutils literal notranslate"><span class="pre">Record()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.lemma"><code class="docutils literal notranslate"><span class="pre">lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.notation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.Enum.html">kdrag.notation.Enum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.ExistsUnique.html">kdrag.notation.ExistsUnique</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.Inductive.html">kdrag.notation.Inductive</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.NewType.html">kdrag.notation.NewType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.QExists.html">kdrag.notation.QExists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.QForAll.html">kdrag.notation.QForAll</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.Record.html">kdrag.notation.Record</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.cond.html">kdrag.notation.cond</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.conde.html">kdrag.notation.conde</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.datatype_call.html">kdrag.notation.datatype_call</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.datatype_iter.html">kdrag.notation.datatype_iter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.datatype_len.html">kdrag.notation.datatype_len</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.induct_inductive.html">kdrag.notation.induct_inductive</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.notation.quantifier_call.html">kdrag.notation.quantifier_call</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.Cond"><code class="docutils literal notranslate"><span class="pre">Cond</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.notation.Cond.expr"><code class="docutils literal notranslate"><span class="pre">Cond.expr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.notation.Cond.otherwise"><code class="docutils literal notranslate"><span class="pre">Cond.otherwise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.notation.Cond.then"><code class="docutils literal notranslate"><span class="pre">Cond.then()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.notation.Cond.when"><code class="docutils literal notranslate"><span class="pre">Cond.when()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.Enum"><code class="docutils literal notranslate"><span class="pre">Enum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.ExistsUnique"><code class="docutils literal notranslate"><span class="pre">ExistsUnique()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.Record"><code class="docutils literal notranslate"><span class="pre">Record()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.SortDispatch"><code class="docutils literal notranslate"><span class="pre">SortDispatch</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.notation.SortDispatch.define"><code class="docutils literal notranslate"><span class="pre">SortDispatch.define()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.notation.SortDispatch.register"><code class="docutils literal notranslate"><span class="pre">SortDispatch.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.conde"><code class="docutils literal notranslate"><span class="pre">conde()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.datatype_call"><code class="docutils literal notranslate"><span class="pre">datatype_call()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.datatype_iter"><code class="docutils literal notranslate"><span class="pre">datatype_iter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.datatype_len"><code class="docutils literal notranslate"><span class="pre">datatype_len()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.induct_inductive"><code class="docutils literal notranslate"><span class="pre">induct_inductive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.quantifier_call"><code class="docutils literal notranslate"><span class="pre">quantifier_call()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.notation.wf"><code class="docutils literal notranslate"><span class="pre">wf</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+      <li class="breadcrumb-item active">kdrag.notation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.notation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.notation">
+<span id="kdrag-notation"></span><h1>kdrag.notation<a class="headerlink" href="#module-kdrag.notation" title="Link to this heading"></a></h1>
+<p>The <cite>SortDispatch</cite> system enables z3 sort based dispatch akin to ` functools.singledispatch`.
+This is the mechanism for operator overloading in knuckledragger.</p>
+<p>A special overloadable operation is the “well-formed” predicate <cite>wf</cite>.
+Using the QForAll and QExists quantifiers will automatically insert <cite>wf</cite> calls for the appropriate sorts.
+In this way, we can achieve an effect similar to refinement types.</p>
+<p>Importing this module will add some syntactic sugar to smt.</p>
+<ul class="simple">
+<li><p>Expr overload by single dispatch</p></li>
+<li><p>Bool supports <cite>&amp;</cite>, <cite>|</cite>, <cite>~</cite></p></li>
+<li><p>Sorts supports <cite>&gt;&gt;</cite> for ArraySort</p></li>
+<li><p>Datatypes support accessor notation <cite>l.is_cons</cite>, <cite>l.hd</cite>, <cite>l.tl</cite> etc.</p></li>
+</ul>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.notation.wf" title="kdrag.notation.wf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wf</span></code></a></p></td>
+<td><p><cite>wf</cite> is a special predicate for well-formedness.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.notation.Enum.html#kdrag.notation.Enum" title="kdrag.notation.Enum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Enum</span></code></a>(name, args[, admit])</p></td>
+<td><p>Shorthand for simple enumeration datatypes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.ExistsUnique.html#kdrag.notation.ExistsUnique" title="kdrag.notation.ExistsUnique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExistsUnique</span></code></a>(v, *concs)</p></td>
+<td><p>Unique Existence</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.notation.Inductive.html#kdrag.notation.Inductive" title="kdrag.notation.Inductive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Inductive</span></code></a>(name[, admit])</p></td>
+<td><p>Declare datatypes with auto generated induction principles.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.NewType.html#kdrag.notation.NewType" title="kdrag.notation.NewType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NewType</span></code></a>(name, sort[, pred, admit])</p></td>
+<td><p>Minimal wrapper around a sort for sort based overloading</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.notation.QExists.html#kdrag.notation.QExists" title="kdrag.notation.QExists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QExists</span></code></a>(vs, *concs)</p></td>
+<td><p>Quantified Exists</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.QForAll.html#kdrag.notation.QForAll" title="kdrag.notation.QForAll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QForAll</span></code></a>(vs, *hyp_conc)</p></td>
+<td><p>Quantified ForAll</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.notation.Record.html#kdrag.notation.Record" title="kdrag.notation.Record"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Record</span></code></a>(name, *fields[, pred, admit])</p></td>
+<td><p>Define a record datatype.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.cond.html#kdrag.notation.cond" title="kdrag.notation.cond"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cond</span></code></a>(*cases[, default])</p></td>
+<td><p>Helper for chained ifs defined by cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.notation.conde.html#kdrag.notation.conde" title="kdrag.notation.conde"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conde</span></code></a>(*cases)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.datatype_call.html#kdrag.notation.datatype_call" title="kdrag.notation.datatype_call"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datatype_call</span></code></a>(self, *args)</p></td>
+<td><p>Enable &quot;call&quot; syntax for constructors of smt datatypes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.notation.datatype_iter.html#kdrag.notation.datatype_iter" title="kdrag.notation.datatype_iter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datatype_iter</span></code></a>(self)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.datatype_len.html#kdrag.notation.datatype_len" title="kdrag.notation.datatype_len"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datatype_len</span></code></a>(self)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.notation.induct_inductive.html#kdrag.notation.induct_inductive" title="kdrag.notation.induct_inductive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">induct_inductive</span></code></a>(x, P)</p></td>
+<td><p>Build a basic induction principle for an algebraic datatype</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.quantifier_call.html#kdrag.notation.quantifier_call" title="kdrag.notation.quantifier_call"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantifier_call</span></code></a>(self, *args)</p></td>
+<td><p>Instantiate a quantifier.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.notation.Cond" title="kdrag.notation.Cond"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cond</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.notation.SortDispatch" title="kdrag.notation.SortDispatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SortDispatch</span></code></a>([name, default])</p></td>
+<td><p>Sort dispatch is modeled after functools.singledispatch It allows for dispatching on the sort of the first argument</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.notation.Cond">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">Cond</span></span><a class="headerlink" href="#kdrag.notation.Cond" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.notation.Cond.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.notation.Cond.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.notation.Cond.otherwise">
+<span class="sig-name descname"><span class="pre">otherwise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">els</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.Cond.otherwise" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.notation.Cond.then">
+<span class="sig-name descname"><span class="pre">then</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.Cond.then" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.notation.Cond.when">
+<span class="sig-name descname"><span class="pre">when</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.Cond.when" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.Enum">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">Enum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.Enum" title="Link to this definition"></a></dt>
+<dd><p>Shorthand for simple enumeration datatypes. Similar to python’s Enum.
+&gt;&gt;&gt; Color = Enum(“Color”, “Red Green Blue”)
+&gt;&gt;&gt; smt.And(Color.Red != Color.Green, Color.Red != Color.Blue)
+And(Red != Green, Red != Blue)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.ExistsUnique">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">ExistsUnique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">concs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.notation.ExistsUnique" title="Link to this definition"></a></dt>
+<dd><p>Unique Existence</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.Inductive">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">Inductive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Datatype</span></span></span><a class="headerlink" href="#kdrag.notation.Inductive" title="Link to this definition"></a></dt>
+<dd><p>Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.NewType">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">NewType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeSortRef</span></span></span><a class="headerlink" href="#kdrag.notation.NewType" title="Link to this definition"></a></dt>
+<dd><p>Minimal wrapper around a sort for sort based overloading</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.QExists">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">QExists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">concs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.notation.QExists" title="Link to this definition"></a></dt>
+<dd><p>Quantified Exists</p>
+<p>Shorthand for <cite>ForAll(vars, And(conc[0], conc[1], …))</cite></p>
+<p>If variables have a property <cite>wf</cite> attached, this is anded into the properties.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.QForAll">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">QForAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">hyp_conc</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.notation.QForAll" title="Link to this definition"></a></dt>
+<dd><p>Quantified ForAll</p>
+<p>Shorthand for <cite>ForAll(vars, Implies(And(hyp[0], hyp[1], …), conc))</cite></p>
+<p>If variables have a property <cite>wf</cite> attached, this is added as a hypothesis.</p>
+<p>There is no downside to always using this compared to <cite>smt.ForAll</cite> and it can avoid some errors.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">ForAll([x, y], Implies(And(x &gt; 0, y &gt; 0), x + y &gt; 0))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.Record">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">Record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeSortRef</span></span></span><a class="headerlink" href="#kdrag.notation.Record" title="Link to this definition"></a></dt>
+<dd><p>Define a record datatype.
+The optional argument <cite>pred</cite> will add a well-formedness condition to the record
+giving something akin to a refinement type.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.notation.SortDispatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">SortDispatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.SortDispatch" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Sort dispatch is modeled after functools.singledispatch
+It allows for dispatching on the sort of the first argument</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_func</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_func&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_func</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_func</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Not</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_func</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">3 + 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_func</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">Not(True)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.notation.SortDispatch.define">
+<span class="sig-name descname"><span class="pre">define</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.SortDispatch.define" title="Link to this definition"></a></dt>
+<dd><p>Shorthand to define a new function for this dispatch. Calls kdrag.define.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.notation.SortDispatch.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.SortDispatch.register" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.cond">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">cond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">cases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.notation.cond" title="Link to this definition"></a></dt>
+<dd><p>Helper for chained ifs defined by cases.
+Each case is a tuple of a bool condition and a term.
+If default is not given, a check is performed for totality.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.conde">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">conde</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">cases</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.conde" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.datatype_call">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">datatype_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.datatype_call" title="Link to this definition"></a></dt>
+<dd><p>Enable “call” syntax for constructors of smt datatypes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.datatype_iter">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">datatype_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.datatype_iter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.datatype_len">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">datatype_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.datatype_len" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.induct_inductive">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">induct_inductive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatatypeRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QuantifierRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#kdrag.notation.induct_inductive" title="Link to this definition"></a></dt>
+<dd><p>Build a basic induction principle for an algebraic datatype</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.notation.quantifier_call">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">quantifier_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.notation.quantifier_call" title="Link to this definition"></a></dt>
+<dd><p>Instantiate a quantifier. This does substitution
+&gt;&gt;&gt; x,y = smt.Ints(“x y”)
+&gt;&gt;&gt; smt.Lambda([x,y], x + 1)(2,3)
+2 + 1</p>
+<p>To apply a Lambda without substituting, use square brackets
+&gt;&gt;&gt; smt.Lambda([x,y], x + 1)[2,3]
+Select(Lambda([x, y], x + 1), 2, 3)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.notation.wf">
+<span class="sig-prename descclassname"><span class="pre">kdrag.notation.</span></span><span class="sig-name descname"><span class="pre">wf</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;kdrag.notation.SortDispatch</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#kdrag.notation.wf" title="Link to this definition"></a></dt>
+<dd><p><cite>wf</cite> is a special predicate for well-formedness. It is auto inserted by QForAll and QExists.</p>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The `SortDispatch` system enables z3 sort based dispatch akin to ` functools.singledispatch`.</span>
+<span class="sd">This is the mechanism for operator overloading in knuckledragger.</span>
+
+<span class="sd">A special overloadable operation is the &quot;well-formed&quot; predicate `wf`.</span>
+<span class="sd">Using the QForAll and QExists quantifiers will automatically insert `wf` calls for the appropriate sorts.</span>
+<span class="sd">In this way, we can achieve an effect similar to refinement types.</span>
+
+<span class="sd">Importing this module will add some syntactic sugar to smt.</span>
+
+<span class="sd">- Expr overload by single dispatch</span>
+<span class="sd">- Bool supports `&amp;`, `|`, `~`</span>
+<span class="sd">- Sorts supports `&gt;&gt;` for ArraySort</span>
+<span class="sd">- Datatypes support accessor notation `l.is_cons`, `l.hd`, `l.tl` etc.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+
+<span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="o">.</span><span class="fm">__and__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="o">.</span><span class="fm">__or__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="o">.</span><span class="fm">__invert__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Not</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="o">.</span><span class="fm">__rshift__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArraySort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+<span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="o">.</span><span class="fm">__call__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">quantifier_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiate a quantifier. This does substitution</span>
+<span class="sd">    &gt;&gt;&gt; x,y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; smt.Lambda([x,y], x + 1)(2,3)</span>
+<span class="sd">    2 + 1</span>
+
+<span class="sd">    To apply a Lambda without substituting, use square brackets</span>
+<span class="sd">    &gt;&gt;&gt; smt.Lambda([x,y], x + 1)[2,3]</span>
+<span class="sd">    Select(Lambda([x, y], x + 1), 2, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_vars</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Wrong number of arguments&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute_vars</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">(),</span> <span class="o">*</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">_py2expr</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="p">)</span>
+
+
+<span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="o">.</span><span class="fm">__call__</span> <span class="o">=</span> <span class="n">quantifier_call</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SortDispatch</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sort dispatch is modeled after functools.singledispatch</span>
+<span class="sd">    It allows for dispatching on the sort of the first argument</span>
+
+<span class="sd">    &gt;&gt;&gt; my_func = SortDispatch(name=&quot;my_func&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; my_func.register(smt.IntSort(), lambda x: x + 1)</span>
+<span class="sd">    &gt;&gt;&gt; my_func.register(smt.BoolSort(), lambda x: smt.Not(x))</span>
+<span class="sd">    &gt;&gt;&gt; my_func(smt.IntVal(3))</span>
+<span class="sd">    3 + 1</span>
+<span class="sd">    &gt;&gt;&gt; my_func(smt.BoolVal(True))</span>
+<span class="sd">    Not(True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methods</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">sort</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">sort</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">sort</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No implementation of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for sort </span><span class="si">{</span><span class="n">sort</span><span class="si">}</span><span class="s2">. Register a definition via </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.register(</span><span class="si">{</span><span class="n">sort</span><span class="si">}</span><span class="s2">, your_code)&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">define</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shorthand to define a new function for this dispatch. Calls kdrag.define.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="n">defn</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">defn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">defn</span>
+
+
+<span class="n">add</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__add__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">radd</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;radd&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__radd__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">radd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">sub</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sub&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__sub__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">sub</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">mul</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mul&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__mul__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">mul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">rmul</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;rmul&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__rmul__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">rmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">matmul</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;matmul&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__matmul__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">neg</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;neg&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__neg__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">neg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">div</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;div_&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__truediv__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">div</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">and_</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">()</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__and__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">and_</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">or_</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">()</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__or__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">or_</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">invert</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;invert&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__invert__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">invert</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">lt</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;lt&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__lt__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">lt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">le</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;le&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__le__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">le</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+
+<span class="n">wf</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wf&quot;</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="n">wf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">wf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">induct</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;induct&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="n">induct</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">:</span> <span class="n">induct</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+
+<span class="n">getitem</span> <span class="o">=</span> <span class="n">SortDispatch</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;getitem&quot;</span><span class="p">)</span>
+<span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="o">.</span><span class="fm">__getitem__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">getitem</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">QForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="o">*</span><span class="n">hyp_conc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Quantified ForAll</span>
+
+<span class="sd">    Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`</span>
+
+<span class="sd">    If variables have a property `wf` attached, this is added as a hypothesis.</span>
+
+<span class="sd">    There is no downside to always using this compared to `smt.ForAll` and it can avoid some errors.</span>
+
+<span class="sd">    &gt;&gt;&gt; x,y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; QForAll([x,y], x &gt; 0, y &gt; 0, x + y &gt; 0)</span>
+<span class="sd">    ForAll([x, y], Implies(And(x &gt; 0, y &gt; 0), x + y &gt; 0))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">conc</span> <span class="o">=</span> <span class="n">hyp_conc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">hyps</span> <span class="o">=</span> <span class="n">hyp_conc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">hyps</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">wf</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">methods</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">hyps</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hyps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">conc</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">hyps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">hyps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">conc</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hyp</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">hyps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">hyp</span><span class="p">,</span> <span class="n">conc</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">QExists</span><span class="p">(</span><span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="o">*</span><span class="n">concs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Quantified Exists</span>
+
+<span class="sd">    Shorthand for `ForAll(vars, And(conc[0], conc[1], ...))`</span>
+
+<span class="sd">    If variables have a property `wf` attached, this is anded into the properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">concs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">wf</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">methods</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">concs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">concs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">concs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">concs</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ExistsUnique</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="o">*</span><span class="n">concs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unique Existence&quot;&quot;&quot;</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">concs_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">conc</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="n">conc</span> <span class="ow">in</span> <span class="n">concs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span>
+        <span class="n">QExists</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="o">*</span><span class="n">concs</span><span class="p">),</span>
+        <span class="n">QForAll</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="o">*</span><span class="n">concs</span><span class="p">,</span> <span class="o">*</span><span class="n">concs_y</span><span class="p">,</span> <span class="n">v</span> <span class="o">==</span> <span class="n">y</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lookup_constructor_recog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable &quot;dot&quot; syntax for fields of smt datatypes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sort</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">recog</span> <span class="o">=</span> <span class="s2">&quot;is_&quot;</span> <span class="o">==</span> <span class="n">k</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sort</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()):</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">sort</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">recog</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="n">k</span><span class="p">[</span><span class="mi">3</span><span class="p">:]:</span>
+                <span class="n">recog</span> <span class="o">=</span> <span class="n">sort</span><span class="o">.</span><span class="n">recognizer</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">recog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">arity</span><span class="p">()):</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="n">sort</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">acc</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="n">k</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">acc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="o">.</span><span class="fm">__getattr__</span> <span class="o">=</span> <span class="n">_lookup_constructor_recog</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">datatype_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable &quot;call&quot; syntax for constructors of smt datatypes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: could also enable keyword syntax</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="mi">0</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+
+<span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="o">.</span><span class="fm">__call__</span> <span class="o">=</span> <span class="n">datatype_call</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">datatype_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()))</span>
+
+
+<span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="o">.</span><span class="fm">__iter__</span> <span class="o">=</span> <span class="n">datatype_iter</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">datatype_len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()</span>
+
+
+<span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="o">.</span><span class="fm">__len__</span> <span class="o">=</span> <span class="n">datatype_len</span>
+
+<span class="n">records</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Record</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">fields</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Define a record datatype.</span>
+<span class="sd">    The optional argument `pred` will add a well-formedness condition to the record</span>
+<span class="sd">    giving something akin to a refinement type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">admit</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Record already defined&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Datatype</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">rec</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">fields</span><span class="p">)</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+    <span class="n">rec</span><span class="o">.</span><span class="n">mk</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">wf_cond</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">sort</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="k">if</span> <span class="n">sort</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">methods</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">pred</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wf_cond</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf_cond</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">acc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">wf</span><span class="p">()))</span>
+    <span class="k">elif</span> <span class="n">pred</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wf_cond</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+            <span class="n">rec</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">rec</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">wf</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">wf_cond</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">pred</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wf_cond</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pred</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">pred</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wf_cond</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+            <span class="n">rec</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">pred</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="o">*</span><span class="p">[</span><span class="n">rec</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">wf</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">wf_cond</span><span class="p">]),</span>
+        <span class="p">)</span>
+    <span class="n">records</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span>
+
+    <span class="k">return</span> <span class="n">rec</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">NewType</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal wrapper around a sort for sort based overloading&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="p">),</span> <span class="n">pred</span><span class="o">=</span><span class="n">pred</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="n">admit</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Enum</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shorthand for simple enumeration datatypes. Similar to python&#39;s Enum.</span>
+<span class="sd">    &gt;&gt;&gt; Color = Enum(&quot;Color&quot;, &quot;Red Green Blue&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; smt.And(Color.Red != Color.Green, Color.Red != Color.Blue)</span>
+<span class="sd">    And(Red != Green, Red != Blue)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Inductive</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="n">admit</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+        <span class="n">T</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">T</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -&gt; kd.kernel.Proof:</span>
+<span class="sd">    if P is None:</span>
+<span class="sd">        P = smt.FreshConst(smt.ArraySort(DT, smt.BoolSort()), prefix=&quot;P&quot;)</span>
+<span class="sd">    hyps = []</span>
+<span class="sd">    for i in range(DT.num_constructors()):</span>
+<span class="sd">        constructor = DT.constructor(i)</span>
+<span class="sd">        args = [</span>
+<span class="sd">            smt.FreshConst(constructor.domain(j), prefix=&quot;a&quot;)</span>
+<span class="sd">            for j in range(constructor.arity())</span>
+<span class="sd">        ]</span>
+<span class="sd">        acc = P(constructor(*args))</span>
+<span class="sd">        for arg in args:</span>
+<span class="sd">            if arg.sort() == DT:</span>
+<span class="sd">                acc = kd.QForAll([arg], P(arg), acc)</span>
+<span class="sd">            else:</span>
+<span class="sd">                acc = kd.QForAll([arg], acc)</span>
+<span class="sd">        hyps.append(acc)</span>
+<span class="sd">    if x is None:</span>
+<span class="sd">        x = smt.FreshConst(DT, prefix=&quot;x&quot;)</span>
+<span class="sd">        conc = kd.QForAll([x], P(x))</span>
+<span class="sd">    else:</span>
+<span class="sd">        conc = P(x)</span>
+<span class="sd">    if isinstance(P, smt.ExprRef):</span>
+<span class="sd">        return kd.axiom(</span>
+<span class="sd">            smt.ForAll([P], smt.Implies(smt.And(hyps), conc)), by=&quot;induction_axiom&quot;</span>
+<span class="sd">        )</span>
+<span class="sd">    else:</span>
+<span class="sd">        return kd.axiom(</span>
+<span class="sd">            smt.ForAll([P], smt.Implies(smt.And(hyps), conc)), by=&quot;induction_axiom&quot;</span>
+<span class="sd">        )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">induct_inductive</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">,</span> <span class="n">P</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a basic induction principle for an algebraic datatype&quot;&quot;&quot;</span>
+    <span class="n">DT</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">DT</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;assert (</span>
+<span class="sd">        smt.is_quantifier(P) and P.is_lambda()</span>
+<span class="sd">    )  # TODO: Hmm. Actually it should just be arraysort&quot;&quot;&quot;</span>
+    <span class="n">hyps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DT</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()):</span>
+        <span class="n">constructor</span> <span class="o">=</span> <span class="n">DT</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">constructor</span><span class="o">.</span><span class="n">domain</span><span class="p">(</span><span class="n">j</span><span class="p">),</span> <span class="n">prefix</span><span class="o">=</span><span class="n">DT</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">constructor</span><span class="o">.</span><span class="n">arity</span><span class="p">())</span>
+        <span class="p">]</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">constructor</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">==</span> <span class="n">DT</span><span class="p">:</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">arg</span><span class="p">],</span> <span class="n">P</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="n">acc</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">arg</span><span class="p">],</span> <span class="n">acc</span><span class="p">)</span>
+        <span class="n">hyps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+    <span class="n">conc</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">hyps</span><span class="p">),</span> <span class="n">conc</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;induction_axiom_schema&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Inductive</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">Datatype</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">admit</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;Datatype with that name already defined. Use keyword admit=True to override&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="c1"># records[name].sexpr(),</span>
+        <span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Datatype</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">oldcreate</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">create</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">():</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">oldcreate</span><span class="p">()</span>
+        <span class="c1"># Sanity check no duplicate names. Causes confusion.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">admit</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()):</span>
+                <span class="n">cons</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Duplicate constructor name&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">arity</span><span class="p">()):</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Duplicate field name&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">induct</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">induct_inductive</span><span class="p">)</span>
+        <span class="n">records</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt</span>
+        <span class="k">return</span> <span class="n">dt</span>
+
+    <span class="n">dt</span><span class="o">.</span><span class="n">create</span> <span class="o">=</span> <span class="n">create</span>
+    <span class="k">return</span> <span class="n">dt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">cond</span><span class="p">(</span><span class="o">*</span><span class="n">cases</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper for chained ifs defined by cases.</span>
+<span class="sd">    Each case is a tuple of a bool condition and a term.</span>
+<span class="sd">    If default is not given, a check is performed for totality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sort</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+        <span class="n">sort</span> <span class="o">=</span> <span class="n">default</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_bool</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Condition must be boolean&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">t</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+            <span class="p">):</span>  <span class="c1"># looping through allows (some_cond , 0) to be a case if z3 will infer what 0 will be</span>
+                <span class="n">sort</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">sort</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not infer return sort&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Check totality of cases &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Solver</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Not</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">])))</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">sat</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Cases not exhaustive. Fix or give default&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">model</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">res</span> <span class="o">!=</span> <span class="n">smt</span><span class="o">.</span><span class="n">unsat</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Solver error. Give default&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">sort</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;unreachable&quot;</span><span class="p">)</span>
+    <span class="n">acc</span> <span class="o">=</span> <span class="n">default</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">cases</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">!=</span> <span class="n">sort</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Sort mismatch in cond&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">sort</span><span class="p">)</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">acc</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">conde</span><span class="p">(</span><span class="o">*</span><span class="n">cases</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">([</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">])</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Cond</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cases</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">when</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cond</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cond</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">then</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thn</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">thn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">otherwise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">els</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">els</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">expr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cond</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.kernel.skolem.html" class="btn btn-neutral float-left" title="kdrag.kernel.skolem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.notation.Enum.html" class="btn btn-neutral float-right" title="kdrag.notation.Enum" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+kdrag.notation.Enum
+===================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: Enum

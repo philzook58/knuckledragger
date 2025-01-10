@@ -1,0 +1,6 @@
+kdrag.notation.datatype\_iter
+=============================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: datatype_iter

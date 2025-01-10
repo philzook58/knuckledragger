@@ -1,0 +1,6 @@
+kdrag.solvers.funcdecl\_smtlib
+==============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: funcdecl_smtlib

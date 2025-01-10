@@ -1,0 +1,1159 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.tactics &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.tactics.lemma" href="kdrag.tactics.lemma.html" />
+    <link rel="prev" title="kdrag.solvers.gappa.gappa_of_real" href="kdrag.solvers.gappa.gappa_of_real.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Record"><code class="docutils literal notranslate"><span class="pre">Record()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.lemma"><code class="docutils literal notranslate"><span class="pre">lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.tactics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tactics.lemma.html">kdrag.tactics.lemma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tactics.simp.html">kdrag.tactics.simp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tactics.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Calc.eq"><code class="docutils literal notranslate"><span class="pre">Calc.eq()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Calc.ge"><code class="docutils literal notranslate"><span class="pre">Calc.ge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Calc.gt"><code class="docutils literal notranslate"><span class="pre">Calc.gt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Calc.le"><code class="docutils literal notranslate"><span class="pre">Calc.le()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Calc.lt"><code class="docutils literal notranslate"><span class="pre">Calc.lt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Calc.qed"><code class="docutils literal notranslate"><span class="pre">Calc.qed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tactics.GoalCtx"><code class="docutils literal notranslate"><span class="pre">GoalCtx</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.GoalCtx.count"><code class="docutils literal notranslate"><span class="pre">GoalCtx.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.GoalCtx.ctx"><code class="docutils literal notranslate"><span class="pre">GoalCtx.ctx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.GoalCtx.goal"><code class="docutils literal notranslate"><span class="pre">GoalCtx.goal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.GoalCtx.index"><code class="docutils literal notranslate"><span class="pre">GoalCtx.index()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tactics.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.apply"><code class="docutils literal notranslate"><span class="pre">Lemma.apply()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.assumption"><code class="docutils literal notranslate"><span class="pre">Lemma.assumption()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.auto"><code class="docutils literal notranslate"><span class="pre">Lemma.auto()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.cases"><code class="docutils literal notranslate"><span class="pre">Lemma.cases()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.clear"><code class="docutils literal notranslate"><span class="pre">Lemma.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.einstan"><code class="docutils literal notranslate"><span class="pre">Lemma.einstan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.eq"><code class="docutils literal notranslate"><span class="pre">Lemma.eq()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.exists"><code class="docutils literal notranslate"><span class="pre">Lemma.exists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.fixes"><code class="docutils literal notranslate"><span class="pre">Lemma.fixes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.generalize"><code class="docutils literal notranslate"><span class="pre">Lemma.generalize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.have"><code class="docutils literal notranslate"><span class="pre">Lemma.have()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.induct"><code class="docutils literal notranslate"><span class="pre">Lemma.induct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.instan"><code class="docutils literal notranslate"><span class="pre">Lemma.instan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.intros"><code class="docutils literal notranslate"><span class="pre">Lemma.intros()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.left"><code class="docutils literal notranslate"><span class="pre">Lemma.left()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.newgoal"><code class="docutils literal notranslate"><span class="pre">Lemma.newgoal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.qed"><code class="docutils literal notranslate"><span class="pre">Lemma.qed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.rewrite"><code class="docutils literal notranslate"><span class="pre">Lemma.rewrite()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.right"><code class="docutils literal notranslate"><span class="pre">Lemma.right()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.rw"><code class="docutils literal notranslate"><span class="pre">Lemma.rw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.show"><code class="docutils literal notranslate"><span class="pre">Lemma.show()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.simp"><code class="docutils literal notranslate"><span class="pre">Lemma.simp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.split"><code class="docutils literal notranslate"><span class="pre">Lemma.split()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.symm"><code class="docutils literal notranslate"><span class="pre">Lemma.symm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.top_goal"><code class="docutils literal notranslate"><span class="pre">Lemma.top_goal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.tactics.Lemma.unfold"><code class="docutils literal notranslate"><span class="pre">Lemma.unfold()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tactics.lemma"><code class="docutils literal notranslate"><span class="pre">lemma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tactics.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+      <li class="breadcrumb-item active">kdrag.tactics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.tactics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.tactics">
+<span id="kdrag-tactics"></span><h1>kdrag.tactics<a class="headerlink" href="#module-kdrag.tactics" title="Link to this heading"></a></h1>
+<p>Tactics are helpers that organize calls to the kernel. The code of these helpers don’t have to be trusted.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tactics.lemma.html#kdrag.tactics.lemma" title="kdrag.tactics.lemma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lemma</span></code></a>(thm[, by, admit, timeout, dump, ...])</p></td>
+<td><p>Prove a theorem using a list of previously proved lemmas.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tactics.simp.html#kdrag.tactics.simp" title="kdrag.tactics.simp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simp</span></code></a>(t[, by])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.tactics.Calc" title="kdrag.tactics.Calc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Calc</span></code></a>(vars, lhs[, assume])</p></td>
+<td><p>Calc is for equational reasoning.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.tactics.GoalCtx" title="kdrag.tactics.GoalCtx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GoalCtx</span></code></a>(ctx, goal)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.tactics.Lemma" title="kdrag.tactics.Lemma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Lemma</span></code></a>(goal)</p></td>
+<td><p>Tactic class for interactive proofs</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.tactics.Calc">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.tactics.</span></span><span class="sig-name descname"><span class="pre">Calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Calc" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Calc is for equational reasoning.
+One can write a sequence of formulas interspersed with useful lemmas.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Calc.eq">
+<span class="sig-name descname"><span class="pre">eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Calc.eq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Calc.ge">
+<span class="sig-name descname"><span class="pre">ge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Calc.ge" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Calc.gt">
+<span class="sig-name descname"><span class="pre">gt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Calc.gt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Calc.le">
+<span class="sig-name descname"><span class="pre">le</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Calc.le" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Calc.lt">
+<span class="sig-name descname"><span class="pre">lt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Calc.lt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Calc.qed">
+<span class="sig-name descname"><span class="pre">qed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Calc.qed" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.tactics.GoalCtx">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.tactics.</span></span><span class="sig-name descname"><span class="pre">GoalCtx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.GoalCtx" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.GoalCtx.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.GoalCtx.count" title="Link to this definition"></a></dt>
+<dd><p>Return number of occurrences of value.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.tactics.GoalCtx.ctx">
+<span class="sig-name descname"><span class="pre">ctx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.tactics.GoalCtx.ctx" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.tactics.GoalCtx.goal">
+<span class="sig-name descname"><span class="pre">goal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.tactics.GoalCtx.goal" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.GoalCtx.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.GoalCtx.index" title="Link to this definition"></a></dt>
+<dd><p>Return first index of value.</p>
+<p>Raises ValueError if the value is not present.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.tactics.</span></span><span class="sig-name descname"><span class="pre">Lemma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Tactic class for interactive proofs</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.apply" title="Link to this definition"></a></dt>
+<dd><p><cite>apply</cite> matches the conclusion of a proven clause</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.assumption">
+<span class="sig-name descname"><span class="pre">assumption</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.assumption" title="Link to this definition"></a></dt>
+<dd><p>Exact match of goal in the context</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.auto">
+<span class="sig-name descname"><span class="pre">auto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.auto" title="Link to this definition"></a></dt>
+<dd><p><cite>auto</cite> discharges a goal using z3. It forwards all parameters to <cite>kd.lemma</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.cases">
+<span class="sig-name descname"><span class="pre">cases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.cases" title="Link to this definition"></a></dt>
+<dd><p><cite>cases</cite> let’s us consider an object by cases.
+We consider whether Bools are True or False
+We consider the different constructors for datatypes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.clear" title="Link to this definition"></a></dt>
+<dd><p>Remove a hypothesis from the context</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.einstan">
+<span class="sig-name descname"><span class="pre">einstan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.einstan" title="Link to this definition"></a></dt>
+<dd><p>einstan opens an exists quantifier in context and returns the fresh eigenvariable.
+<cite>[exists x, p(x)] ?|- goal</cite> becomes <cite>p(x) ?|- goal</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.eq">
+<span class="sig-name descname"><span class="pre">eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.eq" title="Link to this definition"></a></dt>
+<dd><p>replace rhs in equational goal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.exists">
+<span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">ts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.exists" title="Link to this definition"></a></dt>
+<dd><p>Give terms <cite>ts</cite> to satisfy an exists goal
+<cite>?|- exists x, p(x)</cite> becomes <cite>?|- p(ts)</cite>
+&gt;&gt;&gt; x,y = smt.Ints(“x y”)
+&gt;&gt;&gt; Lemma(smt.Exists([x], x == y)).exists(y)
+[] ?|- y == y</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.fixes">
+<span class="sig-name descname"><span class="pre">fixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.fixes" title="Link to this definition"></a></dt>
+<dd><p>fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.generalize">
+<span class="sig-name descname"><span class="pre">generalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">vs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.generalize" title="Link to this definition"></a></dt>
+<dd><p>Put variables forall quantified back on goal. Useful for strengthening induction hypotheses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.have">
+<span class="sig-name descname"><span class="pre">have</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.have" title="Link to this definition"></a></dt>
+<dd><p>Prove the given formula and add it to the current context</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.induct">
+<span class="sig-name descname"><span class="pre">induct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.induct" title="Link to this definition"></a></dt>
+<dd><p>Apply an induction lemma instantiated on x.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.instan">
+<span class="sig-name descname"><span class="pre">instan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">ts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.instan" title="Link to this definition"></a></dt>
+<dd><p>Instantiate a universal quantifier in the context.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">Lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span><span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span><span class="o">.</span><span class="n">intros</span><span class="p">()</span>
+<span class="go">[ForAll(x, x == y)] ?|- True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span><span class="o">.</span><span class="n">instan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
+<span class="go">[ForAll(x, x == y), 42 == y] ?|- True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.intros">
+<span class="sig-name descname"><span class="pre">intros</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.intros" title="Link to this definition"></a></dt>
+<dd><p>intros opens an implication. ?|- p -&gt; q becomes p ?|- q</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.left">
+<span class="sig-name descname"><span class="pre">left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.left" title="Link to this definition"></a></dt>
+<dd><p>Select the left case of an <cite>Or</cite> goal.
+<cite>?|- Or(p,q)</cite> becomes <cite>?|- p</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.newgoal">
+<span class="sig-name descname"><span class="pre">newgoal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newgoal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.newgoal" title="Link to this definition"></a></dt>
+<dd><p>Try to show newgoal is sufficient to prove current goal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.qed">
+<span class="sig-name descname"><span class="pre">qed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#kdrag.tactics.Lemma.qed" title="Link to this definition"></a></dt>
+<dd><p>return the actual final <cite>Proof</cite> of the lemma that was defined at the beginning.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.rewrite">
+<span class="sig-name descname"><span class="pre">rewrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.rewrite" title="Link to this definition"></a></dt>
+<dd><p><cite>rewrite</cite> allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.right">
+<span class="sig-name descname"><span class="pre">right</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.right" title="Link to this definition"></a></dt>
+<dd><p>Select the right case of an <cite>Or</cite> goal.
+<cite>?|- Or(p,q)</cite> becomes <cite>?|- q</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.rw">
+<span class="sig-name descname"><span class="pre">rw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.rw" title="Link to this definition"></a></dt>
+<dd><p>shorthand for rewrite</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.show" title="Link to this definition"></a></dt>
+<dd><p>To document the current goal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.simp">
+<span class="sig-name descname"><span class="pre">simp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.simp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">at</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.split" title="Link to this definition"></a></dt>
+<dd><p><cite>split</cite> breaks apart an <cite>And</cite> or bi-implication <cite>==</cite> goal.
+The optional keyword at allows you to break apart an And or Or in the context</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.symm">
+<span class="sig-name descname"><span class="pre">symm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.symm" title="Link to this definition"></a></dt>
+<dd><p>Swap left and right hand side of equational goal
+&gt;&gt;&gt; x,y = smt.Ints(“x y”)
+&gt;&gt;&gt; Lemma(x == y).symm()
+[] ?|- y == x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.top_goal">
+<span class="sig-name descname"><span class="pre">top_goal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.tactics.GoalCtx" title="kdrag.tactics.GoalCtx"><span class="pre">GoalCtx</span></a></span></span><a class="headerlink" href="#kdrag.tactics.Lemma.top_goal" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.tactics.Lemma.unfold">
+<span class="sig-name descname"><span class="pre">unfold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">decls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncDeclRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tactics.Lemma.unfold" title="Link to this definition"></a></dt>
+<dd><p>Unfold the contents of a definition.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tactics.lemma">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tactics.</span></span><span class="sig-name descname"><span class="pre">lemma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#kdrag.tactics.lemma" title="Link to this definition"></a></dt>
+<dd><p>Prove a theorem using a list of previously proved lemmas.</p>
+<p>In essence <cite>prove(Implies(by, thm))</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thm</strong> (<em>smt.BoolRef</em>) – The theorem to prove.</p></li>
+<li><p><strong>thm</strong> – The theorem to prove.</p></li>
+<li><p><strong>by</strong> (<em>list</em><em>[</em><em>Proof</em><em>]</em>) – A list of previously proved lemmas.</p></li>
+<li><p><strong>admit</strong> (<em>bool</em>) – If True, admit the theorem without proof.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A proof object of thm</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Proof</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">|- True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RealVal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealVal</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="go">|- 1 &gt;= 0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tactics.simp">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tactics.</span></span><span class="sig-name descname"><span class="pre">simp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#kdrag.tactics.simp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tactics are helpers that organize calls to the kernel. The code of these helpers don&#39;t have to be trusted.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">op</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Calc</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calc is for equational reasoning.</span>
+<span class="sd">    One can write a sequence of formulas interspersed with useful lemmas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">_Mode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+        <span class="n">EQ</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">LE</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">LT</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">GT</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">GE</span> <span class="o">=</span> <span class="mi">4</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">names</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">op</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">eq</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">le</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">lt</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">ge</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">ops</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">trans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Allowed transitions&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">y</span> <span class="ow">or</span> <span class="bp">self</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">EQ</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">LE</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">LT</span> <span class="ow">or</span> <span class="bp">self</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">GE</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">GT</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="n">lhs</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">assume</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="nb">vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lhs</span> <span class="o">=</span> <span class="n">lhs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterm</span> <span class="o">=</span> <span class="n">lhs</span>  <span class="c1"># intermediate term</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assume</span> <span class="o">=</span> <span class="n">assume</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemma</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_forall</span><span class="p">(</span><span class="n">lhs</span> <span class="o">==</span> <span class="n">lhs</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Mode</span><span class="o">.</span><span class="n">EQ</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_forall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assume</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assume</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assume</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assume</span><span class="p">),</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">body</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">op</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_forall</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterm</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemma</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_forall</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemma</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterm</span> <span class="o">=</span> <span class="n">rhs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lemma</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newmode</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">trans</span><span class="p">(</span><span class="n">newmode</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">LemmaError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot change from&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">,</span> <span class="n">newmode</span><span class="p">,</span> <span class="s2">&quot;in Calc&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">newmode</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">le</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_mode</span><span class="p">(</span><span class="n">Calc</span><span class="o">.</span><span class="n">_Mode</span><span class="o">.</span><span class="n">LE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lemma</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">lt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_mode</span><span class="p">(</span><span class="n">Calc</span><span class="o">.</span><span class="n">_Mode</span><span class="o">.</span><span class="n">LT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lemma</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">ge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_mode</span><span class="p">(</span><span class="n">Calc</span><span class="o">.</span><span class="n">_Mode</span><span class="o">.</span><span class="n">GE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lemma</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">gt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_mode</span><span class="p">(</span><span class="n">Calc</span><span class="o">.</span><span class="n">_Mode</span><span class="o">.</span><span class="n">GT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lemma</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">by</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;... &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterm</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">qed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemma</span>
+
+
+<span class="n">simps</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">lemma</span><span class="p">(</span>
+    <span class="n">thm</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span>
+    <span class="n">by</span><span class="p">:</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">admit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">dump</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">solver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">defns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">simps</span><span class="o">=</span><span class="n">simps</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prove a theorem using a list of previously proved lemmas.</span>
+
+<span class="sd">    In essence `prove(Implies(by, thm))`.</span>
+
+<span class="sd">    :param thm: The theorem to prove.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        thm (smt.BoolRef): The theorem to prove.</span>
+<span class="sd">        by (list[Proof]): A list of previously proved lemmas.</span>
+<span class="sd">        admit     (bool): If True, admit the theorem without proof.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Proof: A proof object of thm</span>
+
+<span class="sd">    &gt;&gt;&gt; lemma(smt.BoolVal(True))</span>
+<span class="sd">    |- True</span>
+
+<span class="sd">    &gt;&gt;&gt; lemma(smt.RealVal(1) &gt;= smt.RealVal(0))</span>
+<span class="sd">    |- 1 &gt;= 0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">is_proof</span><span class="p">(</span><span class="n">by</span><span class="p">):</span>
+        <span class="n">by</span> <span class="o">=</span> <span class="p">[</span><span class="n">by</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">admit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span>
+            <span class="n">thm</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="n">admit</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">solver</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">solver</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">solver</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">solver</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;timeout&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">by</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">is_proof</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">LemmaError</span><span class="p">(</span><span class="s2">&quot;In by reasons:&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;is not a Proof object&quot;</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">assert_and_track</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">thm</span><span class="p">,</span> <span class="s2">&quot;by_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">defns</span><span class="p">:</span>
+            <span class="c1"># TODO: consider pruning definitions to those in goal.</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">defns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">thm</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">simps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">assert_and_track</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Not</span><span class="p">(</span><span class="n">thm</span><span class="p">),</span> <span class="s2">&quot;knuckledragger_goal&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dump</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">sexpr</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">solver</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">Z3SOLVER</span><span class="p">:</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                def log_instance(pr, clause, myst):</span>
+<span class="sd">                    print(type(pr))</span>
+<span class="sd">                    if pr.decl().name() == &quot;inst&quot;:</span>
+<span class="sd">                        q = pr.arg(0)</span>
+<span class="sd">                        for ch in pr.children():</span>
+<span class="sd">                            if ch.decl().name() == &quot;bind&quot;:</span>
+<span class="sd">                                print(&quot;Binding&quot;)</span>
+<span class="sd">                                print(q)</span>
+<span class="sd">                                print(ch.children())</span>
+<span class="sd">                                break</span>
+
+<span class="sd">                onc = smt.OnClause(s, log_instance)</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="n">onc</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">OnClause</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">pr</span><span class="p">,</span> <span class="n">clause</span><span class="p">,</span> <span class="n">myst</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">clause</span><span class="p">,</span> <span class="n">myst</span><span class="p">))</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="n">smt</span><span class="o">.</span><span class="n">unsat</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">sat</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">LemmaError</span><span class="p">(</span><span class="n">thm</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="s2">&quot;Countermodel&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">model</span><span class="p">())</span>
+            <span class="k">raise</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">LemmaError</span><span class="p">(</span><span class="s2">&quot;lemma&quot;</span><span class="p">,</span> <span class="n">thm</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">core</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">unsat_core</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">Bool</span><span class="p">(</span><span class="s2">&quot;knuckledragger_goal&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">LemmaError</span><span class="p">(</span>
+                    <span class="n">thm</span><span class="p">,</span>
+                    <span class="n">core</span><span class="p">,</span>
+                    <span class="s2">&quot;Inconsistent lemmas. Goal is not used for proof. Something has gone awry.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">dump</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">core</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Unneeded assumptions. Used&quot;</span><span class="p">,</span> <span class="n">core</span><span class="p">,</span> <span class="n">thm</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span>
+                <span class="n">thm</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">admit</span><span class="o">=</span><span class="n">admit</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">simp</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">by</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+    <span class="n">rules</span> <span class="o">=</span> <span class="p">[</span><span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">rule_of_theorem</span><span class="p">(</span><span class="n">lem</span><span class="o">.</span><span class="n">thm</span><span class="p">)</span> <span class="k">for</span> <span class="n">lem</span> <span class="ow">in</span> <span class="n">by</span><span class="p">]</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">rewrite</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">rules</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lemma</span><span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="n">t1</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GoalCtx</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="c1"># TODO: also put eigenvariables, unification variables in here</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">]</span>
+    <span class="n">goal</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; ?|- &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Lemma</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tactic class for interactive proofs&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thm</span> <span class="o">=</span> <span class="n">goal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span> <span class="o">=</span> <span class="p">[</span><span class="n">GoalCtx</span><span class="p">([],</span> <span class="n">goal</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fixes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)&quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">goal</span><span class="p">)</span> <span class="ow">and</span> <span class="n">goal</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">vs</span><span class="p">,</span> <span class="n">herb_lemma</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">herb</span><span class="p">(</span><span class="n">goal</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">herb_lemma</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">herb_lemma</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">vs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fixes tactic failed. Not a forall </span><span class="si">{</span><span class="n">goal</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">intros</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        intros opens an implication. ?|- p -&gt; q becomes p ?|- q</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">goal</span><span class="p">)</span> <span class="ow">and</span> <span class="n">goal</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_implies</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span> <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_not</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_or</span><span class="p">(</span><span class="n">goal</span><span class="p">)</span> <span class="ow">and</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_not</span><span class="p">(</span>
+            <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">):</span>  <span class="c1"># if implies a -&gt; b gets classically unwound to Or(Not(a), b)</span>
+            <span class="k">if</span> <span class="n">goal</span><span class="o">.</span><span class="n">num_args</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span> <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="n">goal</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Intros failed.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">simp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">oldgoal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">goal</span>
+        <span class="n">newgoal</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">oldgoal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">newgoal</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">oldgoal</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Simplify failed. Goal is already simplified.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span><span class="n">oldgoal</span> <span class="o">==</span> <span class="n">newgoal</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">newgoal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `cases` let&#39;s us consider an object by cases.</span>
+<span class="sd">        We consider whether Bools are True or False</span>
+<span class="sd">        We consider the different constructors for datatypes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">t</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)],</span> <span class="n">goal</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">t</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)],</span> <span class="n">goal</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">):</span>
+            <span class="n">dsort</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dsort</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">())):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">dsort</span><span class="o">.</span><span class="n">recognizer</span><span class="p">(</span><span class="n">i</span><span class="p">)(</span><span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)],</span> <span class="n">goal</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cases failed. Not a bool or datatype&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">auto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `auto` discharges a goal using z3. It forwards all parameters to `kd.lemma`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">ctx</span><span class="p">),</span> <span class="n">goal</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">einstan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        einstan opens an exists quantifier in context and returns the fresh eigenvariable.</span>
+<span class="sd">        `[exists x, p(x)] ?|- goal` becomes `p(x) ?|- goal`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span> <span class="ow">and</span> <span class="n">formula</span><span class="o">.</span><span class="n">is_exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">fs</span><span class="p">,</span> <span class="n">einstan_lemma</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">einstan</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">einstan_lemma</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">einstan_lemma</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="n">ctx</span><span class="p">[</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span> <span class="n">goal</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">fs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Einstan failed. Not an exists&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">instan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">*</span><span class="n">ts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate a universal quantifier in the context.</span>
+
+<span class="sd">        &gt;&gt;&gt; x,y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))</span>
+<span class="sd">        &gt;&gt;&gt; l.intros()</span>
+<span class="sd">        [ForAll(x, x == y)] ?|- True</span>
+<span class="sd">        &gt;&gt;&gt; l.instan(0, smt.IntVal(42))</span>
+<span class="sd">        [ForAll(x, x == y), 42 == y] ?|- True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">goalctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">thm</span> <span class="o">=</span> <span class="n">goalctx</span><span class="o">.</span><span class="n">ctx</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">thm</span><span class="p">)</span> <span class="ow">and</span> <span class="n">thm</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">instan2</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">thm</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">goalctx</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">goalctx</span><span class="o">.</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)])</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Instan failed. Not a forall&quot;</span><span class="p">,</span> <span class="n">thm</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `split` breaks apart an `And` or bi-implication `==` goal.</span>
+<span class="sd">        The optional keyword at allows you to break apart an And or Or in the context</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">at</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_and</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">goal</span><span class="o">.</span><span class="n">children</span><span class="p">())])</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">))))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">))))</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_distinct</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">goal</span><span class="o">.</span><span class="n">num_args</span><span class="p">()):</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">GoalCtx</span><span class="p">(</span>
+                                <span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">Eq</span><span class="p">(</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="n">j</span><span class="p">),</span> <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="n">i</span><span class="p">))],</span>
+                                <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">),</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unexpected case in goal for split tactic&quot;</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_or</span><span class="p">(</span><span class="n">ctx</span><span class="p">[</span><span class="n">at</span><span class="p">]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ctx</span><span class="p">[</span><span class="n">at</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">[:</span><span class="n">at</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">+</span> <span class="n">ctx</span><span class="p">[</span><span class="n">at</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span> <span class="n">goal</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_and</span><span class="p">(</span><span class="n">ctx</span><span class="p">[</span><span class="n">at</span><span class="p">]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">[:</span><span class="n">at</span><span class="p">]</span> <span class="o">+</span> <span class="n">ctx</span><span class="p">[</span><span class="n">at</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">()</span> <span class="o">+</span> <span class="n">ctx</span><span class="p">[</span><span class="n">at</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span> <span class="n">goal</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Split failed&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">left</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select the left case of an `Or` goal.</span>
+<span class="sd">        `?|- Or(p,q)` becomes `?|- p`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: consider adding Not(right) to context since we&#39;re classical?</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_or</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Left failed. Not an or&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">right</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select the right case of an `Or` goal.</span>
+<span class="sd">        `?|- Or(p,q)` becomes `?|- q`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_or</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="n">goal</span><span class="o">.</span><span class="n">num_args</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Right failed. Not an or&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">ts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Give terms `ts` to satisfy an exists goal</span>
+<span class="sd">        `?|- exists x, p(x)` becomes `?|- p(ts)`</span>
+<span class="sd">        &gt;&gt;&gt; x,y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; Lemma(smt.Exists([x], x == y)).exists(y)</span>
+<span class="sd">        [] ?|- y == y</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">lemma</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">forget2</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lemma</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">lemma</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rewrite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">rulethm</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">[</span><span class="n">rule</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">is_proof</span><span class="p">(</span><span class="n">rule</span><span class="p">):</span>
+            <span class="n">rulethm</span> <span class="o">=</span> <span class="n">rule</span><span class="o">.</span><span class="n">thm</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">rulethm</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rulethm</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="n">vs</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">open_binder</span><span class="p">(</span><span class="n">rulethm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">rulethm</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+            <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">body</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rev</span><span class="p">:</span>
+                <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">lhs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rewrite tactic failed. Not an equality </span><span class="si">{</span><span class="n">rulethm</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">at</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">goal</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">at</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">[</span><span class="n">at</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Rewrite tactic failed. `at` is not an index into the context&quot;</span>
+            <span class="p">)</span>
+        <span class="n">subst</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">pmatch_rec</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">subst</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Rewrite tactic failed to apply lemma </span><span class="si">{</span><span class="n">rulethm</span><span class="si">}</span><span class="s2"> to goal </span><span class="si">{</span><span class="n">goal</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">lhs1</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="o">*</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">subst</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="n">rhs1</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="o">*</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">subst</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="n">target</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="p">(</span><span class="n">lhs1</span><span class="p">,</span> <span class="n">rhs1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">rulethm</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rulethm</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">instan2</span><span class="p">([</span><span class="n">subst</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">],</span> <span class="n">rulethm</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">is_proof</span><span class="p">(</span><span class="n">rule</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">at</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">[:</span><span class="n">at</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="o">+</span> <span class="n">ctx</span><span class="p">[</span><span class="n">at</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span> <span class="n">goal</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        shorthand for rewrite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewrite</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="n">at</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="n">rev</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">symm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Swap left and right hand side of equational goal</span>
+<span class="sd">        &gt;&gt;&gt; x,y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; Lemma(x == y).symm()</span>
+<span class="sd">        [] ?|- y == x</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctxgoal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctxgoal</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+                <span class="n">goal</span><span class="o">=</span><span class="n">smt</span><span class="o">.</span><span class="n">Eq</span><span class="p">(</span><span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Symm tactic failed. Not an equality&quot;</span><span class="p">,</span> <span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;replace rhs in equational goal&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: consider allow `by` keyword to reference context`</span>
+        <span class="n">ctxgoal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span>
+                    <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">ctxgoal</span><span class="o">.</span><span class="n">ctx</span><span class="p">),</span> <span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">),</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctxgoal</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">smt</span><span class="o">.</span><span class="n">Eq</span><span class="p">(</span><span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">rhs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Eq tactic failed. Not an equality&quot;</span><span class="p">,</span> <span class="n">ctxgoal</span><span class="o">.</span><span class="n">goal</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">newgoal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newgoal</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Try to show newgoal is sufficient to prove current goal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">goalctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">kd</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span>
+                <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">goalctx</span><span class="o">.</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">newgoal</span><span class="p">]),</span> <span class="n">goalctx</span><span class="o">.</span><span class="n">goal</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">goalctx</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">newgoal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">unfold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">decls</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unfold the contents of a definition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">decl</span> <span class="ow">in</span> <span class="n">decls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">decl</span><span class="p">,</span> <span class="s2">&quot;defn&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rewrite</span><span class="p">(</span><span class="n">decl</span><span class="o">.</span><span class="n">defn</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="n">at</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unfold failed. Not a defined function&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pf</span><span class="p">:</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `apply` matches the conclusion of a proven clause</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">thm</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">thm</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_quantifier</span><span class="p">(</span><span class="n">thm</span><span class="p">)</span> <span class="ow">and</span> <span class="n">thm</span><span class="o">.</span><span class="n">is_forall</span><span class="p">():</span>
+            <span class="n">vs</span><span class="p">,</span> <span class="n">thm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">open_binder</span><span class="p">(</span><span class="n">thm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_implies</span><span class="p">(</span><span class="n">thm</span><span class="p">):</span>
+            <span class="n">pat</span> <span class="o">=</span> <span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">thm</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rev</span><span class="p">:</span>
+                <span class="n">pat</span> <span class="o">=</span> <span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pat</span> <span class="o">=</span> <span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pat</span> <span class="o">=</span> <span class="n">thm</span>
+        <span class="n">subst</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">pmatch</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">pat</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">subst</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Apply tactic failed to apply lemma </span><span class="si">{</span><span class="n">pf</span><span class="si">}</span><span class="s2"> to goal </span><span class="si">{</span><span class="n">goal</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">pf1</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">instan</span><span class="p">([</span><span class="n">subst</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">],</span> <span class="n">pf</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pf1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pf1</span> <span class="o">=</span> <span class="n">pf</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_implies</span><span class="p">(</span><span class="n">pf1</span><span class="o">.</span><span class="n">thm</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pf1</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">pf1</span><span class="o">.</span><span class="n">thm</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">rev</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pf1</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GoalCtx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pf1</span><span class="o">.</span><span class="n">thm</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">induct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply an induction lemma instantiated on x.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indlem</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">induct</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span><span class="o">.</span><span class="n">goal</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indlem</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">indlem</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span><span class="o">.</span><span class="n">goal</span><span class="p">):</span>
+            <span class="c1"># self.split()</span>
+            <span class="n">goalctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">goalctx</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">goalctx</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">children</span><span class="p">())]</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove a hypothesis from the context</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctxgoal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ctxgoal</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">vs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put variables forall quantified back on goal. Useful for strengthening induction hypotheses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">goalctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">instan2</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">goalctx</span><span class="o">.</span><span class="n">goal</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">goalctx</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">goalctx</span><span class="o">.</span><span class="n">goal</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thm</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        To document the current goal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span><span class="o">.</span><span class="n">goal</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">thm</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">goal</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Goal does not match&quot;</span><span class="p">,</span> <span class="n">thm</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">assumption</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Exact match of goal in the context</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">goal</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">ctx</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Assumption tactic failed&quot;</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">have</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conc</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prove the given formula and add it to the current context</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">goalctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">goalctx</span><span class="o">.</span><span class="n">ctx</span><span class="p">),</span> <span class="n">conc</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">goalctx</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">goalctx</span><span class="o">.</span><span class="n">ctx</span> <span class="o">+</span> <span class="p">[</span><span class="n">conc</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">()</span>
+
+    <span class="c1"># TODO</span>
+    <span class="c1"># def search():</span>
+    <span class="c1"># def calc</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">top_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GoalCtx</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Nothing to do. Hooray!&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Nothing to do. Hooray!&quot;</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top_goal</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">qed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return the actual final `Proof` of the lemma that was defined at the beginning.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;by&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;by&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;by&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemmas</span>
+        <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">lemma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thm</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.solvers.gappa.gappa_of_real.html" class="btn btn-neutral float-left" title="kdrag.solvers.gappa.gappa_of_real" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.tactics.lemma.html" class="btn btn-neutral float-right" title="kdrag.tactics.lemma" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

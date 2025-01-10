@@ -1,0 +1,6 @@
+kdrag.utils.decl\_index
+=======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: decl_index

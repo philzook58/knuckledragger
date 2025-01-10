@@ -1,0 +1,6 @@
+kdrag.notation.datatype\_len
+============================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: datatype_len
