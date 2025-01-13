@@ -229,6 +229,49 @@ def datatype_call(self, *args):
 smt.DatatypeSortRef.__call__ = datatype_call
 
 
+def datatype_replace(self, **kwargs):
+    """
+    Like NamedTuple, you can replace fields of a record datatype.
+
+    >>> Point = kd.Record("Point", ("x", smt.RealSort()), ("y", smt.RealSort()), admit=True)
+    >>> Point(0,1)._replace(x=3, y=10)
+    Point(3, 10)
+    >>> p = smt.Const("p", Point)
+    >>> q = p._replace(y=10)
+    >>> q
+    Point(x(p), 10)
+    >>> q._replace(x=1)
+    Point(1, 10)
+    """
+    sort = self.sort()
+
+    if sort.num_constructors() != 1:
+        raise TypeError(
+            "`_replace` is not supported on datatypes with multiple constructors"
+        )
+
+    cons = sort.constructor(0)
+    accs = [sort.accessor(0, i) for i in range(cons.arity())]
+    names = {acc.name() for acc in accs}  # Use a set for quick lookup
+
+    invalid_fields = kwargs.keys() - names
+    if invalid_fields:
+        raise ValueError(
+            f"Constructor `{cons.name()}` does not have fields: {', '.join(invalid_fields)}"
+        )
+
+    defaults = (
+        self.children() if smt.is_constructor(self) else [acc(self) for acc in accs]
+    )
+
+    fields = [kwargs.get(acc.name(), default) for acc, default in zip(accs, defaults)]
+
+    return cons(*fields)
+
+
+smt.DatatypeRef._replace = datatype_replace
+
+
 def datatype_iter(self):
     return (self.constructor(i) for i in range(self.num_constructors()))
 
@@ -436,7 +479,7 @@ smt.DatatypeRef.rel = lambda *args: rel(*args)
 
 
 def InductiveRel(name: str, *param_sorts, admit=False) -> smt.DatatypeSortRef:
-    """Define an inductive type of evidence alongside and a relation the recurses on that evidence
+    """Define an inductive type of evidence and a relation the recurses on that evidence
 
     >>> Even = InductiveRel("Even", smt.IntSort(), admit=True)
     >>> Even.declare("Ev_Z",                           pred=lambda x: x == 0)
