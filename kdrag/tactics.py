@@ -2,7 +2,6 @@
 Tactics are helpers that organize calls to the kernel. The code of these helpers don't have to be trusted.
 """
 
-from svg import C
 import kdrag as kd
 import kdrag.smt as smt
 from enum import IntEnum
