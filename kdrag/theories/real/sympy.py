@@ -5,18 +5,19 @@ import flint
 import operator as op
 import sympy
 
+arb = flint.arb
 a, b = smt.Reals("a b")
 flint_decls = {
-    real.sqrt: flint.arb.sqrt,
+    real.sqrt: arb.sqrt,
     real.sqr: lambda x: x**2,
-    real.exp: flint.arb.exp,
-    real.ln: flint.arb.log,
-    real.sin: flint.arb.sin,
-    real.cos: flint.arb.cos,
-    real.tan: flint.arb.tan,
-    real.atan: flint.arb.atan,
+    real.exp: arb.exp,
+    real.ln: arb.log,
+    real.sin: arb.sin,
+    real.cos: arb.cos,
+    real.tan: arb.tan,
+    real.atan: arb.atan,
     real.pow: lambda x, y: x**y,
-    real.pi.decl(): flint.arb.pi,
+    real.pi.decl(): arb.pi,
     (a + b).decl(): op.add,
     (a * b).decl(): op.mul,
     (a / b).decl(): op.truediv,
@@ -33,7 +34,7 @@ def interp_flint(e, env):
             *[interp_flint(arg, env) for arg in e.children()[1:]]
         )
     elif smt.is_rational_value(e):
-        return flint.arb(e.numerator_as_long()) / flint.arb(e.denominator_as_long())
+        return arb(e.numerator_as_long()) / arb(e.denominator_as_long())
     elif smt.is_app(e) and e.decl() in flint_decls:
         decl = e.decl()
         return flint_decls[decl](*[interp_flint(arg, env) for arg in e.children()])
@@ -53,7 +54,7 @@ def z3_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:
 
 def flint_bnd(t: smt.ExprRef, env):
     assert smt.is_real(t)
-    assert all(smt.is_real(k) and isinstance(v, flint.arb) for k, v in env.items())
+    assert all(smt.is_real(k) and isinstance(v, arb) for k, v in env.items())
     preconds = [smt.BoolVal(True)]
     for k, v in env.items():
         mid, rad = z3_of_arb(v)
@@ -104,7 +105,7 @@ def interp_sympy(e: smt.ExprRef, env: dict[smt.ExprRef, sympy.Expr] = {}) -> sym
         return env[e]
     elif e in sympy_consts:
         return sympy_consts[e]
-    elif smt.is_rational_value(e):
+    elif smt.is_rational_value(e) and isinstance(e, smt.RatNumRef):
         return sympy.Rational(e.numerator_as_long(), e.denominator_as_long())
     elif smt.is_select(e) and e.arg(0) in sympy_decls:
         return sympy_decls[e.arg(0)](

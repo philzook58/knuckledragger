@@ -5,26 +5,26 @@ import kdrag.theories.real as real
 C = kd.notation.Record("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
 
 z, w, u, z1, z2 = smt.Consts("z w u z1 z2", C)
-add = kd.define("add", [z1, z2], C.mk(z1.re + z2.re, z1.im + z2.im))
+add = kd.define("add", [z1, z2], C.C(z1.re + z2.re, z1.im + z2.im))
 kd.notation.add.register(C, add)
 mul = kd.define(
-    "mul", [z1, z2], C.mk(z1.re * z2.re - z1.im * z2.im, z1.re * z2.im + z1.im * z2.re)
+    "mul", [z1, z2], C.C(z1.re * z2.re - z1.im * z2.im, z1.re * z2.im + z1.im * z2.re)
 )
 kd.notation.mul.register(C, mul)
-conj = kd.define("conj", [z], C.mk(z.re, -z.im))
+conj = kd.define("conj", [z], C.C(z.re, -z.im))
 
 
 div = kd.notation.div.define(
     [z1, z2],
-    C.mk(
+    C.C(
         (z1.re * z2.re + z1.im * z2.im) / (z2.re**2 + z2.im**2),
         (z1.im * z2.re - z1.re * z2.im) / (z2.re**2 + z2.im**2),
     ),
 )
 
-C0 = C.mk(0, 0)
-C1 = C.mk(1, 0)
-Ci = C.mk(0, 1)
+C0 = C.C(0, 0)
+C1 = C.C(1, 0)
+Ci = C.C(0, 1)
 
 add_zero = kd.lemma(smt.ForAll([z], z + C0 == z), by=[add.defn])
 mul_zero = kd.lemma(smt.ForAll([z], z * C0 == C0), by=[mul.defn])
@@ -50,7 +50,7 @@ mul_comm = kd.lemma(smt.ForAll([z, w], z * w == w * z), by=[mul.defn])
 norm2 = kd.define("norm2", [z], z * conj(z))
 
 t, s = smt.Reals("t s")
-expi = kd.define("expi", [t], C.mk(real.cos(t), real.sin(t)))
+expi = kd.define("expi", [t], C.C(real.cos(t), real.sin(t)))
 
 # expi_mul = kd.lemma(
 #   smt.ForAll([t, s], expi(t) * expi(s) == expi(t + s)),
@@ -58,17 +58,17 @@ expi = kd.define("expi", [t], C.mk(real.cos(t), real.sin(t)))
 # )
 
 c = kd.tactics.Calc([t, s], expi(t) * expi(s))
-c.eq(C.mk(real.cos(t), real.sin(t)) * C.mk(real.cos(s), real.sin(s)), by=[expi.defn])
+c.eq(C.C(real.cos(t), real.sin(t)) * C.C(real.cos(s), real.sin(s)), by=[expi.defn])
 c.eq(
-    C.mk(
+    C.C(
         real.cos(t) * real.cos(s) - real.sin(t) * real.sin(s),
         real.cos(t) * real.sin(s) + real.sin(t) * real.cos(s),
     ),
     by=[mul.defn],
 )
 _1 = c.qed()
-# c.eq(C.mk(real.cos(t + s), real.sin(t + s)), by=[real.cos_add, real.sin_add])
-c = kd.tactics.Calc([t, s], C.mk(real.cos(t + s), real.sin(t + s)))
+# c.eq(C.C(real.cos(t + s), real.sin(t + s)), by=[real.cos_add, real.sin_add])
+c = kd.tactics.Calc([t, s], C.C(real.cos(t + s), real.sin(t + s)))
 c.eq(expi(t + s), by=[expi.defn])
 expi_mul = c.qed()
 _2 = c.qed()
@@ -76,11 +76,11 @@ _2 = c.qed()
 _3 = kd.lemma(
     kd.QForAll(
         [t, s],
-        C.mk(
+        C.C(
             real.cos(t) * real.cos(s) - real.sin(t) * real.sin(s),
             real.cos(t) * real.sin(s) + real.sin(t) * real.cos(s),
         )
-        == C.mk(real.cos(t + s), real.sin(t + s)),
+        == C.C(real.cos(t + s), real.sin(t + s)),
     ),
     by=[real.cos_add, real.sin_add],
 )

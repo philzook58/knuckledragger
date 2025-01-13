@@ -215,7 +215,12 @@ def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     Instantiate a universally quantified formula.
     This is forall elimination
     """
-    assert is_proof(pf) and pf.thm.is_forall() and len(ts) == pf.thm.num_vars()
+    assert (
+        is_proof(pf)
+        and isinstance(pf.thm, smt.QuantifierRef)
+        and pf.thm.is_forall()
+        and len(ts) == pf.thm.num_vars()
+    )
 
     return __Proof(smt.substitute_vars(pf.thm.body(), *reversed(ts)), reason=[pf])
 
@@ -226,7 +231,11 @@ def instan2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     `forall xs, P(xs) -> P(ts)`
     This is forall elimination
     """
-    assert smt.is_quantifier(thm) and thm.is_forall() and len(ts) == thm.num_vars()
+    assert (
+        isinstance(thm, smt.QuantifierRef)
+        and thm.is_forall()
+        and len(ts) == thm.num_vars()
+    )
 
     return __Proof(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
@@ -280,7 +289,7 @@ def skolem(pf: Proof) -> tuple[list[smt.ExprRef], Proof]:
     Skolemize an existential quantifier.
     """
     # TODO: Hmm. Maybe we don't need to have a Proof? Lessen this to thm.
-    assert is_proof(pf) and pf.thm.is_exists()
+    assert is_proof(pf) and isinstance(pf.thm, smt.QuantifierRef) and pf.thm.is_exists()
 
     skolems = fresh_const(pf.thm)
     return skolems, __Proof(

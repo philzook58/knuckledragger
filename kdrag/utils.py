@@ -2,6 +2,7 @@
 Various term manipulation helpers. Pattern matchers, unifiers, rewriters, term orderings, etc.
 """
 
+from numpy import isin
 from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
@@ -97,9 +98,9 @@ def pmatch(
             # smt.subsitute(t, *[zip(a,a.FreshConst("")) for a for allowed_vars])
             t1 = smt.Lambda(allowedvars, t)
             todo.append((F, t1))
-        elif smt.is_quantifier(pat):
+        elif isinstance(pat, smt.QuantifierRef):
             if (
-                not smt.is_quantifier(t)
+                not isinstance(t, smt.QuantifierRef)
                 or not quant_kind_eq(t, pat)
                 or t.num_vars() != pat.num_vars()
             ):
@@ -174,7 +175,7 @@ def rule_of_theorem(thm: smt.BoolRef) -> Rule:
     Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple
     """
     vs = []
-    while smt.is_quantifier(thm):
+    while isinstance(thm, smt.QuantifierRef):
         if thm.is_forall():
             vs1, thm = open_binder(thm)
             vs.extend(vs1)
@@ -251,7 +252,7 @@ def unify_db(
     return subst
 
 
-def quant_kind_eq(t1: smt.ExprRef, t2: smt.ExprRef) -> bool:
+def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
     """Check both quantifiers are of the same kind"""
     return (
         t1.is_forall() == t2.is_forall()

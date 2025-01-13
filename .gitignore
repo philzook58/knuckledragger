@@ -6,3 +6,4 @@ dist
 build
 _build/
 .coverage
+.mypy_cache

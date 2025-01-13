@@ -1,3 +1,4 @@
+# type: ignore
 """
 Reexported z3 functionality <https://z3prover.github.io/api/html/namespacez3py.html>
 This is a shim file to enable the use of cvc5 and vampire as default solvers.
@@ -137,3 +138,10 @@ def Eq(x, y):
         return e.decl()(e.arg(1), e.arg(0))
     else:
         return e
+
+
+ExprRef.induct = lambda x, P: None
+ExprRef.__add__ = lambda x, y: None
+ExprRef.__sub__ = lambda x, y: None
+
+FuncDeclRef.defn = None

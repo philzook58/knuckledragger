@@ -2,6 +2,7 @@
 Tactics are helpers that organize calls to the kernel. The code of these helpers don't have to be trusted.
 """
 
+from svg import C
 import kdrag as kd
 import kdrag.smt as smt
 from enum import IntEnum
@@ -206,13 +207,23 @@ def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.
     return lemma(t == t1, by=by, **kwargs)
 
 
-class GoalCtx(NamedTuple):
+class Goal(NamedTuple):
     # TODO: also put eigenvariables, unification variables in here
+    sig: list[smt.ExprRef]
     ctx: list[smt.BoolRef]
-    goal: smt.BoolRef
+    goal: smt.BoolRef | smt.QuantifierRef
 
     def __repr__(self):
-        return repr(self.ctx) + " ?|- " + repr(self.goal)
+        if len(self.sig) == 0:
+            return repr(self.ctx) + " ?|- " + repr(self.goal)
+        else:
+            return (
+                repr([f"{v} : {v.sort()}" for v in self.sig])
+                + " ; "
+                + repr(self.ctx)
+                + " ?|- "
+                + repr(self.goal)
+            )
 
 
 class Lemma:
@@ -221,16 +232,19 @@ class Lemma:
     def __init__(self, goal: smt.BoolRef):
         self.lemmas = []
         self.thm = goal
-        self.goals = [GoalCtx([], goal)]
+        self.goals = [Goal(sig=[], ctx=[], goal=goal)]
 
-    def fixes(self):
+    def fixes(self) -> smt.ExprRef | list[smt.ExprRef]:
         """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)"""
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        goal = goalctx.goal
         if smt.is_quantifier(goal) and goal.is_forall():
             self.goals.pop()
             vs, herb_lemma = kd.kernel.herb(goal)
             self.lemmas.append(herb_lemma)
-            self.goals.append(GoalCtx(ctx, herb_lemma.thm.arg(0)))
+            self.goals.append(
+                goalctx._replace(sig=goalctx.sig + vs, goal=herb_lemma.thm.arg(0))
+            )
             if len(vs) == 1:
                 return vs[0]
             else:
@@ -238,34 +252,64 @@ class Lemma:
         else:
             raise ValueError(f"fixes tactic failed. Not a forall {goal}")
 
-    def intros(self):
+    def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
         """
         intros opens an implication. ?|- p -> q becomes p ?|- q
+        >>> p,q,r = smt.Bools("p q r")
+        >>> l = Lemma(smt.Implies(p, q))
+        >>> l.intros()
+        [p] ?|- q
+        >>> l = Lemma(smt.Not(q))
+        >>> l.intros()
+        [q] ?|- False
         """
-        ctx, goal = self.goals[-1]
-        if smt.is_quantifier(goal) and goal.is_forall():
+        goalctx = self.top_goal()
+        goal = goalctx.goal
+        ctx = goalctx.ctx
+        if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             return self.fixes()
         self.goals.pop()
         if smt.is_implies(goal):
-            self.goals.append(GoalCtx(ctx + [goal.arg(0)], goal.arg(1)))
+            self.goals.append(
+                goalctx._replace(ctx=ctx + [goal.arg(0)], goal=goal.arg(1))
+            )
             return self.top_goal()
         elif smt.is_not(goal):
-            self.goals.append(GoalCtx(ctx + [goal.arg(0)], smt.BoolVal(False)))
+            self.goals.append(
+                goalctx._replace(ctx=ctx + [goal.arg(0)], goal=smt.BoolVal(False))
+            )
             return self.top_goal()
         elif smt.is_or(goal) and smt.is_not(
             goal.arg(0)
         ):  # if implies a -> b gets classically unwound to Or(Not(a), b)
             if goal.num_args() == 2:
-                self.goals.append(GoalCtx(ctx + [goal.arg(0).arg(0)], goal.arg(1)))
+                self.goals.append(
+                    goalctx._replace(ctx=ctx + [goal.arg(0).arg(0)], goal=goal.arg(1))
+                )
             else:
                 self.goals.append(
-                    GoalCtx(ctx + [goal.arg(0).arg(0)], smt.Or(goal.children[1:]))
+                    goalctx._replace(
+                        ctx=ctx + [goal.arg(0).arg(0)], goal=smt.Or(goal.children[1:])
+                    )
                 )
             return self.top_goal()
         else:
             raise ValueError("Intros failed.")
 
     def simp(self):
+        """
+        Use built in z3 simplifier. May be useful for boolean, arithmetic, lambda, and array simplifications.
+        >>> x,y = smt.Ints("x y")
+        >>> l = Lemma(x + y == y + x)
+        >>> l.simp()
+        [] ?|- True
+        >>> l = Lemma(x == 3 + y + 7)
+        >>> l.simp()
+        [] ?|- x == 10 + y
+        >>> l = Lemma(smt.Lambda([x], x + 1)[3] == y)
+        >>> l.simp()
+        [] ?|- 4 == y
+        """
         oldgoal = self.goals[-1].goal
         newgoal = smt.simplify(oldgoal)
         if newgoal.eq(oldgoal):
@@ -280,15 +324,24 @@ class Lemma:
         We consider whether Bools are True or False
         We consider the different constructors for datatypes
         """
-        ctx, goal = self.goals.pop()
+        goalctx = self.top_goal()
+        ctx = goalctx.ctx
+        goal = goalctx.goal
         if t.sort() == smt.BoolSort():
-            self.goals.append(GoalCtx(ctx + [t == smt.BoolVal(True)], goal))
-            self.goals.append(GoalCtx(ctx + [t == smt.BoolVal(False)], goal))
+            self.goals.append(
+                goalctx._replace(ctx=ctx + [t == smt.BoolVal(True)], goal=goal)
+            )
+            self.goals.append(
+                goalctx._replace(ctx=ctx + [t == smt.BoolVal(False)], goal=goal)
+            )
         elif isinstance(t, smt.DatatypeRef):
             dsort = t.sort()
             for i in reversed(range(dsort.num_constructors())):
                 self.goals.append(
-                    GoalCtx(ctx + [dsort.recognizer(i)(t) == smt.BoolVal(True)], goal)
+                    goalctx._replace(
+                        ctx=ctx + [dsort.recognizer(i)(t) == smt.BoolVal(True)],
+                        goal=goal,
+                    )
                 )
         else:
             raise ValueError("Cases failed. Not a bool or datatype")
@@ -298,7 +351,8 @@ class Lemma:
         """
         `auto` discharges a goal using z3. It forwards all parameters to `kd.lemma`
         """
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        ctx, goal = goalctx.ctx, goalctx.goal
         self.lemmas.append(lemma(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.goals.pop()
         return self.top_goal()
@@ -308,14 +362,19 @@ class Lemma:
         einstan opens an exists quantifier in context and returns the fresh eigenvariable.
         `[exists x, p(x)] ?|- goal` becomes `p(x) ?|- goal`
         """
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        ctx, goal = goalctx.ctx, goalctx.goal
         formula = ctx[n]
         if smt.is_quantifier(formula) and formula.is_exists():
             self.goals.pop()
             fs, einstan_lemma = kd.kernel.einstan(formula)
             self.lemmas.append(einstan_lemma)
             self.goals.append(
-                GoalCtx(ctx[:n] + [einstan_lemma.thm.arg(1)] + ctx[n + 1 :], goal)
+                goalctx._replace(
+                    sig=goalctx.sig + fs,
+                    ctx=ctx[:n] + [einstan_lemma.thm.arg(1)] + ctx[n + 1 :],
+                    goal=goal,
+                )
             )
             if len(fs) == 1:
                 return fs[0]
@@ -350,23 +409,37 @@ class Lemma:
         `split` breaks apart an `And` or bi-implication `==` goal.
         The optional keyword at allows you to break apart an And or Or in the context
         """
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        ctx, goal = goalctx.ctx, goalctx.goal
         if at is None:
             if smt.is_and(goal):
                 self.goals.pop()
-                self.goals.extend([GoalCtx(ctx, c) for c in reversed(goal.children())])
+                self.goals.extend(
+                    [
+                        goalctx._replace(ctx=ctx, goal=c)
+                        for c in reversed(goal.children())
+                    ]
+                )
             elif smt.is_eq(goal):
                 self.goals.pop()
-                self.goals.append(GoalCtx(ctx, smt.Implies(goal.arg(0), goal.arg(1))))
-                self.goals.append(GoalCtx(ctx, smt.Implies(goal.arg(1), goal.arg(0))))
+                self.goals.append(
+                    goalctx._replace(
+                        ctx=ctx, goal=smt.Implies(goal.arg(0), goal.arg(1))
+                    )
+                )
+                self.goals.append(
+                    goalctx._replace(
+                        ctx=ctx, goal=smt.Implies(goal.arg(1), goal.arg(0))
+                    )
+                )
             elif smt.is_distinct(goal):
                 self.goals.pop()
                 for i in range(goal.num_args()):
                     for j in range(i):
                         self.goals.append(
-                            GoalCtx(
-                                ctx + [smt.Eq(goal.arg(j), goal.arg(i))],
-                                smt.BoolVal(False),
+                            goalctx._replace(
+                                ctx=ctx + [smt.Eq(goal.arg(j), goal.arg(i))],
+                                goal=smt.BoolVal(False),
                             )
                         )
             else:
@@ -376,11 +449,15 @@ class Lemma:
             if smt.is_or(ctx[at]):
                 self.goals.pop()
                 for c in ctx[at].children():
-                    self.goals.append(GoalCtx(ctx[:at] + [c] + ctx[at + 1 :], goal))
+                    self.goals.append(
+                        goalctx._replace(ctx=ctx[:at] + [c] + ctx[at + 1 :], goal=goal)
+                    )
             if smt.is_and(ctx[at]):
                 self.goals.pop()
                 self.goals.append(
-                    GoalCtx(ctx[:at] + ctx[at].children() + ctx[at + 1 :], goal)
+                    goalctx._replace(
+                        ctx=ctx[:at] + ctx[at].children() + ctx[at + 1 :], goal=goal
+                    )
                 )
             else:
                 raise ValueError("Split failed")
@@ -392,11 +469,12 @@ class Lemma:
         `?|- Or(p,q)` becomes `?|- p`
         """
         # TODO: consider adding Not(right) to context since we're classical?
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        ctx, goal = goalctx.ctx, goalctx.goal
         if smt.is_or(goal):
             if n is None:
                 n = 0
-            self.goals[-1] = GoalCtx(ctx, goal.arg(n))
+            self.goals[-1] = goalctx._replace(ctx=ctx, goal=goal.arg(n))
             return self.top_goal()
         else:
             raise ValueError("Left failed. Not an or")
@@ -406,9 +484,12 @@ class Lemma:
         Select the right case of an `Or` goal.
         `?|- Or(p,q)` becomes `?|- q`
         """
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        ctx, goal = goalctx.ctx, goalctx.goal
         if smt.is_or(goal):
-            self.goals[-1] = GoalCtx(ctx, goal.arg(goal.num_args() - 1))
+            self.goals[-1] = goalctx._replace(
+                ctx=ctx, goal=goal.arg(goal.num_args() - 1)
+            )
             return self.top_goal()
         else:
             raise ValueError("Right failed. Not an or")
@@ -421,22 +502,29 @@ class Lemma:
         >>> Lemma(smt.Exists([x], x == y)).exists(y)
         [] ?|- y == y
         """
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        ctx, goal = goalctx.ctx, goalctx.goal
+        assert isinstance(goal, smt.QuantifierRef) and goal.is_exists()
         lemma = kd.kernel.forget2(ts, goal)
         self.lemmas.append(lemma)
-        self.goals[-1] = GoalCtx(ctx, lemma.thm.arg(0))
+        self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
         return self.top_goal()
 
     def rewrite(self, rule, at=None, rev=False):
         """
         `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.
         """
-        ctx, goal = self.goals[-1]
+        goalctx = self.goals[-1]
+        ctx, goal = goalctx.ctx, goalctx.goal
         if isinstance(rule, int):
             rulethm = ctx[rule]
         elif kd.kernel.is_proof(rule):
             rulethm = rule.thm
-        if smt.is_quantifier(rulethm) and rulethm.is_forall():
+        else:
+            raise ValueError(
+                "Rewrite tactic failed. Not a proof or context index", rule
+            )
+        if isinstance(rulethm, smt.QuantifierRef) and rulethm.is_forall():
             vs, body = kd.utils.open_binder(rulethm)
         else:
             vs = []
@@ -470,9 +558,11 @@ class Lemma:
             if kd.kernel.is_proof(rule):
                 self.lemmas.append(rule)
             if at is None:
-                self.goals.append(GoalCtx(ctx, target))
+                self.goals.append(goalctx._replace(ctx=ctx, goal=target))
             else:
-                self.goals.append(GoalCtx(ctx[:at] + [target] + ctx[at + 1 :], goal))
+                self.goals.append(
+                    goalctx._replace(ctx=ctx[:at] + [target] + ctx[at + 1 :], goal=goal)
+                )
             return self.top_goal()
 
     def rw(self, rule, at=None, rev=False):
@@ -541,7 +631,8 @@ class Lemma:
         """
         `apply` matches the conclusion of a proven clause
         """
-        ctx, goal = self.goals.pop()
+        goalctx = self.goals.pop()
+        ctx, goal = goalctx.ctx, goalctx.goal
         thm = pf.thm
         if smt.is_quantifier(thm) and thm.is_forall():
             vs, thm = kd.utils.open_binder(thm)
@@ -566,12 +657,12 @@ class Lemma:
             else:
                 pf1 = pf
             if smt.is_implies(pf1.thm):
-                self.goals.append(GoalCtx(ctx, pf1.thm.arg(0)))
+                self.goals.append(goalctx._replace(ctx=ctx, goal=pf1.thm.arg(0)))
             elif smt.is_eq(pf1.thm):
                 if rev:
-                    self.goals.append(GoalCtx(ctx, pf1.thm.arg(0)))
+                    self.goals.append(goalctx._replace(ctx=ctx, goal=pf1.thm.arg(0)))
                 else:
-                    self.goals.append(GoalCtx(ctx, pf1.thm.arg(1)))
+                    self.goals.append(goalctx._replace(ctx=ctx, goal=pf1.thm.arg(1)))
         return self.top_goal()
 
     def induct(self, x: smt.ExprRef):
@@ -619,7 +710,8 @@ class Lemma:
         """
         Exact match of goal in the context
         """
-        ctx, goal = self.goals.pop()
+        goalctx = self.goals.pop()
+        goal, ctx = goalctx.goal, goalctx.ctx
         if any([goal.eq(h) for h in ctx]):
             return self.top_goal()
         else:
@@ -636,11 +728,23 @@ class Lemma:
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
         return self.top_goal()
 
+    def admit(self):
+        """
+        admit the current goal without proof. Don't feel bad about keeping yourself moving, but be aware that you're not done.
+        >>> l = Lemma(smt.BoolVal(False)) # a false goal
+        >>> _ = l.admit()
+        >>> l.qed()
+        |- False
+        """
+        goalctx = self.goals.pop()
+        self.lemmas.append(kd.kernel.lemma(goalctx.goal, admit=True))
+        return self.top_goal()
+
     # TODO
     # def search():
     # def calc
 
-    def top_goal(self) -> GoalCtx:
+    def top_goal(self) -> Goal:
         if len(self.goals) == 0:
             return "Nothing to do. Hooray!"
         return self.goals[-1]

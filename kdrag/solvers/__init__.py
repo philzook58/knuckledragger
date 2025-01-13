@@ -163,7 +163,7 @@ def sort_to_tptp(sort: smt.SortRef):
         return "$o"
     elif name == "Real":
         return "$real"
-    elif name == "Array":
+    elif isinstance(sort, smt.ArraySortRef):
         return "({} > {})".format(
             sort_to_tptp(sort.domain()), sort_to_tptp(sort.range())
         )
@@ -210,7 +210,7 @@ def mangle_decl_smtlib(d: smt.FuncDeclRef):
 
 
 def expr_to_smtlib(expr: smt.ExprRef):
-    if smt.is_quantifier(expr):
+    if isinstance(expr, smt.QuantifierRef):
         quantifier = (
             "forall" if expr.is_forall() else "exists" if expr.is_exists() else "lambda"
         )

@@ -1,0 +1,10 @@
+{
+    "include": [
+        "kdrag"
+    ],
+    "exclude": [
+        "kdrag/solvers/eprover/*",
+        "kdrag/solvers/gappa*",
+        "kdrag/solvers/Prover9/*"
+    ],
+}

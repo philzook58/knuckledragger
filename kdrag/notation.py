@@ -93,43 +93,43 @@ class SortDispatch:
 
 
 add = SortDispatch(name="add")
-smt.ExprRef.__add__ = lambda x, y: add(x, y)
+smt.ExprRef.__add__ = lambda x, y: add(x, y)  # type: ignore
 
 radd = SortDispatch(name="radd")
-smt.ExprRef.__radd__ = lambda x, y: radd(x, y)
+smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
 
 sub = SortDispatch(name="sub")
-smt.ExprRef.__sub__ = lambda x, y: sub(x, y)
+smt.ExprRef.__sub__ = lambda x, y: sub(x, y)  # type: ignore
 
 mul = SortDispatch(name="mul")
-smt.ExprRef.__mul__ = lambda x, y: mul(x, y)
+smt.ExprRef.__mul__ = lambda x, y: mul(x, y)  # type: ignore
 
 rmul = SortDispatch(name="rmul")
-smt.ExprRef.__rmul__ = lambda x, y: rmul(x, y)
+smt.ExprRef.__rmul__ = lambda x, y: rmul(x, y)  # type: ignore
 
 matmul = SortDispatch(name="matmul")
-smt.ExprRef.__matmul__ = lambda x, y: matmul(x, y)
+smt.ExprRef.__matmul__ = lambda x, y: matmul(x, y)  # type: ignore
 
 neg = SortDispatch(name="neg")
-smt.ExprRef.__neg__ = lambda x: neg(x)
+smt.ExprRef.__neg__ = lambda x: neg(x)  # type: ignore
 
 div = SortDispatch(name="div_")
-smt.ExprRef.__truediv__ = lambda x, y: div(x, y)
+smt.ExprRef.__truediv__ = lambda x, y: div(x, y)  # type: ignore
 
 and_ = SortDispatch()
-smt.ExprRef.__and__ = lambda x, y: and_(x, y)
+smt.ExprRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
 
 or_ = SortDispatch()
-smt.ExprRef.__or__ = lambda x, y: or_(x, y)
+smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
 
 invert = SortDispatch(name="invert")
-smt.ExprRef.__invert__ = lambda x: invert(x)
+smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore
 
 lt = SortDispatch(name="lt")
-smt.ExprRef.__lt__ = lambda x, y: lt(x, y)
+smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore
 
 le = SortDispatch(name="le")
-smt.ExprRef.__le__ = lambda x, y: le(x, y)
+smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore
 
 
 wf = SortDispatch(name="wf")
@@ -428,6 +428,73 @@ def cond(*cases, default=None) -> smt.ExprRef:
             raise Exception("Sort mismatch in cond", t, sort)
         acc = smt.If(c, t, acc)
     return acc
+
+
+rel = SortDispatch(name="rel")
+"""The relation associated with a Datatype ofd evidence"""
+smt.DatatypeRef.rel = lambda *args: rel(*args)
+
+
+def InductiveRel(name: str, *param_sorts, admit=False) -> smt.DatatypeSortRef:
+    """Define an inductive type of evidence alongside and a relation the recurses on that evidence
+
+    >>> Even = InductiveRel("Even", smt.IntSort(), admit=True)
+    >>> Even.declare("Ev_Z",                           pred=lambda x: x == 0)
+    >>> Even.declare("Ev_SS", ("sub2_evidence", Even), pred=lambda evid, x: evid.rel(x-2))
+    >>> Even = Even.create()
+    >>> smt.Const("ev", Even).rel(4)
+    even(ev, 4)
+    """
+
+    dt = Inductive(name, admit=admit)
+
+    relname = name.lower()
+    olddeclare = dt.declare
+    preds = []  # tuck away extra predicate
+
+    def declare(
+        name, *args, pred=None
+    ):  # TODO: would it ever make sense to not have a pred?
+        olddeclare(name, *args)
+        preds.append(pred)
+
+    dt.declare = declare
+
+    oldcreate = dt.create
+
+    def create_relation(dt):
+        """
+        When inductive is done being defined, call this function
+        """
+        ev = smt.FreshConst(dt, prefix=name.lower())
+        rel = smt.Function(relname, dt, *param_sorts, smt.BoolSort())
+        params = [smt.FreshConst(s, prefix=s.name().lower()) for s in param_sorts]
+        cases = []
+        for i in range(dt.num_constructors()):
+            precond = dt.recognizer(i)(ev)  # recognize case of the evidence
+            pred = preds[i]  # In this case, this predicate should be true
+            if pred is not None:
+                args = [dt.accessor(i, j)(ev) for j in range(dt.constructor(i).arity())]
+                args.extend(params)
+                res = pred(*args)
+            else:
+                res = smt.BoolVal(True)
+            cases.append((precond, res))
+        rel = kd.define(relname, [ev] + params, cond(*cases))
+        return rel
+
+    def create():
+        dt = oldcreate()
+        dtrel = smt.Function(name, dt, *param_sorts, smt.BoolSort())
+        rel.register(
+            dt, lambda *args: dtrel(*args)
+        )  # doing this here let's us tie the knot inside of lambdas and refer to the predicate.
+        dtrel = create_relation(dt)
+        dt.rel = dtrel
+        return dt
+
+    dt.create = create
+    return dt
 
 
 def conde(*cases):
