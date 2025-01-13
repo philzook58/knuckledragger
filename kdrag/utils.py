@@ -2,7 +2,6 @@
 Various term manipulation helpers. Pattern matchers, unifiers, rewriters, term orderings, etc.
 """
 
-from numpy import isin
 from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
