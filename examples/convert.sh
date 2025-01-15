@@ -1,0 +1,1 @@
+find . -name "*.ipynb" -exec jupyter nbconvert --to python --output-dir=converted_notebooks {} +

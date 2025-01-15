@@ -185,3 +185,24 @@ Isabelle and ACL2 are the strongest influences. If you want dependent type theor
 I maintain the right to change my mind about anything.
 
 TODO: A no-install WIP colab tutorial is available [here](http://colab.research.google.com/github/philzook58/knuckledragger/blob/main/tutorial.ipynb)
+
+## FAQ
+
+- Is this for proving about python programs?
+  - Mostly no. Proving properties of general python programs in a highly assured manner is extremely difficult due to it's extreme dynamic nature. There are a couple caveats to this answer. Knuckledragger does enable you to model your algorithms and extract/interpret them to python. A subset of purely-function, strongly-typed python can be reflected directly into the Knuckledragger logic. Domain specific modelling of important python ecosystem libraries is a WIP. This capability is growing with time.
+
+## License & Citation
+
+MIT licensed. See LICENSE for more information.
+
+Citing this repository is highly appreciated but not required by the license.
+
+```
+@software{knuckledragger2025,
+  author = {Philip Zucker},
+  title = {{Knuckledragger: A Low Barrier Proof Assistant}},
+  url = {https://github.com/philzook58/knuckledragger},
+  month = {1},
+  year = {2025}
+}
+```
