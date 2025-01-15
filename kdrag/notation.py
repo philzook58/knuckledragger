@@ -478,12 +478,13 @@ rel = SortDispatch(name="rel")
 smt.DatatypeRef.rel = lambda *args: rel(*args)
 
 
-def InductiveRel(name: str, *param_sorts, admit=False) -> smt.DatatypeSortRef:
+def InductiveRel(name: str, *params, admit=False) -> smt.DatatypeSortRef:
     """Define an inductive type of evidence and a relation the recurses on that evidence
 
-    >>> Even = InductiveRel("Even", smt.IntSort(), admit=True)
-    >>> Even.declare("Ev_Z",                           pred=lambda x: x == 0)
-    >>> Even.declare("Ev_SS", ("sub2_evidence", Even), pred=lambda evid, x: evid.rel(x-2))
+    >>> x = smt.Int("x")
+    >>> Even = InductiveRel("Even", x, admit=True)
+    >>> Even.declare("Ev_Z",                           pred = x == 0)
+    >>> Even.declare("Ev_SS", ("sub2_evidence", Even), pred = lambda evid: evid.rel(x-2))
     >>> Even = Even.create()
     >>> smt.Const("ev", Even).rel(4)
     even(ev, 4)
@@ -510,25 +511,27 @@ def InductiveRel(name: str, *param_sorts, admit=False) -> smt.DatatypeSortRef:
         When inductive is done being defined, call this function
         """
         ev = smt.FreshConst(dt, prefix=name.lower())
-        rel = smt.Function(relname, dt, *param_sorts, smt.BoolSort())
-        params = [smt.FreshConst(s, prefix=s.name().lower()) for s in param_sorts]
+        rel = smt.Function(relname, dt, *[x.sort() for x in params], smt.BoolSort())
         cases = []
         for i in range(dt.num_constructors()):
             precond = dt.recognizer(i)(ev)  # recognize case of the evidence
             pred = preds[i]  # In this case, this predicate should be true
-            if pred is not None:
-                args = [dt.accessor(i, j)(ev) for j in range(dt.constructor(i).arity())]
-                args.extend(params)
-                res = pred(*args)
-            else:
+            if pred is None:
                 res = smt.BoolVal(True)
+            elif isinstance(pred, smt.ExprRef):
+                res = pred
+            else:
+                args = [dt.accessor(i, j)(ev) for j in range(dt.constructor(i).arity())]
+                res = pred(*args)
             cases.append((precond, res))
-        rel = kd.define(relname, [ev] + params, cond(*cases))
+        args = [ev]
+        args.extend(params)
+        rel = kd.define(relname, args, cond(*cases))
         return rel
 
     def create():
         dt = oldcreate()
-        dtrel = smt.Function(relname, dt, *param_sorts, smt.BoolSort())
+        dtrel = smt.Function(relname, dt, *[x.sort() for x in params], smt.BoolSort())
         rel.register(
             dt, lambda *args: dtrel(*args)
         )  # doing this here let's us tie the knot inside of lambdas and refer to the predicate.

@@ -26,7 +26,7 @@ def test_true_infer():
 
 def test_false_infer():
     with pytest.raises(Exception) as _:
-        kd.lemma(smt.BoolVal(False))
+        kd.kernel.lemma(smt.BoolVal(False))
 
 
 def test_explosion():

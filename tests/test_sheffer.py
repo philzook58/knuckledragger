@@ -313,7 +313,5 @@ def test_sheffer():
     )
 
 
-"""
 if __name__ == "__main__":
     test_sheffer()
-"""

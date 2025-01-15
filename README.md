@@ -40,7 +40,7 @@ assert not isinstance(simple_taut, smt.ExprRef)
 
 # kd.lemma will throw an error if the theorem is not provable
 try:
-    false_lemma = kd.lemma(smt.Implies(p, smt.And(p, q)))
+    false_lemma = kd.lemma(smt.Implies(p, smt.And(p, q)), timeout=10)
     print("This will not be reached")
 except kd.kernel.LemmaError as e:
     pass

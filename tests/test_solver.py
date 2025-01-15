@@ -1,3 +1,4 @@
+import pytest
 import kdrag as kd
 from kdrag.solvers import (
     VampireTHFSolver,
@@ -16,6 +17,7 @@ import kdrag.solvers.gappa as gappa
 import kdrag.solvers.aprove
 
 
+@pytest.mark.slow
 def test_vampirethf():
     s = VampireTHFSolver()
     s.add(smt.BoolVal(True))
@@ -190,6 +192,7 @@ def test_nanocopi():
 """
 
 
+@pytest.mark.slow
 def test_tao():
     # https://www.philipzucker.com/tao_algebra/
     T = smt.DeclareSort("T")

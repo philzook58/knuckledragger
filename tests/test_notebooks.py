@@ -2,11 +2,21 @@ import pytest
 import nbformat
 from nbclient import NotebookClient
 import subprocess
+import tempfile
+
+notebooks = [
+    "examples/nng.ipynb",
+    "examples/soft_found/lf/Basics.ipynb",
+    "examples/soft_found/lf/IndProp.ipynb",
+    "examples/soft_found/lf/Imp.ipynb",
+    "examples/LoVe/05_function.ipynb",
+]
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     "notebook_path",
-    ["tutorial.ipynb", "examples/nng.ipynb", "examples/soft_found/lf/Basics.ipynb"],
+    ["tutorial.ipynb"] + notebooks,
 )
 def test_notebook_execution(notebook_path):
     with open(notebook_path, "r", encoding="utf-8") as f:
@@ -19,6 +29,29 @@ def test_notebook_execution(notebook_path):
     client = NotebookClient(nb)
     client.execute()
 
+
+"""
+@pytest.mark.parametrize(
+    "notebook_path",
+    notebooks,
+ )
+def test_notebook_execution2():  # notebook_path):
+    with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as temp_output:
+        result = subprocess.run(
+            ["jupyter", "nbconvert", "--to", "python"]
+            + notebooks
+            + [
+                "--execute",
+                "--output",
+                temp_output.name,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr
+        # subprocess.run(["python3", temp_output.name], check=True, text=True)
+        # assert result.returncode == 0, result.stderr
+"""
 
 import re
 
