@@ -757,8 +757,9 @@ class Lemma:
         """
         return the actual final `Proof` of the lemma that was defined at the beginning.
         """
+
         if "by" in kwargs:
-            kwargs["by"] += self.lemmas
+            kwargs["by"].extend(self.lemmas)
         else:
             kwargs["by"] = self.lemmas
         return kd.kernel.lemma(self.thm, **kwargs)

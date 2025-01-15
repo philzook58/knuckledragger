@@ -1,6 +1,7 @@
 import pytest
 import nbformat
 from nbclient import NotebookClient
+import subprocess
 
 
 @pytest.mark.parametrize(

@@ -116,10 +116,10 @@ smt.ExprRef.__neg__ = lambda x: neg(x)  # type: ignore
 div = SortDispatch(name="div_")
 smt.ExprRef.__truediv__ = lambda x, y: div(x, y)  # type: ignore
 
-and_ = SortDispatch()
+and_ = SortDispatch(name="and_")
 smt.ExprRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
 
-or_ = SortDispatch()
+or_ = SortDispatch(name="or_")
 smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
 
 invert = SortDispatch(name="invert")
@@ -528,7 +528,7 @@ def InductiveRel(name: str, *param_sorts, admit=False) -> smt.DatatypeSortRef:
 
     def create():
         dt = oldcreate()
-        dtrel = smt.Function(name, dt, *param_sorts, smt.BoolSort())
+        dtrel = smt.Function(relname, dt, *param_sorts, smt.BoolSort())
         rel.register(
             dt, lambda *args: dtrel(*args)
         )  # doing this here let's us tie the knot inside of lambdas and refer to the predicate.

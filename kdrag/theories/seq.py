@@ -20,6 +20,15 @@ def induct(T: smt.SortRef, P) -> kd.kernel.Proof:
     )
 
 
+def seq(*args):
+    """
+    Helper to construct sequences.
+    >>> seq(1, 2, 3)
+    Concat(Unit(1), Concat(Unit(2), Unit(3)))
+    """
+    return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
+
+
 class Seq:
     def __init__(self, T):
         self.T = T
