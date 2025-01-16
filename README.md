@@ -58,7 +58,7 @@ or_idem = kd.lemma(smt.ForAll([x], x | x == x))
 # But the point of Knuckledragger is really for the things Z3 can't do in one shot
 
 # Knuckledragger support algebraic datatypes and induction
-Nat = kd.Inductive("Nat", admit=True)
+Nat = kd.Inductive("MyNat")
 Zero = Nat.declare("Zero")
 Succ = Nat.declare("Succ", ("pred", Nat))
 Nat = Nat.create()
@@ -85,7 +85,7 @@ add_succ_x = kd.lemma(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=
 l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
 
 # [] ?|- ForAll(n, add(n, Zero) == n)
-_n = l.fixes()            
+_n = l.fix()            
 
 # [] ?|- add(n!0, Zero) == n!2213
 l.induct(_n)              
@@ -188,8 +188,11 @@ TODO: A no-install WIP colab tutorial is available [here](http://colab.research.
 
 ## FAQ
 
-- Is this for proving about python programs?
-  - Mostly no. Proving properties of general python programs in a highly assured manner is extremely difficult due to it's extreme dynamic nature. There are a couple caveats to this answer. Knuckledragger does enable you to model your algorithms and extract/interpret them to python. A subset of purely-function, strongly-typed python can be reflected directly into the Knuckledragger logic. Domain specific modelling of important python ecosystem libraries is a WIP. This capability is growing with time.
+- Is this for proving about properties about python programs?
+  - Not directly. Proving properties of general python programs in a highly assured manner is extremely difficult due to its extreme dynamic nature. There are a couple caveats to this answer.
+    1. Knuckledragger does enable you to model your algorithms and extract/interpret them to python.
+    2. A subset of purely-function, strongly-typed python can be reflected directly into the Knuckledragger logic.
+    3. Domain specific modelling of important python ecosystem libraries is a WIP.
 
 ## License & Citation
 

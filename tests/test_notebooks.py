@@ -9,6 +9,7 @@ notebooks = [
     "examples/soft_found/lf/Basics.ipynb",
     "examples/soft_found/lf/IndProp.ipynb",
     "examples/soft_found/lf/Imp.ipynb",
+    "examples/soft_found/lf/Lists.ipynb",
     "examples/LoVe/05_function.ipynb",
 ]
 

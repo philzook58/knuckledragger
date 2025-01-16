@@ -13,19 +13,18 @@ def induct_nat(P):
     )
 
 
-def induct(x):
+def induct(x, P):
     n = smt.FreshConst(Z, prefix="n")
-    P = smt.FreshConst(smt.ArraySort(Z, smt.BoolSort()), prefix="P")
+    # P = smt.FreshConst(smt.ArraySort(Z, smt.BoolSort()), prefix="P")
     return kd.axiom(
-        kd.QForAll(
-            [P],
+        smt.Implies(
             smt.And(
-                P[0],
-                kd.QForAll([n], n >= 0, P[n], P[n + 1]),
                 kd.QForAll([n], n <= 0, P[n], P[n - 1]),
+                P(0),
+                kd.QForAll([n], n >= 0, P[n], P[n + 1]),
             ),
             # ---------------------------------------------------
-            P[x],
+            P(x),
         ),
         by="integer_induction",
     )

@@ -223,7 +223,7 @@ def datatype_call(self, *args):
     """
     # TODO: could also enable keyword syntax
     assert self.num_constructors() == 1
-    return self.constructor(0)(*args)
+    return self.constructor(0)(*[smt._py2expr(a) for a in args])
 
 
 smt.DatatypeSortRef.__call__ = datatype_call
@@ -401,6 +401,12 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proo
 
 def Inductive(name: str, admit=False) -> smt.Datatype:
     """Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype"""
+    counter = 0
+    n = name
+    while n in records:
+        counter += 1
+        n = name + "!" + str(counter)
+    name = n
     if not admit and name in records:
         raise Exception(
             "Datatype with that name already defined. Use keyword admit=True to override",

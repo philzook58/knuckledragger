@@ -256,7 +256,7 @@ def test_Lemma():
         )
     )
     [
-        x1 := l.intros(),
+        x1 := l.fix(),
         l.cases(x1),
         [l.left(), l.auto()],
         [l.right(), l.exists(x1.car, x1.cdr), l.auto()],

@@ -17,6 +17,7 @@ import kdrag as kd
 from kdrag import axiom, lemma, define
 import kdrag.smt as smt
 import kdrag.notation as notation
+import kdrag.theories.int as int_
 
 Nat = kd.Inductive("Nat")
 Nat.declare("Z")
@@ -24,22 +25,48 @@ Nat.declare("S", ("pred", Nat))
 Nat = Nat.create()
 """type Nat = Z | S {pred : Nat}"""
 
+S = Nat.S
+Z = Nat.Z
 
 n, m, k = smt.Consts("n m k", Nat)
 x, y, z = smt.Consts("x y z", Nat)
+
+safe_pred = kd.define("safe_pred", [n], smt.If(n.is_Z, Nat.Z, n.pred))
+
+a = smt.Int("a")
+from_int = Function("from_int", smt.IntSort(), Nat)
+from_int = kd.define("from_int", [a], If(a <= 0, Nat.Z, Nat.S(from_int(a - 1))))
+
+to_int = Function("to_int", Nat, smt.IntSort())
+to_int = kd.define("to_int", [n], If(n.is_Z, smt.IntVal(0), 1 + to_int(n.pred)))
+
+l = kd.Lemma(smt.ForAll([n], from_int(to_int(n)) == n))
+_n = l.fix()
+l.induct(_n)
+l.auto(by=[from_int.defn, to_int.defn])
+l.auto(by=[from_int.defn, to_int.defn])
+from_to_int = l.qed()
+
+l = kd.Lemma(smt.ForAll([a], to_int(from_int(a)) == smt.If(a <= 0, 0, a)))
+_a = l.fix()
+l.induct(_a)
+l.auto(by=[from_int.defn, to_int.defn])
+l.auto(by=[from_int.defn, to_int.defn])
+l.auto(by=[from_int.defn, to_int.defn])
+to_from_int = l.qed()
 
 add = smt.Function("add", Nat, Nat, Nat)
 add = kd.define("add", [x, y], smt.If(x.is_Z, y, Nat.S(add(x.pred, y))))
 kd.notation.add.register(Nat, add)
 
-add_z_l = kd.kernel.lemma(smt.ForAll([x], add(Nat.Z, x) == x), by=[add.defn])
-add_s_l = kd.kernel.lemma(
+add_Z = kd.kernel.lemma(smt.ForAll([x], add(Nat.Z, x) == x), by=[add.defn])
+add_S = kd.kernel.lemma(
     smt.ForAll([x, y], add(Nat.S(x), y) == Nat.S(add(x, y))), by=[add.defn]
 )
 
 _l = kd.Lemma(smt.ForAll([x], add(x, Nat.Z) == x))
 print(_l)
-_x = _l.fixes()
+_x = _l.fix()
 _l.induct(_x)
 _l.auto(by=[add.defn])
 a = _l.intros()
@@ -47,37 +74,37 @@ _l.auto(by=[add.defn])
 add_x_zero = _l.qed()
 
 l = kd.Lemma(smt.ForAll([x], add(x, Nat.Z) == x))
-_x1 = l.intros()
+_x1 = l.fix()
 l.induct(_x1)
 l.auto(by=[add.defn])
 l.auto(by=[add.defn])
 add_Z_r = l.qed()
 
 l = kd.Lemma(smt.ForAll([x, y], add(x, Nat.S(y)) == Nat.S(add(x, y))))
-_x1, _y1 = l.intros()
+_x1, _y1 = l.fixes()
 l.induct(_x1)
 l.rw(add.defn)
 l.simp()
 l.rw(add.defn)
 l.simp()
 l.auto()
-_z1 = l.fixes()
+_z1 = l.fix()
 l.auto(by=[add.defn])
 add_s_r = l.qed()
 
 l = kd.Lemma(smt.ForAll([x, y], add(x, y) == add(y, x)))
-_x1, _y1 = l.intros()
+_x1, _y1 = l.fixes()
 l.induct(_x1)
 l.auto(by=[add.defn, add_Z_r])
-_z1 = l.fixes()
+_z1 = l.fix()
 l.auto(by=[add.defn, add_s_r])
 add_comm = l.qed()
 
 l = kd.Lemma(smt.ForAll([x, y, z], add(x, add(y, z)) == add(add(x, y), z)))
-_x1, _y1, _z1 = l.intros()
+_x1, _y1, _z1 = l.fixes()
 l.induct(_x1)
-l.rw(add_z_l)
-l.rw(add_z_l)
+l.rw(add_Z)
+l.rw(add_Z)
 l.auto()
 l.auto(by=[add.defn, add_comm])
 add_assoc = l.qed()

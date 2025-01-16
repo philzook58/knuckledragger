@@ -149,7 +149,7 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     f = smt.Function(name, *sorts)
 
     # TODO: This is getting too hairy for the kernel? Reassess. Maybe just a lambda flag? Autolift?
-    if smt.is_quantifier(body) and body.is_lambda():
+    if isinstance(body, smt.QuantifierRef) and body.is_lambda():
         # It is worth it to avoid having lambdas in definition.
         vs = fresh_const(body)
         # print(vs, f(*args)[tuple(vs)])

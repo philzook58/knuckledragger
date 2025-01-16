@@ -6,8 +6,12 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, NamedTuple
+from typing import Optional, NamedTuple, Callable
 from enum import Enum
+import fractions
+import functools
+import operator
+from collections import namedtuple
 
 
 def simp(t: smt.ExprRef) -> smt.ExprRef:
@@ -590,3 +594,201 @@ def kbo(vs: list[smt.ExprRef], t1: smt.ExprRef, t2: smt.ExprRef) -> Order:
                 return Order.NGE
         else:
             raise Exception("Unexpected terms in kbo", t1, t2)
+
+
+@functools.cache
+def namedtuple_of_constructor(sort: smt.DatatypeSortRef, idx: int):
+    """
+    Given a datatype sort and an index, return a named tuple with field names and the constructor.
+    >>> Nat = smt.Datatype("Nat")
+    >>> Nat.declare("Z")
+    >>> Nat.declare("S", ("pred", Nat))
+    >>> Nat = Nat.create()
+    >>> namedtuple_of_constructor(Nat, 1)(0)
+    S(pred=0)
+    """
+    decl = sort.constructor(idx)
+    fields = [sort.accessor(idx, i).name() for i in range(decl.arity())]
+    return namedtuple(decl.name(), fields)
+
+
+# could env be just a python module? That's kind of intriguing
+
+
+def eval_(e: smt.ExprRef, globals={}):
+    """
+    Evaluate a z3 expression in a given environment. The analog of python's `eval`.
+
+    >>> eval_(smt.IntVal(42))
+    42
+    >>> eval_(smt.IntVal(1) + smt.IntVal(2))
+    3
+    >>> x = smt.Int("x")
+    >>> eval_(smt.Lambda([x], x + 1)[3])
+    4
+    >>> R = kd.Record("R", ("x", kd.Z), ("y", smt.BoolSort()), admit=True)
+    >>> eval_(R(42, True).y)
+    True
+    """
+    if isinstance(e, smt.QuantifierRef):
+        if e.is_lambda():
+            vs, body = open_binder(e)
+            # also possibly lookup Lambda in globals.
+            # and/or use KnuckleClosure.
+            return lambda *args: eval_(
+                body, {**{v.decl().name(): arg for v, arg in zip(vs, args)}, **globals}
+            )
+    elif smt.is_app(e):
+        if smt.is_if(e):
+            c = eval_(e.arg(0), globals=globals)
+            if isinstance(c, bool):
+                if c:
+                    return eval_(e.arg(1), globals=globals)
+                else:
+                    return eval_(e.arg(2), globals=globals)
+            elif isinstance(c, smt.ExprRef):
+                return smt.If(
+                    c,
+                    eval_(e.arg(1), globals=globals),
+                    eval_(e.arg(2), globals=globals),
+                )
+            else:
+                # possibly lookup "If" in environment
+                raise ValueError("If condition not a boolean or expression", c)
+        children = list(map(lambda x: eval_(x, globals), e.children()))
+        decl = e.decl()
+        if decl in kd.kernel.defns:
+            defn = kd.kernel.defns[e.decl()]
+            # Fresh vars and add to context?
+            # e1 = z3.substitute(defn.body, *zip(defn.args, e.children()))
+            f = eval_(smt.Lambda(defn.args, defn.body))
+            return f(*children)
+            # return eval_(
+            #    smt.Select(smt.Lambda(defn.args, defn.body), *children), globals=globals
+            # )
+            # return eval_(env, e1)
+        elif decl.name() in globals:
+            # hasattr(globals[decl.name()], "__call__")?
+            if smt.is_const(e):
+                return globals[decl.name()]
+            else:
+                return globals[decl.name()](*children)
+        elif smt.is_accessor(e):
+            # return children[0][decl.name()]
+            return getattr(children[0], e.decl().name())
+        elif smt.is_select(e):  # apply
+            return children[0](*children[1:])
+        # elif is_store(e): hmm
+        #    #return children[0]._replace(children[1], children[2])
+        elif smt.is_const_array(e):
+            return lambda x: children[0]  # Maybe return a Closure here?
+        elif smt.is_map(e):
+            return map(children[0], children[1])
+        elif smt.is_constructor(e):
+            sort, decl = e.sort(), e.decl()
+            for i in range(sort.num_constructors()):
+                if e.decl() == sort.constructor(i):
+                    break
+            cons = namedtuple_of_constructor(sort, i)
+            return cons(*children)
+        elif isinstance(e, smt.BoolRef):
+            if smt.is_true(e):
+                return True
+            elif smt.is_false(e):
+                return False
+            elif smt.is_and(e):
+                return functools.reduce(operator.and_, children)
+            elif smt.is_or(e):
+                return functools.reduce(operator.or_, children)
+            elif smt.is_not(e):
+                return ~children[0]
+            elif smt.is_implies(e):
+                assert False
+            elif smt.is_eq(e):
+                return children[0] == children[1]
+            elif smt.is_lt(e):
+                return children[0] < children[1]
+            elif smt.is_le(e):
+                return children[0] <= children[1]
+            elif smt.is_ge(e):
+                return children[0] >= children[1]
+            elif smt.is_gt(e):
+                return children[0] > children[1]
+            elif smt.is_recognizer(e):
+                raise ValueError("recognizer not implemented", e)
+            else:
+                raise ValueError("Unknown bool expression", e)
+        elif isinstance(e, smt.IntNumRef):  # smt.is_int_value(e):
+            return e.as_long()
+        elif isinstance(e, smt.RatNumRef):
+            return fractions.Fraction(e.numerator_as_long(), e.denominator_as_long())
+        elif isinstance(e, smt.FPNumRef):
+            raise ValueError("FPNumRef not implemented")
+        # elif smt.is_string_value(e):
+        #    return e.as_string()
+        # elif isisntance(e, ArithRef):
+        elif smt.is_add(e):
+            return sum(children)
+        elif smt.is_mul(e):
+            return functools.reduce(operator.mul, children)
+        elif smt.is_sub(e):
+            return children[0] - children[1]
+        elif smt.is_div(e):
+            return children[0] / children[1]
+        elif smt.is_idiv(e):
+            return children[0] // children[1]
+        elif smt.is_power(e):
+            return children[0] ** children[1]
+        elif smt.is_mod(e):
+            return children[0] % children[1]
+        else:
+            # we could raise error, or just return the expression itself (object | ExprRef) semantics
+            raise ValueError("Unknown expression type", e)
+    else:
+        raise ValueError("Unknown expression type", e)
+
+
+def reify(s: smt.SortRef, x: object) -> smt.ExprRef:
+    """
+    sort directed reification of a python value. https://en.wikipedia.org/wiki/Normalisation_by_evaluation
+    >>> reify(smt.IntSort(), 42)
+    42
+    >>> reify(smt.IntSort(), 42).sort()
+    Int
+    >>> x = smt.Int("x")
+    >>> alpha_eq(reify(smt.ArraySort(smt.IntSort(), smt.IntSort()), lambda x: x + 1), smt.Lambda([x], x + 1))
+    True
+    """
+    if isinstance(x, smt.ExprRef):
+        if x.sort() != s:
+            raise ValueError(f"Sort mismatch of {x} : {x.sort()} != {s}")
+        return x
+    elif isinstance(s, smt.ArraySortRef):
+        # TODO: Probably not right, also not dealing with multi arg lambdas.
+        if isinstance(x, Callable):
+            v = smt.FreshConst(s.domain())
+            y = x(v)
+            assert y.sort() == s.range()
+            return smt.Lambda([v], y)
+        else:
+            raise ValueError(f"Cannot call {x} as an array sort {s}")
+    elif isinstance(s, smt.DatatypeSortRef):
+        if isinstance(x, tuple):
+            for i in range(s.num_constructors()):
+                decl = s.constructor(i)
+                if decl.name() == type(x).__name__:
+                    arity = decl.arity()
+                    assert len(x) == arity
+                    return decl(reify(decl.domain(j), x[j]) for j in range(arity))
+            raise ValueError(f"Cannot reify {x} as a datatype {s}")
+        raise ValueError("Reification on datatypesort not yet implemented")
+    elif s == smt.IntSort():
+        return smt.IntVal(x)
+    elif s == smt.RealSort():
+        return smt.RealVal(x)
+    elif s == smt.BoolSort():
+        return smt.BoolVal(x)
+    elif s == smt.StringSort():
+        return smt.StringVal(x)
+    else:
+        raise ValueError(f"Cannot reify {x} as an expression")

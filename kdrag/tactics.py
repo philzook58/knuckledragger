@@ -233,7 +233,7 @@ class Lemma:
         self.thm = goal
         self.goals = [Goal(sig=[], ctx=[], goal=goal)]
 
-    def fixes(self) -> smt.ExprRef | list[smt.ExprRef]:
+    def fixes(self) -> list[smt.ExprRef]:
         """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)"""
         goalctx = self.goals[-1]
         goal = goalctx.goal
@@ -244,12 +244,12 @@ class Lemma:
             self.goals.append(
                 goalctx._replace(sig=goalctx.sig + vs, goal=herb_lemma.thm.arg(0))
             )
-            if len(vs) == 1:
-                return vs[0]
-            else:
-                return vs
+            return vs
         else:
             raise ValueError(f"fixes tactic failed. Not a forall {goal}")
+
+    def fix(self) -> smt.ExprRef:
+        return self.fixes()[0]
 
     def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
         """
@@ -322,11 +322,17 @@ class Lemma:
         `cases` let's us consider an object by cases.
         We consider whether Bools are True or False
         We consider the different constructors for datatypes
+        >>> import kdrag.theories.datatypes.nat as nat
+        >>> x = smt.Const("x", nat.Nat)
+        >>> l = Lemma(smt.BoolVal(True))
+        >>> l.cases(x)
+        [is(Z, x) == True] ?|- True
         """
         goalctx = self.top_goal()
         ctx = goalctx.ctx
         goal = goalctx.goal
         if t.sort() == smt.BoolSort():
+            self.goals.pop()
             self.goals.append(
                 goalctx._replace(ctx=ctx + [t == smt.BoolVal(True)], goal=goal)
             )
@@ -334,6 +340,7 @@ class Lemma:
                 goalctx._replace(ctx=ctx + [t == smt.BoolVal(False)], goal=goal)
             )
         elif isinstance(t, smt.DatatypeRef):
+            self.goals.pop()
             dsort = t.sort()
             for i in reversed(range(dsort.num_constructors())):
                 self.goals.append(

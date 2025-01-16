@@ -83,3 +83,15 @@ def inv(f: smt.FuncDeclRef, inv: smt.FuncDeclRef, e: smt.ExprRef):
     T = f.domain(0)
     x = smt.Const("x", T)
     return kd.QForAll([x], f(x, inv(x)) == e)
+
+
+@GenericProof
+def symm(R: smt.FuncDeclRef):
+    x, y = smt.Consts("x y", R.domain(0))
+    return kd.QForAll([x, y], R(x, y) == R(y, x))
+
+
+@GenericProof
+def trans(R: smt.FuncDeclRef):
+    x, y, z = smt.Consts("x y z", R.domain(0))
+    return kd.QForAll([x, y, z], R(x, y), R(y, z), R(x, z))
