@@ -23,7 +23,7 @@ Nat = kd.Inductive("Nat")
 Nat.declare("Z")
 Nat.declare("S", ("pred", Nat))
 Nat = Nat.create()
-"""type Nat = Z | S {pred : Nat}"""
+
 
 S = Nat.S
 Z = Nat.Z

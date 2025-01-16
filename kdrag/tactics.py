@@ -254,6 +254,7 @@ class Lemma:
     def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
         """
         intros opens an implication. ?|- p -> q becomes p ?|- q
+
         >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Implies(p, q))
         >>> l.intros()
@@ -298,6 +299,7 @@ class Lemma:
     def simp(self):
         """
         Use built in z3 simplifier. May be useful for boolean, arithmetic, lambda, and array simplifications.
+
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(x + y == y + x)
         >>> l.simp()
@@ -322,6 +324,7 @@ class Lemma:
         `cases` let's us consider an object by cases.
         We consider whether Bools are True or False
         We consider the different constructors for datatypes
+
         >>> import kdrag.theories.datatypes.nat as nat
         >>> x = smt.Const("x", nat.Nat)
         >>> l = Lemma(smt.BoolVal(True))
@@ -504,6 +507,7 @@ class Lemma:
         """
         Give terms `ts` to satisfy an exists goal
         `?|- exists x, p(x)` becomes `?|- p(ts)`
+
         >>> x,y = smt.Ints("x y")
         >>> Lemma(smt.Exists([x], x == y)).exists(y)
         [] ?|- y == y
@@ -580,6 +584,7 @@ class Lemma:
     def symm(self):
         """
         Swap left and right hand side of equational goal
+
         >>> x,y = smt.Ints("x y")
         >>> Lemma(x == y).symm()
         [] ?|- y == x
@@ -737,6 +742,7 @@ class Lemma:
     def admit(self):
         """
         admit the current goal without proof. Don't feel bad about keeping yourself moving, but be aware that you're not done.
+
         >>> l = Lemma(smt.BoolVal(False)) # a false goal
         >>> _ = l.admit()
         >>> l.qed()

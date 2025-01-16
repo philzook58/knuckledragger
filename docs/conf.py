@@ -36,6 +36,8 @@ autodoc_default_options = {
     "show-inheritance": True,
 }
 autodoc_typehints = "both"
+
+
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
