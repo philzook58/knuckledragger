@@ -23,6 +23,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc.typehints",
     "sphinx.ext.napoleon",
     "myst_parser",
 ]
@@ -34,7 +35,7 @@ autodoc_default_options = {
     "inherited-members": True,
     "show-inheritance": True,
 }
-
+autodoc_typehints = "both"
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
