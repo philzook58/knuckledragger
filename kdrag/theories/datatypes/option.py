@@ -40,10 +40,10 @@ def get(x: smt.DatatypeRef, default: smt.ExprRef) -> smt.ExprRef:
     >>> get(Some(42), 0)
     If(is(Some, Some(42)), val(Some(42)), 0)
     """
+    default = smt._py2expr(default)
     if not is_option(x):
         raise ValueError(f"{x} is not an Option datatype. {x.sort()}")
-    assert hasattr(x, "is_Some") and hasattr(x, "val")
-    if x.val.sort() != default.sort():
+    elif x.val.sort() != default.sort():
         raise ValueError(
             f"default sort {default.sort()} does not match option sort {x.val.sort()}"
         )
