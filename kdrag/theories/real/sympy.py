@@ -5,7 +5,7 @@ import flint
 import operator as op
 import sympy
 
-arb = flint.arb
+arb = flint.arb  # type: ignore
 a, b = smt.Reals("a b")
 flint_decls = {
     real.sqrt: arb.sqrt,
@@ -41,7 +41,7 @@ def interp_flint(e, env):
     assert False, f"Can't interpret {e} into flint"
 
 
-def z3_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:
+def z3_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:  # type: ignore
     if not x.is_finite():
         raise ValueError("Infinite value in z3_of_arb", x)
     mid = x.mid().str(100, more=True, radius=True)
@@ -118,13 +118,13 @@ def interp_sympy(e: smt.ExprRef, env: dict[smt.ExprRef, sympy.Expr] = {}) -> sym
         raise ValueError(f"Can't interpret {e} into sympy")
 
 
-def z3_of_sympy(x: sympy.Expr, env: dict[sympy.Expr, smt.ExprRef] = {}) -> smt.ExprRef:
+def z3_of_sympy(x: sympy.Basic, env: dict[sympy.Expr, smt.ExprRef] = {}) -> smt.ExprRef:
     if x in env:
         return env[x]
     elif x in rev_sympy_consts:
         return rev_sympy_consts[x]
-    elif x.is_constant() and x.is_rational:
-        num, denom = x.as_numer_denom()
+    elif x.is_constant() and x.is_rational:  # type: ignore
+        num, denom = x.as_numer_denom()  # type: ignore
         return smt.RatVal(int(num), int(denom))
     elif x.func in rev_sympy_decls:
         decl = rev_sympy_decls[x.func]

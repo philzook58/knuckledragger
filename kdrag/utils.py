@@ -148,8 +148,10 @@ def rewrite1(
 
 def apply(
     goal: smt.BoolRef, vs: list[smt.ExprRef], head: smt.BoolRef, body: smt.BoolRef
-) -> smt.BoolRef:
-    return rewrite1(goal, vs, head, body)
+) -> Optional[smt.BoolRef]:
+    res = rewrite1(goal, vs, head, body)
+    assert res is None or isinstance(res, smt.BoolRef)
+    return res
 
 
 class Rule(NamedTuple):
@@ -173,26 +175,28 @@ def rewrite(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
     return t
 
 
-def rule_of_theorem(thm: smt.BoolRef) -> Rule:
+def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> Rule:
     """
     Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple
     """
     vs = []
-    while isinstance(thm, smt.QuantifierRef):
-        if thm.is_forall():
-            vs1, thm = open_binder(thm)
+    thm1 = thm  # to help out pyright
+    while isinstance(thm1, smt.QuantifierRef):
+        if thm1.is_forall():
+            vs1, thm1 = open_binder(thm1)
             vs.extend(vs1)
         else:
-            raise Exception("Not a universal quantifier", thm)
-    if not smt.is_eq(thm):
+            raise Exception("Not a universal quantifier", thm1)
+    assert isinstance(thm1, smt.BoolRef)
+    if not smt.is_eq(thm1):
         raise Exception("Not an equation", thm)
-    lhs, rhs = thm.children()
+    lhs, rhs = thm1.children()
     return Rule(vs, lhs, rhs)
 
 
 def decl_index(rules: list[Rule]) -> dict[smt.FuncDeclRef, Rule]:
     """Build a dictionary of rules indexed by their lhs head function declaration."""
-    return {lhs.decl(): (vs, lhs, rhs) for vs, lhs, rhs in rules}
+    return {rule.lhs.decl(): rule for rule in rules}
 
 
 def rewrite_star(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
@@ -295,15 +299,16 @@ class HornClause(NamedTuple):
     body: list[smt.BoolRef]
 
 
-def horn_of_theorem(thm: smt.BoolRef) -> HornClause:
+def horn_of_theorem(thm: smt.ExprRef) -> HornClause:
     """Unpack theorem of form `forall vs, body => head` into a HornClause tuple"""
     vs = []
-    while smt.is_quantifier(thm):
+    while isinstance(thm, smt.QuantifierRef):
         if thm.is_forall():
             vs1, thm = open_binder(thm)
             vs.extend(vs1)
         else:
             raise Exception("Not a universal quantifier", thm)
+    assert isinstance(thm, smt.BoolRef)
     if not smt.is_implies(thm):
         return HornClause(vs, thm, [])
     else:
@@ -434,7 +439,7 @@ def prompt(prompt: str):
         str: A single string with all .py files concatenated, separated by `---`.
     """
     excluded_subdirs = ["eprover"]
-    current_file = inspect.getfile(inspect.currentframe())
+    current_file = inspect.getfile(inspect.currentframe())  # type: ignore      this is insanely hacky anyway
     root_dir = os.path.dirname(os.path.abspath(current_file))
 
     py_files = glob.glob(
@@ -686,6 +691,7 @@ def eval_(e: smt.ExprRef, globals={}):
             return map(children[0], children[1])
         elif smt.is_constructor(e):
             sort, decl = e.sort(), e.decl()
+            i = 0  # Can't have 0 constructors. Makes typechecker happy
             for i in range(sort.num_constructors()):
                 if e.decl() == sort.constructor(i):
                     break

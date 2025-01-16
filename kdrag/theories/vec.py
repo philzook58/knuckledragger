@@ -14,15 +14,15 @@ u, v = kd.smt.Consts("u v", Vec2)
 kd.notation.add.define([u, v], Vec2(u.x + v.x, u.y + v.y))
 kd.notation.sub.define([u, v], Vec2(u.x - v.x, u.y - v.y))
 
-Vec2.vzero = Vec2(0, 0)
-Vec2.dot = dot.define([u, v], u.x * v.x + u.y * v.y)
-Vec2.norm2 = norm2.define([u], dot(u, u))
+Vec2.vzero = Vec2(0, 0)  # type: ignore
+Vec2.dot = dot.define([u, v], u.x * v.x + u.y * v.y)  # type: ignore
+Vec2.norm2 = norm2.define([u], dot(u, u))  # type: ignore
 
 
-Vec2.norm_pos = kd.lemma(
+Vec2.norm_pos = kd.lemma(  # type: ignore
     kd.smt.ForAll([u], norm2(u) >= 0), by=[Vec2.norm2.defn, Vec2.dot.defn]
 )
-Vec2.norm_zero = kd.lemma(
+Vec2.norm_zero = kd.lemma(  # type: ignore
     kd.smt.ForAll([u], (norm2(u) == 0) == (u == Vec2.vzero)),
     by=[Vec2.norm2.defn, Vec2.dot.defn],
 )

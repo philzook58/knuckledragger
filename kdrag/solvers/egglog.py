@@ -37,7 +37,8 @@ class EgglogSolver(solvers.BaseSolver):
         commands = eggbnd.parse_program(cmd)
         return self.egraph.run_program(*commands)
 
-    def add(self, rule: smt.ExprRef):
+    def add(self, thm: smt.ExprRef):
+        rule = thm
         for sort in solvers.collect_sorts([rule]):
             if sort not in self.sorts:
                 self.run_cmd(f"(sort {sort.name()})")
@@ -48,7 +49,7 @@ class EgglogSolver(solvers.BaseSolver):
                 cmd = f"(function {decl.name()} ({dom}) {decl.range().name()})"
                 self.run_cmd(cmd)
                 self.decls.add(decl)
-        if smt.is_quantifier(rule):
+        if isinstance(rule, smt.QuantifierRef):
             assert rule.is_forall()
             vs, r = kd.utils.open_binder(rule)
             if r.decl().name() != "=":

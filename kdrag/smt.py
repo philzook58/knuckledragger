@@ -7,6 +7,7 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 
 import os
 from . import config
+import operator
 
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
@@ -129,15 +130,19 @@ else:
 
 config.solver = Solver
 
+RawEq = ExprRef.__eq__
+
 
 def Eq(x, y):
     """Python __eq__ resolution rules flips the order if y is a subclass of x.
-    This function corrects that."""
-    e = x == y
-    if type(x) is not type(y) and issubclass(type(y), type(x)):
-        return e.decl()(e.arg(1), e.arg(0))
-    else:
-        return e
+    This function corrects that.
+
+    >>> IntVal(1) + IntVal(2) == IntVal(3)
+    3 == 1 + 2
+    >>> Eq(IntVal(1) + IntVal(2), IntVal(3))
+    1 + 2 == 3
+    """
+    return RawEq(x, y)
 
 
 ExprRef.induct = lambda x, P: None

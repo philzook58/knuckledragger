@@ -72,7 +72,7 @@ def abstract_arith(t: smt.ExprRef) -> smt.ExprRef:
     """
     if smt.is_var(t):
         return t
-    if smt.is_app(t):
+    elif smt.is_app(t):
         if t.decl() == (x + y).decl():
             return add(abstract_arith(t.arg(0)), abstract_arith(t.arg(1)))
         elif t.decl() == (x - y).decl():
@@ -82,6 +82,8 @@ def abstract_arith(t: smt.ExprRef) -> smt.ExprRef:
         else:
             f = t.decl()
             return f(*[abstract_arith(c) for c in t.children()])
+    else:
+        raise Exception("unimplemented case in abstract_arith", t)
 
 
 abs = kd.define("absR", [x], smt.If(x >= 0, x, -x))

@@ -7,7 +7,7 @@ import kdrag.smt as smt
 from enum import IntEnum
 import operator as op
 from . import config
-from typing import NamedTuple
+from typing import NamedTuple, Iterable, Sequence
 
 
 class Calc:
@@ -47,10 +47,12 @@ class Calc:
         self.lhs = lhs
         self.iterm = lhs  # intermediate term
         self.assume = assume
-        self.lemma = kd.kernel.lemma(self._forall(lhs == lhs))
+        self.lemma = kd.kernel.lemma(self._forall(smt.Eq(lhs, lhs)))
         self.mode = self._Mode.EQ
 
-    def _forall(self, body):
+    def _forall(
+        self, body: smt.BoolRef | smt.QuantifierRef
+    ) -> smt.BoolRef | smt.QuantifierRef:
         if len(self.assume) == 1:
             body = smt.Implies(self.assume[0], body)
         elif len(self.assume) > 1:
@@ -111,7 +113,7 @@ simps = {}
 
 def lemma(
     thm: smt.BoolRef,
-    by: kd.kernel.Proof | list[kd.kernel.Proof] = [],
+    by: kd.kernel.Proof | Sequence[kd.kernel.Proof] = [],
     admit=False,
     timeout=1000,
     dump=False,
@@ -139,7 +141,7 @@ def lemma(
     |- 1 >= 0
 
     """
-    if kd.kernel.is_proof(by):
+    if not isinstance(by, Iterable):
         by = [by]
     if admit:
         return kd.kernel.lemma(
@@ -148,7 +150,9 @@ def lemma(
     else:
         if solver is None:
             solver = config.solver
-        s = solver()
+            s = solver()  # type: ignore
+        else:
+            s = solver()
         s.set("timeout", timeout)
         for n, p in enumerate(by):
             if not kd.kernel.is_proof(p):
@@ -203,7 +207,7 @@ def lemma(
 def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.Proof:
     rules = [kd.utils.rule_of_theorem(lem.thm) for lem in by]
     t1 = kd.utils.rewrite(t, rules)
-    return lemma(t == t1, by=by, **kwargs)
+    return lemma(smt.Eq(t, t1), by=by, **kwargs)
 
 
 class Goal(NamedTuple):
@@ -213,6 +217,8 @@ class Goal(NamedTuple):
     goal: smt.BoolRef | smt.QuantifierRef
 
     def __repr__(self):
+        if self.is_empty():
+            return "Nothing to do!"
         if len(self.sig) == 0:
             return repr(self.ctx) + " ?|- " + repr(self.goal)
         else:
@@ -223,6 +229,13 @@ class Goal(NamedTuple):
                 + " ?|- "
                 + repr(self.goal)
             )
+
+    @classmethod
+    def empty(cls) -> "Goal":
+        return Goal([], [], smt.Bool("KNUCKLEDRAGGER_EMPTYGOAL"))
+
+    def is_empty(self) -> bool:
+        return self == Goal.empty()
 
 
 class Lemma:
@@ -237,7 +250,7 @@ class Lemma:
         """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)"""
         goalctx = self.goals[-1]
         goal = goalctx.goal
-        if smt.is_quantifier(goal) and goal.is_forall():
+        if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             self.goals.pop()
             vs, herb_lemma = kd.kernel.herb(goal)
             self.lemmas.append(herb_lemma)
@@ -279,9 +292,9 @@ class Lemma:
                 goalctx._replace(ctx=ctx + [goal.arg(0)], goal=smt.BoolVal(False))
             )
             return self.top_goal()
-        elif smt.is_or(goal) and smt.is_not(
-            goal.arg(0)
-        ):  # if implies a -> b gets classically unwound to Or(Not(a), b)
+        elif (
+            smt.is_or(goal) and smt.is_not(goal.arg(0))
+        ):  # if implies a -> b gets classically unwound to Or(Not(a), b). TODO: Maybe I should remove this
             if goal.num_args() == 2:
                 self.goals.append(
                     goalctx._replace(ctx=ctx + [goal.arg(0).arg(0)], goal=goal.arg(1))
@@ -289,7 +302,7 @@ class Lemma:
             else:
                 self.goals.append(
                     goalctx._replace(
-                        ctx=ctx + [goal.arg(0).arg(0)], goal=smt.Or(goal.children[1:])
+                        ctx=ctx + [goal.arg(0).arg(0)], goal=smt.Or(goal.children()[1:])
                     )
                 )
             return self.top_goal()
@@ -374,7 +387,7 @@ class Lemma:
         goalctx = self.goals[-1]
         ctx, goal = goalctx.ctx, goalctx.goal
         formula = ctx[n]
-        if smt.is_quantifier(formula) and formula.is_exists():
+        if isinstance(formula, smt.QuantifierRef) and formula.is_exists():
             self.goals.pop()
             fs, einstan_lemma = kd.kernel.einstan(formula)
             self.lemmas.append(einstan_lemma)
@@ -405,7 +418,7 @@ class Lemma:
         """
         goalctx = self.goals[-1]
         thm = goalctx.ctx[n]
-        if smt.is_quantifier(thm) and thm.is_forall():
+        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
             l = kd.kernel.instan2(ts, thm)
             self.lemmas.append(l)
             self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [l.thm.arg(1)])
@@ -520,7 +533,7 @@ class Lemma:
         self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
         return self.top_goal()
 
-    def rewrite(self, rule, at=None, rev=False):
+    def rewrite(self, rule: kd.kernel.Proof | int, at=None, rev=False):
         """
         `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.
         """
@@ -563,9 +576,9 @@ class Lemma:
             lhs1 = smt.substitute(lhs, *[(v, t) for v, t in subst.items()])
             rhs1 = smt.substitute(rhs, *[(v, t) for v, t in subst.items()])
             target: smt.BoolRef = smt.substitute(target, (lhs1, rhs1))
-            if smt.is_quantifier(rulethm) and rulethm.is_forall():
+            if isinstance(rulethm, smt.QuantifierRef) and rulethm.is_forall():
                 self.lemmas.append(kd.kernel.instan2([subst[v] for v in vs], rulethm))
-            if kd.kernel.is_proof(rule):
+            if not isinstance(rule, int) and kd.kernel.is_proof(rule):
                 self.lemmas.append(rule)
             if at is None:
                 self.goals.append(goalctx._replace(ctx=ctx, goal=target))
@@ -575,7 +588,7 @@ class Lemma:
                 )
             return self.top_goal()
 
-    def rw(self, rule, at=None, rev=False):
+    def rw(self, rule: kd.kernel.Proof | int, at=None, rev=False):
         """
         shorthand for rewrite
         """
@@ -598,7 +611,7 @@ class Lemma:
         else:
             raise ValueError("Symm tactic failed. Not an equality", ctxgoal.goal)
 
-    def eq(self, rhs, **kwargs):
+    def eq(self, rhs: smt.ExprRef, **kwargs):
         """replace rhs in equational goal"""
         # TODO: consider allow `by` keyword to reference context`
         ctxgoal = self.top_goal()
@@ -645,7 +658,7 @@ class Lemma:
         goalctx = self.goals.pop()
         ctx, goal = goalctx.ctx, goalctx.goal
         thm = pf.thm
-        if smt.is_quantifier(thm) and thm.is_forall():
+        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
             vs, thm = kd.utils.open_binder(thm)
         else:
             vs = []
@@ -699,7 +712,7 @@ class Lemma:
         ctxgoal.ctx.pop(n)
         return self.top_goal()
 
-    def generalize(self, *vs):
+    def generalize(self, *vs: smt.ExprRef):
         """
         Put variables forall quantified back on goal. Useful for strengthening induction hypotheses.
         """
@@ -739,7 +752,7 @@ class Lemma:
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
         return self.top_goal()
 
-    def admit(self):
+    def admit(self) -> Goal:
         """
         admit the current goal without proof. Don't feel bad about keeping yourself moving, but be aware that you're not done.
 
@@ -758,7 +771,7 @@ class Lemma:
 
     def top_goal(self) -> Goal:
         if len(self.goals) == 0:
-            return "Nothing to do. Hooray!"
+            return Goal.empty()  # kind of hacky
         return self.goals[-1]
 
     def __repr__(self):

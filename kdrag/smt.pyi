@@ -558,7 +558,12 @@ class ExprRef(AstRef):
     For quantifier free problems, all expressions are
     function applications.
     """
-    defn = ...    
+
+    defn = ...
+    wf = ...
+    rel = ...
+    induct = ...
+
     def as_ast(self):  # -> Any | None:
         ...
     def get_id(self):  # -> Any:
@@ -1267,6 +1272,7 @@ def MultiPattern(*args):  # -> PatternRef:
 
 class QuantifierRef(BoolRef):
     """Universally and Existentially quantified formulas."""
+    def __call__(self, *args: ExprRef) -> ExprRef: ...
     def as_ast(self):  # -> Any | None:
         ...
     def get_id(self):  # -> Any:
@@ -3891,8 +3897,10 @@ def CreateDatatypes(*ds):  # -> tuple[Any, ...]:
 
 class DatatypeSortRef(SortRef):
     """Datatype sorts."""
-    def __call__(self, *args):  # -> DatatypeRef:
-    def __getattr__(self, name):  # -> Any:
+
+    __dict__: dict[str, Any]
+    def __call__(self, *args): ...  # -> DatatypeRef:
+    def __getattr__(self, name): ...  # -> Any:
     def num_constructors(self):  # -> int:
         """Return the number of constructors in the given Z3 datatype.
 
@@ -3978,6 +3986,8 @@ class DatatypeSortRef(SortRef):
 
 class DatatypeRef(ExprRef):
     """Datatype expressions."""
+    def __getattr__(self, name: str): ...
+    def _replace(self, *kwargs): ...
     def sort(self):  # -> DatatypeSortRef:
         """Return the datatype sort of the datatype expression `self`."""
         ...
@@ -8183,7 +8193,8 @@ class UserPropagateBase:
 
 solver = str
 Z3SOLVER = Solver
-def Eq(a : ExprRef, b : ExprRef) -> BoolRef: ...
+
+def Eq(a: ExprRef, b: ExprRef) -> BoolRef: ...
 def _py2expr(x: Any) -> ExprRef: ...
 def is_recognizer(a: ExprRef) -> bool: ...
 def is_constructor(a: ExprRef) -> bool: ...

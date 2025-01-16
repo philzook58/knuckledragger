@@ -3,6 +3,8 @@ Facilities for pretty printing and calling external solvers
 """
 
 from operator import is_
+
+from zmq import has
 import kdrag as kd
 import kdrag.smt as smt
 import subprocess
@@ -11,6 +13,7 @@ import concurrent.futures
 import logging
 import shutil
 import re
+from typing import Optional
 
 logger = logging.getLogger("knuckledragger")
 
@@ -310,6 +313,7 @@ class BaseSolver:
         self.adds = []
         self.assert_tracks = []
         self.options = {}
+        self.res: Optional[subprocess.CompletedProcess] = None
 
     def add(self, thm: smt.BoolRef):
         assert isinstance(thm, smt.BoolRef)
@@ -325,8 +329,10 @@ class BaseSolver:
     def unsat_core(self):
         raise NotImplementedError
 
-    def proof(self):
-        return self.res.stdout
+    def proof(self) -> object:
+        if self.res is None:
+            raise Exception("No proof available")
+        return getattr(self.res, "stdout")
 
     def set(self, option, value):
         self.options[option] = value
@@ -541,7 +547,7 @@ class VampireSolver(BaseSolver):
         ]
 
     def unsat_core(self):
-        assert self.status == smt.unsat
+        assert self.status == smt.unsat and self.res is not None
         cores = (
             self.res.stdout.decode()
             .split("unsat\n")[1]
@@ -554,6 +560,7 @@ class VampireSolver(BaseSolver):
 
     def proof(self):
         res = []
+        assert self.res is not None
         # https://github.com/teorth/equational_theories/blob/main/equational_theories/Generated/VampireProven/src/vampire_proofs_cyc.py
         for eqnum, statement, reason in re.findall(
             r"(\d+)\. ([^[]+) \[([^\]]+)\]", self.res.stdout.decode()

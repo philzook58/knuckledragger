@@ -4,7 +4,7 @@ import kdrag as kd
 
 
 @functools.cache
-def Option(T: smt.SortRef, admit=False) -> smt.DatatypeRef:
+def Option(T: smt.SortRef, admit=False) -> smt.DatatypeSortRef:
     """
     Define an Option type for a given type T
     >>> OInt = Option(smt.IntSort())
@@ -22,6 +22,17 @@ def Option(T: smt.SortRef, admit=False) -> smt.DatatypeRef:
     return Option
 
 
+def is_option(x: smt.DatatypeRef) -> bool:
+    """
+    Check if a value is an Option
+    >>> is_option(Some(42))
+    True
+    >>> is_option(42)
+    False
+    """
+    return smt._py2expr(x).sort().name().startswith("Option_")
+
+
 # This should also perhaps be a SortDispatch
 def get(x: smt.DatatypeRef, default: smt.ExprRef) -> smt.ExprRef:
     """
@@ -29,6 +40,13 @@ def get(x: smt.DatatypeRef, default: smt.ExprRef) -> smt.ExprRef:
     >>> get(Some(42), 0)
     If(is(Some, Some(42)), val(Some(42)), 0)
     """
+    if not is_option(x):
+        raise ValueError(f"{x} is not an Option datatype. {x.sort()}")
+    assert hasattr(x, "is_Some") and hasattr(x, "val")
+    if x.val.sort() != default.sort():
+        raise ValueError(
+            f"default sort {default.sort()} does not match option sort {x.val.sort()}"
+        )
     return smt.If(x.is_Some, x.val, default)
 
 

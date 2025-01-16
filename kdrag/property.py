@@ -1,3 +1,7 @@
+"""
+Generic properties like associativity, commutativity, idempotence, etc.
+"""
+
 from typing import Optional
 import kdrag as kd
 from . import smt

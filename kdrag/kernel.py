@@ -4,7 +4,7 @@ The kernel hold core proof datatypes and core inference rules. By and large, all
 
 import kdrag.smt as smt
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Iterable, Sequence
 import logging
 from . import config
 
@@ -23,14 +23,14 @@ class Proof(smt.Z3PPObject):
     def __repr__(self):
         return "|- " + repr(self.thm)
 
-    def __call__(self, *args):
+    def __call__(self, *args: smt.ExprRef):
         return instan(args, self)
 
 
 # It is unlikely that users should be accessing the `Proof` constructor directly.
 # This is not ironclad. If you really want the Proof constructor, I can't stop you.
 __Proof = Proof
-Proof = None
+Proof = None  # type: ignore
 
 
 def is_proof(p: __Proof) -> bool:
@@ -43,7 +43,7 @@ class LemmaError(Exception):
 
 def lemma(
     thm: smt.BoolRef,
-    by: list[Proof] = [],
+    by: Iterable[Proof] = [],
     admit=False,
     timeout=1000,
     dump=False,
@@ -69,11 +69,12 @@ def lemma(
     """
     if admit:
         logger.warning("Admitting lemma {}".format(thm))
-        return __Proof(thm, by, True)
+        return __Proof(thm, list(by), True)
     else:
         if solver is None:
-            solver = config.solver
-        s = solver()
+            s = config.solver()  # type: ignore
+        else:
+            s = solver()
         s.set("timeout", timeout)
         for p in by:
             if not isinstance(p, __Proof):
@@ -88,10 +89,10 @@ def lemma(
                 raise LemmaError(thm, "Countermodel", s.model())
             raise LemmaError("lemma", thm, res)
         else:
-            return __Proof(thm, by, False)
+            return __Proof(thm, list(by), False)
 
 
-def axiom(thm: smt.BoolRef, by=[]) -> __Proof:
+def axiom(thm: smt.BoolRef, by=["axiom"]) -> __Proof:
     """Assert an axiom.
 
     Axioms are necessary and useful. But you must use great care.
@@ -115,7 +116,7 @@ class Defn:
     ax: Proof
 
 
-defns: dict[smt.FuncDecl, Defn] = {}
+defns: dict[smt.FuncDeclRef, Defn] = {}
 """
 defn holds definitional axioms for function symbols.
 """
@@ -210,7 +211,7 @@ def consider(x: smt.ExprRef) -> Proof:
     return axiom(smt.Eq(smt.FreshConst(x.sort(), prefix="consider"), x))
 
 
-def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
+def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.
     This is forall elimination
@@ -225,7 +226,7 @@ def instan(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     return __Proof(smt.substitute_vars(pf.thm.body(), *reversed(ts)), reason=[pf])
 
 
-def instan2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
+def instan2(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     """
     Instantiate a universally quantified formula
     `forall xs, P(xs) -> P(ts)`
@@ -239,11 +240,11 @@ def instan2(ts: list[smt.ExprRef], thm: smt.BoolRef) -> Proof:
 
     return __Proof(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
-        reason="forall_elim",
+        reason=["forall_elim"],
     )
 
 
-def forget(ts: list[smt.ExprRef], pf: Proof) -> Proof:
+def forget(ts: Iterable[smt.ExprRef], pf: Proof) -> Proof:
     """
     "Forget" a term using existentials. This is existential introduction.
     This could be derived from forget2
@@ -253,7 +254,7 @@ def forget(ts: list[smt.ExprRef], pf: Proof) -> Proof:
     return __Proof(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), reason=[pf])
 
 
-def forget2(ts: list[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
+def forget2(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     """
     "Forget" a term using existentials. This is existential introduction.
     `P(ts) -> exists xs, P(xs)`
@@ -264,7 +265,7 @@ def forget2(ts: list[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
     return __Proof(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
-        reason="exists_intro",
+        reason=["exists_intro"],
     )
 
 
@@ -307,7 +308,7 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     herbs = fresh_const(thm)
     return herbs, __Proof(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
-        reason="herband",
+        reason=["herband"],
     )
 
 

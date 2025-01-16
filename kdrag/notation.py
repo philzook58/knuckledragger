@@ -16,13 +16,14 @@ Importing this module will add some syntactic sugar to smt.
 
 import kdrag.smt as smt
 import kdrag as kd
+import typing
 
 smt.BoolRef.__and__ = lambda self, other: smt.And(self, other)
 smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)
 smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 
 
-smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)
+smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore
 
 smt.ArrayRef.__call__ = lambda self, *arg: self[arg]
 
@@ -93,56 +94,69 @@ class SortDispatch:
 
 
 add = SortDispatch(name="add")
+"""Sort based dispatch for `+` syntax"""
 smt.ExprRef.__add__ = lambda x, y: add(x, y)  # type: ignore
 
 radd = SortDispatch(name="radd")
+"""Sort based dispatch for `+` syntax"""
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
 
 sub = SortDispatch(name="sub")
+"""Sort based dispatch for `-` syntax"""
 smt.ExprRef.__sub__ = lambda x, y: sub(x, y)  # type: ignore
 
 mul = SortDispatch(name="mul")
+"""Sort based dispatch for `*` syntax"""
 smt.ExprRef.__mul__ = lambda x, y: mul(x, y)  # type: ignore
 
 rmul = SortDispatch(name="rmul")
+"""Sort based dispatch for `*` syntax"""
 smt.ExprRef.__rmul__ = lambda x, y: rmul(x, y)  # type: ignore
 
 matmul = SortDispatch(name="matmul")
+"""Sort based dispatch for `@` syntax"""
 smt.ExprRef.__matmul__ = lambda x, y: matmul(x, y)  # type: ignore
 
 neg = SortDispatch(name="neg")
+"""Sort based dispatch for `-` syntax"""
 smt.ExprRef.__neg__ = lambda x: neg(x)  # type: ignore
 
 div = SortDispatch(name="div_")
+"""Sort based dispatch for `/` syntax"""
 smt.ExprRef.__truediv__ = lambda x, y: div(x, y)  # type: ignore
 
 and_ = SortDispatch(name="and_")
+"""Sort based dispatch for `&` syntax"""
 smt.ExprRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
 
 or_ = SortDispatch(name="or_")
+"""Sort based dispatch for `|` syntax"""
 smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
 
 invert = SortDispatch(name="invert")
+"""Sort based dispatch for `~` syntax"""
 smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore
 
 lt = SortDispatch(name="lt")
+"""Sort based dispatch for `<` syntax"""
 smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore
 
 le = SortDispatch(name="le")
+"""Sort based dispatch for `<=` syntax"""
 smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore
 
 
 wf = SortDispatch(name="wf")
-"""
-`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists.
-"""
-smt.ExprRef.wf = lambda x: wf(x)
+"""`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists."""
+smt.ExprRef.wf = lambda x: wf(x)  # type: ignore
 
 induct = SortDispatch(name="induct")
-smt.ExprRef.induct = lambda x, P: induct(x, P)
+"""Sort based dispatch for induction principles. Should instantiate an induction scheme for variable x and predicate P"""
+smt.ExprRef.induct = lambda x, P: induct(x, P)  # type: ignore
 
 getitem = SortDispatch(name="getitem")
-smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)
+"""Sort based dispatch for `[]` getitem syntax"""
+smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)  # type: ignore
 
 
 def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
@@ -195,6 +209,89 @@ def ExistsUnique(v: smt.ExprRef, *concs) -> smt.BoolRef:
     )
 
 
+def cond(*cases, default=None) -> smt.ExprRef:
+    """
+    Helper for chained ifs defined by cases.
+    Each case is a tuple of a bool condition and a term.
+    If default is not given, a check is performed for totality.
+
+    >>> x = smt.Int("x")
+    >>> kd.cond((x < 0, 2 * x), (x == 0, 3 * x), (x > 0, 5 * x))
+    If(x < 0,
+       2*x,
+       If(x == 0, 3*x, If(x > 0, 5*x, unreachable...)))
+    >>> kd.cond((x < 0, 2 * x), (x == 0, 3 * x), default = 5 * x)
+    If(x < 0, 2*x, If(x == 0, 3*x, 5*x))
+    """
+    sort = None
+    if default is not None and isinstance(default, smt.ExprRef):
+        sort = default.sort()
+    else:
+        for c, t in cases:
+            if not smt.is_bool(c):
+                raise Exception("Condition must be boolean", c)
+            if isinstance(
+                t, smt.ExprRef
+            ):  # looping through allows (some_cond , 0) to be a case if z3 will infer what 0 will be
+                sort = t.sort()
+                break
+        if sort is None:
+            raise Exception("Could not infer return sort")
+    if default is None:
+        """ Check totality of cases """
+        s = smt.Solver()
+        s.add(smt.Not(smt.Or([c for c, t in cases])))
+        res = s.check()
+        if res == smt.sat:
+            raise Exception("Cases not exhaustive. Fix or give default", s.model())
+        elif res != smt.unsat:
+            raise Exception("Solver error. Give default", res)
+        else:
+            default = smt.FreshConst(sort, prefix="unreachable")
+    acc = default
+    for c, t in reversed(cases):
+        if isinstance(t, smt.ExprRef) and t.sort() != sort:
+            raise Exception("Sort mismatch in cond", t, sort)
+        acc = smt.If(c, t, acc)
+    return acc
+
+
+def conde(*cases):
+    """
+    Minikanren style helper to create an `Or` of `And`s
+
+    >>> x,y = smt.Ints("x y")
+    >>> conde((x > 0, y == x + 1), (x < 0, y == x - 1))
+    Or(And(x > 0, y == x + 1), And(x < 0, y == x - 1))
+    """
+    return smt.Or([smt.And(c) for c in cases])
+
+
+class Cond:
+    """
+    Imperative class based API to build a chain of if-else statements
+    """
+
+    def __init__(self):
+        self.cases = []
+        self.default = None
+
+    def when(self, cond: smt.BoolRef):
+        self.cases.append((cond, None))
+        return self
+
+    def then(self, thn: smt.ExprRef):
+        self.cases[-1] = (self.cases[-1][0], thn)
+        return self
+
+    def otherwise(self, els: smt.ExprRef):
+        self.default = els
+        return self
+
+    def expr(self) -> smt.ExprRef:
+        return cond(*self.cases, default=self.default)
+
+
 def _lookup_constructor_recog(self, k):
     """
     Enable "dot" syntax for fields of smt datatypes
@@ -214,10 +311,10 @@ def _lookup_constructor_recog(self, k):
                     return acc(self)
 
 
-smt.DatatypeRef.__getattr__ = _lookup_constructor_recog
+smt.DatatypeRef.__getattr__ = _lookup_constructor_recog  # type: ignore
 
 
-def datatype_call(self, *args):
+def datatype_call(self: smt.DatatypeSortRef, *args: smt.ExprRef) -> smt.DatatypeRef:
     """
     Enable "call" syntax for constructors of smt datatypes
     """
@@ -226,10 +323,11 @@ def datatype_call(self, *args):
     return self.constructor(0)(*[smt._py2expr(a) for a in args])
 
 
-smt.DatatypeSortRef.__call__ = datatype_call
+smt.DatatypeSortRef.__call__ = datatype_call  # type: ignore
+""" Call syntax for constructors of smt datatypes """
 
 
-def datatype_replace(self, **kwargs):
+def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.DatatypeRef:
     """
     Like NamedTuple, you can replace fields of a record datatype.
 
@@ -269,109 +367,25 @@ def datatype_replace(self, **kwargs):
     return cons(*fields)
 
 
-smt.DatatypeRef._replace = datatype_replace
+smt.DatatypeRef._replace = datatype_replace  # type: ignore
 
 
-def datatype_iter(self):
+def datatype_iter(self: smt.DatatypeSortRef) -> typing.Iterator[smt.FuncDeclRef]:
+    """Enable iteration over constructors of a datatype sort"""
     return (self.constructor(i) for i in range(self.num_constructors()))
 
 
-smt.DatatypeSortRef.__iter__ = datatype_iter
+smt.DatatypeSortRef.__iter__ = datatype_iter  # type: ignore
 
 
-def datatype_len(self):
+def datatype_len(self: smt.DatatypeSortRef) -> int:
+    """Enable len() on datatype sorts"""
     return self.num_constructors()
 
 
-smt.DatatypeSortRef.__len__ = datatype_len
+smt.DatatypeSortRef.__len__ = datatype_len  # type: ignore
 
 records = {}
-
-
-def Record(name: str, *fields, pred=None, admit=False) -> smt.DatatypeSortRef:
-    """
-    Define a record datatype.
-    The optional argument `pred` will add a well-formedness condition to the record
-    giving something akin to a refinement type.
-    """
-    if not admit and name in records:
-        raise Exception("Record already defined", name)
-    rec = smt.Datatype(name)
-    rec.declare(name, *fields)
-    rec = rec.create()
-    rec.mk = rec.constructor(0)
-    wf_cond = [n for (n, (_, sort)) in enumerate(fields) if sort in wf.methods]
-    if pred is None and len(wf_cond) == 1:
-        acc = rec.accessor(0, wf_cond[0])
-        wf.register(rec, lambda x: rec.accessor(0, acc(x).wf()))
-    elif pred is None and len(wf_cond) > 1:
-        wf.register(
-            rec, lambda x: smt.And(*[rec.accessor(0, n)(x).wf() for n in wf_cond])
-        )
-    elif pred is not None and len(wf_cond) == 0:
-        wf.register(rec, lambda x: pred(x))
-    elif pred is not None and len(wf_cond) > 0:
-        wf.register(
-            rec,
-            lambda x: smt.And(pred(x), *[rec.accessor(0, n)(x).wf() for n in wf_cond]),
-        )
-    records[name] = rec
-
-    return rec
-
-
-def NewType(
-    name: str, sort: smt.SortRef, pred=None, admit=False
-) -> smt.DatatypeSortRef:
-    """Minimal wrapper around a sort for sort based overloading"""
-    return Record(name, ("val", sort), pred=pred, admit=admit)
-
-
-def Enum(name, args, admit=False):
-    """Shorthand for simple enumeration datatypes. Similar to python's Enum.
-    >>> Color = Enum("Color", "Red Green Blue")
-    >>> smt.And(Color.Red != Color.Green, Color.Red != Color.Blue)
-    And(Red != Green, Red != Blue)
-    """
-    T = kd.Inductive(name, admit=admit)
-    for c in args.split():
-        T.declare(c)
-    T = T.create()
-    return T
-
-
-"""
-def induct_inductive(DT: smt.DatatypeSortRef, x=None, P=None) -> kd.kernel.Proof:
-    if P is None:
-        P = smt.FreshConst(smt.ArraySort(DT, smt.BoolSort()), prefix="P")
-    hyps = []
-    for i in range(DT.num_constructors()):
-        constructor = DT.constructor(i)
-        args = [
-            smt.FreshConst(constructor.domain(j), prefix="a")
-            for j in range(constructor.arity())
-        ]
-        acc = P(constructor(*args))
-        for arg in args:
-            if arg.sort() == DT:
-                acc = kd.QForAll([arg], P(arg), acc)
-            else:
-                acc = kd.QForAll([arg], acc)
-        hyps.append(acc)
-    if x is None:
-        x = smt.FreshConst(DT, prefix="x")
-        conc = kd.QForAll([x], P(x))
-    else:
-        conc = P(x)
-    if isinstance(P, smt.ExprRef):
-        return kd.axiom(
-            smt.ForAll([P], smt.Implies(smt.And(hyps), conc)), by="induction_axiom"
-        )
-    else:
-        return kd.axiom(
-            smt.ForAll([P], smt.Implies(smt.And(hyps), conc)), by="induction_axiom"
-        )
-"""
 
 
 def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proof:
@@ -400,7 +414,16 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proo
 
 
 def Inductive(name: str, admit=False) -> smt.Datatype:
-    """Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype"""
+    """
+    Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
+
+    >>> Nat = Inductive("Nat")
+    >>> Nat.declare("zero")
+    >>> Nat.declare("succ", ("pred", Nat))
+    >>> Nat = Nat.create()
+    >>> Nat.succ(Nat.zero)
+    succ(zero)
+    """
     counter = 0
     n = name
     while n in records:
@@ -440,43 +463,71 @@ def Inductive(name: str, admit=False) -> smt.Datatype:
     return dt
 
 
-def cond(*cases, default=None) -> smt.ExprRef:
+def Record(
+    name: str, *fields: tuple[str, smt.SortRef], pred=None, admit=False
+) -> smt.DatatypeSortRef:
     """
-    Helper for chained ifs defined by cases.
-    Each case is a tuple of a bool condition and a term.
-    If default is not given, a check is performed for totality.
+    Define a record datatype.
+    The optional argument `pred` will add a well-formedness condition to the record
+    giving something akin to a refinement type.
+
+    >>> Point = Record("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
+    >>> Point(1,2)
+    Point(ToReal(1), ToReal(2))
+    >>> Point(1,2).x
+    x(Point(ToReal(1), ToReal(2)))
+    >>> PosPoint = Record("PosPoint", ("x", smt.RealSort()), ("y", smt.RealSort()), pred = lambda p: smt.And(p.x > 0, p.y > 0))
+    >>> p = smt.Const("p", PosPoint)
+    >>> QForAll([p], p.x > -42)
+    ForAll(p, Implies(And(x(p) > 0, y(p) > 0), x(p) > -42))
     """
-    sort = None
-    if default is not None and isinstance(default, smt.ExprRef):
-        sort = default.sort()
-    else:
-        for c, t in cases:
-            if not smt.is_bool(c):
-                raise Exception("Condition must be boolean", c)
-            if isinstance(
-                t, smt.ExprRef
-            ):  # looping through allows (some_cond , 0) to be a case if z3 will infer what 0 will be
-                sort = t.sort()
-                break
-        if sort is None:
-            raise Exception("Could not infer return sort")
-    if default is None:
-        """ Check totality of cases """
-        s = smt.Solver()
-        s.add(smt.Not(smt.Or([c for c, t in cases])))
-        res = s.check()
-        if res == smt.sat:
-            raise Exception("Cases not exhaustive. Fix or give default", s.model())
-        elif res != smt.unsat:
-            raise Exception("Solver error. Give default", res)
-        else:
-            default = smt.FreshConst(sort, prefix="unreachable")
-    acc = default
-    for c, t in reversed(cases):
-        if isinstance(t, smt.ExprRef) and t.sort() != sort:
-            raise Exception("Sort mismatch in cond", t, sort)
-        acc = smt.If(c, t, acc)
-    return acc
+    rec = Inductive(name, admit=admit)
+    rec.declare(name, *fields)
+    rec = rec.create()
+    rec.mk = rec.constructor(0)
+    wf_cond = [n for (n, (_, sort)) in enumerate(fields) if sort in wf.methods]
+    if pred is None and len(wf_cond) == 1:
+        acc = rec.accessor(0, wf_cond[0])
+        wf.register(rec, lambda x: rec.accessor(0, acc(x).wf()))
+    elif pred is None and len(wf_cond) > 1:
+        wf.register(
+            rec, lambda x: smt.And(*[rec.accessor(0, n)(x).wf() for n in wf_cond])
+        )
+    elif pred is not None and len(wf_cond) == 0:
+        wf.register(rec, lambda x: pred(x))
+    elif pred is not None and len(wf_cond) > 0:
+        wf.register(
+            rec,
+            lambda x: smt.And(pred(x), *[rec.accessor(0, n)(x).wf() for n in wf_cond]),
+        )
+
+    return rec
+
+
+def NewType(
+    name: str, sort: smt.SortRef, pred=None, admit=False
+) -> smt.DatatypeSortRef:
+    """Minimal wrapper around a sort for sort based overloading
+
+    >>> NatI = NewType("NatI", smt.IntSort(), pred = lambda x: x.val >= 0)
+    >>> x = smt.Const("x", NatI)
+    >>> QForAll([x], x.val >= -7)
+    ForAll(x, Implies(val(x) >= 0, val(x) >= -7))
+    """
+    return Record(name, ("val", sort), pred=pred, admit=admit)
+
+
+def Enum(name: str, args: str, admit=False) -> smt.DatatypeSortRef:
+    """Shorthand for simple enumeration datatypes. Similar to python's Enum.
+    >>> Color = Enum("Color", "Red Green Blue")
+    >>> smt.And(Color.Red != Color.Green, Color.Red != Color.Blue)
+    And(Red != Green, Red != Blue)
+    """
+    T = kd.Inductive(name, admit=admit)
+    for c in args.split():
+        T.declare(c)
+    T = T.create()
+    return T
 
 
 rel = SortDispatch(name="rel")
@@ -484,7 +535,7 @@ rel = SortDispatch(name="rel")
 smt.DatatypeRef.rel = lambda *args: rel(*args)
 
 
-def InductiveRel(name: str, *params, admit=False) -> smt.DatatypeSortRef:
+def InductiveRel(name: str, *params: smt.ExprRef, admit=False) -> smt.Datatype:
     """Define an inductive type of evidence and a relation the recurses on that evidence
 
     >>> x = smt.Int("x")
@@ -547,28 +598,3 @@ def InductiveRel(name: str, *params, admit=False) -> smt.DatatypeSortRef:
 
     dt.create = create
     return dt
-
-
-def conde(*cases):
-    return smt.Or([smt.And(c) for c in cases])
-
-
-class Cond:
-    def __init__(self):
-        self.cases = []
-        self.default = None
-
-    def when(self, cond: smt.BoolRef):
-        self.cases.append((cond, None))
-        return self
-
-    def then(self, thn: smt.ExprRef):
-        self.cases[-1] = (self.cases[-1][0], thn)
-        return self
-
-    def otherwise(self, els: smt.ExprRef):
-        self.default = els
-        return self
-
-    def expr(self) -> smt.ExprRef:
-        return cond(*self.cases, default=self.default)
