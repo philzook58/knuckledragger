@@ -49,6 +49,36 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
 #    return G2[len(G2) - 1].children()[1]
 
 
+def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
+    """
+    Do a single unfold sweep, unfolding definitions defined by `kd.define`.
+    The optional trace parameter will record proof along the way.
+    `decls` is an optional list of declarations to unfold. If None, all definitions are unfolded.
+
+    >>> x = smt.Int("x")
+    >>> f = kd.define("f", [x], x + 42)
+    >>> trace = []
+    >>> unfold(f(1), trace=trace)
+    1 + 42
+    >>> trace
+    [|- f(1) == 1 + 42]
+    """
+    if smt.is_app(e):
+        decl = e.decl()
+        children = [unfold(c, decls=decls, trace=trace) for c in e.children()]
+        defn = kd.kernel.defns.get(decl)
+        if defn is not None and (decls is None or decl in decls):
+            e1 = smt.substitute(defn.body, *zip(defn.args, children))
+            e = e1
+            if trace is not None:
+                trace.append((defn.ax(*children)))
+            return e1
+        else:
+            return decl(*children)
+    else:
+        return e
+
+
 def pmatch(
     vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, subst=None
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:

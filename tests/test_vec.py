@@ -3,10 +3,6 @@ import kdrag.smt as smt
 import kdrag as kd
 
 
-def test_enum():
-    assert len(vec.ind3) == 3
-
-
 def test_vec():
     Vec3 = vec.Vec(3)
     u, v, w = smt.Consts("u v w", Vec3)

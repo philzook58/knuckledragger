@@ -7,7 +7,7 @@ import kdrag.smt as smt
 from enum import IntEnum
 import operator as op
 from . import config
-from typing import NamedTuple, Iterable, Sequence
+from typing import NamedTuple, Iterable, Optional, Sequence, Callable
 
 
 class Calc:
@@ -309,7 +309,7 @@ class Lemma:
         else:
             raise ValueError("Intros failed.")
 
-    def simp(self):
+    def simp(self, at=None):
         """
         Use built in z3 simplifier. May be useful for boolean, arithmetic, lambda, and array simplifications.
 
@@ -324,12 +324,24 @@ class Lemma:
         >>> l.simp()
         [] ?|- 4 == y
         """
-        oldgoal = self.goals[-1].goal
-        newgoal = smt.simplify(oldgoal)
-        if newgoal.eq(oldgoal):
-            raise ValueError("Simplify failed. Goal is already simplified.")
-        self.lemmas.append(kd.kernel.lemma(oldgoal == newgoal))
-        self.goals[-1] = self.goals[-1]._replace(goal=newgoal)
+        goalctx = self.top_goal()
+        if at is None:
+            oldgoal = goalctx.goal
+            newgoal = smt.simplify(oldgoal)
+            if newgoal.eq(oldgoal):
+                raise ValueError("Simplify failed. Goal is already simplified.")
+            self.lemmas.append(kd.kernel.lemma(oldgoal == newgoal))
+            self.goals[-1] = goalctx._replace(goal=newgoal)
+        else:
+            oldctx = goalctx.ctx
+            old = oldctx[at]
+            new = smt.simplify(old)
+            if new.eq(old):
+                raise ValueError("Simplify failed. Ctx is already simplified.")
+            self.lemmas.append(kd.kernel.lemma(old == new))
+            self.goals[-1] = goalctx._replace(
+                ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
+            )
         return self.top_goal()
 
     def cases(self, t):
@@ -425,6 +437,37 @@ class Lemma:
             return self.top_goal()
         else:
             raise ValueError("Instan failed. Not a forall", thm)
+
+    def ext(self):
+        """
+        Apply extensionality to a goal
+
+        >>> x = smt.Int("x")
+        >>> l = Lemma(smt.Lambda([x], smt.IntVal(1)) == smt.K(smt.IntSort(), smt.IntVal(1)))
+        >>> _ = l.ext()
+        """
+        goalctx = self.top_goal()
+        goal = goalctx.goal
+        if smt.is_eq(goal):
+            lhs, rhs = goal.arg(0), goal.arg(1)
+            if smt.is_array_sort(lhs):
+                self.goals.pop()
+                ext_ind = smt.Ext(lhs, rhs)
+                x = smt.FreshConst(ext_ind.sort())
+                newgoal = smt.Eq(lhs[x], rhs[x])
+                self.lemmas.append(
+                    kd.kernel.lemma(
+                        smt.Implies(x == ext_ind, smt.Eq(lhs, rhs) == newgoal)
+                    )
+                )
+                self.goals.append(
+                    goalctx._replace(ctx=goalctx.ctx + [x == ext_ind], goal=newgoal)
+                )
+                return x
+            else:
+                raise ValueError("Ext failed. Goal is not an array equality", goal)
+        else:
+            raise ValueError("Ext failed. Goal is not an equality", goal)
 
     def split(self, at=None):
         """
@@ -583,6 +626,8 @@ class Lemma:
             if at is None:
                 self.goals.append(goalctx._replace(ctx=ctx, goal=target))
             else:
+                if at == -1:
+                    at = len(ctx) - 1
                 self.goals.append(
                     goalctx._replace(ctx=ctx[:at] + [target] + ctx[at + 1 :], goal=goal)
                 )
@@ -644,11 +689,23 @@ class Lemma:
         """
         Unfold the contents of a definition.
         """
-        for decl in decls:
-            if hasattr(decl, "defn"):
-                self.rewrite(decl.defn, at=at)
-            else:
-                raise ValueError("Unfold failed. Not a defined function")
+        goalctx = self.top_goal()
+        decls1 = None if len(decls) == 0 else decls
+        if at is None:
+            e = goalctx.goal
+            e2 = kd.utils.unfold(e, decls=decls1, trace=self.lemmas)
+            self.goals.pop()
+            self.goals.append(goalctx._replace(goal=e2))
+        else:
+            e = goalctx.ctx[at]
+            e2 = kd.utils.unfold(e, decls=decls, trace=self.lemmas)
+            self.goals.pop()
+            if at == -1:
+                at = len(goalctx.ctx) - 1
+            self.goals.append(
+                goalctx._replace(ctx=goalctx.ctx[:at] + [e2] + goalctx.ctx[at + 1 :])
+            )
+
         return self.top_goal()
 
     def apply(self, pf: kd.kernel.Proof, rev=False):
@@ -689,11 +746,24 @@ class Lemma:
                     self.goals.append(goalctx._replace(ctx=ctx, goal=pf1.thm.arg(1)))
         return self.top_goal()
 
-    def induct(self, x: smt.ExprRef):
+    def induct(
+        self,
+        x: smt.ExprRef,
+        using: Optional[
+            Callable[
+                [smt.ExprRef, Callable[[smt.ExprRef, smt.BoolRef], smt.BoolRef]],
+                kd.kernel.Proof,
+            ]
+        ] = None,
+    ):
         """
         Apply an induction lemma instantiated on x.
         """
-        indlem = x.induct(smt.Lambda([x], self.top_goal().goal))
+        goal = self.top_goal().goal
+        if using is None:
+            indlem = x.induct(smt.Lambda([x], goal))
+        else:
+            indlem = using(x, smt.Lambda([x], goal))
         self.lemmas.append(indlem)
         self.apply(indlem)
         if smt.is_and(self.top_goal().goal):

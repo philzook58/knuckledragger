@@ -133,7 +133,9 @@ def fresh_const(q: smt.QuantifierRef):
     ]
 
 
-def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDeclRef:
+def define(
+    name: str, args: list[smt.ExprRef], body: smt.ExprRef, lift_lambda=False
+) -> smt.FuncDeclRef:
     """
     Define a non recursive definition. Useful for shorthand and abstraction. Does not currently defend against ill formed definitions.
     TODO: Check for bad circularity, record dependencies
@@ -150,7 +152,7 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     f = smt.Function(name, *sorts)
 
     # TODO: This is getting too hairy for the kernel? Reassess. Maybe just a lambda flag? Autolift?
-    if isinstance(body, smt.QuantifierRef) and body.is_lambda():
+    if lift_lambda and isinstance(body, smt.QuantifierRef) and body.is_lambda():
         # It is worth it to avoid having lambdas in definition.
         vs = fresh_const(body)
         # print(vs, f(*args)[tuple(vs)])

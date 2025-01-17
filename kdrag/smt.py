@@ -145,6 +145,10 @@ def Eq(x, y):
     return RawEq(x, y)
 
 
+# TODO: Overload them?
+RawForAll = ForAll
+RawExists = Exists
+
 ExprRef.induct = lambda x, P: None
 ExprRef.__add__ = lambda x, y: None
 ExprRef.__sub__ = lambda x, y: None

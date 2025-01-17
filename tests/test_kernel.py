@@ -196,6 +196,7 @@ def test_Lemma():
     l = kd.Lemma(smt.ForAll([x], sqr(x) == x * x))
     l.intros()
     l.unfold(sqr)
+    print(l)
     l.auto()
     l.qed()
     l = kd.Lemma(smt.ForAll([x], sqr(sqr(x)) == x * x * x * x))
@@ -314,7 +315,7 @@ def test_lambda_def():
     # test that the lambda has been removed by the definition mechanism
     x, y = smt.Ints("x y")
     z, w = smt.Bools("z w")
-    test = kd.define("test", [x], smt.Lambda([x], x))
+    test = kd.define("test", [x], smt.Lambda([x], x), lift_lambda=True)
     assert test.defn.thm.body().eq(smt.ForAll([x, y], test(x)[y] == y).body())
 
 

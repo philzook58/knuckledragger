@@ -89,13 +89,3 @@ cross_antisym = kd.lemma(
 ihat = Vec3(1, 0, 0)
 jhat = Vec3(0, 1, 0)
 khat = Vec3(0, 0, 1)
-
-
-def FinSort(N):
-    return smt.EnumSort("Fin" + str(N), ["v" + str(i) for i in range(N)])
-
-
-Fin1, ind1 = FinSort(1)
-Fin2, ind2 = FinSort(2)
-Fin3, ind3 = FinSort(3)
-Fin4, ind4 = FinSort(4)

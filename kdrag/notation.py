@@ -370,9 +370,13 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
 smt.DatatypeRef._replace = datatype_replace  # type: ignore
 
 
-def datatype_iter(self: smt.DatatypeSortRef) -> typing.Iterator[smt.FuncDeclRef]:
+def datatype_iter(self: smt.DatatypeSortRef) -> typing.Iterator[smt.DatatypeRef]:
     """Enable iteration over constructors of a datatype sort"""
-    return (self.constructor(i) for i in range(self.num_constructors()))
+    if any(self.constructor(i).arity() > 0 for i in range(self.num_constructors())):
+        raise TypeError(
+            "For Enum like datatypes. Cannot iterate over constructors with arguments"
+        )
+    return (self.constructor(i)() for i in range(self.num_constructors()))
 
 
 smt.DatatypeSortRef.__iter__ = datatype_iter  # type: ignore
@@ -393,7 +397,7 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proo
     DT = x.sort()
     assert isinstance(DT, smt.DatatypeSortRef)
     """assert (
-        smt.is_quantifier(P) and P.is_lambda()
+        isisntance(P,QuantififerRef) and P.is_lambda()
     )  # TODO: Hmm. Actually it should just be arraysort"""
     hyps = []
     for i in range(DT.num_constructors()):
