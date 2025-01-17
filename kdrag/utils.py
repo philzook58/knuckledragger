@@ -192,14 +192,31 @@ class Rule(NamedTuple):
     rhs: smt.ExprRef
 
 
-def rewrite(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
+def rewrite1_rule(t: smt.ExprRef, rule: Rule, trace=None) -> Optional[smt.ExprRef]:
+    """
+    Rewrite at root a single time.
+    """
+    subst = pmatch(rule.vs, rule.lhs, t)
+    if subst is not None:
+        return smt.substitute(rule.rhs, *subst.items())
+        if trace is not None:
+            trace.append((rule, subst))
+    return None
+
+
+def rewrite(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
     """
     Sweep through term once performing rewrites.
+
+    >>> x = smt.Real("x")
+    >>> rule = Rule([x], x**2, x*x)
+    >>> rewrite((x**2)**2, [rule])
+    x*x*x*x
     """
     if smt.is_app(t):
         t = t.decl()(*[rewrite(arg, rules) for arg in t.children()])  # rewrite children
-        for vs, lhs, rhs in rules:
-            res = rewrite1(t, vs, lhs, rhs)
+        for rule in rules:
+            res = rewrite1_rule(t, rule, trace=trace)
             if res is not None:
                 t = res
     return t
@@ -208,6 +225,10 @@ def rewrite(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
 def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> Rule:
     """
     Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple
+
+    >>> x = smt.Real("x")
+    >>> rule_of_theorem(smt.ForAll([x], x**2 == x*x))
+    Rule(vs=[X...], lhs=X...**2, rhs=X...*X...)
     """
     vs = []
     thm1 = thm  # to help out pyright
@@ -229,12 +250,12 @@ def decl_index(rules: list[Rule]) -> dict[smt.FuncDeclRef, Rule]:
     return {rule.lhs.decl(): rule for rule in rules}
 
 
-def rewrite_star(t: smt.ExprRef, rules: list[Rule]) -> smt.ExprRef:
+def rewrite_star(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
     """
     Repeat rewrite until no more rewrites are possible.
     """
     while True:
-        t1 = rewrite(t, rules)
+        t1 = rewrite(t, rules, trace=trace)
         if t1.eq(t):
             return t1
         t = t1
