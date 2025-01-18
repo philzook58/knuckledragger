@@ -6,7 +6,7 @@ import kdrag.utils as utils
 
 
 def test_simp():
-    assert kd.utils.simp(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
+    assert kd.utils.simp1(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
     assert kd.utils.simp2(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
 
 

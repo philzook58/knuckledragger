@@ -8,6 +8,7 @@ from enum import IntEnum
 import operator as op
 from . import config
 from typing import NamedTuple, Iterable, Optional, Sequence, Callable
+import pprint
 
 
 class Calc:
@@ -217,20 +218,56 @@ class Goal(NamedTuple):
     def __repr__(self):
         if self.is_empty():
             return "Nothing to do!"
-        if len(self.sig) == 0:
-            return repr(self.ctx) + " ?|- " + repr(self.goal)
+        ctxrepr = pprint.pformat(self.ctx)
+        goalrepr = repr(self.goal)
+        if len(ctxrepr) + len(goalrepr) <= 75:
+            goalctx = ctxrepr + " ?|- " + repr(self.goal)
         else:
+            goalctx = ctxrepr + "\n?|- " + repr(self.goal)
+        if len(self.sig) == 0:
+            return goalctx
+        else:
+            sigrepr = pprint.pformat(self.sig)
+            if len(sigrepr) + len(goalctx) >= 80:
+                return repr(self.sig) + ";\n" + goalctx
+            else:
+                return repr(self.sig) + " ; " + goalctx
+        """
+        if len(self.sig) == 0:
             return (
-                repr([f"{v} : {v.sort()}" for v in self.sig])
-                + " ; "
-                + repr(self.ctx)
-                + " ?|- "
+                "["
+                + "\n".join(repr(ctx) for ctx in self.ctx)
+                + "]\n?|- "
                 + repr(self.goal)
             )
+        if len(self.ctx) == 0:
+            return (
+                "{"
+                + ", ".join([f"{v} : {v.sort()}" for v in self.sig])
+                + "}"
+                + "\n?|- "
+                + repr(self.goal)
+            )
+        else:
+            return (
+                "{"
+                + ",".join([f"{v} : {v.sort()}" for v in self.sig])
+                + "}\n["
+                + "\n".join(repr(ctx) for ctx in self.ctx)
+                + "]\n?|- "
+                + repr(self.goal)
+            )
+        """
 
     @classmethod
     def empty(cls) -> "Goal":
-        return Goal([], [], smt.Bool("KNUCKLEDRAGGER_EMPTYGOAL"))
+        return Goal(
+            [],
+            [],
+            smt.Or(
+                smt.BoolVal(True), smt.Bool("KNUCKLEDRAGGER_EMPTYGOAL")
+            ),  # trivial _and_ specially marked
+        )
 
     def is_empty(self) -> bool:
         return self == Goal.empty()
@@ -245,7 +282,18 @@ class Lemma:
         self.goals = [Goal(sig=[], ctx=[], goal=goal)]
 
     def fixes(self) -> list[smt.ExprRef]:
-        """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)"""
+        """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)
+
+        >>> x,y = smt.Ints("x y")
+        >>> l = Lemma(kd.QForAll([x,y], y >= 0, x + y >= x))
+        >>> _x, _y = l.fixes()
+        >>> l
+        [x!..., y!...] ?|- Implies(y!... >= 0, x!... + y!... >= x!...)
+        >>> _x, _y
+        (x!..., y!...)
+        >>> _x.eq(x)
+        False
+        """
         goalctx = self.goals[-1]
         goal = goalctx.goal
         if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
@@ -260,6 +308,18 @@ class Lemma:
             raise ValueError(f"fixes tactic failed. Not a forall {goal}")
 
     def fix(self) -> smt.ExprRef:
+        """
+        Open a single ForAll quantifier
+
+        >>> x = smt.Int("x")
+        >>> l = Lemma(smt.ForAll([x], x != x + 1))
+        >>> _x = l.fix()
+        >>> l
+        [x!...] ; [] ?|- x!... != x!... + 1
+        >>> _x.eq(x)
+        False
+
+        """
         return self.fixes()[0]
 
     def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
@@ -353,6 +413,8 @@ class Lemma:
         >>> l = Lemma(smt.BoolVal(True))
         >>> l.cases(x)
         [is(Z, x) == True] ?|- True
+        >>> l.auto() # next case
+        [is(S, x) == True] ?|- True
         """
         goalctx = self.top_goal()
         ctx = goalctx.ctx
@@ -471,6 +533,13 @@ class Lemma:
         """
         `split` breaks apart an `And` or bi-implication `==` goal.
         The optional keyword at allows you to break apart an And or Or in the context
+
+        >>> p = smt.Bool("p")
+        >>> l = Lemma(smt.And(True,p))
+        >>> l.split()
+        [] ?|- True
+        >>> l.auto() # next goal
+        [] ?|- p
         """
         goalctx = self.goals[-1]
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -529,7 +598,11 @@ class Lemma:
     def left(self, n=0):
         """
         Select the left case of an `Or` goal.
-        `?|- Or(p,q)` becomes `?|- p`
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Or(p,q))
+        >>> l.left()
+        [] ?|- p
         """
         # TODO: consider adding Not(right) to context since we're classical?
         goalctx = self.goals[-1]
@@ -545,7 +618,11 @@ class Lemma:
     def right(self):
         """
         Select the right case of an `Or` goal.
-        `?|- Or(p,q)` becomes `?|- q`
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Or(p,q))
+        >>> l.right()
+        [] ?|- q
         """
         goalctx = self.goals[-1]
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -685,7 +762,16 @@ class Lemma:
 
     def unfold(self, *decls: smt.FuncDeclRef, at=None):
         """
-        Unfold the contents of a definition.
+        Unfold all definitions once. If declarations are given, only those are unfolded.
+
+        >>> import kdrag.theories.datatypes.nat as nat
+        >>> l = Lemma(nat.Z + nat.Z == nat.Z)
+        >>> l
+        [] ?|- add(Z, Z) == Z
+        >>> l.unfold(nat.double) # does not unfold add
+        [] ?|- add(Z, Z) == Z
+        >>> l.unfold()
+        [] ?|- If(is(Z, Z), Z, S(add(pred(Z), Z))) == Z
         """
         goalctx = self.top_goal()
         decls1 = None if len(decls) == 0 else decls
@@ -835,6 +921,8 @@ class Lemma:
 
     # TODO
     # def search():
+    # def suggest():
+    # def llm():
     # def calc
 
     def top_goal(self) -> Goal:

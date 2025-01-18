@@ -17,7 +17,7 @@ import glob
 import inspect
 
 
-def simp(t: smt.ExprRef) -> smt.ExprRef:
+def simp1(t: smt.ExprRef) -> smt.ExprRef:
     """simplify a term using z3 built in simplifier"""
     expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
     G = smt.Goal()
@@ -80,6 +80,45 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
             return decl(*children)
     else:
         return e
+
+
+def simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
+    """
+    Simplify using definitions and built in z3 simplifier until no progress is made.
+
+    >>> import kdrag.theories.datatypes.nat as nat
+    >>> simp(nat.one + nat.one + nat.S(nat.one))
+    S(S(S(S(Z))))
+
+    >>> p = smt.Bool("p")
+    >>> simp(smt.If(p, 42, 3))
+    If(p, 42, 3)
+    """
+    while True:
+        e = unfold(e, trace=trace)
+        # TODO: Interesting options: som, sort_store, elim_ite, flat, split_concat_eq, sort_sums, sort_disjunctions
+        e1 = smt.simplify(e)
+        if e1.eq(e):
+            return e1
+        else:
+            if trace is not None:
+                trace.append(kd.kernel.lemma(e1 == e))
+            e = e1
+
+
+def def_eq(e1: smt.ExprRef, e2: smt.ExprRef, trace=None) -> bool:
+    """
+    A notion of computational equality. Unfold and simp.
+    """
+    e1 = simp3(e1, trace=trace)
+    e2 = simp3(e2, trace=trace)
+    return e1.eq(e2)
+    """
+    TODO: But we can have early stopping if we do these processes interleaved.
+    while not e1.eq(e2):
+        e1 = unfold(e1, trace=trace)
+        e2 = unfold(e2, trace=trace)
+    """
 
 
 def pmatch(
