@@ -16,8 +16,9 @@ dependencies = ["z3-solver >= 4.8", "egglog", "python-flint", "sympy", "lark"]
 homepage = "https://github.com/philzook58/knuckledragger"
 
 
-#[project.optional-dependencies]
-#dev = ["pytest>=6.0", "nbclient", "jupyter"]
+# For raw pip? 
+[project.optional-dependencies]
+dev = ["pytest>=6.0", "nbclient", "jupyter"]
 
 [tool.ruff]
 exclude = ["tests"]
@@ -45,4 +46,9 @@ doctest_optionflags = "ELLIPSIS"
 markers = ["slow: Marks tests as long-running."]
 
 [dependency-groups]
-dev = ["jupyter>=1.1.1", "nbclient>=0.10.2", "pytest>=8.3.4"]
+dev = [
+    "jupyter>=1.1.1",
+    "nbclient>=0.10.2",
+    "pyright>=1.1.392.post0",
+    "pytest>=8.3.4",
+]
