@@ -11,6 +11,7 @@ calculus, equational reasoning, and numerical bounds.
 from . import smt
 from . import kernel
 from . import notation
+from . import datatype
 from . import tactics
 from . import utils as utils
 
@@ -35,16 +36,16 @@ QExists = notation.QExists
 cond = notation.cond
 
 
-Record = notation.Record
+Record = datatype.Record
 
 
-NewType = notation.NewType
+NewType = datatype.NewType
 
 
-Inductive = notation.Inductive
+Inductive = datatype.Inductive
 
 
-Enum = notation.Enum
+Enum = datatype.Enum
 
 
 Calc = tactics.Calc

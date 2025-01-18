@@ -106,21 +106,6 @@ def simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
             e = e1
 
 
-def def_eq(e1: smt.ExprRef, e2: smt.ExprRef, trace=None) -> bool:
-    """
-    A notion of computational equality. Unfold and simp.
-    """
-    e1 = simp3(e1, trace=trace)
-    e2 = simp3(e2, trace=trace)
-    return e1.eq(e2)
-    """
-    TODO: But we can have early stopping if we do these processes interleaved.
-    while not e1.eq(e2):
-        e1 = unfold(e1, trace=trace)
-        e2 = unfold(e2, trace=trace)
-    """
-
-
 def pmatch(
     vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, subst=None
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
@@ -362,6 +347,18 @@ def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
 
 
 def alpha_eq(t1, t2):
+    """
+    Alpha equivalent equality.
+
+    >>> x,y = smt.Ints("x y")
+    >>> t1,t2 = smt.Lambda([x], x), smt.Lambda([y], y)
+    >>> t1.eq(t2) # syntactic equality
+    False
+    >>> alpha_eq(t1, t2)
+    True
+    >>> alpha_eq(smt.Lambda([x], x)[3], smt.IntVal(3)) # No beta equivalence
+    False
+    """
     if t1.eq(t2):  # fast path
         return True
     elif smt.is_quantifier(t1):
@@ -384,6 +381,25 @@ def alpha_eq(t1, t2):
     else:
         raise Exception("Unexpected terms in alpha_eq", t1, t2)
     # could instead maybe use a solver check or simplify tactic on Goal(t1 == t2)
+
+
+def def_eq(e1: smt.ExprRef, e2: smt.ExprRef, trace=None) -> bool:
+    """
+    A notion of computational equality. Unfold and simp.
+
+    >>> import kdrag.theories.nat as nat
+    >>> def_eq(nat.one + nat.one, nat.S(nat.S(nat.Z)))
+    True
+    """
+    e1 = simp(e1, trace=trace)
+    e2 = simp(e2, trace=trace)
+    return alpha_eq(e1, e2)
+    """
+    TODO: But we can have early stopping if we do these processes interleaved.
+    while not e1.eq(e2):
+        e1 = unfold(e1, trace=trace)
+        e2 = unfold(e2, trace=trace)
+    """
 
 
 class HornClause(NamedTuple):

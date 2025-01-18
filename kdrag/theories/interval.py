@@ -5,7 +5,7 @@ import kdrag.smt as smt
 """
 Interval arithmetic. Intervals are a record of hi and lo bounds.
 """
-Interval = kd.notation.Record("Interval", ("lo", kd.R), ("hi", kd.R))
+Interval = kd.Record("Interval", ("lo", kd.R), ("hi", kd.R))
 x, y, z = smt.Reals("x y z")
 i, j, k = smt.Consts("i j k", Interval)
 

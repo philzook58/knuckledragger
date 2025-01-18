@@ -89,7 +89,7 @@ def test_qforall():
 
 
 def test_record():
-    foo = kd.notation.Record("foo", ("bar", smt.IntSort()), ("baz", smt.BoolSort()))
+    foo = kd.Record("foo", ("bar", smt.IntSort()), ("baz", smt.BoolSort()))
     assert smt.simplify(foo.mk(1, True).bar).eq(smt.IntVal(1))
 
 
@@ -289,7 +289,7 @@ def test_induct():
     List = List.create()
     x = smt.Const("x", List)
     assert (
-        kd.notation.induct_inductive(x, smt.Lambda([x], smt.BoolVal(True))) is not None
+        kd.datatype.induct_inductive(x, smt.Lambda([x], smt.BoolVal(True))) is not None
     )
 
 
