@@ -2,13 +2,13 @@ import pytest
 import kdrag.smt as smt
 
 import kdrag as kd
-import kdrag.theories.datatypes.nat
+import kdrag.theories.nat
 import kdrag.theories.int
 import kdrag.theories.real as R
 import kdrag.theories.bitvec as bitvec
 import kdrag.theories.complex as complex
 import kdrag.theories.algebra.group as group
-import kdrag.theories.datatypes as datatypes
+import kdrag.theories as datatypes
 import re
 
 if smt.solver != smt.VAMPIRESOLVER:

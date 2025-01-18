@@ -8,7 +8,7 @@ import importlib
     [
         # "kdrag",
         "kdrag.theories.real",
-        "kdrag.theories.datatypes.nat",
+        "kdrag.theories.nat",
         # "kdrag.solvers",
     ],
 )

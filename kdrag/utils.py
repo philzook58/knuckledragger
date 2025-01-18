@@ -86,7 +86,7 @@ def simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
     """
     Simplify using definitions and built in z3 simplifier until no progress is made.
 
-    >>> import kdrag.theories.datatypes.nat as nat
+    >>> import kdrag.theories.nat as nat
     >>> simp(nat.one + nat.one + nat.S(nat.one))
     S(S(S(S(Z))))
 

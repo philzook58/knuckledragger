@@ -408,7 +408,7 @@ class Lemma:
         We consider whether Bools are True or False
         We consider the different constructors for datatypes
 
-        >>> import kdrag.theories.datatypes.nat as nat
+        >>> import kdrag.theories.nat as nat
         >>> x = smt.Const("x", nat.Nat)
         >>> l = Lemma(smt.BoolVal(True))
         >>> l.cases(x)
@@ -764,7 +764,7 @@ class Lemma:
         """
         Unfold all definitions once. If declarations are given, only those are unfolded.
 
-        >>> import kdrag.theories.datatypes.nat as nat
+        >>> import kdrag.theories.nat as nat
         >>> l = Lemma(nat.Z + nat.Z == nat.Z)
         >>> l
         [] ?|- add(Z, Z) == Z
