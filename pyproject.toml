@@ -10,13 +10,14 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+requires-python = ">= 3.10"
 dependencies = ["z3-solver >= 4.8", "egglog", "python-flint", "sympy", "lark"]
 [project.urls]
 homepage = "https://github.com/philzook58/knuckledragger"
 
 
-[project.optional-dependencies]
-dev = ["pytest>=6.0", "nbclient", "jupyter"]
+#[project.optional-dependencies]
+#dev = ["pytest>=6.0", "nbclient", "jupyter"]
 
 [tool.ruff]
 exclude = ["tests"]
@@ -42,3 +43,6 @@ addopts = "--doctest-modules"
 doctest_optionflags = "ELLIPSIS"
 
 markers = ["slow: Marks tests as long-running."]
+
+[dependency-groups]
+dev = ["jupyter>=1.1.1", "nbclient>=0.10.2", "pytest>=8.3.4"]
