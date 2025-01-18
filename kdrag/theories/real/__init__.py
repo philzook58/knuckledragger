@@ -1,6 +1,6 @@
 import kdrag.smt as smt
 from kdrag.smt import ForAll, Function
-from kdrag import lemma, axiom
+from kdrag import lemma
 import kdrag as kd
 
 """

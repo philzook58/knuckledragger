@@ -32,7 +32,6 @@ def gappa_of_bool(e: smt.BoolRef):
     elif smt.is_app(e):
         decl = e.decl()
         dname = decl.name()
-        nargs = decl.arity()
         children = map(gappa_of_real, e.children())
         if dname == "<=" or dname == "<" or dname == ">=" or dname == ">":
             lhs, rhs = children

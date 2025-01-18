@@ -12,6 +12,9 @@ import fractions
 import functools
 import operator
 from collections import namedtuple
+import os
+import glob
+import inspect
 
 
 def simp(t: smt.ExprRef) -> smt.ExprRef:
@@ -340,7 +343,7 @@ def alpha_eq(t1, t2):
         else:
             return False
     else:
-        raise Exception(f"Unexpected terms in alpha_eq", t1, t2)
+        raise Exception("Unexpected terms in alpha_eq", t1, t2)
     # could instead maybe use a solver check or simplify tactic on Goal(t1 == t2)
 
 
@@ -472,11 +475,6 @@ def lemma_db():
         if len(thms) > 0:
             db[modname] = thms
     return db
-
-
-import os
-import glob
-import inspect
 
 
 def prompt(prompt: str):

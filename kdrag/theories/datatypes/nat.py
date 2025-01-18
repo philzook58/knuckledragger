@@ -2,23 +2,8 @@
 Defines an algebraic datatype for the Peano natural numbers and useful functions and properties.
 """
 
-from kdrag.smt import (
-    Datatype,
-    ForAll,
-    And,
-    Implies,
-    Consts,
-    If,
-    Function,
-    IntSort,
-    Ints,
-)
 import kdrag as kd
-from kdrag import axiom, lemma, define
 import kdrag.smt as smt
-import kdrag.notation as notation
-import kdrag.theories.int as int_
-import functools
 
 Nat = kd.Inductive("Nat")
 Nat.declare("Z")
@@ -38,16 +23,16 @@ safe_pred = kd.define("safe_pred", [n], smt.If(n.is_Z, Nat.Z, n.pred))
 
 a = smt.Int("a")
 from_int = smt.Function("from_int", smt.IntSort(), Nat)
-from_int = kd.define("from_int", [a], If(a <= 0, Nat.Z, Nat.S(from_int(a - 1))))
+from_int = kd.define("from_int", [a], smt.If(a <= 0, Nat.Z, Nat.S(from_int(a - 1))))
 
 to_int = smt.Function("to_int", Nat, smt.IntSort())
-to_int = kd.define("to_int", [n], If(n.is_Z, smt.IntVal(0), 1 + to_int(n.pred)))
+to_int = kd.define("to_int", [n], smt.If(n.is_Z, smt.IntVal(0), 1 + to_int(n.pred)))
 
 # Homomorphism. Todo the other homomorphisms
 to_int_Z = kd.lemma(to_int(Nat.Z) == 0, by=[to_int.defn])
 to_int_S = kd.lemma(smt.ForAll([n], to_int(S(n)) == 1 + to_int(n)), by=[to_int.defn])
 
-l = kd.Lemma(ForAll([n], to_int(n) >= 0))
+l = kd.Lemma(smt.ForAll([n], to_int(n) >= 0))
 _n = l.fix()
 l.induct(_n)
 l.auto(by=[to_int.defn])

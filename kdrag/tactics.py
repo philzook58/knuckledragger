@@ -183,7 +183,7 @@ def lemma(
 
                 onc = smt.OnClause(s, log_instance)
                 """
-                onc = smt.OnClause(s, lambda pr, clause, myst: print(pr, clause, myst))
+                smt.OnClause(s, lambda pr, clause, myst: print(pr, clause, myst))
         res = s.check()
         if res != smt.unsat:
             if res == smt.sat:

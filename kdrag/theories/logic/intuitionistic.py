@@ -1,5 +1,5 @@
-import kdrag as kd
-import kdrag.smt as smt
+# import kdrag as kd
+# import kdrag.smt as smt
 # https://plato.stanford.edu/Entries/logic-intuitionistic/#FormSystMathMath
 
 # def modus(A : smt.BoolRef, AB : smt.BoolRef) -> kd.Proof:

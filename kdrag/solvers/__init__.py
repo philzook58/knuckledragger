@@ -2,14 +2,10 @@
 Facilities for pretty printing and calling external solvers
 """
 
-from operator import is_
-
-from zmq import has
 import kdrag as kd
 import kdrag.smt as smt
 import subprocess
 import os
-import concurrent.futures
 import logging
 import shutil
 import re

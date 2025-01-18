@@ -17,3 +17,7 @@ homepage = "https://github.com/philzook58/knuckledragger"
 
 [project.optional-dependencies]
 dev = ["pytest>=6.0", "nbclient", "jupyter"]
+
+[tool.ruff]
+exclude = ["tests"]
+per-file-ignores = { "kdrag/smt.py" = ["F405"] }
