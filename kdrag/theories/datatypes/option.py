@@ -4,7 +4,7 @@ import kdrag as kd
 
 
 @functools.cache
-def Option(T: smt.SortRef, admit=False) -> smt.DatatypeSortRef:
+def Option(T: smt.SortRef) -> smt.DatatypeSortRef:
     """
     Define an Option type for a given type T
     >>> OInt = Option(smt.IntSort())
@@ -15,7 +15,7 @@ def Option(T: smt.SortRef, admit=False) -> smt.DatatypeSortRef:
     >>> OInt.Some(1).val
     val(Some(1))
     """
-    Option = kd.Inductive("Option_" + T.name(), admit=admit)
+    Option = kd.Inductive("Option_" + T.name())
     Option.declare("None_")
     Option.declare("Some", ("val", T))
     Option = Option.create()

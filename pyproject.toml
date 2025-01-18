@@ -21,3 +21,24 @@ dev = ["pytest>=6.0", "nbclient", "jupyter"]
 [tool.ruff]
 exclude = ["tests"]
 per-file-ignores = { "kdrag/smt.py" = ["F405"] }
+
+
+[tool.pyright]
+include = ["kdrag"]
+exclude = [
+    "kdrag/solvers/eprover/*",
+    "kdrag/solvers/gappa*",
+    "kdrag/solvers/Prover9/*",
+]
+
+[tool.pytest.ini_options]
+norecursedirs = [
+    "kdrag/solvers/eprover",
+    "kdrag/solvers/gappa*",
+    "kdrag/solvers/Prover9",
+    "examples/converted_notebooks",
+]
+addopts = "--doctest-modules"
+doctest_optionflags = "ELLIPSIS"
+
+markers = ["slow: Marks tests as long-running."]

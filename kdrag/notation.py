@@ -331,7 +331,7 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
     """
     Like NamedTuple, you can replace fields of a record datatype.
 
-    >>> Point = kd.Record("Point", ("x", smt.RealSort()), ("y", smt.RealSort()), admit=True)
+    >>> Point = kd.Record("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
     >>> Point(0,1)._replace(x=3, y=10)
     Point(3, 10)
     >>> p = smt.Const("p", Point)
@@ -417,7 +417,7 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proo
     return kd.axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 
 
-def Inductive(name: str, admit=False) -> smt.Datatype:
+def Inductive(name: str) -> smt.Datatype:
     """
     Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
 
@@ -434,31 +434,25 @@ def Inductive(name: str, admit=False) -> smt.Datatype:
         counter += 1
         n = name + "!" + str(counter)
     name = n
-    if not admit and name in records:
-        raise Exception(
-            "Datatype with that name already defined. Use keyword admit=True to override",
-            name,
-            # records[name].sexpr(),
-        )
+    assert name not in records
     dt = smt.Datatype(name)
     oldcreate = dt.create
 
     def create():
         dt = oldcreate()
         # Sanity check no duplicate names. Causes confusion.
-        if not admit:
-            names = set()
-            for i in range(dt.num_constructors()):
-                cons = dt.constructor(i)
-                n = cons.name()
+        names = set()
+        for i in range(dt.num_constructors()):
+            cons = dt.constructor(i)
+            n = cons.name()
+            if n in names:
+                raise Exception("Duplicate constructor name", n)
+            names.add(n)
+            for j in range(cons.arity()):
+                n = dt.accessor(i, j).name()
                 if n in names:
-                    raise Exception("Duplicate constructor name", n)
+                    raise Exception("Duplicate field name", n)
                 names.add(n)
-                for j in range(cons.arity()):
-                    n = dt.accessor(i, j).name()
-                    if n in names:
-                        raise Exception("Duplicate field name", n)
-                    names.add(n)
         kd.notation.induct.register(dt, induct_inductive)
         records[name] = dt
         return dt
@@ -468,7 +462,7 @@ def Inductive(name: str, admit=False) -> smt.Datatype:
 
 
 def Record(
-    name: str, *fields: tuple[str, smt.SortRef], pred=None, admit=False
+    name: str, *fields: tuple[str, smt.SortRef], pred=None
 ) -> smt.DatatypeSortRef:
     """
     Define a record datatype.
@@ -485,7 +479,7 @@ def Record(
     >>> QForAll([p], p.x > -42)
     ForAll(p, Implies(And(x(p) > 0, y(p) > 0), x(p) > -42))
     """
-    rec = Inductive(name, admit=admit)
+    rec = Inductive(name)
     rec.declare(name, *fields)
     rec = rec.create()
     rec.mk = rec.constructor(0)
@@ -508,9 +502,7 @@ def Record(
     return rec
 
 
-def NewType(
-    name: str, sort: smt.SortRef, pred=None, admit=False
-) -> smt.DatatypeSortRef:
+def NewType(name: str, sort: smt.SortRef, pred=None) -> smt.DatatypeSortRef:
     """Minimal wrapper around a sort for sort based overloading
 
     >>> NatI = NewType("NatI", smt.IntSort(), pred = lambda x: x.val >= 0)
@@ -518,16 +510,16 @@ def NewType(
     >>> QForAll([x], x.val >= -7)
     ForAll(x, Implies(val(x) >= 0, val(x) >= -7))
     """
-    return Record(name, ("val", sort), pred=pred, admit=admit)
+    return Record(name, ("val", sort), pred=pred)
 
 
-def Enum(name: str, args: str, admit=False) -> smt.DatatypeSortRef:
+def Enum(name: str, args: str) -> smt.DatatypeSortRef:
     """Shorthand for simple enumeration datatypes. Similar to python's Enum.
     >>> Color = Enum("Color", "Red Green Blue")
     >>> smt.And(Color.Red != Color.Green, Color.Red != Color.Blue)
     And(Red != Green, Red != Blue)
     """
-    T = kd.Inductive(name, admit=admit)
+    T = kd.Inductive(name)
     for c in args.split():
         T.declare(c)
     T = T.create()
@@ -539,11 +531,11 @@ rel = SortDispatch(name="rel")
 smt.DatatypeRef.rel = lambda *args: rel(*args)
 
 
-def InductiveRel(name: str, *params: smt.ExprRef, admit=False) -> smt.Datatype:
+def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
     """Define an inductive type of evidence and a relation the recurses on that evidence
 
     >>> x = smt.Int("x")
-    >>> Even = InductiveRel("Even", x, admit=True)
+    >>> Even = InductiveRel("Even", x)
     >>> Even.declare("Ev_Z",                           pred = x == 0)
     >>> Even.declare("Ev_SS", ("sub2_evidence", Even), pred = lambda evid: evid.rel(x-2))
     >>> Even = Even.create()
@@ -551,7 +543,7 @@ def InductiveRel(name: str, *params: smt.ExprRef, admit=False) -> smt.Datatype:
     even(ev, 4)
     """
 
-    dt = Inductive(name, admit=admit)
+    dt = Inductive(name)
 
     relname = name.lower()
     olddeclare = dt.declare

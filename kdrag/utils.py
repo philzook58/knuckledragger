@@ -682,7 +682,7 @@ def eval_(e: smt.ExprRef, globals={}):
     >>> x = smt.Int("x")
     >>> eval_(smt.Lambda([x], x + 1)[3])
     4
-    >>> R = kd.Record("R", ("x", kd.Z), ("y", smt.BoolSort()), admit=True)
+    >>> R = kd.Record("R", ("x", kd.Z), ("y", smt.BoolSort()))
     >>> eval_(R(42, True).y)
     True
     """

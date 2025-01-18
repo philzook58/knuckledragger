@@ -278,7 +278,6 @@ def test_pred():
         ("val", kd.Z),
         ("div2", kd.Z),
         pred=lambda x: 2 * x.div2 == x.val,
-        admit=True,
     )
     kd.lemma(Even(0, 0).wf())
 

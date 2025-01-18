@@ -144,9 +144,7 @@ def lemma(
     if not isinstance(by, Iterable):
         by = [by]
     if admit:
-        return kd.kernel.lemma(
-            thm, by, admit=admit, timeout=timeout, dump=dump, solver=solver
-        )
+        return kd.kernel.lemma(thm, by, admit=True)
     else:
         if solver is None:
             solver = config.solver

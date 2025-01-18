@@ -4,6 +4,7 @@ Defines an algebraic datatype for the Peano natural numbers and useful functions
 
 import kdrag as kd
 import kdrag.smt as smt
+import kdrag.theories.int as int_  # int is more primitive. We import it's induction principle here.
 
 Nat = kd.Inductive("Nat")
 Nat.declare("Z")
@@ -48,7 +49,7 @@ from_to_int = l.qed()
 
 l = kd.Lemma(smt.ForAll([a], to_int(from_int(a)) == smt.If(a <= 0, 0, a)))
 _a = l.fix()
-l.induct(_a)
+l.induct(_a, using=int_.induct)
 l.auto(by=[from_int.defn, to_int.defn])
 l.auto(by=[from_int.defn, to_int.defn])
 l.auto(by=[from_int.defn, to_int.defn])

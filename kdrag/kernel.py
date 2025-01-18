@@ -17,6 +17,12 @@ class Proof(smt.Z3PPObject):
     reason: list[Any]
     admit: bool = False
 
+    def __post_init__(self):
+        if self.admit and not config.admit_enabled:
+            raise ValueError(
+                self.thm, "was called with admit=True but config.admit_enabled=False"
+            )
+
     def _repr_html_(self):
         return "&#8870;" + repr(self.thm)
 
@@ -69,7 +75,7 @@ def lemma(
     """
     if admit:
         logger.warning("Admitting lemma {}".format(thm))
-        return __Proof(thm, list(by), True)
+        return __Proof(thm, list(by), admit=True)
     else:
         if solver is None:
             s = config.solver()  # type: ignore
@@ -101,7 +107,7 @@ def axiom(thm: smt.BoolRef, by=["axiom"]) -> __Proof:
         thm: The axiom to assert.
         by: A python object explaining why the axiom should exist. Often a string explaining the axiom.
     """
-    return __Proof(thm, by, admit=True)
+    return __Proof(thm, by)
 
 
 @dataclass(frozen=True)
