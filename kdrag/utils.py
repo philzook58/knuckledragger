@@ -6,7 +6,7 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, NamedTuple, Callable
+from typing import Optional, NamedTuple, Callable, no_type_check
 from enum import Enum
 import fractions
 import functools
@@ -671,6 +671,8 @@ def namedtuple_of_constructor(sort: smt.DatatypeSortRef, idx: int):
 # could env be just a python module? That's kind of intriguing
 
 
+# This is fiendishly difficult to typecheck probably
+@no_type_check
 def eval_(e: smt.ExprRef, globals={}):
     """
     Evaluate a z3 expression in a given environment. The analog of python's `eval`.
@@ -717,7 +719,7 @@ def eval_(e: smt.ExprRef, globals={}):
             defn = kd.kernel.defns[e.decl()]
             # Fresh vars and add to context?
             # e1 = z3.substitute(defn.body, *zip(defn.args, e.children()))
-            f = eval_(smt.Lambda(defn.args, defn.body))
+            f = eval_(smt.Lambda(defn.args, defn.body), globals=globals)
             return f(*children)
             # return eval_(
             #    smt.Select(smt.Lambda(defn.args, defn.body), *children), globals=globals
