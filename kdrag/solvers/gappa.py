@@ -1,8 +1,7 @@
 import kdrag.smt as smt
-import kdrag as kd
 import subprocess
 import kdrag.solvers as solvers
-import kdrag.theories.real as real
+# import kdrag.theories.real as real
 
 
 """

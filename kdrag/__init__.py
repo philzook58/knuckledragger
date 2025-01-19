@@ -36,13 +36,16 @@ QExists = notation.QExists
 cond = notation.cond
 
 
+Inductive = datatype.Inductive
+
+
 Record = datatype.Record
 
 
 NewType = datatype.NewType
 
 
-Inductive = datatype.Inductive
+InductiveRel = datatype.InductiveRel
 
 
 Enum = datatype.Enum

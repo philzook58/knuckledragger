@@ -22,8 +22,14 @@ dev = ["pytest>=6.0", "nbclient", "jupyter"]
 
 [tool.ruff]
 exclude = ["tests"]
-per-file-ignores = { "kdrag/smt.py" = ["F405"] }
 
+[tool.ruff.lint]
+ignore = ["E741"]
+
+[tool.ruff.lint.per-file-ignores]
+"kdrag/smt.py" = ["F405", "F403"]
+"kdrag/all.py" = ["F401"]
+"tutorial.ipynb" = ["F811"]
 
 [tool.pyright]
 include = ["kdrag"]

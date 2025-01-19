@@ -11,12 +11,10 @@ Importing this module will add some syntactic sugar to smt.
 - Expr overload by single dispatch
 - Bool supports `&`, `|`, `~`
 - Sorts supports `>>` for ArraySort
-- Datatypes support accessor notation `l.is_cons`, `l.hd`, `l.tl` etc.
 """
 
 import kdrag.smt as smt
 import kdrag as kd
-import typing
 
 smt.BoolRef.__and__ = lambda self, other: smt.And(self, other)
 smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)

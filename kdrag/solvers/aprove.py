@@ -1,4 +1,3 @@
-import kdrag as kd
 import kdrag.smt as smt
 import kdrag.solvers
 

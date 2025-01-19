@@ -1,3 +1,22 @@
+"""
+Goodies related to datatypes.
+You should use these instead of raw `smt.Datatype`. This also maintains a record of exisitng datatypes
+so that you don't clobber old ones, a possible source of unsoundness.
+
+- Datatypes support accessor notation `l.is_cons`, `l.hd`, `l.tl` etc.
+- Generic Inductive axiom schema available via `induct_inductive`
+- x._replace() syntax on single constructor datatypes
+
+>>> import kdrag.theories.nat as nat
+>>> n = smt.Const("n", nat.Nat)
+>>> n.is_Z
+is(Z, n)
+>>> n.pred
+pred(n)
+>>> kd.lemma(nat.one.pred == nat.Z)
+|- pred(S(Z)) == Z
+"""
+
 import kdrag.smt as smt
 import kdrag as kd
 import typing
@@ -84,9 +103,7 @@ smt.DatatypeRef._replace = datatype_replace  # type: ignore
 def datatype_iter(self: smt.DatatypeSortRef) -> typing.Iterator[smt.DatatypeRef]:
     """Enable iteration over constructors of a datatype sort"""
     if any(self.constructor(i).arity() > 0 for i in range(self.num_constructors())):
-        raise TypeError(
-            "For Enum like datatypes. Cannot iterate over constructors with arguments"
-        )
+        raise TypeError("Cannot iterate over constructors with arguments")
     return (self.constructor(i)() for i in range(self.num_constructors()))
 
 
@@ -94,7 +111,7 @@ smt.DatatypeSortRef.__iter__ = datatype_iter  # type: ignore
 
 
 def datatype_len(self: smt.DatatypeSortRef) -> int:
-    """Enable len() on datatype sorts"""
+    """Enable len() on datatype sorts. Returns the number of constructors"""
     return self.num_constructors()
 
 
@@ -177,6 +194,7 @@ def Record(
 ) -> smt.DatatypeSortRef:
     """
     Define a record datatype.
+    This is the analog in many respects of python's NamedTuple.
     The optional argument `pred` will add a well-formedness condition to the record
     giving something akin to a refinement type.
 
@@ -240,7 +258,7 @@ def Enum(name: str, args: str) -> smt.DatatypeSortRef:
 
 
 rel = kd.notation.SortDispatch(name="rel")
-"""The relation associated with a Datatype of evidence"""
+"""SortDispatch for the relation associated with a Datatype of evidence"""
 smt.DatatypeRef.rel = lambda *args: rel(*args)
 
 

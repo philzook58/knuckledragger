@@ -7,7 +7,6 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 
 import os
 from . import config
-import operator
 
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
