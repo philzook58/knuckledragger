@@ -8,10 +8,12 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 import os
 from . import config
 
+
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
 VAMPIRESOLVER = "vampire"
 solver = os.getenv("KNUCKLE_SOLVER")
+
 
 if solver is None or solver == Z3SOLVER:
     solver = "z3"

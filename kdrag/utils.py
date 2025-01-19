@@ -6,7 +6,7 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, NamedTuple, Callable, no_type_check
+from typing import Optional, NamedTuple, Callable, no_type_check, Generator
 from enum import Enum
 import fractions
 import functools
@@ -219,7 +219,11 @@ class Rule(NamedTuple):
     rhs: smt.ExprRef
 
 
-def rewrite1_rule(t: smt.ExprRef, rule: Rule, trace=None) -> Optional[smt.ExprRef]:
+def rewrite1_rule(
+    t: smt.ExprRef,
+    rule: Rule,
+    trace: Optional[list[tuple[Rule, dict[smt.ExprRef, smt.ExprRef]]]] = None,
+) -> Optional[smt.ExprRef]:
     """
     Rewrite at root a single time.
     """
@@ -298,7 +302,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
-def occurs(x, t):
+def occurs(x: smt.ExprRef, t: smt.ExprRef) -> bool:
     """Does x occur in t?"""
     if smt.is_var(t):
         return x.eq(t)
@@ -461,11 +465,23 @@ def horn_split(horn: smt.BoolRef) -> smt.BoolRef:
 """
 
 
-def generate(sort: smt.SortRef):
-    """A generator of values for a sort. Repeatedly calls z3 to get a new value."""
+def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]:
+    """
+    A generator of values for a sort. Repeatedly calls z3 to get a new value.
+
+    >>> set(generate(smt.BoolSort()))
+    {True, False}
+    >>> sorted([v.as_long() for v in generate(smt.IntSort(), pred=lambda x: smt.And(0 <= x, x < 5))])
+    [0, 1, 2, 3, 4]
+    >>> import itertools
+    >>> len(list(itertools.islice(generate(smt.ArraySort(smt.IntSort(), smt.IntSort())), 3)))
+    3
+    """
     s = smt.Solver()
     x, y = smt.Consts("x y", sort)
     s.add(x == y)  # trick to actually have x in model
+    if pred is not None:
+        s.add(pred(x))
     if sort in kd.notation.wf.methods:
         s.add(kd.notation.wf(x))
     while s.check() == smt.sat:
@@ -474,9 +490,11 @@ def generate(sort: smt.SortRef):
         s.add(x != m.eval(x))
 
 
+"""
 def expr_to_lean(expr: smt.ExprRef):
     # TODO
     pass
+"""
 
 
 def subterms(t: smt.ExprRef):
@@ -815,7 +833,7 @@ def eval_(e: smt.ExprRef, globals={}):
             elif smt.is_not(e):
                 return ~children[0]
             elif smt.is_implies(e):
-                assert False
+                return not children[0] or children[1]
             elif smt.is_eq(e):
                 return children[0] == children[1]
             elif smt.is_lt(e):

@@ -117,7 +117,92 @@ def datatype_len(self: smt.DatatypeSortRef) -> int:
 
 smt.DatatypeSortRef.__len__ = datatype_len  # type: ignore
 
-records = {}
+
+def pattern_match(
+    x: smt.DatatypeRef, pat: smt.DatatypeRef
+) -> tuple[list[smt.BoolRef], dict[smt.ExprRef, smt.ExprRef]]:
+    """ "
+    A Symbolic execution of sorts of pattern matching.
+    Returns the constraints and substitutions for variables
+
+    >>> import kdrag.theories.nat as nat
+    >>> n,m = smt.Consts("n m", nat.Nat)
+    >>> pattern_match(n, nat.S(nat.S(m)))
+    ([is(S, n), is(S, pred(n))], {m: pred(pred(n))})
+    """
+    subst = {}
+    constraints = []
+    todo = [(x, pat)]
+    while todo:
+        x, pat = todo.pop()
+        if smt.is_constructor(pat):
+            dt = pat.sort()
+            decl = pat.decl()
+            i = 0
+            for i in range(dt.num_constructors()):
+                # figure out which constructor
+                if decl == dt.constructor(i):
+                    break
+            constraints.append(dt.recognizer(i)(x))
+            for j, subpat in enumerate(pat.children()):
+                todo.append((dt.accessor(i, j)(x), subpat))
+        elif (
+            smt.is_int_value(pat)
+            or smt.is_true(pat)
+            or smt.is_false(pat)
+            or smt.is_rational_value(pat)
+        ):  # or smt.is_real_value(pat) or smt.is_true(pat) or smt.is_false(pat):
+            constraints.append(x == pat)
+        elif smt.is_const(pat):  # possible variable
+            if pat.decl() in kd.kernel.defns:  # actually a defined constant
+                constraints.append(x == pat)
+            elif pat in subst:
+                constraints.append(x == subst[pat])  # non-linear patterns
+                subst[pat] = x
+            else:
+                subst[pat] = x
+        else:
+            raise ValueError("Not a supported pattern", pat)
+    return constraints, subst
+
+
+def datatype_match_(x, *cases, default=None):
+    """
+    Pattern matching for datatypes.
+
+    >>> import kdrag.theories.nat as nat
+    >>> x = smt.Const("x", nat.Nat)
+    >>> x.match_((nat.S(x), nat.S(x)), (nat.one, nat.one), default=x)
+    If(is(S, x),
+       S(pred(x)),
+       If(And(is(S, x), is(Z, pred(x))), S(Z), x))
+
+    >>> import kdrag.theories.list as list_
+    >>> IntList = list_.List(smt.IntSort())
+    >>> l = smt.Const("l", IntList)
+    >>> x,y,z = smt.Ints("x y z")
+    >>> l.match_((IntList.Nil, 0), (IntList.Cons(x, l), 1 + x))
+    If(is(Nil, l),
+       0,
+       If(is(Cons, l), 1 + head(l), unreachable!...))
+
+    """
+    newcases = []
+    for i, (pat, body) in enumerate(cases):
+        constraints, subst = pattern_match(x, pat)
+        if len(subst) > 0:
+            body = smt.substitute(body, *[(v, e) for v, e in subst.items()])
+        if len(constraints) == 0:
+            cond = smt.BoolVal(True)
+        elif len(constraints) == 1:
+            cond = constraints[0]
+        else:
+            cond = smt.And(constraints)
+        newcases.append((cond, body))
+    return kd.cond(*newcases, default=default)
+
+
+smt.DatatypeRef.match_ = datatype_match_  # type: ignore
 
 
 def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proof:
@@ -145,6 +230,9 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proo
     return kd.axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 
 
+_records = {}
+
+
 def Inductive(name: str) -> smt.Datatype:
     """
     Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
@@ -158,11 +246,11 @@ def Inductive(name: str) -> smt.Datatype:
     """
     counter = 0
     n = name
-    while n in records:
+    while n in _records:
         counter += 1
         n = name + "!" + str(counter)
     name = n
-    assert name not in records
+    assert name not in _records
     dt = smt.Datatype(name)
     oldcreate = dt.create
 
@@ -182,7 +270,7 @@ def Inductive(name: str) -> smt.Datatype:
                     raise Exception("Duplicate field name", n)
                 names.add(n)
         kd.notation.induct.register(dt, induct_inductive)
-        records[name] = dt
+        _records[name] = dt
         return dt
 
     dt.create = create
