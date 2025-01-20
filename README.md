@@ -146,6 +146,7 @@ For more on interactive theorem proving (This is a lot to take in)
 
 ## Blog Posts
 
+- [More Knuckledragger: Simp, Inductive Relations, Sympy NbE, and Software Foundations](https://www.philipzucker.com/knuckle_update_nbe/)
 - [Translating Cody's Lean Sheffer Stroke Proof to Knuckledragger with ChatGPT](https://www.philipzucker.com/cody_sheffer/)
 - ['Lean-style' Tactics in Knuckledragger](https://www.philipzucker.com/knuckle_lemma/)
 - [State of Knuckledragger, a Semi-Automated Python Proof Assistant](https://www.philipzucker.com/state_o_knuck/)

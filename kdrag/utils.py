@@ -228,6 +228,46 @@ def expr_to_lean(expr: smt.ExprRef):
 """
 
 
+def prune(
+    thm: smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof, by=[], timeout=1000
+) -> list[smt.ExprRef | kd.kernel.Proof]:
+    """
+    Prune the theorems used using unsat core. Helpful to speedup future proof verification.
+
+    >>> p,q,r = smt.Bools("p q r")
+    >>> prune(p & q, [p, q, r])
+    [p, q]
+    """
+    s = smt.Solver()
+    s.set("timeout", timeout)
+    for n, p in enumerate(by):
+        if isinstance(p, smt.ExprRef):
+            s.assert_and_track(p, "KNUCKLEBY_{}".format(n))
+        elif kd.kernel.is_proof(p):
+            s.assert_and_track(p.thm, "KNUCKLEBY_{}".format(n))
+        else:
+            raise ValueError("Unsupported type in `by` for prune function")
+    s.assert_and_track(smt.Not(thm), "KNUCKLEGOAL")
+    res = s.check()
+    if res == smt.sat:
+        raise ValueError("Theorem is not valid")
+    elif res == smt.unknown:
+        raise ValueError("Solver confused or timed out")
+    elif res == smt.unsat:
+        core = s.unsat_core()
+        used = []
+        for c in core:
+            name = c.decl().name()
+            if name.startswith("KNUCKLEBY_"):
+                idx = int(name.split("_")[-1])
+                used.append(by[idx])
+        if smt.Bool("KNUCKLEGOAL") not in core:
+            raise ValueError("Hypotheses are inconsistent", used)
+        return used
+    else:
+        raise ValueError("Unexpected solver response")
+
+
 def subterms(t: smt.ExprRef):
     """Generate all subterms of a term"""
     todo = [t]
@@ -526,7 +566,7 @@ def reify(s: smt.SortRef, x: object) -> smt.ExprRef:
                 if decl.name() == type(x).__name__:
                     arity = decl.arity()
                     assert len(x) == arity
-                    return decl(reify(decl.domain(j), x[j]) for j in range(arity))
+                    return decl(*[reify(decl.domain(j), x[j]) for j in range(arity)])
             raise ValueError(f"Cannot reify {x} as a datatype {s}")
         raise ValueError("Reification on datatypesort not yet implemented")
     elif s == smt.IntSort():

@@ -66,7 +66,10 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
             e1 = smt.substitute(defn.body, *zip(defn.args, children))
             e = e1
             if trace is not None:
-                trace.append((defn.ax(*children)))
+                if isinstance(defn.ax.thm, smt.QuantifierRef):
+                    trace.append((defn.ax(*children)))
+                else:
+                    trace.append(defn.ax)
             return e1
         else:
             return decl(*children)
@@ -74,7 +77,7 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
         return e
 
 
-def simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
+def simp(e: smt.ExprRef, trace=None, max_iter=None) -> smt.ExprRef:
     """
     Simplify using definitions and built in z3 simplifier until no progress is made.
 
@@ -86,7 +89,11 @@ def simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
     >>> simp(smt.If(p, 42, 3))
     If(p, 42, 3)
     """
+    i = 0
     while True:
+        i += 1
+        if max_iter is not None and i > max_iter:
+            return e
         e = unfold(e, trace=trace)
         # TODO: Interesting options: som, sort_store, elim_ite, flat, split_concat_eq, sort_sums, sort_disjunctions
         e1 = smt.simplify(e)
@@ -94,7 +101,7 @@ def simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
             return e1
         else:
             if trace is not None:
-                trace.append(kd.kernel.lemma(e1 == e))
+                trace.append(kd.kernel.lemma(smt.Eq(e, e1)))
             e = e1
 
 
