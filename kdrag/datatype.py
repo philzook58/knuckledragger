@@ -22,7 +22,9 @@ import kdrag as kd
 import typing
 
 
-def _lookup_constructor_recog(self, k):
+def _lookup_constructor_recog(
+    self: smt.DatatypeRef, k: str
+) -> typing.Optional[smt.ExprRef]:
     """
     Enable "dot" syntax for fields of smt datatypes
     """
@@ -44,13 +46,49 @@ def _lookup_constructor_recog(self, k):
 smt.DatatypeRef.__getattr__ = _lookup_constructor_recog  # type: ignore
 
 
-def datatype_call(self: smt.DatatypeSortRef, *args: smt.ExprRef) -> smt.DatatypeRef:
+def constructor_num(s: smt.DatatypeSortRef, k: str) -> int:
+    for i in range(s.num_constructors()):
+        cons = s.constructor(i)
+        if cons.name() == k:
+            return i
+    raise ValueError(f"Constructor {k} not found in datatype {s}")
+
+
+def accessor_num(s: smt.DatatypeSortRef, constr_num: int, k: str) -> int:
+    cons = s.constructor(constr_num)
+    for j in range(cons.arity()):
+        acc = s.accessor(constr_num, j)
+        if acc.name() == k:
+            return j
+    raise ValueError(f"Accessor {k} not found in constructor {cons} of datatype {s}")
+
+
+def datatype_call(
+    self: smt.DatatypeSortRef, *args: smt.ExprRef, **kwargs
+) -> smt.DatatypeRef:
     """
     Enable "call" syntax for constructors of smt datatypes
+
+    >>> Point = kd.Record("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
+    >>> Point(1,2)
+    Point(1, 2)
+    >>> Point(y=2, x=1)
+    Point(1, 2)
     """
     # TODO: could also enable keyword syntax
     assert self.num_constructors() == 1
-    return self.constructor(0)(*[smt._py2expr(a) for a in args])
+    cons = self.constructor(0)
+    if len(kwargs) == 0:
+        return cons(*[smt._py2expr(a) for a in args])
+    elif len(args) == 0:
+        args1 = [None] * cons.arity()
+        for k, v in kwargs.items():
+            j = accessor_num(self, 0, k)
+            args1[j] = v
+        assert all(a is not None for a in args)
+        return cons(*args1)
+    else:
+        raise TypeError("Cannot mix positional and keyword arguments")
 
 
 smt.DatatypeSortRef.__call__ = datatype_call  # type: ignore
@@ -120,8 +158,8 @@ smt.DatatypeSortRef.__len__ = datatype_len  # type: ignore
 
 def pattern_match(
     x: smt.DatatypeRef, pat: smt.DatatypeRef
-) -> tuple[list[smt.BoolRef], dict[smt.ExprRef, smt.ExprRef]]:
-    """ "
+) -> tuple[list[smt.BoolRef], dict[smt.DatatypeRef, smt.DatatypeRef]]:
+    """
     A Symbolic execution of sorts of pattern matching.
     Returns the constraints and substitutions for variables
 
@@ -163,6 +201,18 @@ def pattern_match(
                 subst[pat] = x
         else:
             raise ValueError("Not a supported pattern", pat)
+    return constraints, subst
+
+
+def multipattern_match(
+    *cases: tuple[smt.DatatypeRef, smt.DatatypeRef],
+) -> tuple[list[smt.BoolRef], dict[smt.DatatypeRef, smt.DatatypeRef]]:
+    subst = {}
+    constraints = []
+    for x, pat in cases:
+        constr, subst2 = pattern_match(x, pat)
+        constraints.extend(constr)
+        subst = {**subst, **subst2}
     return constraints, subst
 
 

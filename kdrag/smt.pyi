@@ -3899,7 +3899,7 @@ class DatatypeSortRef(SortRef):
     """Datatype sorts."""
 
     __dict__: dict[str, Any]
-    def __call__(self, *args): ...  # -> DatatypeRef:
+    def __call__(self, *args, **kwargs): ...  # -> DatatypeRef:
     def __getattr__(self, name): ...  # -> Any:
     def num_constructors(self):  # -> int:
         """Return the number of constructors in the given Z3 datatype.

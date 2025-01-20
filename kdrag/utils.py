@@ -6,8 +6,7 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, NamedTuple, Callable, no_type_check, Generator
-from enum import Enum
+from typing import Optional, Callable, no_type_check, Generator
 import fractions
 import functools
 import operator
@@ -17,93 +16,14 @@ import glob
 import inspect
 
 
-def simp1(t: smt.ExprRef) -> smt.ExprRef:
-    """simplify a term using z3 built in simplifier"""
-    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
-    G = smt.Goal()
-    for v in kd.kernel.defns.values():
-        G.add(v.ax.thm)
-    G.add(expr == t)
-    G2 = smt.Then(smt.Tactic("demodulator"), smt.Tactic("simplify")).apply(G)[0]
-    # TODO make this extraction more robust
-    return G2[len(G2) - 1].children()[1]
-
-
-def simp2(t: smt.ExprRef) -> smt.ExprRef:
-    """simplify a term using z3 built in simplifier"""
-    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
-    G = smt.Goal()
-    for v in kd.kernel.defns.values():
-        G.add(v.ax.thm)
-    G.add(expr == t)
-    G2 = smt.Tactic("elim-predicates").apply(G)[0]
-    return G2[len(G2) - 1].children()[1]
-
-
-# TODO: Doesn't seem to do anything?
-# def factor(t: smt.ExprRef) -> smt.ExprRef:
-#    """factor a term using z3 built in tactic"""
-#    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
-#    G = smt.Goal()
-#    for v in kd.kernel.defns.values():
-#        G.add(v.ax.thm)
-#    G.add(expr == t)
-#    G2 = smt.Tactic("factor").apply(G)[0]
-#    return G2[len(G2) - 1].children()[1]
-
-
-def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
-    """
-    Do a single unfold sweep, unfolding definitions defined by `kd.define`.
-    The optional trace parameter will record proof along the way.
-    `decls` is an optional list of declarations to unfold. If None, all definitions are unfolded.
-
-    >>> x = smt.Int("x")
-    >>> f = kd.define("f", [x], x + 42)
-    >>> trace = []
-    >>> unfold(f(1), trace=trace)
-    1 + 42
-    >>> trace
-    [|- f(1) == 1 + 42]
-    """
-    if smt.is_app(e):
-        decl = e.decl()
-        children = [unfold(c, decls=decls, trace=trace) for c in e.children()]
-        defn = kd.kernel.defns.get(decl)
-        if defn is not None and (decls is None or decl in decls):
-            e1 = smt.substitute(defn.body, *zip(defn.args, children))
-            e = e1
-            if trace is not None:
-                trace.append((defn.ax(*children)))
-            return e1
-        else:
-            return decl(*children)
-    else:
-        return e
-
-
-def simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
-    """
-    Simplify using definitions and built in z3 simplifier until no progress is made.
-
-    >>> import kdrag.theories.nat as nat
-    >>> simp(nat.one + nat.one + nat.S(nat.one))
-    S(S(S(S(Z))))
-
-    >>> p = smt.Bool("p")
-    >>> simp(smt.If(p, 42, 3))
-    If(p, 42, 3)
-    """
-    while True:
-        e = unfold(e, trace=trace)
-        # TODO: Interesting options: som, sort_store, elim_ite, flat, split_concat_eq, sort_sums, sort_disjunctions
-        e1 = smt.simplify(e)
-        if e1.eq(e):
-            return e1
-        else:
-            if trace is not None:
-                trace.append(kd.kernel.lemma(e1 == e))
-            e = e1
+def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
+    """Open a quantifier with fresh variables"""
+    # Open with capitalized names to match tptp conventions
+    vs = [
+        smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper().split("!")[0])
+        for i in range(lam.num_vars())
+    ]
+    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
 def pmatch(
@@ -191,126 +111,6 @@ def pmatch_rec(
             todo.extend(t.children())
 
 
-def rewrite1(
-    t: smt.ExprRef, vs: list[smt.ExprRef], lhs: smt.ExprRef, rhs: smt.ExprRef
-) -> Optional[smt.ExprRef]:
-    """
-    Rewrite at root a single time.
-    """
-    subst = pmatch(vs, lhs, t)
-    if subst is not None:
-        return smt.substitute(rhs, *subst.items())
-    return None
-
-
-def apply(
-    goal: smt.BoolRef, vs: list[smt.ExprRef], head: smt.BoolRef, body: smt.BoolRef
-) -> Optional[smt.BoolRef]:
-    res = rewrite1(goal, vs, head, body)
-    assert res is None or isinstance(res, smt.BoolRef)
-    return res
-
-
-class Rule(NamedTuple):
-    """A rewrite rule tuple"""
-
-    vs: list[smt.ExprRef]
-    lhs: smt.ExprRef
-    rhs: smt.ExprRef
-
-
-def rewrite1_rule(
-    t: smt.ExprRef,
-    rule: Rule,
-    trace: Optional[list[tuple[Rule, dict[smt.ExprRef, smt.ExprRef]]]] = None,
-) -> Optional[smt.ExprRef]:
-    """
-    Rewrite at root a single time.
-    """
-    subst = pmatch(rule.vs, rule.lhs, t)
-    if subst is not None:
-        return smt.substitute(rule.rhs, *subst.items())
-        if trace is not None:
-            trace.append((rule, subst))
-    return None
-
-
-def rewrite(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
-    """
-    Sweep through term once performing rewrites.
-
-    >>> x = smt.Real("x")
-    >>> rule = Rule([x], x**2, x*x)
-    >>> rewrite((x**2)**2, [rule])
-    x*x*x*x
-    """
-    if smt.is_app(t):
-        t = t.decl()(*[rewrite(arg, rules) for arg in t.children()])  # rewrite children
-        for rule in rules:
-            res = rewrite1_rule(t, rule, trace=trace)
-            if res is not None:
-                t = res
-    return t
-
-
-def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> Rule:
-    """
-    Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple
-
-    >>> x = smt.Real("x")
-    >>> rule_of_theorem(smt.ForAll([x], x**2 == x*x))
-    Rule(vs=[X...], lhs=X...**2, rhs=X...*X...)
-    """
-    vs = []
-    thm1 = thm  # to help out pyright
-    while isinstance(thm1, smt.QuantifierRef):
-        if thm1.is_forall():
-            vs1, thm1 = open_binder(thm1)
-            vs.extend(vs1)
-        else:
-            raise Exception("Not a universal quantifier", thm1)
-    assert isinstance(thm1, smt.BoolRef)
-    if not smt.is_eq(thm1):
-        raise Exception("Not an equation", thm)
-    lhs, rhs = thm1.children()
-    return Rule(vs, lhs, rhs)
-
-
-def decl_index(rules: list[Rule]) -> dict[smt.FuncDeclRef, Rule]:
-    """Build a dictionary of rules indexed by their lhs head function declaration."""
-    return {rule.lhs.decl(): rule for rule in rules}
-
-
-def rewrite_star(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
-    """
-    Repeat rewrite until no more rewrites are possible.
-    """
-    while True:
-        t1 = rewrite(t, rules, trace=trace)
-        if t1.eq(t):
-            return t1
-        t = t1
-
-
-def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
-    """Open a quantifier with fresh variables"""
-    # Open with capitalized names to match tptp conventions
-    vs = [
-        smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper().split("!")[0])
-        for i in range(lam.num_vars())
-    ]
-    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
-
-
-def occurs(x: smt.ExprRef, t: smt.ExprRef) -> bool:
-    """Does x occur in t?"""
-    if smt.is_var(t):
-        return x.eq(t)
-    if smt.is_app(t):
-        return any(occurs(x, t.arg(i)) for i in range(t.num_args()))
-    return False
-
-
 def unify_db(
     p1: smt.ExprRef, p2: smt.ExprRef
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
@@ -339,6 +139,15 @@ def unify_db(
         else:
             raise Exception("unexpected case", p1, p2)
     return subst
+
+
+def occurs(x: smt.ExprRef, t: smt.ExprRef) -> bool:
+    """Does x occur in t?"""
+    if smt.is_var(t):
+        return x.eq(t)
+    if smt.is_app(t):
+        return any(occurs(x, t.arg(i)) for i in range(t.num_args()))
+    return False
 
 
 def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
@@ -385,84 +194,6 @@ def alpha_eq(t1, t2):
     else:
         raise Exception("Unexpected terms in alpha_eq", t1, t2)
     # could instead maybe use a solver check or simplify tactic on Goal(t1 == t2)
-
-
-def def_eq(e1: smt.ExprRef, e2: smt.ExprRef, trace=None) -> bool:
-    """
-    A notion of computational equality. Unfold and simp.
-
-    >>> import kdrag.theories.nat as nat
-    >>> def_eq(nat.one + nat.one, nat.S(nat.S(nat.Z)))
-    True
-    """
-    e1 = simp(e1, trace=trace)
-    e2 = simp(e2, trace=trace)
-    return alpha_eq(e1, e2)
-    """
-    TODO: But we can have early stopping if we do these processes interleaved.
-    while not e1.eq(e2):
-        e1 = unfold(e1, trace=trace)
-        e2 = unfold(e2, trace=trace)
-    """
-
-
-class HornClause(NamedTuple):
-    vs: list[smt.ExprRef]
-    head: smt.BoolRef
-    body: list[smt.BoolRef]
-
-
-def horn_of_theorem(thm: smt.ExprRef) -> HornClause:
-    """Unpack theorem of form `forall vs, body => head` into a HornClause tuple"""
-    vs = []
-    while isinstance(thm, smt.QuantifierRef):
-        if thm.is_forall():
-            vs1, thm = open_binder(thm)
-            vs.extend(vs1)
-        else:
-            raise Exception("Not a universal quantifier", thm)
-    assert isinstance(thm, smt.BoolRef)
-    if not smt.is_implies(thm):
-        return HornClause(vs, thm, [])
-    else:
-        body, head = thm.children()
-        if smt.is_and(body):
-            body = list(body.children())
-        else:
-            body = [body]
-        return HornClause(vs, head, body)
-
-
-"""
-def apply_horn(thm: smt.BoolRef, horn: smt.BoolRef) -> smt.BoolRef:
-    pat = horn
-    obl = []
-    if smt.is_quantifier(pat) and pat.is_forall():
-        pat = pat.body()
-    while True:
-        if smt.is_implies(pat):
-            obl.append(pat.arg(0))
-            pat = pat.arg(1)
-        else:
-            break
-    return kd.utils.z3_match(thm, pat)
-
-
-def horn_split(horn: smt.BoolRef) -> smt.BoolRef:
-    body = []
-    vs = []
-    while True:
-        if smt.is_quantifier(horn) and horn.is_forall():
-            vs1, horn = open_binder(horn)
-            vs.extend(vs1)
-        if smt.is_implies(horn):
-            body.append(horn.arg(0))
-            horn = horn.arg(1)
-        else:
-            break
-    head = horn
-    return vs, body, head
-"""
 
 
 def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]:
@@ -592,137 +323,6 @@ def prompt(prompt: str):
     return "".join(combined_content)
 
 
-class Order(Enum):
-    EQ = 0  # Equal
-    GR = 1  # Greater
-    NGE = 2  # Not Greater or Equal
-
-
-def lpo(vs: list[smt.ExprRef], t1: smt.ExprRef, t2: smt.ExprRef) -> Order:
-    """
-    Lexicographic path ordering.
-    Based on https://www21.in.tum.de/~nipkow/TRaAT/programs/termorders.ML
-    TODO add ordering parameter.
-    """
-
-    def is_var(x):
-        return any(x.eq(v) for v in vs)
-
-    if is_var(t2):
-        if t1.eq(t2):
-            return Order.EQ
-        elif is_subterm(t2, t1):
-            return Order.GR
-        else:
-            return Order.NGE
-    elif is_var(t1):
-        return Order.NGE
-    elif smt.is_app(t1) and smt.is_app(t2):
-        decl1, decl2 = t1.decl(), t2.decl()
-        args1, args2 = t1.children(), t2.children()
-        if all(lpo(vs, a, t2) == Order.NGE for a in args1):
-            if decl1 == decl2:
-                if all(lpo(vs, t1, a) == Order.GR for a in args2):
-                    for a1, a2 in zip(args1, args2):
-                        ord = lpo(vs, a1, a2)
-                        if ord == Order.GR:
-                            return Order.GR
-                        elif ord == Order.NGE:
-                            return Order.NGE
-                    return Order.EQ
-                else:
-                    return Order.NGE
-            elif (decl1.name(), decl1.get_id()) > (decl2.name(), decl2.get_id()):
-                if all(lpo(vs, t1, a) == Order.GR for a in args2):
-                    return Order.GR
-                else:
-                    return Order.NGE
-
-            else:
-                return Order.NGE
-        else:
-            return Order.GR
-    else:
-        raise Exception("Unexpected terms in lpo", t1, t2)
-
-
-def kbo(vs: list[smt.ExprRef], t1: smt.ExprRef, t2: smt.ExprRef) -> Order:
-    """
-    Knuth Bendix Ordering, naive implementation.
-    All weights are 1.
-    Source: Term Rewriting and All That section 5.4.4
-    """
-    if t1.eq(t2):
-        return Order.EQ
-
-    def is_var(x):
-        return any(x.eq(v) for v in vs)
-
-    def vcount(t):
-        todo = [t]
-        vcount1 = {v: 0 for v in vs}
-        while todo:
-            t = todo.pop()
-            if is_var(t):
-                vcount1[t] += 1
-            elif smt.is_app(t):
-                todo.extend(t.children())
-        return vcount1
-
-    vcount1, vcount2 = vcount(t1), vcount(t2)
-    if not all(vcount1[v] >= vcount2[v] for v in vs):
-        return Order.NGE
-
-    def weight(t):
-        todo = [t]
-        w = 0
-        while todo:
-            t = todo.pop()
-            w += 1
-            if smt.is_app(t):
-                todo.extend(t.children())
-        return w
-
-    w1, w2 = weight(t1), weight(t2)
-    if w1 > w2:
-        return Order.GR
-    elif w1 < w2:
-        return Order.NGE
-    else:
-        if is_var(t2):  # KBO2a
-            decl = t1.decl()
-            if decl.arity() != 1:
-                return Order.NGE
-            while not t1.eq(t2):
-                if t1.decl() != decl:
-                    return Order.NGE
-                else:
-                    t1 = t1.arg(0)
-            return Order.GR
-        elif is_var(t1):
-            return Order.NGE
-        elif smt.is_app(t1) and smt.is_app(t2):
-            decl1, decl2 = t1.decl(), t2.decl()
-            if decl1 == decl2:  # KBO2c
-                args1, args2 = t1.children(), t2.children()
-                for a1, a2 in zip(args1, args2):
-                    ord = kbo(vs, a1, a2)
-                    if ord == Order.GR:
-                        return Order.GR
-                    elif ord == Order.NGE:
-                        return Order.NGE
-                raise Exception("Unexpected equality reached in kbo")
-            elif (decl1.name(), decl1.get_id()) > (
-                decl2.name(),
-                decl2.get_id(),
-            ):  # KBO2b
-                return Order.GR
-            else:
-                return Order.NGE
-        else:
-            raise Exception("Unexpected terms in kbo", t1, t2)
-
-
 @functools.cache
 def namedtuple_of_constructor(sort: smt.DatatypeSortRef, idx: int):
     """
@@ -756,7 +356,9 @@ def eval_(e: smt.ExprRef, globals={}):
     >>> eval_(smt.Lambda([x], x + 1)[3])
     4
     >>> R = kd.Record("R", ("x", kd.Z), ("y", smt.BoolSort()))
-    >>> eval_(R(42, True).y)
+    >>> eval_(R(42, True).x)
+    42
+    >>> eval_(R(42,True).is_R)
     True
     """
     if isinstance(e, smt.QuantifierRef):
@@ -767,6 +369,14 @@ def eval_(e: smt.ExprRef, globals={}):
             return lambda *args: eval_(
                 body, {**{v.decl().name(): arg for v, arg in zip(vs, args)}, **globals}
             )
+        else:
+            raise ValueError("Quantifier not implemented", e)
+    elif isinstance(e, smt.IntNumRef):  # smt.is_int_value(e):
+        return e.as_long()
+    elif isinstance(e, smt.RatNumRef):
+        return fractions.Fraction(e.numerator_as_long(), e.denominator_as_long())
+    elif isinstance(e, smt.FPNumRef):
+        raise ValueError("FPNumRef not implemented")
     elif smt.is_app(e):
         if smt.is_if(e):
             c = eval_(e.arg(0), globals=globals)
@@ -784,6 +394,7 @@ def eval_(e: smt.ExprRef, globals={}):
             else:
                 # possibly lookup "If" in environment
                 raise ValueError("If condition not a boolean or expression", c)
+
         children = list(map(lambda x: eval_(x, globals), e.children()))
         decl = e.decl()
         if decl in kd.kernel.defns:
@@ -833,7 +444,7 @@ def eval_(e: smt.ExprRef, globals={}):
             elif smt.is_not(e):
                 return ~children[0]
             elif smt.is_implies(e):
-                return not children[0] or children[1]
+                return (~children[0]) | children[1]
             elif smt.is_eq(e):
                 return children[0] == children[1]
             elif smt.is_lt(e):
@@ -845,15 +456,19 @@ def eval_(e: smt.ExprRef, globals={}):
             elif smt.is_gt(e):
                 return children[0] > children[1]
             elif smt.is_recognizer(e):
-                raise ValueError("recognizer not implemented", e)
+                sort = e.arg(0).sort()
+                decl = e.decl()
+                name = None
+                for i in range(sort.num_constructors()):
+                    if e.decl() == sort.recognizer(i):
+                        name = sort.constructor(i).name()
+                assert name is not None
+                if type(children[0]).__name__ == name:
+                    return True
+                else:
+                    return False
             else:
                 raise ValueError("Unknown bool expression", e)
-        elif isinstance(e, smt.IntNumRef):  # smt.is_int_value(e):
-            return e.as_long()
-        elif isinstance(e, smt.RatNumRef):
-            return fractions.Fraction(e.numerator_as_long(), e.denominator_as_long())
-        elif isinstance(e, smt.FPNumRef):
-            raise ValueError("FPNumRef not implemented")
         # elif smt.is_string_value(e):
         #    return e.as_string()
         # elif isisntance(e, ArithRef):
@@ -873,7 +488,7 @@ def eval_(e: smt.ExprRef, globals={}):
             return children[0] % children[1]
         else:
             # we could raise error, or just return the expression itself (object | ExprRef) semantics
-            raise ValueError("Unknown expression type", e)
+            raise ValueError("Unknown app expression type", e)
     else:
         raise ValueError("Unknown expression type", e)
 
@@ -888,11 +503,13 @@ def reify(s: smt.SortRef, x: object) -> smt.ExprRef:
     >>> x = smt.Int("x")
     >>> alpha_eq(reify(smt.ArraySort(smt.IntSort(), smt.IntSort()), lambda x: x + 1), smt.Lambda([x], x + 1))
     True
+    >>> reify(smt.RealSort(), fractions.Fraction(10,16))
+    5/8
     """
     if isinstance(x, smt.ExprRef):
         if x.sort() != s:
             raise ValueError(f"Sort mismatch of {x} : {x.sort()} != {s}")
-        return x
+        return x  # Although if we deeply modelled smt inside smt, maybe we'd want to quote here.
     elif isinstance(s, smt.ArraySortRef):
         # TODO: Probably not right, also not dealing with multi arg lambdas.
         if isinstance(x, Callable):

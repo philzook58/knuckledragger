@@ -3,11 +3,11 @@ import kdrag.smt as smt
 
 import kdrag.theories.real as real
 import kdrag.utils as utils
-
+import kdrag.rewrite as rewrite
 
 def test_simp():
-    assert kd.utils.simp1(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
-    assert kd.utils.simp2(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
+    assert rewrite.simp1(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
+    assert rewrite.simp2(real.max(8, real.max(3, 4))).eq(smt.RealVal(8))
 
 
 """
@@ -151,12 +151,12 @@ def test_unify():
 def test_rewrite():
     x, y, z = smt.Reals("x y z")
     succ_0 = smt.ForAll([x], x + 0 == x)
-    succ_0_rule = utils.rule_of_theorem(succ_0)
+    succ_0_rule = rewrite.rule_of_theorem(succ_0)
     vs, lhs, rhs = succ_0_rule
-    assert utils.rewrite1(y + 0, vs, lhs, rhs).eq(y)
+    assert rewrite.rewrite1(y + 0, vs, lhs, rhs).eq(y)
     t = (y + 0) + 0
-    assert utils.rewrite(t, [succ_0_rule]).eq(y)
-    assert utils.rewrite_star(t, [succ_0_rule]).eq(y)
+    assert rewrite.rewrite(t, [succ_0_rule]).eq(y)
+    assert rewrite.rewrite_star(t, [succ_0_rule]).eq(y)
 
     succ_0 = kd.lemma(succ_0)
     assert kd.tactics.simp(t, by=[succ_0]).thm.eq(t == y)
@@ -168,7 +168,7 @@ def test_apply():
     edge = smt.Function("edge", smt.RealSort(), smt.RealSort(), smt.BoolSort())
     head = path(x, z)
     body = smt.And(path(x, y), edge(y, z))
-    assert utils.apply(path(1, 3), [x, y, z], head, body).eq(
+    assert rewrite.apply(path(1, 3), [x, y, z], head, body).eq(
         smt.And(path(1, y), edge(y, 3))
     )
 
@@ -201,47 +201,47 @@ def test_factor():
 
 def test_lpo():
     x, y, z, e = smt.Ints("x y z e")
-    assert utils.lpo([x], x, x) == utils.Order.EQ
-    assert utils.lpo([y], x, x) == utils.Order.EQ
-    assert utils.lpo([x], x, y) == utils.Order.NGE
-    assert utils.lpo([x, y], x, y) == utils.Order.NGE
-    assert utils.lpo([x], x, y) == utils.Order.NGE
-    assert utils.lpo([], y, x) == utils.Order.GR
-    assert utils.lpo([], x, y) == utils.Order.NGE
-    assert utils.lpo([], x + y, x) == utils.Order.GR
-    assert utils.lpo([x], x + y, y) == utils.Order.GR
+    assert rewrite.lpo([x], x, x) == rewrite.Order.EQ
+    assert rewrite.lpo([y], x, x) == rewrite.Order.EQ
+    assert rewrite.lpo([x], x, y) == rewrite.Order.NGE
+    assert rewrite.lpo([x, y], x, y) == rewrite.Order.NGE
+    assert rewrite.lpo([x], x, y) == rewrite.Order.NGE
+    assert rewrite.lpo([], y, x) == rewrite.Order.GR
+    assert rewrite.lpo([], x, y) == rewrite.Order.NGE
+    assert rewrite.lpo([], x + y, x) == rewrite.Order.GR
+    assert rewrite.lpo([x], x + y, y) == rewrite.Order.GR
     f = smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort())
     i = smt.Function("i", smt.IntSort(), smt.IntSort())
-    assert utils.lpo([x], f(x, e), x) == utils.Order.GR
-    assert utils.lpo([x], y + x, x) == utils.Order.GR
-    assert utils.lpo([x, y], y + x, x) == utils.Order.GR
-    assert utils.lpo([], f(x, x), x) == utils.Order.GR
-    assert utils.lpo([], x, f(x, x)) == utils.Order.NGE
-    assert utils.lpo([], i(e), e) == utils.Order.GR
-    assert utils.lpo([x, y], i(f(x, y)), f(i(x), i(y))) == utils.Order.GR
-    assert utils.lpo([x, y, z], f(f(x, y), z), f(x, f(y, z))) == utils.Order.GR
-    assert utils.lpo([x, y, z], f(x, f(y, z)), f(f(x, y), z)) == utils.Order.NGE
+    assert rewrite.lpo([x], f(x, e), x) == rewrite.Order.GR
+    assert rewrite.lpo([x], y + x, x) == rewrite.Order.GR
+    assert rewrite.lpo([x, y], y + x, x) == rewrite.Order.GR
+    assert rewrite.lpo([], f(x, x), x) == rewrite.Order.GR
+    assert rewrite.lpo([], x, f(x, x)) == rewrite.Order.NGE
+    assert rewrite.lpo([], i(e), e) == rewrite.Order.GR
+    assert rewrite.lpo([x, y], i(f(x, y)), f(i(x), i(y))) == rewrite.Order.GR
+    assert rewrite.lpo([x, y, z], f(f(x, y), z), f(x, f(y, z))) == rewrite.Order.GR
+    assert rewrite.lpo([x, y, z], f(x, f(y, z)), f(f(x, y), z)) == rewrite.Order.NGE
 
 
 def test_kbo():
     x, y, z, e = smt.Ints("x y z e")
-    assert utils.kbo([x], x, x) == utils.Order.EQ
-    assert utils.kbo([y], x, x) == utils.Order.EQ
-    assert utils.kbo([x], x, y) == utils.Order.NGE
-    assert utils.kbo([x, y], x, y) == utils.Order.NGE
-    assert utils.kbo([x], x, y) == utils.Order.NGE
-    assert utils.kbo([], y, x) == utils.Order.GR
-    assert utils.kbo([], x, y) == utils.Order.NGE
-    assert utils.kbo([], x + y, x) == utils.Order.GR
-    assert utils.kbo([x], x + y, y) == utils.Order.GR
+    assert rewrite.kbo([x], x, x) == rewrite.Order.EQ
+    assert rewrite.kbo([y], x, x) == rewrite.Order.EQ
+    assert rewrite.kbo([x], x, y) == rewrite.Order.NGE
+    assert rewrite.kbo([x, y], x, y) == rewrite.Order.NGE
+    assert rewrite.kbo([x], x, y) == rewrite.Order.NGE
+    assert rewrite.kbo([], y, x) == rewrite.Order.GR
+    assert rewrite.kbo([], x, y) == rewrite.Order.NGE
+    assert rewrite.kbo([], x + y, x) == rewrite.Order.GR
+    assert rewrite.kbo([x], x + y, y) == rewrite.Order.GR
     f = smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort())
     i = smt.Function("i", smt.IntSort(), smt.IntSort())
-    assert utils.kbo([x], f(x, e), x) == utils.Order.GR
-    assert utils.kbo([x], y + x, x) == utils.Order.GR
-    assert utils.kbo([x, y], y + x, x) == utils.Order.GR
-    assert utils.kbo([], f(x, x), x) == utils.Order.GR
-    assert utils.kbo([], x, f(x, x)) == utils.Order.NGE
-    assert utils.kbo([], i(e), e) == utils.Order.GR
-    assert utils.kbo([x, y], f(i(x), i(y)), i(f(x, y))) == utils.Order.GR
-    assert utils.kbo([x, y, z], f(f(x, y), z), f(x, f(y, z))) == utils.Order.GR
-    assert utils.kbo([x, y, z], f(x, f(y, z)), f(f(x, y), z)) == utils.Order.NGE
+    assert rewrite.kbo([x], f(x, e), x) == rewrite.Order.GR
+    assert rewrite.kbo([x], y + x, x) == rewrite.Order.GR
+    assert rewrite.kbo([x, y], y + x, x) == rewrite.Order.GR
+    assert rewrite.kbo([], f(x, x), x) == rewrite.Order.GR
+    assert rewrite.kbo([], x, f(x, x)) == rewrite.Order.NGE
+    assert rewrite.kbo([], i(e), e) == rewrite.Order.GR
+    assert rewrite.kbo([x, y], f(i(x), i(y)), i(f(x, y))) == rewrite.Order.GR
+    assert rewrite.kbo([x, y, z], f(f(x, y), z), f(x, f(y, z))) == rewrite.Order.GR
+    assert rewrite.kbo([x, y, z], f(x, f(y, z)), f(f(x, y), z)) == rewrite.Order.NGE

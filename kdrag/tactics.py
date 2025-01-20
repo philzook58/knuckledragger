@@ -204,8 +204,8 @@ def lemma(
 
 
 def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.Proof:
-    rules = [kd.utils.rule_of_theorem(lem.thm) for lem in by]
-    t1 = kd.utils.rewrite(t, rules)
+    rules = [kd.rewrite.rule_of_theorem(lem.thm) for lem in by]
+    t1 = kd.rewrite.rewrite(t, rules)
     return lemma(smt.Eq(t, t1), by=by, **kwargs)
 
 
@@ -777,12 +777,12 @@ class Lemma:
         decls1 = None if len(decls) == 0 else decls
         if at is None:
             e = goalctx.goal
-            e2 = kd.utils.unfold(e, decls=decls1, trace=self.lemmas)
+            e2 = kd.rewrite.unfold(e, decls=decls1, trace=self.lemmas)
             self.goals.pop()
             self.goals.append(goalctx._replace(goal=e2))
         else:
             e = goalctx.ctx[at]
-            e2 = kd.utils.unfold(e, decls=decls, trace=self.lemmas)
+            e2 = kd.rewrite.unfold(e, decls=decls, trace=self.lemmas)
             self.goals.pop()
             if at == -1:
                 at = len(goalctx.ctx) - 1

@@ -29,6 +29,7 @@ def test_false_infer():
         kd.kernel.lemma(smt.BoolVal(False))
 
 
+
 def test_explosion():
     a = kd.axiom(smt.BoolVal(False), "False axiom")
     with pytest.raises(Exception) as _:
@@ -349,3 +350,8 @@ def test_forget():
             smt.Exists([x, y], smt.And(x == 2, y == 3)),
         )
     )
+
+def test_no_mix_keyword():
+    Point = kd.Record("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
+    with pytest.raises(Exception) as _:
+        Point(1,y=2)
