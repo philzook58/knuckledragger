@@ -235,7 +235,7 @@ def prune(
     Prune the theorems used using unsat core. Helpful to speedup future proof verification.
 
     >>> p,q,r = smt.Bools("p q r")
-    >>> prune(p & q, [p, q, r])
+    >>> sorted(prune(p & q, [p, q, r]), key=lambda b: b.decl().name())
     [p, q]
     """
     s = smt.Solver()
