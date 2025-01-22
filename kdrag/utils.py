@@ -311,6 +311,21 @@ def is_value(t: smt.ExprRef):
     )
 
 
+def ast_size_sexpr(t: smt.AstRef) -> int:
+    """
+    Get an approximate size of an AST node by its s-expression length.
+    This is probably faster than any python layer traversal one can do.
+    Pretty printed ast size will be correlated to expression size, maybe even DAG size,
+    since Z3 inserts `let`s to avoid duplication.
+
+    >>> ast_size_sexpr(smt.Int("x"))
+    1
+    >>> ast_size_sexpr(smt.Int("x") + smt.Int("y"))
+    7
+    """
+    return len(t.sexpr())
+
+
 def lemma_db():
     """Scan all modules for Proof objects and return a dictionary of them."""
     db = {}
