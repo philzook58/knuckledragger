@@ -13,9 +13,12 @@ smt_sorts = st.recursive(
     ),
 )
 
+names = st.sampled_from("x y z".split())
+# I think we'll get more interesting bugs with more name clashes rather than exploring weird names
+
 
 def binop(children, op) -> st.SearchStrategy:
-    return st.tuples(children, children).map(op)
+    return st.tuples(children, children).map(lambda t: op(t[0], t[1]))
 
 
 def binops(children) -> st.SearchStrategy:
@@ -27,22 +30,74 @@ def binops(children) -> st.SearchStrategy:
     )
 
 
+smt_int_val: st.SearchStrategy[smt.ArithRef] = st.integers().map(smt.IntVal)
+smt_int_expr = st.recursive(
+    st.one_of(smt_int_val, names.map(smt.Int)),
+    lambda children: st.one_of(
+        binop(children, op.add),
+        binop(children, op.sub),
+        binop(children, op.mul),
+        binop(children, op.truediv),
+        st.deferred(
+            lambda: st.tuples(smt_bool_expr, children, children).map(
+                lambda x: smt.If(x[0], x[1], x[2])
+            )
+        ),
+    ),
+)
+
+
 smt_bool_val: st.SearchStrategy[smt.BoolRef] = st.sampled_from(
     [smt.BoolVal(True), smt.BoolVal(False)]
 )
 
-smt_int_val: st.SearchStrategy[smt.ArithRef] = st.integers().map(smt.IntVal)
-smt_int_expr = st.recursive(
-    smt_int_val,
-    binops,
-)
-
-
 smt_real_val = st.fractions().map(smt.RealVal)
 smt_real_expr = st.recursive(
-    smt_real_val,
-    binops,
+    st.one_of(
+        smt_real_val,
+        names.map(smt.Real),
+    ),
+    lambda children: st.one_of(
+        binop(children, op.add),
+        binop(children, op.sub),
+        binop(children, op.mul),
+        binop(children, op.truediv),
+        st.deferred(
+            lambda: st.tuples(smt_bool_expr, children, children).map(
+                lambda x: smt.If(x[0], x[1], x[2])
+            )
+        ),
+    ),
 )
+
+
+def compares(strat) -> st.SearchStrategy:
+    return st.one_of(
+        binop(strat, op.eq),
+        binop(strat, op.ne),
+        binop(strat, op.lt),
+        binop(strat, op.le),
+        binop(strat, op.gt),
+        binop(strat, op.ge),
+    )
+
+
+smt_bool_expr = st.recursive(
+    st.one_of(
+        smt_bool_val,
+        names.map(smt.Bool),
+        compares(smt_int_expr),
+        compares(smt_real_expr),
+    ),
+    lambda children: st.one_of(
+        binop(children, smt.And),
+        binop(children, smt.Or),
+        binop(children, smt.Xor),
+        st.tuples(children, children).map(lambda x: x[0] == x[1]),
+        st.tuples(children, children).map(lambda x: smt.Implies(x[0], x[1])),
+    ),
+)
+
 
 smt_string_val = st.text().map(smt.StringVal)
 

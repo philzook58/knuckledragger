@@ -224,6 +224,30 @@ def expr_to_lean(expr: smt.ExprRef):
 """
 
 
+def free_vars(t: smt.ExprRef) -> set[smt.ExprRef]:
+    """
+    Return free variables in an expression. Looks at kernel.defns to determine if contacts are free.
+    If you have meaningful constants no registered there, this may not work.
+
+    >>> x,y = smt.Ints("x y")
+    >>> free_vars(smt.Lambda([x], x + y + 1))
+    {y}
+    """
+    fvs = set()
+    todo = [t]
+    while todo:
+        t = todo.pop()
+        if smt.is_var(t) or is_value(t) or smt.is_constructor(t):
+            continue
+        if smt.is_const(t) and t.decl() not in kd.kernel.defns:
+            fvs.add(t)
+        elif isinstance(t, smt.QuantifierRef):
+            todo.append(t.body())
+        elif smt.is_app(t):
+            todo.extend(t.children())
+    return fvs
+
+
 def prune(
     thm: smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof, by=[], timeout=1000
 ) -> list[smt.ExprRef | kd.kernel.Proof]:
@@ -296,6 +320,7 @@ def decls(t: smt.ExprRef):
 
 
 def is_value(t: smt.ExprRef):
+    # TODO, could make faster check using Z3 internals
     return (
         smt.is_int_value(t)
         or smt.is_rational_value(t)

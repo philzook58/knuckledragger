@@ -57,3 +57,13 @@ def test_forall1():
 @given(hyp.smt_sorts)
 def test_reflect_sort(s):
     assert reflect.sort_of_type(reflect.type_of_sort(s)) == s
+
+@pytest.mark.slow
+@given(hyp.smt_bool_expr)
+def test_bool_expr(e):
+    assert e.sort() == smt.BoolSort()
+
+@pytest.mark.slow
+@given(hyp.smt_int_expr)
+def test_int_expr(e):
+    assert e.sort() == smt.IntSort()
