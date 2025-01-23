@@ -47,7 +47,7 @@ smt_real_expr = st.recursive(
 smt_string_val = st.text().map(smt.StringVal)
 
 
-def sort_occurs(s, s2, open=[]):
+def sort_occurs(s, s2, visited=None):
     """
     Check if a sort occurs in the datatype.
 
@@ -59,25 +59,27 @@ def sort_occurs(s, s2, open=[]):
     >>> sort_occurs(smt.IntSort(), smt.IntSort())
     True
     """
-    if s2 in open:
+    if visited is None:
+        visited = set()
+    if s2 in visited:
         return False
-    if s == s2:
+    elif s == s2:
         return True
     elif isinstance(s2, smt.ArraySortRef):
-        open = open + [s2]
-        return sort_occurs(s, s2.domain(), open=open) or sort_occurs(
-            s, s2.range(), open=open
+        visited.add(s2)
+        return sort_occurs(s, s2.domain(), visited=visited) or sort_occurs(
+            s, s2.range(), visited=visited
         )
     elif isinstance(s2, smt.SeqSortRef):
-        open = open + [s2]
-        return sort_occurs(s, s2.basis(), open=open)
+        visited.add(s2)
+        return sort_occurs(s, s2.basis(), visited=visited)
     elif isinstance(s2, smt.DatatypeSortRef):
-        open = open + [s2]
+        visited.add(s2)
         for i in range(s2.num_constructors()):
             cons = s2.constructor(i)
             for j in range(cons.arity()):
                 field_sort = cons.domain(j)
-                if sort_occurs(s, field_sort, open=open):
+                if sort_occurs(s, field_sort, visited=visited):
                     return True
         return False
     else:
@@ -120,23 +122,6 @@ def smt_datatype_val(s: smt.DatatypeSortRef) -> st.SearchStrategy[smt.DatatypeRe
     return st.recursive(base, rec)
 
 
-"""
-            if field_sort == s:
-                is_rec = True
-            elif (
-                isinstance(field_sort, smt.ArraySortRef) and field_sort.range() == s
-            ):  # Todo, should be recursive.
-                is_rec = True
-            elif isinstance(field_sort, smt.SeqSortRef) and field_sort.basis() == s:
-                is_rec = True
-            sorts.append(field_sort)
-
-        if is_rec:
-            rec.append(lambda children: st.tuples(*sorts).map(lambda args: cons(*args))) 
-    return st.recursive(st.one_of(base), st.one_of(rec))
-"""
-
-
 def smt_seq_val(s: smt.SortRef) -> st.SearchStrategy[smt.SeqRef]:
     vsort = val_of_sort(s)
     return st.one_of(
@@ -164,6 +149,7 @@ def z3_array_val(
 def val_of_sort(
     s: smt.SortRef,
     knot_tie: Optional[tuple[smt.SortRef, st.SearchStrategy[smt.ExprRef]]] = None,
+    slow_generic=False,
 ) -> st.SearchStrategy[smt.ExprRef]:
     """
     Make a search strategy of values of a given SMT sort.
@@ -185,24 +171,28 @@ def val_of_sort(
     elif isinstance(s, smt.DatatypeSortRef):
         return smt_datatype_val(s)
     else:
-        # return smt_generic_val(s)
-        raise NotImplementedError(f"Don't know how to generate values for {s}")
-    # elif isinstance(s, smt.SeqSort):
-    #    return st.lists(hyp_of_sort(s.elem_sort))
+        # return smt_generic_val(s) # This is really slow. We're better off just throwing an error
+        if slow_generic:
+            return smt_generic_val(s)
+        else:
+            raise NotImplementedError(f"Don't know how to generate values for {s}")
 
 
 # def expr_of_sort(s: smt.SortRef):
 
 
 @st.composite
-def smt_generic_val(draw: st.DrawFn, sort: smt.SortRef, maxiter=4):
+def smt_generic_val(
+    draw: st.DrawFn, sort: smt.SortRef, maxiter=4
+) -> st.SearchStrategy[smt.ExprRef]:
     """
     A hypothesis search strateegy that uses smt model generation to generate a value of a given SMT sort. It is slower
     and will have worse shrinkage. To be used as a fallback.
     """
     x, y = smt.Consts("x y", sort)
     s = smt.Solver()
-    # s.set("random_seed", draw(st.integers()))
+    # s.set("random_seed", draw(st.integers())) # Did not seem to work.
+    # According to Z3 docs, Solver is deterministic.
     s.add(x == y)
     res = s.check()
     assert res == smt.sat
@@ -217,7 +207,7 @@ def smt_generic_val(draw: st.DrawFn, sort: smt.SortRef, maxiter=4):
     return v
 
 
-def nitpick(thm: smt.QuantifierRef):
+def nitpick(thm: smt.QuantifierRef, deadline=100, **hyp_settings):
     """
     Run a hypothesis test to check that an instantiated forall is equivalent to the original forall.
     """
@@ -226,13 +216,26 @@ def nitpick(thm: smt.QuantifierRef):
     body = thm.body()
     N = len(sorts)
 
-    @hypothesis.settings(deadline=100)
+    # Todo: could specialize to arity of the quantifier. Probably not worth it.
+    @hypothesis.settings(deadline=deadline, **hyp_settings)
     @hypothesis.given(**{str(i): sort for i, sort in enumerate(sorts)})
     def nitpick(**kwargs):
         t0 = smt.substitute_vars(body, *[kwargs[str(i)] for i in range(N - 1, -1, -1)])
         hypothesis.note(("Starting point: ", t0))
         t1 = kd.rewrite.simp(t0)
         hypothesis.note(("Simplifies to: ", t1))
-        assert smt.is_true(t1)
+        if not smt.is_true(t1):
+            s = smt.Solver()
+            s.set("timeout", 100)
+            s.add(smt.Not(t1))
+            res = s.check()
+            if res == smt.sat:
+                model = s.model()
+                hypothesis.note(("Counterexample: ", model))
+                raise AssertionError("Found a counterexample", model)
+            elif res == smt.unsat:
+                pass
+            else:
+                raise AssertionError("Could not find a counterexample")
 
     nitpick()
