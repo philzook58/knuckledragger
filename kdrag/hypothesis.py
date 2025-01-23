@@ -182,9 +182,7 @@ def val_of_sort(
 
 
 @st.composite
-def smt_generic_val(
-    draw: st.DrawFn, sort: smt.SortRef, maxiter=4
-) -> st.SearchStrategy[smt.ExprRef]:
+def smt_generic_val(draw: st.DrawFn, sort: smt.SortRef, maxiter=4) -> smt.ExprRef:
     """
     A hypothesis search strateegy that uses smt model generation to generate a value of a given SMT sort. It is slower
     and will have worse shrinkage. To be used as a fallback.
