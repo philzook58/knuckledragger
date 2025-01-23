@@ -1,0 +1,238 @@
+import kdrag as kd
+import kdrag.smt as smt
+import hypothesis
+import hypothesis.strategies as st
+import operator as op
+from typing import Optional
+
+smt_sorts = st.recursive(
+    st.sampled_from([smt.BoolSort(), smt.IntSort(), smt.RealSort(), smt.StringSort()]),
+    lambda children: st.one_of(
+        st.tuples(children, children).map(lambda x: smt.ArraySort(x[0], x[1])),
+        children.map(lambda x: smt.SeqSort(x)),
+    ),
+)
+
+
+def binop(children, op) -> st.SearchStrategy:
+    return st.tuples(children, children).map(op)
+
+
+def binops(children) -> st.SearchStrategy:
+    return st.one_of(
+        binop(children, op.add),
+        binop(children, op.sub),
+        binop(children, op.mul),
+        binop(children, op.truediv),
+    )
+
+
+smt_bool_val: st.SearchStrategy[smt.BoolRef] = st.sampled_from(
+    [smt.BoolVal(True), smt.BoolVal(False)]
+)
+
+smt_int_val: st.SearchStrategy[smt.ArithRef] = st.integers().map(smt.IntVal)
+smt_int_expr = st.recursive(
+    smt_int_val,
+    binops,
+)
+
+
+smt_real_val = st.fractions().map(smt.RealVal)
+smt_real_expr = st.recursive(
+    smt_real_val,
+    binops,
+)
+
+smt_string_val = st.text().map(smt.StringVal)
+
+
+def sort_occurs(s, s2, open=[]):
+    """
+    Check if a sort occurs in the datatype.
+
+    >>> import kdrag.theories.list as list
+    >>> sort_occurs(smt.IntSort(), list.List(smt.IntSort()))
+    True
+    >>> sort_occurs(smt.IntSort(), list.List(smt.BoolSort()))
+    False
+    >>> sort_occurs(smt.IntSort(), smt.IntSort())
+    True
+    """
+    if s2 in open:
+        return False
+    if s == s2:
+        return True
+    elif isinstance(s2, smt.ArraySortRef):
+        open = open + [s2]
+        return sort_occurs(s, s2.domain(), open=open) or sort_occurs(
+            s, s2.range(), open=open
+        )
+    elif isinstance(s2, smt.SeqSortRef):
+        open = open + [s2]
+        return sort_occurs(s, s2.basis(), open=open)
+    elif isinstance(s2, smt.DatatypeSortRef):
+        open = open + [s2]
+        for i in range(s2.num_constructors()):
+            cons = s2.constructor(i)
+            for j in range(cons.arity()):
+                field_sort = cons.domain(j)
+                if sort_occurs(s, field_sort, open=open):
+                    return True
+        return False
+    else:
+        return False
+
+
+def smt_datatype_val(s: smt.DatatypeSortRef) -> st.SearchStrategy[smt.DatatypeRef]:
+    # TODO: with a lot of muscle grease, we could probably do better than a big deferred
+    bases = []
+    for i in range(s.num_constructors()):
+        cons = s.constructor(i)
+        if cons.arity() == 0:
+            bases.append(st.just(cons()))  # optimization
+        elif all(not sort_occurs(s, cons.domain(j)) for j in range(cons.arity())):
+            args = []
+            for j in range(cons.arity()):
+                field_sort = cons.domain(j)
+                args.append(val_of_sort(field_sort))
+            bases.append(st.tuples(*args).map(lambda args: cons(*args)))
+    base = st.one_of(bases)
+
+    def rec(children):
+        cases = []
+        for i in range(s.num_constructors()):
+            cons = s.constructor(i)
+
+            def conswrap(*args):
+                return cons(*args)
+
+            conswrap.__name__ = cons.name()  # hack to get slightly better output
+            if any(sort_occurs(s, cons.domain(j)) for j in range(cons.arity())):
+                args = []
+                for j in range(cons.arity()):
+                    field_sort = cons.domain(j)
+                    args.append(val_of_sort(field_sort, knot_tie=(s, children)))
+                cases.append(st.tuples(*args).map(conswrap))
+
+        return st.one_of(*cases)
+
+    return st.recursive(base, rec)
+
+
+"""
+            if field_sort == s:
+                is_rec = True
+            elif (
+                isinstance(field_sort, smt.ArraySortRef) and field_sort.range() == s
+            ):  # Todo, should be recursive.
+                is_rec = True
+            elif isinstance(field_sort, smt.SeqSortRef) and field_sort.basis() == s:
+                is_rec = True
+            sorts.append(field_sort)
+
+        if is_rec:
+            rec.append(lambda children: st.tuples(*sorts).map(lambda args: cons(*args))) 
+    return st.recursive(st.one_of(base), st.one_of(rec))
+"""
+
+
+def smt_seq_val(s: smt.SortRef) -> st.SearchStrategy[smt.SeqRef]:
+    vsort = val_of_sort(s)
+    return st.one_of(
+        st.just(smt.Empty(smt.SeqSort(s))),
+        vsort.map(lambda v: smt.Unit(v)),
+        st.lists(vsort, min_size=2).map(
+            lambda l: smt.Concat(*[smt.Unit(x) for x in l])
+        ),
+    )
+
+
+def z3_array_val(
+    dom: st.SearchStrategy[smt.ExprRef], ran: st.SearchStrategy[smt.ExprRef]
+) -> st.SearchStrategy[smt.ArrayRef]:
+    def of_list(l: list[tuple[smt.ExprRef, smt.ExprRef]]) -> smt.ArrayRef:
+        k, v = l.pop()
+        acc = smt.K(k.sort(), v)
+        for k, v in l:
+            acc = smt.Store(acc, k, v)
+        return acc
+
+    return st.lists(st.tuples(dom, ran), min_size=1).map(of_list)
+
+
+def val_of_sort(
+    s: smt.SortRef,
+    knot_tie: Optional[tuple[smt.SortRef, st.SearchStrategy[smt.ExprRef]]] = None,
+) -> st.SearchStrategy[smt.ExprRef]:
+    """
+    Make a search strategy of values of a given SMT sort.
+    """
+    if knot_tie is not None and knot_tie[0] == s:
+        return knot_tie[1]
+    if s == smt.BoolSort():
+        return smt_bool_val
+    elif s == smt.IntSort():
+        return smt_int_val
+    elif s == smt.RealSort():
+        return smt_real_val
+    elif s == smt.StringSort():
+        return smt_string_val
+    elif isinstance(s, smt.ArraySortRef):
+        return z3_array_val(val_of_sort(s.domain()), val_of_sort(s.range()))
+    elif isinstance(s, smt.SeqSortRef):
+        return smt_seq_val(s.basis())
+    elif isinstance(s, smt.DatatypeSortRef):
+        return smt_datatype_val(s)
+    else:
+        # return smt_generic_val(s)
+        raise NotImplementedError(f"Don't know how to generate values for {s}")
+    # elif isinstance(s, smt.SeqSort):
+    #    return st.lists(hyp_of_sort(s.elem_sort))
+
+
+# def expr_of_sort(s: smt.SortRef):
+
+
+@st.composite
+def smt_generic_val(draw: st.DrawFn, sort: smt.SortRef, maxiter=4):
+    """
+    A hypothesis search strateegy that uses smt model generation to generate a value of a given SMT sort. It is slower
+    and will have worse shrinkage. To be used as a fallback.
+    """
+    x, y = smt.Consts("x y", sort)
+    s = smt.Solver()
+    # s.set("random_seed", draw(st.integers()))
+    s.add(x == y)
+    res = s.check()
+    assert res == smt.sat
+    v = s.model()[x]
+    for j in range(draw(st.integers(min_value=0, max_value=maxiter))):
+        if res == smt.sat:
+            v = s.model()[x]
+            s.add(v != x)
+            res = s.check()
+        elif res == smt.unsat:
+            break
+    return v
+
+
+def nitpick(thm: smt.QuantifierRef):
+    """
+    Run a hypothesis test to check that an instantiated forall is equivalent to the original forall.
+    """
+    assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
+    sorts = [val_of_sort(thm.var_sort(i)) for i in range(thm.num_vars())]
+    body = thm.body()
+    N = len(sorts)
+
+    @hypothesis.settings(deadline=100)
+    @hypothesis.given(**{str(i): sort for i, sort in enumerate(sorts)})
+    def nitpick(**kwargs):
+        t0 = smt.substitute_vars(body, *[kwargs[str(i)] for i in range(N - 1, -1, -1)])
+        hypothesis.note(("Starting point: ", t0))
+        t1 = kd.rewrite.simp(t0)
+        hypothesis.note(("Simplifies to: ", t1))
+        assert smt.is_true(t1)
+
+    nitpick()

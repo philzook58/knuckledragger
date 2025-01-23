@@ -6,13 +6,13 @@ import kdrag.theories.nat
 import kdrag.theories.int
 import kdrag.theories.real as R
 import kdrag.theories.bitvec as bitvec
-import kdrag.theories.complex as complex
+import kdrag.theories.real.complex as complex
 import kdrag.theories.algebra.group as group
 import kdrag.theories as datatypes
 import re
 
 if smt.solver != smt.VAMPIRESOLVER:
-    import kdrag.theories.interval
+    import kdrag.theories.real.interval
 
 import kdrag.theories.seq as seq
 

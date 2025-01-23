@@ -4,7 +4,7 @@ import kdrag.smt as smt
 
 
 @functools.cache
-def List(sort: smt.SortRef):
+def List(sort: smt.SortRef) -> smt.DatatypeSortRef:
     """
     Build List sort
     >>> IntList = List(smt.IntSort())
@@ -17,7 +17,7 @@ def List(sort: smt.SortRef):
     return dt.create()
 
 
-def list(*args):
+def list(*args: smt.ExprRef) -> smt.DatatypeRef:
     """
     Helper to construct List values
     >>> list(1, 2, 3)
@@ -32,7 +32,7 @@ def list(*args):
     return acc
 
 
-def Cons(x, xs):
+def Cons(x: smt.ExprRef, xs: smt.DatatypeRef) -> smt.DatatypeRef:
     """
     Helper to construct Cons values
     >>> Cons(1, Nil(smt.IntSort()))

@@ -8,3 +8,4 @@ _build/
 .coverage
 .mypy_cache
 test.sh
+.hypothesis/

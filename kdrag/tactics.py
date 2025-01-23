@@ -232,32 +232,6 @@ class Goal(NamedTuple):
                 return repr(self.sig) + ";\n" + goalctx
             else:
                 return repr(self.sig) + " ; " + goalctx
-        """
-        if len(self.sig) == 0:
-            return (
-                "["
-                + "\n".join(repr(ctx) for ctx in self.ctx)
-                + "]\n?|- "
-                + repr(self.goal)
-            )
-        if len(self.ctx) == 0:
-            return (
-                "{"
-                + ", ".join([f"{v} : {v.sort()}" for v in self.sig])
-                + "}"
-                + "\n?|- "
-                + repr(self.goal)
-            )
-        else:
-            return (
-                "{"
-                + ",".join([f"{v} : {v.sort()}" for v in self.sig])
-                + "}\n["
-                + "\n".join(repr(ctx) for ctx in self.ctx)
-                + "]\n?|- "
-                + repr(self.goal)
-            )
-        """
 
     @classmethod
     def empty(cls) -> "Goal":
@@ -280,6 +254,23 @@ class Lemma:
         self.lemmas = []
         self.thm = goal
         self.goals = [Goal(sig=[], ctx=[], goal=goal)]
+
+    def copy(self):
+        """
+        Lemma methods mutates the proof state. This can make you a copy.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p,q))
+        >>> l1 = l.copy()
+        >>> l.intros()
+        [p] ?|- q
+        >>> l1
+        [] ?|- Implies(p, q)
+        """
+        lemma_cpy = Lemma(self.thm)
+        lemma_cpy.goals = self.goals.copy()
+        lemma_cpy.lemmas = self.lemmas.copy()
+        return lemma_cpy
 
     def fixes(self) -> list[smt.ExprRef]:
         """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)
