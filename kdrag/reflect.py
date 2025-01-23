@@ -1,5 +1,4 @@
 import kdrag.smt as smt
-import kdrag as kd
 import typing
 import fractions
 
