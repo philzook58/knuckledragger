@@ -6,19 +6,39 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, Generator
+from typing import Optional, Generator, Any
 import os
 import glob
 import inspect
 
 
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
-    """Open a quantifier with fresh variables"""
+    """Open a quantifier with fresh variables
+
+    >>> x = smt.Int("x")
+    >>> open_binder(smt.ForAll([x], x > 0))
+    ([X!...], X!... > 0)
+    """
     # Open with capitalized names to match tptp conventions
     vs = [
         smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper().split("!")[0])
         for i in range(lam.num_vars())
     ]
+    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+
+
+def open_binder_unhygienic(
+    lam: smt.QuantifierRef,
+) -> tuple[list[smt.ExprRef], smt.ExprRef]:
+    """
+    Do not use this. Use `open_binder`. Opens a quantifier with unfresh variables.
+
+    >>> x = smt.Int("x")
+    >>> open_binder_unhygienic(smt.ForAll([x], x > 0))
+    ([x], x > 0)
+    """
+    # Open with capitalized names to match tptp conventions
+    vs = [smt.Const(lam.var_name(i), lam.var_sort(i)) for i in range(lam.num_vars())]
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
@@ -79,6 +99,7 @@ def pmatch(
                 not isinstance(t, smt.QuantifierRef)
                 or not quant_kind_eq(t, pat)
                 or t.num_vars() != pat.num_vars()
+                or any(t.var_sort(i) != pat.var_sort(i) for i in range(t.num_vars()))
             ):
                 return None
             vs1, patbody = open_binder(pat)
@@ -95,7 +116,7 @@ def pmatch(
 
 
 def pmatch_rec(
-    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef
+    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, into_binder=False
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
     todo = [t]
     while todo:
@@ -105,6 +126,10 @@ def pmatch_rec(
             return subst
         elif smt.is_app(t):
             todo.extend(t.children())
+        elif (
+            isinstance(t, smt.QuantifierRef) and into_binder
+        ):  # going into the binder is dicey
+            todo.append(t.body())
 
 
 def unify_db(
@@ -288,13 +313,25 @@ def prune(
         raise ValueError("Unexpected solver response")
 
 
-def subterms(t: smt.ExprRef):
-    """Generate all subterms of a term"""
+def subterms(t: smt.ExprRef, into_binder=False):
+    """Generate all subterms of a term
+
+    >>> x,y = smt.Ints("x y")
+    >>> list(subterms(x + y == y))
+    [x + y == y, y, x + y, y, x]
+    >>> list(subterms(smt.ForAll([x], x + y == y)))
+    [ForAll(x, x + y == y)]
+    >>> list(subterms(smt.ForAll([x], x + y == y), into_binder=True))
+    [ForAll(x, x + y == y), Var(0) + y == y, y, Var(0) + y, y, Var(0)]
+    """
     todo = [t]
     while len(todo) > 0:
         x = todo.pop()
         yield x
-        todo.extend(x.children())
+        if smt.is_app(x):
+            todo.extend(x.children())
+        elif isinstance(x, smt.QuantifierRef) and into_binder:
+            todo.append(x.body())
 
 
 def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
@@ -312,11 +349,9 @@ def sorts(t: smt.ExprRef):
         yield t.sort()
 
 
-def decls(t: smt.ExprRef):
+def decls(t: smt.ExprRef) -> set[smt.FuncDeclRef]:
     """Return all function declarations in a term."""
-    for t in subterms(t):
-        if smt.is_app(t):
-            yield t.decl()
+    return {e.decl() for e in subterms(t, into_binder=True) if smt.is_app(e)}
 
 
 def is_value(t: smt.ExprRef):
@@ -347,14 +382,91 @@ def ast_size_sexpr(t: smt.AstRef) -> int:
     return len(t.sexpr())
 
 
-def lemma_db():
+def lemma_db() -> dict[str, kd.kernel.Proof]:
     """Scan all modules for Proof objects and return a dictionary of them."""
-    db = {}
+    db: dict[str, kd.kernel.Proof] = {}
     for modname, mod in sys.modules.items():
-        thms = {name: thm for name, thm in mod.__dict__.items() if is_proof(thm)}
-        if len(thms) > 0:
-            db[modname] = thms
+        for name, thm in mod.__dict__.items():
+            if is_proof(thm):
+                db[modname + "." + name] = thm
+            if isinstance(thm, smt.FuncDeclRef) and thm in kd.kernel.defns:
+                db[modname + "." + name + ".defn"] = thm.defn
+            # TODO: Scan GenericProof, SortDispatch objects, DatatypeSortRef objects.
+            # TODO: Not a problem at the moment, but we should cache unchanged modules.
+            # TODO: Maybe scan user module specially.
+            # TODO: Dedup repeated theorems
     return db
+
+
+def search_expr(
+    e: smt.ExprRef, pfs: dict[object, kd.kernel.Proof]
+) -> dict[tuple[str, kd.kernel.Proof], Any]:
+    """
+    Search for expressions in the proof database that match `e` using pattern matching.
+
+    >>> x,z = smt.Ints("x z")
+    >>> search_expr(z + 0, {\
+        "thm1": kd.lemma(smt.ForAll([x], x + 0 == x)),\
+        "thm2" : kd.lemma(z + 0 == z),\
+        "thm3" : kd.lemma(smt.ForAll([x], x + 1 == 1 + x)),\
+        "thm4" : kd.lemma(smt.BoolVal(True))})
+    {('thm1', |- ForAll(x, x + 0 == x)): [z], ('thm2', |- z + 0 == z): []}
+    """
+    found = {}
+    # Hmm. This isn't that different from the implementation of rewrite itself...
+    for name, pf in pfs.items():
+        try:  # try to convert to rewrite rule
+            rule = kd.rewrite.rule_of_theorem(pf.thm)
+            subst = kd.utils.pmatch_rec(rule.vs, rule.lhs, e, into_binder=True)
+            if subst is None:
+                if (
+                    smt.is_const(rule.rhs) and rule.rhs not in kd.kernel.defns
+                ):  # Lots of trivial rules that match `== x`
+                    continue
+                subst = kd.utils.pmatch_rec(rule.vs, rule.rhs, e, into_binder=True)
+            if subst is not None:
+                try:
+                    found[(name, pf)] = [subst.get(v) for v in rule.vs]
+                except Exception as _:
+                    raise Exception(name, pf)
+        except kd.rewrite.RewriteRuleException as _:
+            pass
+    # TODO: Sort `found` by some criteria
+    return found
+
+
+def search_decl(
+    f: smt.FuncDeclRef, db: dict[object, kd.kernel.Proof]
+) -> dict[tuple[str, kd.kernel.Proof], Any]:
+    """
+    Search for declarations in the proof database that contain function declaration f
+    """
+    found = {}
+    for name, pf in db.items():
+        if kd.kernel.is_proof(pf) and f in kd.utils.decls(pf.thm):
+            found[(name, pf)] = ()
+    return found
+
+
+def search(
+    *es: smt.FuncDeclRef | smt.ExprRef, db: dict[Any, kd.kernel.Proof] = {}
+) -> dict[tuple[str, kd.kernel.Proof], Any]:
+    """
+    Search for function declarations or expressions.
+    Takes intersection of found results if given multiple arguments.
+    Builds a database by scanning loaded modules by default.
+    """
+    if len(db) == 0:
+        db = kd.utils.lemma_db()
+    results = []
+    for e in es:
+        if isinstance(e, smt.FuncDeclRef):
+            results.append(search_decl(e, db))
+        elif isinstance(e, smt.ExprRef):
+            results.append(search_expr(e, db))
+        else:
+            raise ValueError("Unsupported type for search", e)
+    return {k: v for k, v in results[0].items() if all(k in db for db in results)}
 
 
 def prompt(prompt: str):

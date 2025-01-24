@@ -23,6 +23,9 @@ class Proof(smt.Z3PPObject):
                 self.thm, "was called with admit=True but config.admit_enabled=False"
             )
 
+    def __hash__(self) -> int:
+        return hash(self.thm)
+
     def _repr_html_(self):
         return "&#8870;" + repr(self.thm)
 
@@ -128,6 +131,13 @@ defn holds definitional axioms for function symbols.
 """
 smt.FuncDeclRef.defn = property(lambda self: defns[self].ax)
 smt.ExprRef.defn = property(lambda self: defns[self.decl()].ax)
+
+
+def is_defined(x: smt.ExprRef) -> bool:
+    """
+    Determined if expression head is in definitions.
+    """
+    return smt.is_app(x) and x.decl() in defns
 
 
 def fresh_const(q: smt.QuantifierRef):

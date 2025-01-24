@@ -144,7 +144,7 @@ def apply(
     return res
 
 
-class Rule(NamedTuple):
+class RewriteRule(NamedTuple):
     """A rewrite rule tuple"""
 
     vs: list[smt.ExprRef]
@@ -154,8 +154,8 @@ class Rule(NamedTuple):
 
 def rewrite1_rule(
     t: smt.ExprRef,
-    rule: Rule,
-    trace: Optional[list[tuple[Rule, dict[smt.ExprRef, smt.ExprRef]]]] = None,
+    rule: RewriteRule,
+    trace: Optional[list[tuple[RewriteRule, dict[smt.ExprRef, smt.ExprRef]]]] = None,
 ) -> Optional[smt.ExprRef]:
     """
     Rewrite at root a single time.
@@ -168,12 +168,12 @@ def rewrite1_rule(
     return None
 
 
-def rewrite(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
+def rewrite(t: smt.ExprRef, rules: list[RewriteRule], trace=None) -> smt.ExprRef:
     """
     Sweep through term once performing rewrites.
 
     >>> x = smt.Real("x")
-    >>> rule = Rule([x], x**2, x*x)
+    >>> rule = RewriteRule([x], x**2, x*x)
     >>> rewrite((x**2)**2, [rule])
     x*x*x*x
     """
@@ -186,13 +186,16 @@ def rewrite(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
     return t
 
 
-def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> Rule:
+class RewriteRuleException(Exception): ...
+
+
+def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> RewriteRule:
     """
     Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple
 
     >>> x = smt.Real("x")
     >>> rule_of_theorem(smt.ForAll([x], x**2 == x*x))
-    Rule(vs=[X...], lhs=X...**2, rhs=X...*X...)
+    RewriteRule(vs=[X...], lhs=X...**2, rhs=X...*X...)
     """
     vs = []
     thm1 = thm  # to help out pyright
@@ -201,20 +204,19 @@ def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> Rule:
             vs1, thm1 = utils.open_binder(thm1)
             vs.extend(vs1)
         else:
-            raise Exception("Not a universal quantifier", thm1)
-    assert isinstance(thm1, smt.BoolRef)
+            raise RewriteRuleException("Not a universal quantifier", thm1)
     if not smt.is_eq(thm1):
-        raise Exception("Not an equation", thm)
+        raise RewriteRuleException("Not an equation", thm)
     lhs, rhs = thm1.children()
-    return Rule(vs, lhs, rhs)
+    return RewriteRule(vs, lhs, rhs)
 
 
-def decl_index(rules: list[Rule]) -> dict[smt.FuncDeclRef, Rule]:
+def decl_index(rules: list[RewriteRule]) -> dict[smt.FuncDeclRef, RewriteRule]:
     """Build a dictionary of rules indexed by their lhs head function declaration."""
     return {rule.lhs.decl(): rule for rule in rules}
 
 
-def rewrite_star(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
+def rewrite_star(t: smt.ExprRef, rules: list[RewriteRule], trace=None) -> smt.ExprRef:
     """
     Repeat rewrite until no more rewrites are possible.
     """
@@ -225,31 +227,31 @@ def rewrite_star(t: smt.ExprRef, rules: list[Rule], trace=None) -> smt.ExprRef:
         t = t1
 
 
-class HornClause(NamedTuple):
+class Rule(NamedTuple):
     vs: list[smt.ExprRef]
-    head: smt.BoolRef
-    body: list[smt.BoolRef]
+    hyp: smt.BoolRef
+    conc: smt.BoolRef
+    pf: Optional[kd.kernel.Proof] = None
 
 
-def horn_of_theorem(thm: smt.ExprRef) -> HornClause:
-    """Unpack theorem of form `forall vs, body => head` into a HornClause tuple"""
-    vs = []
-    while isinstance(thm, smt.QuantifierRef):
-        if thm.is_forall():
-            vs1, thm = utils.open_binder(thm)
-            vs.extend(vs1)
-        else:
-            raise Exception("Not a universal quantifier", thm)
-    assert isinstance(thm, smt.BoolRef)
-    if not smt.is_implies(thm):
-        return HornClause(vs, thm, [])
-    else:
-        body, head = thm.children()
-        if smt.is_and(body):
-            body = list(body.children())
-        else:
-            body = [body]
-        return HornClause(vs, head, body)
+def horn_of_theorem(thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
+    """Unpack theorem of form `forall vs, body => head` into a Rule tuple
+
+    >>> x = smt.Real("x")
+    >>> horn_of_theorem(smt.ForAll([x], smt.Implies(x**2 == x*x, x > 0)))
+    Rule(vs=[X...], hyp=X...**2 == X...*X..., conc=X... > 0, pf=None)
+    """
+    pf = None
+    if isinstance(thm, smt.ExprRef):
+        pass
+    elif kd.kernel.is_proof(thm):
+        pf = thm
+        thm = pf.thm
+    if not isinstance(thm, smt.QuantifierRef) or not thm.is_forall():
+        raise Exception("Not a universal quantifier", thm)
+    vs, thm = utils.open_binder(thm)
+    assert smt.is_implies(thm)
+    return Rule(vs, hyp=thm.arg(0), conc=thm.arg(1), pf=pf)
 
 
 """

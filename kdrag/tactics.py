@@ -272,6 +272,27 @@ class Lemma:
         lemma_cpy.lemmas = self.lemmas.copy()
         return lemma_cpy
 
+    def search(self, *args, at=None, db={}):
+        """
+        Search the lemma database for things that may match the current goal.
+
+        >>> import kdrag.theories.nat as nat
+        >>> n = smt.Const("n", nat.Nat)
+        >>> l = Lemma(smt.ForAll([n], nat.Z + n == n))
+        >>> ("kdrag.theories.nat.add_Z", nat.add_Z) in l.search().keys()
+        True
+        >>> ("kdrag.theories.nat.add_S", nat.add_S) in l.search().keys()
+        False
+        >>> ("kdrag.theories.nat.add_S", nat.add_S) in l.search(nat.add).keys()
+        True
+        """
+        if at is not None:
+            return kd.utils.search(self.top_goal().ctx[at], db=db)
+        if len(args) == 0:
+            return kd.utils.search(self.top_goal().goal, db=db)
+        else:
+            return kd.utils.search(*args, db=db)
+
     def fixes(self) -> list[smt.ExprRef]:
         """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)
 

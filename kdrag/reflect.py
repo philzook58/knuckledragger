@@ -111,20 +111,29 @@ class KnuckleClosure:
     """
 
     lam: smt.QuantifierRef
-    env: dict[str, object]
+    globals: dict[str, object]
+    locals: dict[str, object]
 
     def __call__(self, *args):
         # TODO: Should I open binder more eagerly before call?
         vs, body = kd.utils.open_binder(self.lam)
         return eval_(
             body,
-            globals={**{v.decl().name(): arg for v, arg in zip(vs, args)}, **self.env},
+            globals=self.globals,
+            locals={
+                **{v.decl().name(): arg for v, arg in zip(vs, args)},
+                **self.locals,
+            },
         )
+
+
+def __default_error(e):
+    raise ValueError(f"Cannot evaluate {e}")
 
 
 # This is fiendishly difficult to typecheck probably
 @no_type_check
-def eval_(e: smt.ExprRef, globals={}):
+def eval_(e: smt.ExprRef, globals={}, locals={}, default=__default_error):
     """
     Evaluate a z3 expression in a given environment. The analog of python's `eval`.
 
@@ -141,159 +150,181 @@ def eval_(e: smt.ExprRef, globals={}):
     >>> eval_(R(42,True).is_R)
     True
     """
-    if isinstance(e, smt.QuantifierRef):
-        if e.is_lambda():
-            # also possibly lookup Lambda in globals.
-            return KnuckleClosure(e, globals)
-        else:
-            raise ValueError("Quantifier not implemented", e)
-    elif isinstance(e, smt.IntNumRef):  # smt.is_int_value(e):
-        return e.as_long()
-    elif isinstance(e, smt.RatNumRef):
-        return fractions.Fraction(e.numerator_as_long(), e.denominator_as_long())
-    elif isinstance(e, smt.FPNumRef):
-        raise ValueError("FPNumRef not implemented")
-    elif smt.is_app(e):
-        # Lazy evaluation of if, and, or, implies
-        if smt.is_if(e):
-            c = eval_(e.arg(0), globals=globals)
-            if isinstance(c, bool):
-                if c:
-                    return eval_(e.arg(1), globals=globals)
-                else:
-                    return eval_(e.arg(2), globals=globals)
-            elif isinstance(c, smt.ExprRef):
-                return smt.If(
-                    c,
-                    eval_(e.arg(1), globals=globals),
-                    eval_(e.arg(2), globals=globals),
-                )
+
+    def worker(e, locals):
+        if isinstance(e, smt.QuantifierRef):
+            if e.is_lambda():
+                # also possibly lookup Lambda in globals.
+                """
+                if "Lambda" in globals:
+                    vs, body = open_binder(e)
+                    return globals["Lambda"]
+                """
+                return KnuckleClosure(e, globals, locals)
             else:
-                # possibly lookup "If" in environment
-                raise ValueError("If condition not a boolean or expression", c)
-        elif smt.is_and(e):
-            acc = []
-            for child in e.children():
-                echild = eval_(child, globals=globals)
-                if echild is False:
-                    return False
-                elif echild is True:
-                    continue
+                raise ValueError("Quantifier not implemented", e)
+        elif isinstance(e, smt.IntNumRef):  # smt.is_int_value(e):
+            return e.as_long()
+        elif isinstance(e, smt.RatNumRef):
+            return fractions.Fraction(e.numerator_as_long(), e.denominator_as_long())
+        elif isinstance(e, smt.FPNumRef):
+            raise ValueError("FPNumRef not implemented")
+        elif smt.is_app(e):
+            # Lazy evaluation of if, and, or, implies
+            if smt.is_if(e):
+                c = worker(e.arg(0), locals)
+                if isinstance(c, bool):
+                    if c:
+                        return worker(e.arg(1), locals)
+                    else:
+                        return worker(e.arg(2), locals)
+                elif "If" in globals:
+                    return globals["If"](
+                        c, worker(e.arg(1), locals), worker(e.arg(2), locals)
+                    )
+                elif isinstance(c, smt.ExprRef):
+                    return smt.If(
+                        c,
+                        worker(e.arg(1), locals),
+                        worker(e.arg(2), locals),
+                    )
                 else:
-                    acc.append(echild)
-            return smt.And(acc)
-        elif smt.is_or(e):
-            acc = []
-            for child in e.children():
-                echild = eval_(child, globals=globals)
-                if echild is True:
-                    return True
-                elif echild is False:
-                    continue
+                    # TODO: possibly lookup "If" in environment?
+                    raise ValueError("If condition not a boolean or expression", c)
+            elif smt.is_and(e):
+                acc = []
+                for child in e.children():
+                    echild = worker(child, locals)
+                    if isinstance(echild, bool):
+                        if echild:
+                            continue
+                        else:
+                            return False
+                    else:
+                        acc.append(echild)
+                return smt.And(acc)
+            elif smt.is_or(e):
+                acc = []
+                for child in e.children():
+                    echild = worker(child, locals)
+                    if echild is True:
+                        return True
+                    elif echild is False:
+                        continue
+                    else:
+                        acc.append(echild)
+                return smt.Or(acc)  # TODO: possibly simplify or
+            elif smt.is_implies(e):
+                cond = worker(e.arg(0), locals)
+                if isinstance(cond, bool):
+                    if cond:
+                        return worker(e.arg(1), locals)
+                    else:
+                        return True
                 else:
-                    acc.append(echild)
-            return smt.Or(acc)
-        elif smt.is_implies(e):
-            cond = eval_(e.arg(0), globals=globals)
-            if cond is True:
-                return eval_(e.arg(1), globals=globals)
-            elif cond is False:
-                return True
-            else:
-                return smt.Implies(cond, eval_(e.arg(1), globals=globals))
-        # eval all children
-        children = list(map(lambda x: eval_(x, globals), e.children()))
-        decl = e.decl()
-        if decl in kd.kernel.defns:
-            defn = kd.kernel.defns[e.decl()]
-            # Fresh vars and add to context?
-            # e1 = z3.substitute(defn.body, *zip(defn.args, e.children()))
-            f = eval_(smt.Lambda(defn.args, defn.body), globals=globals)
-            return f(*children)
-            # return eval_(
-            #    smt.Select(smt.Lambda(defn.args, defn.body), *children), globals=globals
-            # )
-            # return eval_(env, e1)
-        elif decl.name() in globals:
-            # hasattr(globals[decl.name()], "__call__")?
-            if smt.is_const(e):
-                return globals[decl.name()]
-            else:
-                return globals[decl.name()](*children)
-        elif smt.is_accessor(e):
-            # return children[0][decl.name()]
-            return getattr(children[0], e.decl().name())
-        elif smt.is_select(e):  # apply
-            return children[0](*children[1:])
-        elif smt.is_store(e):
-            raise ValueError("Store not implemented", e)
-        #    #return children[0]._replace(children[1], children[2])
-        elif smt.is_const_array(e):
-            return lambda x: children[0]  # Maybe return a Closure here?
-        elif smt.is_map(e):
-            raise ValueError("Map not implemented", e)
-            # return map(children[0], children[1])
-        elif smt.is_constructor(e):
-            sort, decl = e.sort(), e.decl()
-            i = 0  # Can't have 0 constructors. Makes typechecker happy
-            for i in range(sort.num_constructors()):
-                if e.decl() == sort.constructor(i):
-                    break
-            cons = namedtuple_of_constructor(sort, i)
-            return cons(*children)
-        elif isinstance(e, smt.BoolRef):
-            if smt.is_true(e):
-                return True
-            elif smt.is_false(e):
-                return False
-            elif smt.is_not(e):
-                return ~children[0]
-            elif smt.is_eq(e):
-                return children[0] == children[1]
-            elif smt.is_lt(e):
-                return children[0] < children[1]
-            elif smt.is_le(e):
-                return children[0] <= children[1]
-            elif smt.is_ge(e):
-                return children[0] >= children[1]
-            elif smt.is_gt(e):
-                return children[0] > children[1]
-            elif smt.is_recognizer(e):
-                sort = e.arg(0).sort()
-                decl = e.decl()
-                name = None
+                    return smt.Implies(
+                        cond, worker(e.arg(1), locals)
+                    )  # TODO: possibly simplify implies if consequent evaluates to a bool?
+            # eval all children
+            children = list(map(lambda x: worker(x, locals), e.children()))
+            decl = e.decl()
+            if decl in kd.kernel.defns:
+                defn = kd.kernel.defns[e.decl()]
+                # Fresh vars and add to context?
+                # e1 = z3.substitute(defn.body, *zip(defn.args, e.children()))
+                f = worker(smt.Lambda(defn.args, defn.body), locals)
+                return f(*children)
+                # return eval_(
+                #    smt.Select(smt.Lambda(defn.args, defn.body), *children), globals=globals
+                # )
+                # return eval_(env, e1)
+            elif decl.name() in locals:
+                if smt.is_const(e):
+                    return locals[decl.name()]
+                else:
+                    return locals[decl.name()](*children)
+            elif decl.name() in globals:
+                # hasattr(globals[decl.name()], "__call__")?
+                if smt.is_const(e):
+                    return globals[decl.name()]
+                else:
+                    return globals[decl.name()](*children)
+            elif smt.is_accessor(e):
+                # return children[0][decl.name()]
+                return getattr(children[0], e.decl().name())
+            elif smt.is_select(e):  # apply
+                return children[0](*children[1:])
+            elif smt.is_store(e):
+                raise ValueError("Store not implemented", e)
+            #    #return children[0]._replace(children[1], children[2])
+            elif smt.is_const_array(e):
+                return lambda x: children[0]  # Maybe return a Closure here?
+            elif smt.is_map(e):
+                raise ValueError("Map not implemented", e)
+                # return map(children[0], children[1])
+            elif smt.is_constructor(e):
+                sort, decl = e.sort(), e.decl()
+                i = 0  # Can't have 0 constructors. Makes typechecker happy
                 for i in range(sort.num_constructors()):
-                    if e.decl() == sort.recognizer(i):
-                        name = sort.constructor(i).name()
-                assert name is not None
-                if type(children[0]).__name__ == name:
+                    if e.decl() == sort.constructor(i):
+                        break
+                cons = namedtuple_of_constructor(sort, i)
+                return cons(*children)
+            elif isinstance(e, smt.BoolRef):
+                if smt.is_true(e):
                     return True
-                else:
+                elif smt.is_false(e):
                     return False
+                elif smt.is_not(e):
+                    return ~children[0]
+                elif smt.is_eq(e):
+                    return children[0] == children[1]
+                elif smt.is_lt(e):
+                    return children[0] < children[1]
+                elif smt.is_le(e):
+                    return children[0] <= children[1]
+                elif smt.is_ge(e):
+                    return children[0] >= children[1]
+                elif smt.is_gt(e):
+                    return children[0] > children[1]
+                elif smt.is_recognizer(e):
+                    sort = e.arg(0).sort()
+                    decl = e.decl()
+                    name = None
+                    for i in range(sort.num_constructors()):
+                        if e.decl() == sort.recognizer(i):
+                            name = sort.constructor(i).name()
+                    assert name is not None
+                    if type(children[0]).__name__ == name:
+                        return True
+                    else:
+                        return False
+                else:
+                    return default(e)
+            # elif smt.is_string_value(e):
+            #    return e.as_string()
+            # elif isisntance(e, ArithRef):
+            elif smt.is_add(e):
+                return functools.reduce(operator.add, children)
+            elif smt.is_mul(e):
+                return functools.reduce(operator.mul, children)
+            elif smt.is_sub(e):
+                return children[0] - children[1]
+            elif smt.is_div(e):
+                return children[0] / children[1]
+            elif smt.is_idiv(e):
+                return children[0] // children[1]
+            elif smt.is_power(e):
+                return children[0] ** children[1]
+            elif smt.is_mod(e):
+                return children[0] % children[1]
             else:
-                raise ValueError("Unknown bool expression", e)
-        # elif smt.is_string_value(e):
-        #    return e.as_string()
-        # elif isisntance(e, ArithRef):
-        elif smt.is_add(e):
-            return functools.reduce(operator.add, children)
-        elif smt.is_mul(e):
-            return functools.reduce(operator.mul, children)
-        elif smt.is_sub(e):
-            return children[0] - children[1]
-        elif smt.is_div(e):
-            return children[0] / children[1]
-        elif smt.is_idiv(e):
-            return children[0] // children[1]
-        elif smt.is_power(e):
-            return children[0] ** children[1]
-        elif smt.is_mod(e):
-            return children[0] % children[1]
+                # we could raise error, or just return the expression itself (object | ExprRef) semantics
+                return default(e)
         else:
-            # we could raise error, or just return the expression itself (object | ExprRef) semantics
-            raise ValueError("Unknown app expression type", e)
-    else:
-        raise ValueError("Unknown expression type", e)
+            return default(e)
+
+    return worker(e, locals)
 
 
 def reify(s: smt.SortRef, x: object) -> smt.ExprRef:

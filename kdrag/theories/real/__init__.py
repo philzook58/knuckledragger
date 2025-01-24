@@ -89,7 +89,7 @@ def abstract_arith(t: smt.ExprRef) -> smt.ExprRef:
 abs = kd.define("absR", [x], smt.If(x >= 0, x, -x))
 sgn = kd.define("sgn", [x], smt.If(x > 0, 1, smt.If(x < 0, -1, 0)))
 
-sgn_abs = kd.lemma(ForAll([x], x == abs(x) * sgn(x)), by=[abs.defn, sgn.defn])
+sgn_abs = kd.lemma(ForAll([x], abs(x) * sgn(x) == x), by=[abs.defn, sgn.defn])
 abs_le = kd.lemma(
     ForAll([x, y], (abs(x) <= y) == smt.And(-y <= x, x <= y)), by=[abs.defn]
 )
