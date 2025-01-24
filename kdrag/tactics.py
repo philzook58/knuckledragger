@@ -248,16 +248,26 @@ class Goal(NamedTuple):
 
 
 class Lemma:
-    """Tactic class for interactive proofs"""
+    """
+    A tactic class for interactive proofs.
+    `Lemma` stores a mutational partial proof state that can be changed via tactic methods.
+    Once proof is completed, an actual `kd.Proof` object is constructed by the `Lemma.qed` method.
+    `Lemma` is not part of the trusted code base and bugs in its implementation are not a soundness concern.
+    `Lemma` "merely" orchestrates and infers info for calls to the kernel.
+    In my experience it is best to run the entire Lemma mutation in a single Jupyter cell while experimenting.
+
+    """
 
     def __init__(self, goal: smt.BoolRef):
         self.lemmas = []
         self.thm = goal
         self.goals = [Goal(sig=[], ctx=[], goal=goal)]
+        self.pushed = None
 
     def copy(self):
         """
         Lemma methods mutates the proof state. This can make you a copy.
+        Does not copy the pushed Lemma stack.
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p,q))
@@ -270,7 +280,37 @@ class Lemma:
         lemma_cpy = Lemma(self.thm)
         lemma_cpy.goals = self.goals.copy()
         lemma_cpy.lemmas = self.lemmas.copy()
+        lemma_cpy.pushed = None
         return lemma_cpy
+
+    def push(self):
+        """
+        Push a copy of the current Lemma state onto a stack.
+        This why you can try things out, and if they fail
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p,q))
+        >>> l.push()
+        [] ?|- Implies(p, q)
+        >>> l.intros()
+        [p] ?|- q
+        >>> l.pop()
+        [] ?|- Implies(p, q)
+        """
+        cpy = self.copy()
+        cpy.pushed = self.pushed
+        self.pushed = cpy
+        return self.top_goal()
+
+    def pop(self):
+        """
+        Pop state off the Lemma stack.
+        """
+        assert self.pushed is not None
+        self.lemmas = self.pushed.lemmas  # maybe we should store lemmas incrementally?
+        self.goals = self.pushed.goals
+        self.pushed = self.pushed.pushed
+        return self.top_goal()
 
     def search(self, *args, at=None, db={}):
         """

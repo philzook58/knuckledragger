@@ -72,6 +72,22 @@ if solver is None or solver == Z3SOLVER:
         """
         return z3.is_app_of(x, z3.Z3_OP_POWER)
 
+    def is_uninterp(x: z3.ExprRef) -> bool:
+        """
+        Check if uninterpreted function.
+        >>> x = z3.Real("x")
+        >>> f = z3.Function("f", RealSort(), RealSort())
+        >>> is_uninterp(x)
+        True
+        >>> is_uninterp(f(x))
+        True
+        >>> is_uninterp(x + 1)
+        False
+        >>> is_uninterp(z3.RealVal(42.1))
+        False
+        """
+        return z3.is_app_of(x, z3.Z3_OP_UNINTERPRETED)
+
     Z3Solver = Solver
 elif solver == VAMPIRESOLVER:
     from z3 import *
