@@ -1,3 +1,7 @@
+"""
+Reflecting and reifying SMT expressions from/into Python values.
+"""
+
 import kdrag.smt as smt
 import kdrag as kd
 import typing

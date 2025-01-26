@@ -1,0 +1,8 @@
+- Kuratowski topology <https://en.wikipedia.org/wiki/Kuratowski_closure_axioms>
+- Peano arithmetic in the axiomatic style
+- sequent calculus
+- robinson arithmetic
+- hol light
+- modal logic
+- Intuitionistic logic - Deep or shallow
+- GAT

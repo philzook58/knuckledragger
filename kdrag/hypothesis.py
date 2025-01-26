@@ -1,3 +1,14 @@
+"""
+Helper functions for the hypothesis property based testing library.
+
+This can be useful for:
+- Giving counterexamples to poorly stated theorems before you spend much effort on them
+- Sanity checking axioms
+- Connecting formal models to other code
+- Testing Knuckledragger facilities
+- Testing Z3 intended meaning
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
 import hypothesis

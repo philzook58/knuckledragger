@@ -335,6 +335,9 @@ def subterms(t: smt.ExprRef, into_binder=False):
 
 
 def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
+    """
+    TODO: Not alpha invariant or going into binders
+    """
     if t.eq(t2):
         return True
     elif smt.is_app(t2):
@@ -345,7 +348,7 @@ def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
 
 def sorts(t: smt.ExprRef):
     """Generate all sorts in a term"""
-    for t in subterms(t):
+    for t in subterms(t, into_binder=True):
         yield t.sort()
 
 

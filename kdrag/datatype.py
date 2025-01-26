@@ -1,5 +1,6 @@
 """
-Goodies related to datatypes.
+Convenience features for datatypes.
+
 You should use these instead of raw `smt.Datatype`. This also maintains a record of exisitng datatypes
 so that you don't clobber old ones, a possible source of unsoundness.
 
