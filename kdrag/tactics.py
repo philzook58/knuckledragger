@@ -7,7 +7,7 @@ import kdrag.smt as smt
 from enum import IntEnum
 import operator as op
 from . import config
-from typing import NamedTuple, Iterable, Optional, Sequence, Callable
+from typing import NamedTuple, Optional, Sequence, Callable
 import pprint
 
 
