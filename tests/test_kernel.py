@@ -290,7 +290,7 @@ def test_induct():
     List = List.create()
     x = smt.Const("x", List)
     assert (
-        kd.datatype.induct_inductive(x, smt.Lambda([x], smt.BoolVal(True))) is not None
+        kd.kernel.induct_inductive(x, smt.Lambda([x], smt.BoolVal(True))) is not None
     )
 
 

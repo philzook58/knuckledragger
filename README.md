@@ -156,12 +156,12 @@ For more on interactive theorem proving (This is a lot to take in)
 - [Knuckledragger Update: ATP for Python Interactive Theorem Proving](https://www.philipzucker.com/knuckledrag2/)
 - [Knuckledragger: Experimenting with a Python Proof Assistant](https://www.philipzucker.com/python-itp/)
 
-## Knuckledragger isn't Python
+## Comparison to Other Systems
 
-The design is based around the chaining of calls to z3. Python is a useful platform, but the core of the design can be ported to many languages.
-
-- [SBV](https://hackage.haskell.org/package/sbv-11.0/docs/Data-SBV-Tools-KnuckleDragger.html) - Haskell
-- Yours here!
+- [Z3](https://github.com/Z3Prover/z3): Superset of the capabilities of Z3 since it is built on top of it. Enables rigorous chaining of Z3 calls. Better facilities for higher order and quantifier reasoning.
+- [sympy](https://www.sympy.org/) and sage: More manual manipulation is to be expected, but also more logically sound. Everything is integrated in a cohesive fabric of first order logic.
+- Lean and Coq: No dependent types, larger trusted code base, a higher baseline of automation.
+- [Isabelle](https://isabelle.in.tum.de/) and [HOLpy](https://gitee.com/bhzhan/holpy): Similar in many respects. Lack of parametric types. Weaker higher order reasoning. Knuckledragger is a library, not a framework. Heavy reuse of already existing python things whenever possible (Jupyter, z3py, sympy, python idioms). Seamlessly integrated with z3py.
 
 ## Design
 
@@ -169,7 +169,7 @@ It is not desirable or within my capabilities to build a giant universe in which
 
 Using widespread and commonly supported languages gives a huge leg up in terms of tooling and audience. Python is the modern lingua franca of computing. It has a first class interactive experience and extensive bindings to projects in other languages.
 
-Core functionality comes from [Z3](https://github.com/Z3Prover/z3). The Z3 python api is a de facto standard. The term and formula data structures of knuckledragger are literally z3 python terms and formula. To some degree, knuckledragger is a metalayer to guide smt through proofs it could perhaps do on its own, but it would get lost.
+Core functionality comes from [Z3](https://github.com/Z3Prover/z3). The Z3 python api is a de facto standard. The term and formula data structures of knuckledragger are literally z3 python terms and formula. To some degree, Knuckledragger is a metalayer to guide smt through proofs it could perhaps do on its own, but it would get lost.
 
 A hope is to be able to use easy access to [Jupyter](https://jupyter.org/), [copilot](https://copilot.microsoft.com/), ML ecosystems, [sympy](https://www.sympy.org/), [cvxpy](https://www.cvxpy.org/), [numpy](https://numpy.org/), [scipy](https://scipy.org/), [egglog](https://egglog-python.readthedocs.io/latest/), [Julia](https://github.com/JuliaPy/PythonCall.jl), [Prolog](https://www.swi-prolog.org/pldoc/man?section=janus-call-prolog), [Maude](https://fadoss.github.io/maude-bindings/), [calcium](https://fredrikj.net/calcium/), [flint](https://fredrikj.net/python-flint/), [Mathematica](https://reference.wolfram.com/language/WolframClientForPython/), and [sage](https://www.sagemath.org/) will make metaprogramming in this system very powerful. I maintain the option to just trust these results but hopefully they can be translated into arguments the kernel can understand.
 
@@ -194,6 +194,10 @@ TODO: A no-install WIP colab tutorial is available [here](http://colab.research.
     1. Knuckledragger does enable you to model your algorithms and extract/interpret them to python.
     2. A subset of purely-function, strongly-typed python can be reflected directly into the Knuckledragger logic.
     3. Domain specific modelling of important python ecosystem libraries is a WIP.
+- Is Knuckledragger python specific?
+  - Python is a useful and important platform, but the core of the design can be ported to many languages. The design is based around the chaining of calls to z3 which gets you a lot of distance for free.
+    - [SBV](https://hackage.haskell.org/package/sbv-11.0/docs/Data-SBV-Tools-KnuckleDragger.html) - Haskell
+    - Yours here!
 
 ## License & Citation
 

@@ -1,11 +1,10 @@
 """
 Convenience features for datatypes.
 
-You should use these instead of raw `smt.Datatype`. This also maintains a record of exisitng datatypes
+You should use these instead of raw `smt.Datatype`. This also maintains a record of existing datatypes
 so that you don't clobber old ones, a possible source of unsoundness.
 
 - Datatypes support accessor notation `l.is_cons`, `l.hd`, `l.tl` etc.
-- Generic Inductive axiom schema available via `induct_inductive`
 - x._replace() syntax on single constructor datatypes
 
 >>> import kdrag.theories.nat as nat
@@ -21,6 +20,7 @@ pred(n)
 import kdrag.smt as smt
 import kdrag as kd
 import typing
+from kdrag.kernel import Inductive
 
 
 def _lookup_constructor_recog(
@@ -254,78 +254,6 @@ def datatype_match_(x, *cases, default=None):
 
 
 smt.DatatypeRef.match_ = datatype_match_  # type: ignore
-
-
-def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> kd.kernel.Proof:
-    """Build a basic induction principle for an algebraic datatype"""
-    DT = x.sort()
-    assert isinstance(DT, smt.DatatypeSortRef)
-    """assert (
-        isisntance(P,QuantififerRef) and P.is_lambda()
-    )  # TODO: Hmm. Actually it should just be arraysort"""
-    hyps = []
-    for i in range(DT.num_constructors()):
-        constructor = DT.constructor(i)
-        args = [
-            smt.FreshConst(constructor.domain(j), prefix=DT.accessor(i, j).name())
-            for j in range(constructor.arity())
-        ]
-        acc = P(constructor(*args))
-        for arg in args:
-            if arg.sort() == DT:
-                acc = kd.QForAll([arg], P(arg), acc)
-            else:
-                acc = kd.QForAll([arg], acc)
-        hyps.append(acc)
-    conc = P(x)
-    return kd.axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
-
-
-_records = {}
-
-
-def Inductive(name: str) -> smt.Datatype:
-    """
-    Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
-
-    >>> Nat = Inductive("Nat")
-    >>> Nat.declare("zero")
-    >>> Nat.declare("succ", ("pred", Nat))
-    >>> Nat = Nat.create()
-    >>> Nat.succ(Nat.zero)
-    succ(zero)
-    """
-    counter = 0
-    n = name
-    while n in _records:
-        counter += 1
-        n = name + "!" + str(counter)
-    name = n
-    assert name not in _records
-    dt = smt.Datatype(name)
-    oldcreate = dt.create
-
-    def create():
-        dt = oldcreate()
-        # Sanity check no duplicate names. Causes confusion.
-        names = set()
-        for i in range(dt.num_constructors()):
-            cons = dt.constructor(i)
-            n = cons.name()
-            if n in names:
-                raise Exception("Duplicate constructor name", n)
-            names.add(n)
-            for j in range(cons.arity()):
-                n = dt.accessor(i, j).name()
-                if n in names:
-                    raise Exception("Duplicate field name", n)
-                names.add(n)
-        kd.notation.induct.register(dt, induct_inductive)
-        _records[name] = dt
-        return dt
-
-    dt.create = create
-    return dt
 
 
 def Record(

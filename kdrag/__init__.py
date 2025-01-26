@@ -38,7 +38,7 @@ QExists = notation.QExists
 cond = notation.cond
 
 
-Inductive = datatype.Inductive
+Inductive = kernel.Inductive
 
 
 Record = datatype.Record

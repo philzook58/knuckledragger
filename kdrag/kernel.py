@@ -2,6 +2,7 @@
 The kernel hold core proof datatypes and core inference rules. By and large, all proofs must flow through this module.
 """
 
+import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
 from typing import Any, Iterable, Sequence
@@ -125,6 +126,7 @@ class Defn:
     ax: Proof
 
 
+_datatypes = {}
 defns: dict[smt.FuncDeclRef, Defn] = {}
 """
 defn holds definitional axioms for function symbols.
@@ -337,3 +339,72 @@ def beta_conv(lam: smt.QuantifierRef, *args) -> Proof:
     assert len(args) == lam.num_vars()
     assert smt.is_quantifier(lam) and lam.is_lambda()
     return axiom(smt.Eq(lam[args], smt.substitute_vars(lam.body(), *reversed(args))))
+
+
+def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
+    """Build a basic induction principle for an algebraic datatype"""
+    DT = x.sort()
+    assert isinstance(DT, smt.DatatypeSortRef)
+    """assert (
+        isisntance(P,QuantififerRef) and P.is_lambda()
+    )  # TODO: Hmm. Actually it should just be arraysort"""
+    hyps = []
+    for i in range(DT.num_constructors()):
+        constructor = DT.constructor(i)
+        args = [
+            smt.FreshConst(constructor.domain(j), prefix=DT.accessor(i, j).name())
+            for j in range(constructor.arity())
+        ]
+        acc = P(constructor(*args))
+        for arg in args:
+            if arg.sort() == DT:
+                acc = kd.QForAll([arg], P(arg), acc)
+            else:
+                acc = kd.QForAll([arg], acc)
+        hyps.append(acc)
+    conc = P(x)
+    return axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
+
+
+def Inductive(name: str) -> smt.Datatype:
+    """
+    Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
+
+    >>> Nat = Inductive("Nat")
+    >>> Nat.declare("zero")
+    >>> Nat.declare("succ", ("pred", Nat))
+    >>> Nat = Nat.create()
+    >>> Nat.succ(Nat.zero)
+    succ(zero)
+    """
+    counter = 0
+    n = name
+    while n in _datatypes:
+        counter += 1
+        n = name + "!" + str(counter)
+    name = n
+    assert name not in _datatypes
+    dt = smt.Datatype(name)
+    oldcreate = dt.create
+
+    def create():
+        dt = oldcreate()
+        # Sanity check no duplicate names. Causes confusion.
+        names = set()
+        for i in range(dt.num_constructors()):
+            cons = dt.constructor(i)
+            n = cons.name()
+            if n in names:
+                raise Exception("Duplicate constructor name", n)
+            names.add(n)
+            for j in range(cons.arity()):
+                n = dt.accessor(i, j).name()
+                if n in names:
+                    raise Exception("Duplicate field name", n)
+                names.add(n)
+        kd.notation.induct.register(dt, induct_inductive)
+        _datatypes[name] = dt
+        return dt
+
+    dt.create = create
+    return dt

@@ -348,7 +348,9 @@ def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
 
 def sorts(t: smt.ExprRef):
     """Generate all sorts in a term"""
-    for t in subterms(t, into_binder=True):
+    for t in subterms(
+        t, into_binder=True
+    ):  # TODO: May want to get sorts of quantified variables that don't appear in bodies.
         yield t.sort()
 
 
@@ -367,6 +369,9 @@ def is_value(t: smt.ExprRef):
         or smt.is_true(t)
         or smt.is_false(t)
         or smt.is_string_value(t)
+        or smt.is_fp_value(t)
+        or smt.is_fprm_value(t)
+        or (smt.is_constructor(t) and all(is_value(c) for c in t.children()))
     )
 
 
