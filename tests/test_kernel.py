@@ -90,7 +90,7 @@ def test_qforall():
 
 
 def test_record():
-    foo = kd.Record("foo", ("bar", smt.IntSort()), ("baz", smt.BoolSort()))
+    foo = kd.Struct("foo", ("bar", smt.IntSort()), ("baz", smt.BoolSort()))
     assert smt.simplify(foo.mk(1, True).bar).eq(smt.IntVal(1))
 
 
@@ -274,7 +274,7 @@ def test_eq():
 
 
 def test_pred():
-    Even = kd.Record(
+    Even = kd.Struct(
         "Even",
         ("val", kd.Z),
         ("div2", kd.Z),
@@ -352,6 +352,6 @@ def test_forget():
     )
 
 def test_no_mix_keyword():
-    Point = kd.Record("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
+    Point = kd.Struct("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
     with pytest.raises(Exception) as _:
         Point(1,y=2)

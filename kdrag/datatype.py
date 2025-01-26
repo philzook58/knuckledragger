@@ -70,7 +70,7 @@ def datatype_call(
     """
     Enable "call" syntax for constructors of smt datatypes
 
-    >>> Point = kd.Record("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
+    >>> Point = kd.Struct("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
     >>> Point(1,2)
     Point(1, 2)
     >>> Point(y=2, x=1)
@@ -100,7 +100,7 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
     """
     Like NamedTuple, you can replace fields of a record datatype.
 
-    >>> Point = kd.Record("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
+    >>> Point = kd.Struct("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
     >>> Point(0,1)._replace(x=3, y=10)
     Point(3, 10)
     >>> p = smt.Const("p", Point)
@@ -256,7 +256,7 @@ def datatype_match_(x, *cases, default=None):
 smt.DatatypeRef.match_ = datatype_match_  # type: ignore
 
 
-def Record(
+def Struct(
     name: str, *fields: tuple[str, smt.SortRef], pred=None
 ) -> smt.DatatypeSortRef:
     """
@@ -265,12 +265,12 @@ def Record(
     The optional argument `pred` will add a well-formedness condition to the record
     giving something akin to a refinement type.
 
-    >>> Point = Record("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
+    >>> Point = Struct("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
     >>> Point(1,2)
     Point(ToReal(1), ToReal(2))
     >>> Point(1,2).x
     x(Point(ToReal(1), ToReal(2)))
-    >>> PosPoint = Record("PosPoint", ("x", smt.RealSort()), ("y", smt.RealSort()), pred = lambda p: smt.And(p.x > 0, p.y > 0))
+    >>> PosPoint = Struct("PosPoint", ("x", smt.RealSort()), ("y", smt.RealSort()), pred = lambda p: smt.And(p.x > 0, p.y > 0))
     >>> p = smt.Const("p", PosPoint)
     >>> kd.QForAll([p], p.x > -42)
     ForAll(p, Implies(And(x(p) > 0, y(p) > 0), x(p) > -42))
@@ -308,7 +308,7 @@ def NewType(name: str, sort: smt.SortRef, pred=None) -> smt.DatatypeSortRef:
     >>> kd.QForAll([x], x.val >= -7)
     ForAll(x, Implies(val(x) >= 0, val(x) >= -7))
     """
-    return Record(name, ("val", sort), pred=pred)
+    return Struct(name, ("val", sort), pred=pred)
 
 
 def Enum(name: str, args: str) -> smt.DatatypeSortRef:

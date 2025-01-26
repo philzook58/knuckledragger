@@ -35,7 +35,7 @@ p,q = smt.Bools("p q")
 simple_taut = kd.prove(smt.Implies(p, smt.Or(p, q)))
 
 # The returned objects are `Proof`, not smt.ExprRef` formulas
-assert kd.kernel.is_proof(simple_taut)
+assert isinstance(simple_taut, kd.Proof)
 assert not isinstance(simple_taut, smt.ExprRef)
 
 # kd.prove will throw an error if the theorem is not provable

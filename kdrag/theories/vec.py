@@ -9,7 +9,7 @@ Linear Algebra
 norm2 = kd.notation.SortDispatch(name="norm2")
 dot = kd.notation.SortDispatch(name="dot")
 
-Vec2 = kd.Record("Vec2", ("x", kd.R), ("y", kd.R))
+Vec2 = kd.Struct("Vec2", ("x", kd.R), ("y", kd.R))
 u, v = kd.smt.Consts("u v", Vec2)
 kd.notation.add.define([u, v], Vec2(u.x + v.x, u.y + v.y))
 kd.notation.sub.define([u, v], Vec2(u.x - v.x, u.y - v.y))
@@ -33,7 +33,7 @@ dist = kd.define("dist", [u, v], R.sqrt(norm2(u - v)))
 # Vec2.triangle = norm2(u - v) <= norm2(u) + norm2(v)
 @functools.cache
 def Vec(N):
-    V = kd.Record("Vec" + str(N), *[("x" + str(i), kd.R) for i in range(N)])
+    V = kd.Struct("Vec" + str(N), *[("x" + str(i), kd.R) for i in range(N)])
     u, v, w = kd.smt.Consts("u v w", V)
     kd.notation.getitem.register(V, lambda x, i: V.accessor(0, i)(x))
     kd.notation.add.define([u, v], V(*[u[i] + v[i] for i in range(N)]))
@@ -60,7 +60,7 @@ class VecTheory:
         self.add_neg = kd.prove(u - v == u + -v, by=[add.defn, neg.defn, sub.defn])
 
 
-Vec3 = Vec(3)  # kd.Record("Vec3", ("x", kd.R), ("y", kd.R), ("z", kd.R))
+Vec3 = Vec(3)  # kd.Struct("Vec3", ("x", kd.R), ("y", kd.R), ("z", kd.R))
 u, v = kd.smt.Consts("u v", Vec3)
 kd.notation.add.define([u, v], Vec3(u.x0 + v.x0, u.x1 + v.x1, u.x2 + v.x2))
 kd.notation.sub.define([u, v], Vec3(u.x0 - v.x0, u.x1 - v.x1, u.x2 - v.x2))

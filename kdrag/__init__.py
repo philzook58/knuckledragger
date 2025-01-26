@@ -41,7 +41,7 @@ cond = notation.cond
 Inductive = kernel.Inductive
 
 
-Record = datatype.Record
+Struct = datatype.Struct
 
 
 NewType = datatype.NewType
@@ -76,7 +76,7 @@ __all__ = [
     "QForAll",
     "QExists",
     "cond",
-    "Record",
+    "Struct",
     "NewType",
     "Inductive",
     "Calc",

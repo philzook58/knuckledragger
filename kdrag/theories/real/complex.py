@@ -2,7 +2,7 @@ import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.real as real
 
-C = kd.Record("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
+C = kd.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
 
 z, w, u, z1, z2 = smt.Consts("z w u z1 z2", C)
 add = kd.define("add", [z1, z2], C.C(z1.re + z2.re, z1.im + z2.im))

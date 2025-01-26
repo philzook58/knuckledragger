@@ -37,6 +37,6 @@ even = kd.define("even", [x], smt.Exists([y], x == 2 * y))
 odd = kd.define("odd", [x], smt.Exists([y], x == 2 * y + 1))
 
 
-NatI = kd.Record("NatI", ("val", Z))
+NatI = kd.Struct("NatI", ("val", Z))
 n, m, k = smt.Consts("n m k", NatI)
 kd.notation.wf.register(NatI, lambda x: x.val >= 0)
