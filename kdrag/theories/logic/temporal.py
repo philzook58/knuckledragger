@@ -20,6 +20,7 @@ def lift_binop(S, op):
             y1 = TLift(y1)
             if y1.sort() != S:
                 raise TypeError(f"{y} but expected sort {S}")
+        assert isinstance(y1, smt.DatatypeRef)
         t = smt.FreshInt("t")
         return S(smt.Lambda([t], op(x.val[t], y1.val[t])))
 
