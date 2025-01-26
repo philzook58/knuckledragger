@@ -30,6 +30,6 @@ def induct(ys, P) -> kd.Proof:
     )
 
 
-# zero_or_succ = kd.lemma(
+# zero_or_succ = kd.prove(
 #    smt.ForAll([y], smt.Or(y == zero, smt.Exists([x], succ(x) == y))), by=[]
 # )

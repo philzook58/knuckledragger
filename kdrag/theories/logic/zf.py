@@ -12,7 +12,7 @@ zf_db = []
 
 
 def slemma(thm, by=[], **kwargs):
-    return kd.lemma(thm, by=by + zf_db, **kwargs)
+    return kd.prove(thm, by=by + zf_db, **kwargs)
 
 
 emp = smt.Const("emp", ZFSet)

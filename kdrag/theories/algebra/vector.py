@@ -16,7 +16,7 @@ add_assoc = kd.axiom(smt.ForAll([u, v, w], u + (v + w) == (u + v) + w))
 zero = smt.Const("zero", V)
 
 add_zero = kd.axiom(smt.ForAll([u], u + zero == u))
-zero_add = kd.lemma(smt.ForAll([u], zero + u == u), by=[add_comm, add_zero])
+zero_add = kd.prove(smt.ForAll([u], zero + u == u), by=[add_comm, add_zero])
 
 smul = smt.Function("smul", V, smt.RealSort(), V)
 kd.notation.mul.register(V, smul)

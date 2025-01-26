@@ -25,7 +25,7 @@ class GenericProof:
     >>> obvious = GenericProof(lambda T: smt.ForAll([x(T)], x(T) == x(T)) )
     >>> obvious.lemma(smt.IntSort(), by=[])
     >>> R = smt.RealSort()
-    >>> obvious.register(R, kd.lemma(smt.ForAll([x(R)], x(R) == x(R))))
+    >>> obvious.register(R, kd.prove(smt.ForAll([x(R)], x(R) == x(R))))
     """
 
     def __init__(self, f):
@@ -42,7 +42,7 @@ class GenericProof:
         return self.data.get(args)
 
     def lemma(self, *args, **kwargs):
-        return self.register(*args, kd.kernel.lemma(self.wrapped(*args), **kwargs))
+        return self.register(*args, kd.kernel.prove(self.wrapped(*args), **kwargs))
 
     def register(self, *args):
         args, pf = args[:-1], args[-1]

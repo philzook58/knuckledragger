@@ -38,42 +38,42 @@ class Seq:
         x, y, z = smt.Consts("x y z", sort)
         # TODO: seq needs well formedness condition inherited from elements
 
-        self.concat_empty = kd.kernel.lemma(
+        self.concat_empty = kd.kernel.prove(
             kd.QForAll([x], smt.Concat(smt.Empty(sort), x) == x)
         )
-        self.empty_concat = kd.kernel.lemma(
+        self.empty_concat = kd.kernel.prove(
             kd.QForAll([x], smt.Concat(x, smt.Empty(sort)) == x)
         )
-        self.concat_assoc = kd.kernel.lemma(
+        self.concat_assoc = kd.kernel.prove(
             kd.QForAll(
                 [x, y, z],
                 smt.Concat(x, smt.Concat(y, z)) == smt.Concat(smt.Concat(x, y), z),
             )
         )
-        self.concat_length = kd.kernel.lemma(
+        self.concat_length = kd.kernel.prove(
             kd.QForAll(
                 [x, y], smt.Length(smt.Concat(x, y)) == smt.Length(x) + smt.Length(y)
             )
         )
-        self.length_empty = kd.kernel.lemma(
+        self.length_empty = kd.kernel.prove(
             kd.QForAll([x], (smt.Length(x) == 0) == (x == empty))
         )
         """
-        self.contains_concat_left = kd.kernel.lemma(
+        self.contains_concat_left = kd.kernel.prove(
             kd.QForAll(
                 [x, y, z], smt.Contains(x, z) == smt.Contains(smt.Concat(x, y), z)
             )
         )
-        self.contains_concat_right = kd.kernel.lemma(
+        self.contains_concat_right = kd.kernel.prove(
             kd.QForAll(
                 [x, y, z], smt.Contains(y, z) == smt.Contains(smt.Concat(x, y), z)
             )
         )"""
-        # self.contains_unit = kd.kernel.lemma(
+        # self.contains_unit = kd.kernel.prove(
         #    kd.QForAll([x, y], smt.Contains(smt.Unit(x), y) == (x == y))
         # )
         """
-        self.contains_empty = kd.kernel.lemma(
+        self.contains_empty = kd.kernel.prove(
             kd.QForAll([x], smt.Contains(smt.Empty(T), x) == (x == smt.Empty(T)))
         )"""
         # InRe, Extract, IndexOf, LastIndexOf, prefixof, replace, suffixof

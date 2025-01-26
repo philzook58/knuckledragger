@@ -15,7 +15,7 @@ add_comm = kd.axiom(smt.ForAll([A, B], A + B == B + A))
 
 zero = smt.Const("zero", SqMat)
 add_zero = kd.axiom(smt.ForAll([A], A + zero == A))
-zero_add = kd.lemma(smt.ForAll([A], zero + A == A), by=[add_comm, add_zero])
+zero_add = kd.prove(smt.ForAll([A], zero + A == A), by=[add_comm, add_zero])
 
 
 smul = smt.Function("smul", smt.RealSort(), SqMat, SqMat)
@@ -24,7 +24,7 @@ kd.notation.rmul.register(SqMat, lambda x, y: smul(y, x))
 r, s = smt.Reals("r s")
 smul_zero = kd.axiom(smt.ForAll([A], 0 * A == zero))  # Is this a lemma?
 smul_assoc = kd.axiom(smt.ForAll([A, r, s], smul(s, smul(r, A)) == smul(s * r, A)))
-smul_comm = kd.lemma(
+smul_comm = kd.prove(
     smt.ForAll([A, s, r], smul(r, smul(s, A)) == smul(s, smul(r, A))), by=[smul_assoc]
 )
 
@@ -60,7 +60,7 @@ is_orth = kd.define("is_orth", [A], A @ trans(A) == I)
 is_idem = kd.define(
     "is_idem", [A], A @ A == A
 )  # projection matrices https://en.wikipedia.org/wiki/Projection_(linear_algebra)
-# orth_trans_inv = kd.lemma(smt.QForAll([A], is_orth(A), inv(A) == trans(A)))
+# orth_trans_inv = kd.prove(smt.QForAll([A], is_orth(A), inv(A) == trans(A)))
 
 
 is_diag = smt.Function("is_diag", SqMat, smt.BoolSort())

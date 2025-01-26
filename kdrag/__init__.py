@@ -20,7 +20,7 @@ from . import tactics
 Proof = kernel.Proof
 
 
-lemma = tactics.lemma
+prove = tactics.prove
 
 
 axiom = kernel.axiom
@@ -69,7 +69,7 @@ RSeq = Z >> R
 RFun = R >> R
 
 __all__ = [
-    "lemma",
+    "prove",
     "axiom",
     "define",
     "Proof",

@@ -93,24 +93,24 @@ def test_vampirethf():
     # s.add(smt.BoolVal(True))
 
     # Does not pass. TODO: Need to fix intrinsics
-    # kd.lemma(smt.Or(smt.BoolVal(False), smt.BoolVal(True)), solver=EProverTHFSolver)
+    # kd.prove(smt.Or(smt.BoolVal(False), smt.BoolVal(True)), solver=EProverTHFSolver)
 
-    kd.kernel.lemma(
+    kd.kernel.prove(
         smt.Or(smt.BoolVal(False), smt.BoolVal(True)), solver=EProverTHFSolver
     )
 
     # https://www.cl.cam.ac.uk/~jrh13/hol-light/manual-1.1.pdf
-    kd.kernel.lemma(
+    kd.kernel.prove(
         smt.Lambda([x], x) == smt.Lambda([y], y),
         solver=EProverTHFSolver,
     )
 
-    kd.kernel.lemma(smt.Lambda([x], x) == smt.Lambda([y], y))
+    kd.kernel.prove(smt.Lambda([x], x) == smt.Lambda([y], y))
 
     f = smt.Const("f", smt.BoolSort() >> smt.BoolSort())
     p, q = smt.Bools("p q")
 
-    kd.kernel.lemma(
+    kd.kernel.prove(
         smt.ForAll(
             [p],
             p == (smt.Lambda([f], f(p)) == smt.Lambda([f], f(smt.BoolVal(True)))),
@@ -126,7 +126,7 @@ def test_vampirethf():
     s.check()
     """
     f = smt.Const("f", smt.BoolSort() >> (smt.BoolSort() >> smt.IntSort()))
-    kd.kernel.lemma(
+    kd.kernel.prove(
         smt.ForAll(
             [p, q],
             smt.And(p, q)
@@ -139,7 +139,7 @@ def test_vampirethf():
     )
     """
     """
-    kd.kernel.lemma(
+    kd.kernel.prove(
         kd.QForAll(
             [p, q],
             smt.And(p, q)
@@ -151,7 +151,7 @@ def test_vampirethf():
         solver=EProverTHFSolver,
     )
     
-    kd.kernel.lemma(
+    kd.kernel.prove(
         kd.QForAll(
             [p, q],
             smt.And(p, q),

@@ -26,20 +26,20 @@ C0 = C.C(0, 0)
 C1 = C.C(1, 0)
 Ci = C.C(0, 1)
 
-add_zero = kd.lemma(smt.ForAll([z], z + C0 == z), by=[add.defn])
-mul_zero = kd.lemma(smt.ForAll([z], z * C0 == C0), by=[mul.defn])
-mul_one = kd.lemma(smt.ForAll([z], z * C1 == z), by=[mul.defn])
-add_comm = kd.lemma(smt.ForAll([z, w], z + w == w + z), by=[add.defn])
-add_assoc = kd.lemma(
+add_zero = kd.prove(smt.ForAll([z], z + C0 == z), by=[add.defn])
+mul_zero = kd.prove(smt.ForAll([z], z * C0 == C0), by=[mul.defn])
+mul_one = kd.prove(smt.ForAll([z], z * C1 == z), by=[mul.defn])
+add_comm = kd.prove(smt.ForAll([z, w], z + w == w + z), by=[add.defn])
+add_assoc = kd.prove(
     smt.ForAll([z, w, u], (z + (w + u)) == ((z + w) + u)), by=[add.defn]
 )
-mul_comm = kd.lemma(smt.ForAll([z, w], z * w == w * z), by=[mul.defn])
+mul_comm = kd.prove(smt.ForAll([z, w], z * w == w * z), by=[mul.defn])
 
 # unstable perfoamnce.
-# mul_div = kd.lemma(ForAll([z,w], Implies(w != C0, z == z * w / w)), by=[div.defn, mul.defn], timeout=1000)
+# mul_div = kd.prove(ForAll([z,w], Implies(w != C0, z == z * w / w)), by=[div.defn, mul.defn], timeout=1000)
 ##mul_div = Calc()
-# div_one = kd.lemma(smt.ForAll([z], z / C1 == z), by=[div.defn])
-# div_inv = kd.lemma(
+# div_one = kd.prove(smt.ForAll([z], z / C1 == z), by=[div.defn])
+# div_inv = kd.prove(
 #    smt.ForAll([z], smt.Implies(z != C0, z / z == C1)), by=[div.defn], admit=True
 # )
 
@@ -52,7 +52,7 @@ norm2 = kd.define("norm2", [z], z * conj(z))
 t, s = smt.Reals("t s")
 expi = kd.define("expi", [t], C.C(real.cos(t), real.sin(t)))
 
-# expi_mul = kd.lemma(
+# expi_mul = kd.prove(
 #   smt.ForAll([t, s], expi(t) * expi(s) == expi(t + s)),
 #    by=[expi.defn, mul.defn, real.sin_add, real.cos_add],
 # )
@@ -73,7 +73,7 @@ c.eq(expi(t + s), by=[expi.defn])
 expi_mul = c.qed()
 _2 = c.qed()
 
-_3 = kd.lemma(
+_3 = kd.prove(
     kd.QForAll(
         [t, s],
         C.C(
@@ -84,6 +84,6 @@ _3 = kd.lemma(
     ),
     by=[real.cos_add, real.sin_add],
 )
-expi_mul = kd.lemma(
+expi_mul = kd.prove(
     kd.QForAll([t, s], expi(t) * expi(s) == expi(t + s)), by=[_1, _2, _3], admit=True
 )

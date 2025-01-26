@@ -11,7 +11,7 @@ def test_abstract():
     assert abstract_arith(x + y).eq(add(x, y))
 
     """
-    kd.lemma(
+    kd.prove(
         deriv(ident() * ident()) == const(2) * ident(),
         by=[
             deriv_mul,
@@ -33,7 +33,7 @@ def test_deriv():
     c.eq(const(1) * X + X * const(1), by=[deriv_ident])
     """
     # c.eq(X + X * const(1), by=[const.defn, fmul.defn])
-    _1 = kd.kernel.lemma(
+    _1 = kd.kernel.prove(
         const(1) * X + X * const(1) == X + X,
         by=[const.defn, fmul.defn],
         solver=solvers.VampireTHFSolver,
@@ -46,13 +46,13 @@ def test_deriv():
 
 # disabled
 def lim():
-    # kd.lemma(has_lim(const(0), 0, 0), by=[has_lim.defn, const.defn, abs.defn])
+    # kd.prove(has_lim(const(0), 0, 0), by=[has_lim.defn, const.defn, abs.defn])
     eps, delta, x = smt.Reals("eps delta x")
-    const0_lim = kd.lemma(
+    const0_lim = kd.prove(
         has_lim_mod(const(0), 0, 0, const(1)),
         by=[has_lim_mod.defn, const.defn, abs.defn],
     )
-    kd.lemma(has_lim(const(0), 0, 0), by=[has_lim_seal, const0_lim])
+    kd.prove(has_lim(const(0), 0, 0), by=[has_lim_seal, const0_lim])
     """
     c = kd.Calc([], has_lim(const(0), 0, 0))
     c.eq(
@@ -83,7 +83,7 @@ def test_flint():
         real.sympy.interp_flint(smt.RatVal(232, 1), {}).mid().str()
         == "232.000000000000"
     )
-    kd.kernel.lemma(
+    kd.kernel.prove(
         kd.QForAll([x], -5 <= x, x <= 5, sin(x) <= 1),
         by=[real.sympy.flint_bnd(real.sin(x), {x: flint.arb(0, 10)})],
     )
@@ -141,11 +141,11 @@ def test_sympy_manip():
     mul = (x * y).decl()
     assert real.sympy.expand([x], (1 + x) ** 2).eq(add(1, x**2, 2 * x))
     assert real.sympy.expand([x, y], x * (x + 2 * y)).eq(x**2 + mul(2, x, y))
-    kd.kernel.lemma(real.sympy.expand([x], (1 + x) ** 2) == 1 + 2 * x + x**2)
+    kd.kernel.prove(real.sympy.expand([x], (1 + x) ** 2) == 1 + 2 * x + x**2)
 
 
 def test_vampire():
     pass
     # TODO: broken again
     # test vampire with more significxant set of features
-    # kd.lemma(smt.BoolVal(True), solver=solvers.VampireSolver)
+    # kd.prove(smt.BoolVal(True), solver=solvers.VampireSolver)

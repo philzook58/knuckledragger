@@ -19,10 +19,10 @@ Vec2.dot = dot.define([u, v], u.x * v.x + u.y * v.y)  # type: ignore
 Vec2.norm2 = norm2.define([u], dot(u, u))  # type: ignore
 
 
-Vec2.norm_pos = kd.lemma(  # type: ignore
+Vec2.norm_pos = kd.prove(  # type: ignore
     kd.smt.ForAll([u], norm2(u) >= 0), by=[Vec2.norm2.defn, Vec2.dot.defn]
 )
-Vec2.norm_zero = kd.lemma(  # type: ignore
+Vec2.norm_zero = kd.prove(  # type: ignore
     kd.smt.ForAll([u], (norm2(u) == 0) == (u == Vec2.vzero)),
     by=[Vec2.norm2.defn, Vec2.dot.defn],
 )
@@ -53,11 +53,11 @@ class VecTheory:
         sub = kd.notation.sub[V]
         neg = kd.notation.neg[V]
         u, v, w = smt.Consts("u v w", V)
-        self.add_comm = kd.lemma(u + v == v + u, by=[add.defn])
-        self.add_assoc = kd.lemma((u + v) + w == u + (v + w), by=[add.defn])
-        # self.add_zero = kd.lemma(u + V.zero == u, by=[add.defn])
-        # self.add_neg = kd.lemma(u + -u == V.zero, by=[add.defn])
-        self.add_neg = kd.lemma(u - v == u + -v, by=[add.defn, neg.defn, sub.defn])
+        self.add_comm = kd.prove(u + v == v + u, by=[add.defn])
+        self.add_assoc = kd.prove((u + v) + w == u + (v + w), by=[add.defn])
+        # self.add_zero = kd.prove(u + V.zero == u, by=[add.defn])
+        # self.add_neg = kd.prove(u + -u == V.zero, by=[add.defn])
+        self.add_neg = kd.prove(u - v == u + -v, by=[add.defn, neg.defn, sub.defn])
 
 
 Vec3 = Vec(3)  # kd.Record("Vec3", ("x", kd.R), ("y", kd.R), ("z", kd.R))
@@ -75,14 +75,14 @@ cross = kd.define(
 )
 
 # TODO: instability with respect to the `by` ordering. That's bad
-cross_antisym = kd.lemma(
+cross_antisym = kd.prove(
     kd.smt.ForAll([u, v], cross(u, v) == -cross(v, u)),
     by=[kd.notation.neg[Vec3].defn, cross.defn],
 )
 
 # https://en.wikipedia.org/wiki/Vector_algebra_relations
 
-# pythag = kd.lemma(
+# pythag = kd.prove(
 #    kd.smt.ForAll([u, v], norm2(cross(u, v)) + dot(u, v) ** 2 == norm2(u) * norm2(v)),
 #    by=[norm2[Vec3].defn, dot[Vec3].defn, cross.defn],
 # )

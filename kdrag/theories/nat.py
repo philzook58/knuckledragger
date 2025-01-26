@@ -30,8 +30,8 @@ to_int = smt.Function("to_int", Nat, smt.IntSort())
 to_int = kd.define("to_int", [n], smt.If(n.is_Z, smt.IntVal(0), 1 + to_int(n.pred)))
 
 # Homomorphism. Todo the other homomorphisms
-to_int_Z = kd.lemma(to_int(Nat.Z) == 0, by=[to_int.defn])
-to_int_S = kd.lemma(smt.ForAll([n], to_int(S(n)) == 1 + to_int(n)), by=[to_int.defn])
+to_int_Z = kd.prove(to_int(Nat.Z) == 0, by=[to_int.defn])
+to_int_S = kd.prove(smt.ForAll([n], to_int(S(n)) == 1 + to_int(n)), by=[to_int.defn])
 
 l = kd.Lemma(smt.ForAll([n], to_int(n) >= 0))
 _n = l.fix()
@@ -62,8 +62,8 @@ add = smt.Function("add", Nat, Nat, Nat)
 add = kd.define("add", [x, y], smt.If(x.is_Z, y, Nat.S(add(x.pred, y))))
 kd.notation.add.register(Nat, add)
 
-add_Z = kd.kernel.lemma(smt.ForAll([x], add(Nat.Z, x) == x), by=[add.defn])
-add_S = kd.kernel.lemma(
+add_Z = kd.kernel.prove(smt.ForAll([x], add(Nat.Z, x) == x), by=[add.defn])
+add_S = kd.kernel.prove(
     smt.ForAll([x, y], add(Nat.S(x), y) == Nat.S(add(x, y))), by=[add.defn]
 )
 

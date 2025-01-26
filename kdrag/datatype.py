@@ -13,7 +13,7 @@ so that you don't clobber old ones, a possible source of unsoundness.
 is(Z, n)
 >>> n.pred
 pred(n)
->>> kd.lemma(nat.one.pred == nat.Z)
+>>> kd.prove(nat.one.pred == nat.Z)
 |- pred(S(Z)) == Z
 """
 

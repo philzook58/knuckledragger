@@ -39,34 +39,34 @@ def test_sheffer():
     bot = kd.define("bot", [], a | ~a)
     top = kd.define("top", [], ~bot)
 
-    inf_comm = kd.lemma(
+    inf_comm = kd.prove(
         smt.ForAll([a, b], inf(a, b) == inf(b, a)), by=[inf.defn, commut]
     )
-    sup_comm = kd.lemma(
+    sup_comm = kd.prove(
         smt.ForAll([a, b], sup(a, b) == sup(b, a)), by=[sup.defn, commut]
     )
 
-    ident1 = kd.lemma(
+    ident1 = kd.prove(
         smt.ForAll([a], sup(a, bot) == a), by=[sup.defn, bot.defn, sh1, sh2]
     )
-    ident2 = kd.lemma(
+    ident2 = kd.prove(
         smt.ForAll([a], inf(a, top) == a), by=[inf.defn, top.defn, bot.defn, sh1, sh2]
     )
 
-    distrib1 = kd.lemma(
+    distrib1 = kd.prove(
         smt.ForAll([a, b, d], sup(a, inf(b, d)) == inf(sup(a, b), sup(a, d))),
         by=[inf.defn, sup.defn, sh1, sh3, commut],
     )
-    distrib2 = kd.lemma(
+    distrib2 = kd.prove(
         smt.ForAll([a, b, d], inf(a, sup(b, d)) == sup(inf(a, b), inf(a, d))),
         by=[inf.defn, sup.defn, sh1, sh3, commut],
     )
 
-    compl1 = kd.lemma(
+    compl1 = kd.prove(
         smt.ForAll([a], sup(a, ~a) == top),
         by=[sup.defn, top.defn, bot.defn, sh1, sh2, all_bot],
     )
-    compl2 = kd.lemma(
+    compl2 = kd.prove(
         smt.ForAll([a], inf(a, ~a) == bot), by=[inf.defn, bot.defn, sh1, sh2, all_bot]
     )
 
@@ -215,17 +215,17 @@ def test_sheffer():
 
     simp += [dm1, dm2]
 
-    D1 = kd.lemma(
+    D1 = kd.prove(
         smt.ForAll([a, b, d], sup(sup(a, sup(b, d)), ~a) == top),
         by=[sup_comm, ident2, distrib1, compl1] + simp,
     )
 
-    E1 = kd.lemma(
+    E1 = kd.prove(
         smt.ForAll([a, b, d], inf(b, sup(a, sup(b, d))) == b),
         by=[distrib2, absorb2, sup_comm, absorb1],
     )
 
-    E2 = kd.lemma(
+    E2 = kd.prove(
         smt.ForAll([a, b, d], sup(b, inf(a, inf(b, d))) == b),
         by=[distrib1, absorb1, inf_comm, absorb2],
     )
@@ -280,7 +280,7 @@ def test_sheffer():
 
     d = kd.Calc([a, b, c], inf(~sup(sup(a, b), c), c))
 
-    J1 = kd.lemma(
+    J1 = kd.prove(
         smt.ForAll([a, b, c], inf(~sup(sup(a, b), c), c) == bot),
         by=[sup_comm, inf_comm] + simp,
     )
@@ -296,7 +296,7 @@ def test_sheffer():
 
     simp += [assoc1]
 
-    assoc2 = kd.lemma(
+    assoc2 = kd.prove(
         smt.ForAll([a, b, c], inf(a, inf(b, c)) == inf(inf(a, b), c)),
         by=[inv_elim] + simp,
     )
@@ -304,11 +304,11 @@ def test_sheffer():
     le = kd.define("le", [a, b], a == inf(b, a))
     kd.notation.le.register(Stroke, le)
 
-    le_trans = kd.lemma(
+    le_trans = kd.prove(
         kd.QForAll([a, b, c], a <= b, b <= c, a <= c), by=[assoc2, le.defn]
     )
 
-    le_antisym = kd.lemma(
+    le_antisym = kd.prove(
         kd.QForAll([a, b], a <= b, b <= a, a == b), by=[le.defn, inf_comm]
     )
 

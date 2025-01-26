@@ -414,10 +414,10 @@ def search_expr(
 
     >>> x,z = smt.Ints("x z")
     >>> search_expr(z + 0, {\
-        "thm1": kd.lemma(smt.ForAll([x], x + 0 == x)),\
-        "thm2" : kd.lemma(z + 0 == z),\
-        "thm3" : kd.lemma(smt.ForAll([x], x + 1 == 1 + x)),\
-        "thm4" : kd.lemma(smt.BoolVal(True))})
+        "thm1": kd.prove(smt.ForAll([x], x + 0 == x)),\
+        "thm2" : kd.prove(z + 0 == z),\
+        "thm3" : kd.prove(smt.ForAll([x], x + 1 == 1 + x)),\
+        "thm4" : kd.prove(smt.BoolVal(True))})
     {('thm1', |- ForAll(x, x + 0 == x)): [z], ('thm2', |- z + 0 == z): []}
     """
     found = {}

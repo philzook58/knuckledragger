@@ -51,7 +51,7 @@ def sin_check(cls, thm, reason, admit=False, i_am_a_sinner=False):
             thm, "was called with admit=True but config.admit_enabled=False"
         )
     if not i_am_a_sinner:
-        raise ValueError("Proof is private. Use `kd.lemma` or `kd.axiom`")
+        raise ValueError("Proof is private. Use `kd.prove` or `kd.axiom`")
     return Proof_new(cls, thm, list(reason), admit)
 
 
@@ -67,7 +67,7 @@ class LemmaError(Exception):
     pass
 
 
-def lemma(
+def prove(
     thm: smt.BoolRef,
     by: Iterable[Proof] = [],
     admit=False,
@@ -88,9 +88,9 @@ def lemma(
     Returns:
         Proof: A proof object of thm
 
-    >>> lemma(smt.BoolVal(True))
+    >>> prove(smt.BoolVal(True))
     |- True
-    >>> lemma(smt.RealVal(1) >= smt.RealVal(0))
+    >>> prove(smt.RealVal(1) >= smt.RealVal(0))
     |- 1 >= 0
     """
     if admit:
@@ -113,7 +113,7 @@ def lemma(
         if res != smt.unsat:
             if res == smt.sat:
                 raise LemmaError(thm, "Countermodel", s.model())
-            raise LemmaError("lemma", thm, res)
+            raise LemmaError("prove", thm, res)
         else:
             return Proof(thm, list(by), False)
 

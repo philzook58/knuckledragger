@@ -32,25 +32,25 @@ import kdrag.smt as smt # smt is literally a reexporting of z3
 
 # Anything Z3 can do on it's own, we can "prove" with no extra work
 p,q = smt.Bools("p q")
-simple_taut = kd.lemma(smt.Implies(p, smt.Or(p, q)))
+simple_taut = kd.prove(smt.Implies(p, smt.Or(p, q)))
 
 # The returned objects are `Proof`, not smt.ExprRef` formulas
 assert kd.kernel.is_proof(simple_taut)
 assert not isinstance(simple_taut, smt.ExprRef)
 
-# kd.lemma will throw an error if the theorem is not provable
+# kd.prove will throw an error if the theorem is not provable
 try:
-    false_lemma = kd.lemma(smt.Implies(p, smt.And(p, q)), timeout=10)
+    false_lemma = kd.prove(smt.Implies(p, smt.And(p, q)), timeout=10)
     print("This will not be reached")
 except kd.kernel.LemmaError as e:
     pass
 
 # Z3 also supports things like Reals, Ints, BitVectors and strings
 x = smt.Real("x")
-real_trich = kd.lemma(smt.ForAll([x], smt.Or(x < 0, x == 0, 0 < x)))
+real_trich = kd.prove(smt.ForAll([x], smt.Or(x < 0, x == 0, 0 < x)))
 
 x = smt.BitVec("x", 32)
-or_idem = kd.lemma(smt.ForAll([x], x | x == x))
+or_idem = kd.prove(smt.ForAll([x], x | x == x))
 
 ###################################################################
 ###################################################################
@@ -76,11 +76,11 @@ add = kd.define("add", [n,m],
 kd.notation.add.register(Nat, add)
 
 # The definitional lemma is not available to the solver unless you give it
-add_zero_x = kd.lemma(smt.ForAll([n], Nat.Zero + n == n), by=[add.defn])
-add_succ_x = kd.lemma(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=[add.defn])
+add_zero_x = kd.prove(smt.ForAll([n], Nat.Zero + n == n), by=[add.defn])
+add_succ_x = kd.prove(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=[add.defn])
 
 # More involved proofs can be more easily done in an interactive tactic
-# Under the hood, this boils down to calls to kd.lemma
+# Under the hood, this boils down to calls to kd.prove
 # These proofs are best understood by seeing the interactive output in a Jupyter notebook
 l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
 

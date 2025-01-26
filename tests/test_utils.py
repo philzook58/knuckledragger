@@ -158,7 +158,7 @@ def test_rewrite():
     assert rewrite.rewrite(t, [succ_0_rule]).eq(y)
     assert rewrite.rewrite_star(t, [succ_0_rule]).eq(y)
 
-    succ_0 = kd.lemma(succ_0)
+    succ_0 = kd.prove(succ_0)
     assert kd.tactics.simp(t, by=[succ_0]).thm.eq(t == y)
 
 

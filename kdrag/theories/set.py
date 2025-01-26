@@ -44,21 +44,21 @@ def Set(T):
 
     # https://en.wikipedia.org/wiki/List_of_set_identities_and_relations
 
-    S.union_comm = kd.lemma(smt.ForAll([A, B], A | B == B | A))
-    S.union_assoc = kd.lemma(smt.ForAll([A, B, C], (A | B) | C == A | (B | C)))
-    S.union_empty = kd.lemma(smt.ForAll([A], A | S.empty == A))
-    S.union_full = kd.lemma(smt.ForAll([A], A | S.full == S.full))
-    S.union_self = kd.lemma(smt.ForAll([A], A | A == A))
+    S.union_comm = kd.prove(smt.ForAll([A, B], A | B == B | A))
+    S.union_assoc = kd.prove(smt.ForAll([A, B, C], (A | B) | C == A | (B | C)))
+    S.union_empty = kd.prove(smt.ForAll([A], A | S.empty == A))
+    S.union_full = kd.prove(smt.ForAll([A], A | S.full == S.full))
+    S.union_self = kd.prove(smt.ForAll([A], A | A == A))
 
-    S.inter_comm = kd.lemma(smt.ForAll([A, B], A & B == B & A))
-    S.inter_assoc = kd.lemma(smt.ForAll([A, B, C], (A & B) & C == A & (B & C)))
-    S.inter_empty = kd.lemma(smt.ForAll([A], A & S.empty == S.empty))
-    S.inter_full = kd.lemma(smt.ForAll([A], A & S.full == A))
-    S.inter_self = kd.lemma(smt.ForAll([A], A & A == A))
+    S.inter_comm = kd.prove(smt.ForAll([A, B], A & B == B & A))
+    S.inter_assoc = kd.prove(smt.ForAll([A, B, C], (A & B) & C == A & (B & C)))
+    S.inter_empty = kd.prove(smt.ForAll([A], A & S.empty == S.empty))
+    S.inter_full = kd.prove(smt.ForAll([A], A & S.full == A))
+    S.inter_self = kd.prove(smt.ForAll([A], A & A == A))
 
-    S.diff_empty = kd.lemma(smt.ForAll([A], A - S.empty == A))
-    S.diff_full = kd.lemma(smt.ForAll([A], A - S.full == S.empty))
-    S.diff_self = kd.lemma(smt.ForAll([A], A - A == S.empty))
+    S.diff_empty = kd.prove(smt.ForAll([A], A - S.empty == A))
+    S.diff_full = kd.prove(smt.ForAll([A], A - S.full == S.empty))
+    S.diff_self = kd.prove(smt.ForAll([A], A - A == S.empty))
 
     return S
 
@@ -76,7 +76,7 @@ def diff(A: smt.ArrayRef, B: smt.ArrayRef) -> smt.ArrayRef:
     Set difference.
     >>> IntSet = Set(smt.IntSort())
     >>> A = smt.Const("A", IntSet)
-    >>> kd.lemma(diff(A, A) == IntSet.empty)
+    >>> kd.prove(diff(A, A) == IntSet.empty)
     |- setminus(A, A) == K(Int, False)
     """
     return smt.SetDifference(A, B)
@@ -86,11 +86,11 @@ def subset(A: smt.ArrayRef, B: smt.ArrayRef) -> smt.BoolRef:
     """
     >>> IntSet = Set(smt.IntSort())
     >>> A = smt.Const("A", IntSet)
-    >>> kd.lemma(subset(IntSet.empty, A))
+    >>> kd.prove(subset(IntSet.empty, A))
     |- subset(K(Int, False), A)
-    >>> kd.lemma(subset(A, A))
+    >>> kd.prove(subset(A, A))
     |- subset(A, A)
-    >>> kd.lemma(subset(A, IntSet.full))
+    >>> kd.prove(subset(A, IntSet.full))
     |- subset(A, K(Int, True))
     """
     return smt.IsSubset(A, B)
@@ -116,7 +116,7 @@ def has_size(A: smt.ArrayRef, n: smt.ArithRef) -> smt.BoolRef:
     #>>> n = smt.Int("n")
     #>>> has_size(A, n)
     #SetHasSize(A, n)
-    #>>> kd.lemma(has_size(IntSet.empty, 0))
+    #>>> kd.prove(has_size(IntSet.empty, 0))
     #|- SetHasSize(empty, 0)
     
     return smt.SetHasSize(A, n)

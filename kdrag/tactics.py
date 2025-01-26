@@ -48,7 +48,7 @@ class Calc:
         self.lhs = lhs
         self.iterm = lhs  # intermediate term
         self.assume = assume
-        self.lemma = kd.kernel.lemma(self._forall(smt.Eq(lhs, lhs)))
+        self.lemma = kd.kernel.prove(self._forall(smt.Eq(lhs, lhs)))
         self.mode = self._Mode.EQ
 
     def _forall(
@@ -65,8 +65,8 @@ class Calc:
 
     def _lemma(self, rhs, by, **kwargs):
         op = self.mode.op
-        l = kd.lemma(self._forall(op(self.iterm, rhs)), by=by, **kwargs)
-        self.lemma = kd.kernel.lemma(
+        l = kd.prove(self._forall(op(self.iterm, rhs)), by=by, **kwargs)
+        self.lemma = kd.kernel.prove(
             self._forall(op(self.lhs, rhs)), by=[l, self.lemma], **kwargs
         )
         self.iterm = rhs
@@ -112,7 +112,7 @@ class Calc:
 simps = {}
 
 
-def lemma(
+def prove(
     thm: smt.BoolRef,
     by: kd.kernel.Proof | Sequence[kd.kernel.Proof] = [],
     admit=False,
@@ -135,17 +135,17 @@ def lemma(
     Returns:
         Proof: A proof object of thm
 
-    >>> lemma(smt.BoolVal(True))
+    >>> prove(smt.BoolVal(True))
     |- True
 
-    >>> lemma(smt.RealVal(1) >= smt.RealVal(0))
+    >>> prove(smt.RealVal(1) >= smt.RealVal(0))
     |- 1 >= 0
 
     """
     if isinstance(by, kd.Proof):
         by = [by]
     if admit:
-        return kd.kernel.lemma(thm, by, admit=True)
+        return kd.kernel.prove(thm, by, admit=True)
     else:
         if solver is None:
             solver = config.solver
@@ -187,7 +187,7 @@ def lemma(
         if res != smt.unsat:
             if res == smt.sat:
                 raise kd.kernel.LemmaError(thm, by, "Countermodel", s.model())
-            raise kd.kernel.LemmaError("lemma", thm, by, res)
+            raise kd.kernel.LemmaError("prove", thm, by, res)
         else:
             core = s.unsat_core()
             if smt.Bool("knuckledragger_goal") not in core:
@@ -198,7 +198,7 @@ def lemma(
                 )
             if dump and len(core) < len(by) + 1:
                 print("WARNING: Unneeded assumptions. Used", core, thm)
-            return kd.kernel.lemma(
+            return kd.kernel.prove(
                 thm, by, admit=admit, timeout=timeout, dump=dump, solver=solver
             )
 
@@ -206,7 +206,7 @@ def lemma(
 def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.Proof:
     rules = [kd.rewrite.rule_of_theorem(lem.thm) for lem in by]
     t1 = kd.rewrite.rewrite(t, rules)
-    return lemma(smt.Eq(t, t1), by=by, **kwargs)
+    return prove(smt.Eq(t, t1), by=by, **kwargs)
 
 
 class Goal(NamedTuple):
@@ -440,7 +440,7 @@ class Lemma:
             newgoal = smt.simplify(oldgoal)
             if newgoal.eq(oldgoal):
                 raise ValueError("Simplify failed. Goal is already simplified.")
-            self.lemmas.append(kd.kernel.lemma(oldgoal == newgoal))
+            self.lemmas.append(kd.kernel.prove(oldgoal == newgoal))
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
@@ -448,7 +448,7 @@ class Lemma:
             new = smt.simplify(old)
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
-            self.lemmas.append(kd.kernel.lemma(old == new))
+            self.lemmas.append(kd.kernel.prove(old == new))
             self.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
@@ -495,11 +495,11 @@ class Lemma:
 
     def auto(self, **kwargs):
         """
-        `auto` discharges a goal using z3. It forwards all parameters to `kd.lemma`
+        `auto` discharges a goal using z3. It forwards all parameters to `kd.prove`
         """
         goalctx = self.goals[-1]
         ctx, goal = goalctx.ctx, goalctx.goal
-        self.lemmas.append(lemma(smt.Implies(smt.And(ctx), goal), **kwargs))
+        self.lemmas.append(prove(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.goals.pop()
         return self.top_goal()
 
@@ -568,7 +568,7 @@ class Lemma:
                 x = smt.FreshConst(ext_ind.sort())
                 newgoal = smt.Eq(lhs[x], rhs[x])
                 self.lemmas.append(
-                    kd.kernel.lemma(
+                    kd.kernel.prove(
                         smt.Implies(x == ext_ind, smt.Eq(lhs, rhs) == newgoal)
                     )
                 )
@@ -789,7 +789,7 @@ class Lemma:
         ctxgoal = self.top_goal()
         if smt.is_eq(ctxgoal.goal):
             self.lemmas.append(
-                kd.kernel.lemma(
+                kd.kernel.prove(
                     smt.Implies(smt.And(ctxgoal.ctx), ctxgoal.goal.arg(1) == rhs),
                     **kwargs,
                 )
@@ -805,7 +805,7 @@ class Lemma:
         """
         goalctx = self.top_goal()
         self.lemmas.append(
-            kd.lemma(
+            kd.prove(
                 smt.Implies(smt.And(goalctx.ctx + [newgoal]), goalctx.goal), **kwargs
             )
         )
@@ -953,7 +953,7 @@ class Lemma:
         """
         goalctx = self.goals.pop()
         self.lemmas.append(
-            kd.kernel.lemma(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
+            kd.kernel.prove(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
         )
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
         return self.top_goal()
@@ -968,7 +968,7 @@ class Lemma:
         |- False
         """
         goalctx = self.goals.pop()
-        self.lemmas.append(kd.kernel.lemma(goalctx.goal, admit=True))
+        self.lemmas.append(kd.kernel.prove(goalctx.goal, admit=True))
         return self.top_goal()
 
     # TODO
@@ -996,4 +996,4 @@ class Lemma:
             kwargs["by"].extend(self.lemmas)
         else:
             kwargs["by"] = self.lemmas
-        return kd.kernel.lemma(self.thm, **kwargs)
+        return kd.kernel.prove(self.thm, **kwargs)

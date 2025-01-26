@@ -101,7 +101,7 @@ def simp(e: smt.ExprRef, trace=None, max_iter=None) -> smt.ExprRef:
             return e1
         else:
             if trace is not None:
-                trace.append(kd.kernel.lemma(smt.Eq(e, e1)))
+                trace.append(kd.kernel.prove(smt.Eq(e, e1)))
             e = e1
 
 

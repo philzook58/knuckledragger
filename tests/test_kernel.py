@@ -21,19 +21,19 @@ import kdrag.utils as utils
 
 
 def test_true_infer():
-    kd.lemma(smt.BoolVal(True))
+    kd.prove(smt.BoolVal(True))
 
 
 def test_false_infer():
     with pytest.raises(Exception) as _:
-        kd.kernel.lemma(smt.BoolVal(False))
+        kd.kernel.prove(smt.BoolVal(False))
 
 
 
 def test_explosion():
     a = kd.axiom(smt.BoolVal(False), "False axiom")
     with pytest.raises(Exception) as _:
-        kd.lemma(smt.BoolVal(True), by=[a])
+        kd.prove(smt.BoolVal(True), by=[a])
 
 
 def test_calc():
@@ -48,13 +48,13 @@ def test_skolem():
     z = smt.Real("z")
 
     thm = smt.Exists([x, y, z], smt.And(x == x, y == y, z == z))
-    pf = kd.kernel.lemma(thm)
+    pf = kd.kernel.prove(thm)
     vs, pf1 = kd.kernel.skolem(pf)
     print(vs, pf1)
     assert smt.Exists(vs, pf1.thm).body().eq(thm.body())
 
     thm = smt.ForAll([x, y, z], smt.And(x == x, y == y, z == z))
-    pf = kd.kernel.lemma(thm)
+    pf = kd.kernel.prove(thm)
     assert kd.kernel.instan(
         [smt.IntVal(3), smt.IntVal(4), smt.RealVal(5)], pf
     ).thm == smt.And(
@@ -211,7 +211,7 @@ def test_Lemma():
     even = kd.define("even", [x], smt.Exists([y], x == 2 * y))
     odd = kd.define("odd", [x], smt.Exists([y], x == 2 * y + 1))
 
-    evdef2 = kd.kernel.lemma(
+    evdef2 = kd.kernel.prove(
         smt.ForAll([x], even(x) == smt.Exists([y], x == 2 * y)), by=[even.defn]
     )
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
@@ -223,7 +223,7 @@ def test_Lemma():
     l.exists(y1 + 1)
     l.auto()
     l.qed()
-    # kd.kernel.lemma(kd.QForAll([x], even(x), even(x+2)), by=[even.defn])
+    # kd.kernel.prove(kd.QForAll([x], even(x), even(x+2)), by=[even.defn])
     # l.exists(y1 + 1)
     # evdef2.thm.body()
 
@@ -247,7 +247,7 @@ def test_Lemma():
     x, y = smt.Consts("x y", IntList)
     z = smt.Int("z")
 
-    l = kd.lemma(
+    l = kd.prove(
         smt.ForAll(
             [x], smt.Or(x == IntList.nil, smt.Exists([y, z], x == IntList.cons(z, y)))
         )
@@ -280,7 +280,7 @@ def test_pred():
         ("div2", kd.Z),
         pred=lambda x: 2 * x.div2 == x.val,
     )
-    kd.lemma(Even(0, 0).wf())
+    kd.prove(Even(0, 0).wf())
 
 
 def test_induct():
