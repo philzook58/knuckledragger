@@ -11,7 +11,7 @@ calculus, equational reasoning, and numerical bounds.
 from . import smt
 from . import kernel
 from . import notation
-from . import utils as utils
+from . import utils
 from . import datatype
 from . import rewrite
 from . import tactics
@@ -60,6 +60,8 @@ Lemma = tactics.Lemma
 
 simp = rewrite.simp
 
+search = utils.search
+
 # TODO: Remove this
 R = smt.RealSort()
 Z = smt.IntSort()
@@ -84,4 +86,5 @@ __all__ = [
     "RSeq",
     "RFun",
     "simp",
+    "search",
 ]

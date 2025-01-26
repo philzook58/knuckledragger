@@ -143,6 +143,14 @@ le = SortDispatch(name="le")
 """Sort based dispatch for `<=` syntax"""
 smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore
 
+ge = SortDispatch(name="ge")
+"""Sort based dispatch for `>=` syntax"""
+smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore
+
+gt = SortDispatch(name="gt")
+"""Sort based dispatch for `>` syntax"""
+smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore
+
 
 wf = SortDispatch(name="wf")
 """`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists."""
