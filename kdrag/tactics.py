@@ -142,7 +142,7 @@ def lemma(
     |- 1 >= 0
 
     """
-    if not isinstance(by, Iterable):
+    if isinstance(by, kd.Proof):
         by = [by]
     if admit:
         return kd.kernel.lemma(thm, by, admit=True)

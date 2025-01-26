@@ -13,7 +13,12 @@ logger = logging.getLogger("knuckledragger")
 
 
 @dataclass(frozen=True)
-class Proof(smt.Z3PPObject):
+class Proof:
+    """
+    It is unlikely that users should be accessing the `Proof` constructor directly.
+    This is not ironclad. If you really want the Proof constructor, I can't stop you.
+    """
+
     thm: smt.BoolRef
     reason: list[Any]
     admit: bool = False
@@ -37,14 +42,25 @@ class Proof(smt.Z3PPObject):
         return instan(args, self)
 
 
-# It is unlikely that users should be accessing the `Proof` constructor directly.
-# This is not ironclad. If you really want the Proof constructor, I can't stop you.
-__Proof = Proof
-Proof = None  # type: ignore
+"""
+Proof_new = Proof.__new__
+
+def sin_check(cls, thm, reason, admit=False, i_am_a_sinner=False):
+    if admit and not config.admit_enabled:
+        raise ValueError(
+            thm, "was called with admit=True but config.admit_enabled=False"
+        )
+    if not i_am_a_sinner:
+        raise ValueError("Proof is private. Use `kd.lemma` or `kd.axiom`")
+    return Proof_new(cls, thm, list(reason), admit)
 
 
-def is_proof(p: __Proof) -> bool:
-    return isinstance(p, __Proof)
+Proof.__new__ = sin_check
+"""
+
+
+def is_proof(p: Proof) -> bool:
+    return isinstance(p, Proof)
 
 
 class LemmaError(Exception):
@@ -58,7 +74,7 @@ def lemma(
     timeout=1000,
     dump=False,
     solver=None,
-) -> __Proof:
+) -> Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
     In essence `prove(Implies(by, thm))`.
@@ -79,7 +95,7 @@ def lemma(
     """
     if admit:
         logger.warning("Admitting lemma {}".format(thm))
-        return __Proof(thm, list(by), admit=True)
+        return Proof(thm, list(by), admit=True)
     else:
         if solver is None:
             s = config.solver()  # type: ignore
@@ -87,7 +103,7 @@ def lemma(
             s = solver()
         s.set("timeout", timeout)
         for p in by:
-            if not isinstance(p, __Proof):
+            if not isinstance(p, Proof):
                 raise LemmaError("In by reasons:", p, "is not a Proof object")
             s.add(p.thm)
         s.add(smt.Not(thm))
@@ -99,10 +115,10 @@ def lemma(
                 raise LemmaError(thm, "Countermodel", s.model())
             raise LemmaError("lemma", thm, res)
         else:
-            return __Proof(thm, list(by), False)
+            return Proof(thm, list(by), False)
 
 
-def axiom(thm: smt.BoolRef, by=["axiom"]) -> __Proof:
+def axiom(thm: smt.BoolRef, by=["axiom"]) -> Proof:
     """Assert an axiom.
 
     Axioms are necessary and useful. But you must use great care.
@@ -111,7 +127,7 @@ def axiom(thm: smt.BoolRef, by=["axiom"]) -> __Proof:
         thm: The axiom to assert.
         by: A python object explaining why the axiom should exist. Often a string explaining the axiom.
     """
-    return __Proof(thm, by)
+    return Proof(thm, by)
 
 
 @dataclass(frozen=True)
@@ -164,7 +180,7 @@ def define(
         defn: The definition of the term.
 
     Returns:
-        tuple[smt.FuncDeclRef, __Proof]: A tuple of the defined term and the proof of the definition.
+        tuple[smt.FuncDeclRef, Proof]: A tuple of the defined term and the proof of the definition.
     """
     sorts = [arg.sort() for arg in args] + [body.sort()]
     f = smt.Function(name, *sorts)
@@ -243,7 +259,7 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
         and len(ts) == pf.thm.num_vars()
     )
 
-    return __Proof(smt.substitute_vars(pf.thm.body(), *reversed(ts)), reason=[pf])
+    return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), [pf])
 
 
 def instan2(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
@@ -258,9 +274,9 @@ def instan2(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
         and len(ts) == thm.num_vars()
     )
 
-    return __Proof(
+    return axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
-        reason=["forall_elim"],
+        ["forall_elim"],
     )
 
 
@@ -269,9 +285,10 @@ def forget(ts: Iterable[smt.ExprRef], pf: Proof) -> Proof:
     "Forget" a term using existentials. This is existential introduction.
     This could be derived from forget2
     """
+    # Hmm. I seem to have rarely been using this
     assert is_proof(pf)
     vs = [smt.FreshConst(t.sort()) for t in ts]
-    return __Proof(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), reason=[pf])
+    return axiom(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), ["forget", pf])
 
 
 def forget2(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
@@ -283,9 +300,9 @@ def forget2(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     https://en.wikipedia.org/wiki/Existential_generalization
     """
     assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
-    return __Proof(
+    return axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
-        reason=["exists_intro"],
+        ["exists_intro"],
     )
 
 
@@ -299,9 +316,9 @@ def einstan(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     assert smt.is_quantifier(thm) and thm.is_exists()
 
     skolems = fresh_const(thm)
-    return skolems, __Proof(
+    return skolems, axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
-        reason=["einstan"],
+        ["einstan"],
     )
 
 
@@ -313,8 +330,8 @@ def skolem(pf: Proof) -> tuple[list[smt.ExprRef], Proof]:
     assert is_proof(pf) and isinstance(pf.thm, smt.QuantifierRef) and pf.thm.is_exists()
 
     skolems = fresh_const(pf.thm)
-    return skolems, __Proof(
-        smt.substitute_vars(pf.thm.body(), *reversed(skolems)), reason=[pf]
+    return skolems, axiom(
+        smt.substitute_vars(pf.thm.body(), *reversed(skolems)), ["skolem", pf]
     )
 
 
@@ -326,9 +343,9 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     """
     assert smt.is_quantifier(thm) and thm.is_forall()
     herbs = fresh_const(thm)
-    return herbs, __Proof(
+    return herbs, axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
-        reason=["herband"],
+        ["herband"],
     )
 
 
