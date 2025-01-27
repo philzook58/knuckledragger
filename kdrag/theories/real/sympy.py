@@ -158,7 +158,7 @@ collect = wrap_sympy(sympy.collect)
 sympy_env = {**sympy.__dict__, **sympy.abc.__dict__}
 
 
-def sympify(e: smt.ExprRef, locals={}) -> sympy.Expr:
+def sympify(e: smt.ExprRef, locals={}) -> sympy.Expr:  # type: ignore
     """
     Convert a z3 expression into a sympy expression.
     >>> x = smt.Real("x")
@@ -167,7 +167,7 @@ def sympify(e: smt.ExprRef, locals={}) -> sympy.Expr:
     >>> sympify(smt.RatVal(1,3))
     Fraction(1, 3)
     """
-    return kd.reflect.eval_(e, sympy_env, locals={})
+    return kdrag.reflect.eval_(e, sympy_env, locals={})
 
 
 def replace_rational_with_ratval(expr):
@@ -184,9 +184,9 @@ def replace_rational_with_ratval(expr):
         # elif (float(expr) - expr).is_zero: # Doesn't seem to work
         #    return expr
         else:
-            return sympy.Function("RatVal")(expr.p, expr.q)
+            return sympy.Function("RatVal")(expr.p, expr.q)  # type: ignore
     elif isinstance(expr, sympy.Order):
-        return sympy.Function("Order")(expr.expr)  # , expr.point)
+        return sympy.Function("Order")(expr.expr)  # , expr.point) # type: ignore
     elif expr.is_Atom:
         return expr
     else:
@@ -207,12 +207,12 @@ def kdify(e: sympy.Expr, **kwargs) -> smt.ExprRef:
     >>> kdify(sympify(x/3))
     x*1/3
     """
-    if isinstance(e, sympy.Basic):
+    if isinstance(e, sympy.Basic):  # type: ignore
         svs = list(e.free_symbols)
     else:
         svs = []
-    vs = [smt.Real(v.name) for v in svs]
-    return sympy.lambdify(
+    vs = [smt.Real(v.name) for v in svs]  # type: ignore
+    return sympy.lambdify(  # type: ignore
         svs,
         replace_rational_with_ratval(e),
         modules=[
@@ -243,7 +243,7 @@ def factor(e: smt.ExprRef) -> smt.ExprRef:
     >>> factor(x**2 + 2*x + 1)
     (x + 1)**2
     """
-    return kdify(sympy.factor(sympify(e)))
+    return kdify(sympy.factor(sympify(e)))  # type: ignore
 
 
 def simplify(e: smt.ExprRef) -> smt.ExprRef:
@@ -283,7 +283,7 @@ def diff(e: smt.ExprRef, *args):
     >>> diff(x*y*x, x)
     2*x*y
     """
-    return kdify(sympy.diff(sympify(e), *translate_tuple_args(args)))
+    return kdify(sympy.diff(sympify(e), *translate_tuple_args(args)))  # type: ignore
 
 
 def integrate(e, *args):
@@ -293,7 +293,7 @@ def integrate(e, *args):
     >>> integrate(x**2, x)
     x**3*1/3
     """
-    return kdify(sympy.integrate(sympify(e), translate_tuple_args(args)))
+    return kdify(sympy.integrate(sympify(e), translate_tuple_args(args)))  # type: ignore
 
 
 def summation(e, *args):
@@ -305,7 +305,7 @@ def summation(e, *args):
     >>> summation(x, (x, 0, n))
     n**2*1/2 + n*1/2
     """
-    return kdify(sympy.summation(sympify(e), *translate_tuple_args(args)))
+    return kdify(sympy.summation(sympify(e), *translate_tuple_args(args)))  # type: ignore
 
 
 def series(e, x=None, x0=0, n=6, dir="+"):
@@ -316,7 +316,7 @@ def series(e, x=None, x0=0, n=6, dir="+"):
     x + Order(x**2)
     """
     if x is not None:
-        x = sympy.symbols(x.decl().name())
+        x = sympy.symbols(x.decl().name())  # type: ignore
     return kdify(sympy.series(sympify(e), x, x0, n, dir))
 
 
@@ -327,5 +327,5 @@ def limit(e, x, x0):
     >>> limit(1/x, x, 0)
     oo
     """
-    x = sympy.symbols(x.decl().name())
+    x = sympy.symbols(x.decl().name())  # type: ignore
     return kdify(sympy.limit(sympify(e), x, x0))
