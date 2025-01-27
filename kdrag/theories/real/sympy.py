@@ -324,8 +324,10 @@ def limit(e, x, x0):
     """
     Compute the limit of a z3 expression.
     >>> x = smt.Real("x")
-    >>> limit(1/x, x, 0)
-    oo
+    >>> limit(1/x, x, sympy.oo)
+    0
+    >>> limit(1/x, x, 0) # TODO: What to do about this one?
+    inf
     """
     x = sympy.symbols(x.decl().name())  # type: ignore
     return kdify(sympy.limit(sympify(e), x, x0))

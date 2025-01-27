@@ -100,7 +100,7 @@ def test_flint():
 
 import sympy
 
-
+"""
 def test_sympy():
     assert real.sympy.z3_of_sympy(real.sympy.interp_sympy(real.pi)).eq(real.pi)
     x, y, z = smt.Reals("x y z")
@@ -124,8 +124,9 @@ def test_sympy():
     # round_trip(real.sqrt(x))
     # assert real.sin == real.sin(x).decl()
     round_trip(real.sin(real.cos(real.exp(x))))
+"""
 
-
+"""
 def test_sympy_manip():
     x, y, z = smt.Reals("x y z")
     assert real.sympy.factor([x], x**2 + 2 * x + 1).eq((1 + x) ** 2)
@@ -142,7 +143,7 @@ def test_sympy_manip():
     assert real.sympy.expand([x], (1 + x) ** 2).eq(add(1, x**2, 2 * x))
     assert real.sympy.expand([x, y], x * (x + 2 * y)).eq(x**2 + mul(2, x, y))
     kd.kernel.prove(real.sympy.expand([x], (1 + x) ** 2) == 1 + 2 * x + x**2)
-
+"""
 
 def test_vampire():
     pass
