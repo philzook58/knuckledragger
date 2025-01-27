@@ -392,3 +392,104 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
 
     dt.create = create
     return dt
+
+
+def inj_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
+    """
+    Injectivity lemmas for a datatype. Z3 internally understands these, but can be useful to be explicit about them in some situations
+
+    >>> import kdrag.theories.nat as nat
+    >>> inj_lemmas(nat.Nat)[0]
+    |- ForAll([x!..., y!...],
+           (S(x!...) == S(y!...)) == And(x!... == y!...))
+    """
+    pfs = []
+    for i in range(dt.num_constructors()):
+        cons = dt.constructor(i)
+        if cons.arity() > 0:
+            xs = [
+                smt.FreshConst(cons.domain(j), prefix="x") for j in range(cons.arity())
+            ]
+            ys = [
+                smt.FreshConst(cons.domain(j), prefix="y") for j in range(cons.arity())
+            ]
+            pfs.append(
+                kd.kernel.prove(
+                    smt.ForAll(
+                        xs + ys,
+                        (cons(*xs) == cons(*ys))
+                        == smt.And([x == y for x, y in zip(xs, ys)]),
+                    )
+                )
+            )
+    return pfs
+
+
+def recognizer_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
+    """
+
+    >>> import kdrag.theories.nat as nat
+    >>> recognizer_lemmas(nat.Nat)[0]
+    |- is(Z, Z) == True
+    """
+    pfs = []
+    for i in range(dt.num_constructors()):
+        recog = dt.recognizer(i)
+        for i1 in range(dt.num_constructors()):
+            cons = dt.constructor(i1)
+            if cons.arity() > 0:
+                xs = [
+                    smt.FreshConst(cons.domain(j), prefix="x")
+                    for j in range(cons.arity())
+                ]
+                pfs.append(
+                    kd.kernel.prove(smt.ForAll(xs, (recog(cons(*xs)) == (i == i1))))
+                )
+            else:
+                pfs.append(kd.kernel.prove(recog(cons()) == (i1 == i)))
+    return pfs
+
+
+def distinct_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
+    """
+    Constructors are distinct lemmas.
+
+    >>> import kdrag.theories.nat as nat
+    >>> distinct_lemmas(nat.Nat)[0]
+    |- ForAll(x!..., S(x!...) != Z)
+    """
+    pfs = []
+    for i in range(dt.num_constructors()):
+        cons = dt.constructor(i)
+        xs = [smt.FreshConst(cons.domain(j), prefix="x") for j in range(cons.arity())]
+        for i1 in range(i):
+            cons1 = dt.constructor(i1)
+            if cons.arity() > 0:
+                xs1 = [
+                    smt.FreshConst(cons1.domain(j), prefix="y")
+                    for j in range(cons1.arity())
+                ]
+                pfs.append(
+                    kd.kernel.prove(smt.ForAll(xs + xs1, cons(*xs) != cons1(*xs1)))
+                )
+            else:
+                pfs.append(kd.kernel.prove(cons() != cons1()))
+    return pfs
+
+
+def accessor_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
+    """
+    Accessor lemmas for a datatype.
+
+    >>> import kdrag.theories.nat as nat
+    >>> accessor_lemmas(nat.Nat)[0]
+    |- ForAll(x!..., pred(S(x!...)) == x!...)
+    """
+    pfs = []
+    for i in range(dt.num_constructors()):
+        cons = dt.constructor(i)
+        xs = [smt.FreshConst(cons.domain(k), prefix="x") for k in range(cons.arity())]
+        for j in range(cons.arity()):
+            acc = dt.accessor(i, j)
+            pfs.append(kd.kernel.prove(smt.ForAll(xs, acc(cons(*xs)) == xs[j])))
+    return pfs

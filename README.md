@@ -83,20 +83,21 @@ add_succ_x = kd.prove(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=
 # Under the hood, this boils down to calls to kd.prove
 # These proofs are best understood by seeing the interactive output in a Jupyter notebook
 l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
+# Output: [] ?|- ForAll(n, add(n, Zero) == n)
 
-# [] ?|- ForAll(n, add(n, Zero) == n)
 _n = l.fix()            
+# Output: [] ?|- add(n!0, Zero) == n!2213
 
-# [] ?|- add(n!0, Zero) == n!2213
 l.induct(_n)              
+# Output: [] ?|- add(Zero, Zero) == Zero
 
-# Case n!0 == Nat.Zero
-# [] ?|- add(Zero, Zero) == Zero
+# Base case
 l.auto(by=[add.defn])
+# Output: [] ?|- ForAll(a!0, Implies(add(a!0, Zero) == a!0, add(Succ(a!0), Zero) == Succ(a!0)))
 
-# Case n!0 == Nat.Succ(n.pred)
-# [] ?|- ForAll(a!0, Implies(add(a!0, Zero) == a!0, add(Succ(a!0), Zero) == Succ(a!0)))
+# Inductive case
 l.auto(by=[add.defn])
+# Output: Nothing to do!
 
 # Finally the actual Proof is built
 add_x_zero = l.qed()
@@ -158,10 +159,10 @@ For more on interactive theorem proving (This is a lot to take in)
 
 ## Comparison to Other Systems
 
-- [Z3](https://github.com/Z3Prover/z3): Superset of the capabilities of Z3 since it is built on top of it. Enables rigorous chaining of Z3 calls. Better facilities for higher order and quantifier reasoning.
+- [Z3](https://github.com/Z3Prover/z3): Knuckledragger has a superset of the capabilities of Z3 since it is built on top of it. Enables rigorous chaining of Z3 calls. Better facilities for higher order and quantifier reasoning.
 - [sympy](https://www.sympy.org/) and sage: More manual manipulation is to be expected, but also more logically sound. Everything is integrated in a cohesive fabric of first order logic.
 - Lean and Coq: No dependent types, larger trusted code base, a higher baseline of automation.
-- [Isabelle](https://isabelle.in.tum.de/) and [HOLpy](https://gitee.com/bhzhan/holpy): Similar in many respects. Lack of parametric types. Weaker higher order reasoning. Knuckledragger is a library, not a framework. Heavy reuse of already existing python things whenever possible (Jupyter, z3py, sympy, python idioms). Seamlessly integrated with z3py.
+- [Isabelle](https://isabelle.in.tum.de/) and [HOLpy](https://gitee.com/bhzhan/holpy): Knuckledragger is similar in many respects to the systems. It has a lack of parametric types and weaker higher order reasoning. Knuckledragger is a library, not a framework. Heavy reuse of already existing python things is preferred whenever possible (Jupyter, z3py, sympy, python idioms). It is seamlessly integrated with z3py.
 
 ## Design
 
@@ -184,8 +185,6 @@ The de Bruijn criterion is going to be bent or broken in certain senses. Attenti
 Isabelle and ACL2 are the strongest influences. If you want dependent type theory, you are at a level of investment and sophistication that it behooves you to be in another system. Should there be a strong automated DTT solver someday, I will reconsider.
 
 I maintain the right to change my mind about anything.
-
-TODO: A no-install WIP colab tutorial is available [here](http://colab.research.google.com/github/philzook58/knuckledragger/blob/main/tutorial.ipynb)
 
 ## FAQ
 

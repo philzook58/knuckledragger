@@ -109,6 +109,19 @@ class Calc:
         return self.lemma
 
 
+def simp_tac(e: smt.ExprRef) -> kd.kernel.Proof:
+    """
+    Simplify an expression using simp and return the resulting equality as a proof.
+
+    >>> import kdrag.theories.nat as nat
+    >>> simp_tac(nat.Z + nat.S(nat.Z))
+    |- add(Z, S(Z)) == S(Z)
+    """
+    trace = []
+    e1 = kd.simp(e, trace=trace)
+    return kd.kernel.prove(smt.Eq(e, e1), by=trace)
+
+
 simps = {}
 
 
@@ -499,7 +512,7 @@ class Lemma:
         """
         goalctx = self.goals[-1]
         ctx, goal = goalctx.ctx, goalctx.goal
-        self.lemmas.append(prove(smt.Implies(smt.And(ctx), goal), **kwargs))
+        self.lemmas.append(kd.kernel.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.goals.pop()
         return self.top_goal()
 

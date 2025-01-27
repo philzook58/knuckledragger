@@ -1,9 +1,11 @@
 import kdrag.theories.real as real
 import kdrag as kd
+import kdrag.reflect
 import kdrag.smt as smt
 import flint
 import operator as op
 import sympy
+import sympy.abc
 
 arb = flint.arb  # type: ignore
 a, b = smt.Reals("a b")
@@ -75,6 +77,7 @@ def flint_bnd(t: smt.ExprRef, env):
         return kd.axiom(smt.And(mid - rad <= t, t <= mid + rad), by="flint_eval")
 
 
+"""
 a, b = smt.Reals("a b")
 sympy_decls = {
     real.sqrt: sympy.sqrt,
@@ -144,8 +147,185 @@ def wrap_sympy(f):
     return wrapped
 
 
+
 factor = wrap_sympy(sympy.factor)
 expand = wrap_sympy(sympy.expand)
 simplify = wrap_sympy(sympy.simplify)
 expand_trig = wrap_sympy(sympy.expand_trig)
 collect = wrap_sympy(sympy.collect)
+"""
+
+sympy_env = {**sympy.__dict__, **sympy.abc.__dict__}
+
+
+def sympify(e: smt.ExprRef, locals={}) -> sympy.Expr:
+    """
+    Convert a z3 expression into a sympy expression.
+    >>> x = smt.Real("x")
+    >>> sympify(x + 1)
+    x + 1
+    >>> sympify(smt.RatVal(1,3))
+    Fraction(1, 3)
+    """
+    return kd.reflect.eval_(e, sympy_env, locals={})
+
+
+def replace_rational_with_ratval(expr):
+    """
+    Replace all Rational numbers in a SymPy expression with z3.RatVal equivalents.
+
+    >>> x = smt.Real("x")
+    >>> replace_rational_with_ratval(sympify(x + smt.RatVal(1,3)))
+    x + RatVal(1, 3)
+    """
+    if isinstance(expr, sympy.Rational):
+        if expr.q == 1:
+            return expr
+        # elif (float(expr) - expr).is_zero: # Doesn't seem to work
+        #    return expr
+        else:
+            return sympy.Function("RatVal")(expr.p, expr.q)
+    elif isinstance(expr, sympy.Order):
+        return sympy.Function("Order")(expr.expr)  # , expr.point)
+    elif expr.is_Atom:
+        return expr
+    else:
+        args = [replace_rational_with_ratval(arg) for arg in expr.args]
+        return expr.func(*args, evaluate=False)
+
+
+def kdify(e: sympy.Expr, **kwargs) -> smt.ExprRef:
+    """
+    Convert a sympy expression into a z3 expression.
+    >>> x = smt.Real("x")
+    >>> kdify(sympify(x + 1))
+    x + 1
+    >>> kdify(sympify(real.sin(x) + 1))
+    sin[x] + 1
+    >>> kdify(sympify(x + smt.RatVal(1,3)))
+    x + 1/3
+    >>> kdify(sympify(x/3))
+    x*1/3
+    """
+    if isinstance(e, sympy.Basic):
+        svs = list(e.free_symbols)
+    else:
+        svs = []
+    vs = [smt.Real(v.name) for v in svs]
+    return sympy.lambdify(
+        svs,
+        replace_rational_with_ratval(e),
+        modules=[
+            {
+                "RatVal": smt.RatVal,
+                "Order": smt.Function("Order", smt.RealSort(), smt.RealSort()),
+            },
+            real,
+        ],
+        **kwargs,
+    )(*vs)
+
+
+def expand(e: smt.ExprRef) -> smt.ExprRef:
+    """
+    Expand a z3 expression.
+    >>> x = smt.Real("x")
+    >>> expand((x + 1)**2)
+    x**2 + 2*x + 1
+    """
+    return kdify(sympy.expand(sympify(e)))
+
+
+def factor(e: smt.ExprRef) -> smt.ExprRef:
+    """
+    Factor a z3 expression.
+    >>> x = smt.Real("x")
+    >>> factor(x**2 + 2*x + 1)
+    (x + 1)**2
+    """
+    return kdify(sympy.factor(sympify(e)))
+
+
+def simplify(e: smt.ExprRef) -> smt.ExprRef:
+    """
+    Simplify a z3 expression.
+    >>> x = smt.Real("x")
+    >>> simplify((x + 1)**2 - x**2)
+    2*x + 1
+    >>> simplify(real.sin(x)**2 + real.cos(x)**2)
+    1
+    """
+    return kdify(sympy.simplify(sympify(e)))
+
+
+def translate_tuple_args(args):
+    res = []
+    for arg in args:
+        if isinstance(arg, int) or isinstance(arg, str) or isinstance(arg, float):
+            res.append(arg)
+        if isinstance(arg, smt.ExprRef):
+            res.append(sympify(arg))
+        elif isinstance(arg, tuple):
+            res.append(translate_tuple_args(arg))
+    return tuple(res)
+
+
+def diff(e: smt.ExprRef, *args):
+    """
+    Differentiate a z3 expression.
+    >>> x,y = smt.Reals("x y")
+    >>> diff(x**2, x)
+    2*x
+    >>> diff(x**2, x, x)
+    2
+    >>> diff(x*x, (x,2))
+    2
+    >>> diff(x*y*x, x)
+    2*x*y
+    """
+    return kdify(sympy.diff(sympify(e), *translate_tuple_args(args)))
+
+
+def integrate(e, *args):
+    """
+    Integrate a z3 expression.
+    >>> x = smt.Real("x")
+    >>> integrate(x**2, x)
+    x**3*1/3
+    """
+    return kdify(sympy.integrate(sympify(e), translate_tuple_args(args)))
+
+
+def summation(e, *args):
+    """
+    Sum a z3 expression.
+    >>> x,n = smt.Reals("x n")
+    >>> summation(x**2, (x, 0, 10))
+    385
+    >>> summation(x, (x, 0, n))
+    n**2*1/2 + n*1/2
+    """
+    return kdify(sympy.summation(sympify(e), *translate_tuple_args(args)))
+
+
+def series(e, x=None, x0=0, n=6, dir="+"):
+    """
+    Compute the series expansion of a z3 expression.
+    >>> x = smt.Real("x")
+    >>> series(real.sin(x), x, n=2)
+    x + Order(x**2)
+    """
+    if x is not None:
+        x = sympy.symbols(x.decl().name())
+    return kdify(sympy.series(sympify(e), x, x0, n, dir))
+
+
+def limit(e, x, x0):
+    """
+    Compute the limit of a z3 expression.
+    >>> x = smt.Real("x")
+    >>> limit(1/x, x, 0)
+    oo
+    """
+    x = sympy.symbols(x.decl().name())
+    return kdify(sympy.limit(sympify(e), x, x0))

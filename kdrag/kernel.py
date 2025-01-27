@@ -69,7 +69,7 @@ class LemmaError(Exception):
 
 def prove(
     thm: smt.BoolRef,
-    by: Iterable[Proof] = [],
+    by: Proof | Iterable[Proof] = [],
     admit=False,
     timeout=1000,
     dump=False,
@@ -93,6 +93,8 @@ def prove(
     >>> prove(smt.RealVal(1) >= smt.RealVal(0))
     |- 1 >= 0
     """
+    if isinstance(by, Proof):
+        by = [by]
     if admit:
         logger.warning("Admitting lemma {}".format(thm))
         return Proof(thm, list(by), admit=True)

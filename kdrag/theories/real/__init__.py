@@ -55,9 +55,15 @@ mul = kd.define("mul", [x, y], x * y)
 mul_zero = kd.prove(ForAll([x], mul(x, 0) == 0), by=[mul.defn])
 mul_1 = kd.prove(ForAll([x], mul(x, 1) == x), by=[mul.defn])
 mul_comm = kd.prove(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
-mul_assoc = kd.prove(
-    ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)), by=[mul.defn], admit=True
-)
+# mul_assoc = kd.prove(
+#    ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)), by=[mul.defn]
+# )
+_l = kd.Lemma(smt.ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)))
+_x, _y, _z = _l.fixes()
+_l.unfold()
+_l.auto()
+mul_assoc = _l.qed()
+
 mul_distrib = kd.prove(
     ForAll([x, y, z], mul(x, add(y, z)) == add(mul(x, y), mul(x, z))),
     by=[mul.defn, add.defn],
@@ -173,21 +179,30 @@ sqr = kd.define("sqr", [x], x * x)
 
 
 sqrt = kd.define("sqrt", [x], x**0.5)
-_1 = kd.kernel.prove(smt.Implies(x >= 0, x**0.5 >= 0))
-sqrt_pos = kd.prove(kd.QForAll([x], x >= 0, sqrt(x) >= 0), by=[_1], admit=True)
+
+_l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(x) >= 0))
+_ = _l.fix()
+_l.unfold()
+_l.auto()
+sqrt_pos = _l.qed()
+
 sqrt_define = kd.prove(smt.ForAll([x], sqrt(x) == x**0.5), by=[sqrt.defn, pow.defn])
-_1 = kd.kernel.prove(smt.Implies(x >= 0, (x**0.5) ** 2 == x))  # forall messes it up?
-sqrt_square = kd.prove(
-    kd.QForAll([x], x >= 0, sqrt(x) ** 2 == x),
-    by=[sqrt_define, sqrt.defn, _1],
-    admit=True,
-)
+
+_l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(x) ** 2 == x))
+_ = _l.fix()
+_l.unfold()
+_l.auto()
+sqrt_square = _l.qed()
+
 sqr_sqrt = kd.prove(
     kd.QForAll([x], x >= 0, sqr(sqrt(x)) == x), by=[sqrt_square, sqr.defn]
 )
-_1 = kd.kernel.prove(smt.Implies(x >= 0, (x**2) ** 0.5 == x))
-sqrt_sqr = kd.prove(kd.QForAll([x], x >= 0, sqrt(sqr(x)) == x), by=[_1], admit=True)
 
+_l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(sqr(x)) == x))
+_ = _l.fix()
+_l.unfold()
+_l.auto()
+sqrt_sqr = _l.qed()
 
 exp = smt.Const("exp", kd.R >> kd.R)
 exp_add = kd.axiom(smt.ForAll([x, y], exp(x + y) == exp(x) * exp(y)))

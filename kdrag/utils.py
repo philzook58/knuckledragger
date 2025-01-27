@@ -13,7 +13,10 @@ import inspect
 
 
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
-    """Open a quantifier with fresh variables
+    """
+    Open a quantifier with fresh variables. This achieves the locally nameless representation
+    https://chargueraud.org/research/2009/ln/main.pdf
+    where it is harder to go wrong.
 
     >>> x = smt.Int("x")
     >>> open_binder(smt.ForAll([x], x > 0))
@@ -195,6 +198,8 @@ def alpha_eq(t1, t2):
     """
     if t1.eq(t2):  # fast path
         return True
+    # elif (smt.is_ground(t1) or smt.is_ground(t2)) and not t1.eq(t2): TODO: Needs is_ground threaded up from C API to python API.
+    #    return False
     elif smt.is_quantifier(t1):
         if (
             smt.is_quantifier(t2)
@@ -397,9 +402,15 @@ def lemma_db() -> dict[str, kd.kernel.Proof]:
         for name, thm in mod.__dict__.items():
             if is_proof(thm):
                 db[modname + "." + name] = thm
-            if isinstance(thm, smt.FuncDeclRef) and thm in kd.kernel.defns:
-                db[modname + "." + name + ".defn"] = thm.defn
-            # TODO: Scan GenericProof, SortDispatch objects, DatatypeSortRef objects.
+            elif (
+                isinstance(thm, smt.SortRef)
+                or isinstance(thm, smt.FuncDeclRef)
+                or isinstance(thm, smt.ExprRef)
+            ):
+                for name2, thm2 in thm.__dict__.items():
+                    if is_proof(thm2):
+                        db[modname + "." + name + "." + name2] = thm2
+            # TODO: Scan GenericProof, SortDispatch objects, objects.
             # TODO: Not a problem at the moment, but we should cache unchanged modules.
             # TODO: Maybe scan user module specially.
             # TODO: Dedup repeated theorems
