@@ -1,0 +1,6 @@
+kdrag.rewrite.horn\_of\_theorem
+===============================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: horn_of_theorem

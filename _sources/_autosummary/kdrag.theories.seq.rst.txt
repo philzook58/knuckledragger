@@ -1,0 +1,41 @@
+kdrag.theories.seq
+==================
+
+.. automodule:: kdrag.theories.seq
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      induct
+      seq
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Seq
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/seq.py
+   :language: python

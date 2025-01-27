@@ -1,0 +1,33 @@
+kdrag.theories.bitvec
+=====================
+
+.. automodule:: kdrag.theories.bitvec
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BVTheory
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/bitvec.py
+   :language: python

@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.flint\_bnd
+====================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: flint_bnd

@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.real.complex &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.real.interval" href="kdrag.theories.real.interval.html" />
+    <link rel="prev" title="kdrag.theories.real.sqrt_upper" href="kdrag.theories.real.sqrt_upper.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.abstract_arith.html">kdrag.theories.real.abstract_arith</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.rlemma.html">kdrag.theories.real.rlemma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sin_lower.html">kdrag.theories.real.sin_lower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sqrt_bnd.html">kdrag.theories.real.sqrt_bnd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sqrt_lower.html">kdrag.theories.real.sqrt_lower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sqrt_upper.html">kdrag.theories.real.sqrt_upper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.abstract_arith"><code class="docutils literal notranslate"><span class="pre">abstract_arith()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.rlemma"><code class="docutils literal notranslate"><span class="pre">rlemma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sin_lower"><code class="docutils literal notranslate"><span class="pre">sin_lower()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_bnd"><code class="docutils literal notranslate"><span class="pre">sqrt_bnd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_lower"><code class="docutils literal notranslate"><span class="pre">sqrt_lower()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_upper"><code class="docutils literal notranslate"><span class="pre">sqrt_upper()</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">kdrag.theories.real.complex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.interval.html">kdrag.theories.real.interval</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sympy.html">kdrag.theories.real.sympy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.vec.html">kdrag.theories.vec</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.real.complex</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.real.complex.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.real.complex">
+<span id="kdrag-theories-real-complex"></span><h1>kdrag.theories.real.complex<a class="headerlink" href="#module-kdrag.theories.real.complex" title="Link to this heading"></a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.theories.real</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">real</span>
+
+<span class="n">C</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Struct</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;re&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()),</span> <span class="p">(</span><span class="s2">&quot;im&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()))</span>
+
+<span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">z2</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;z w u z1 z2&quot;</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+<span class="n">add</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">z1</span><span class="p">,</span> <span class="n">z2</span><span class="p">],</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">re</span> <span class="o">+</span> <span class="n">z2</span><span class="o">.</span><span class="n">re</span><span class="p">,</span> <span class="n">z1</span><span class="o">.</span><span class="n">im</span> <span class="o">+</span> <span class="n">z2</span><span class="o">.</span><span class="n">im</span><span class="p">))</span>
+<span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+<span class="n">mul</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span>
+    <span class="s2">&quot;mul&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">z1</span><span class="p">,</span> <span class="n">z2</span><span class="p">],</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">re</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">re</span> <span class="o">-</span> <span class="n">z1</span><span class="o">.</span><span class="n">im</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">im</span><span class="p">,</span> <span class="n">z1</span><span class="o">.</span><span class="n">re</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">im</span> <span class="o">+</span> <span class="n">z1</span><span class="o">.</span><span class="n">im</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">re</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">mul</span><span class="p">)</span>
+<span class="n">conj</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;conj&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">z</span><span class="p">],</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">re</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="o">.</span><span class="n">im</span><span class="p">))</span>
+
+
+<span class="n">div</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">define</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">z1</span><span class="p">,</span> <span class="n">z2</span><span class="p">],</span>
+    <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">re</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">re</span> <span class="o">+</span> <span class="n">z1</span><span class="o">.</span><span class="n">im</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">im</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">z2</span><span class="o">.</span><span class="n">re</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z2</span><span class="o">.</span><span class="n">im</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">im</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">re</span> <span class="o">-</span> <span class="n">z1</span><span class="o">.</span><span class="n">re</span> <span class="o">*</span> <span class="n">z2</span><span class="o">.</span><span class="n">im</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">z2</span><span class="o">.</span><span class="n">re</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z2</span><span class="o">.</span><span class="n">im</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">C0</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">C1</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">Ci</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">add_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">z</span> <span class="o">+</span> <span class="n">C0</span> <span class="o">==</span> <span class="n">z</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">mul_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">z</span> <span class="o">*</span> <span class="n">C0</span> <span class="o">==</span> <span class="n">C0</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">mul</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">mul_one</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">z</span> <span class="o">*</span> <span class="n">C1</span> <span class="o">==</span> <span class="n">z</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">mul</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">add_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span> <span class="n">z</span> <span class="o">+</span> <span class="n">w</span> <span class="o">==</span> <span class="n">w</span> <span class="o">+</span> <span class="n">z</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">add_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">u</span><span class="p">],</span> <span class="p">(</span><span class="n">z</span> <span class="o">+</span> <span class="p">(</span><span class="n">w</span> <span class="o">+</span> <span class="n">u</span><span class="p">))</span> <span class="o">==</span> <span class="p">((</span><span class="n">z</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="n">u</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">mul_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span> <span class="n">z</span> <span class="o">*</span> <span class="n">w</span> <span class="o">==</span> <span class="n">w</span> <span class="o">*</span> <span class="n">z</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">mul</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+
+<span class="c1"># unstable perfoamnce.</span>
+<span class="c1"># mul_div = kd.prove(ForAll([z,w], Implies(w != C0, z == z * w / w)), by=[div.defn, mul.defn], timeout=1000)</span>
+<span class="c1">##mul_div = Calc()</span>
+<span class="c1"># div_one = kd.prove(smt.ForAll([z], z / C1 == z), by=[div.defn])</span>
+<span class="c1"># div_inv = kd.prove(</span>
+<span class="c1">#    smt.ForAll([z], smt.Implies(z != C0, z / z == C1)), by=[div.defn], admit=True</span>
+<span class="c1"># )</span>
+
+<span class="c1"># inv = kd.define(&quot;inv&quot;, [z], )</span>
+
+<span class="c1"># conjugate</span>
+<span class="c1"># polar</span>
+<span class="n">norm2</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;norm2&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">z</span><span class="p">],</span> <span class="n">z</span> <span class="o">*</span> <span class="n">conj</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+
+<span class="n">t</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Reals</span><span class="p">(</span><span class="s2">&quot;t s&quot;</span><span class="p">)</span>
+<span class="n">expi</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;expi&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span>
+
+<span class="c1"># expi_mul = kd.prove(</span>
+<span class="c1">#   smt.ForAll([t, s], expi(t) * expi(s) == expi(t + s)),</span>
+<span class="c1">#    by=[expi.defn, mul.defn, real.sin_add, real.cos_add],</span>
+<span class="c1"># )</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">tactics</span><span class="o">.</span><span class="n">Calc</span><span class="p">([</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="n">expi</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">expi</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">))</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">s</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">expi</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span>
+    <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span>
+        <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+        <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">mul</span><span class="o">.</span><span class="n">defn</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">_1</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+<span class="c1"># c.eq(C.C(real.cos(t + s), real.sin(t + s)), by=[real.cos_add, real.sin_add])</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">tactics</span><span class="o">.</span><span class="n">Calc</span><span class="p">([</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">s</span><span class="p">),</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">s</span><span class="p">)))</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">expi</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">s</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">expi</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">expi_mul</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+<span class="n">_2</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+
+<span class="n">_3</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span>
+        <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span>
+            <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">==</span> <span class="n">C</span><span class="o">.</span><span class="n">C</span><span class="p">(</span><span class="n">real</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">s</span><span class="p">),</span> <span class="n">real</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">s</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">real</span><span class="o">.</span><span class="n">cos_add</span><span class="p">,</span> <span class="n">real</span><span class="o">.</span><span class="n">sin_add</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">expi_mul</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="n">expi</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">expi</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="n">expi</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">s</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span><span class="p">],</span> <span class="n">admit</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.real.sqrt_upper.html" class="btn btn-neutral float-left" title="kdrag.theories.real.sqrt_upper" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.real.interval.html" class="btn btn-neutral float-right" title="kdrag.theories.real.interval" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

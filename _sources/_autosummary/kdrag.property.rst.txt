@@ -1,0 +1,33 @@
+kdrag.property
+==============
+
+.. automodule:: kdrag.property
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      GenericProof
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/property.py
+   :language: python

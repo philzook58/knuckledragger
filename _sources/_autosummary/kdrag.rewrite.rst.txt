@@ -1,0 +1,62 @@
+kdrag.rewrite
+=============
+
+.. automodule:: kdrag.rewrite
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      apply
+      decl_index
+      def_eq
+      horn_of_theorem
+      kbo
+      lpo
+      rewrite
+      rewrite1
+      rewrite1_rule
+      rewrite_star
+      rule_of_theorem
+      simp
+      simp1
+      simp2
+      unfold
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Order
+      RewriteRule
+      Rule
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      RewriteRuleException
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/rewrite.py
+   :language: python

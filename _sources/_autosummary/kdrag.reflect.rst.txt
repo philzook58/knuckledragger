@@ -1,0 +1,46 @@
+kdrag.reflect
+=============
+
+.. automodule:: kdrag.reflect
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      eval_
+      infer_sort
+      namedtuple_of_constructor
+      nbe
+      reify
+      sort_of_type
+      type_of_sort
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      KnuckleClosure
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/reflect.py
+   :language: python
