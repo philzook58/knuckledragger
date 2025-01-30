@@ -2,7 +2,6 @@
 The kernel hold core proof datatypes and core inference rules. By and large, all proofs must flow through this module.
 """
 
-from multiprocessing import context
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
