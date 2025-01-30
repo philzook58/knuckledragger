@@ -242,7 +242,9 @@ def datatype_match_(x, *cases, default=None):
     for i, (pat, body) in enumerate(cases):
         constraints, subst = pattern_match(x, pat)
         if len(subst) > 0:
-            body = smt.substitute(body, *[(v, e) for v, e in subst.items()])
+            body = smt.substitute(
+                smt._py2expr(body), *[(v, e) for v, e in subst.items()]
+            )
         if len(constraints) == 0:
             cond = smt.BoolVal(True)
         elif len(constraints) == 1:

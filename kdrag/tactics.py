@@ -9,6 +9,7 @@ import operator as op
 from . import config
 from typing import NamedTuple, Optional, Sequence, Callable
 import pprint
+import time
 
 
 class Calc:
@@ -65,8 +66,8 @@ class Calc:
 
     def _lemma(self, rhs, by, **kwargs):
         op = self.mode.op
-        l = kd.prove(self._forall(op(self.iterm, rhs)), by=by, **kwargs)
-        self.lemma = kd.kernel.prove(
+        l = kd.kernel.prove(self._forall(op(self.iterm, rhs)), by=by, **kwargs)
+        self.lemma = kd.prove(
             self._forall(op(self.lhs, rhs)), by=[l, self.lemma], **kwargs
         )
         self.iterm = rhs
@@ -139,6 +140,8 @@ def prove(
 
     In essence `prove(Implies(by, thm))`.
 
+    This wraps the kernel version in order to provide better counterexamples.
+
     :param thm: The theorem to prove.
     Args:
         thm (smt.BoolRef): The theorem to prove.
@@ -155,65 +158,33 @@ def prove(
     |- 1 >= 0
 
     """
+    start_time = time.time()
     if isinstance(by, kd.Proof):
         by = [by]
-    if admit:
-        return kd.kernel.prove(thm, by, admit=True)
-    else:
-        if solver is None:
-            solver = config.solver
-            s = solver()  # type: ignore
-        else:
-            s = solver()
-        s.set("timeout", timeout)
-        for n, p in enumerate(by):
-            if not kd.kernel.is_proof(p):
-                raise kd.kernel.LemmaError("In by reasons:", p, "is not a Proof object")
-            s.assert_and_track(p.thm, "by_{}".format(n))
-        if len(by) == 0 and defns:
-            # TODO: consider pruning definitions to those in goal.
-            for v in kd.kernel.defns.values():
-                s.add(v.ax.thm)
-        for v in simps.values():
-            s.add(v)
-        s.assert_and_track(smt.Not(thm), "knuckledragger_goal")
-        if dump:
-            print(s.sexpr())
-            print(smt.solver)
-            if smt.solver == smt.Z3SOLVER:
-                """
-                def log_instance(pr, clause, myst):
-                    print(type(pr))
-                    if pr.decl().name() == "inst":
-                        q = pr.arg(0)
-                        for ch in pr.children():
-                            if ch.decl().name() == "bind":
-                                print("Binding")
-                                print(q)
-                                print(ch.children())
-                                break
-
-                onc = smt.OnClause(s, log_instance)
-                """
-                smt.OnClause(s, lambda pr, clause, myst: print(pr, clause, myst))
-        res = s.check()
-        if res != smt.unsat:
-            if res == smt.sat:
-                raise kd.kernel.LemmaError(thm, by, "Countermodel", s.model())
-            raise kd.kernel.LemmaError("prove", thm, by, res)
-        else:
-            core = s.unsat_core()
-            if smt.Bool("knuckledragger_goal") not in core:
-                raise kd.kernel.LemmaError(
-                    thm,
-                    core,
-                    "Inconsistent lemmas. Goal is not used for proof. Something has gone awry.",
-                )
-            if dump and len(core) < len(by) + 1:
-                print("WARNING: Unneeded assumptions. Used", core, thm)
-            return kd.kernel.prove(
-                thm, by, admit=admit, timeout=timeout, dump=dump, solver=solver
+    try:
+        return kd.kernel.prove(
+            thm, by, timeout=timeout, dump=dump, solver=solver, admit=admit
+        )
+    except kd.kernel.LemmaError as e:
+        if time.time() - start_time > timeout / 1000:
+            raise TimeoutError(
+                "Timeout. Maybe you have given `prove` too many or not enough lemmas?"
             )
+        elif isinstance(thm, smt.QuantifierRef):
+            while isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+                _, thm = kd.utils.open_binder_unhygienic(thm)  # type: ignore
+            # We anticipate this failing with a better countermodel since we can now see the quantified variables
+            pf = kd.kernel.prove(
+                thm, by=by, timeout=timeout, dump=dump, solver=solver, admit=admit
+            )
+            # TODO: Maybe we should herbrandize and just let the quantifier free version work for us.
+            raise Exception(
+                "Worked with quantifier stripped. Something is going awry", pf
+            )
+        else:
+            raise e
+    except Exception as e:
+        raise e
 
 
 def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.Proof:
@@ -385,7 +356,10 @@ class Lemma:
         False
 
         """
-        return self.fixes()[0]
+        vs = self.fixes()
+        if len(vs) > 1:
+            raise ValueError("fix tactic failed. More than one variable in quantifier")
+        return vs[0]
 
     def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
         """
@@ -863,7 +837,14 @@ class Lemma:
         """
         goalctx = self.goals.pop()
         ctx, goal = goalctx.ctx, goalctx.goal
-        thm = pf.thm
+        if isinstance(pf, int):
+            thm = ctx[pf]
+            raise ValueError("Apply tactic failed. Context not yet supported", pf)
+        elif isinstance(pf, kd.Proof):
+            thm = pf.thm
+        else:
+            raise ValueError("Apply tactic failed. Not a proof or context index", thm)
+
         if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
             vs, thm = kd.utils.open_binder(thm)
         else:

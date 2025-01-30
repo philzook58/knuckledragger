@@ -2,6 +2,7 @@
 The kernel hold core proof datatypes and core inference rules. By and large, all proofs must flow through this module.
 """
 
+from multiprocessing import context
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
@@ -374,13 +375,12 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
             smt.FreshConst(constructor.domain(j), prefix=DT.accessor(i, j).name())
             for j in range(constructor.arity())
         ]
-        acc = P(constructor(*args))
-        for arg in args:
-            if arg.sort() == DT:
-                acc = kd.QForAll([arg], P(arg), acc)
-            else:
-                acc = kd.QForAll([arg], acc)
-        hyps.append(acc)
+        head = P(constructor(*args))
+        body = [P(arg) for arg in args if arg.sort() == DT]
+        if len(args) == 0:
+            hyps.append(head)
+        else:
+            hyps.append(kd.QForAll(args, *body, head))
     conc = P(x)
     return axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 

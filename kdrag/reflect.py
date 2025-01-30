@@ -117,6 +117,7 @@ class KnuckleClosure:
     lam: smt.QuantifierRef
     globals: dict[str, object]
     locals: dict[str, object]
+    default: Callable[[smt.ExprRef], object]
 
     def __call__(self, *args):
         # TODO: Should I open binder more eagerly before call?
@@ -128,6 +129,7 @@ class KnuckleClosure:
                 **{v.decl().name(): arg for v, arg in zip(vs, args)},
                 **self.locals,
             },
+            default=self.default,
         )
 
 
@@ -164,7 +166,7 @@ def eval_(e: smt.ExprRef, globals={}, locals={}, default=__default_error):
                     vs, body = open_binder(e)
                     return globals["Lambda"]
                 """
-                return KnuckleClosure(e, globals, locals)
+                return KnuckleClosure(e, globals, locals, default)
             else:
                 raise ValueError("Quantifier not implemented", e)
         elif isinstance(e, smt.IntNumRef):  # smt.is_int_value(e):
@@ -206,7 +208,10 @@ def eval_(e: smt.ExprRef, globals={}, locals={}, default=__default_error):
                             return False
                     else:
                         acc.append(echild)
-                return smt.And(acc)
+                if len(acc) == 0:
+                    return True
+                return functools.reduce(operator.and_, acc)
+                # return smt.And(acc)
             elif smt.is_or(e):
                 acc = []
                 for child in e.children():
@@ -217,7 +222,10 @@ def eval_(e: smt.ExprRef, globals={}, locals={}, default=__default_error):
                         continue
                     else:
                         acc.append(echild)
-                return smt.Or(acc)  # TODO: possibly simplify or
+                if len(acc) == 0:
+                    return False
+                return functools.reduce(operator.or_, acc)
+                # return smt.Or(acc)  # TODO: possibly simplify or
             elif smt.is_implies(e):
                 cond = worker(e.arg(0), locals)
                 if isinstance(cond, bool):
@@ -257,7 +265,12 @@ def eval_(e: smt.ExprRef, globals={}, locals={}, default=__default_error):
                 # return children[0][decl.name()]
                 return getattr(children[0], e.decl().name())
             elif smt.is_select(e):  # apply
-                return children[0](*children[1:])
+                if isinstance(children[0], Callable):
+                    return children[0](*children[1:])
+                elif len(children) == 2:
+                    return children[0][children[1]]
+                else:
+                    raise ValueError("Select not implemented", e)
             elif smt.is_store(e):
                 raise ValueError("Store not implemented", e)
             #    #return children[0]._replace(children[1], children[2])

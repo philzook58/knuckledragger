@@ -11,6 +11,7 @@ notebooks = [
     "examples/soft_found/lf/Imp.ipynb",
     "examples/soft_found/lf/Lists.ipynb",
     "examples/LoVe/05_function.ipynb",
+    "examples/leroy_compiler/IMP.ipynb"
 ]
 
 

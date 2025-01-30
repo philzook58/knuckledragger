@@ -33,7 +33,7 @@ def test_false_infer():
 def test_explosion():
     a = kd.axiom(smt.BoolVal(False), "False axiom")
     with pytest.raises(Exception) as _:
-        kd.prove(smt.BoolVal(True), by=[a])
+        kd.utils.sanity_check_consistency([a])
 
 
 def test_calc():

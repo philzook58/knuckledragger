@@ -278,6 +278,35 @@ def free_vars(t: smt.ExprRef) -> set[smt.ExprRef]:
     return fvs
 
 
+def sanity_check_consistency(thms: list[smt.ExprRef | kd.kernel.Proof], timeout=1000):
+    """
+    Sanity check theorems or proofs for consistency. If they are inconsistent, raise an error.
+    Otherwise, return the result of the check. A sat result shows consistency, but an unknown result does not imply anything.
+
+    It may be nice to try and apply this function to your axioms or theory in CI.
+
+    >>> x,y = smt.Ints("x y")
+    >>> sanity_check_consistency([x == y])
+    sat
+    """
+    s = smt.Solver()
+    s.set("timeout", timeout)
+    for thm in thms:
+        if isinstance(thm, kd.kernel.Proof):
+            s.add(thm.thm)
+        elif isinstance(thm, smt.ExprRef):
+            s.add(thm)
+        else:
+            raise ValueError(
+                "Unsupported type in `thms` for consistency_sanity_check function"
+            )
+    res = s.check()
+    if res == smt.unsat:
+        raise ValueError("Theorems are inconsistent", thms)
+    else:
+        return res
+
+
 def prune(
     thm: smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof, by=[], timeout=1000
 ) -> list[smt.ExprRef | kd.kernel.Proof]:

@@ -10,6 +10,7 @@ import kdrag.theories.list as list_
 
 import kdrag.reflect as reflect
 
+@pytest.mark.slow
 @given(hyp.smt_sorts)
 def test_smt_sorts(s : smt.SortRef):
     assert isinstance(s, smt.SortRef)
@@ -38,6 +39,7 @@ def test_datatype_list(n):
     assert n.eq(list_.Nil(smt.IntSort())
 """
 
+@pytest.mark.slow
 def test_forall1():
     x = smt.Int("x")
     hyp.nitpick(smt.ForAll([x], x > x - 1))
@@ -54,6 +56,7 @@ def test_forall1():
     hyp.nitpick(smt.ForAll([l], smt.Or(l == list_.Nil(smt.IntSort()), l.is_Cons)))
 
 
+@pytest.mark.slow
 @given(hyp.smt_sorts)
 def test_reflect_sort(s):
     assert reflect.sort_of_type(reflect.type_of_sort(s)) == s
