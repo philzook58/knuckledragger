@@ -13,11 +13,11 @@ classifiers = [
 requires-python = ">= 3.10"
 dependencies = [
     "z3-solver >= 4.8",
- "egglog",
- "python-flint",
- "sympy",
- "lark",
- "hypothesis>=6.124.1",
+    "egglog",
+    "python-flint",
+    "sympy",
+    "lark",
+    "hypothesis>=6.124.1",
 ]
 [project.urls]
 homepage = "https://github.com/philzook58/knuckledragger"
@@ -37,6 +37,7 @@ ignore = ["E741"]
 "kdrag/smt.py" = ["F405", "F403"]
 "kdrag/all.py" = ["F401"]
 "tutorial.ipynb" = ["F811"]
+"examples/**/*.py" = ["F401", "F405", "F403", "E402"]
 
 [tool.pyright]
 include = ["kdrag"]

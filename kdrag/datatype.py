@@ -17,7 +17,6 @@ pred(n)
 |- pred(S(Z)) == Z
 """
 
-from ast import arg
 import kdrag.smt as smt
 import kdrag as kd
 import typing

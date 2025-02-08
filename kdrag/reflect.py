@@ -507,7 +507,7 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
                     return smt.And(*acc)
                 else:
                     return acc[0]
-            case ast.Call(ast.Name(id_, ctx), args, keywords):
+            case ast.Call(ast.Name(id_, _ctx), args, keywords):
                 assert keywords == []
                 f = _lookup(id_, globals=globals, locals=locals)
                 return f(*map(rec, args))
