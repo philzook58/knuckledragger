@@ -217,7 +217,7 @@ def test_Lemma():
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
     x1 = l.intros()
     l.intros()
-    l.apply(even.defn)
+    l.rw(even.defn)
     l.rewrite(even.defn, at=0)
     y1 = l.einstan(0)
     l.exists(y1 + 1)
@@ -231,7 +231,7 @@ def test_Lemma():
     [
         x1 := l.intros(),
         l.intros(),
-        l.apply(even.defn),
+        l.rw(even.defn),
         l.rewrite(even.defn, at=0),
         y1 := l.einstan(0),
         l.exists(y1 + 1),

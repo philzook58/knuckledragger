@@ -405,7 +405,7 @@ class Lemma:
         else:
             raise ValueError("Intros failed.")
 
-    def simp(self, at=None):
+    def simp(self, at=None, unfold=False):
         """
         Use built in z3 simplifier. May be useful for boolean, arithmetic, lambda, and array simplifications.
 
@@ -423,10 +423,15 @@ class Lemma:
         goalctx = self.top_goal()
         if at is None:
             oldgoal = goalctx.goal
-            newgoal = smt.simplify(oldgoal)
+            if unfold:
+                newgoal = kd.rewrite.simp(oldgoal, trace=self.lemmas)
+            else:
+                newgoal = smt.simplify(oldgoal)
+                self.lemmas.append(kd.kernel.prove(oldgoal == newgoal))
             if newgoal.eq(oldgoal):
-                raise ValueError("Simplify failed. Goal is already simplified.")
-            self.lemmas.append(kd.kernel.prove(oldgoal == newgoal))
+                raise ValueError(
+                    "Simplify failed. Goal is already simplified.", oldgoal
+                )
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
@@ -830,50 +835,43 @@ class Lemma:
 
         return self.top_goal()
 
-    def apply(self, pf: kd.kernel.Proof, rev=False):
+    def apply(self, pf: kd.kernel.Proof | int):
         """
         `apply` matches the conclusion of a proven clause
+
+        >>> x,y = smt.Ints("x y")
+        >>> l = kd.Lemma(smt.Implies(smt.Implies(x == 7, y == 3), y == 3))
+        >>> l.intros()
+        [Implies(x == 7, y == 3)] ?|- y == 3
+        >>> l.apply(0)
+        [Implies(x == 7, y == 3)] ?|- x == 7
+
+        >>> mylemma = kd.prove(kd.QForAll([x], x > 1, x > 0))
+        >>> kd.Lemma(x > 0).apply(mylemma)
+        [] ?|- x > 1
         """
-        goalctx = self.goals.pop()
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if isinstance(pf, int):
             thm = ctx[pf]
-            raise ValueError("Apply tactic failed. Context not yet supported", pf)
         elif isinstance(pf, kd.Proof):
             thm = pf.thm
         else:
             raise ValueError("Apply tactic failed. Not a proof or context index", thm)
-
-        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-            vs, thm = kd.utils.open_binder(thm)
-        else:
-            vs = []
-        if smt.is_implies(thm):
-            pat = thm.arg(1)
-        elif smt.is_eq(thm):
-            if rev:
-                pat = thm.arg(1)
-            else:
-                pat = thm.arg(0)
-        else:
-            pat = thm
-        subst = kd.utils.pmatch(vs, pat, goal)
-        if subst is None:
+        rule = kd.rewrite.rule_of_expr(thm)
+        substgoal = kd.rewrite.backward_rule(rule, goal)
+        if substgoal is None:
             raise ValueError(f"Apply tactic failed to apply lemma {pf} to goal {goal} ")
         else:
-            if len(vs) > 0:
-                pf1 = kd.kernel.instan([subst[v] for v in vs], pf)
+            subst, newgoal = substgoal
+            if isinstance(pf, kd.Proof) and len(rule.vs) > 0:
+                pf1 = kd.kernel.instan([subst[v] for v in rule.vs], pf)
                 self.lemmas.append(pf1)
-            else:
-                pf1 = pf
-            if smt.is_implies(pf1.thm):
-                self.goals.append(goalctx._replace(ctx=ctx, goal=pf1.thm.arg(0)))
-            elif smt.is_eq(pf1.thm):
-                if rev:
-                    self.goals.append(goalctx._replace(ctx=ctx, goal=pf1.thm.arg(0)))
-                else:
-                    self.goals.append(goalctx._replace(ctx=ctx, goal=pf1.thm.arg(1)))
-        return self.top_goal()
+            elif isinstance(pf, int) and len(rule.vs) > 0:
+                pf1 = kd.kernel.instan2([subst[v] for v in rule.vs], ctx[pf])
+                self.lemmas.append(pf1)
+            self.goals[-1] = goalctx._replace(ctx=ctx, goal=newgoal)
+            return self.top_goal()
 
     def induct(
         self,

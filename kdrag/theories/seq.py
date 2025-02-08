@@ -25,8 +25,17 @@ def seq(*args):
     Helper to construct sequences.
     >>> seq(1, 2, 3)
     Concat(Unit(1), Concat(Unit(2), Unit(3)))
+    >>> seq(1)
+    Unit(1)
     """
-    return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
+    if len(args) == 0:
+        raise ValueError(
+            "seq() requires at least one argument. use smt.Empty(sort) instead."
+        )
+    elif len(args) == 1:
+        return smt.Unit(smt._py2expr(args[0]))
+    else:
+        return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
 
 
 class Seq:

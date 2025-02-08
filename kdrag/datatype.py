@@ -17,6 +17,7 @@ pred(n)
 |- pred(S(Z)) == Z
 """
 
+from ast import arg
 import kdrag.smt as smt
 import kdrag as kd
 import typing
@@ -313,14 +314,16 @@ def NewType(name: str, sort: smt.SortRef, pred=None) -> smt.DatatypeSortRef:
     return Struct(name, ("val", sort), pred=pred)
 
 
-def Enum(name: str, args: str) -> smt.DatatypeSortRef:
+def Enum(name: str, args: str | list[str]) -> smt.DatatypeSortRef:
     """Shorthand for simple enumeration datatypes. Similar to python's Enum.
     >>> Color = Enum("Color", "Red Green Blue")
     >>> smt.And(Color.Red != Color.Green, Color.Red != Color.Blue)
     And(Red != Green, Red != Blue)
     """
     T = kd.Inductive(name)
-    for c in args.split():
+    if isinstance(args, str):
+        args = args.split()
+    for c in args:
         T.declare(c)
     T = T.create()
     return T

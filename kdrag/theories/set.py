@@ -63,6 +63,10 @@ def Set(T):
     return S
 
 
+def is_set(A: smt.ArrayRef) -> bool:
+    return isinstance(A.sort(), smt.ArraySortRef) and A.sort().range() == smt.BoolSort()
+
+
 def union(A: smt.ArrayRef, B: smt.ArrayRef) -> smt.ArrayRef:
     return smt.SetUnion(A, B)
 
@@ -121,3 +125,31 @@ def has_size(A: smt.ArrayRef, n: smt.ArithRef) -> smt.BoolRef:
     
     return smt.SetHasSize(A, n)
 """
+
+
+def Range(f: smt.FuncDeclRef) -> smt.ArrayRef:
+    """
+    Range of a function.
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    >>> Range(f)
+    Lambda(y, Exists(x0, f(x0) == y))
+    """
+    xs = [smt.Const("x" + str(i), f.domain(i)) for i in range(f.arity())]
+    y = smt.Const("y", f.range())
+    return smt.Lambda([y], kd.QExists(xs, f(*xs) == y))
+
+
+def BigUnion(A: smt.ArrayRef) -> smt.ArrayRef:
+    """
+    Big union of a set of sets.
+    >>> IntSet = Set(smt.IntSort())
+    >>> A = smt.Const("A", Set(IntSet))
+    >>> BigUnion(A)
+    Lambda(x, Exists(B, And(B[x], A[B])))
+    """
+    assert is_set(A)
+    sort = A.sort().domain()
+    B = smt.Const("B", sort)
+    assert is_set(B)
+    x = smt.Const("x", sort.domain())
+    return smt.Lambda([x], kd.QExists([B], B[x], A[B]))

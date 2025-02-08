@@ -77,7 +77,7 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
         return e
 
 
-def simp(e: smt.ExprRef, trace=None, max_iter=None) -> smt.ExprRef:
+def simp(e: smt.ExprRef, trace=None, max_iter=3) -> smt.ExprRef:
     """
     Simplify using definitions and built in z3 simplifier until no progress is made.
 
@@ -90,15 +90,23 @@ def simp(e: smt.ExprRef, trace=None, max_iter=None) -> smt.ExprRef:
     If(p, 42, 3)
     """
     i = 0
+    ebest = e
+    bestsize = len(e.sexpr())
     while True:
         i += 1
         if max_iter is not None and i > max_iter:
-            return e
+            return ebest
         e = unfold(e, trace=trace)
+        if (newsize := len(e.sexpr())) < bestsize:
+            ebest = e
+            bestsize = newsize
         # TODO: Interesting options: som, sort_store, elim_ite, flat, split_concat_eq, sort_sums, sort_disjunctions
         e1 = smt.simplify(e)
+        if (newsize := len(e1.sexpr())) < bestsize:
+            ebest = e1
+            bestsize = newsize
         if e1.eq(e):
-            return e1
+            return ebest
         else:
             if trace is not None:
                 trace.append(kd.kernel.prove(smt.Eq(e, e1)))
@@ -234,24 +242,56 @@ class Rule(NamedTuple):
     pf: Optional[kd.kernel.Proof] = None
 
 
-def horn_of_theorem(thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
+def rule_of_expr(pf_or_thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
     """Unpack theorem of form `forall vs, body => head` into a Rule tuple
 
     >>> x = smt.Real("x")
-    >>> horn_of_theorem(smt.ForAll([x], smt.Implies(x**2 == x*x, x > 0)))
+    >>> rule_of_expr(smt.ForAll([x], smt.Implies(x**2 == x*x, x > 0)))
     Rule(vs=[X...], hyp=X...**2 == X...*X..., conc=X... > 0, pf=None)
+    >>> rule_of_expr(x > 0)
+    Rule(vs=[], hyp=True, conc=x > 0, pf=None)
     """
-    pf = None
-    if isinstance(thm, smt.ExprRef):
-        pass
-    elif kd.kernel.is_proof(thm):
-        pf = thm
+    if isinstance(pf_or_thm, smt.ExprRef):
+        thm = pf_or_thm
+        pf = None
+    elif kd.kernel.is_proof(pf_or_thm):
+        pf = pf_or_thm
         thm = pf.thm
-    if not isinstance(thm, smt.QuantifierRef) or not thm.is_forall():
-        raise Exception("Not a universal quantifier", thm)
-    vs, thm = utils.open_binder(thm)
-    assert smt.is_implies(thm)
-    return Rule(vs, hyp=thm.arg(0), conc=thm.arg(1), pf=pf)
+    else:
+        raise ValueError("Expected proof or theorem")
+    if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+        vs, thm = utils.open_binder(thm)
+    else:
+        vs = []
+    if smt.is_implies(thm):
+        return Rule(vs, hyp=thm.arg(0), conc=thm.arg(1), pf=pf)
+    else:
+        assert isinstance(thm, smt.BoolRef)
+        return Rule(vs, hyp=smt.BoolVal(True), conc=thm, pf=pf)
+
+
+def backward_rule(
+    r: Rule, tgt: smt.BoolRef
+) -> Optional[tuple[dict[smt.ExprRef, smt.ExprRef], smt.BoolRef]]:
+    """
+    Apply a rule to a target term.
+    """
+    subst = kd.utils.pmatch(r.vs, r.conc, tgt)
+    if subst is not None:
+        return subst, smt.substitute(r.hyp, *subst.items())
+    else:
+        return None
+
+
+def forward_rule(r: Rule, tgt: smt.BoolRef):
+    """
+    Apply a rule to a target term.
+    """
+    subst = kd.utils.pmatch(r.vs, r.hyp, tgt)
+    if subst is not None:
+        return smt.substitute(r.conc, *subst.items())
+    else:
+        return None
 
 
 """

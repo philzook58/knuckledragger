@@ -1,0 +1,2 @@
+- <https://www.isa-afp.org/entries/ZFC_in_HOL.html>
+- <https://lawrencecpaulson.github.io/2022/04/06/ZFC_in_HOL.html>

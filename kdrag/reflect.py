@@ -11,6 +11,8 @@ from typing import Callable, no_type_check
 from collections import namedtuple
 import operator
 from dataclasses import dataclass
+import ast
+import inspect
 
 
 def sort_of_type(t: type) -> smt.SortRef:
@@ -427,3 +429,256 @@ def nbe(x: smt.ExprRef) -> smt.ExprRef:
     Lambda(x, 3 + 1)
     """
     return reify(x.sort(), eval_(x))
+
+
+def _lookup(name, globals=None, locals=None):
+    if locals is not None and name in locals:
+        return locals[name]
+    if globals is not None and name in globals:
+        return globals[name]
+    raise ValueError(f"Could not find {name} in global or local environment")
+
+
+def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
+    def rec(expr: ast.expr) -> smt.ExprRef:
+        match expr:
+            case ast.Constant(value, kind=None):
+                return smt._py2expr(value)
+            # case ast.UnaryOp(ast.UAdd(), operand):
+            #    return +rec(operand)
+            case ast.UnaryOp(ast.Not(), operand):
+                return ~rec(operand)  # type: ignore
+            case ast.UnaryOp(ast.USub(), operand):
+                return -rec(operand)  # type: ignore
+            case ast.UnaryOp(ast.Invert(), operand):
+                return ~rec(operand)  # type: ignore
+            case ast.UnaryOp(_, operand):
+                raise NotImplementedError(f"UnaryOp {expr.op}")
+            case ast.BinOp(left=l, op=ast.Add(), right=r):
+                return rec(l) + rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.Sub(), right=r):
+                return rec(l) - rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.Mult(), right=r):
+                return rec(l) * rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.Div(), right=r):
+                return rec(l) / rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.Mod(), right=r):
+                return rec(l) % rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.Pow(), right=r):
+                return rec(l) ** rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.LShift(), right=r):
+                return rec(l) << rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.RShift(), right=r):
+                return rec(l) >> rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.BitOr(), right=r):
+                return rec(l) | rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.BitXor(), right=r):
+                return rec(l) ^ rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.BitAnd(), right=r):
+                return rec(l) & rec(r)  # type: ignore
+            case ast.BinOp(left=l, op=ast.FloorDiv(), right=r):
+                return rec(l) // rec(r)  # type: ignore
+            case ast.BoolOp(op=ast.And(), values=values):
+                return smt.And(*map(rec, values))
+            case ast.BoolOp(op=ast.Or(), values=values):
+                return smt.Or(*map(rec, values))
+            case ast.Compare(left, ops, rights):
+                acc = []
+                left = rec(left)
+                for op, right in zip(ops, rights):
+                    right = rec(right)
+                    match op:
+                        case ast.Eq():
+                            acc.append(smt.Eq(left, right))
+                        case ast.NotEq():
+                            acc.append(left != right)
+                        case ast.Lt():
+                            acc.append(left < right)  # type: ignore
+                        case ast.LtE():
+                            acc.append(left <= right)  # type: ignore
+                        case ast.Gt():
+                            acc.append(left > right)  # type: ignore
+                        case ast.GtE():
+                            acc.append(left >= right)  # type: ignore
+                        case _:
+                            raise NotImplementedError(f"Compare {op}")
+                    left = right
+                if len(acc) > 1:
+                    return smt.And(*acc)
+                else:
+                    return acc[0]
+            case ast.Call(ast.Name(id_, ctx), args, keywords):
+                assert keywords == []
+                f = _lookup(id_, globals=globals, locals=locals)
+                return f(*map(rec, args))
+            case ast.IfExp(test, body, orelse):
+                return smt.If(rec(test), rec(body), rec(orelse))
+            case ast.Name(id_, _ctx):
+                return _lookup(id_, locals, globals)
+            case ast.Attribute(value, attr, _ctx):
+                return getattr(rec(value), attr)
+            case x:
+                raise ValueError("Could not interpret expression", ast.dump(x))
+
+    return rec(expr)
+
+
+def _calling_globals_locals():
+    stack = inspect.stack()
+    if len(stack) > 2:
+        caller_frame = stack[2]
+        frame = caller_frame.frame
+        return frame.f_locals, frame.f_globals
+    raise ValueError("No calling site found")
+
+
+def reflect_expr_string(expr: str, globals=None, locals=None) -> smt.ExprRef:
+    """
+    Turn a string of a python expression into a z3 expressions.
+    Globals are inferred to be current scope if not given.
+
+    >>> reflect_expr_string("x + 1", globals={"x": smt.Int("x")})
+    x + 1
+    >>> x = smt.Int("x")
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    >>> reflect_expr_string("f(x) + 1 if 0 < x < 5 < 7 else x * x")
+    If(And(0 < x, 5 > x, 5 < 7), f(x) + 1, x*x)
+
+    """
+    if globals is None:
+        globals, _ = _calling_globals_locals()
+    return _reflect_expr(
+        ast.parse(expr, mode="eval").body, globals=globals, locals=locals
+    )
+
+
+def _reflect_stmts(stmts: list[ast.stmt], globals=None, locals=None) -> smt.ExprRef:
+    """
+    Turn a list of python statements into a z3 Expression.
+
+    This is a "purely functional" subset of python, with assignment treated as a `let`.
+
+    It is possible to model more of python but that is not what this function is for. It works for a subset of python for which
+    the behavior of the mathematical language of Knuckledragger and python coincide.
+
+    A very restricted subset of python statements are allowed.
+    It must be a sequence of simple assignments ended by a return or if statement.
+    for loops, while loops are not allowed.
+    """
+    assert len(stmts) > 0
+    if locals is None:
+        locals = {}
+    for stmt in stmts[:-1]:
+        match stmt:
+            case ast.Assign(targets=[ast.Name(id_, _ctx)], value=value):
+                value = _reflect_expr(value, globals=globals, locals=locals)
+                locals = {**locals, id_: value}
+            case _:
+                raise ValueError(f"Statement {stmt}")
+    match stmts[-1]:
+        case ast.Return(value=value):
+            if value is None:
+                raise ValueError("Returning None not allowed")
+            return _reflect_expr(value, globals, locals)
+        case ast.If(test, body, orelse):
+            test = _reflect_expr(test, globals, locals)
+            body = _reflect_stmts(body, globals, locals)
+            orelse = _reflect_stmts(orelse, globals, locals)
+            return smt.If(test, body, orelse)
+        # Todo match.
+        case _:
+            raise ValueError(
+                f"Statement {ast.dump(stmts[-1])} not supported as last statement. Must be a return or if"
+            )
+
+
+def _sort_of_annotation(ann, env):
+    match ann:
+        case ast.Name(id_):
+            s = eval(id_, env)
+            if isinstance(s, smt.SortRef):
+                return s
+            elif isinstance(s, type):
+                return sort_of_type(s)
+            # if id_ == "int":
+            #    return smt.IntSort()
+            else:
+                raise NotImplementedError(f"Name {id_}")
+        case ast.Constant(value):
+            s = eval(value.replace('"', ""), env)
+            assert isinstance(s, smt.SortRef)
+            return s
+        case _:
+            raise NotImplementedError(f"Annotation {ast.dump(ann)}")
+
+
+def reflect(f, globals=None) -> smt.FuncDeclRef:
+    """
+    Reflect a function definition by injecting the parameters and recursive self call into the local environment.
+    Uses type annotations to do so.
+
+    Only handles a purely functional subset of python.
+    Simple assignment is handled as a `let` who's scope extends to the end of it's subbranch.
+    Every branch must end with a return.
+
+    You can still call original function under attribute `__wrapped__`.
+
+    >>> def foo(x : int) -> int:
+    ...     return x + 3
+    >>> foo = reflect(foo)
+    >>> foo.__wrapped__(3)
+    6
+    >>> foo.defn
+    |- ForAll(x, foo(x) == x + 3)
+
+    >>> @reflect
+    ... def bar(x : int, y : str) -> int:
+    ...     if x > 4:
+    ...         return x + 3
+    ...     elif y == "fred":
+    ...        return 14
+    ...     else:
+    ...        return bar(x - 1, y)
+    >>> bar.defn
+    |- ForAll([x, y],
+           bar(x, y) ==
+           If(4 < x, x + 3, If(y == "fred", 14, bar(x - 1, y))))
+
+    """
+    module = ast.parse(inspect.getsource(f))
+    assert isinstance(module, ast.Module) and len(module.body) == 1
+    fun = module.body[0]
+    assert isinstance(fun, ast.FunctionDef)
+    assert len(fun.args.posonlyargs) == 0 and len(fun.args.kwonlyargs) == 0
+    locals = {}
+    if globals is None:
+        globals, _ = _calling_globals_locals()
+    # infer arguments from type annotations.
+    args = [
+        smt.Const(arg.arg, _sort_of_annotation(arg.annotation, globals))
+        for arg in fun.args.args
+    ]
+    if fun.returns is None:
+        raise ValueError(f"Function {fun.name} must have a return type annotation")
+    # insert self name into locals so that recursive calls work.
+    z3fun = smt.Function(
+        fun.name,
+        *[arg.sort() for arg in args],
+        _sort_of_annotation(fun.returns, globals),
+    )
+    locals[fun.name] = z3fun
+    for arg in args:
+        locals[arg.decl().name()] = arg
+    # Actually interpret body.
+    body = _reflect_stmts(fun.body, globals=globals, locals=locals)
+    z3fun1 = kd.define(fun.name, args, body)
+    # Check that types work out.
+    if z3fun.range() != z3fun1.range():
+        raise ValueError(
+            f"Function {fun.name} has return type {_sort_of_annotation(fun.returns, globals)} but body evaluates to {body.sort()}"
+        )
+    # This should never fail.
+    assert z3fun.arity() == z3fun1.arity() and all(
+        z3fun.domain(i) == z3fun1.domain(i) for i in range(z3fun.arity())
+    )
+    return functools.update_wrapper(z3fun1, f)  # type: ignore

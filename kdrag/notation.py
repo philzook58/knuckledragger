@@ -151,6 +151,9 @@ gt = SortDispatch(name="gt")
 """Sort based dispatch for `>` syntax"""
 smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore
 
+# contains cannot work because python demands a concrete bool.
+# contains = SortDispatch(name="contains")
+# smt.ExprRef.__contains__ = lambda x, y: contains(x, y)  # type: ignore
 
 wf = SortDispatch(name="wf")
 """`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists."""

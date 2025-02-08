@@ -4,6 +4,8 @@ from nbclient import NotebookClient
 import subprocess
 import tempfile
 
+
+import examples.soft_found.lf.Tactics
 notebooks = [
     "examples/nng.ipynb",
     "examples/soft_found/lf/Basics.ipynb",
