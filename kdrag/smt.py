@@ -162,7 +162,7 @@ def Eq(x, y):
     return RawEq(x, y)
 
 
-Neq = ExprRef.__ne__
+NEq = ExprRef.__ne__
 
 # TODO: Overload them?
 RawForAll = ForAll

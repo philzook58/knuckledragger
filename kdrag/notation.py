@@ -162,7 +162,7 @@ eq = SortDispatch(name="eq", default=smt.Eq)
 """Sort based dispatch for `==` syntax"""
 smt.ExprRef.__eq__ = lambda x, y: eq(x, y)  # type: ignore
 
-ne = SortDispatch(name="ne", default=smt.Neq)
+ne = SortDispatch(name="ne", default=smt.NEq)
 """Sort based dispatch for `!=` syntax"""
 smt.ExprRef.__ne__ = lambda x, y: ne(x, y)  # type: ignore
 
