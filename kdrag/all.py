@@ -10,3 +10,4 @@ import kdrag.solvers as solvers
 import kdrag.theories.option as option
 import kdrag.theories.list as list_
 import kdrag.theories as thy
+import kdrag.rewrite as rw

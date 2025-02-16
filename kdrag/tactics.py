@@ -621,13 +621,15 @@ class Lemma:
                 raise ValueError("Unexpected case in goal for split tactic", goal)
             return self.top_goal()
         else:
+            if at < 0:
+                at = len(ctx) + at
             if smt.is_or(ctx[at]):
                 self.goals.pop()
                 for c in ctx[at].children():
                     self.goals.append(
                         goalctx._replace(ctx=ctx[:at] + [c] + ctx[at + 1 :], goal=goal)
                     )
-            if smt.is_and(ctx[at]):
+            elif smt.is_and(ctx[at]):
                 self.goals.pop()
                 self.goals.append(
                     goalctx._replace(
@@ -727,14 +729,14 @@ class Lemma:
             raise ValueError(
                 "Rewrite tactic failed. `at` is not an index into the context"
             )
-        subst = kd.utils.pmatch_rec(vs, lhs, target)
-        if subst is None:
+        t_subst = kd.utils.pmatch_rec(vs, lhs, target)
+        if t_subst is None:
             raise ValueError(
                 f"Rewrite tactic failed to apply lemma {rulethm} to goal {goal}"
             )
         else:
             self.goals.pop()
-            lhs1 = smt.substitute(lhs, *[(v, t) for v, t in subst.items()])
+            lhs1, subst = t_subst
             rhs1 = smt.substitute(rhs, *[(v, t) for v, t in subst.items()])
             target: smt.BoolRef = smt.substitute(target, (lhs1, rhs1))
             if isinstance(rulethm, smt.QuantifierRef) and rulethm.is_forall():

@@ -204,7 +204,7 @@ _l.unfold()
 _l.auto()
 sqrt_sqr = _l.qed()
 
-exp = smt.Const("exp", kd.R >> kd.R)
+exp = smt.Function("exp", R, R)  # smt.Const("exp", kd.R >> kd.R)
 exp_add = kd.axiom(smt.ForAll([x, y], exp(x + y) == exp(x) * exp(y)))
 exp_lower = kd.axiom(
     smt.ForAll([x], exp(x) >= 1 + x)
@@ -227,8 +227,8 @@ ln_one = kd.prove(smt.ForAll([x], ln(1) == 0), by=[ln_exp, exp_zero])
 exp_ln = kd.axiom(kd.QForAll([x], x > 0, exp(ln(x)) == x))
 
 
-cos = smt.Const("cos", kd.R >> kd.R)
-sin = smt.Const("sin", kd.R >> kd.R)
+cos = smt.Function("cos", R, R)  # smt.Const("cos", kd.R >> kd.R)
+sin = smt.Function("sin", R, R)  # smt.Const("sin", kd.R >> kd.R)
 
 pythag = kd.axiom(smt.ForAll([x], cos(x) ** 2 + sin(x) ** 2 == 1))
 cos_abs_le = kd.prove(smt.ForAll([x], abs(cos(x)) <= 1), by=[pythag, abs.defn])
@@ -250,25 +250,12 @@ cos_add = kd.axiom(smt.ForAll([x, y], cos(x + y) == cos(x) * cos(y) - sin(x) * s
 sin_add = kd.axiom(smt.ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * sin(y)))
 
 tan = kd.define("tan", [x], sin(x) / cos(x))
-atan = smt.Const("atan", kd.R >> kd.R)
+atan = smt.Function("atan", R, R)  # smt.Const("atan", kd.R >> kd.R)
 
 
 comp = kd.define("comp", [f, g], smt.Lambda([x], f(g(x))))
 kd.notation.matmul.register(RFun, comp)
 
-EReal = smt.Datatype("EReal")
-EReal.declare("real", ("val", smt.RealSort()))
-EReal.declare("inf")
-EReal.declare("neg_inf")
-EReal.declare("NaN")
-EReal = EReal.create()
-
-EPosReal = smt.Datatype("EPosReal")
-EPosReal.declare("real", ("val", smt.RealSort()))
-EPosReal.declare("inf")
-EPosReal = EPosReal.create()
-x_p = smt.Const("x", EPosReal)
-kd.notation.wf.define([x_p], smt.Implies(x_p.is_real, x_p.val >= 0))
 
 ident = kd.define("ident", [], smt.Lambda([x], x))
 const = kd.define("const", [x], smt.K(smt.RealSort(), x))
@@ -354,17 +341,17 @@ is_diff = kd.define("is_diff", [f], smt.ForAll([x], diff_at(f, x)))
 is_cont = kd.define("is_cont", [f], smt.ForAll([x], cont_at(f, x)))
 diff_cont = kd.axiom(kd.QForAll([f], is_diff(f), is_cont(f)))
 
-sin_diff = kd.axiom(is_diff(sin))
-sin_cont = kd.prove(is_cont(sin), by=[sin_diff, diff_cont])
+sin_diff = kd.axiom(is_diff(smt.Lambda([x], sin(x))))
+sin_cont = kd.prove(is_cont(smt.Lambda([x], sin(x))), by=[sin_diff, diff_cont])
 
 
 # Since not all functions are differentiable, the connection of deriv to the analytic definition of derivative is a proof obligation
 deriv = smt.Function("deriv", RFun, RFun)
 deriv_const = kd.axiom(ForAll([x], deriv(const(x)) == const(0)))
 deriv_ident = kd.axiom(deriv(X) == const(1))
-deriv_sin = kd.axiom(deriv(sin) == cos)
+deriv_sin = kd.axiom(deriv(smt.Lambda([x], sin(x))) == smt.Lambda([x], cos(x)))
 deriv_cos = kd.axiom(deriv(smt.Lambda([x], cos(x))) == smt.Lambda([x], -sin(x)))
-deriv_exp = kd.axiom(deriv(exp) == exp)
+deriv_exp = kd.axiom(deriv(smt.Lambda([x], exp(x))) == smt.Lambda([x], exp(x)))
 deriv_add = kd.axiom(ForAll([f, g], deriv(f + g) == deriv(f) + deriv(g)))
 deriv_mul = kd.axiom(ForAll([f, g], deriv(f * g) == deriv(f) * g + f * deriv(g)))
 

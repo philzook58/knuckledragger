@@ -120,13 +120,13 @@ def pmatch(
 
 def pmatch_rec(
     vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, into_binder=False
-) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+) -> Optional[tuple[smt.ExprRef, dict[smt.ExprRef, smt.ExprRef]]]:
     todo = [t]
     while todo:
         t = todo.pop()
         subst = pmatch(vs, pat, t)
         if subst is not None:
-            return subst
+            return t, subst
         elif smt.is_app(t):
             todo.extend(t.children())
         elif (
@@ -465,14 +465,15 @@ def search_expr(
     for name, pf in pfs.items():
         try:  # try to convert to rewrite rule
             rule = kd.rewrite.rule_of_theorem(pf.thm)
-            subst = kd.utils.pmatch_rec(rule.vs, rule.lhs, e, into_binder=True)
-            if subst is None:
+            t_subst = kd.utils.pmatch_rec(rule.vs, rule.lhs, e, into_binder=True)
+            if t_subst is None:
                 if (
                     smt.is_const(rule.rhs) and rule.rhs not in kd.kernel.defns
                 ):  # Lots of trivial rules that match `== x`
                     continue
-                subst = kd.utils.pmatch_rec(rule.vs, rule.rhs, e, into_binder=True)
-            if subst is not None:
+                t_subst = kd.utils.pmatch_rec(rule.vs, rule.rhs, e, into_binder=True)
+            if t_subst is not None:
+                _, subst = t_subst
                 try:
                     found[(name, pf)] = [subst.get(v) for v in rule.vs]
                 except Exception as _:

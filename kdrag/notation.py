@@ -72,6 +72,9 @@ class SortDispatch:
     def __getitem__(self, sort):
         return self.methods[sort]
 
+    def __contains__(self, sort):
+        return sort in self.methods
+
     def __call__(self, *args, **kwargs):
         sort = args[0].sort()
         res = self.methods.get(sort, self.default)
@@ -154,6 +157,14 @@ smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore
 # contains cannot work because python demands a concrete bool.
 # contains = SortDispatch(name="contains")
 # smt.ExprRef.__contains__ = lambda x, y: contains(x, y)  # type: ignore
+
+eq = SortDispatch(name="eq", default=smt.Eq)
+"""Sort based dispatch for `==` syntax"""
+smt.ExprRef.__eq__ = lambda x, y: eq(x, y)  # type: ignore
+
+ne = SortDispatch(name="ne", default=smt.Neq)
+"""Sort based dispatch for `!=` syntax"""
+smt.ExprRef.__ne__ = lambda x, y: ne(x, y)  # type: ignore
 
 wf = SortDispatch(name="wf")
 """`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists."""

@@ -129,7 +129,8 @@ def has_size(A: smt.ArrayRef, n: smt.ArithRef) -> smt.BoolRef:
 
 def Range(f: smt.FuncDeclRef) -> smt.ArrayRef:
     """
-    Range of a function.
+    Range of a function. Also known as the Image of the function.
+
     >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
     >>> Range(f)
     Lambda(y, Exists(x0, f(x0) == y))
@@ -153,3 +154,37 @@ def BigUnion(A: smt.ArrayRef) -> smt.ArrayRef:
     assert is_set(B)
     x = smt.Const("x", sort.domain())
     return smt.Lambda([x], kd.QExists([B], B[x], A[B]))
+
+
+def Surjective(f: smt.FuncDeclRef) -> smt.BoolRef:
+    """
+    A surjective function maps to every possible value in the range.
+
+    >>> x = smt.Int("x")
+    >>> neg = (-x).decl()
+    >>> kd.prove(Surjective(neg))
+    |- ForAll(y!..., Lambda(y, Exists(x0, -x0 == y))[y!...])
+    """
+    # TODO: also support ArrayRef
+    # TODO: I need to be consistent on whether I need FreshConst here or not.
+    y = smt.FreshConst(f.range(), prefix="y")
+    return kd.QForAll([y], smt.IsMember(y, Range(f)))
+
+
+def Injective(f: smt.FuncDeclRef) -> smt.BoolRef:
+    """
+    An injective function maps distinct inputs to distinct outputs.
+
+    >>> x, y = smt.Ints("x y")
+    >>> neg = (-x).decl()
+    >>> kd.prove(Injective(neg))
+    |- ForAll([x!..., y!...],
+           Implies(-x!... == -y!..., x!... == y!...))
+    """
+    xs1 = [smt.FreshConst(f.domain(i), prefix="x") for i in range(f.arity())]
+    xs2 = [smt.FreshConst(f.domain(i), prefix="y") for i in range(f.arity())]
+    if len(xs1) == 1:
+        conc = xs1[0] == xs2[0]
+    else:
+        conc = smt.And(*[x1 == x2 for x1, x2 in zip(xs1, xs2)])
+    return kd.QForAll(xs1 + xs2, smt.Implies(f(*xs1) == f(*xs2), conc))

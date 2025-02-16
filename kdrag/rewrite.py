@@ -56,7 +56,10 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
     >>> unfold(f(1), trace=trace)
     1 + 42
     >>> trace
-    [|- f(1) == 1 + 42]
+    [|- f(1) == 1 + 42, |- ForAll(x, f(x) == x + 42)]
+
+    >>> unfold(smt.Lambda([x], f(x)))
+    Lambda(x, x + 42)
     """
     if smt.is_app(e):
         decl = e.decl()
@@ -68,13 +71,50 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
             if trace is not None:
                 if isinstance(defn.ax.thm, smt.QuantifierRef):
                     trace.append((defn.ax(*children)))
-                else:
-                    trace.append(defn.ax)
+                # else:
+                # TODO: It would be better to only emit the forall axiom when necessary.
+                # When we have traversed under a binder, things get complicated.
+                # instantiating the axiom on the fresh variable will not be useful.
+                # so just emitting the needed axiom is a hack for now.
+                trace.append(defn.ax)
             return e1
         else:
             return decl(*children)
+    elif isinstance(e, smt.QuantifierRef):
+        vs, e1 = kd.utils.open_binder_unhygienic(e)
+        if e.is_forall():
+            # TODO: When we go under a quantifier, any trace breadcrumb should really be re-quantified in order to be useful.
+            # maybe herbrandize?
+            return smt.ForAll(vs, unfold(e1, decls=decls, trace=trace))
+        elif e.is_exists():
+            return smt.Exists(vs, unfold(e1, decls=decls, trace=trace))
+        elif e.is_lambda():
+            return smt.Lambda(vs, unfold(e1, decls=decls, trace=trace))
+        else:
+            raise Exception("Unexpected quantifier", e)
     else:
         return e
+
+
+def full_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
+    """
+    Fully simplify using definitions and built in z3 simplifier until no progress is made.
+
+    >>> import kdrag.theories.nat as nat
+    >>> full_simp(nat.one + nat.one + nat.S(nat.one))
+    S(S(S(S(Z))))
+
+    >>> p = smt.Bool("p")
+    >>> full_simp(smt.If(p, 42, 3))
+    If(p, 42, 3)
+    """
+    while True:
+        e = unfold(e, trace=trace)
+        e1 = smt.simplify(e)
+        if e1.eq(e):
+            return e
+        else:
+            e = e1
 
 
 def simp(e: smt.ExprRef, trace=None, max_iter=3) -> smt.ExprRef:

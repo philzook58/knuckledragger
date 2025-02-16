@@ -201,7 +201,7 @@ def kdify(e: sympy.Expr, **kwargs) -> smt.ExprRef:
     >>> kdify(sympify(x + 1))
     x + 1
     >>> kdify(sympify(real.sin(x) + 1))
-    sin[x] + 1
+    sin(x) + 1
     >>> kdify(sympify(x + smt.RatVal(1,3)))
     x + 1/3
     >>> kdify(sympify(x/3))
