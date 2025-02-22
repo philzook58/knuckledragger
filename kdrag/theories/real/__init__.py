@@ -34,6 +34,16 @@ kd.axiom(kd.QForAll([f, g], poly(f), poly(g), poly(f + g)))
 kd.axiom(kd.QForAll([f, g], poly(f), poly(g), poly(f * g)))
 
 
+a, b = smt.Consts("a b", RSeq)
+i = smt.Int("i")
+seqadd = kd.notation.add.define([a, b], smt.Lambda([i], a[i] + b[i]))
+seqsub = kd.notation.sub.define([a, b], smt.Lambda([i], a[i] - b[i]))
+seqmul = kd.notation.mul.define([a, b], smt.Lambda([i], a[i] * b[i]))
+seqdiv = kd.notation.div.define([a, b], smt.Lambda([i], a[i] / b[i]))
+
+Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
+
+
 # NReal = kd.NewType("NReal", R)
 
 
@@ -252,6 +262,8 @@ sin_add = kd.axiom(smt.ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * s
 tan = kd.define("tan", [x], sin(x) / cos(x))
 atan = smt.Function("atan", R, R)  # smt.Const("atan", kd.R >> kd.R)
 
+acos = smt.Function("acos", R, R)
+asin = smt.Function("asin", R, R)
 
 comp = kd.define("comp", [f, g], smt.Lambda([x], f(g(x))))
 kd.notation.matmul.register(RFun, comp)

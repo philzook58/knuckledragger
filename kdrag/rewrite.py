@@ -96,6 +96,46 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
         return e
 
 
+def beta(e):
+    """
+    Do one pass of beta normalization.
+
+    >>> x = smt.Int("x")
+    >>> y = smt.String("y")
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    >>> beta(f(x))
+    f(x)
+    >>> beta(f(smt.Lambda([x], f(x))[1]))
+    f(f(1))
+    >>> beta(f(smt.Select(smt.Lambda([x,y], x), 1, smt.StringVal("fred"))))
+    f(1)
+    """
+    if (
+        smt.is_select(e)
+        and isinstance(e.arg(0), smt.QuantifierRef)
+        and e.arg(0).is_lambda()
+    ):
+        args = [beta(c) for c in e.children()[1:]]
+        f = e.arg(0)
+        return smt.substitute_vars(f.body(), *reversed(args))
+    elif smt.is_app(e):
+        decl = e.decl()
+        children = [beta(c) for c in e.children()]
+        return decl(*children)
+    elif isinstance(e, smt.QuantifierRef):
+        vs, e1 = kd.utils.open_binder_unhygienic(e)
+        if e.is_forall():
+            return smt.ForAll(vs, beta(e1))
+        elif e.is_exists():
+            return smt.Exists(vs, beta(e1))
+        elif e.is_lambda():
+            return smt.Lambda(vs, beta(e1))
+        else:
+            raise Exception("Unexpected quantifier", e)
+    else:
+        raise Exception("Unexpected term", e)
+
+
 def full_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
     """
     Fully simplify using definitions and built in z3 simplifier until no progress is made.

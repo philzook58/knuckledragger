@@ -28,7 +28,15 @@ flint_decls = {
 }
 
 
-def interp_flint(e, env):
+def interp_flint(e: smt.ArithRef, env) -> flint.types.arb.arb:
+    """
+    Interpret a z3 expression into an arb calculation.
+
+    >>> interp_flint(real.pi, {})
+    [3.14159265358979 +/- 3.34e-15]
+    """
+    if isinstance(e, int) or isinstance(e, float):
+        return arb(e)
     if e in env:
         return env[e]
     elif smt.is_select(e) and e.arg(0) in flint_decls:
@@ -41,6 +49,21 @@ def interp_flint(e, env):
         decl = e.decl()
         return flint_decls[decl](*[interp_flint(arg, env) for arg in e.children()])
     assert False, f"Can't interpret {e} into flint"
+
+
+def flint_const_ax(lhs, rhs):
+    """
+
+    >>> flint_const_ax(real.pi, 4*real.atan(1))
+    |- pi == 4*atan(1)
+    >>> flint_const_ax(smt.RealVal(0), real.sin(0))
+    |- 0 == sin(0)
+    >>> flint_const_ax(real.sin(3*real.pi/2), -1)
+    |- sin((3*pi)/2) == -1
+    """
+    if not interp_flint(lhs, {}).overlaps(interp_flint(rhs, {})):
+        raise ValueError(f"lhs and rhs do not numerically overlap: {lhs} and {rhs}")
+    return kd.axiom(smt.Eq(lhs, rhs), by="flint")
 
 
 def z3_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:  # type: ignore
