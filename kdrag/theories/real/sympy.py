@@ -28,7 +28,7 @@ flint_decls = {
 }
 
 
-def interp_flint(e: smt.ArithRef, env) -> flint.types.arb.arb:
+def interp_flint(e: smt.ArithRef, env) -> flint.types.arb.arb:  # type: ignore
     """
     Interpret a z3 expression into an arb calculation.
 
@@ -43,7 +43,7 @@ def interp_flint(e: smt.ArithRef, env) -> flint.types.arb.arb:
         return flint_decls[e.arg(0)](
             *[interp_flint(arg, env) for arg in e.children()[1:]]
         )
-    elif smt.is_rational_value(e):
+    elif smt.is_rational_value(e) and isinstance(e, smt.RatNumRef):
         return arb(e.numerator_as_long()) / arb(e.denominator_as_long())
     elif smt.is_app(e) and e.decl() in flint_decls:
         decl = e.decl()
@@ -77,7 +77,7 @@ def z3_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:  # type: ignor
     return smt.RealVal(mid), smt.RealVal(rad)
 
 
-def flint_bnd(t: smt.ExprRef, env):
+def flint_bnd(t: smt.ArithRef, env) -> kd.kernel.Proof:
     assert smt.is_real(t)
     assert all(smt.is_real(k) and isinstance(v, arb) for k, v in env.items())
     preconds = [smt.BoolVal(True)]
