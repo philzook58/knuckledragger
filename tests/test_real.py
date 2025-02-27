@@ -4,6 +4,7 @@ import kdrag.smt as smt
 import kdrag.solvers as solvers
 import kdrag.theories.real as real
 import kdrag.theories.real.sympy
+import kdrag.theories.real.arb
 
 
 def test_abstract():
@@ -76,20 +77,20 @@ import flint
 
 
 def test_flint():
-    real.sympy.flint_bnd(real.pi, {})
+    real.arb.flint_bnd(real.pi, {})
     x = smt.Real("x")
-    real.sympy.flint_bnd(real.sin(x), {x: flint.arb.pi()})
+    real.arb.flint_bnd(real.sin(x), {x: flint.arb.pi()})
     assert (
-        real.sympy.interp_flint(smt.RatVal(232, 1), {}).mid().str()
+        real.arb.interp_flint(smt.RatVal(232, 1), {}).mid().str()
         == "232.000000000000"
     )
     kd.kernel.prove(
         kd.QForAll([x], -5 <= x, x <= 5, sin(x) <= 1),
-        by=[real.sympy.flint_bnd(real.sin(x), {x: flint.arb(0, 10)})],
+        by=[real.arb.flint_bnd(real.sin(x), {x: flint.arb(0, 10)})],
     )
     assert (
         "1.00000000000000e+100"
-        in real.sympy.interp_flint(
+        in real.arb.interp_flint(
             smt.RealVal(10**100),
             {},
         )

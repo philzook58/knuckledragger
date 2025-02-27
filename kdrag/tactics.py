@@ -132,8 +132,9 @@ def prove(
     timeout=1000,
     dump=False,
     solver=None,
-    defns=True,
-    simps=simps,
+    # defns=True,
+    # simps=simps,
+    # unfold=0,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 

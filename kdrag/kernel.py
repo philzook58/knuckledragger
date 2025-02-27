@@ -249,6 +249,38 @@ def consider(x: smt.ExprRef) -> Proof:
     return axiom(smt.Eq(smt.FreshConst(x.sort(), prefix="consider"), x))
 
 
+"""
+TODO: For better Lemma
+def modus_n(n: int, ab: Proof, bc: Proof):
+    ""
+    Plug together two theorems of the form
+    Implies(And(ps), b), Implies(And(qs, b, rs),  c)
+    -----------
+    Implies(And(qs, ps, rs), c)
+
+    Useful for backwards chaining.
+
+    
+    ""
+    assert (
+        is_proof(ab)
+        and is_proof(bc)
+        and smt.is_implies(ab.thm)
+        and smt.is_implies(bc.thm)
+    )
+    aa = ab.thm.arg(0)
+    assert smt.is_and(aa)
+    aa = aa.children()
+    b = ab.thm.arg(1)
+    bb = bc.thm.arg(0)
+    assert smt.is_and(bb)
+    bb = bb.children()
+    assert bb[n].eq(b)
+    c = bc.thm.arg(1)
+    return axiom(smt.Implies(smt.And(*bb[:n], *aa, *bb[n + 1 :]), c), [ab, bc])
+"""
+
+
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.

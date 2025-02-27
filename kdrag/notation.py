@@ -98,6 +98,12 @@ add = SortDispatch(name="add")
 """Sort based dispatch for `+` syntax"""
 smt.ExprRef.__add__ = lambda x, y: add(x, y)  # type: ignore
 
+_n, _m = smt.Ints("n m")
+_x, _y = smt.Reals("x y")
+add.register(smt.IntSort(), (_n + _m).decl())
+add.register(smt.RealSort(), (_x + _y).decl())
+
+
 radd = SortDispatch(name="radd")
 """Sort based dispatch for `+` syntax"""
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
@@ -177,6 +183,15 @@ smt.ExprRef.induct = lambda x, P: induct(x, P)  # type: ignore
 getitem = SortDispatch(name="getitem")
 """Sort based dispatch for `[]` getitem syntax"""
 smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)  # type: ignore
+
+
+to_int = SortDispatch(name="to_int")
+"""Sort based dispatch for `to_int`"""
+smt.ExprRef.to_int = lambda x: to_int(x)  # type: ignore
+
+to_real = SortDispatch(name="to_real")
+"""Sort based dispatch for `to_real`"""
+smt.ExprRef.to_real = lambda x: to_real(x)  # type: ignore
 
 
 def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:

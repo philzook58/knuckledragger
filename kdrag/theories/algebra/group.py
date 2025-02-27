@@ -1,6 +1,70 @@
 import kdrag as kd
 import kdrag.smt as smt
 
+from kdrag.property import TypeClass
+import kdrag.property as property
+
+
+# https://isabelle.in.tum.de/library/HOL/HOL/Groups.html
+class Semigroup(TypeClass):
+    assoc: kd.Proof
+
+    def check(self, T):
+        # All of these are kind of redundant
+        # assert isinstance(T, smt.SortRef)
+        # assert T in kd.notation.mul or hasattr(smt.FreshConst(T), "__mul__")
+        # assert self.key in property.assoc
+        x, y, z = smt.Consts("x y z", T)
+        assert kd.utils.alpha_eq(
+            self.assoc.thm, smt.ForAll([x, y, z], x * (y * z) == (x * y) * z)
+        )
+
+
+n, m, k = smt.Ints("n m k")
+Semigroup.register(
+    smt.IntSort(), assoc=kd.prove(smt.ForAll([n, m, k], n * (m * k) == (n * m) * k))
+)
+
+
+class Monoid(TypeClass):
+    e: smt.ExprRef
+    id_left: kd.Proof
+    id_right: kd.Proof
+
+    def check(self, T):
+        self.Semigroup = Semigroup(T)
+        self.assoc = self.Semigroup.assoc
+        x = smt.Const("x", T)
+        assert kd.utils.alpha_eq(self.id_left.thm, smt.ForAll([x], self.e * x == x))
+        assert kd.utils.alpha_eq(self.id_right.thm, smt.ForAll([x], x * self.e == x))
+
+
+Monoid.register(
+    smt.IntSort(),
+    e=smt.IntVal(1),
+    id_left=kd.prove(smt.ForAll([n], 1 * n == n)),
+    id_right=kd.prove(smt.ForAll([n], n * 1 == n)),
+)
+
+
+class Group(TypeClass):
+    inv: smt.FuncDeclRef
+    inv_left: kd.Proof
+    inv_right: kd.Proof
+
+    def check(self, T):
+        self.Monoid = Monoid(T)
+        self.e = self.Monoid.e
+        self.assoc = self.Monoid.assoc
+        x = smt.Const("x", T)
+        assert kd.utils.alpha_eq(
+            self.inv_left.thm, smt.ForAll([x], self.inv(x) * x == self.e)
+        )
+        assert kd.utils.alpha_eq(
+            self.inv_right.thm, smt.ForAll([x], x * self.inv(x) == self.e)
+        )
+
+
 # https://en.wikipedia.org/wiki/Group_(mathematics)
 
 G = smt.DeclareSort("G")
@@ -13,6 +77,9 @@ x, y, z = smt.Consts("x y z", G)
 mul_assoc = kd.axiom(smt.ForAll([x, y, z], x * (y * z) == (x * y) * z))
 id_left = kd.axiom(smt.ForAll([x], e * x == x))
 inv_left = kd.axiom(smt.ForAll([x], inv(x) * x == e))
+
+Semigroup.register(G, assoc=mul_assoc)
+
 
 c = kd.Calc([x], e, assume=[smt.ForAll([y], y * x == y)])
 c.eq(e * x)
@@ -35,6 +102,19 @@ c.eq(e * x, by=[inv_right])
 c.eq(x, by=[id_left])
 id_right = c.qed()
 
+Monoid.register(
+    G,
+    e=e,
+    id_left=id_left,
+    id_right=id_right,
+)
+
+Group.register(
+    G,
+    inv=inv,
+    inv_left=inv_left,
+    inv_right=inv_right,
+)
 # c = kd.Calc([x], e, assume=[smt.ForAll([y], x * y == y)])
 # c.eq(x * e)
 # c.eq(x, by=[id_right])

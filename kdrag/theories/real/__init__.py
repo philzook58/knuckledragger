@@ -305,7 +305,38 @@ is_convergent = kd.define(
         smt.Exists([N], kd.QForAll([m], m > N, smt.Exists([x], abs(a[m] - x) < eps))),
     ),
 )
+
+
+zeroseq = smt.K(smt.IntSort(), smt.RealVal(0))
+deltaseq = kd.define("delta", [n, x], smt.Lambda([n], smt.If(n == 0, x, 0)))
+kd.prove(smt.ForAll([n], deltaseq(n, 0) == zeroseq), by=[deltaseq.defn])
+kd.prove(
+    smt.ForAll([n, x, y], deltaseq(n, x) + deltaseq(n, y) == deltaseq(n, x + y)),
+    by=[deltaseq.defn, seqadd.defn],
+)
+
 seqsum = Function("seqsum", RSeq, R)
+seqsum_zero = kd.axiom(seqsum(zeroseq) == 0)
+seqsum_delta = kd.axiom(smt.ForAll([n, x], seqsum(deltaseq(n, x)) == x))
+
+sum_converges = smt.Function("sum_converges", RSeq, smt.BoolSort())
+sum_converges_zero = kd.axiom(sum_converges(zeroseq))
+sum_converges_delta = kd.axiom(smt.ForAll([n, x], sum_converges(deltaseq(n, x))))
+sum_converges_add = kd.axiom(
+    kd.QForAll([a, b], sum_converges(a), sum_converges(b), sum_converges(a + b))
+)
+
+seqsum_add = kd.axiom(
+    kd.QForAll(
+        [a, b],
+        sum_converges(a),
+        sum_converges(b),
+        seqsum(a + b) == seqsum(a) + seqsum(b),
+    )
+)
+
+psum = smt.Function("psum", RSeq, RSeq)  # partial sum
+
 # is_sum_convergent =
 
 # TODO. Should be less axioms
@@ -332,6 +363,18 @@ has_lim_at = kd.define(
 lim = smt.Function("lim", RFun, R, R)
 lim_def = kd.axiom(kd.QForAll([f, x, y], has_lim_at(f, x, y), lim(f, x) == y))
 
+
+# limit of sequence as n -> infinity
+seqlim = kd.define(
+    "seqlim",
+    [a, y],
+    kd.QForAll(
+        [eps], eps > 0, kd.QExists([N], kd.QForAll([n], n > N, abs(a[n] - y) < eps))
+    ),
+)
+# has_seqlim = smt.Function("has_seqlim", RSeq, smt.BoolSort())
+
+
 has_diff_at = smt.Function("has_diff_at", RFun, R, R, smt.BoolSort())
 diff_at = kd.define("diff_at", [f, x], smt.Exists([y], has_diff_at(f, x, y)))
 cont_at = kd.define(
@@ -347,6 +390,8 @@ cont_at = kd.define(
         ),
     ),
 )
+
+
 # smt.Function("cont_at", RFun, R, smt.BoolSort())
 
 is_diff = kd.define("is_diff", [f], smt.ForAll([x], diff_at(f, x)))

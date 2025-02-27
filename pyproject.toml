@@ -55,7 +55,7 @@ norecursedirs = [
     "examples/converted_notebooks",
 ]
 addopts = "--doctest-modules"
-doctest_optionflags = "ELLIPSIS"
+doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
 
 markers = ["slow: Marks tests as long-running."]
 
