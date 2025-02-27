@@ -1,9 +1,7 @@
 import kdrag.theories.real as real
-import kdrag as kd
 import kdrag.reflect
 import kdrag.smt as smt
 
-import operator as op
 import sympy
 import sympy.abc
 
