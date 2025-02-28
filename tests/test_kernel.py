@@ -355,3 +355,27 @@ def test_no_mix_keyword():
     Point = kd.Struct("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
     with pytest.raises(Exception) as _:
         Point(1,y=2)
+
+
+def test_smart_prove():
+    x = smt.Int("x")
+    f = kd.define("f", [x], x + 1)
+    g = kd.define("g", [x], x + 1)
+    d = kd.define("d", [x], f(x))
+    kd.prove(smt.ForAll([x], f(x) == x + 1), unfold=1)
+    kd.prove(
+        smt.ForAll([x], f(x) == x + 1),
+        by=[f.defn],
+    )
+    kd.prove(
+        smt.ForAll([x], f(x) == g(x)),
+        unfold=1,
+    )
+    kd.prove(
+        smt.ForAll([x], d(x) == x + 1),
+        unfold=2,
+    )
+    #with pytest.raises(Exception) as _:
+    #    kd.prove(smt.ForAll([x], f(x) == g(x)), unfold=[g])
+    with pytest.raises(kd.kernel.LemmaError):
+        kd.prove(smt.ForAll([x], d(x) == x+1), unfold=1)

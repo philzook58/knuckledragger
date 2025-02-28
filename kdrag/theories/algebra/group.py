@@ -6,6 +6,7 @@ from kdrag.property import TypeClass
 
 # https://isabelle.in.tum.de/library/HOL/HOL/Groups.html
 class Semigroup(TypeClass):
+    key: smt.SortRef
     assoc: kd.Proof
 
     def check(self, T):
@@ -23,6 +24,24 @@ n, m, k = smt.Ints("n m k")
 Semigroup.register(
     smt.IntSort(), assoc=kd.prove(smt.ForAll([n, m, k], n * (m * k) == (n * m) * k))
 )
+
+
+class AbelSemiGroup(TypeClass):
+    key: smt.SortRef
+    comm: kd.Proof
+
+    def check(self, T):
+        self.Semigroup = Semigroup(T)
+        x, y, z = smt.Consts("x y z", T)
+        assert kd.utils.alpha_eq(self.comm.thm, smt.ForAll([x, y], x * y == y * x))
+        self.assoc = self.Semigroup.assoc
+        self.left_commute = kd.prove(
+            smt.ForAll([x, y, z], x * (y * z) == y * (x * z)),
+            by=[self.comm, self.assoc],
+        )
+
+
+AbelSemiGroup.register(smt.IntSort(), comm=kd.prove(smt.ForAll([n, m], n * m == m * n)))
 
 
 class Monoid(TypeClass):

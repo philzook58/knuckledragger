@@ -64,6 +64,12 @@ distrib_left = kd.prove(smt.ForAll([n, m, k], n * (m + k) == n * m + n * k))
 distrib_right = kd.prove(smt.ForAll([n, m, k], (m + k) * n == m * n + k * n))
 
 
+# TODO: Generic facilities for choose
+# https://en.wikipedia.org/wiki/Epsilon_calculus
+choose = smt.Function("choose", smt.ArraySort(Z, smt.BoolSort()), Z)
+P = smt.Const("P", smt.ArraySort(Z, smt.BoolSort()))
+choose_ax = kd.axiom(smt.ForAll([P], P[choose(P)] == smt.Exists([n], P[n])))
+
 NatI = kd.Struct("NatI", ("val", Z))
 n, m, k = smt.Consts("n m k", NatI)
 kd.notation.wf.register(NatI, lambda x: x.val >= 0)

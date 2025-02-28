@@ -4,6 +4,7 @@ Tactics are helpers that organize calls to the kernel. The code of these helpers
 
 import kdrag as kd
 import kdrag.smt as smt
+import kdrag.rewrite
 from enum import IntEnum
 import operator as op
 from typing import NamedTuple, Optional, Sequence, Callable
@@ -127,14 +128,15 @@ simps = {}
 
 def prove(
     thm: smt.BoolRef,
-    by: kd.kernel.Proof | Sequence[kd.kernel.Proof] = [],
+    by: Optional[kd.kernel.Proof | Sequence[kd.kernel.Proof]] = None,
     admit=False,
     timeout=1000,
     dump=False,
     solver=None,
     # defns=True,
+    # induct=False,
     # simps=simps,
-    # unfold=0,
+    unfold=0,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
@@ -157,10 +159,30 @@ def prove(
     >>> prove(smt.RealVal(1) >= smt.RealVal(0))
     |- 1 >= 0
 
+    >>> x = smt.Int("x")
+    >>> succ = kd.define("succ", [x], x + 1)
+    >>> prove(succ(x) == x + 1, unfold=1)
+    |- succ(x) == x + 1
+    >>> succ2 = kd.define("succ2", [x], succ(succ(x)))
+    >>> prove(succ2(x) == x + 2, unfold=2)
+    |- succ2(x) == x + 2
     """
     start_time = time.time()
-    if isinstance(by, kd.Proof):
+    if by is None:
+        by = []
+    elif isinstance(by, kd.Proof):
         by = [by]
+    elif not isinstance(by, list):
+        by = list(by)
+
+    if unfold != 0:
+        assert isinstance(unfold, int)
+        trace = []
+        thm1 = thm
+        for i in range(unfold):
+            thm1 = kd.rewrite.unfold(thm1, trace=trace)
+        if not thm.eq(thm1):
+            by.append(kd.kernel.prove(thm == thm1, by=trace, timeout=timeout))
     try:
         return kd.kernel.prove(
             thm, by, timeout=timeout, dump=dump, solver=solver, admit=admit

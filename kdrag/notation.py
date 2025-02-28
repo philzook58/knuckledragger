@@ -1,4 +1,6 @@
 """
+SortDispatch system for z3 sort based dispatch akin to `functools.singledispatch`.
+
 The `SortDispatch` system enables z3 sort based dispatch akin to ` functools.singledispatch`.
 This is the mechanism for operator overloading in knuckledragger.
 
@@ -16,7 +18,7 @@ Importing this module will add some syntactic sugar to smt.
 import kdrag.smt as smt
 import kdrag as kd
 
-smt.BoolRef.__and__ = lambda self, other: smt.And(self, other)
+smt.BoolRef.__and__ = smt.And
 smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)
 smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 
@@ -76,6 +78,8 @@ class SortDispatch:
         return sort in self.methods
 
     def __call__(self, *args, **kwargs):
+        if not args:
+            raise TypeError("No arguments provided")
         sort = args[0].sort()
         res = self.methods.get(sort, self.default)
         if res is None:

@@ -10,11 +10,10 @@ from . import smt
 class TypeClass:
     """
     Subclass this to define a typeclass. The class itself holds a registry of information
-    This key which can be anything that can be a python key, but the expected keys are smt.ExprRef,
-    smt.FuncDeclRef and smt.ExprRef.
+    The key can be any valid Python key, but the expected types are smt.ExprRef and smt.FuncDeclRef.
     When you instantiate the class as usual, you hand the key to the constructor and the class will
     look up the information in the registry and populate the fields in the returned instance .
-
+    look up the information in the registry and populate the fields in the returned instance.
     See https://okmij.org/ftp/ML/canonical.html for more on the programmatic approach to typeclasses.
 
     >>> class Monoid(TypeClass):
@@ -40,7 +39,7 @@ class TypeClass:
         for k, v in registry[L].items():
             setattr(self, k, v)
         if hasattr(self, "check"):
-            getattr(self, "check")(*L)
+            self.check(*L)  # type: ignore
 
     @classmethod
     def get_registry(cls) -> dict:
@@ -66,8 +65,14 @@ class TypeClass:
         registry[L] = kwargs
         assert cls(*L) is not None  # perform check
 
+    # If we have this stub, pyright complains about overloading
     # def check(self, *L):
     #    pass
+
+    def assert_eq(self, propname, b):
+        a = getattr(self, propname)
+        if not kd.utils.alpha_eq(a.thm, b):
+            raise ValueError(f"Property {propname}, does not match", a, b)
 
     def __repr__(self):
         return type(self).__name__ + "(" + repr(self.__dict__) + ")"
