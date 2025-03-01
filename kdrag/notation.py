@@ -18,7 +18,7 @@ Importing this module will add some syntactic sugar to smt.
 import kdrag.smt as smt
 import kdrag as kd
 
-smt.BoolRef.__and__ = smt.And
+smt.BoolRef.__and__ = lambda self, other: smt.And(self, other)
 smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)
 smt.BoolRef.__invert__ = lambda self: smt.Not(self)
 

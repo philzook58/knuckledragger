@@ -184,7 +184,7 @@ def prove(
             thm1 = kd.rewrite.unfold(thm1, trace=trace)
         # It is arguable if we're better off dumping trace into by or hiding trace
         if not thm.eq(thm1):
-            by.append(kd.kernel.prove(thm == thm1, by=trace, timeout=timeout))
+            by.append(kd.kernel.prove(thm == thm1, by=trace, timeout=timeout))  # type: ignore
     try:
         return kd.kernel.prove(
             thm, by, timeout=timeout, dump=dump, solver=solver, admit=admit
