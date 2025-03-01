@@ -136,6 +136,7 @@ def prove(
     # defns=True,
     # induct=False,
     # simps=simps,
+    # intros / fix / herb = False
     unfold=0,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
@@ -181,6 +182,7 @@ def prove(
         thm1 = thm
         for i in range(unfold):
             thm1 = kd.rewrite.unfold(thm1, trace=trace)
+        # It is arguable if we're better off dumping trace into by or hiding trace
         if not thm.eq(thm1):
             by.append(kd.kernel.prove(thm == thm1, by=trace, timeout=timeout))
     try:

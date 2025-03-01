@@ -4,12 +4,44 @@ import kdrag.smt as smt
 Z = smt.IntSort()
 
 
-def induct_nat(P):
+def induct_nat(x, P):
     n = smt.FreshConst(Z, prefix="n")
     return kd.axiom(
-        smt.And(P(0), kd.QForAll([n], n >= 0, P(n), P(n + 1)))
-        # ---------------------------------------------------
-        == kd.QForAll([n], n >= 0, P(n))
+        smt.Implies(
+            smt.And(P(0), kd.QForAll([n], n >= 0, P(n), P(n + 1)), x >= 0),
+            # ---------------------------------------------------
+            P(x),
+        )
+    )
+
+
+n, x = smt.Ints("n x")
+P = smt.Array("P", Z, smt.BoolSort())
+_l = kd.Lemma(
+    kd.QForAll(
+        [P],
+        P(0),
+        kd.QForAll([n], n >= 0, P(n), P(n + 1)),
+        kd.QForAll([x], x >= 0, P(x)),
+    ),
+)
+_P = _l.fix()
+_l.intros()
+_x = _l.fix()
+_l.intros()
+_l.induct(_x, using=induct_nat)
+induct_nat_ax = _l.qed()
+
+
+def induct_nat_strong(x, P):
+    n = smt.FreshConst(Z, prefix="n")
+    m = smt.FreshConst(Z, prefix="m")
+    return kd.axiom(
+        smt.Implies(
+            kd.QForAll([n], n >= 0, kd.QForAll([m], m >= 0, m < n, P(m)), P(n), x >= 0),
+            # ---------------------------------------------------
+            P(x),
+        )
     )
 
 
