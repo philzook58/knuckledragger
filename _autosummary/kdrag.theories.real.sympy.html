@@ -1,0 +1,655 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.real.sympy &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.real.sympy.diff" href="kdrag.theories.real.sympy.diff.html" />
+    <link rel="prev" title="kdrag.theories.real.interval" href="kdrag.theories.real.interval.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.abstract_arith.html">kdrag.theories.real.abstract_arith</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.rlemma.html">kdrag.theories.real.rlemma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sin_lower.html">kdrag.theories.real.sin_lower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sqrt_bnd.html">kdrag.theories.real.sqrt_bnd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sqrt_lower.html">kdrag.theories.real.sqrt_lower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.sqrt_upper.html">kdrag.theories.real.sqrt_upper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.abstract_arith"><code class="docutils literal notranslate"><span class="pre">abstract_arith()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.rlemma"><code class="docutils literal notranslate"><span class="pre">rlemma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sin_lower"><code class="docutils literal notranslate"><span class="pre">sin_lower()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_bnd"><code class="docutils literal notranslate"><span class="pre">sqrt_bnd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_lower"><code class="docutils literal notranslate"><span class="pre">sqrt_lower()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_upper"><code class="docutils literal notranslate"><span class="pre">sqrt_upper()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.arb.html">kdrag.theories.real.arb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.complex.html">kdrag.theories.real.complex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.extended.html">kdrag.theories.real.extended</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.interval.html">kdrag.theories.real.interval</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">kdrag.theories.real.sympy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.vec.html">kdrag.theories.vec</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.real.sympy</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.real.sympy.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.real.sympy">
+<span id="kdrag-theories-real-sympy"></span><h1>kdrag.theories.real.sympy<a class="headerlink" href="#module-kdrag.theories.real.sympy" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.diff.html#kdrag.theories.real.sympy.diff" title="kdrag.theories.real.sympy.diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff</span></code></a>(e, *args)</p></td>
+<td><p>Differentiate a z3 expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.expand.html#kdrag.theories.real.sympy.expand" title="kdrag.theories.real.sympy.expand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand</span></code></a>(e)</p></td>
+<td><p>Expand a z3 expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.factor.html#kdrag.theories.real.sympy.factor" title="kdrag.theories.real.sympy.factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">factor</span></code></a>(e)</p></td>
+<td><p>Factor a z3 expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.integrate.html#kdrag.theories.real.sympy.integrate" title="kdrag.theories.real.sympy.integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrate</span></code></a>(e, *args)</p></td>
+<td><p>Integrate a z3 expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.kdify.html#kdrag.theories.real.sympy.kdify" title="kdrag.theories.real.sympy.kdify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kdify</span></code></a>(e, **kwargs)</p></td>
+<td><p>Convert a sympy expression into a z3 expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.limit.html#kdrag.theories.real.sympy.limit" title="kdrag.theories.real.sympy.limit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">limit</span></code></a>(e, x, x0)</p></td>
+<td><p>Compute the limit of a z3 expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.replace_rational_with_ratval.html#kdrag.theories.real.sympy.replace_rational_with_ratval" title="kdrag.theories.real.sympy.replace_rational_with_ratval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_rational_with_ratval</span></code></a>(expr)</p></td>
+<td><p>Replace all Rational numbers in a SymPy expression with z3.RatVal equivalents.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.series.html#kdrag.theories.real.sympy.series" title="kdrag.theories.real.sympy.series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">series</span></code></a>(e[, x, x0, n, dir])</p></td>
+<td><p>Compute the series expansion of a z3 expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.simplify.html#kdrag.theories.real.sympy.simplify" title="kdrag.theories.real.sympy.simplify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplify</span></code></a>(e)</p></td>
+<td><p>Simplify a z3 expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.summation.html#kdrag.theories.real.sympy.summation" title="kdrag.theories.real.sympy.summation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summation</span></code></a>(e, *args)</p></td>
+<td><p>Sum a z3 expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.sympify.html#kdrag.theories.real.sympy.sympify" title="kdrag.theories.real.sympy.sympify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sympify</span></code></a>(e[, locals])</p></td>
+<td><p>Convert a z3 expression into a sympy expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sympy.translate_tuple_args.html#kdrag.theories.real.sympy.translate_tuple_args" title="kdrag.theories.real.sympy.translate_tuple_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate_tuple_args</span></code></a>(args)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.diff">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">diff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sympy.diff" title="Link to this definition"></a></dt>
+<dd><p>Differentiate a z3 expression.
+&gt;&gt;&gt; x,y = smt.Reals(“x y”)
+&gt;&gt;&gt; diff(x**2, x)
+2*x
+&gt;&gt;&gt; diff(x**2, x, x)
+2
+&gt;&gt;&gt; diff(x*x, (x,2))
+2
+&gt;&gt;&gt; diff(x*y*x, x)
+2*x*y</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.expand">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.theories.real.sympy.expand" title="Link to this definition"></a></dt>
+<dd><p>Expand a z3 expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; expand((x + 1)**2)
+x**2 + 2*x + 1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.factor">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.theories.real.sympy.factor" title="Link to this definition"></a></dt>
+<dd><p>Factor a z3 expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; factor(x**2 + 2*x + 1)
+(x + 1)**2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.integrate">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sympy.integrate" title="Link to this definition"></a></dt>
+<dd><p>Integrate a z3 expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; integrate(x**2, x)
+x**3*1/3</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.kdify">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">kdify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.theories.real.sympy.kdify" title="Link to this definition"></a></dt>
+<dd><p>Convert a sympy expression into a z3 expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; kdify(sympify(x + 1))
+x + 1
+&gt;&gt;&gt; kdify(sympify(real.sin(x) + 1))
+sin(x) + 1
+&gt;&gt;&gt; kdify(sympify(x + smt.RatVal(1,3)))
+x + 1/3
+&gt;&gt;&gt; kdify(sympify(x/3))
+x*1/3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>Expr</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.limit">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sympy.limit" title="Link to this definition"></a></dt>
+<dd><p>Compute the limit of a z3 expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; limit(1/x, x, sympy.oo)
+0
+&gt;&gt;&gt; limit(1/x, x, 0) # TODO: What to do about this one?
+inf</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.replace_rational_with_ratval">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">replace_rational_with_ratval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sympy.replace_rational_with_ratval" title="Link to this definition"></a></dt>
+<dd><p>Replace all Rational numbers in a SymPy expression with z3.RatVal equivalents.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Real</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">replace_rational_with_ratval</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">smt</span><span class="o">.</span><span class="n">RatVal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)))</span>
+<span class="go">x + RatVal(1, 3)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.series">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'+'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sympy.series" title="Link to this definition"></a></dt>
+<dd><p>Compute the series expansion of a z3 expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; series(real.sin(x), x, n=2)
+x + Order(x**2)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.simplify">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">simplify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.theories.real.sympy.simplify" title="Link to this definition"></a></dt>
+<dd><p>Simplify a z3 expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; simplify((x + 1)**2 - x**2)
+2*x + 1
+&gt;&gt;&gt; simplify(real.sin(x)**2 + real.cos(x)**2)
+1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.summation">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">summation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sympy.summation" title="Link to this definition"></a></dt>
+<dd><p>Sum a z3 expression.
+&gt;&gt;&gt; x,n = smt.Reals(“x n”)
+&gt;&gt;&gt; summation(x**2, (x, 0, 10))
+385
+&gt;&gt;&gt; summation(x, (x, 0, n))
+n**2*1/2 + n*1/2</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.sympify">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">sympify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="headerlink" href="#kdrag.theories.real.sympy.sympify" title="Link to this definition"></a></dt>
+<dd><p>Convert a z3 expression into a sympy expression.
+&gt;&gt;&gt; x = smt.Real(“x”)
+&gt;&gt;&gt; sympify(x + 1)
+x + 1
+&gt;&gt;&gt; sympify(smt.RatVal(1,3))
+Fraction(1, 3)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Expr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sympy.translate_tuple_args">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.sympy.</span></span><span class="sig-name descname"><span class="pre">translate_tuple_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sympy.translate_tuple_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.theories.real</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">real</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.reflect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sympy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sympy.abc</span>
+
+
+<span class="n">sympy_env</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">sympy</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="o">**</span><span class="n">sympy</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="p">{})</span> <span class="o">-&gt;</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a z3 expression into a sympy expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; sympify(x + 1)</span>
+<span class="sd">    x + 1</span>
+<span class="sd">    &gt;&gt;&gt; sympify(smt.RatVal(1,3))</span>
+<span class="sd">    Fraction(1, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">kdrag</span><span class="o">.</span><span class="n">reflect</span><span class="o">.</span><span class="n">eval_</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">sympy_env</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="p">{})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">replace_rational_with_ratval</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replace all Rational numbers in a SymPy expression with z3.RatVal equivalents.</span>
+
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; replace_rational_with_ratval(sympify(x + smt.RatVal(1,3)))</span>
+<span class="sd">    x + RatVal(1, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Rational</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">expr</span><span class="o">.</span><span class="n">q</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">expr</span>
+        <span class="c1"># elif (float(expr) - expr).is_zero: # Doesn&#39;t seem to work</span>
+        <span class="c1">#    return expr</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;RatVal&quot;</span><span class="p">)(</span><span class="n">expr</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">expr</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Order</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;Order&quot;</span><span class="p">)(</span><span class="n">expr</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span>  <span class="c1"># , expr.point) # type: ignore</span>
+    <span class="k">elif</span> <span class="n">expr</span><span class="o">.</span><span class="n">is_Atom</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">expr</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">replace_rational_with_ratval</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">expr</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">evaluate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">kdify</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a sympy expression into a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; kdify(sympify(x + 1))</span>
+<span class="sd">    x + 1</span>
+<span class="sd">    &gt;&gt;&gt; kdify(sympify(real.sin(x) + 1))</span>
+<span class="sd">    sin(x) + 1</span>
+<span class="sd">    &gt;&gt;&gt; kdify(sympify(x + smt.RatVal(1,3)))</span>
+<span class="sd">    x + 1/3</span>
+<span class="sd">    &gt;&gt;&gt; kdify(sympify(x/3))</span>
+<span class="sd">    x*1/3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Basic</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+        <span class="n">svs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">free_symbols</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">svs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">Real</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">svs</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="n">sympy</span><span class="o">.</span><span class="n">lambdify</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+        <span class="n">svs</span><span class="p">,</span>
+        <span class="n">replace_rational_with_ratval</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+        <span class="n">modules</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;RatVal&quot;</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">RatVal</span><span class="p">,</span>
+                <span class="s2">&quot;Order&quot;</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;Order&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">(),</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()),</span>
+            <span class="p">},</span>
+            <span class="n">real</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)(</span><span class="o">*</span><span class="n">vs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">expand</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expand a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; expand((x + 1)**2)</span>
+<span class="sd">    x**2 + 2*x + 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">factor</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factor a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; factor(x**2 + 2*x + 1)</span>
+<span class="sd">    (x + 1)**2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">simplify</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simplify a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; simplify((x + 1)**2 - x**2)</span>
+<span class="sd">    2*x + 1</span>
+<span class="sd">    &gt;&gt;&gt; simplify(real.sin(x)**2 + real.cos(x)**2)</span>
+<span class="sd">    1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">translate_tuple_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">translate_tuple_args</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">diff</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Differentiate a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x,y = smt.Reals(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; diff(x**2, x)</span>
+<span class="sd">    2*x</span>
+<span class="sd">    &gt;&gt;&gt; diff(x**2, x, x)</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; diff(x*x, (x,2))</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; diff(x*y*x, x)</span>
+<span class="sd">    2*x*y</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="o">*</span><span class="n">translate_tuple_args</span><span class="p">(</span><span class="n">args</span><span class="p">)))</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">integrate</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integrate a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; integrate(x**2, x)</span>
+<span class="sd">    x**3*1/3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">translate_tuple_args</span><span class="p">(</span><span class="n">args</span><span class="p">)))</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">summation</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sum a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x,n = smt.Reals(&quot;x n&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; summation(x**2, (x, 0, 10))</span>
+<span class="sd">    385</span>
+<span class="sd">    &gt;&gt;&gt; summation(x, (x, 0, n))</span>
+<span class="sd">    n**2*1/2 + n*1/2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">summation</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="o">*</span><span class="n">translate_tuple_args</span><span class="p">(</span><span class="n">args</span><span class="p">)))</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">series</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the series expansion of a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; series(real.sin(x), x, n=2)</span>
+<span class="sd">    x + Order(x**2)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">series</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="nb">dir</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">limit</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the limit of a z3 expression.</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Real(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; limit(1/x, x, sympy.oo)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; limit(1/x, x, 0) # TODO: What to do about this one?</span>
+<span class="sd">    inf</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="n">kdify</span><span class="p">(</span><span class="n">sympy</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="n">sympify</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">x0</span><span class="p">))</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd"># Old Style. Remove?</span>
+
+<span class="sd">a, b = smt.Reals(&quot;a b&quot;)</span>
+<span class="sd">sympy_decls = {</span>
+<span class="sd">    real.sqrt: sympy.sqrt,</span>
+<span class="sd">    real.sqr: lambda x: x**2,</span>
+<span class="sd">    real.exp: sympy.exp,</span>
+<span class="sd">    real.ln: sympy.ln,</span>
+<span class="sd">    real.sin: sympy.sin,</span>
+<span class="sd">    real.cos: sympy.cos,</span>
+<span class="sd">    real.tan: sympy.tan,</span>
+<span class="sd">    real.atan: sympy.atan,</span>
+<span class="sd">    real.pi.decl(): sympy.pi,</span>
+<span class="sd">    (a + b).decl(): sympy.Add,</span>
+<span class="sd">    (a * b).decl(): sympy.Mul,</span>
+<span class="sd">    (a / b).decl(): op.truediv,</span>
+<span class="sd">    (a - b).decl(): op.sub,</span>
+<span class="sd">    (a**b).decl(): sympy.Pow,</span>
+<span class="sd">    (a == b).decl(): sympy.Eq,</span>
+<span class="sd">}</span>
+<span class="sd">sympy_consts = {</span>
+<span class="sd">    real.pi: sympy.pi,</span>
+<span class="sd">}</span>
+<span class="sd">rev_sympy_decls = {v: k for k, v in sympy_decls.items()}</span>
+<span class="sd">rev_sympy_consts = {v: k for k, v in sympy_consts.items()}</span>
+
+
+<span class="sd">def interp_sympy(e: smt.ExprRef, env: dict[smt.ExprRef, sympy.Expr] = {}) -&gt; sympy.Expr:</span>
+<span class="sd">    if e in env:</span>
+<span class="sd">        return env[e]</span>
+<span class="sd">    elif e in sympy_consts:</span>
+<span class="sd">        return sympy_consts[e]</span>
+<span class="sd">    elif smt.is_rational_value(e) and isinstance(e, smt.RatNumRef):</span>
+<span class="sd">        return sympy.Rational(e.numerator_as_long(), e.denominator_as_long())</span>
+<span class="sd">    elif smt.is_select(e) and e.arg(0) in sympy_decls:</span>
+<span class="sd">        return sympy_decls[e.arg(0)](</span>
+<span class="sd">            *[interp_sympy(arg, env) for arg in e.children()[1:]]</span>
+<span class="sd">        )</span>
+<span class="sd">    elif smt.is_app(e) and e.decl() in sympy_decls:</span>
+<span class="sd">        decl = e.decl()</span>
+<span class="sd">        return sympy_decls[decl](*[interp_sympy(arg, env) for arg in e.children()])</span>
+<span class="sd">    else:</span>
+<span class="sd">        raise ValueError(f&quot;Can&#39;t interpret {e} into sympy&quot;)</span>
+
+
+<span class="sd">def z3_of_sympy(x: sympy.Basic, env: dict[sympy.Expr, smt.ExprRef] = {}) -&gt; smt.ExprRef:</span>
+<span class="sd">    if x in env:</span>
+<span class="sd">        return env[x]</span>
+<span class="sd">    elif x in rev_sympy_consts:</span>
+<span class="sd">        return rev_sympy_consts[x]</span>
+<span class="sd">    elif x.is_constant() and x.is_rational:  # type: ignore</span>
+<span class="sd">        num, denom = x.as_numer_denom()  # type: ignore</span>
+<span class="sd">        return smt.RatVal(int(num), int(denom))</span>
+<span class="sd">    elif x.func in rev_sympy_decls:</span>
+<span class="sd">        decl = rev_sympy_decls[x.func]</span>
+<span class="sd">        return decl(*[z3_of_sympy(arg, env) for arg in x.args])</span>
+<span class="sd">    else:</span>
+<span class="sd">        raise ValueError(&quot;Can&#39;t interpret&quot;, x, &quot;from sympy into z3&quot;)</span>
+
+
+<span class="sd">def wrap_sympy(f):</span>
+<span class="sd">    def wrapped(vs, e: smt.ExprRef, **kwargs):</span>
+<span class="sd">        env1 = {e: sympy.symbols(e.decl().name()) for e in vs}</span>
+<span class="sd">        env2 = {v: k for k, v in env1.items()}</span>
+<span class="sd">        e_sym = interp_sympy(e, env1)</span>
+<span class="sd">        t = z3_of_sympy(f(e_sym, **kwargs), env2)</span>
+<span class="sd">        return t</span>
+
+<span class="sd">    return wrapped</span>
+
+
+
+<span class="sd">factor = wrap_sympy(sympy.factor)</span>
+<span class="sd">expand = wrap_sympy(sympy.expand)</span>
+<span class="sd">simplify = wrap_sympy(sympy.simplify)</span>
+<span class="sd">expand_trig = wrap_sympy(sympy.expand_trig)</span>
+<span class="sd">collect = wrap_sympy(sympy.collect)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.real.interval.html" class="btn btn-neutral float-left" title="kdrag.theories.real.interval" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.real.sympy.diff.html" class="btn btn-neutral float-right" title="kdrag.theories.real.sympy.diff" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

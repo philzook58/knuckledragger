@@ -1,0 +1,6 @@
+kdrag.reflect.reflect\_expr\_string
+===================================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: reflect_expr_string

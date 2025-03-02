@@ -1,0 +1,45 @@
+kdrag.theories.real.sympy
+=========================
+
+.. automodule:: kdrag.theories.real.sympy
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      diff
+      expand
+      factor
+      integrate
+      kdify
+      limit
+      replace_rational_with_ratval
+      series
+      simplify
+      summation
+      sympify
+      translate_tuple_args
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/sympy.py
+   :language: python

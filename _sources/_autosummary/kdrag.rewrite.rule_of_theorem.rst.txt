@@ -1,0 +1,6 @@
+kdrag.rewrite.rule\_of\_theorem
+===============================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: rule_of_theorem
