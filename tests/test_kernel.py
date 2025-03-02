@@ -337,7 +337,7 @@ def test_lambda_2():
 
 
 def test_bv():
-    bv8 = bitvec.BVTheory(8)
+    bv8 = bitvec.BitVecSort(8)
 
 
 def test_forget():

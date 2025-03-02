@@ -22,6 +22,7 @@ def test_sheffer():
     c.eq(~(~(a | b)), by=[sh1])
     c.eq(~(~(a | (~(~b)))), by=sh1)
     c.eq(~~(~~b | a), by=[sh3, invert.defn])
+    c.eq((~~b) | a, by=[sh1])
     c.eq(b | a, by=[sh1])
     commut = c.qed()
 

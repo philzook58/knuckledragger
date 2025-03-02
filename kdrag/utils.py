@@ -175,7 +175,18 @@ def occurs(x: smt.ExprRef, t: smt.ExprRef) -> bool:
 
 
 def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
-    """Check both quantifiers are of the same kind"""
+    """Check both quantifiers are of the same kind
+
+    >>> x = smt.Int("x")
+    >>> forall = smt.ForAll([x], x > 0)
+    >>> exists = smt.Exists([x], x > 0)
+    >>> lamb = smt.Lambda([x], x > 0)
+    >>> assert quant_kind_eq(forall, forall)
+    >>> assert quant_kind_eq(exists, exists)
+    >>> assert quant_kind_eq(lamb, lamb)
+    >>> assert not quant_kind_eq(forall, exists)
+    """
+    # TODO: could make a faster version using Z3 kind tags
     return (
         t1.is_forall() == t2.is_forall()
         and t1.is_exists() == t2.is_exists()
@@ -186,6 +197,7 @@ def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
 def alpha_eq(t1, t2):
     """
     Alpha equivalent equality.
+    Z3's fast built-in t.eq is not alpha invariant.
 
     >>> x,y = smt.Ints("x y")
     >>> t1,t2 = smt.Lambda([x], x), smt.Lambda([y], y)
@@ -207,9 +219,11 @@ def alpha_eq(t1, t2):
             and t1.num_vars() == t2.num_vars()
             and [t1.var_sort(i) == t2.var_sort(i) for i in range(t1.num_vars())]
         ):
-            vs, body1 = open_binder(t1)
-            body2 = smt.substitute_vars(t2.body(), *reversed(vs))
-            return alpha_eq(body1, body2)
+            # It is ok to keep de bruijn indices here and not use open_binder?
+            # vs, body1 = open_binder(t1)
+            # body2 = smt.substitute_vars(t2.body(), *reversed(vs))
+            # return alpha_eq(body1, body2)
+            return alpha_eq(t1.body(), t2.body())
         else:
             return False
     elif smt.is_app(t1):
@@ -217,6 +231,12 @@ def alpha_eq(t1, t2):
             return all(alpha_eq(t1.arg(i), t2.arg(i)) for i in range(t1.num_args()))
         else:
             return False
+    elif smt.is_var(t1):
+        return (
+            smt.is_var(t2)
+            and smt.get_var_index(t1) == smt.get_var_index(t2)
+            and t1.sort() == t2.sort()
+        )  # sort check is probably redundant if quantifier bound?
     else:
         raise Exception("Unexpected terms in alpha_eq", t1, t2)
     # could instead maybe use a solver check or simplify tactic on Goal(t1 == t2)

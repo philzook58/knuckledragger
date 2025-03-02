@@ -21,7 +21,6 @@ class PreOrder(prop.TypeClass):
         )
 
 
-"""
 n, m, k = smt.Ints("n m k")
 PreOrder.register(
     smt.IntSort(),
@@ -31,4 +30,3 @@ PreOrder.register(
         kd.QForAll([n, m], (n < m) == smt.And(n <= m, smt.Not(m <= n)))
     ),
 )
-"""

@@ -92,12 +92,22 @@ def Seq(T: smt.SortRef) -> smt.SeqSortRef:
             (x + y) + z == x + (y + z),
         )
     )
+
+    S.length_empty = kd.prove(kd.QForAll([x], smt.Length(empty) == 0))
+    S.length_unit = kd.prove(kd.QForAll([x], smt.Length(smt.Unit(x)) == 1))
     S.concat_length = kd.prove(
         kd.QForAll([x, y], smt.Length(x + y) == smt.Length(x) + smt.Length(y))
     )
-    S.length_zero = kd.prove(kd.QForAll([x], (smt.Length(x) == 0) == (x == empty)))
-    S.length_empty = kd.prove(kd.QForAll([x], smt.Length(empty) == 0))
-    S.length_unit = kd.prove(kd.QForAll([x], smt.Length(smt.Unit(x)) == 1))
+    S.length_zero_unique = kd.prove(
+        kd.QForAll([x], (smt.Length(x) == 0) == (x == empty))
+    )
+    S.concat_head = kd.prove(
+        kd.QForAll(
+            [x],
+            smt.Length(x) > 0,
+            smt.Unit(x[0]) + smt.SubSeq(x, 1, smt.Length(x) - 1) == x,
+        )
+    )
 
     n, m = smt.Ints("n m")
 
