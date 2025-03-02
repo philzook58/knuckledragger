@@ -116,7 +116,7 @@ Fix via Newtype wrapper? I guess I want overloading anyway
 """
 
 BVN = BitVecN
-BVN.empty = BVN(smt.Empty(seq.Seq(BV1)))
+BVN.empty = BVN(smt.Empty(seq.Seq(BV1)))  # type: ignore
 x, y, z = smt.Consts("x y z", BitVecN)
 to_int = smt.Function("to_int", BitVecN, smt.IntSort())
 to_int = kd.notation.to_int.define(
@@ -130,7 +130,7 @@ to_int = kd.notation.to_int.define(
 )
 
 
-def BitVecNVal(x: int, N: int) -> smt.SeqRef:
+def BitVecNVal(x: int, N: int) -> smt.DatatypeRef:
     """
     >>> BitVecNVal(6, 3)
     BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))
@@ -189,7 +189,7 @@ def BitVecNConst(name: str, N: int) -> smt.DatatypeRef:
     return BitVecN(smt.Concat([smt.Unit(x[i]) for i in range(N)]))
 
 
-def BVNot(x: smt.DatatypeRef) -> smt.SeqRef:
+def BVNot(x: smt.DatatypeRef) -> smt.DatatypeRef:
     """
     >>> smt.simplify(BVNot(BitVecNVal(1, 3)))
     BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))
