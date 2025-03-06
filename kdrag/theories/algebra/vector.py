@@ -59,7 +59,8 @@ class Normed(prop.TypeClass):
 
     def check(self, T):
         x, y = smt.Consts("x y", T)
-        a = smt.Const("a", self.scalar)
+        V = VectorSpace(T)
+        a = smt.Const("a", V.scalar)
         assert T in kd.notation.add
         assert T in kd.notation.mul
         assert self.assert_eq(self.norm_nonneg.thm, smt.ForAll([x], self.norm(x) >= 0))

@@ -302,6 +302,7 @@ class SortRef(AstRef):
         """
         ...
 
+    def __setattr__(self, name: str, value: Any) -> None: ...
     def subsort(self, other):  # -> Literal[False]:
         """Return `True` if `self` is a subsort of `other`.
 
@@ -3930,6 +3931,9 @@ class DatatypeSortRef(SortRef):
         nil
         """
         ...
+
+    def __iter__(self):  # -> Iterator[FuncDeclRef]:
+        """Iterate over the constructors of the datatype `self`. Only for Enum like datatypes."""
 
     def recognizer(self, idx):  # -> FuncDeclRef:
         """In Z3, each constructor has an associated recognizer predicate.
