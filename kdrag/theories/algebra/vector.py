@@ -59,6 +59,7 @@ class Normed(prop.TypeClass):
 
     norm_nonneg: kd.Proof
     norm_zero: kd.Proof
+    norm_homog: kd.Proof
     norm_triangle: kd.Proof
 
     def check(self, T):
@@ -68,8 +69,13 @@ class Normed(prop.TypeClass):
         assert T in kd.notation.add
         assert T in kd.notation.mul
         assert self.assert_eq(self.norm_nonneg.thm, smt.ForAll([x], self.norm(x) >= 0))
-        assert self.assert_eq(self.norm_zero.thm, smt.ForAll([x], self.norm(x) == 0 == (x == V.zero)))
-        assert self.assert_eq(self.norm_homog.thm, smt.ForAll([a, x], self.norm(V.smul(a, x)) == smt.Abs(a) * self.norm(x))
+        assert self.assert_eq(
+            self.norm_zero.thm, smt.ForAll([x], self.norm(x) == 0 == (x == V.zero))
+        )
+        assert self.assert_eq(
+            self.norm_homog.thm,
+            smt.ForAll([a, x], self.norm(V.smul(a, x)) == smt.Abs(a) * self.norm(x)),
+        )
         assert self.assert_eq(
             self.norm_triangle.thm,
             smt.ForAll([x, y], self.norm(x + y) <= self.norm(x) + self.norm(y)),
