@@ -49,6 +49,10 @@ dot = kd.notation.SortDispatch(name="dot")
 
 
 class Normed(prop.TypeClass):
+    """
+    https://en.wikipedia.org/wiki/Normed_vector_space
+    """
+
     key: smt.SortRef
 
     norm: smt.FuncDeclRef
@@ -64,7 +68,8 @@ class Normed(prop.TypeClass):
         assert T in kd.notation.add
         assert T in kd.notation.mul
         assert self.assert_eq(self.norm_nonneg.thm, smt.ForAll([x], self.norm(x) >= 0))
-        assert self.assert_eq(self.norm_zero.thm, smt.ForAll([x], self.norm(x) == 0))
+        assert self.assert_eq(self.norm_zero.thm, smt.ForAll([x], self.norm(x) == 0 == (x == V.zero)))
+        assert self.assert_eq(self.norm_homog.thm, smt.ForAll([a, x], self.norm(V.smul(a, x)) == smt.Abs(a) * self.norm(x))
         assert self.assert_eq(
             self.norm_triangle.thm,
             smt.ForAll([x, y], self.norm(x + y) <= self.norm(x) + self.norm(y)),

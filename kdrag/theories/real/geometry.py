@@ -1,6 +1,7 @@
 import kdrag as kd
 import kdrag.smt as smt
-import kdrag.theories.real as real
+
+# import kdrag.theories.real as real
 import kdrag.theories.real.vec as vec
 import kdrag.theories.set as set_
 
