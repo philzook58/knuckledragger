@@ -1,3 +1,7 @@
+"""
+First class sets ArraySort(T, Bool)
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
 import functools
@@ -36,6 +40,7 @@ def Set(T):
     kd.notation.and_.register(S, smt.SetIntersect)
     kd.notation.or_.register(S, smt.SetUnion)
     kd.notation.sub.register(S, smt.SetDifference)
+    kd.notation.invert.register(S, smt.SetComplement)
     kd.notation.le.register(S, smt.IsSubset)
     kd.notation.lt.register(S, lambda x, y: smt.And(smt.IsSubset(x, y), x != y))
     kd.notation.ge.register(S, lambda x, y: smt.IsSubset(y, x))
@@ -98,6 +103,17 @@ def subset(A: smt.ArrayRef, B: smt.ArrayRef) -> smt.BoolRef:
     |- subset(A, K(Int, True))
     """
     return smt.IsSubset(A, B)
+
+
+def complement(A: smt.ArrayRef) -> smt.ArrayRef:
+    """
+    Complement of a set.
+    >>> IntSet = Set(smt.IntSort())
+    >>> A = smt.Const("A", IntSet)
+    >>> kd.prove(complement(complement(A)) == A)
+    |- complement(complement(A)) == A
+    """
+    return smt.SetComplement(A)
 
 
 def member(x: smt.ExprRef, A: smt.ArrayRef) -> smt.BoolRef:
@@ -188,3 +204,29 @@ def Injective(f: smt.FuncDeclRef) -> smt.BoolRef:
     else:
         conc = smt.And(*[x1 == x2 for x1, x2 in zip(xs1, xs2)])
     return kd.QForAll(xs1 + xs2, smt.Implies(f(*xs1) == f(*xs2), conc))
+
+
+def Finite(A: smt.ArrayRef) -> smt.BoolRef:
+    """
+    A set is finite if it has a finite number of elements.
+
+    See https://cvc5.github.io/docs/cvc5-1.1.2/theories/sets-and-relations.html#finite-sets
+
+    >>> IntSet = Set(smt.IntSort())
+    >>> kd.prove(Finite(IntSet.empty))
+    |- Exists(finwit!...,
+           ForAll(x!...,
+                  K(Int, False)[x!...] ==
+                  Contains(finwit!..., Unit(x!...))))
+    """
+    dom = A.sort().domain()
+    x = smt.FreshConst(dom, prefix="x")
+    finwit = smt.FreshConst(smt.SeqSort(A.domain()), prefix="finwit")
+    return kd.QExists(
+        [finwit], kd.QForAll([x], A[x] == smt.Contains(finwit, smt.Unit(x)))
+    )
+
+
+# @functools.cache
+# def FinSet(T : smt.SortRef) -> smt.DatatypeRef:
+#    return NewType("FinSet_" + str(T), T, pred=Finite)

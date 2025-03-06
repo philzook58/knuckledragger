@@ -1,3 +1,8 @@
+"""
+Algebraic data type for optional values
+
+"""
+
 import functools
 import kdrag.smt as smt
 import kdrag as kd

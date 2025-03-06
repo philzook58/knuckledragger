@@ -1,3 +1,7 @@
+"""
+Theory of built in floating point and connection to the reals
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
 import sys

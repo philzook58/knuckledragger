@@ -1,3 +1,7 @@
+"""
+Theory of regular expressions
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
 import functools

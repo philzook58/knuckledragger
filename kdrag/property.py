@@ -69,10 +69,10 @@ class TypeClass:
     # def check(self, *L):
     #    pass
 
-    def assert_eq(self, propname, b):
-        a = getattr(self, propname)
-        if not kd.utils.alpha_eq(a.thm, b):
-            raise ValueError(f"Property {propname}, does not match", a, b)
+    def assert_eq(self, a, b):
+        # a = getattr(self, propname)
+        if not kd.utils.alpha_eq(a, b):
+            raise ValueError("Property does not match", a, b)
 
     def __repr__(self):
         return type(self).__name__ + "(" + repr(self.__dict__) + ")"
@@ -159,6 +159,29 @@ def idem(f: smt.FuncDeclRef):
     T = f.domain(0)
     x = smt.Const("x", T)
     return kd.QForAll([x], f(x, x) == x)
+
+
+a, b = smt.Bools("a b")
+idem.register(smt.And(a, a).decl(), kd.prove(smt.ForAll([a], smt.And(a, a) == a)))
+
+
+def idem_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
+    """
+    >>> idem_simp(smt.And(a, smt.And(a, a)))
+    a
+    """
+    # Maybe this is overwrought. Rewrite on the idem axiom also works.
+    if smt.is_app(e):
+        f = e.decl()
+        args = [idem_simp(arg, trace=trace) for arg in e.children()]
+        if f.arity() == 2 and args[0].eq(args[1]) and f in idem:
+            if trace is not None:
+                trace.append(idem.get(f))
+            return args[0]
+        else:
+            return f(*args)
+    else:
+        return e
 
 
 @GenericProof

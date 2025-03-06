@@ -4,6 +4,7 @@ Tactics are helpers that organize calls to the kernel. The code of these helpers
 
 import kdrag as kd
 import kdrag.smt as smt
+import kdrag.config
 import kdrag.rewrite
 from enum import IntEnum
 import operator as op
@@ -45,6 +46,7 @@ class Calc:
                     return False
 
     def __init__(self, vars: list[smt.ExprRef], lhs: smt.ExprRef, assume=[]):
+        self.start_time = time.perf_counter()
         self.vars = vars
         self.lhs = lhs
         self.iterm = lhs  # intermediate term
@@ -107,6 +109,9 @@ class Calc:
         return "... " + str(self.mode) + " " + repr(self.iterm)
 
     def qed(self, **kwargs):
+        kdrag.config.perf_event(
+            "Calc", self.lemma, time.perf_counter() - self.start_time
+        )
         return self.lemma
 
 
@@ -168,7 +173,7 @@ def prove(
     >>> prove(succ2(x) == x + 2, unfold=2)
     |- succ2(x) == x + 2
     """
-    start_time = time.time()
+    start_time = time.perf_counter()
     if by is None:
         by = []
     elif isinstance(by, kd.Proof):
@@ -186,11 +191,13 @@ def prove(
         if not thm.eq(thm1):
             by.append(kd.kernel.prove(thm == thm1, by=trace, timeout=timeout))  # type: ignore
     try:
-        return kd.kernel.prove(
+        pf = kd.kernel.prove(
             thm, by, timeout=timeout, dump=dump, solver=solver, admit=admit
         )
+        kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
+        return pf
     except kd.kernel.LemmaError as e:
-        if time.time() - start_time > timeout / 1000:
+        if time.perf_counter() - start_time > timeout / 1000:
             raise TimeoutError(
                 "Timeout. Maybe you have given `prove` too many or not enough lemmas?"
             )
@@ -267,6 +274,7 @@ class Lemma:
     """
 
     def __init__(self, goal: smt.BoolRef):
+        self.start_time = time.perf_counter()
         self.lemmas = []
         self.thm = goal
         self.goals = [Goal(sig=[], ctx=[], goal=goal)]
@@ -515,7 +523,7 @@ class Lemma:
         """
         goalctx = self.goals[-1]
         ctx, goal = goalctx.ctx, goalctx.goal
-        self.lemmas.append(kd.kernel.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
+        self.lemmas.append(kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.goals.pop()
         return self.top_goal()
 
@@ -1014,4 +1022,8 @@ class Lemma:
             kwargs["by"].extend(self.lemmas)
         else:
             kwargs["by"] = self.lemmas
-        return kd.kernel.prove(self.thm, **kwargs)
+        pf = kd.kernel.prove(self.thm, **kwargs)
+        kdrag.config.perf_event(
+            "Lemma", self.thm, time.perf_counter() - self.start_time
+        )
+        return pf

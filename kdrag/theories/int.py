@@ -1,3 +1,7 @@
+"""
+Builtin theory of integers
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
 

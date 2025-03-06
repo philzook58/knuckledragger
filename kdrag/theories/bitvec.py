@@ -1,11 +1,11 @@
+"""
+Theorems about bitvectors. These are theorems about the built in smtlib bitvector types
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.seq as seq
 import functools
-
-"""
-Theorems about bitvectors. These are theorems about the built in smtlib bitvector types
-"""
 
 
 @functools.cache
@@ -107,6 +107,14 @@ def BitVecSort(N):
 
 
 BV1 = BitVecSort(1)
+BV8 = BitVecSort(8)
+# Annoyingly slow ~ 1s
+# BV16 = BitVecSort(16)
+# BV32 = BitVecSort(32)
+# Annoyingly slow ~ 1s
+# BV64 = BitVecSort(64)
+
+
 BitVecN = kd.NewType("BitVecN", seq.Seq(BV1))
 """
 Arbitrary length bitvectors. Least significant bit comes first (index 0). Concat is unfortunately reversed compared to bitvector convetions.
@@ -199,3 +207,44 @@ def BVNot(x: smt.DatatypeRef) -> smt.DatatypeRef:
 
 
 # BVAdd SeqFold
+
+
+def SelectConcat(
+    a: smt.ArrayRef, addr: smt.BitVecRef, n: int, le=True
+) -> smt.BitVecRef:
+    """
+    Concat out of an array.
+    n is number of bytes.
+    Flag is for little endian concatenation vs big endian.
+
+    >>> x = smt.Const("x", BitVecSort(8))
+    >>> a = smt.Lambda([x], x)
+    >>> smt.simplify(SelectConcat(a, 1, 1))
+    1
+    >>> smt.simplify(SelectConcat(a, 0, 2))
+    256
+    >>> smt.simplify(SelectConcat(a, 0, 2, le=False))
+    1
+    """
+    assert n > 0
+    if n == 1:
+        return a[addr]
+    elif le:
+        return smt.Concat([a[addr + n - i - 1] for i in range(n)])
+    else:
+        return smt.Concat([a[addr + i] for i in range(n)])
+
+
+@functools.cache
+def select64(outsize: int) -> smt.FuncDeclRef:
+    addr = smt.BitVec("addr", 64)
+    a = smt.Array("a", smt.BitVecSort(64), smt.BitVecSort(8))
+    return kd.define("select64", [a, addr], SelectConcat(a, addr, outsize))
+
+
+def PopCount(x: smt.BitVecRef) -> smt.ArithRef:
+    """
+    >>> smt.simplify(PopCount(smt.BitVecVal(6, 3)))
+    2
+    """
+    return smt.Sum([smt.BV2Int(smt.Extract(i, i, x)) for i in range(x.size())])

@@ -1,3 +1,9 @@
+"""
+Algebraic datatype of lists.
+
+You may prefer using theories.seq which offers more builtin support for things like associativity.
+"""
+
 import kdrag as kd
 import functools
 import kdrag.smt as smt

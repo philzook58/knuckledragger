@@ -87,3 +87,11 @@ _3 = kd.prove(
 expi_mul = kd.prove(
     kd.QForAll([t, s], expi(t) * expi(s) == expi(t + s)), by=[_1, _2, _3], admit=True
 )
+
+RSphere = kd.Inductive("RSphere")
+RSphere.declare("Finite", ("val", C))
+RSphere.declare("Inf")
+RSphere.create()
+
+# mobius
+# conformal

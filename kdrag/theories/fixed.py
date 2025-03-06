@@ -1,3 +1,7 @@
+"""
+Theory of fixed point arithmetic
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
 import functools

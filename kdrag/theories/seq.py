@@ -1,9 +1,9 @@
-import kdrag as kd
-import kdrag.smt as smt
-
 """
 Built in smtlib theory of finite sequences.
 """
+
+import kdrag as kd
+import kdrag.smt as smt
 
 
 # induct_list List style induction
@@ -156,3 +156,10 @@ def Seq(T: smt.SortRef) -> smt.SeqSortRef:
     # SeqMap, SeqMapI, SeqFoldLeft, SeqFoldLeftI
     # Contains
     return S
+
+
+def Unit(x: smt.ExprRef) -> smt.SeqRef:
+    """
+    Construct a sequence of length 1.
+    """
+    return smt.Unit(x)

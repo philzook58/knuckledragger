@@ -1,5 +1,5 @@
 """
-Defines an algebraic datatype for the Peano natural numbers and useful functions and properties.
+Algebraic datatype for the Peano natural numbers
 """
 
 import kdrag as kd
@@ -86,8 +86,9 @@ add_x_zero = add_x_zero()
 l = kd.Lemma(smt.ForAll([x], add(x, Nat.Z) == x))
 _x1 = l.fix()
 l.induct(_x1)
-l.auto(by=[add.defn])
-l.auto(by=[add.defn])
+l.auto(by=[add.defn(Nat.Z, Nat.Z)])
+_pred = l.fix()
+l.auto(by=[add.defn(Nat.S(_pred), Nat.Z)])
 add_Z_r = l.qed()
 
 l = kd.Lemma(smt.ForAll([x, y], add(x, Nat.S(y)) == Nat.S(add(x, y))))

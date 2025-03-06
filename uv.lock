@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.10"
 
 [[package]]
@@ -520,6 +521,15 @@ wheels = [
 ]
 
 [[package]]
+name = "importlib-resources"
+version = "6.5.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/8c/f834fbf984f691b4f7ff60f50b514cc3de5cc08abfc3295564dd89c5e2e7/importlib_resources-6.5.2.tar.gz", hash = "sha256:185f87adef5bcc288449d98fb4fba07cea78bc036455dd44c5fc4a2fe78fed2c", size = 44693 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a4/ed/1f1afb2e9e7f38a545d628f864d562a5ae64fe6f7a10e28ffb9b185b4e89/importlib_resources-6.5.2-py3-none-any.whl", hash = "sha256:789cfdc3ed28c78b67a06acb8126751ced69a3d5f79c095a98298cd8a760ccec", size = 37461 },
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -902,6 +912,9 @@ dev = [
     { name = "nbclient" },
     { name = "pytest" },
 ]
+yosys = [
+    { name = "yowasp-yosys" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -921,8 +934,10 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "python-flint" },
     { name = "sympy" },
+    { name = "yowasp-yosys", marker = "extra == 'yosys'", specifier = ">=0.50.0.0.post858" },
     { name = "z3-solver", specifier = ">=4.8" },
 ]
+provides-extras = ["dev", "yosys"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1873,6 +1888,23 @@ wheels = [
 ]
 
 [[package]]
+name = "wasmtime"
+version = "30.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "importlib-resources" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/0c/290dd5081c7c99d39bf85c5315a88c53079c5fe777ba6264f49cefed6362/wasmtime-30.0.0-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:578378ab33c9b046e74d44461eedd6fe4e4fca8522caa7f251123490263dabbf", size = 7040481 },
+    { url = "https://files.pythonhosted.org/packages/1c/4d/b127fab50719ad64cf5feef47daa5d0967ce0b1d96b8061ed2955b92d660/wasmtime-30.0.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:71423e8f56f7376ef1e5e2f560f2c51818213fc5d6f1a10dcf1d46b337cf9476", size = 6378107 },
+    { url = "https://files.pythonhosted.org/packages/44/aa/630ebb7a1dc8202da6b0d4d218b257203dc5df1571b6d9a9fe231cac9dfe/wasmtime-30.0.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:26af8a74e0f5786ee01ec8398621a268e6696d3b8e25d66f5d0ec931357f683a", size = 7471161 },
+    { url = "https://files.pythonhosted.org/packages/2c/f8/c13505b4506b117f6adffba9980d224c14922718dc437213447659db5c35/wasmtime-30.0.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:cac51ab4e91a2f44bdae88153859cef72a0c47438ef976ab18d90fa12d0c354e", size = 6958245 },
+    { url = "https://files.pythonhosted.org/packages/f6/e1/ed753bf0dc18c460feec06197f21f9c96709640990712bb6c6f075aee753/wasmtime-30.0.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:3964f0cf115e3c8dbd120a2b0eda6744fda10648a9e465930b81bdc876bcba36", size = 7481754 },
+    { url = "https://files.pythonhosted.org/packages/7d/53/ed6efad1505014abb7634fc2aa61aa7b521e45dce6d17fcb8180757a459e/wasmtime-30.0.0-py3-none-win_amd64.whl", hash = "sha256:651d8c0fa75b10840906a96530bac09937af7510a38346e1d0391f0240057f58", size = 5866033 },
+    { url = "https://files.pythonhosted.org/packages/67/09/e0a2a218d5292f017d41665a47bc672bd00533b3c0c9eb11316b4fd9fa56/wasmtime-30.0.0-py3-none-win_arm64.whl", hash = "sha256:0fcc47ca1b5ccc303167e58a89c2b9865928d8c024ee1481a4f2cf75dcc4eb70", size = 5375297 },
+]
+
+[[package]]
 name = "wcwidth"
 version = "0.2.13"
 source = { registry = "https://pypi.org/simple" }
@@ -1915,6 +1947,30 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/56/fc/238c424fd7f4ebb25f8b1da9a934a3ad7c848286732ae04263661eb0fc03/widgetsnbextension-4.0.13.tar.gz", hash = "sha256:ffcb67bc9febd10234a362795f643927f4e0c05d9342c727b65d2384f8feacb6", size = 1164730 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/21/02/88b65cc394961a60c43c70517066b6b679738caf78506a5da7b88ffcb643/widgetsnbextension-4.0.13-py3-none-any.whl", hash = "sha256:74b2692e8500525cc38c2b877236ba51d34541e6385eeed5aec15a70f88a6c71", size = 2335872 },
+]
+
+[[package]]
+name = "yowasp-runtime"
+version = "1.70"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "platformdirs" },
+    { name = "wasmtime" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/5c/c2844e1bc22d322edd14dafd7bc61a81515d39f56b168743022ab4daf3b6/yowasp_runtime-1.70-py3-none-any.whl", hash = "sha256:4164f2ff88303040ee26590bea14cb443e0a968c5424cf3f9af0c73c3895478c", size = 5613 },
+]
+
+[[package]]
+name = "yowasp-yosys"
+version = "0.50.0.0.post858"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "yowasp-runtime" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/35/0a/6f20773834f59ecb470a4135c7020afb12029fa86a0884ec6e3ee196519e/yowasp_yosys-0.50.0.0.post858-py3-none-any.whl", hash = "sha256:05eb4107600c27146c83244b40afbdcec852d94783c57bc710c063e9e2bc68e2", size = 8719117 },
 ]
 
 [[package]]

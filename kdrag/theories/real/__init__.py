@@ -1,12 +1,14 @@
+"""
+Definitions about the reals.
+
+Transcendental functions and bounds.
+"""
+
 import kdrag.smt as smt
 from kdrag.smt import ForAll, Function
 import kdrag as kd
 
-"""
-Definitions about the reals.
-Transcendental functions and bounds.
 
-"""
 R = smt.RealSort()
 RFun = smt.ArraySort(R, R)
 RSeq = smt.ArraySort(smt.IntSort(), R)
