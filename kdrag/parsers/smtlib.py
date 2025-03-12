@@ -59,6 +59,4 @@ parser = lark.Lark(sexp_grammar, start="start")
 
 
 def test():
-    """
-    #>>> parser.parse("(assert (= x 1))")
-    """
+    parser.parse("(assert (= x 1))")

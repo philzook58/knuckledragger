@@ -7,7 +7,6 @@ import kdrag as kd
 from enum import Enum
 from typing import NamedTuple, Optional
 import kdrag.utils as utils
-import functools
 from collections import defaultdict
 
 
