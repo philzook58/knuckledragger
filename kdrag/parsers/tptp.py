@@ -1,3 +1,5 @@
+import lark
+
 # https://github.com/inpefess/tptp-lark-parser/blob/master/tptp_lark_parser/resources/TPTP.lark
 # https://github.com/TPTPWorld/SyntaxBNF/blob/master/SyntaxBNF-v9.0.0.8
 fof_grammar = r"""
@@ -56,3 +58,39 @@ ALPHA_NUMERIC        : (LOWER_ALPHA | UPPER_ALPHA | NUMERIC | "_")
 %ignore WS
 
 """
+
+
+term_grammar = r"""
+term                :  NAME -> const
+            |        | _variable -> var
+                     | NAME "(" term ("," term)* ")" -> fun_app
+
+
+FOF_QUANTIFIER       : "!" | "?"
+fof_variable_list    : _variable ("," _variable)*
+
+_variable : UPPER_WORD
+
+NONASSOC_CONNECTIVE  : "<=>" | "=>" | "<="  // | "<~>" | "~|" | "~&"
+
+NAME                 : LOWER_WORD
+UPPER_WORD          : UPPER_ALPHA ALPHA_NUMERIC*
+LOWER_WORD           : LOWER_ALPHA ALPHA_NUMERIC*
+NUMERIC              : "0".."9"
+LOWER_ALPHA          : "a".."z"
+UPPER_ALPHA          : "A".."Z"
+ALPHA_NUMERIC        : (LOWER_ALPHA | UPPER_ALPHA | NUMERIC | "_") 
+
+%import common.WS
+%ignore WS
+"""
+
+term_parser = lark.Lark(term_grammar, start="term", parser="lalr")
+
+
+def test():
+    """
+    >>> term_parser.parse("f(Xy1,g(y23))")
+    Tree('fun_app', [Token('NAME', 'f'), Tree('var', [Token('UPPER_WORD', 'Xy1')]), Tree('fun_app', [Token('NAME', 'g'), Tree('const', [Token('NAME', 'y23')])])])
+
+    """

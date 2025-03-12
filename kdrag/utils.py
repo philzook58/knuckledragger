@@ -97,6 +97,12 @@ def pmatch(
             # smt.subsitute(t, *[zip(a,a.FreshConst("")) for a for allowed_vars])
             t1 = smt.Lambda(allowedvars, t)
             todo.append((F, t1))
+        elif smt.is_app(pat):
+            nargs = pat.num_args()
+            if not smt.is_app(t) or pat.decl() != t.decl():  # or nargs != t.num_args():
+                return None
+            for i in range(nargs):
+                todo.append((pat.arg(i), t.arg(i)))
         elif isinstance(pat, smt.QuantifierRef):
             if (
                 not isinstance(t, smt.QuantifierRef)
@@ -109,10 +115,6 @@ def pmatch(
             no_escape.extend(vs1)
             tbody = smt.substitute_vars(t.body(), *reversed(vs1))
             todo.append((patbody, tbody))
-        elif smt.is_app(pat):
-            if not smt.is_app(t) or pat.decl() != t.decl():
-                return None
-            todo.extend(zip(pat.children(), t.children()))
         else:
             raise Exception("Unexpected pattern", t, pat)
     return subst
@@ -133,6 +135,40 @@ def pmatch_rec(
             isinstance(t, smt.QuantifierRef) and into_binder
         ):  # going into the binder is dicey
             todo.append(t.body())
+
+
+def unify(
+    vs: list[smt.ExprRef], p1: smt.ExprRef, p2: smt.ExprRef
+) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+    """Unification"""
+    subst = {}
+    todo = [(p1, p2)]
+
+    def is_var(x):
+        return any(x.eq(v) for v in vs)
+
+    while todo:
+        p1, p2 = todo.pop()  # we could pop _any_ of the todos, not just the top.
+        if p1.eq(p2):  # delete
+            continue
+        elif is_var(p1):  # elim
+            if occurs(p1, p2):
+                return None
+            todo = [
+                (smt.substitute(t1, (p1, p2)), smt.substitute(t2, (p1, p2)))
+                for (t1, t2) in todo
+            ]
+            subst = {k: smt.substitute(v, (p1, p2)) for k, v in subst.items()}
+            subst[p1] = p2
+        elif is_var(p2):  # orient
+            todo.append((p2, p1))
+        elif smt.is_app(p1):  # decompose
+            if not smt.is_app(p2) or p1.decl() != p2.decl():
+                return None
+            todo.extend(zip(p1.children(), p2.children()))
+        else:
+            raise Exception("unexpected case", p1, p2)
+    return subst
 
 
 def unify_db(
@@ -166,12 +202,41 @@ def unify_db(
 
 
 def occurs(x: smt.ExprRef, t: smt.ExprRef) -> bool:
-    """Does x occur in t?"""
-    if smt.is_var(t):
-        return x.eq(t)
-    if smt.is_app(t):
+    """Does x occur in t?
+
+    >>> x,y,z = smt.Ints("x y z")
+    >>> assert occurs(x + y, x + y + z)
+    >>> assert not occurs(x + y, x + z)
+    >>> assert occurs(x, x + y + z)
+    >>> v0 = smt.Var(0, smt.IntSort())
+    >>> assert occurs(v0, v0 + x + y)
+    """
+    # TODO: Not alpha invariant, doesn't handle binders
+    if x.eq(t):
+        return True
+    elif smt.is_app(t):
         return any(occurs(x, t.arg(i)) for i in range(t.num_args()))
-    return False
+    elif smt.is_quantifier(t):
+        raise Exception("occurs check quantifier unimplemented", t)
+    elif smt.is_var(t):
+        return False
+    else:
+        raise Exception("Unexpected term in occurs check", t)
+
+
+# TODO: is_subterm and occurs are duplicated
+
+
+def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
+    """
+    TODO: Not alpha invariant or going into binders
+    """
+    if t.eq(t2):
+        return True
+    elif smt.is_app(t2):
+        return any(is_subterm(t, c) for c in t2.children())
+    else:
+        return False
 
 
 def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
@@ -388,18 +453,6 @@ def subterms(t: smt.ExprRef, into_binder=False):
             todo.append(x.body())
 
 
-def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
-    """
-    TODO: Not alpha invariant or going into binders
-    """
-    if t.eq(t2):
-        return True
-    elif smt.is_app(t2):
-        return any(is_subterm(t, c) for c in t2.children())
-    else:
-        return False
-
-
 def sorts(t: smt.ExprRef):
     """Generate all sorts in a term"""
     for t in subterms(
@@ -484,7 +537,7 @@ def search_expr(
     # Hmm. This isn't that different from the implementation of rewrite itself...
     for name, pf in pfs.items():
         try:  # try to convert to rewrite rule
-            rule = kd.rewrite.rule_of_theorem(pf.thm)
+            rule = kd.rewrite.rewrite_of_expr(pf.thm)
             t_subst = kd.utils.pmatch_rec(rule.vs, rule.lhs, e, into_binder=True)
             if t_subst is None:
                 if (

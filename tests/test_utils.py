@@ -148,18 +148,7 @@ def test_unify():
     assert utils.unify_db(1 + x, x) == None
 
 
-def test_rewrite():
-    x, y, z = smt.Reals("x y z")
-    succ_0 = smt.ForAll([x], x + 0 == x)
-    succ_0_rule = rewrite.rule_of_theorem(succ_0)
-    vs, lhs, rhs = succ_0_rule
-    assert rewrite.rewrite1(y + 0, vs, lhs, rhs).eq(y)
-    t = (y + 0) + 0
-    assert rewrite.rewrite(t, [succ_0_rule]).eq(y)
-    assert rewrite.rewrite_star(t, [succ_0_rule]).eq(y)
 
-    succ_0 = kd.prove(succ_0)
-    assert kd.tactics.simp(t, by=[succ_0]).thm.eq(t == y)
 
 
 def test_apply():

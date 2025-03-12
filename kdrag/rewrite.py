@@ -7,6 +7,8 @@ import kdrag as kd
 from enum import Enum
 from typing import NamedTuple, Optional
 import kdrag.utils as utils
+import functools
+from collections import defaultdict
 
 
 def simp1(t: smt.ExprRef) -> smt.ExprRef:
@@ -238,6 +240,42 @@ class RewriteRule(NamedTuple):
     vs: list[smt.ExprRef]
     lhs: smt.ExprRef
     rhs: smt.ExprRef
+    pf: Optional[kd.kernel.Proof] = None
+
+    def freshen(self) -> "RewriteRule":
+        """Freshen the rule by renaming variables.
+
+        >>> x,y= smt.Reals("x y")
+        >>> rule = RewriteRule([x,y], x*y, y*x)
+        >>> rule.freshen()
+        RewriteRule(vs=[x..., y...], lhs=x...*y..., rhs=y...*x..., pf=None)
+        """
+        vs1 = [smt.FreshConst(v.sort(), prefix=v.decl().name()) for v in self.vs]
+        return RewriteRule(
+            vs1,
+            lhs=smt.substitute(self.lhs, *zip(self.vs, vs1)),
+            rhs=smt.substitute(self.rhs, *zip(self.vs, vs1)),
+            pf=self.pf,
+        )
+
+    def to_expr(self):
+        """Convert the rule to a theorem of form `forall vs, lhs = rhs`.
+
+        >>> x,y = smt.Reals("x y")
+        >>> RewriteRule([x,y], x*y, y*x).to_expr()
+        ForAll([x, y], x*y == y*x)
+        """
+        if len(self.vs) == 0:
+            return self.lhs == self.rhs
+        else:
+            return smt.ForAll(self.vs, self.lhs == self.rhs)
+
+    @classmethod
+    def from_expr(
+        cls, expr: smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof
+    ) -> "RewriteRule":
+        """Convert a theorem of form `forall vs, lhs = rhs` to a rule."""
+        return rewrite_of_expr(expr)
 
 
 def rewrite1_rule(
@@ -256,17 +294,19 @@ def rewrite1_rule(
     return None
 
 
-def rewrite(t: smt.ExprRef, rules: list[RewriteRule], trace=None) -> smt.ExprRef:
+def rewrite_once(t: smt.ExprRef, rules: list[RewriteRule], trace=None) -> smt.ExprRef:
     """
     Sweep through term once performing rewrites.
 
     >>> x = smt.Real("x")
     >>> rule = RewriteRule([x], x**2, x*x)
-    >>> rewrite((x**2)**2, [rule])
+    >>> rewrite_once((x**2)**2, [rule])
     x*x*x*x
     """
     if smt.is_app(t):
-        t = t.decl()(*[rewrite(arg, rules) for arg in t.children()])  # rewrite children
+        t = t.decl()(
+            *[rewrite_once(arg, rules) for arg in t.children()]
+        )  # rewrite children
         for rule in rules:
             res = rewrite1_rule(t, rule, trace=trace)
             if res is not None:
@@ -277,16 +317,20 @@ def rewrite(t: smt.ExprRef, rules: list[RewriteRule], trace=None) -> smt.ExprRef
 class RewriteRuleException(Exception): ...
 
 
-def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> RewriteRule:
+def rewrite_of_expr(
+    thm: smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof,
+) -> RewriteRule:
     """
     Unpack theorem of form `forall vs, lhs = rhs` into a Rule tuple
 
     >>> x = smt.Real("x")
-    >>> rule_of_theorem(smt.ForAll([x], x**2 == x*x))
+    >>> rewrite_of_expr(smt.ForAll([x], x**2 == x*x))
     RewriteRule(vs=[X...], lhs=X...**2, rhs=X...*X...)
     """
     vs = []
     thm1 = thm  # to help out pyright
+    if isinstance(thm, kd.kernel.Proof):
+        thm1 = thm.thm
     while isinstance(thm1, smt.QuantifierRef):
         if thm1.is_forall():
             vs1, thm1 = utils.open_binder(thm1)
@@ -295,8 +339,11 @@ def rule_of_theorem(thm: smt.BoolRef | smt.QuantifierRef) -> RewriteRule:
             raise RewriteRuleException("Not a universal quantifier", thm1)
     if not smt.is_eq(thm1):
         raise RewriteRuleException("Not an equation", thm)
+    assert isinstance(thm1, smt.ExprRef)  # pyright
     lhs, rhs = thm1.children()
-    return RewriteRule(vs, lhs, rhs)
+    return RewriteRule(
+        vs, lhs, rhs, pf=thm if isinstance(thm, kd.kernel.Proof) else None
+    )
 
 
 def decl_index(rules: list[RewriteRule]) -> dict[smt.FuncDeclRef, RewriteRule]:
@@ -304,15 +351,76 @@ def decl_index(rules: list[RewriteRule]) -> dict[smt.FuncDeclRef, RewriteRule]:
     return {rule.lhs.decl(): rule for rule in rules}
 
 
-def rewrite_star(t: smt.ExprRef, rules: list[RewriteRule], trace=None) -> smt.ExprRef:
+def rewrite_slow(
+    t: smt.ExprRef,
+    rules: list[smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof],
+    trace=None,
+) -> smt.ExprRef:
     """
     Repeat rewrite until no more rewrites are possible.
+
+    >>> x,y,z = smt.Reals("x y z")
+    >>> unit = kd.prove(smt.ForAll([x], x + 0 == x))
+    >>> x + 0 + 0 + 0 + 0
+    x + 0 + 0 + 0 + 0
+    >>> rewrite(x + 0 + 0 + 0 + 0, [unit])
+    x
     """
+    rules1 = [
+        rule if isinstance(rule, RewriteRule) else rewrite_of_expr(rule)
+        for rule in rules
+    ]
     while True:
-        t1 = rewrite(t, rules, trace=trace)
+        t1 = rewrite_once(t, rules1, trace=trace)
         if t1.eq(t):
             return t1
         t = t1
+
+
+def rewrite(
+    t: smt.ExprRef,
+    rules: list[smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof],
+    trace=None,
+) -> smt.ExprRef:
+    """
+    Repeat rewrite until no more rewrites are possible.
+
+    >>> x,y,z = smt.Reals("x y z")
+    >>> unit = kd.prove(smt.ForAll([x], x + 0 == x))
+    >>> x + 0 + 0 + 0 + 0
+    x + 0 + 0 + 0 + 0
+    >>> rewrite(x + 0 + 0 + 0 + 0, [unit])
+    x
+    """
+    rules1 = [
+        rule if isinstance(rule, RewriteRule) else rewrite_of_expr(rule)
+        for rule in rules
+    ]
+    db = defaultdict(list)
+    for rule in rules1:
+        db[rule.lhs.decl()].append(rule)
+
+    # @functools.cache
+    def worker(e):
+        while True:
+            if smt.is_app(e):
+                decl = e.decl()
+                children = [worker(c) for c in e.children()]
+                e = decl(*children)
+                rules = db.get(decl, ())
+                done = True
+                for rule in rules:
+                    res = rewrite1_rule(e, rule, trace=trace)
+                    if res is not None:
+                        e = res
+                        done = False
+                        break
+                if done:
+                    return e
+            else:
+                return e
+
+    return worker(t)
 
 
 class Rule(NamedTuple):

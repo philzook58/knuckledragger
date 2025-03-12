@@ -28,3 +28,37 @@ NUMBER : /\d+/
 """
 
 parser = lark.Lark(grammar, start="start", parser="lalr")
+
+
+sexp_grammar = r"""
+
+start : list*
+_spec_constant : numeral | decimal | hexadecimal | binary | string
+_s_expr : _spec_constant | _symbol |  list // keyword
+list : "(" _s_expr* ")"
+hexadecimal : "#x" ("0".."9" | "a".."f" | "A".."F")+
+decimal : NUMERIC+ "." NUMERIC+
+binary : "#b" ("0" | "1")+
+simple_symbol : NONNUMCHAR CHARS*
+_symbol : simple_symbol | hexadecimal | binary
+keyword : ":" simple_symbol
+numeral : NUMERIC+
+// /([a-zA-Z]|[\+\-=/\\*\%\?\!\.\$])+/  // 
+NONNUMCHAR : "a".."z" | "A".."Z" | "+" | "-" | "/" | "*" | "=" | "%" | "?" | "!" | "." | "$" | "_" | "~" | "&" | "^" | "<" | ">" | "@"
+CHARS : NUMERIC | NONNUMCHAR
+NUMERIC              : "0".."9"
+LOWER_ALPHA          : "a".."z"
+UPPER_ALPHA          : "A".."Z"
+string : STRING
+%import common.ESCAPED_STRING   -> STRING
+%import common.WS
+%ignore WS
+"""
+
+parser = lark.Lark(sexp_grammar, start="start")
+
+
+def test():
+    """
+    #>>> parser.parse("(assert (= x 1))")
+    """

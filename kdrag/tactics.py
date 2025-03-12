@@ -219,8 +219,8 @@ def prove(
 
 
 def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.Proof:
-    rules = [kd.rewrite.rule_of_theorem(lem.thm) for lem in by]
-    t1 = kd.rewrite.rewrite(t, rules)
+    rules = [kd.rewrite.rewrite_of_expr(lem.thm) for lem in by]
+    t1 = kd.rewrite.rewrite_once(t, rules)
     return prove(smt.Eq(t, t1), by=by, **kwargs)
 
 

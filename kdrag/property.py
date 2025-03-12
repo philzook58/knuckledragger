@@ -132,16 +132,47 @@ class GenericProof:
 def assoc(f: smt.FuncDeclRef):
     T = f.domain(0)
     x, y, z = smt.Consts("x y z", T)
-    return kd.QForAll([x, y, z], f(x, f(y, z)) == f(f(x, y), z))
+    return kd.QForAll([x, y, z], f(f(x, y), z) == f(x, f(y, z)))
 
 
 x, y, z = smt.Ints("x y z")
 assoc.register(
-    (x + y).decl(), kd.prove(smt.ForAll([x, y, z], x + (y + z) == (x + y) + z))
+    (x + y).decl(), kd.prove(smt.ForAll([x, y, z], (x + y) + z == x + (y + z)))
 )
 assoc.register(
-    (x * y).decl(), kd.prove(smt.ForAll([x, y, z], x * (y * z) == (x * y) * z))
+    (x * y).decl(), kd.prove(smt.ForAll([x, y, z], (x * y) * z == x * (y * z)))
 )
+
+
+def assoc_norm(e: smt.ExprRef, trace=None) -> smt.ExprRef:
+    """
+
+    >>> T = smt.DeclareSort("T")
+    >>> x, y, z,w = smt.Ints("x y z w")
+    >>> assoc_norm((x + y) + (z + w)).eq(x + (y + (z + w)))
+    True
+    """
+    if smt.is_app(e):
+        f = e.decl()
+        if f in assoc:
+            c = assoc_norm(e.arg(1), trace=trace)  # normalize list tail
+            # (a  * b) * c -> a * (b * c)
+            todo = [e.arg(0)]
+            while todo:
+                x = todo.pop()
+                if smt.is_app(x) and x.decl() == f:
+                    a, b = x.children()
+                    if trace is not None:
+                        trace.append(assoc[f](a, b, c))
+                    todo.append(x.arg(0))
+                    todo.append(x.arg(1))
+                else:  # x is not f so it can actually be consed onto c.
+                    c = f(x, c)
+            return c
+        else:
+            return f(*[assoc_norm(arg) for arg in e.children()])
+    else:
+        return e
 
 
 @GenericProof
@@ -151,7 +182,36 @@ def comm(f: smt.FuncDeclRef):
     return kd.QForAll([x, y], f(x, y) == f(y, x))
 
 
+def comm_norm(e: smt.ExprRef, trace=None) -> smt.ExprRef:
+    """
+    >>> x,y = smt.Ints("x y")
+    >>> assert comm_norm(y + x).eq(x + y)
+    """
+    if smt.is_app(e):
+        f = e.decl()
+        args = [comm_norm(arg) for arg in e.children()]
+        if f in comm:
+            x, y = args
+            if x.decl().name() > y.decl().name():  # Todo: This is a bad ordering.
+                if trace is not None:
+                    trace.append(comm[f](x, y))
+                return f(y, x)
+            else:
+                return f(x, y)
+        else:
+            return f(*args)
+    else:
+        return e
+
+
 comm.register((x + y).decl(), kd.prove(smt.ForAll([x, y], x + y == y + x)))
+
+
+def assoc_comm(f: smt.FuncDeclRef) -> kd.Proof:
+    x, y, z = smt.Consts("x y z", f.domain(0))
+    return kd.prove(
+        kd.QForAll([x, y, z], f(x, (y, z)) == f(y, f(x, z))), by=[assoc[f], comm[f]]
+    )
 
 
 @GenericProof
@@ -165,15 +225,15 @@ a, b = smt.Bools("a b")
 idem.register(smt.And(a, a).decl(), kd.prove(smt.ForAll([a], smt.And(a, a) == a)))
 
 
-def idem_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
+def idem_norm(e: smt.ExprRef, trace=None) -> smt.ExprRef:
     """
-    >>> idem_simp(smt.And(a, smt.And(a, a)))
+    >>> idem_norm(smt.And(a, smt.And(a, a)))
     a
     """
     # Maybe this is overwrought. Rewrite on the idem axiom also works.
     if smt.is_app(e):
         f = e.decl()
-        args = [idem_simp(arg, trace=trace) for arg in e.children()]
+        args = [idem_norm(arg, trace=trace) for arg in e.children()]
         if f.arity() == 2 and args[0].eq(args[1]) and f in idem:
             if trace is not None:
                 trace.append(idem.get(f))
