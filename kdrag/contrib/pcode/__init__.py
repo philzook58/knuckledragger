@@ -8,13 +8,16 @@
 
 import pypcode
 from pypcode import OpCode
-import kdrag as kd
+
+# import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.bitvec as bv
 import operator
 
 TRUE = smt.BitVecVal(1, 8)
 FALSE = smt.BitVecVal(0, 8)
+
+BV8 = bv.BitVecSort(8)
 
 unop = {
     OpCode.COPY: lambda x: x,
