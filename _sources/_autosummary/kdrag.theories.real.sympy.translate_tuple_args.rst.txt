@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.translate\_tuple\_args
+================================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: translate_tuple_args

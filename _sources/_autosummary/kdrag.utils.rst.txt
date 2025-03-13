@@ -1,0 +1,57 @@
+kdrag.utils
+===========
+
+.. automodule:: kdrag.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      alpha_eq
+      ast_size_sexpr
+      decls
+      free_vars
+      generate
+      is_subterm
+      is_value
+      lemma_db
+      occurs
+      open_binder
+      open_binder_unhygienic
+      pmatch
+      pmatch_rec
+      prompt
+      prune
+      quant_kind_eq
+      sanity_check_consistency
+      search
+      search_decl
+      search_expr
+      sorts
+      subterms
+      unify
+      unify_db
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/utils.py
+   :language: python

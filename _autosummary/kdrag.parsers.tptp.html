@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.parsers.tptp &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.parsers.tptp.test" href="kdrag.parsers.tptp.test.html" />
+    <link rel="prev" title="kdrag.parsers.smtlib.test" href="kdrag.parsers.smtlib.test.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.parsers.smtlib.html">kdrag.parsers.smtlib</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.parsers.tptp</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.parsers.tptp.test.html">kdrag.parsers.tptp.test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.parsers.tptp.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.parsers.trs.html">kdrag.parsers.trs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.parsers.html">kdrag.parsers</a></li>
+      <li class="breadcrumb-item active">kdrag.parsers.tptp</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.parsers.tptp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.parsers.tptp">
+<span id="kdrag-parsers-tptp"></span><h1>kdrag.parsers.tptp<a class="headerlink" href="#module-kdrag.parsers.tptp" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.parsers.tptp.test.html#kdrag.parsers.tptp.test" title="kdrag.parsers.tptp.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.test">
+<span class="sig-prename descclassname"><span class="pre">kdrag.parsers.tptp.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.test" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">term_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;f(Xy1,g(y23))&quot;</span><span class="p">)</span>
+<span class="go">Tree(&#39;fun_app&#39;, [Token(&#39;NAME&#39;, &#39;f&#39;), Tree(&#39;var&#39;, [Token(&#39;UPPER_WORD&#39;, &#39;Xy1&#39;)]), Tree(&#39;fun_app&#39;, [Token(&#39;NAME&#39;, &#39;g&#39;), Tree(&#39;const&#39;, [Token(&#39;NAME&#39;, &#39;y23&#39;)])])])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">lark</span>
+
+<span class="c1"># https://github.com/inpefess/tptp-lark-parser/blob/master/tptp_lark_parser/resources/TPTP.lark</span>
+<span class="c1"># https://github.com/TPTPWorld/SyntaxBNF/blob/master/SyntaxBNF-v9.0.0.8</span>
+<span class="n">fof_grammar</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">start                : fof*</span>
+<span class="s2">cnf       : &quot;cnf&quot; &quot;(&quot; NAME &quot;,&quot; FORMULA_ROLE &quot;,&quot; cnf_formula &quot;)&quot;  &quot;.&quot;</span>
+<span class="s2">fof       : &quot;fof&quot; &quot;(&quot; NAME &quot;,&quot; FORMULA_ROLE &quot;,&quot; fof_formula &quot;)&quot;  &quot;.&quot; </span>
+
+<span class="s2">FORMULA_ROLE         :  &quot;axiom&quot; | &quot;conjecture&quot;</span>
+
+<span class="s2">?fof_formula         :  fof_unit_formula &quot;&lt;=&gt;&quot; fof_unit_formula -&gt; iff</span>
+<span class="s2">                     | fof_unit_formula &quot;=&gt;&quot; fof_unit_formula -&gt; implies</span>
+<span class="s2">                     | fof_unit_formula &quot;&lt;=&quot; fof_unit_formula -&gt; reverse_implies</span>
+<span class="s2">                     | fof_or_formula</span>
+<span class="s2">?fof_or_formula       : fof_and_formula  (&quot;|&quot; fof_and_formula)*</span>
+<span class="s2">?fof_and_formula      : fof_unit_formula (&quot;&amp;&quot; fof_unit_formula)*</span>
+<span class="s2">?fof_unit_formula     : &quot;~&quot; fof_unit_formula -&gt; not_formula </span>
+<span class="s2">                      | term &quot;!=&quot; term      -&gt; diseq</span>
+<span class="s2">                      | term &quot;=&quot; term  -&gt;      eq</span>
+<span class="s2">                      | &quot;(&quot; fof_formula &quot;)&quot; </span>
+<span class="s2">                      | term  -&gt; predicate</span>
+<span class="s2">                      | &quot;!&quot; &quot;[&quot; fof_variable_list &quot;]&quot; &quot;:&quot; fof_unit_formula -&gt; forall</span>
+<span class="s2">                      | &quot;?&quot; &quot;[&quot; fof_variable_list &quot;]&quot; &quot;:&quot; fof_unit_formula -&gt; exists</span>
+
+<span class="s2">                      </span>
+<span class="s2">?cnf_formula          : disjunction | &quot;(&quot; disjunction &quot;)&quot;</span>
+<span class="s2">disjunction         : literal (&quot;|&quot; cnf_formula)*</span>
+<span class="s2">literal              : atomic_formula -&gt; poslit </span>
+<span class="s2">                    | &quot;~&quot; atomic_formula -&gt; neglit</span>
+<span class="s2">                    | term &quot;!=&quot; term  -&gt; diseq</span>
+<span class="s2">                    | term &quot;=&quot; term -&gt; eq</span>
+
+
+<span class="s2">arguments            : term (&quot;,&quot; term)*</span>
+
+<span class="s2">term                :  NAME -&gt; const</span>
+<span class="s2">            |        | variable -&gt; var</span>
+<span class="s2">                     |  NAME &quot;(&quot; arguments &quot;)&quot; -&gt; fun_app</span>
+
+
+<span class="s2">FOF_QUANTIFIER       : &quot;!&quot; | &quot;?&quot;</span>
+<span class="s2">fof_variable_list    : variable (&quot;,&quot; variable)*</span>
+
+<span class="s2">variable : UPPER_WORD</span>
+
+<span class="s2">NONASSOC_CONNECTIVE  : &quot;&lt;=&gt;&quot; | &quot;=&gt;&quot; | &quot;&lt;=&quot;  // | &quot;&lt;~&gt;&quot; | &quot;~|&quot; | &quot;~&amp;&quot;</span>
+
+<span class="s2">NAME                 : LOWER_WORD</span>
+<span class="s2">UPPER_WORD           : UPPER_ALPHA ALPHA_NUMERIC*</span>
+<span class="s2">LOWER_WORD           : LOWER_ALPHA ALPHA_NUMERIC*</span>
+<span class="s2">NUMERIC              : &quot;0&quot;..&quot;9&quot;</span>
+<span class="s2">LOWER_ALPHA          : &quot;a&quot;..&quot;z&quot;</span>
+<span class="s2">UPPER_ALPHA          : &quot;A&quot;..&quot;Z&quot;</span>
+<span class="s2">ALPHA_NUMERIC        : (LOWER_ALPHA | UPPER_ALPHA | NUMERIC | &quot;_&quot;) </span>
+
+<span class="si">%i</span><span class="s2">mport common.WS</span>
+<span class="si">%i</span><span class="s2">gnore WS</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="n">term_grammar</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">term                :  NAME -&gt; const</span>
+<span class="s2">            |        | _variable -&gt; var</span>
+<span class="s2">                     | NAME &quot;(&quot; term (&quot;,&quot; term)* &quot;)&quot; -&gt; fun_app</span>
+
+
+<span class="s2">FOF_QUANTIFIER       : &quot;!&quot; | &quot;?&quot;</span>
+<span class="s2">fof_variable_list    : _variable (&quot;,&quot; _variable)*</span>
+
+<span class="s2">_variable : UPPER_WORD</span>
+
+<span class="s2">NONASSOC_CONNECTIVE  : &quot;&lt;=&gt;&quot; | &quot;=&gt;&quot; | &quot;&lt;=&quot;  // | &quot;&lt;~&gt;&quot; | &quot;~|&quot; | &quot;~&amp;&quot;</span>
+
+<span class="s2">NAME                 : LOWER_WORD</span>
+<span class="s2">UPPER_WORD          : UPPER_ALPHA ALPHA_NUMERIC*</span>
+<span class="s2">LOWER_WORD           : LOWER_ALPHA ALPHA_NUMERIC*</span>
+<span class="s2">NUMERIC              : &quot;0&quot;..&quot;9&quot;</span>
+<span class="s2">LOWER_ALPHA          : &quot;a&quot;..&quot;z&quot;</span>
+<span class="s2">UPPER_ALPHA          : &quot;A&quot;..&quot;Z&quot;</span>
+<span class="s2">ALPHA_NUMERIC        : (LOWER_ALPHA | UPPER_ALPHA | NUMERIC | &quot;_&quot;) </span>
+
+<span class="si">%i</span><span class="s2">mport common.WS</span>
+<span class="si">%i</span><span class="s2">gnore WS</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">term_parser</span> <span class="o">=</span> <span class="n">lark</span><span class="o">.</span><span class="n">Lark</span><span class="p">(</span><span class="n">term_grammar</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s2">&quot;term&quot;</span><span class="p">,</span> <span class="n">parser</span><span class="o">=</span><span class="s2">&quot;lalr&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; term_parser.parse(&quot;f(Xy1,g(y23))&quot;)</span>
+<span class="sd">    Tree(&#39;fun_app&#39;, [Token(&#39;NAME&#39;, &#39;f&#39;), Tree(&#39;var&#39;, [Token(&#39;UPPER_WORD&#39;, &#39;Xy1&#39;)]), Tree(&#39;fun_app&#39;, [Token(&#39;NAME&#39;, &#39;g&#39;), Tree(&#39;const&#39;, [Token(&#39;NAME&#39;, &#39;y23&#39;)])])])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.parsers.smtlib.test.html" class="btn btn-neutral float-left" title="kdrag.parsers.smtlib.test" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.parsers.tptp.test.html" class="btn btn-neutral float-right" title="kdrag.parsers.tptp.test" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

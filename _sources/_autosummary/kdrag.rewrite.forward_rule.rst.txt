@@ -1,0 +1,6 @@
+kdrag.rewrite.forward\_rule
+===========================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: forward_rule

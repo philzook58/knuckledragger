@@ -1,0 +1,6 @@
+kdrag.hypothesis.binops
+=======================
+
+.. currentmodule:: kdrag.hypothesis
+
+.. autofunction:: binops
