@@ -306,3 +306,185 @@ def test_aprove():
         [x, y], [plus(x, zero) == x, plus(x, succ(y)) == succ(plus(x, y))]
     )
 """
+
+
+def test_tptp2smt():
+    # https://tptp.org/UserDocs/QuickGuide/
+    # https://tptp.org/cgi-bin/SeeTPTP?Category=Problems&Domain=SYN&File=SYN075+1.p
+    example = """
+    fof(pel52_1,axiom,
+    ? [Z,W] :
+    ! [X,Y] :
+      ( big_f(X,Y)
+    <=> ( X = Z
+        & Y = W ) ) ).
+
+fof(pel52,conjecture,
+    ? [W] :
+    ! [Y] :
+      ( ? [Z] :
+        ! [X] :
+          ( big_f(X,Y)
+        <=> X = Z )
+    <=> Y = W ) ).
+
+    """
+    open("/tmp/example.p", "w").write(example)
+    constrs = solvers.tptp2smt("/tmp/example.p")
+    s = smt.Solver()
+    s.add(constrs)
+    assert s.check() == smt.unsat
+
+    # https://tptp.org/cgi-bin/SeeTPTP?Category=Problems&Domain=PUZ&File=PUZ131_1.p
+    # ok I guess tff doesn't work to smt2 for tptp4x
+    example = """tff(student_type,type,
+        student: $tType ).
+
+    tff(professor_type,type,
+        professor: $tType ).
+
+    tff(course_type,type,
+        course: $tType ).
+
+    tff(michael_type,type,
+        michael: student ).
+
+    tff(victor_type,type,
+        victor: professor ).
+
+    tff(csc410_type,type,
+        csc410: course ).
+
+    tff(enrolled_type,type,
+        enrolled: ( student * course ) > $o ).
+
+    tff(teaches_type,type,
+        teaches: ( professor * course ) > $o ).
+
+    tff(taught_by_type,type,
+        taughtby: ( student * professor ) > $o ).
+
+    tff(coordinator_of_type,type,
+        coordinatorof: course > professor ).
+
+    tff(student_enrolled_axiom,axiom,
+        ! [X: student] :
+        ? [Y: course] : enrolled(X,Y) ).
+
+    tff(professor_teaches,axiom,
+        ! [X: professor] :
+        ? [Y: course] : teaches(X,Y) ).
+
+    tff(course_enrolled,axiom,
+        ! [X: course] :
+        ? [Y: student] : enrolled(Y,X) ).
+
+    tff(course_teaches,axiom,
+        ! [X: course] :
+        ? [Y: professor] : teaches(Y,X) ).
+
+    tff(coordinator_teaches,axiom,
+        ! [X: course] : teaches(coordinatorof(X),X) ).
+
+    tff(student_enrolled_taught,axiom,
+        ! [X: student,Y: course] :
+        ( enrolled(X,Y)
+        => ! [Z: professor] :
+            ( teaches(Z,Y)
+            => taughtby(X,Z) ) ) ).
+
+    tff(michael_enrolled_csc410_axiom,axiom,
+        enrolled(michael,csc410) ).
+
+    tff(victor_coordinator_csc410_axiom,axiom,
+        coordinatorof(csc410) = victor ).
+
+    tff(teaching_conjecture,conjecture,
+        taughtby(michael,victor) ).
+    """
+    #open("/tmp/example.p", "w").write(example)
+    #constrs = solvers.tptp2smt("/tmp/example.p")
+    #s = smt.Solver()
+    #s.add(constrs)
+    #assert s.check() == smt.unsat
+
+    # https://tptp.org/cgi-bin/SeeTPTP?Category=Problems&Domain=SYN&File=SYN075-1.p
+    example = """
+cnf(clause_1,axiom,
+    ( ~ big_f(X,Y)
+    | X = a ) ).
+
+cnf(clause_2,axiom,
+    ( ~ big_f(X,Y)
+    | Y = b ) ).
+
+cnf(clause_3,axiom,
+    ( X != a
+    | Y != b
+    | big_f(X,Y) ) ).
+
+cnf(clause_4,negated_conjecture,
+    ( ~ big_f(Y,f(X))
+    | Y != g(X)
+    | f(X) = X ) ).
+
+cnf(clause_5,negated_conjecture,
+    ( ~ big_f(Y,f(X))
+    | Y = g(X)
+    | big_f(h(X,Z),f(X))
+    | ~ big_f(h(X,Z),f(X)) ) ).
+
+cnf(clause_6,negated_conjecture,
+    ( Y != g(X)
+    | big_f(Y,f(X))
+    | f(X) = X ) ).
+
+cnf(clause_7,negated_conjecture,
+    ( Y != g(X)
+    | big_f(Y,f(X))
+    | big_f(h(X,Z),f(X))
+    | h(X,Z) = Z ) ).
+
+cnf(clause_8,negated_conjecture,
+    ( Y != g(X)
+    | big_f(Y,f(X))
+    | h(X,Z) != Z
+    | ~ big_f(h(X,Z),f(X)) ) ).
+
+cnf(clause_9,negated_conjecture,
+    ( f(X) != X
+    | big_f(h(X,Z),f(X))
+    | h(X,Z) = Z ) ).
+
+cnf(clause_10,negated_conjecture,
+    ( f(X) != X
+    | h(X,Z) != Z
+    | ~ big_f(h(X,Z),f(X)) ) ).
+    """
+    open("/tmp/example.p", "w").write(example)
+    constrs = solvers.tptp2smt("/tmp/example.p")
+    s = smt.Solver()
+    s.add(constrs)
+    assert s.check() == smt.unsat
+
+
+def test_smt2tptp():
+    example = """
+
+    (declare-const x Int)
+    (declare-const y Int)
+    (declare-const z Int)
+    (declare-const a Real)
+    (declare-sort T 0)
+    (declare-fun f (T T) Bool)
+    (declare-const student T)
+    (assert (and (>= x 0) (<= x 10)))
+    (assert (and (>= y 0) (<= y 10)))
+    (assert (> y 10))
+    (assert (f student student))
+    (assert (> a 0))
+    """
+    open("/tmp/example.smt2", "w").write(example)
+    solvers.smt2tptp("/tmp/example.smt2", "/tmp/example.p", "tff")
+    solvers.run("vampire", ["/tmp/example.p"], check=True)
+

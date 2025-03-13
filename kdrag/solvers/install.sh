@@ -6,6 +6,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Change to the script directory
 cd "$SCRIPT_DIR"
 
+echo "Installing TPTP4X"
+git -C TPTP4X pull || git clone --recursive https://github.com/TPTPWorld/TPTP4X.git --depth 1
+cd TPTP4X
+make
+cd ..
+
 
 # https://github.com/vprover/vampire/releases
 echo "Installing Vampire"
@@ -30,6 +36,9 @@ make
 cp ./PROVER/eprover-ho ..
 cd ..
 
+
+
+
 echo "Installing Twee"
 # https://github.com/nick8325/twee/releases
 wget -nc https://github.com/nick8325/twee/releases/download/2.4.2/twee-2.4.2-linux-amd64 -O twee
@@ -51,6 +60,7 @@ cd ..
 
 
 # Kissat
+# Subsumed by passagemath-kissat?
 echo "Installing Kissat"
 git -C kissat pull || git clone https://github.com/arminbiere/kissat.git --depth 1
 cd kissat

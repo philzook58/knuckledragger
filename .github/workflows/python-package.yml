@@ -28,7 +28,7 @@ jobs:
           sudo apt install -y default-jre
           python -m pip install --upgrade pip
           python -m pip install ruff pytest cvc5
-          python -m pip install -e .[dev,yosys]
+          python -m pip install -e .[dev,yosys,pypcode]
           bash ./kdrag/solvers/install.sh
       - name: Lint with Ruff
         run: |

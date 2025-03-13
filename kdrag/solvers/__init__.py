@@ -462,6 +462,21 @@ def collect_decls(exprs):
     return decls
 
 
+def smt2tptp(smt_filename, outfile, format="tff"):
+    constraints = smt.parse_smt2_file(smt_filename)
+    solver = BaseSolver()
+    for c in constraints:
+        solver.add(c)
+    solver.write_tptp(outfile, format=format)
+
+
+def tptp2smt(tptp_filename):
+    res = run(
+        "TPTP4X/tptp4X", ["-f", "smt2", tptp_filename], capture_output=True, check=True
+    )
+    return smt.parse_smt2_string(res.stdout)
+
+
 class VampireSolver(BaseSolver):
     def __init__(self):
         super().__init__()
