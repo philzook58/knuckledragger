@@ -47,5 +47,5 @@ def test_pcode():
     # tx = ctx.translate(b"\x48\x35\x78\x56\x34\x12\xc3")
 
     tx = ctx.translate(b"\xf7\xd8")  # neg %eax
-    for op in tx:
+    for op in tx.ops:
         pass
