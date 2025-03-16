@@ -1,0 +1,6 @@
+kdrag.theories.set.is\_set
+==========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: is_set
