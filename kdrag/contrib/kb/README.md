@@ -1,1 +1,0 @@
-# Knuth Bendix Completion

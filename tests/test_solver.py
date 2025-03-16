@@ -15,7 +15,8 @@ import shutil
 from kdrag.solvers.egglog import EgglogSolver
 import kdrag.solvers.gappa as gappa
 import kdrag.solvers.aprove
-
+import kdrag.solvers.kb as kb
+import kdrag.rewrite as rw
 
 @pytest.mark.slow
 def test_vampirethf():
@@ -488,3 +489,40 @@ def test_smt2tptp():
     solvers.smt2tptp("/tmp/example.smt2", "/tmp/example.p", "tff")
     solvers.run("vampire", ["/tmp/example.p"], check=True)
 
+
+@pytest.mark.slow
+def test_huet():
+    # Gropu theory example
+    # https://smimram.github.io/ocaml-alg/kb/
+
+    T = smt.DeclareSort("AbstractGroup")
+    x,y,z = smt.Consts("x y z", T)
+    e = smt.Const("a_e", T)
+    inv = smt.Function("c_inv", T, T)
+    mul = smt.Function("b_mul", T, T, T)
+    kd.notation.mul.register(T, mul)
+    kd.notation.invert.register(T, inv)
+    E = [
+        smt.ForAll([x], e * x == x),
+        # adding in these other redundant axioms makes it easier on the system
+        #smt.ForAll([x], x * e == x),
+        #smt.ForAll([x], x * inv(x) == e),
+        smt.ForAll([x], inv(x) * x == e),
+        smt.ForAll([x,y,z], (x * y) * z == x * (y * z)),
+        #smt.ForAll([x,y], inv(x * y) == inv(y) * inv(x))
+    ]
+    #basic(E, order=rw.lpo)
+    assert len(kb.huet(E, order=rw.lpo)) == 10
+
+
+def test_huet_smt():
+    example = """
+    (assert (forall ((x Int) (y Int) (z Int))
+        (= 
+            (* (* x y) (* y z))
+            y    
+        )
+    ))
+    """
+    open("/tmp/example.smt2", "w").write(example)
+    assert len(kb.huet_smt2_file("/tmp/example.smt2")) == 3

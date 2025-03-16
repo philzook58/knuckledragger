@@ -5,7 +5,7 @@ Utilities for rewriting and simplification including pattern matching and unific
 import kdrag.smt as smt
 import kdrag as kd
 from enum import Enum
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Sequence
 import kdrag.utils as utils
 from collections import defaultdict
 
@@ -257,7 +257,7 @@ class RewriteRule(NamedTuple):
             pf=self.pf,
         )
 
-    def to_expr(self):
+    def to_expr(self) -> smt.BoolRef | smt.QuantifierRef:
         """Convert the rule to a theorem of form `forall vs, lhs = rhs`.
 
         >>> x,y = smt.Reals("x y")
@@ -265,9 +265,9 @@ class RewriteRule(NamedTuple):
         ForAll([x, y], x*y == y*x)
         """
         if len(self.vs) == 0:
-            return self.lhs == self.rhs
+            return smt.Eq(self.lhs, self.rhs)
         else:
-            return smt.ForAll(self.vs, self.lhs == self.rhs)
+            return smt.ForAll(self.vs, smt.Eq(self.lhs, self.rhs))
 
     @classmethod
     def from_expr(
@@ -287,9 +287,9 @@ def rewrite1_rule(
     """
     subst = utils.pmatch(rule.vs, rule.lhs, t)
     if subst is not None:
-        return smt.substitute(rule.rhs, *subst.items())
         if trace is not None:
             trace.append((rule, subst))
+        return smt.substitute(rule.rhs, *subst.items())
     return None
 
 
@@ -378,7 +378,7 @@ def rewrite_slow(
 
 def rewrite(
     t: smt.ExprRef,
-    rules: list[smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof],
+    rules: Sequence[smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof | RewriteRule],
     trace=None,
 ) -> smt.ExprRef:
     """
