@@ -25,7 +25,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          sudo apt install -y default-jre
+          sudo apt install -y default-jre curl
           python -m pip install --upgrade pip
           python -m pip install ruff pytest cvc5
           python -m pip install -e .[dev,yosys,pypcode]

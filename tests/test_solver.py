@@ -516,13 +516,13 @@ def test_huet():
 
 
 def test_huet_smt():
-    example = """
-    (assert (forall ((x Int) (y Int) (z Int))
-        (= 
-            (* (* x y) (* y z))
-            y    
-        )
-    ))
-    """
-    open("/tmp/example.smt2", "w").write(example)
-    assert len(kb.huet_smt2_file("/tmp/example.smt2")) == 3
+    example = """\
+(declare-sort T 0)
+(declare-fun mul (T T) T)
+(assert 
+    (forall ((x T) (y T) (z T))
+    (=  (mul (mul x y) (mul y z)) 
+        y))
+)"""
+    open("/tmp/central_groupoid.smt2", "w").write(example)
+    assert len(kb.huet_smt2_file("/tmp/central_groupoid.smt2")) == 3
