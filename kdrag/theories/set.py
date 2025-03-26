@@ -65,6 +65,8 @@ def Set(T):
     S.diff_full = kd.prove(smt.ForAll([A], A - S.full == S.empty))
     S.diff_self = kd.prove(smt.ForAll([A], A - A == S.empty))
 
+    S.finite = kd.define("finite", [A], Finite(A))
+
     return S
 
 
@@ -226,6 +228,8 @@ def Finite(A: smt.ArrayRef) -> smt.BoolRef:
         [finwit], kd.QForAll([x], A[x] == smt.Contains(finwit, smt.Unit(x)))
     )
 
+
+# TODO: Theorems: Finite is closed under most operations
 
 # @functools.cache
 # def FinSet(T : smt.SortRef) -> smt.DatatypeRef:

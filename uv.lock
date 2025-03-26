@@ -898,6 +898,7 @@ name = "knuckledragger"
 version = "0.1.1"
 source = { virtual = "." }
 dependencies = [
+    { name = "cffi" },
     { name = "egglog" },
     { name = "hypothesis" },
     { name = "lark" },
@@ -929,6 +930,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cffi", specifier = ">=1.17.1" },
     { name = "egglog" },
     { name = "hypothesis", specifier = ">=6.124.1" },
     { name = "jupyter", marker = "extra == 'dev'" },

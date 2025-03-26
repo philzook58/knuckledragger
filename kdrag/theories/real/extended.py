@@ -2,6 +2,7 @@ import kdrag.smt as smt
 import kdrag as kd
 
 # https://en.wikipedia.org/wiki/Extended_real_number_line
+# https://isabelle.in.tum.de/library/HOL/HOL-Library/Extended_Real.html
 
 EReal = smt.Datatype("EReal")
 EReal.declare("Real", ("val", smt.RealSort()))

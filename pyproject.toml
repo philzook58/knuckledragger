@@ -18,6 +18,7 @@ dependencies = [
     "sympy",
     "lark",
     "hypothesis>=6.124.1",
+    "cffi>=1.17.1",
 ]
 [project.urls]
 homepage = "https://github.com/philzook58/knuckledragger"
