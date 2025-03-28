@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.sympify
+=================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: sympify

@@ -1,0 +1,6 @@
+kdrag.solvers.kb.critical\_pair\_helper
+=======================================
+
+.. currentmodule:: kdrag.solvers.kb
+
+.. autofunction:: critical_pair_helper

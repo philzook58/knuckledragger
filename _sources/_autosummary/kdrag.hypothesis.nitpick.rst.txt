@@ -1,0 +1,6 @@
+kdrag.hypothesis.nitpick
+========================
+
+.. currentmodule:: kdrag.hypothesis
+
+.. autofunction:: nitpick

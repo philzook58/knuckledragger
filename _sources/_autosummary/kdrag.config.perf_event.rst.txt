@@ -1,0 +1,6 @@
+kdrag.config.perf\_event
+========================
+
+.. currentmodule:: kdrag.config
+
+.. autofunction:: perf_event

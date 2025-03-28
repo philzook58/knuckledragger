@@ -1,0 +1,6 @@
+kdrag.smt.Eq
+============
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: Eq

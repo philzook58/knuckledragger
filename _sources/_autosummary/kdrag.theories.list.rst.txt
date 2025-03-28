@@ -1,0 +1,38 @@
+kdrag.theories.list
+===================
+
+.. automodule:: kdrag.theories.list
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Cons
+      List
+      Nil
+      Unit
+      list
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/list.py
+   :language: python
