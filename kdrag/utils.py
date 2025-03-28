@@ -631,3 +631,58 @@ def prompt(prompt: str):
     combined_content += "\n\n\n" + prompt + "\n\n\n"
 
     return "".join(combined_content)
+
+
+def antipattern(xs: list[smt.ExprRef]) -> tuple[list[smt.ExprRef], smt.ExprRef]:
+    """
+    Anti pattern matching. Given a list of concrete examples, return the most specific pattern that matches them all.
+    Returns tuple of list of pattern variables and pattern expression.
+
+    https://arxiv.org/pdf/2302.00277 Anti-unification and Generalization: A Survey
+    https://arxiv.org/abs/2212.04596  babble: Learning Better Abstractions with E-Graphs and Anti-Unification
+    https://ericlippert.com/2018/10/29/anti-unification-part-1/
+
+
+    >>> a,b,c,d = smt.Ints("a b c d")
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort())
+    >>> g = smt.Function("g", smt.IntSort(), smt.IntSort(), smt.IntSort())
+    >>> t1 = f(a,g(a,b))
+    >>> t2 = f(c,g(c,d))
+    >>> t3 = f(a,g(d,b))
+    >>> antipattern([t1,t2])
+    ([a!..., b!...], f(a!..., g(a!..., b!...)))
+    >>> antipattern([t1,t2,t3])
+    ([a!..., a!..., b!...], f(a!..., g(a!..., b!...)))
+
+    """
+    # we should key on the tuple of all terms, because we want to return same variable.
+    sort = xs[0].sort()
+    assert all(
+        x.sort() == sort for x in xs
+    )  # asking to antiunify terms of different sorts is invalid
+
+    # antisubst is a dictionary that maps tuples of terms to a new variable
+    antisubst: dict[tuple[smt.ExprRef, ...], smt.ExprRef] = {}
+
+    def worker(xs):
+        x0 = xs[0]
+        if all(x.eq(x0) for x in xs):
+            return x0
+        elif xs in antisubst:
+            return antisubst[xs]
+        elif all(smt.is_app(x) for x in xs):
+            decl, nargs = x0.decl(), x0.num_args()
+            if all(decl == x.decl() and nargs == x.num_args() for x in xs):
+                args = []
+                for bs in zip(*[x.children() for x in xs]):
+                    args.append(worker(bs))
+                return decl(*args)
+            else:
+                z = smt.FreshConst(x0.sort(), prefix=decl.name())
+                antisubst[xs] = z
+                return z
+        else:
+            raise Exception("Unexpected case in antipattern", xs)
+
+    res = worker(tuple(xs))
+    return list(antisubst.values()), res

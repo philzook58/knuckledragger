@@ -34,7 +34,7 @@ class EgglogSolver(solvers.BaseSolver):
     def run_cmd(self, cmd: str):
         if self.debug:
             print(cmd)
-        commands = eggbnd.parse_program(cmd)
+        commands = self.egraph.parse_program(cmd)
         return self.egraph.run_program(*commands)
 
     def add(self, thm: smt.ExprRef):
@@ -46,7 +46,7 @@ class EgglogSolver(solvers.BaseSolver):
         for decl in solvers.collect_decls([rule]):
             if decl not in self.decls and decl.name() not in self.predefined_names:
                 dom = " ".join([decl.domain(i).name() for i in range(decl.arity())])
-                cmd = f"(function {decl.name()} ({dom}) {decl.range().name()})"
+                cmd = f"(constructor {decl.name()} ({dom}) {decl.range().name()})"
                 self.run_cmd(cmd)
                 self.decls.add(decl)
         if isinstance(rule, smt.QuantifierRef):
