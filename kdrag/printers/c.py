@@ -115,7 +115,7 @@ def c_of_expr(
         nargs = len(children)
         if e.decl() in sig:
             assert is_valid_c_identifier_strict(e.decl().name())
-            return f"{e.decl().name()}({", ".join(children)})"
+            return f"""{e.decl().name()}({", ".join(children)})"""
         elif smt.is_if(e):
             return f"({children[0]} ? {children[1]} : {children[2]})"
         elif isinstance(e, smt.BoolRef):
