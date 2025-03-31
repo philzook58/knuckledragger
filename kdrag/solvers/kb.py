@@ -13,7 +13,6 @@ For more see
 
 """
 
-import kdrag as kd
 import kdrag.smt as smt
 import kdrag.rewrite as rw
 import sys

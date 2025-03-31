@@ -1,5 +1,5 @@
 import kdrag.parsers as parsers
-import kdrag.contrib.prolog as prolog
+import kdrag.solvers.prolog as prolog
 import kdrag.parsers.tptp as tptp
 import kdrag.parsers.smtlib as smtlib
 import lark
