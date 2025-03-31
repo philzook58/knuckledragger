@@ -7,10 +7,6 @@ import os
 import cffi
 
 
-def finsize(s: smt.SortRef):
-    return s == smt.BoolSort() or isinstance(s, smt.BitVecSortRef)
-
-
 def ctype_of_sort(s: smt.SortRef):
     if s == smt.BoolSort():
         return "bool"
@@ -184,7 +180,7 @@ def cstring(name, args, body):
 """
 
 
-def compile_c(c_code):
+def compile_c(c_code, opts=[]):
     """
     #>>> x,y = smt.BitVecs("x y", 32)
     #>>> compile_c(cstring("foo", [x,y], smt.If(smt.UGT(x + x*y + 1, x), x , y)))
@@ -212,7 +208,8 @@ def compile_c(c_code):
             c_file,
             "-o",
             so_file,
-        ],
+        ]
+        + opts,
         check=True,
         capture_output=True,
     )

@@ -19,38 +19,6 @@ import kdrag.rewrite as rw
 import sys
 
 
-def critical_pair_helper(
-    vs: list[smt.ExprRef], t: smt.ExprRef, lhs: smt.ExprRef, rhs: smt.ExprRef
-) -> list[tuple[smt.ExprRef, dict[smt.ExprRef, smt.ExprRef]]]:
-    """
-    Look for pattern lhs to unify with a subterm of t.
-    returns a list of all of those lhs -> rhs applied + the substitution resulting from the unification.
-    The substitution is so that we can apply the other `t -> s` rule once we return.
-
-
-    This helper is asymmettric between t and lhs. You need to call it twice to get all critical pairs.
-
-    >>> x,y,z = smt.Reals("x y z")
-    >>> critical_pair_helper([x,y], -(-(-(x))), -(-(y)), y)
-    [(y, {y: -x}), (-y, {x: y}), (--y, {x: -y})]
-    """
-    res = []
-    if any(
-        t.eq(v) for v in vs
-    ):  # Non trivial overlap only `X ~ lhs` is not interesting.
-        return res
-    subst = kd.utils.unify(vs, t, lhs)
-    if subst is not None:
-        res.append((rhs, subst))
-    f, children = t.decl(), t.children()
-    for n, arg in enumerate(children):
-        # recurse into subterms and lift result under f if found something
-        for s, subst in critical_pair_helper(vs, arg, lhs, rhs):
-            args = children[:n] + [s] + children[n + 1 :]
-            res.append((f(*args), subst))
-    return res
-
-
 def all_pairs(rules):
     """
     Find all the ways the left hand side of two rules can overlap.
@@ -68,7 +36,7 @@ def all_pairs(rules):
             if any(v1.eq(v2) for v1 in rule1.vs for v2 in rule2.vs):
                 rule2 = rule2.freshen()
             vs = rule1.vs + rule2.vs
-            for t, subst in critical_pair_helper(vs, rule1.lhs, rule2.lhs, rule2.rhs):
+            for t, subst in rw.all_narrow(vs, rule1.lhs, rule2.lhs, rule2.rhs):
                 apply_rule1 = smt.substitute(rule1.rhs, *subst.items())
                 apply_rule2 = smt.substitute(t, *subst.items())
                 vs1 = list(set(vs) - set(subst.keys()))

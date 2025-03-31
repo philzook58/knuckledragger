@@ -120,6 +120,44 @@ def pmatch(
     return subst
 
 
+def pmatch_fo(
+    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, subst=None
+) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+    """
+    First order pattern matching. Faster and simpler.
+    Pattern match t against pat considering vs as variables. Returns substitution dictionary if succeeds
+
+    >>> x, y = smt.Ints("x y")
+    >>> pmatch_fo([x], x + x, y + y)
+    {x: y}
+    """
+    if pat.sort() != t.sort():
+        return None
+    if subst is None:
+        subst = {}
+    todo = [(pat, t)]
+
+    vids = [v.get_id() for v in vs]
+
+    while todo:
+        pat, t = todo.pop()
+        if pat.get_id() in vids:
+            if pat in subst:
+                if not alpha_eq(subst[pat], t):
+                    return None
+            else:
+                subst[pat] = t
+        elif smt.is_app(pat):
+            nargs = pat.num_args()
+            if not smt.is_app(t) or pat.decl() != t.decl():
+                return None
+            for i in range(nargs):
+                todo.append((pat.arg(i), t.arg(i)))
+        else:
+            raise Exception("Unexpected pattern", t, pat)
+    return subst
+
+
 def pmatch_rec(
     vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, into_binder=False
 ) -> Optional[tuple[smt.ExprRef, dict[smt.ExprRef, smt.ExprRef]]]:

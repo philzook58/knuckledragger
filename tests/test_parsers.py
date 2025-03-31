@@ -15,10 +15,9 @@ def test_prolog():
     add = smt.Function("add", Term, Term, Term, smt.BoolSort())
     s = smt.Function("s", Term, Term)
     z, X, Y, Z = smt.Consts("z X Y Z", Term)
-    assert prolog.interp(t)[0].eq(add(z, Y, Y))
-    assert prolog.interp(t)[1].eq(
-        smt.Implies(smt.And(add(s(X), Y, s(Z)), add(X, Y, Z)), add(s(X), Y, s(Z)))
-    )
+    assert prolog.interp(t)[0][0].eq(smt.ForAll([Y], add(z, Y, Y)))
+    assert prolog.interp(t)[0][1].eq(smt.ForAll([Y,Z,X],
+        smt.Implies( smt.And(add(X, Y, Z)), add(s(X), Y, s(Z)))))
 
 
 def test_tptp():

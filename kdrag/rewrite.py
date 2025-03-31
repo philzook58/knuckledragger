@@ -422,11 +422,74 @@ def rewrite(
     return worker(t)
 
 
+def all_narrow(
+    vs: list[smt.ExprRef], t: smt.ExprRef, lhs: smt.ExprRef, rhs: smt.ExprRef
+) -> list[tuple[smt.ExprRef, dict[smt.ExprRef, smt.ExprRef]]]:
+    """
+    Look for pattern lhs to unify with a subterm of t.
+    returns a list of all of those lhs -> rhs applied + the substitution resulting from the unification.
+    The substitution is so that we can apply the other `t -> s` rule once we return.
+
+
+    This helper is asymmettric between t and lhs. You need to call it twice to get all critical pairs.
+
+    >>> x,y,z = smt.Reals("x y z")
+    >>> all_narrow([x,y], -(-(-(x))), -(-(y)), y)
+    [(y, {y: -x}), (-y, {x: y}), (--y, {x: -y})]
+    """
+    res = []
+    if any(
+        t.eq(v) for v in vs
+    ):  # Non trivial overlap only `X ~ lhs` is not interesting.
+        return res
+    subst = kd.utils.unify(vs, t, lhs)
+    if subst is not None:
+        res.append((rhs, subst))
+    f, children = t.decl(), t.children()
+    for n, arg in enumerate(children):
+        # recurse into subterms and lift result under f if found something
+        for s, subst in all_narrow(vs, arg, lhs, rhs):
+            args = children[:n] + [s] + children[n + 1 :]
+            res.append((f(*args), subst))
+    return res
+
+
 class Rule(NamedTuple):
     vs: list[smt.ExprRef]
     hyp: smt.BoolRef
     conc: smt.BoolRef
     pf: Optional[kd.kernel.Proof] = None
+
+    def freshen(self):
+        """Freshen the rule by renaming variables.
+
+        >>> x,y= smt.Reals("x y")
+        >>> rule = Rule([x], x > 0, x < 0)
+        >>> rule.freshen()
+        Rule(vs=[x...], hyp=x... > 0, conc=x... < 0, pf=None)
+        """
+        vs1 = [
+            smt.FreshConst(v.sort(), prefix=v.decl().name().split("!")[0])
+            for v in self.vs
+        ]
+        return Rule(
+            vs1,
+            hyp=smt.substitute(self.hyp, *zip(self.vs, vs1)),
+            conc=smt.substitute(self.conc, *zip(self.vs, vs1)),
+            pf=self.pf,
+        )
+
+    def to_expr(self) -> smt.ExprRef | smt.QuantifierRef:
+        """Convert the rule to a theorem of form `forall vs, hyp => conc`.
+
+        >>> x = smt.Real("x")
+        >>> Rule([x], x > 0, x < 0).to_expr()
+        ForAll(x..., Implies(x... > 0, x... < 0))
+        """
+        if len(self.vs) == 0:
+            return smt.Implies(self.hyp, self.conc)
+        else:
+            return smt.ForAll(self.vs, smt.Implies(self.hyp, self.conc))
 
 
 def rule_of_expr(pf_or_thm: smt.ExprRef | kd.kernel.Proof) -> Rule:

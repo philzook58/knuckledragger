@@ -235,6 +235,32 @@ def SelectConcat(
         return smt.Concat([a[addr + i] for i in range(n)])
 
 
+def StoreConcat(
+    a: smt.ArrayRef, addr: smt.BitVecRef, data: smt.BitVecRef, le=True
+) -> smt.ArrayRef:
+    """
+    Store multiple bytes into an array.
+
+    >>> a = smt.Array("a", smt.BitVecSort(8), smt.BitVecSort(8))
+    >>> smt.simplify(StoreConcat(a, 0, smt.BitVecVal(258, 16)))
+    Store(Store(a, 0, 2), 1, 1)
+    >>> smt.simplify(SelectConcat(StoreConcat(a, 6, smt.BitVecVal(258, 16)), 6, 2))
+    258
+    """
+    n = data.size()
+    assert n % 8 == 0
+    for offset in range(n // 8):
+        if le:
+            a = smt.Store(
+                a, addr + offset, smt.Extract(8 * offset + 7, 8 * offset, data)
+            )
+        else:
+            a = smt.Store(
+                a, addr + offset, smt.Extract(8 * offset, 8 * offset + 7, data)
+            )
+    return a
+
+
 @functools.cache
 def select64(outsize: int) -> smt.FuncDeclRef:
     addr = smt.BitVec("addr", 64)
