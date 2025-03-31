@@ -102,6 +102,7 @@ def basic(E, order=rw.kbo):
     Basic Knuth Bendix completion algorithm.
 
      TRaaT 7.1.1 Central Groupoid example
+    >>> import kdrag as kd
     >>> T = smt.DeclareSort("CentralGroupoid")
     >>> x,y,z = smt.Consts("x y z", T)
     >>> mul = smt.Function("mul", T, T, T)
