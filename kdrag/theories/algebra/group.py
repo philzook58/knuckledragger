@@ -101,7 +101,7 @@ Semigroup.register(G, assoc=mul_assoc)
 
 c = kd.Calc([x], e, assume=[smt.ForAll([y], y * x == y)])
 c.eq(e * x)
-c.eq(x, by=[id_left])
+c.eq(x, by=[id_left], timeout=2000)
 id_unique1 = c.qed()
 
 c = kd.Calc([x], x * inv(x))

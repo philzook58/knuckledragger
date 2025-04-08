@@ -13,7 +13,7 @@ classifiers = [
 requires-python = ">= 3.10"
 dependencies = [
     "z3-solver >= 4.8",
-    "egglog",
+    "egglog >= 9.0.0",
     "python-flint",
     "sympy",
     "lark",
@@ -27,12 +27,8 @@ homepage = "https://github.com/philzook58/knuckledragger"
 # For raw pip? 
 [project.optional-dependencies]
 dev = ["pytest>=6.0", "nbclient", "jupyter"]
-yosys = [
-    "yowasp-yosys>=0.50.0.0.post858",
-]
-pypcode = [
-    "pypcode>=3.0.3",
-]
+yosys = ["yowasp-yosys>=0.50.0.0.post858"]
+pypcode = ["cle>=9.2.148", "pypcode>=3.0.3"]
 
 [tool.ruff]
 exclude = ["tests"]

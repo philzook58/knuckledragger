@@ -1,4 +1,5 @@
 import kdrag.smt as smt
+import kdrag as kd
 import re
 
 import subprocess
@@ -180,6 +181,11 @@ def cstring(name, args, body):
 """
 
 
+def of_defn(f: smt.FuncDeclRef):
+    defn = kd.kernel.defns[f]
+    return cstring(defn.name, defn.args, defn.body)
+
+
 def compile_c(c_code, opts=[]):
     """
     #>>> x,y = smt.BitVecs("x y", 32)
@@ -228,3 +234,8 @@ def link(name, args, body, filename):
 def compile_and_link(name, args, body):
     so_file = compile_c(cstring(name, args, body))
     return link(name, args, body, so_file)
+
+
+def compile_and_link_defn(f: smt.FuncDeclRef):
+    defn = kd.kernel.defns[f]
+    return compile_and_link(defn.name, defn.args, defn.body)

@@ -370,6 +370,32 @@ def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]
         s.add(x != m.eval(x))
 
 
+def all_values(*es: smt.ExprRef) -> Generator[list[smt.ExprRef], None, None]:
+    """
+    Generate all values possible for an expression. Generator won't terminate if there are infinite possible values.
+    Concretization.
+
+    >>> set(all_values(smt.If(smt.Bool("x"), 2, 3)))
+    {3, 2}
+    """
+    s = smt.Solver()
+    es1 = [smt.FreshConst(e.sort(), prefix="e") for e in es]
+    for e, e1 in zip(es, es1):
+        s.add(e1 == e)
+    while True:
+        res = s.check()
+        if res == smt.unsat:
+            return
+        elif res == smt.sat:
+            m = s.model()
+            vs = [m.eval(e) for e in es]
+            yield vs[0] if len(vs) == 1 else vs
+            for e, v in zip(es1, vs):
+                s.add(e != v)
+        else:
+            raise ValueError("Solver unknown in values", e)
+
+
 """
 def expr_to_lean(expr: smt.ExprRef):
     # TODO
