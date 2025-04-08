@@ -182,7 +182,7 @@ def executePopcount(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
 def executeLoad(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     assert op.output is not None
     off = memstate.getvalue(op.inputs[1])  # offset to load from
-    spc = memstate.getvalue(op.inputs[0])  # memory space
+    assert op.inputs[1].space.name == "ram"
     return memstate.setvalue(op.output, memstate.getvalue_ram(off, op.output.size))
 
 
@@ -190,7 +190,7 @@ def executeStore(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     val = memstate.getvalue(op.inputs[2])  # value being stored
     assert isinstance(val, smt.BitVecRef)
     off = memstate.getvalue(op.inputs[1])  # offset to store at
-    spc = memstate.getvalue(op.inputs[0])  # memory space
+    assert op.inputs[0].space.name == "ram"
     return memstate.setvalue_ram(off, val)
 
 
