@@ -393,7 +393,7 @@ def all_values(*es: smt.ExprRef) -> Generator[list[smt.ExprRef], None, None]:
             for e, v in zip(es1, vs):
                 s.add(e != v)
         else:
-            raise ValueError("Solver unknown in values", e)
+            raise ValueError("Solver unknown in values", es)
 
 
 """

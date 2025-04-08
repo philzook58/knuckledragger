@@ -210,7 +210,7 @@ def BVNot(x: smt.DatatypeRef) -> smt.DatatypeRef:
 
 
 def SelectConcat(
-    a: smt.ArrayRef, addr: smt.BitVecRef, n: int, le=True
+    a: smt.ArrayRef, addr: smt.BitVecRef | int, n: int, le=True
 ) -> smt.BitVecRef:
     """
     Concat out of an array.
@@ -236,7 +236,7 @@ def SelectConcat(
 
 
 def StoreConcat(
-    a: smt.ArrayRef, addr: smt.BitVecRef, data: smt.BitVecRef, le=True
+    a: smt.ArrayRef, addr: smt.BitVecRef | int, data: smt.BitVecRef, le=True
 ) -> smt.ArrayRef:
     """
     Store multiple bytes into an array.

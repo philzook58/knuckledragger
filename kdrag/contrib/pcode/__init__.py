@@ -119,12 +119,12 @@ class MemState:
             )
         )
 
-    def getvalue_ram(self, offset: smt.BitVecRef, size: int) -> smt.BitVecRef:
+    def getvalue_ram(self, offset: smt.BitVecRef | int, size: int) -> smt.BitVecRef:
         return bv.SelectConcat(self.mem.ram, offset, size)
 
-    def setvalue_ram(self, offset: smt.BitVecRef, value: smt.BitVecRef):
+    def setvalue_ram(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
         return MemState(
-            self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset, value))
+            self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset, value))  # type: ignore
         )
 
 
@@ -132,12 +132,14 @@ class MemState:
 
 
 def executeUnary(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
+    assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
     out = unop[op.opcode](in1)
     return memstate.setvalue(op.output, out)
 
 
 def executeBinary(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
+    assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
     in2 = memstate.getvalue(op.inputs[1])
     out = binop[op.opcode](in1, in2)
@@ -145,12 +147,14 @@ def executeBinary(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
 
 
 def executeSignExtend(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
+    assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
     out = smt.SignExt((op.output.size - op.inputs[0].size) * 8, in1)
     return memstate.setvalue(op.output, out)
 
 
 def executeSubpiece(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
+    assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
     assert op.inputs[1].space.name == "const"
     offset = op.inputs[1].offset * 8
@@ -160,6 +164,7 @@ def executeSubpiece(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
 
 
 def executePopcount(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
+    assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
     out = smt.BitVecVal(0, op.inputs[0].size * 8)
     for i in range(op.inputs[0].size * 8):
@@ -175,6 +180,7 @@ def executePopcount(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
 
 
 def executeLoad(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
+    assert op.output is not None
     off = memstate.getvalue(op.inputs[1])  # offset to load from
     spc = memstate.getvalue(op.inputs[0])  # memory space
     return memstate.setvalue(op.output, memstate.getvalue_ram(off, op.output.size))
@@ -182,12 +188,13 @@ def executeLoad(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
 
 def executeStore(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     val = memstate.getvalue(op.inputs[2])  # value being stored
+    assert isinstance(val, smt.BitVecRef)
     off = memstate.getvalue(op.inputs[1])  # offset to store at
     spc = memstate.getvalue(op.inputs[0])  # memory space
-    memstate.setvalue_ram(off, val)
+    return memstate.setvalue_ram(off, val)
 
 
-def executeCBranch(op, memstate: MemState) -> smt.BoolRef:
+def executeCBranch(op, memstate: MemState) -> smt.BoolRef | bool:
     cond = memstate.getvalue(op.inputs[1])
     return cond != 0
 
@@ -203,16 +210,14 @@ def pretty_insn(insn: pypcode.Instruction) -> str:
     return f"{insn.addr.offset:#x}/{insn.length}: {insn.mnem} {insn.body}"
 
 
-pypcode.Instruction.__repr__ = (
-    pretty_insn  # monkey patch in. I'd rather just see the pretty string by default.
-)
+pypcode.Instruction.__repr__ = pretty_insn  # type: ignore
 
 
 def pretty_op(op: pypcode.PcodeOp) -> str:
     return pypcode.PcodePrettyPrinter.fmt_op(op)
 
 
-pypcode.PcodeOp.__repr__ = pretty_op
+pypcode.PcodeOp.__repr__ = pretty_op  # type: ignore
 
 
 class BinaryContext:
@@ -304,20 +309,21 @@ class BinaryContext:
         else:
             raise ValueError(f"Unknown branch target: {destaddr.space.name}")
 
-    def sym_execute(self, memstate, addr, trace=None, max_insns=1):
-        pc = (addr, 0)
-        todo = [(memstate, pc, max_insns, [])]
+    def sym_execute(self, memstate: MemState, addr: int, max_insns=1):
+        pc0: PC = (addr, 0)
+        todo = [(memstate, pc0, max_insns, [])]
         res = []
         while todo:
             memstate, pc, max_insns, path_cond = todo.pop()
             op = self.translate(pc[0])[pc[1]]
             memstate1, pc1 = self.executeCurrentOp(op, memstate, pc)
             if isinstance(pc1[0], smt.ExprRef):
-                for addr, pcode_pc in kd.utils.all_values(pc1[0], pc1[1]):
-                    assert isinstance(addr, smt.IntNumRef) and isinstance(
-                        pcode_pc, smt.IntNumRef
+                assert isinstance(pc1[1], smt.ExprRef)
+                for vaddr, vpcode_pc in kd.utils.all_values(pc1[0], pc1[1]):
+                    assert isinstance(vaddr, smt.IntNumRef) and isinstance(
+                        vpcode_pc, smt.IntNumRef
                     )
-                    addr, pcode_pc = addr.as_long(), pcode_pc.as_long()
+                    addr, pcode_pc = vaddr.as_long(), vpcode_pc.as_long()
                     if pc[0] != addr:
                         max_insns -= 1
                     pc = (addr, pcode_pc)
@@ -330,7 +336,7 @@ class BinaryContext:
                 if pc[0] != pc1[0]:
                     max_insns -= 1
                 if max_insns > 0:
-                    todo.append((memstate1, pc1, max_insns, path_cond))
+                    todo.append((memstate1, pc1, max_insns, path_cond))  # type: ignore
                 else:
                     res.append((memstate1, pc1, path_cond))
         return res
