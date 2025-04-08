@@ -147,6 +147,10 @@ For more on interactive theorem proving (This is a lot to take in)
 
 ## Blog Posts
 
+- ["Verified" "Compilation" of "Python" with Knuckledragger, GCC, and Ghidra](https://www.philipzucker.com/knuckle_C_pcode/)
+- [A Small Prolog on the Z3 AST](https://www.philipzucker.com/knuck_prolog/)
+- [Shallow Embedding Logics in Z3 pt. I](https://www.philipzucker.com/shallow_logic_knuckle/)
+- [Knuth Bendix Solver on Z3 AST](https://www.philipzucker.com/knuth_bendix_knuck/)
 - [Generics and Typeclasses in Knuckledragger](https://www.philipzucker.com/knuckle_typeclass/)
 - [More Knuckledragger: Simp, Inductive Relations, Sympy NbE, and Software Foundations](https://www.philipzucker.com/knuckle_update_nbe/)
 - [Translating Cody's Lean Sheffer Stroke Proof to Knuckledragger with ChatGPT](https://www.philipzucker.com/cody_sheffer/)
