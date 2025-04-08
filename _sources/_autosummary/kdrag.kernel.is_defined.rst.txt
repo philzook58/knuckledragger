@@ -1,0 +1,6 @@
+kdrag.kernel.is\_defined
+========================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: is_defined
