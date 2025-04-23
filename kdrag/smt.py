@@ -173,3 +173,138 @@ ExprRef.__add__ = lambda x, y: None
 ExprRef.__sub__ = lambda x, y: None
 
 FuncDeclRef.defn = None
+
+"""
+Caching.
+The CFFI interface to z3 is very costly. Caching calls can help some of that pain.
+"""
+
+
+AstRef._cache_id = None
+get_id_orig = AstRef.get_id
+
+
+def get_id(self):
+    if self._cache_id is None:
+        self._cache_id = get_id_orig(self)
+    return self._cache_id
+
+
+AstRef.get_id = get_id
+ExprRef.get_id = get_id
+FuncDeclRef.get_id = get_id
+
+
+def eq(x, y):
+    return x.get_id() == y.get_id()
+
+
+AstRef.eq = eq
+AstRef.__hash__ = lambda x: hash(x.get_id())
+SortRef.__eq__ = eq
+FuncDeclRef.__eq__ = eq
+SortRef.__ne__ = lambda x, y: not eq(x, y)
+FuncDeclRef.__ne__ = lambda x, y: not eq(x, y)
+
+
+decl_orig = ExprRef.decl
+ExprRef._cache_decl = None
+
+
+def decl(self):
+    if self._cache_decl is None:
+        self._cache_decl = decl_orig(self)
+    return self._cache_decl
+
+
+ExprRef.decl = decl
+
+ExprRef._cache_args = None
+old_arg = ExprRef.arg
+
+
+def arg(self, i):
+    if self._cache_args is None:
+        self._cache_args = {}
+    a = self._cache_args.get(i, None)
+    if a is None:
+        a = old_arg(self, i)
+        self._cache_args[i] = a  # old_arg(self, i)
+    return a
+
+
+ExprRef.arg = arg
+
+ExprRef._cache_num_args = None
+
+num_args_orig = ExprRef.num_args
+
+
+def num_args(self):
+    if self._cache_num_args is None:
+        self._cache_num_args = num_args_orig(self)
+    return self._cache_num_args
+
+
+ExprRef.num_args = num_args
+
+ExprRef._is_app = None
+
+orig_is_app = is_app
+
+
+def is_app(self):
+    if self._is_app is None:
+        self._is_app = orig_is_app(self)
+    return self._is_app
+
+
+is_app = is_app
+
+ExprRef._cache_kind = None
+orig_kind = ExprRef.kind
+
+
+def expr_kind(self):
+    if self._cache_kind is None:
+        self._cache_kind = orig_kind(self)
+    return self._cache_kind
+
+
+ExprRef.kind = expr_kind
+
+SortRef._cache_kind = None
+orig_sort_kind = SortRef.kind
+
+
+def sort_kind(self):
+    if self._cache_kind is None:
+        self._cache_kind = orig_sort_kind(self)
+    return self._cache_kind
+
+
+SortRef.kind = sort_kind
+
+FuncDeclRef._cache_kind = None
+orig_func_kind = FuncDeclRef.kind
+
+
+def func_kind(self):
+    if self._cache_kind is None:
+        self._cache_kind = orig_func_kind(self)
+    return self._cache_kind
+
+
+FuncDeclRef.kind = func_kind
+
+ExprRef._cache_sort = None
+orig_sort = ExprRef.sort
+
+
+def sort(self):
+    if self._cache_sort is None:
+        self._cache_sort = orig_sort(self)
+    return self._cache_sort
+
+
+ExprRef.sort = sort

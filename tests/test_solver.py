@@ -495,6 +495,8 @@ def test_huet():
     # Gropu theory example
     # https://smimram.github.io/ocaml-alg/kb/
 
+    # With and without caching in kdrag.smt makes a big difference
+
     T = smt.DeclareSort("AbstractGroup")
     x,y,z = smt.Consts("x y z", T)
     e = smt.Const("a_e", T)

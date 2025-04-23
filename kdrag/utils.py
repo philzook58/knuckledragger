@@ -375,8 +375,7 @@ def all_values(*es: smt.ExprRef) -> Generator[list[smt.ExprRef], None, None]:
     Generate all values possible for an expression. Generator won't terminate if there are infinite possible values.
     Concretization.
 
-    >>> set(all_values(smt.If(smt.Bool("x"), 2, 3)))
-    {3, 2}
+    >>> assert set(all_values(smt.If(smt.Bool("x"), 2, 3))) == {smt.IntVal(2), smt.IntVal(3)}
     """
     s = smt.Solver()
     es1 = [smt.FreshConst(e.sort(), prefix="e") for e in es]
