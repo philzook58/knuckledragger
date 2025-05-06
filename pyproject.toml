@@ -34,7 +34,7 @@ pypcode = ["cle>=9.2.148", "pypcode>=3.0.3"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-kdrag = ["*.sh"]
+knuckledragger = ["*.sh"]
 
 [tool.ruff]
 exclude = ["tests"]
