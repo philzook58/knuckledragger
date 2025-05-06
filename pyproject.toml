@@ -30,8 +30,11 @@ dev = ["pytest>=6.0", "nbclient", "jupyter"]
 yosys = ["yowasp-yosys>=0.50.0.0.post858"]
 pypcode = ["cle>=9.2.148", "pypcode>=3.0.3"]
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.package-data]
-kdrag = ["solvers/install.sh"]
+kdrag.solvers = ["install.sh"]
 
 [tool.ruff]
 exclude = ["tests"]
