@@ -33,6 +33,9 @@ pypcode = ["cle>=9.2.148", "pypcode>=3.0.3"]
 [tool.setuptools]
 include-package-data = true
 
+[tool.setuptools.package-data]
+mypkg = [".sh"]
+
 [tool.ruff]
 exclude = ["tests"]
 
