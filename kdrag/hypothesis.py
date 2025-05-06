@@ -271,7 +271,7 @@ def smt_generic_val(draw: st.DrawFn, sort: smt.SortRef, maxiter=4) -> smt.ExprRe
     return v
 
 
-def nitpick(thm: smt.QuantifierRef, deadline=100, **hyp_settings):
+def quickcheck(thm: smt.QuantifierRef, deadline=100, **hyp_settings):
     """
     Run a hypothesis test to check that an instantiated forall is equivalent to the original forall.
     """
@@ -283,7 +283,7 @@ def nitpick(thm: smt.QuantifierRef, deadline=100, **hyp_settings):
     # Todo: could specialize to arity of the quantifier. Probably not worth it.
     @hypothesis.settings(deadline=deadline, **hyp_settings)
     @hypothesis.given(**{str(i): sort for i, sort in enumerate(sorts)})
-    def nitpick(**kwargs):
+    def quickcheck(**kwargs):
         t0 = smt.substitute_vars(body, *[kwargs[str(i)] for i in range(N - 1, -1, -1)])
         hypothesis.note(("Starting point: ", t0))
         t1 = kd.rewrite.simp(t0, max_iter=1000000000)
@@ -302,4 +302,4 @@ def nitpick(thm: smt.QuantifierRef, deadline=100, **hyp_settings):
             else:
                 raise AssertionError("Could not find a counterexample")
 
-    nitpick()
+    quickcheck()

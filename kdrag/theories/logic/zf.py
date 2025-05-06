@@ -2,6 +2,7 @@ import kdrag as kd
 import kdrag.smt as smt
 
 ZFSet = smt.DeclareSort("ZFSet")
+Set = ZFSet
 A, B, x, y, z = smt.Consts("A B x y z", ZFSet)
 elem = smt.Function("elem", ZFSet, ZFSet, smt.BoolSort())
 Class = ZFSet >> smt.BoolSort()
@@ -34,3 +35,9 @@ sep_ax = kd.axiom(
 
 zf_db.extend([emp_ax, upair_ax, ext_ax, sep_ax])
 le = kd.notation.le.define([A, B], kd.QForAll([x], elem(x, A), elem(x, B)))
+
+union = smt.Function("union", Set, Set, Set)
+kd.notation.or_.register(Set, union)
+
+inter = smt.Function("inter", Set, Set, Set)
+kd.notation.and_.register(Set, inter)

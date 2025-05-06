@@ -242,7 +242,12 @@ exp_ln = kd.axiom(kd.QForAll([x], x > 0, exp(ln(x)) == x))
 cos = smt.Function("cos", R, R)  # smt.Const("cos", kd.R >> kd.R)
 sin = smt.Function("sin", R, R)  # smt.Const("sin", kd.R >> kd.R)
 
+# https://en.wikipedia.org/wiki/List_of_trigonometric_identities
+
 pythag = kd.axiom(smt.ForAll([x], cos(x) ** 2 + sin(x) ** 2 == 1))
+pythag_1 = kd.prove(smt.ForAll([x], 1 - sin(x) ** 2 == cos(x) ** 2), by=[pythag])
+pythag_2 = kd.prove(smt.ForAll([x], 1 - cos(x) ** 2 == sin(x) ** 2), by=[pythag])
+
 cos_abs_le = kd.prove(smt.ForAll([x], abs(cos(x)) <= 1), by=[pythag, abs.defn])
 sin_abs_le = kd.prove(smt.ForAll([x], abs(sin(x)) <= 1), by=[pythag, abs.defn])
 
@@ -260,6 +265,15 @@ sin_neg = kd.axiom(smt.ForAll([x], sin(-x) == -sin(x)))
 
 cos_add = kd.axiom(smt.ForAll([x, y], cos(x + y) == cos(x) * cos(y) - sin(x) * sin(y)))
 sin_add = kd.axiom(smt.ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * sin(y)))
+
+_l = kd.Lemma(smt.ForAll([x, y], cos(x - y) == cos(x) * cos(y) + sin(x) * sin(y)))
+_x, _y = _l.fixes()
+_l.symm()
+_l.eq(cos(_x + (-_y)))
+_l.rw(cos_add(_x, -_y))
+_l.auto(by=[cos_neg(_y), sin_neg(_y)])
+_l.lemmas
+cos_diff = _l.qed()
 
 tan = kd.define("tan", [x], sin(x) / cos(x))
 atan = smt.Function("atan", R, R)  # smt.Const("atan", kd.R >> kd.R)

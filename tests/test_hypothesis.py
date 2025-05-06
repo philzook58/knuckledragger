@@ -42,18 +42,18 @@ def test_datatype_list(n):
 @pytest.mark.slow
 def test_forall1():
     x = smt.Int("x")
-    hyp.nitpick(smt.ForAll([x], x > x - 1))
+    hyp.quickcheck(smt.ForAll([x], x > x - 1))
     with pytest.raises(Exception) as _:
-        hyp.nitpick(smt.ForAll([x], x < 0)) 
+        hyp.quickcheck(smt.ForAll([x], x < 0)) 
     z = smt.String("z")
-    hyp.nitpick(smt.ForAll([z,x], smt.And( smt.Or(z == "foo", z != "foo") , smt.Or(x > 0, x == 0, x < 0))))
+    hyp.quickcheck(smt.ForAll([z,x], smt.And( smt.Or(z == "foo", z != "foo") , smt.Or(x > 0, x == 0, x < 0))))
     n,m = smt.Consts("n m", nat.Nat)
-    hyp.nitpick(smt.ForAll([n,m], n + m == m + n))
+    hyp.quickcheck(smt.ForAll([n,m], n + m == m + n))
     with pytest.raises(Exception) as _:
-        hyp.nitpick(smt.ForAll([n], n + nat.Z == n + nat.one))
-    hyp.nitpick(smt.ForAll([n,m], smt.Or(n.is_Z, n.is_S)))
+        hyp.quickcheck(smt.ForAll([n], n + nat.Z == n + nat.one))
+    hyp.quickcheck(smt.ForAll([n,m], smt.Or(n.is_Z, n.is_S)))
     l = smt.Const("l", list_.List(smt.IntSort()))
-    hyp.nitpick(smt.ForAll([l], smt.Or(l == list_.Nil(smt.IntSort()), l.is_Cons)))
+    hyp.quickcheck(smt.ForAll([l], smt.Or(l == list_.Nil(smt.IntSort()), l.is_Cons)))
 
 
 @pytest.mark.slow
