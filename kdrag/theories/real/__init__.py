@@ -268,6 +268,7 @@ sin_add = kd.axiom(smt.ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * s
 
 _l = kd.Lemma(smt.ForAll([x, y], cos(x - y) == cos(x) * cos(y) + sin(x) * sin(y)))
 _x, _y = _l.fixes()
+assert isinstance(_y, smt.ArithRef)  # make typechecker stop complaining
 _l.symm()
 _l.eq(cos(_x + (-_y)))
 _l.rw(cos_add(_x, -_y))
