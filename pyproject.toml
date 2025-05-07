@@ -47,6 +47,7 @@ ignore = ["E741"]
 "kdrag/all.py" = ["F401"]
 "tutorial.ipynb" = ["F811"]
 "examples/**/*.py" = ["F401", "F405", "F403", "E402"]
+"examples/short_talk.ipynb" = ["F401"]
 
 [tool.pyright]
 include = ["kdrag"]
