@@ -224,6 +224,25 @@ def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.
     return prove(smt.Eq(t, t1), by=by, **kwargs)
 
 
+def subst(
+    pf: kd.kernel.Proof, vs: list[smt.ExprRef], subst: list[smt.ExprRef]
+) -> kd.kernel.Proof:
+    """
+    Perform substitution into a forall quantified proof, instantiating into a new context vs
+
+    >>> x,y,z = smt.Reals("x y z")
+    >>> p = kd.prove(smt.ForAll([x,z], smt.And(z == z, x == x)))
+    >>> subst(p, [y, z], [y + 1, z])
+    |- ForAll([y, z], And(z == z, y + 1 == y + 1))
+    """
+    assert isinstance(pf.thm, smt.QuantifierRef)
+    vs1, ab = kd.kernel.herb(
+        smt.ForAll(vs, smt.substitute_vars(pf.thm.body(), *reversed(subst)))
+    )
+    a = kd.kernel.instan([smt.substitute(t, *zip(vs, vs1)) for t in subst], pf)
+    return kd.kernel.modus(ab, a)
+
+
 class Goal(NamedTuple):
     # TODO: also put eigenvariables, unification variables in here
     sig: list[smt.ExprRef]

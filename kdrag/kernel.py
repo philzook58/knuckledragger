@@ -383,6 +383,21 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     )
 
 
+def modus(ab: Proof, a: Proof) -> Proof:
+    """
+    Modus ponens
+
+    >>> a,b = smt.Bools("a b")
+    >>> ab = axiom(smt.Implies(a, b))
+    >>> a = axiom(a)
+    >>> modus(ab, a)
+    |- b
+    """
+    assert isinstance(ab, Proof) and isinstance(a, Proof)
+    assert smt.is_implies(ab.thm) and ab.thm.arg(0).eq(a.thm)
+    return axiom(ab.thm.arg(1), ["modus", ab, a])
+
+
 def beta_conv(lam: smt.QuantifierRef, *args) -> Proof:
     """
     Beta conversion for lambda calculus.
