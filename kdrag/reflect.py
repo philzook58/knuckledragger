@@ -514,7 +514,7 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
             case ast.IfExp(test, body, orelse):
                 return smt.If(rec(test), rec(body), rec(orelse))
             case ast.Name(id_, _ctx):
-                return _lookup(id_, locals, globals)
+                return _lookup(id_, locals=locals, globals=globals)
             case ast.Attribute(value, attr, _ctx):
                 return getattr(rec(value), attr)
             case x:
