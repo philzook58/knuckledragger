@@ -145,6 +145,10 @@ For more on interactive theorem proving (This is a lot to take in)
 - [Isabelle Tutorial](https://isabelle.in.tum.de/documentation.html)
 - [HOL Light Tutorial](https://hol-light.github.io/tutorial.pdf)
 
+A recent summary talk of Knuckledragger was presented at NEPLS 2025
+
+[![Watch the video](https://img.youtube.com/vi/ENwKBC8dN4M/default.jpg)](https://youtu.be/ENwKBC8dN4M)
+
 ## Blog Posts
 
 - [NEPLS 2025 and a Short Talk on Knuckledragger](https://www.philipzucker.com/nepls_2025/) [video](https://www.youtube.com/watch?v=ENwKBC8dN4M&ab_channel=PhilipZucker)
