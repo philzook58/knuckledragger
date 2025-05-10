@@ -147,6 +147,7 @@ For more on interactive theorem proving (This is a lot to take in)
 
 ## Blog Posts
 
+- [NEPLS 2025 and a Short Talk on Knuckledragger](https://www.philipzucker.com/nepls_2025/) [video](https://www.youtube.com/watch?v=ENwKBC8dN4M&ab_channel=PhilipZucker)
 - ["Verified" "Compilation" of "Python" with Knuckledragger, GCC, and Ghidra](https://www.philipzucker.com/knuckle_C_pcode/)
 - [A Small Prolog on the Z3 AST](https://www.philipzucker.com/knuck_prolog/)
 - [Shallow Embedding Logics in Z3 pt. I](https://www.philipzucker.com/shallow_logic_knuckle/)
