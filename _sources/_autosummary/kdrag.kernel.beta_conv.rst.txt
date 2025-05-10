@@ -1,0 +1,6 @@
+kdrag.kernel.beta\_conv
+=======================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: beta_conv

@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.replace\_rational\_with\_ratval
+=========================================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: replace_rational_with_ratval

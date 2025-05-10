@@ -1,0 +1,6 @@
+kdrag.datatype.pattern\_match
+=============================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: pattern_match
