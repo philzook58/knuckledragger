@@ -239,14 +239,14 @@ def unify_db(
     return subst
 
 
-def free_in(vs: smt.ExprRef, t: smt.ExprRef) -> bool:
+def free_in(vs: list[smt.ExprRef], t: smt.ExprRef) -> bool:
     """
     Returns True if none of the variables in vs exist unbound in t.
 
     >>> x,y,z = smt.Ints("x y z")
-    >>> assert not free_in(x, x + y + z)
-    >>> assert free_in(x, y + z)
-    >>> assert free_in(x, smt.Lambda([x], x + y + z))
+    >>> assert not free_in([x], x + y + z)
+    >>> assert free_in([x], y + z)
+    >>> assert free_in([x], smt.Lambda([x], x + y + z))
     """
     return smt.Lambda(vs, t).body().eq(t)
 
@@ -355,6 +355,39 @@ def alpha_eq(t1, t2):
     else:
         raise Exception("Unexpected terms in alpha_eq", t1, t2)
     # could instead maybe use a solver check or simplify tactic on Goal(t1 == t2)
+
+
+def alpha_norm(expr: smt.ExprRef) -> smt.ExprRef:
+    """
+    Recursively rename all variables in an expression to canonical names.
+    Printed form may become ambiguous because internally de Bruijn indices are used.
+
+    >>> x,y,z,w = smt.Consts("x y z w", smt.IntSort())
+    >>> p = smt.Real("p")
+    >>> assert not smt.Lambda([x,y], x + y).eq(smt.Lambda([z,w], z + w))
+    >>> assert alpha_norm(smt.Lambda([x,y], x + y)).eq(alpha_norm(smt.Lambda([z,w], z + w)))
+    >>> _ = kd.prove(alpha_norm(smt.Lambda([x,p], p)) == smt.Lambda([x,p], p))
+    """
+
+    if isinstance(expr, smt.QuantifierRef):
+        body = alpha_norm(expr.body())
+        vs = [smt.Const("x" + str(i), expr.var_sort(i)) for i in range(expr.num_vars())]
+        assert kd.utils.free_in(vs, body)
+        body = smt.substitute_vars(body, *reversed(vs))
+        if expr.is_forall():
+            return smt.ForAll(vs, body)
+        elif expr.is_exists():
+            return smt.Exists(vs, body)
+        elif expr.is_lambda():
+            return smt.Lambda(vs, body)
+        else:
+            raise NotImplementedError("Unknown quantifier type")
+    elif smt.is_app(expr):
+        return expr.decl()(*map(alpha_norm, expr.children()))
+    elif smt.is_var(expr):
+        return expr
+    else:
+        raise NotImplementedError("Unknown expression type in alpha_norm", expr)
 
 
 def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]:

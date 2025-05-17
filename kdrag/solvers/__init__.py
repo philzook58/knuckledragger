@@ -10,12 +10,36 @@ import logging
 import shutil
 import re
 from typing import Optional
+import urllib.request
+import stat
 
 logger = logging.getLogger("knuckledragger")
 
 
 def binpath(cmd):
     return os.path.join(os.path.dirname(__file__), cmd)
+
+
+def install_solvers2():
+    solvers = [
+        (
+            "eprover-ho",
+            "https://github.com/philzook58/eprover/releases/download/E.3.2.5-ho/eprover-ho",
+        ),
+        (
+            "vampire",
+            "https://github.com/vprover/vampire/releases/download/v4.9casc2024/vampire",
+        ),
+    ]
+    for filename, url in solvers:
+        filename = binpath(filename)
+        urllib.request.urlretrieve(
+            url,
+            filename,
+        )
+        st = os.stat(filename)
+        # Add execute permissions for user, group, and others
+        os.chmod(filename, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
 def install_solvers():

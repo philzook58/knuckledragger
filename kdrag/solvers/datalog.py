@@ -7,6 +7,8 @@ import sqlite3
 A simple datalog bv compiling clauses to SQL.
 See snakelog https://github.com/philzook58/snakelog
 
+Z3 also has built in datalog. https://microsoft.github.io/z3guide/docs/fixedpoints/basicdatalog/
+
 """
 
 

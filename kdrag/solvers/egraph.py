@@ -54,7 +54,7 @@ class EGraph:
         eid = t.get_id()
         return self._find(eid)
 
-    def union(self, t1: smt.ExprRef, t2: smt.ExprRef) -> None:
+    def union(self, t1: smt.ExprRef, t2: smt.ExprRef, add_solver=True) -> None:
         """
         Assert equal two terms in the EGraph.
         Note that this does not add the terms to the EGraph.
@@ -69,13 +69,17 @@ class EGraph:
             self.uf[root1] = root2
             sort = t1.sort()
             self.roots[sort].discard(root1)
-            self.solver.add(t1 == t2)
+            if add_solver:
+                self.solver.add(t1 == t2)
 
     def add_term(self, t: smt.ExprRef) -> None:
         """
         Recursively add term to egraph
         """
+        assert smt.is_app(t)
         eid = t.get_id()
+        # TODO: Quantifier norm
+        assert not isinstance(t, smt.QuantifierRef)
         if eid not in self.terms:
             self.roots[t.sort()].add(eid)
             self.terms[eid] = t
@@ -127,7 +131,7 @@ class EGraph:
                         res = self.solver.check()
                         self.solver.pop()
                         if res == smt.unsat:
-                            self.union(t1, t2)  # don't need to solver.add but whatev
+                            self.union(t1, t2, add_solver=False)
 
     def rw(self, sorts: list[smt.SortRef], f):
         """
@@ -149,6 +153,27 @@ class EGraph:
             if self.in_terms(lhs):
                 self.add_term(rhs)
                 self.union(lhs, rhs)
+
+    def simplify_terms(self):
+        """
+        Use built in simplifier to simplify all terms in the egraph.
+        Similar to "extract and simplify".
+
+        >>> E = EGraph()
+        >>> x,y,z = smt.Ints('x y z')
+        >>> E.add_term(4 + x + y + 7)
+        >>> E.add_term(8 + x + y + 3)
+        >>> E.simplify_terms()
+        >>> assert E.find(8 + x + y + 3) == E.find(4 + x + y + 7)
+        """
+        todo = []
+        for t in self.terms.values():
+            t1 = smt.simplify(t)
+            if not t1.eq(t):
+                todo.append((t, t1))
+        for t, t1 in todo:
+            self.add_term(t1)
+            self.union(t, t1)  # z3 knows. Shouldn't be adding to solver?
 
     def ematch(
         self, vs: list[smt.ExprRef], pat: smt.ExprRef
