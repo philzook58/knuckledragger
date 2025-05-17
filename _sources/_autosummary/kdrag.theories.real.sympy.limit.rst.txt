@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.limit
+===============================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: limit

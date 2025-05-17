@@ -1,0 +1,6 @@
+kdrag.reflect.reify
+===================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: reify

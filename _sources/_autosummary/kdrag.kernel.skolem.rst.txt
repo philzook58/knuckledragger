@@ -1,0 +1,6 @@
+kdrag.kernel.skolem
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: skolem

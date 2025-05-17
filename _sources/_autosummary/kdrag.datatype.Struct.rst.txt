@@ -1,0 +1,6 @@
+kdrag.datatype.Struct
+=====================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: Struct

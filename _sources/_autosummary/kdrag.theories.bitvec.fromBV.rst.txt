@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.fromBV
+============================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: fromBV
