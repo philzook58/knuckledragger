@@ -1,6 +1,6 @@
 import sys
 import subprocess
-from . import binpath, install_solvers
+from . import binpath, install_solvers2
 
 
 def run_subprocess(command, args):
@@ -23,7 +23,7 @@ def main():
     args = sys.argv[2:]
 
     if command == "install":
-        install_solvers()
+        install_solvers2()
     elif command == "vampire":
         run_subprocess(binpath("vampire"), args)
     elif command == "vampire-ho":
