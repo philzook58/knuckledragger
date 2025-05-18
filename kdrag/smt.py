@@ -308,3 +308,74 @@ def sort(self):
 
 
 ExprRef.sort = sort
+
+"""
+sort_registry is for interning sorts.
+Properties can be naturally tagged onto sorts, which can then be looked up by id.
+"""
+
+sort_registry: dict[int, SortRef] = {}
+_orig_expr_sort = ExprRef.sort
+
+
+def _expr_sort(self):
+    T = _orig_expr_sort(self)
+    tid = T.get_id()
+    return sort_registry.get(tid, T)
+
+
+ExprRef.sort = _expr_sort
+
+
+_IntSort = IntSort
+IntS: SortRef = IntSort()
+sort_registry[IntS.get_id()] = IntS
+
+
+def IntSort(ctx=None) -> SortRef:
+    if ctx is None:
+        return IntS
+    else:
+        return _IntSort(ctx)
+
+
+_BoolSort = BoolSort
+BoolS: SortRef = BoolSort()
+sort_registry[BoolS.get_id()] = BoolS
+
+
+def BoolSort(ctx=None) -> SortRef:
+    if ctx is None:
+        return BoolS
+    else:
+        return _BoolSort(ctx)
+
+
+_RealSort = RealSort
+RealS: SortRef = RealSort()
+sort_registry[RealS.get_id()] = RealS
+
+
+def RealSort(ctx=None) -> SortRef:
+    if ctx is None:
+        return RealS
+    else:
+        return _RealSort(ctx)
+
+
+_DeclareSort = DeclareSort
+
+
+def DeclareSort(name):
+    """
+    Declare a sort with the given name.
+    >>> DeclareSort("MySort")
+    MySort
+    """
+    T = _DeclareSort(name)
+    tid = T.get_id()
+    if tid not in sort_registry:
+        sort_registry[tid] = T
+        return T
+    else:
+        return sort_registry[tid]

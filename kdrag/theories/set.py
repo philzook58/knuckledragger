@@ -35,6 +35,7 @@ def Set(T):
     |- ForAll([A, B], union(A, B) == union(B, A))
     """
     S = smt.SetSort(T)
+    smt.sort_registry[S.get_id()] = S
     S.empty = smt.EmptySet(T)
     S.full = smt.FullSet(T)
     kd.notation.and_.register(S, smt.SetIntersect)

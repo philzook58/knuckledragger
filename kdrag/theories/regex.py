@@ -53,6 +53,7 @@ def ReSort(S: smt.SortRef) -> smt.ReSortRef:
     re.diff(x, y)
     """
     T = smt.ReSort(S)
+    smt.sort_registry[T.get_id()] = T
     empty = smt.Empty(T)
     zero = empty
     eps = smt.Re(smt.Empty(S))  # empty string acceptor

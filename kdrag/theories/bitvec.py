@@ -17,6 +17,7 @@ def BitVecSort(N):
     |- ForAll([x, y], x + y == y + x)
     """
     S = smt.BitVecSort(N)
+    smt.sort_registry[S.get_id()] = S
     x, y, z = smt.BitVecs("x y z", N)
     zero = smt.BitVecVal(0, N)
     S.BVNot = (~x).decl()

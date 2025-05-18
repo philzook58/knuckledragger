@@ -469,6 +469,7 @@ def Inductive(name: str) -> smt.Datatype:
                 names.add(n)
         kd.notation.induct.register(dt, induct_inductive)
         _datatypes[name] = dt
+        smt.sort_registry[dt.get_id()] = dt
         return dt
 
     dt.create = create

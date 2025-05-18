@@ -80,6 +80,7 @@ def Seq(T: smt.SortRef) -> smt.SeqSortRef:
     Concat(x, y)
     """
     S = smt.SeqSort(T)
+    smt.sort_registry[S.get_id()] = S
     x, y, z = smt.Consts("x y z", S)
     empty = smt.Empty(S)
     S.empty = empty
