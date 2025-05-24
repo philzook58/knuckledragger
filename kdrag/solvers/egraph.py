@@ -151,7 +151,7 @@ class EGraph:
                         res = self.solver.check()
                         self.solver.pop()
                         if res == smt.unsat:
-                            self.union(t1, t2, add_solver=False)
+                            self._union(t1, t2)
 
     def rw(self, sorts: list[smt.SortRef], f):
         """
@@ -193,7 +193,7 @@ class EGraph:
                 todo.append((t, t1))
         for t, t1 in todo:
             self.add_term(t1)
-            self.union(t, t1)  # z3 knows. Shouldn't be adding to solver?
+            self._union(t, t1)
 
     def ematch(
         self, vs: list[smt.ExprRef], pat: smt.ExprRef
