@@ -1,0 +1,6 @@
+kdrag.utils.lemma\_db
+=====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: lemma_db

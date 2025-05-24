@@ -1,0 +1,6 @@
+kdrag.utils.free\_in
+====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: free_in

@@ -1,0 +1,6 @@
+kdrag.solvers.smtlib\_datatypes
+===============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: smtlib_datatypes

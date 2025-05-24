@@ -1,0 +1,36 @@
+kdrag.printers.lean
+===================
+
+.. automodule:: kdrag.printers.lean
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      of_expr
+      of_sort
+      run_lean
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/printers/lean.py
+   :language: python
