@@ -15,12 +15,17 @@ class EGraph:
     terms: dict[int, smt.ExprRef]
     uf: dict[int, int]
     solver: smt.Solver
+    reasons: dict[int, object]
 
-    def __init__(self):
+    def __init__(self, proof=False):
         self.roots = defaultdict(set)
         self.terms = {}
         self.uf = {}
+        self.reasons = {}
+        self.proof = proof
         self.solver = smt.Solver()
+        if proof:
+            self.solver.set("unsat_core", True)
 
     def copy(self):
         """
@@ -51,26 +56,41 @@ class EGraph:
         return eid
 
     def find(self, t: smt.ExprRef) -> int:
+        """Get canonical id of term in egraph."""
         eid = t.get_id()
         return self._find(eid)
 
-    def union(self, t1: smt.ExprRef, t2: smt.ExprRef, add_solver=True) -> None:
+    def _union(self, t1: smt.ExprRef, t2: smt.ExprRef) -> bool:
+        """Union only into union find."""
+        root1, root2 = self.find(t1), self.find(t2)
+        if root1 != root2:
+            self.uf[root1] = root2
+            sort = t1.sort()
+            self.roots[sort].discard(root1)
+            return True
+        else:
+            return False
+
+    def union(self, t1: smt.ExprRef, t2: smt.ExprRef, reason=None) -> bool:
         """
         Assert equal two terms in the EGraph.
         Note that this does not add the terms to the EGraph.
 
         >>> x,y,z = smt.Ints('x y z')
         >>> E = EGraph()
-        >>> E.union(x, y)
+        >>> _ = E.union(x, y)
         >>> assert E.find(x) == E.find(y)
         """
-        root1, root2 = self.find(t1), self.find(t2)
-        if root1 != root2:
-            self.uf[root1] = root2
-            sort = t1.sort()
-            self.roots[sort].discard(root1)
-            if add_solver:
+        if self._union(t1, t2):
+            if self.proof:
+                p = smt.FreshConst(smt.BoolSort())
+                self.reasons[p.get_id()] = (t1, t2, reason)
+                self.solver.assert_and_track(t1 == t2, p)
+            else:
                 self.solver.add(t1 == t2)
+            return True
+        else:
+            return False
 
     def add_term(self, t: smt.ExprRef) -> None:
         """
@@ -237,3 +257,27 @@ class EGraph:
             return t1.decl()(*[build_best(c) for c in t1.children()])
 
         return build_best(t0)
+
+    def get_proof(self, t1: smt.ExprRef, t2: smt.ExprRef) -> list[object]:
+        """
+        Get the proof of why t1 == t2 in the egraph.
+        The reasons returns may require recursive calls of get_proof.
+
+
+        >>> E = EGraph(proof=True)
+        >>> x,y,z = smt.Ints('x y z')
+        >>> E.add_term(x + y)
+        >>> E.union(x + y, y, reason="because I said so")
+        >>> E.union(x + y, x, reason="because I said so too")
+        >>> E.union(x + y, z, reason="because I said so three")
+        >>> E.get_proof(x, y)
+        [(x + y, y, 'because I said so'), (x + y, x, 'because I said so too')]
+
+        """
+        self.solver.push()
+        self.solver.add(t1 != t2)
+        res = self.solver.check()
+        assert res == smt.unsat
+        cores = self.solver.unsat_core()
+        self.solver.pop()
+        return [self.reasons[p.get_id()] for p in cores]
