@@ -197,3 +197,43 @@ class EGraph:
             if self.in_terms(lhs):
                 res.append(ts)
         return res
+
+    def extract(self, t0: smt.ExprRef, cost_fun=(lambda _: 1)):
+        """
+        Extract a term from the egraph.
+
+        >>> E = EGraph()
+        >>> x,y,z = smt.Ints('x y z')
+        >>> E.add_term(x + y)
+        >>> E.rebuild()
+        >>> E.extract(x + y)
+        x + y
+        >>> E.union(x + y, y)
+        >>> E.rebuild()
+        >>> E.extract(x + y)
+        y
+        """
+        inf = float("inf")
+        best_cost = defaultdict(lambda: inf)
+        best = {}
+        while True:
+            done = True
+            # Terms are taking the place of enodes.
+            for t in self.terms.values():
+                eid = self.find(t)
+                cost = cost_fun(t) + sum(
+                    [best_cost[self.find(c)] for c in t.children()]
+                )  # cost_fun(t.decl()) ?
+                if cost < best_cost[eid]:
+                    best_cost[eid] = cost
+                    best[eid] = t
+                    done = False
+            if done:
+                break
+
+        # @functools.cache
+        def build_best(t):
+            t1 = best[self.find(t)]
+            return t1.decl()(*[build_best(c) for c in t1.children()])
+
+        return build_best(t0)
