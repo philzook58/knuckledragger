@@ -36,7 +36,7 @@ class EGraph:
         >>> x,y,z = smt.Ints('x y z')
         >>> E.add_term(f(x))
         >>> E.add_term(f(y))
-        >>> E.union(x,y)
+        >>> _ = E.union(x,y)
         >>> assert E.find(f(x)) != E.find(f(y))
         >>> E2 = E.copy()
         >>> E2.rebuild()
@@ -132,7 +132,7 @@ class EGraph:
         >>> x,y,z = smt.Ints('x y z')
         >>> E.add_term(f(x))
         >>> E.add_term(f(y))
-        >>> E.union(x,y)
+        >>> _ = E.union(x,y)
         >>> assert E.find(f(x)) != E.find(f(y))
         >>> E.rebuild()
         >>> assert E.find(f(x)) == E.find(f(y))
@@ -205,7 +205,7 @@ class EGraph:
         >>> f = smt.Function('f', smt.IntSort(), smt.IntSort())
         >>> x,y,z = smt.Ints('x y z')
         >>> E.add_term(f(x))
-        >>> E.union(f(x), x)
+        >>> _ = E.union(f(x), x)
         >>> E.rebuild()
         >>> E.ematch([y], f(f(y)))
         [[x]]
@@ -228,7 +228,7 @@ class EGraph:
         >>> E.rebuild()
         >>> E.extract(x + y)
         x + y
-        >>> E.union(x + y, y)
+        >>> _ = E.union(x + y, y)
         >>> E.rebuild()
         >>> E.extract(x + y)
         y
@@ -267,9 +267,9 @@ class EGraph:
         >>> E = EGraph(proof=True)
         >>> x,y,z = smt.Ints('x y z')
         >>> E.add_term(x + y)
-        >>> E.union(x + y, y, reason="because I said so")
-        >>> E.union(x + y, x, reason="because I said so too")
-        >>> E.union(x + y, z, reason="because I said so three")
+        >>> _ = E.union(x + y, y, reason="because I said so")
+        >>> _ = E.union(x + y, x, reason="because I said so too")
+        >>> _ = E.union(x + y, z, reason="because I said so three")
         >>> E.get_proof(x, y)
         [(x + y, y, 'because I said so'), (x + y, x, 'because I said so too')]
 
