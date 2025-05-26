@@ -47,6 +47,8 @@ class EGraph:
         new.roots = defaultdict(set, {k: v.copy() for k, v in self.roots.items()})
         new.terms = self.terms.copy()
         new.uf = self.uf.copy()
+        self.reasons = self.reasons.copy()
+        self.proof = self.proof
         new.solver = copy.copy(self.solver)
         return new
 
@@ -64,6 +66,7 @@ class EGraph:
         """Union only into union find."""
         root1, root2 = self.find(t1), self.find(t2)
         if root1 != root2:
+            # strong union redundancy removal using SMT?
             self.uf[root1] = root2
             sort = t1.sort()
             self.roots[sort].discard(root1)
@@ -119,10 +122,11 @@ class EGraph:
         if t.get_id() in self.terms:  # fast path
             return True
         # semantically distinct from all roots
-        self.solver.push()
-        self.solver.add(smt.And([t != self.terms[rid] for rid in self.roots[t.sort()]]))
-        res = self.solver.check()
-        self.solver.pop()
+        with self.solver:
+            self.solver.add(
+                smt.And([t != self.terms[rid] for rid in self.roots[t.sort()]])
+            )
+            res = self.solver.check()
         return res == smt.unsat
 
     def rebuild(self):
@@ -146,10 +150,9 @@ class EGraph:
                     # could also prune with models
                     t1, t2 = self.terms[eid1], self.terms[eid2]
                     if self.find(t1) != self.find(t2):
-                        self.solver.push()
-                        self.solver.add(t1 != t2)
-                        res = self.solver.check()
-                        self.solver.pop()
+                        with self.solver:
+                            self.solver.add(t1 != t2)
+                            res = self.solver.check()
                         if res == smt.unsat:
                             self._union(t1, t2)
 
@@ -274,10 +277,9 @@ class EGraph:
         [(x + y, y, 'because I said so'), (x + y, x, 'because I said so too')]
 
         """
-        self.solver.push()
-        self.solver.add(t1 != t2)
-        res = self.solver.check()
-        assert res == smt.unsat
-        cores = self.solver.unsat_core()
-        self.solver.pop()
+        with self.solver:
+            self.solver.add(t1 != t2)
+            res = self.solver.check()
+            assert res == smt.unsat
+            cores = self.solver.unsat_core()
         return [self.reasons[p.get_id()] for p in cores]
