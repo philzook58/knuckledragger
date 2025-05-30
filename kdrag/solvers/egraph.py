@@ -273,7 +273,7 @@ class EGraph:
         >>> _ = E.union(x + y, y, reason="because I said so")
         >>> _ = E.union(x + y, x, reason="because I said so too")
         >>> _ = E.union(x + y, z, reason="because I said so three")
-        >>> E.get_proof(x, y)
+        >>> list(sorted(E.get_proof(x, y), key=lambda x: x[2]))
         [(x + y, y, 'because I said so'), (x + y, x, 'because I said so too')]
 
         """

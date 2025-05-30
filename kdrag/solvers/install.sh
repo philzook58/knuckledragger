@@ -7,6 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo "Installing TPTP4X"
+git -C JJParser pull || git clone --recursive https://github.com/TPTPWorld/JJParser --depth 1
 git -C TPTP4X pull || git clone --recursive https://github.com/TPTPWorld/TPTP4X.git --depth 1
 cd TPTP4X
 make
