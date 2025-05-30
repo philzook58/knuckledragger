@@ -274,19 +274,11 @@ def occurs(x: smt.ExprRef, t: smt.ExprRef) -> bool:
         raise Exception("Unexpected term in occurs check", t)
 
 
-# TODO: is_subterm and occurs are duplicated
-
-
 def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
     """
     TODO: Not alpha invariant or going into binders
     """
-    if t.eq(t2):
-        return True
-    elif smt.is_app(t2):
-        return any(is_subterm(t, c) for c in t2.children())
-    else:
-        return False
+    return occurs(t, t2)
 
 
 def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
@@ -469,6 +461,27 @@ def free_vars(t: smt.ExprRef) -> set[smt.ExprRef]:
         elif smt.is_app(t):
             todo.extend(t.children())
     return fvs
+
+
+def find_calls(decl: smt.FuncDeclRef, t: smt.ExprRef) -> list[smt.ExprRef]:
+    """
+    Find subterms that are calls of decl in t.
+
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    >>> find_calls(f, f(f(4*f(3)) + 2))
+    [f(f(4*f(3)) + 2), f(4*f(3)), f(3)]
+    """
+    todo = [t]
+    res = []
+    while todo:
+        t = todo.pop()
+        if smt.is_app(t):
+            if t.decl() == decl:
+                res.append(t)
+            todo.extend(t.children())
+        else:
+            raise ValueError("Expected an application term")
+    return res
 
 
 def sanity_check_consistency(thms: list[smt.ExprRef | kd.kernel.Proof], timeout=1000):

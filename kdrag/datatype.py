@@ -217,6 +217,56 @@ def multipattern_match(
     return constraints, subst
 
 
+def define_fun(eqs):
+    """
+    Define a function by pattern matching equations.
+
+    >>> import kdrag.theories.nat as nat
+    >>> n, m = smt.Consts("n m", nat.Nat)
+    >>> myadd = smt.Function("myadd", nat.Nat, nat.Nat, nat.Nat)
+    >>> myadd = define_fun([myadd(nat.Z, m)    == m,\
+                            myadd(nat.S(n), m) == nat.S(myadd(n, m))])
+    >>> myadd.case0
+    |- ForAll(m, myadd(Z, m) == m)
+    >>> myadd.case1
+    |- ForAll([n, m], myadd(S(n), m) == S(myadd(n, m)))
+    """
+    decl = eqs[0].arg(0).decl()
+    cases = []  # For kd.define of kd.cond
+    axs = []  # forall quantified form of equations
+    args = [smt.FreshConst(decl.domain(i)) for i in range(decl.arity())]
+    for n, eq in enumerate(eqs):
+        if not smt.is_eq(eq):
+            raise ValueError("Case is not an equality", n, eq)
+        lhs, rhs = eq.children()
+
+        if lhs.decl() != decl:
+            raise ValueError(
+                "Left-hand side does not match previous function declaration", lhs, decl
+            )
+        pats = lhs.children()
+
+        # compute contraints implied by pattern
+        constr, subst = kd.datatype.multipattern_match(*zip(args, pats))
+        axs.append(smt.ForAll(list(subst.keys()), eq))
+        cases.append((smt.And(constr), smt.substitute(rhs, *subst.items())))
+
+        # simple structural termination check
+        rec_calls = list(kd.utils.find_calls(decl, rhs))
+        for call in rec_calls:
+            # TODO: Could do fancier inference or termination criteria
+            if not kd.utils.is_subterm(call.arg(0), pats[0]):
+                raise ValueError(
+                    "Recursive call not structurally recursive on first argument"
+                )
+
+    f = kd.kernel.define(decl.name(), args, kd.cond(*cases))
+    for n, ax in enumerate(axs):
+        # TODO: Hmm. Cases may not be mutually exclusive so this could fail.
+        setattr(f, "case" + str(n), kd.kernel.prove(ax, by=[f.defn]))
+    return f
+
+
 def datatype_match_(x, *cases, default=None):
     """
     Pattern matching for datatypes.
