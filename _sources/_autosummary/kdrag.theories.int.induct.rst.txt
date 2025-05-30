@@ -1,0 +1,6 @@
+kdrag.theories.int.induct
+=========================
+
+.. currentmodule:: kdrag.theories.int
+
+.. autofunction:: induct

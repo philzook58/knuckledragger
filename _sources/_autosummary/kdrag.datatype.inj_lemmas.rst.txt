@@ -1,0 +1,6 @@
+kdrag.datatype.inj\_lemmas
+==========================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: inj_lemmas

@@ -1,0 +1,6 @@
+kdrag.solvers.mangle\_decl
+==========================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: mangle_decl

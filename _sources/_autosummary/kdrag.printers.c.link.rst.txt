@@ -1,0 +1,6 @@
+kdrag.printers.c.link
+=====================
+
+.. currentmodule:: kdrag.printers.c
+
+.. autofunction:: link
