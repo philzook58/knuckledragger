@@ -38,14 +38,14 @@ def integ_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Expr:
     assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
     x = fresh_symbol()
     e.locals[x.name] = x
-    return sympy.integrate(e(x), (x, a, b))
+    return sympy.integrate(e(x), (x, a, b))  # type: ignore
 
 
 def sum_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Expr:
     assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
     x = fresh_symbol()
     e.locals[x.name] = x
-    return sympy.summation(e(x), (x, a, b))
+    return sympy.summation(e(x), (x, a, b))  # type: ignore
 
 
 sympy_env = {
@@ -202,7 +202,7 @@ def simp(e: smt.ExprRef) -> kdrag.kernel.Proof:
     >>> simp(real.sin(x)**2 + real.cos(x)**2)
     |- sin(x)**2 + cos(x)**2 == 1
     """
-    return kdrag.kernel.axiom(e == simplify(e), by=["sympy simplify"])
+    return kdrag.kernel.axiom(e == simplify(e), by=["sympy simplify"])  # type: ignore
 
 
 def translate_tuple_args(args):
