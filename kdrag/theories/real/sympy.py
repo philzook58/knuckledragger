@@ -6,10 +6,60 @@ import sympy
 import sympy.abc
 
 
-sympy_env = {**sympy.__dict__, **sympy.abc.__dict__}
+def shim_ho(f):
+    def res(e: kdrag.reflect.KnuckleClosure):
+        x = sympy.symbols("x", real=True)
+        return f(e(x), x)  # wrong
+
+    return res
 
 
-def sympify(e: smt.ExprRef, locals={}) -> sympy.Expr:  # type: ignore
+def fresh_symbol() -> sympy.Symbol:
+    """
+    Create a fresh symbol for use in sympy expressions.
+    >>> x = fresh_symbol()
+    >>> y = fresh_symbol()
+    >>> x != y
+    True
+    """
+    return sympy.Symbol(
+        smt.FreshConst(smt.RealSort()).decl().name().replace("!", "__"), real=True
+    )
+
+
+def diff_shim(e: kdrag.reflect.KnuckleClosure) -> sympy.Expr:
+    assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
+    x = fresh_symbol()
+    e.locals[x.name] = x
+    return sympy.Lambda(x, sympy.diff(e(x), x, evaluate=False))
+
+
+def integ_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Expr:
+    assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
+    x = fresh_symbol()
+    e.locals[x.name] = x
+    return sympy.integrate(e(x), (x, a, b))
+
+
+def sum_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Expr:
+    assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
+    x = fresh_symbol()
+    e.locals[x.name] = x
+    return sympy.summation(e(x), (x, a, b))
+
+
+sympy_env = {
+    **sympy.__dict__,
+    **sympy.abc.__dict__,
+    "=": sympy.Eq,
+    "exp": lambda x: sympy.E**x,
+    "deriv": diff_shim,
+    "integrate": integ_shim,
+    "summation": sum_shim,
+}
+
+
+def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:  # type: ignore
     """
     Convert a z3 expression into a sympy expression.
     >>> x = smt.Real("x")
@@ -17,16 +67,37 @@ def sympify(e: smt.ExprRef, locals={}) -> sympy.Expr:  # type: ignore
     x + 1
     >>> sympify(smt.RatVal(1,3))
     Fraction(1, 3)
+    >>> sympify(real.deriv(smt.Lambda([x], real.cos(real.sin(x)))))(sympy.abc.x)
+    Derivative(cos(sin(x)), x)
+    >>> sympify(real.integrate(smt.Lambda([x], real.sin(x)), 0,x))
+    1 - cos(x)
+    >>> sympify(smt.Lambda([x], x + 1))
+    Lambda(X__..., X__... + 1)
     """
-    return kdrag.reflect.eval_(e, sympy_env, locals={})
+    if locals is None:
+        locals = {}
+    res = kdrag.reflect.eval_(e, globals=sympy_env, locals=locals)
+    if isinstance(res, kdrag.reflect.KnuckleClosure):
+        vs, body = kdrag.utils.open_binder(res.lam)
+        vs1 = []
+        for v in vs:
+            v1 = sympy.Symbol(v.decl().name().replace("!", "__"), real=True)
+            vs1.append(v1)
+            locals[v.decl().name()] = v1
+        return sympy.Lambda(
+            tuple(vs1),
+            sympify(body, locals=locals),
+        )
+    else:
+        return res
 
 
-def replace_rational_with_ratval(expr):
+def _sympy_mangle(expr):
     """
     Replace all Rational numbers in a SymPy expression with z3.RatVal equivalents.
 
     >>> x = smt.Real("x")
-    >>> replace_rational_with_ratval(sympify(x + smt.RatVal(1,3)))
+    >>> _sympy_mangle(sympify(x + smt.RatVal(1,3)))
     x + RatVal(1, 3)
     """
     if isinstance(expr, sympy.Rational):
@@ -38,11 +109,19 @@ def replace_rational_with_ratval(expr):
             return sympy.Function("RatVal")(expr.p, expr.q)  # type: ignore
     elif isinstance(expr, sympy.Order):
         return sympy.Function("Order")(expr.expr)  # , expr.point) # type: ignore
+    elif expr == sympy.E:  # Sympy turns Euler constant into fraction otherwise
+        return sympy.Symbol("e")
+    elif isinstance(expr, sympy.Lambda):
+        return sympy.Function(
+            "KD_Lambda"
+        )(
+            expr.variables, _sympy_mangle(expr.expr)
+        )  # KD Lambda is a hack to avoid lambdify issues. We break lambda abstraction. Probably this goes horribly wrong
     elif expr.is_Atom:
         return expr
     else:
-        args = [replace_rational_with_ratval(arg) for arg in expr.args]
-        return expr.func(*args, evaluate=False)
+        args = [_sympy_mangle(arg) for arg in expr.args]
+        return expr.func(*args)
 
 
 def kdify(e: sympy.Expr, **kwargs) -> smt.ExprRef:
@@ -58,6 +137,7 @@ def kdify(e: sympy.Expr, **kwargs) -> smt.ExprRef:
     >>> kdify(sympify(x/3))
     x*1/3
     """
+    e = _sympy_mangle(e)
     if isinstance(e, sympy.Basic):  # type: ignore
         svs = list(e.free_symbols)
     else:
@@ -65,11 +145,13 @@ def kdify(e: sympy.Expr, **kwargs) -> smt.ExprRef:
     vs = [smt.Real(v.name) for v in svs]  # type: ignore
     return sympy.lambdify(  # type: ignore
         svs,
-        replace_rational_with_ratval(e),
+        e,
         modules=[
             {
                 "RatVal": smt.RatVal,
                 "Order": smt.Function("Order", smt.RealSort(), smt.RealSort()),
+                # "Lambda": lambda x, y: smt.Lambda(kdify(x), kdify(y)),
+                "KD_Lambda": smt.Lambda,
             },
             real,
         ],
@@ -107,6 +189,20 @@ def simplify(e: smt.ExprRef) -> smt.ExprRef:
     1
     """
     return kdify(sympy.simplify(sympify(e)))
+
+
+def simp(e: smt.ExprRef) -> kdrag.kernel.Proof:
+    """
+    Sympy simplification as an axiom schema.
+    Sympy nor the translation to and from z3 are particularly sound.
+    It is very useful though and better than nothing.
+    Your mileage may vary
+
+    >>> x = smt.Real("x")
+    >>> simp(real.sin(x)**2 + real.cos(x)**2)
+    |- sin(x)**2 + cos(x)**2 == 1
+    """
+    return kdrag.kernel.axiom(e == simplify(e), by=["sympy simplify"])
 
 
 def translate_tuple_args(args):
@@ -182,6 +278,24 @@ def limit(e, x, x0):
     """
     x = sympy.symbols(x.decl().name())  # type: ignore
     return kdify(sympy.limit(sympify(e), x, x0))
+
+
+def solve(
+    constrs: list[smt.BoolRef], vs: list[smt.ExprRef]
+) -> list[dict[smt.ExprRef, smt.ExprRef]]:
+    """
+
+    >>> x,y,z = smt.Reals("x y z")
+    >>> solve([x + y == 1, x - z == 2], [x, y, z])
+    [{x: z + 2, y: -z - 1}]
+    >>> solve([real.cos(x) == 3], [x]) # Note that does not return all possible solutions.
+    [{x: 2*pi - acos(3)}, {x: acos(3)}]
+    """
+    assert isinstance(vs, list) and isinstance(constrs, list)
+    sols = sympy.solve(
+        [sympify(constr) for constr in constrs], [sympify(v) for v in vs], dict=True
+    )
+    return [{kdify(v): kdify(t) for v, t in sol.items()} for sol in sols]
 
 
 """

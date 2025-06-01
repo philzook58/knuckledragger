@@ -327,6 +327,8 @@ def eval_(e: smt.ExprRef, globals={}, locals={}, default=__default_error):
                 return functools.reduce(operator.add, children)
             elif smt.is_mul(e):
                 return functools.reduce(operator.mul, children)
+            elif smt.is_neg(e):
+                return -children[0]
             elif smt.is_sub(e):
                 return children[0] - children[1]
             elif smt.is_div(e):

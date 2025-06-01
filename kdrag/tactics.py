@@ -480,10 +480,10 @@ class Lemma:
             else:
                 newgoal = smt.simplify(oldgoal)
                 self.lemmas.append(kd.kernel.prove(oldgoal == newgoal))
-            if newgoal.eq(oldgoal):
-                raise ValueError(
-                    "Simplify failed. Goal is already simplified.", oldgoal
-                )
+            # if newgoal.eq(oldgoal):
+            #    raise ValueError(
+            #        "Simplify failed. Goal is already simplified.", oldgoal
+            #    )
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx

@@ -30,6 +30,15 @@ if solver is None or solver == Z3SOLVER:
         """
         return z3.is_app_of(x, z3.Z3_OP_ITE)
 
+    def is_neg(x: z3.ExprRef) -> bool:
+        """
+        Check if an expression is a negation.
+        >>> x = z3.Int("x")
+        >>> is_neg(-x)
+        True
+        """
+        return z3.is_app_of(x, z3.Z3_OP_UMINUS)
+
     def is_constructor(x: z3.ExprRef) -> bool:
         """
         Check if an expression is a constructor.

@@ -432,6 +432,9 @@ deriv_mul = kd.axiom(ForAll([f, g], deriv(f * g) == deriv(f) * g + f * deriv(g))
 # Many notions of integrable.
 is_integ = smt.Function("is_integ", RFun, smt.BoolSort())
 
+integrate = smt.Function("integrate", RFun, R, R, R)
+summation = smt.Function("summation", RFun, R, R, R)
+
 Powser = kd.NewType("Powser", RSeq)
 # is_convergent_at
 
