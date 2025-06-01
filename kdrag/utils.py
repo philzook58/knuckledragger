@@ -281,6 +281,10 @@ def is_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
     return occurs(t, t2)
 
 
+def is_strict_subterm(t: smt.ExprRef, t2: smt.ExprRef) -> bool:
+    return not t.eq(t2) and is_subterm(t, t2)
+
+
 def quant_kind_eq(t1: smt.QuantifierRef, t2: smt.QuantifierRef) -> bool:
     """Check both quantifiers are of the same kind
 
