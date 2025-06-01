@@ -27,25 +27,25 @@ def fresh_symbol() -> sympy.Symbol:
     )
 
 
-def diff_shim(e: kdrag.reflect.KnuckleClosure) -> sympy.Expr:
+def diff_shim(e: kdrag.reflect.KnuckleClosure) -> sympy.Basic:
     assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
     x = fresh_symbol()
     e.locals[x.name] = x
     return sympy.Lambda(x, sympy.diff(e(x), x, evaluate=False))
 
 
-def integ_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Expr:
+def integ_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Basic:
     assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
     x = fresh_symbol()
     e.locals[x.name] = x
-    return sympy.integrate(e(x), (x, a, b))  # type: ignore
+    return sympy.integrate(e(x), (x, a, b))
 
 
-def sum_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Expr:
+def sum_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Basic:
     assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
     x = fresh_symbol()
     e.locals[x.name] = x
-    return sympy.summation(e(x), (x, a, b))  # type: ignore
+    return sympy.summation(e(x), (x, a, b))
 
 
 sympy_env = {
@@ -92,7 +92,7 @@ def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:  # type: ignore
         return res
 
 
-def _sympy_mangle(expr):
+def _sympy_mangle(expr: sympy.Basic) -> sympy.Basic:
     """
     Replace all Rational numbers in a SymPy expression with z3.RatVal equivalents.
 
@@ -112,11 +112,9 @@ def _sympy_mangle(expr):
     elif expr == sympy.E:  # Sympy turns Euler constant into fraction otherwise
         return sympy.Symbol("e")
     elif isinstance(expr, sympy.Lambda):
-        return sympy.Function(
-            "KD_Lambda"
-        )(
-            expr.variables, _sympy_mangle(expr.expr)
-        )  # KD Lambda is a hack to avoid lambdify issues. We break lambda abstraction. Probably this goes horribly wrong
+        # KD Lambda is a hack to avoid lambdify issues. We break lambda abstraction. Probably this goes horribly wrong
+        f = sympy.Function("KD_Lambda")
+        return f(expr.variables, _sympy_mangle(expr.expr))  # type: ignore
     elif expr.is_Atom:
         return expr
     else:
@@ -124,7 +122,7 @@ def _sympy_mangle(expr):
         return expr.func(*args)
 
 
-def kdify(e: sympy.Expr, **kwargs) -> smt.ExprRef:
+def kdify(e: sympy.Basic, **kwargs) -> smt.ExprRef:
     """
     Convert a sympy expression into a z3 expression.
     >>> x = smt.Real("x")
