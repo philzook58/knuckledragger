@@ -45,7 +45,7 @@ def sum_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Basic:
     assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
     x = fresh_symbol()
     e.locals[x.name] = x
-    return sympy.summation(e(x), (x, a, b))
+    return sympy.summation(e(x), (x, a, b))  # type: ignore
 
 
 sympy_env = {
