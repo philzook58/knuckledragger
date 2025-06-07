@@ -1,0 +1,6 @@
+kdrag.smt.BoolSort
+==================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: BoolSort

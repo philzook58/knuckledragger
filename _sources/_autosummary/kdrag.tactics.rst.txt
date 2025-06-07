@@ -1,0 +1,45 @@
+kdrag.tactics
+=============
+
+.. automodule:: kdrag.tactics
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      prove
+      simp
+      simp_tac
+      subst
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Calc
+      Goal
+      Lemma
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/tactics.py
+   :language: python

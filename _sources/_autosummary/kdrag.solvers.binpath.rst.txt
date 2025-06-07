@@ -1,0 +1,6 @@
+kdrag.solvers.binpath
+=====================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: binpath
