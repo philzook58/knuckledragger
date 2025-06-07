@@ -1048,6 +1048,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "cffi" },
     { name = "egglog" },
+    { name = "graphviz" },
     { name = "hypothesis" },
     { name = "lark" },
     { name = "python-flint" },
@@ -1082,6 +1083,7 @@ requires-dist = [
     { name = "cffi", specifier = ">=1.17.1" },
     { name = "cle", marker = "extra == 'pypcode'", specifier = ">=9.2.148" },
     { name = "egglog", specifier = ">=9.0.0" },
+    { name = "graphviz", specifier = ">=0.20.3" },
     { name = "hypothesis", specifier = ">=6.124.1" },
     { name = "jupyter", marker = "extra == 'dev'" },
     { name = "lark" },

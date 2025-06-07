@@ -19,6 +19,7 @@ dependencies = [
     "lark",
     "hypothesis>=6.124.1",
     "cffi>=1.17.1",
+    "graphviz>=0.20.3",
 ]
 [project.urls]
 homepage = "https://github.com/philzook58/knuckledragger"

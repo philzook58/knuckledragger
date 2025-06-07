@@ -98,7 +98,7 @@ class MemState:
 
     def getvalue(self, vnode: pypcode.Varnode) -> smt.BitVecRef | int:
         if vnode.space.name == "const":
-            return vnode.offset
+            return smt.BitVecVal(vnode.offset, vnode.size * 8)
         else:
             mem = getattr(self.mem, vnode.space.name)
             if mem is None:
@@ -182,7 +182,10 @@ def executePopcount(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
 def executeLoad(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     assert op.output is not None
     off = memstate.getvalue(op.inputs[1])  # offset to load from
-    assert op.inputs[1].space.name == "ram"
+    if op.inputs[0].space.name != "const":
+        raise ValueError(
+            f"Expected constant space in LOAD, got {op.inputs[0].space.name}, {pretty_op(op)}"
+        )
     return memstate.setvalue(op.output, memstate.getvalue_ram(off, op.output.size))
 
 
@@ -218,6 +221,13 @@ def pretty_op(op: pypcode.PcodeOp) -> str:
 
 
 pypcode.PcodeOp.__repr__ = pretty_op  # type: ignore
+
+
+@dataclass
+class SimState:
+    memstate: MemState
+    pc: PC
+    path_cond: list[smt.BoolRef]
 
 
 class BinaryContext:
@@ -309,12 +319,14 @@ class BinaryContext:
         else:
             raise ValueError(f"Unknown branch target: {destaddr.space.name}")
 
-    def sym_execute(self, memstate: MemState, addr: int, max_insns=1):
+    def sym_execute(self, memstate: MemState, addr: int, max_insns=1, verbose=False):
         pc0: PC = (addr, 0)
         todo = [(memstate, pc0, max_insns, [])]
         res = []
         while todo:
             memstate, pc, max_insns, path_cond = todo.pop()
+            if verbose:
+                print(f"Executing {pretty_insn(self.disassemble(pc[0]))} at {pc}")
             op = self.translate(pc[0])[pc[1]]
             memstate1, pc1 = self.executeCurrentOp(op, memstate, pc)
             if isinstance(pc1[0], smt.ExprRef):
@@ -338,7 +350,7 @@ class BinaryContext:
                 if max_insns > 0:
                     todo.append((memstate1, pc1, max_insns, path_cond))  # type: ignore
                 else:
-                    res.append((memstate1, pc1, path_cond))
+                    res.append(SimState(memstate1, pc1, path_cond))
         return res
 
 

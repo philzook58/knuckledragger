@@ -238,6 +238,26 @@ def QExists(vs: list[smt.ExprRef], *concs) -> smt.BoolRef:
         return smt.Exists(vs, smt.And(concs))
 
 
+def QLambda(xs: list[smt.ExprRef], *args):
+    """
+    Conditional Lambda. If conjunction of conditions are not met, returns unconstrained value.
+
+    >>> x = smt.Int("x")
+    >>> QLambda([x], x > 0, x + 1)
+    Lambda(x, If(x > 0, x + 1, f!...(x)))
+    >>> QLambda([x], x > 0, x < 10, x + 1)
+    Lambda(x, If(And(x > 0, x < 10), x + 1, f!...(x)))
+    """
+    conds, body = args[:-1], args[-1]
+    undef = smt.FreshFunction(*[x.sort() for x in xs], body.sort())
+    if len(conds) == 0:
+        return smt.Lambda(xs, body)
+    elif len(conds) == 1:
+        return smt.Lambda(xs, smt.If(conds[0], body, undef(*xs)))
+    else:
+        return smt.Lambda(xs, smt.If(smt.And(conds), body, undef(*xs)))
+
+
 def ExistsUnique(v: smt.ExprRef, *concs) -> smt.BoolRef:
     """Unique Existence"""
     y: smt.ExprRef = smt.FreshConst(v.sort(), prefix="y")

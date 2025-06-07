@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from collections import defaultdict
 import itertools
 import copy
-
+import graphviz
 # TODO: prune on models
 # TODO: extract
 # TODO: Proofs
@@ -73,6 +73,25 @@ class EGraph:
             return True
         else:
             return False
+
+    def is_eq(self, t1: smt.ExprRef, t2: smt.ExprRef) -> bool:
+        """
+        Check if two terms are equal in the EGraph.
+
+        >>> x,y,z = smt.Ints('x y z')
+        >>> E = EGraph()
+        >>> _ = E.union(x, y)
+        >>> assert E.is_eq(x, y)
+        >>> assert not E.is_eq(x, z)
+        """
+        eid1, eid2 = self.find(t1), self.find(t2)
+        if eid1 == eid2:
+            return True
+        else:
+            with self.solver:
+                self.solver.add(t1 != t2)
+                res = self.solver.check()
+            return res == smt.unsat
 
     def union(self, t1: smt.ExprRef, t2: smt.ExprRef, reason=None) -> bool:
         """
@@ -198,6 +217,12 @@ class EGraph:
             self.add_term(t1)
             self._union(t, t1)
 
+    def iter(self, vs: list[smt.ExprRef]):
+        return [
+            [self.terms[eid] for eid in eids]
+            for eids in itertools.product(*[self.roots[v.sort()] for v in vs])
+        ]
+
     def ematch(
         self, vs: list[smt.ExprRef], pat: smt.ExprRef
     ) -> list[list[smt.ExprRef]]:
@@ -283,3 +308,55 @@ class EGraph:
             assert res == smt.unsat
             cores = self.solver.unsat_core()
         return [self.reasons[p.get_id()] for p in cores]
+
+    def eclasses(
+        self,
+    ) -> defaultdict[int, defaultdict[smt.FuncDeclRef, set[tuple[int]]]]:
+        """
+        Returns a dictionary mapping each term to its equivalence class.
+
+        >>> E = EGraph()
+        >>> x,y,z = smt.Ints("x y z")
+        >>> E.add_term(x + y)
+        >>> E.union(y,z)
+        True
+        >>> E.rebuild()
+        >>> _ = E.eclasses()
+        """
+        eclasses = defaultdict(lambda: defaultdict(set))
+        # building eclass table: eid,funcdecl -> arg_eids
+        for t in self.terms.values():
+            eid = self.find(t)
+            f, args = t.decl(), tuple(self.find(a) for a in t.children())
+            eclasses[eid][f].add(args)
+        return eclasses
+
+    def dot(self, filename: str = "egraph") -> graphviz.Digraph:
+        """
+        Create graphviz representation of the egraph.
+
+        >>> E = EGraph()
+        >>> x,y,z = smt.Ints("x y z")
+        >>> E.add_term(x + y)
+        >>> E.union(y,z)
+        True
+        >>> E.rebuild()
+        >>> _ = E.dot()
+        """
+        dot = graphviz.Digraph(filename, format="png")
+        eclasses = self.eclasses()
+
+        for eid, funcs in eclasses.items():
+            with dot.subgraph(name=f"cluster_{eid}") as c:
+                c.attr(style="dotted,rounded")
+                rep = f"e_rep_{eid}"
+                c.node(rep, label="", shape="point", style="invis")
+                # create one node per enode in this class
+                for f, arg_sets in funcs.items():
+                    for args in arg_sets:
+                        node_id = f"{eid}_{f.name()}_" + "_".join(map(str, args))
+                        c.node(node_id, label=f.name(), shape="box", style="rounded")
+                        # connect each enode to its children’s rep‐points
+                        for child_eid in args:
+                            dot.edge(node_id, f"e_rep_{child_eid}")
+        return dot
