@@ -29,8 +29,6 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install the project
-        run: uv sync --locked --all-extras --dev
       - name: Install dependencies
         run: |
           sudo apt install -y default-jre libcurl4-openssl-dev
@@ -38,6 +36,8 @@ jobs:
           #python -m pip install ruff pytest cvc5
           #python -m pip install -e .[dev,yosys,pypcode,rust]
           bash ./kdrag/solvers/install.sh
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
       - name: Lint with Ruff
         run: |
           ruff check --output-format=github .
