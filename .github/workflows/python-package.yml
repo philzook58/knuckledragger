@@ -40,11 +40,11 @@ jobs:
         run: uv sync --locked --all-extras --dev
       - name: Lint with Ruff
         run: |
-          ruff check --output-format=github .
+          uv run ruff check --output-format=github .
         #continue-on-error: true
       - name: Test with pytest
         run: |
-          pytest
+          uv run pytest
           #KNUCKLE_SOLVER=cvc5 pytest
       - name: Run pyright
         uses: jakebailey/pyright-action@v2
