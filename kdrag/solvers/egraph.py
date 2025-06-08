@@ -5,8 +5,6 @@ import itertools
 import copy
 import graphviz
 # TODO: prune on models
-# TODO: extract
-# TODO: Proofs
 
 
 @dataclass
@@ -93,7 +91,7 @@ class EGraph:
                 res = self.solver.check()
             return res == smt.unsat
 
-    def union(self, t1: smt.ExprRef, t2: smt.ExprRef, reason=None) -> bool:
+    def union(self, t1: smt.ExprRef, t2: smt.ExprRef, add=True, reason=None) -> bool:
         """
         Assert equal two terms in the EGraph.
         Note that this does not add the terms to the EGraph.
@@ -103,6 +101,9 @@ class EGraph:
         >>> _ = E.union(x, y)
         >>> assert E.find(x) == E.find(y)
         """
+        if add:
+            self.add_term(t1)
+            self.add_term(t2)
         if self._union(t1, t2):
             if self.proof:
                 p = smt.FreshConst(smt.BoolSort())
@@ -355,8 +356,12 @@ class EGraph:
                 # create one node per enode in this class
                 for f, arg_sets in funcs.items():
                     for args in arg_sets:
-                        node_id = f"{eid}_{f.name()}_" + "_".join(map(str, args))
-                        c.node(node_id, label=f.name(), shape="box", style="rounded")
+                        name = f.name()
+                        name = (
+                            str(f()) if name == "Int" or name == "Real" else name
+                        )  # fixup for some constants
+                        node_id = f"{eid}_{name}_" + "_".join(map(str, args))
+                        c.node(node_id, label=name, shape="box", style="rounded")
                         # connect each enode to its children’s rep‐points
                         for child_eid in args:
                             dot.edge(node_id, f"e_rep_{child_eid}")

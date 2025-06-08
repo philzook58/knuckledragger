@@ -219,11 +219,35 @@ FuncDeclRef.__ne__ = lambda x, y: not eq(x, y)
 decl_orig = ExprRef.decl
 ExprRef._cache_decl = None
 
+# Caching of decls so they can be tagged with properties
+# TODO: There are other ways of getting decls, so this is not a complete cache.
+decls: dict[int, FuncDeclRef] = {}
+
 
 def decl(self):
     if self._cache_decl is None:
-        self._cache_decl = decl_orig(self)
-    return self._cache_decl
+        decl = decl_orig(self)
+        self._cache_decl = decl
+    else:
+        decl = self._cache_decl
+    id_ = decl.get_id()
+    if id_ in decls:
+        return decls[id_]
+    else:
+        decls[id_] = decl
+        return decl
+
+
+OldFunction = Function
+
+
+def Function(*args, **kwargs):
+    decl = OldFunction(*args, **kwargs)
+    if decl.get_id() not in decls:
+        decls[decl.get_id()] = decl
+    else:
+        decl = decls[decl.get_id()]
+    return decl
 
 
 ExprRef.decl = decl

@@ -30,6 +30,9 @@ homepage = "https://github.com/philzook58/knuckledragger"
 dev = ["pytest>=6.0", "nbclient", "jupyter"]
 yosys = ["yowasp-yosys>=0.50.0.0.post858"]
 pypcode = ["cle>=9.2.148", "pypcode>=3.0.3"]
+rust = [
+    "maturin>=1.8.6",
+]
 
 [tool.setuptools]
 include-package-data = true

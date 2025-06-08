@@ -335,6 +335,9 @@ def test_lambda_2():
     # )
 """
 
+def test_decl_cache():
+    x,y = smt.Ints("x y")
+    assert (x + y).decl() is (x + y).decl()
 
 def test_bv():
     bv8 = bitvec.BitVecSort(8)

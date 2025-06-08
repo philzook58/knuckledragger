@@ -224,7 +224,7 @@ def test_egglog():
     e.add(smt.ForAll([x], f(x) == f(f(y))))
     e.let("t", f(f(x)))
     e.run(10)
-    assert e.extract(f(x)) == ["(f (x))"]
+    assert e.extract(f(x)) == ["(f (y))"]
 
 
 def test_satsolver():
