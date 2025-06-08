@@ -19,18 +19,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
+      #- name: Set up Python ${{ matrix.python-version }}
+      #  uses: actions/setup-python@v3
+      #  with:
+      #    python-version: ${{ matrix.python-version }}
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
       - name: Install dependencies
         run: |
           sudo apt install -y default-jre libcurl4-openssl-dev
-          python -m pip install --upgrade pip
-          python -m pip install ruff pytest cvc5
-          python -m pip install -e .[dev,yosys,pypcode,rust]
+          #python -m pip install --upgrade pip
+          #python -m pip install ruff pytest cvc5
+          #python -m pip install -e .[dev,yosys,pypcode,rust]
           bash ./kdrag/solvers/install.sh
       - name: Lint with Ruff
         run: |
