@@ -38,8 +38,43 @@ class Proof:
     def __repr__(self):
         return "|- " + repr(self.thm)
 
-    def __call__(self, *args: smt.ExprRef):
-        return instan(args, self)
+    def __call__(self, *args: "smt.ExprRef | Proof"):
+        """
+
+        >>> x,y = smt.Ints("x y")
+        >>> p = prove(smt.ForAll([y], smt.ForAll([x], x >= x - 1)))
+        >>> p(x)
+        |- ForAll(x, x >= x - 1)
+        >>> p(x, smt.IntVal(7))
+        |- 7 >= 7 - 1
+
+        >>> a,b,c = smt.Bools("a b c")
+        >>> ab = prove(smt.Implies(a,smt.Implies(a, a)))
+        >>> a = axiom(a)
+        >>> ab(a)
+        |- Implies(a, a)
+        >>> ab(a,a)
+        |- a
+        """
+        # Note: Not trusted code. Trusted code is in `instan` and `modus`
+        acc = self
+        n = 0
+        while n < len(args):
+            if isinstance(self.thm, smt.QuantifierRef) and self.thm.is_forall():
+                i = self.thm.num_vars()
+                acc = instan(args[n : n + i], acc)  # type: ignore
+                n += i
+            elif smt.is_implies(self.thm):
+                x = args[n]
+                n += 1
+                assert isinstance(x, kd.Proof), "Can only apply implication to kd.Proof"
+                acc = modus(acc, x)
+            else:
+                raise TypeError(
+                    "Proofs can only be called with a single argument or a list of arguments for forall quantifiers. "
+                    "Use instan for forall quantifiers or modus for implications."
+                )
+        return acc
 
 
 """
@@ -398,15 +433,6 @@ def modus(ab: Proof, a: Proof) -> Proof:
     return axiom(ab.thm.arg(1), ["modus", ab, a])
 
 
-def beta_conv(lam: smt.QuantifierRef, *args) -> Proof:
-    """
-    Beta conversion for lambda calculus.
-    """
-    assert len(args) == lam.num_vars()
-    assert smt.is_quantifier(lam) and lam.is_lambda()
-    return axiom(smt.Eq(lam[args], smt.substitute_vars(lam.body(), *reversed(args))))
-
-
 def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
     """Build a basic induction principle for an algebraic datatype"""
     DT = x.sort()
@@ -474,3 +500,59 @@ def Inductive(name: str) -> smt.Datatype:
 
     dt.create = create
     return dt
+
+
+# Less important, Very surprising if Z3 can't do these for you
+
+
+def proj(p: Proof, n: int) -> Proof:
+    """
+    Project out of an And proof
+
+    >>> x = smt.Int("x")
+    >>> p = prove(smt.And(x > x - 1, x > x - 2, x > x - 3))
+    >>> proj(p, 0)
+    |- x > x - 1
+    >>> proj(p, 2)
+    |- x > x - 3
+    """
+    assert isinstance(p, Proof) and smt.is_and(p.thm)
+    return axiom(p.thm.arg(n), ["proj", p, n])
+
+
+def andI(a: Proof, b: Proof) -> Proof:
+    """
+    Prove an and from two proofs of its conjuncts.
+
+    >>> a, b = smt.Bools("a b")
+    >>> pa = axiom(a)
+    >>> pb = axiom(b)
+    >>> andI(pa, pb)
+    |- And(a, b)
+    """
+    assert isinstance(a, Proof) and isinstance(b, Proof)
+    return axiom(smt.And(a.thm, b.thm), ["andI", a, b])
+
+
+def subst(eq: Proof, t: smt.ExprRef) -> Proof:
+    """
+    Substitute subterms using equality proof
+
+    >>> x, y = smt.Ints("x y")
+    >>> eq = prove(x == ((x + 1) - 1))
+    >>> subst(eq, x + 3)
+    |- x + 3 == x + 1 - 1 + 3
+    """
+    assert isinstance(eq, Proof) and smt.is_eq(eq.thm)
+    return axiom(
+        t == smt.substitute(t, (eq.thm.arg(0), eq.thm.arg(1))), ["subst", eq, t]
+    )
+
+
+def beta_conv(lam: smt.QuantifierRef, *args) -> Proof:
+    """
+    Beta conversion for lambda calculus.
+    """
+    assert len(args) == lam.num_vars()
+    assert smt.is_quantifier(lam) and lam.is_lambda()
+    return axiom(smt.Eq(lam[args], smt.substitute_vars(lam.body(), *reversed(args))))
