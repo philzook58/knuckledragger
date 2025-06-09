@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -39,14 +39,14 @@ jobs:
       - name: Install the project
         run: |
           uv sync --locked --all-extras --dev
-          uv run pip install -e .[dev,yosys,pypcode,rust]
+          uv run python -m pip install -e .[dev,yosys,pypcode,rust]
       - name: Lint with Ruff
         run: |
           uv run ruff check --output-format=github .
         #continue-on-error: true
       - name: Test with pytest
         run: |
-          uv run pytest
+          uv run python -m pytest
           #KNUCKLE_SOLVER=cvc5 pytest
       - name: Run pyright
         uses: jakebailey/pyright-action@v2
