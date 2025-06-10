@@ -534,6 +534,72 @@ def andI(a: Proof, b: Proof) -> Proof:
     return axiom(smt.And(a.thm, b.thm), ["andI", a, b])
 
 
+def eqrefl(x: smt.ExprRef) -> Proof:
+    """
+    Prove reflexivity of equality
+
+    >>> x = smt.Int("x")
+    >>> eqrefl(x)
+    |- x == x
+    """
+    assert isinstance(x, smt.ExprRef)
+    return axiom(smt.Eq(x, x), ["eqrefl", x])
+
+
+def eqsym(eq: Proof) -> Proof:
+    """
+    Prove symmetry of equality
+
+    >>> x, y = smt.Ints("x y")
+    >>> eq = axiom(x == y)
+    >>> eqsym(eq)
+    |- y == x
+    """
+    assert isinstance(eq, Proof) and smt.is_eq(eq.thm)
+    return axiom(smt.Eq(eq.thm.arg(1), eq.thm.arg(0)), ["eqsym", eq])
+
+
+def eqtrans(eq1: Proof, eq2: Proof) -> Proof:
+    """
+    Prove transitivity of equality
+
+    >>> x, y, z = smt.Ints("x y z")
+    >>> eq1 = axiom(x == y)
+    >>> eq2 = axiom(y == z)
+    >>> eqtrans(eq1, eq2)
+    |- x == z
+    """
+    assert isinstance(eq1, Proof) and isinstance(eq2, Proof)
+    assert smt.is_eq(eq1.thm) and smt.is_eq(eq2.thm)
+    assert eq1.thm.arg(1).eq(eq2.thm.arg(0))
+    return axiom(smt.Eq(eq1.thm.arg(0), eq2.thm.arg(1)), ["eqtrans", eq1, eq2])
+
+
+def cong(f: smt.FuncDeclRef, *args: Proof) -> Proof:
+    """
+    Congruence of function symbols. If f is a function symbol, then f(x) == f(y) if x == y.
+
+    >>> x = smt.Int("x")
+    >>> y = smt.Real("y")
+    >>> f = smt.Function("f", smt.IntSort(), smt.RealSort(), smt.IntSort())
+    >>> cong(f, eqrefl(x), eqrefl(y))
+    |- f(x, y) == f(x, y)
+    """
+    assert (
+        isinstance(f, smt.FuncDeclRef)
+        and f.arity() == len(args)
+        and all(
+            isinstance(a, Proof)
+            and smt.is_eq(a.thm)
+            and a.thm.arg(0).sort() == f.domain(n)
+            for n, a in enumerate(args)
+        )
+    )
+    lhs = [a.thm.arg(0) for a in args]
+    rhs = [a.thm.arg(1) for a in args]
+    return axiom(smt.Eq(f(*lhs), f(*rhs)), ["cong", f, *args])
+
+
 def subst(eq: Proof, t: smt.ExprRef) -> Proof:
     """
     Substitute subterms using equality proof
