@@ -128,6 +128,24 @@ def simp_tac(e: smt.ExprRef) -> kd.kernel.Proof:
     return kd.kernel.prove(smt.Eq(e, e1), by=trace)
 
 
+def forallI(
+    e: smt.QuantifierRef, cb: Callable[[smt.BoolRef, smt.ExprRef], kd.kernel.Proof]
+) -> kd.kernel.Proof:
+    """
+    Open a forall quantifier but giving a new goal and fresh variables to a callback function.
+
+    >>> x = smt.Int("x")
+    >>> forallI(smt.ForAll([x], x > x - 1), lambda goal, x1: kd.prove(goal))
+    |- ForAll(x, x > x - 1)
+    """
+    assert isinstance(e, smt.QuantifierRef) and e.is_forall(), (
+        "forallI only works on forall quantifiers"
+    )
+    vs, ab = kd.kernel.herb(e)
+    a = cb(ab.thm.arg(0), *vs)
+    return kd.kernel.modus(ab, a)
+
+
 simps = {}
 
 
@@ -138,6 +156,7 @@ def prove(
     timeout=1000,
     dump=False,
     solver=None,
+    instan: Optional[Callable[..., list[kd.kernel.Proof]]] = None,
     # defns=True,
     # induct=False,
     # simps=simps,
@@ -172,6 +191,8 @@ def prove(
     >>> succ2 = kd.define("succ2", [x], succ(succ(x)))
     >>> prove(succ2(x) == x + 2, unfold=2)
     |- succ2(x) == x + 2
+    >>> prove(smt.ForAll([x], succ(x) == x + 1), instan=lambda x1: [succ.defn(x1)])
+    |- ForAll(x, succ(x) == x + 1)
     """
     start_time = time.perf_counter()
     if by is None:
@@ -180,6 +201,20 @@ def prove(
         by = [by]
     elif not isinstance(by, list):
         by = list(by)
+    if instan is not None:
+        assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
+        return forallI(
+            thm,
+            lambda goal, *vs: prove(
+                goal,
+                by=by + instan(*vs),
+                timeout=timeout,
+                dump=dump,
+                solver=solver,
+                admit=admit,
+                unfold=unfold,
+            ),
+        )
 
     if unfold != 0:
         assert isinstance(unfold, int)
