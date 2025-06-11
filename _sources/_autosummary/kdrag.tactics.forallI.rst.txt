@@ -1,0 +1,6 @@
+kdrag.tactics.forallI
+=====================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: forallI

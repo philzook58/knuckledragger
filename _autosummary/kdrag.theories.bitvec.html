@@ -1,0 +1,708 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.bitvec &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.bitvec.BVNot" href="kdrag.theories.bitvec.BVNot.html" />
+    <link rel="prev" title="kdrag.theories" href="kdrag.theories.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.bitvec</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.BVNot.html">kdrag.theories.bitvec.BVNot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.BitVecNConst.html">kdrag.theories.bitvec.BitVecNConst</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.BitVecNVal.html">kdrag.theories.bitvec.BitVecNVal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.BitVecSort.html">kdrag.theories.bitvec.BitVecSort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.PopCount.html">kdrag.theories.bitvec.PopCount</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.SelectConcat.html">kdrag.theories.bitvec.SelectConcat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.StoreConcat.html">kdrag.theories.bitvec.StoreConcat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.fromBV.html">kdrag.theories.bitvec.fromBV</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.select64.html">kdrag.theories.bitvec.select64</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.bitvec.toBV.html">kdrag.theories.bitvec.toBV</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.BVNot"><code class="docutils literal notranslate"><span class="pre">BVNot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.BitVecN"><code class="docutils literal notranslate"><span class="pre">BitVecN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.BitVecNConst"><code class="docutils literal notranslate"><span class="pre">BitVecNConst()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.BitVecNVal"><code class="docutils literal notranslate"><span class="pre">BitVecNVal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.BitVecSort"><code class="docutils literal notranslate"><span class="pre">BitVecSort()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.PopCount"><code class="docutils literal notranslate"><span class="pre">PopCount()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.SelectConcat"><code class="docutils literal notranslate"><span class="pre">SelectConcat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.StoreConcat"><code class="docutils literal notranslate"><span class="pre">StoreConcat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.fromBV"><code class="docutils literal notranslate"><span class="pre">fromBV()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.select64"><code class="docutils literal notranslate"><span class="pre">select64()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.bitvec.toBV"><code class="docutils literal notranslate"><span class="pre">toBV()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.bitvec</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.bitvec.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.bitvec">
+<span id="kdrag-theories-bitvec"></span><h1>kdrag.theories.bitvec<a class="headerlink" href="#module-kdrag.theories.bitvec" title="Link to this heading"></a></h1>
+<p>Theorems about bitvectors. These are theorems about the built in smtlib bitvector types</p>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.bitvec.BitVecN" title="kdrag.theories.bitvec.BitVecN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitVecN</span></code></a></p></td>
+<td><p>Arbitrary length bitvectors.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.bitvec.BVNot.html#kdrag.theories.bitvec.BVNot" title="kdrag.theories.bitvec.BVNot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BVNot</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.bitvec.BitVecNConst.html#kdrag.theories.bitvec.BitVecNConst" title="kdrag.theories.bitvec.BitVecNConst"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitVecNConst</span></code></a>(name, N)</p></td>
+<td><p>There is a lot of confusion possible with this construct.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.bitvec.BitVecNVal.html#kdrag.theories.bitvec.BitVecNVal" title="kdrag.theories.bitvec.BitVecNVal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitVecNVal</span></code></a>(x, N)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.bitvec.BitVecSort.html#kdrag.theories.bitvec.BitVecSort" title="kdrag.theories.bitvec.BitVecSort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BitVecSort</span></code></a>(N)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.bitvec.PopCount.html#kdrag.theories.bitvec.PopCount" title="kdrag.theories.bitvec.PopCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PopCount</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.bitvec.SelectConcat.html#kdrag.theories.bitvec.SelectConcat" title="kdrag.theories.bitvec.SelectConcat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SelectConcat</span></code></a>(a, addr, n[, le])</p></td>
+<td><p>Concat out of an array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.bitvec.StoreConcat.html#kdrag.theories.bitvec.StoreConcat" title="kdrag.theories.bitvec.StoreConcat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoreConcat</span></code></a>(a, addr, data[, le])</p></td>
+<td><p>Store multiple bytes into an array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.bitvec.fromBV.html#kdrag.theories.bitvec.fromBV" title="kdrag.theories.bitvec.fromBV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fromBV</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.bitvec.select64.html#kdrag.theories.bitvec.select64" title="kdrag.theories.bitvec.select64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select64</span></code></a>(outsize)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.bitvec.toBV.html#kdrag.theories.bitvec.toBV" title="kdrag.theories.bitvec.toBV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toBV</span></code></a>(x, N)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.BVNot">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">BVNot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatatypeRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.BVNot" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">BVNot</span><span class="p">(</span><span class="n">BitVecNVal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="go">BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>DatatypeRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.BitVecN">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">BitVecN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">BitVecN</span></em><a class="headerlink" href="#kdrag.theories.bitvec.BitVecN" title="Link to this definition"></a></dt>
+<dd><p>Arbitrary length bitvectors. Least significant bit comes first (index 0). Concat is unfortunately reversed compared to bitvector convetions.</p>
+<p>Fix via Newtype wrapper? I guess I want overloading anyway</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.BitVecNConst">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">BitVecNConst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.BitVecNConst" title="Link to this definition"></a></dt>
+<dd><p>There is a lot of confusion possible with this construct. Maybe it shouldn’t exist.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BitVecNConst</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">BitVecN(Concat(Unit(x[0]), Concat(Unit(x[1]), Unit(x[2]))))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>N</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.BitVecNVal">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">BitVecNVal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.BitVecNVal" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BitVecNVal</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>)</p></li>
+<li><p><strong>N</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.BitVecSort">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">BitVecSort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.bitvec.BitVecSort" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BV32</span> <span class="o">=</span> <span class="n">BitVecSort</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BV32</span><span class="o">.</span><span class="n">bvadd_comm</span>
+<span class="go">|- ForAll([x, y], x + y == y + x)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.PopCount">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">PopCount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArithRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.PopCount" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">PopCount</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>BitVecRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ArithRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.SelectConcat">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">SelectConcat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">le</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BitVecRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.SelectConcat" title="Link to this definition"></a></dt>
+<dd><p>Concat out of an array.
+n is number of bytes.
+Flag is for little endian concatenation vs big endian.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">BitVecSort</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">SelectConcat</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">SelectConcat</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="go">256</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">SelectConcat</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>ArrayRef</em>)</p></li>
+<li><p><strong>addr</strong> (<em>BitVecRef</em><em> | </em><em>int</em>)</p></li>
+<li><p><strong>n</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BitVecRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.StoreConcat">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">StoreConcat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">le</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ArrayRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.StoreConcat" title="Link to this definition"></a></dt>
+<dd><p>Store multiple bytes into an array.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecSort</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecSort</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">StoreConcat</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="mi">258</span><span class="p">,</span> <span class="mi">16</span><span class="p">)))</span>
+<span class="go">Store(Store(a, 0, 2), 1, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">SelectConcat</span><span class="p">(</span><span class="n">StoreConcat</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="mi">258</span><span class="p">,</span> <span class="mi">16</span><span class="p">)),</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="go">258</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>ArrayRef</em>)</p></li>
+<li><p><strong>addr</strong> (<em>BitVecRef</em><em> | </em><em>int</em>)</p></li>
+<li><p><strong>data</strong> (<em>BitVecRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ArrayRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.fromBV">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">fromBV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.fromBV" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fromBV</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>BitVecRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.select64">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">select64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FuncDeclRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.select64" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>outsize</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>FuncDeclRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.bitvec.toBV">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.bitvec.</span></span><span class="sig-name descname"><span class="pre">toBV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatatypeRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BitVecRef</span></span></span><a class="headerlink" href="#kdrag.theories.bitvec.toBV" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">toBV</span><span class="p">(</span><span class="n">BitVecNVal</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>DatatypeRef</em>)</p></li>
+<li><p><strong>N</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BitVecRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Theorems about bitvectors. These are theorems about the built in smtlib bitvector types</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.theories.seq</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">seq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">BitVecSort</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &gt;&gt;&gt; BV32 = BitVecSort(32)</span>
+<span class="sd">    &gt;&gt;&gt; BV32.bvadd_comm</span>
+<span class="sd">    |- ForAll([x, y], x + y == y + x)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecSort</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">sort_registry</span><span class="p">[</span><span class="n">S</span><span class="o">.</span><span class="n">get_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">S</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecs</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">zero</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">BVNot</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">zero</span> <span class="o">=</span> <span class="n">zero</span>
+    <span class="n">one</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">one</span> <span class="o">=</span> <span class="n">one</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">bvadd_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">==</span> <span class="n">y</span> <span class="o">+</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvadd_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">z</span> <span class="o">==</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvadd_id</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvadd_neg</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">zero</span><span class="p">))</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">bvsub_self</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x</span> <span class="o">==</span> <span class="n">zero</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvsub_def</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span> <span class="o">==</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">)))</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">bvmul_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span> <span class="o">==</span> <span class="n">y</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvmul_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> <span class="o">==</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvmul_id</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">*</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvmul_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">*</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">zero</span><span class="p">))</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span> <span class="o">==</span> <span class="n">y</span> <span class="o">&amp;</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">z</span> <span class="o">==</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&amp;</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_id</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">zero</span><span class="p">))</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="n">y</span> <span class="o">==</span> <span class="n">y</span> <span class="o">|</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">)</span> <span class="o">|</span> <span class="n">z</span> <span class="o">==</span> <span class="n">x</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">|</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_id</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_neg</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="o">~</span><span class="n">x</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)))</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">bvxor_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="n">y</span> <span class="o">==</span> <span class="n">y</span> <span class="o">^</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvxor_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">^</span> <span class="n">y</span><span class="p">)</span> <span class="o">^</span> <span class="n">z</span> <span class="o">==</span> <span class="n">x</span> <span class="o">^</span> <span class="p">(</span><span class="n">y</span> <span class="o">^</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvxor_id</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvxor_self</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="n">x</span> <span class="o">==</span> <span class="n">zero</span><span class="p">))</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshl_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshr_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">LShR</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">zero</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+
+    <span class="c1"># Bitwise simplification rules</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_self</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_self</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvxor_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvnot_self</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="o">~</span><span class="n">x</span> <span class="o">==</span> <span class="o">-</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># Rules for shifting and rotating</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshl_self</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">y</span> <span class="o">==</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">one</span> <span class="o">&lt;&lt;</span> <span class="n">y</span><span class="p">))</span>
+    <span class="p">)</span>  <span class="c1"># Left shift as multiplication</span>
+    <span class="c1"># bvshr_self = kd.prove(smt.ForAll([x, y], smt.LShR(x, y) == x / (one &lt;&lt; y)))  # Logical right shift as division</span>
+    <span class="c1"># bvashr_self = kd.prove(smt.ForAll([x, y], smt.AShr(x, y) == smt.If(x &gt;&gt; 31 == 0, smt.LShR(x, y), ~smt.LShR(~x, y))))  # Arithmetic right shift rule</span>
+
+    <span class="c1"># Simplification with negation and subtraction</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvsub_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">-</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvsub_id</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">zero</span> <span class="o">-</span> <span class="n">x</span> <span class="o">==</span> <span class="o">-</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvadd_sub</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvsub_add</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">))</span>
+
+    <span class="c1"># Bitwise AND, OR, and XOR with constants</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_allones</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_allzeros</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvxor_allzeros</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+
+    <span class="c1"># Distribution and absorption laws</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_or</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">|</span> <span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_and</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">&amp;</span> <span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">|</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvand_absorb</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_absorb</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+
+    <span class="c1"># Shifting rules with zero and identity</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshl_zero_shift</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">zero</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshr_zero_shift</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">LShR</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">zero</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="c1"># bvashr_zero_shift = kd.prove(smt.ForAll([x], smt.AShr(x, zero) == x))  # Arithmetic right shift by zero is identity</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshl_allzeros</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">zero</span> <span class="o">&lt;&lt;</span> <span class="n">y</span> <span class="o">==</span> <span class="n">zero</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshr_allzeros</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">LShR</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">zero</span><span class="p">))</span>
+    <span class="c1"># bvashr_allzeros = kd.prove(smt.ForAll([y], smt.AShr(zero, y) == zero))  # Arithmetic right shift of zero is zero</span>
+
+    <span class="c1"># Additional rules for combining operations</span>
+    <span class="c1"># bvadd_and = kd.prove(smt.ForAll([x, y, z], (x &amp; y) + (x &amp; z) == x &amp; (y + z)))  # AND distribution over addition</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvor_and_not</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="c1"># bvxor_and_not = kd.prove(smt.ForAll([x, y], (x &amp; y) ^ (x &amp; ~y) == y))  # Distribution of XOR and AND with negation</span>
+
+    <span class="c1"># Properties involving shifts and bit manipulations</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshl_and</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">z</span> <span class="o">==</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">z</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;&lt;</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">bvshr_and</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">LShR</span><span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">LShR</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">smt</span><span class="o">.</span><span class="n">LShR</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">S</span>
+
+
+<span class="n">BV1</span> <span class="o">=</span> <span class="n">BitVecSort</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">BV8</span> <span class="o">=</span> <span class="n">BitVecSort</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="c1"># Annoyingly slow ~ 1s</span>
+<span class="c1"># BV16 = BitVecSort(16)</span>
+<span class="c1"># BV32 = BitVecSort(32)</span>
+<span class="c1"># Annoyingly slow ~ 1s</span>
+<span class="c1"># BV64 = BitVecSort(64)</span>
+
+
+<span class="n">BitVecN</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;BitVecN&quot;</span><span class="p">,</span> <span class="n">seq</span><span class="o">.</span><span class="n">Seq</span><span class="p">(</span><span class="n">BV1</span><span class="p">))</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Arbitrary length bitvectors. Least significant bit comes first (index 0). Concat is unfortunately reversed compared to bitvector convetions.</span>
+
+<span class="sd">Fix via Newtype wrapper? I guess I want overloading anyway</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">BVN</span> <span class="o">=</span> <span class="n">BitVecN</span>
+<span class="n">BVN</span><span class="o">.</span><span class="n">empty</span> <span class="o">=</span> <span class="n">BVN</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Empty</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">Seq</span><span class="p">(</span><span class="n">BV1</span><span class="p">)))</span>  <span class="c1"># type: ignore</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">,</span> <span class="n">BitVecN</span><span class="p">)</span>
+<span class="n">to_int</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;to_int&quot;</span><span class="p">,</span> <span class="n">BitVecN</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">())</span>
+<span class="n">to_int</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">to_int</span><span class="o">.</span><span class="n">define</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">x</span><span class="p">],</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">BV2Int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">is_signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">to_int</span><span class="p">(</span><span class="n">BitVecN</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">BitVecNVal</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; BitVecNVal(6, 3)</span>
+<span class="sd">    BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BVN</span><span class="o">.</span><span class="n">empty</span>
+    <span class="k">elif</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BVN</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BVN</span><span class="p">(</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">([</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BitVecVal</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+        <span class="p">)</span>
+
+
+<span class="n">to_int_empty</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">to_int</span><span class="p">(</span><span class="n">BitVecNVal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">unfold</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">to_int_false</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">BitVecNVal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_int</span><span class="p">()</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">to_int</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">to_int_true</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">BitVecNVal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_int</span><span class="p">()</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">to_int</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="c1"># (x + y).to_int() == x.to_int() + 2**(smt.Length(x)) * y.to_int()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fromBV</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; fromBV(smt.BitVecVal(6, 3))</span>
+<span class="sd">    BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span>
+        <span class="n">BitVecN</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">([</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Extract</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">())]))</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">toBV</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(toBV(BitVecNVal(6, 3), 3))</span>
+<span class="sd">    6</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">BV</span> <span class="o">=</span> <span class="n">BitVecSort</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">undef</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;toBV_undef&quot;</span><span class="p">,</span> <span class="n">BitVecN</span><span class="p">,</span> <span class="n">BV</span><span class="p">)</span>
+    <span class="n">unpack</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">(</span><span class="o">*</span><span class="nb">reversed</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]))</span>
+    <span class="c1"># could possibly raise error here if we _know_ you&#39;ve reduced to undef</span>
+    <span class="c1"># assert not smt.simplify(expr).eq(smt.simplify(undef(x)))</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="n">N</span><span class="p">,</span>
+        <span class="n">unpack</span><span class="p">,</span>  <span class="c1"># smt.Int2BV(to_int(x), N),  # Or could do full unpack</span>
+        <span class="n">undef</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">BitVecNConst</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    There is a lot of confusion possible with this construct. Maybe it shouldn&#39;t exist.</span>
+
+<span class="sd">    &gt;&gt;&gt; BitVecNConst(&quot;x&quot;, 3)</span>
+<span class="sd">    BitVecN(Concat(Unit(x[0]), Concat(Unit(x[1]), Unit(x[2]))))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">(),</span> <span class="n">BV1</span><span class="p">)</span>  <span class="c1"># array vs function vs seq?</span>
+    <span class="k">return</span> <span class="n">BitVecN</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">([</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">BVNot</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(BVNot(BitVecNVal(1, 3)))</span>
+<span class="sd">    BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecSort</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">BitVecN</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">SeqMap</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">BV1</span><span class="o">.</span><span class="n">BVNot</span><span class="p">(</span><span class="n">z</span><span class="p">)),</span> <span class="n">x</span><span class="o">.</span><span class="n">val</span><span class="p">))</span>
+
+
+<span class="c1"># BVAdd SeqFold</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">SelectConcat</span><span class="p">(</span>
+    <span class="n">a</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecRef</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concat out of an array.</span>
+<span class="sd">    n is number of bytes.</span>
+<span class="sd">    Flag is for little endian concatenation vs big endian.</span>
+
+<span class="sd">    &gt;&gt;&gt; x = smt.Const(&quot;x&quot;, BitVecSort(8))</span>
+<span class="sd">    &gt;&gt;&gt; a = smt.Lambda([x], x)</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(SelectConcat(a, 1, 1))</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(SelectConcat(a, 0, 2))</span>
+<span class="sd">    256</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(SelectConcat(a, 0, 2, le=False))</span>
+<span class="sd">    1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="n">addr</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">le</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">([</span><span class="n">a</span><span class="p">[</span><span class="n">addr</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">([</span><span class="n">a</span><span class="p">[</span><span class="n">addr</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">StoreConcat</span><span class="p">(</span>
+    <span class="n">a</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecRef</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecRef</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Store multiple bytes into an array.</span>
+
+<span class="sd">    &gt;&gt;&gt; a = smt.Array(&quot;a&quot;, smt.BitVecSort(8), smt.BitVecSort(8))</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(StoreConcat(a, 0, smt.BitVecVal(258, 16)))</span>
+<span class="sd">    Store(Store(a, 0, 2), 1, 1)</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(SelectConcat(StoreConcat(a, 6, smt.BitVecVal(258, 16)), 6, 2))</span>
+<span class="sd">    258</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">8</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">//</span> <span class="mi">8</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">le</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Store</span><span class="p">(</span>
+                <span class="n">a</span><span class="p">,</span> <span class="n">addr</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Extract</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">offset</span> <span class="o">+</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">offset</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Store</span><span class="p">(</span>
+                <span class="n">a</span><span class="p">,</span> <span class="n">addr</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Extract</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">offset</span><span class="p">,</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">offset</span> <span class="o">+</span> <span class="mi">7</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">select64</span><span class="p">(</span><span class="n">outsize</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">:</span>
+    <span class="n">addr</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVec</span><span class="p">(</span><span class="s2">&quot;addr&quot;</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecSort</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecSort</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;select64&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">addr</span><span class="p">],</span> <span class="n">SelectConcat</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">outsize</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">PopCount</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVecRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArithRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(PopCount(smt.BitVecVal(6, 3)))</span>
+<span class="sd">    2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">smt</span><span class="o">.</span><span class="n">BV2Int</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Extract</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">())])</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.html" class="btn btn-neutral float-left" title="kdrag.theories" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.bitvec.BVNot.html" class="btn btn-neutral float-right" title="kdrag.theories.bitvec.BVNot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+kdrag.utils.decls
+=================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: decls

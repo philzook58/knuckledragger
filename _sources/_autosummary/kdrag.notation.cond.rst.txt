@@ -1,0 +1,6 @@
+kdrag.notation.cond
+===================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: cond
