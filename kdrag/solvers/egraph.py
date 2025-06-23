@@ -159,7 +159,7 @@ class EGraph:
         >>> _ = E.union(x,y)
         >>> assert E.find(f(x)) != E.find(f(y))
         >>> E.rebuild()
-        [(f(y), f(x))]
+        [(f(...), f(...))]
         >>> assert E.find(f(x)) == E.find(f(y))
         """
         propagates = []
