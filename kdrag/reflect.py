@@ -509,9 +509,10 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
                     return smt.And(*acc)
                 else:
                     return acc[0]
-            case ast.Call(ast.Name(id_, _ctx), args, keywords):
+            case ast.Call(func, args, keywords):
                 assert keywords == []
-                f = _lookup(id_, globals=globals, locals=locals)
+                f = rec(func)
+                assert isinstance(f, Callable)
                 return f(*map(rec, args))
             case ast.IfExp(test, body, orelse):
                 return smt.If(rec(test), rec(body), rec(orelse))
@@ -697,22 +698,26 @@ def datatype(s: str, locals=None, globals=None) -> smt.DatatypeSortRef:
 
     >>> Int = smt.IntSort()
     >>> Real = smt.RealSort()
-    >>> Foo = datatype("type Foo = Biz | Bar | Baz(Int, Int) | Boz(x = Int, y = Int)")
+    >>> Foo = datatype("type Foo = Biz | Bar | Baz(Int, Int, smt.IntSort()) | Boz(x = Int, y = Int)")
     >>> Foo.Baz.domain(1)
     Int
     >>> Foo.x.range()
     Int
     """
-    if locals is None:
-        locals = inspect.currentframe().f_back.f_locals
-    if globals is None:
-        globals = inspect.currentframe().f_back.f_globals
+
+    if locals is None or globals is None:
+        frame = inspect.currentframe()
+        if frame is None or frame.f_back is None:
+            raise ValueError("No calling site found")
+        f_back = frame.f_back
+        locals = f_back.f_locals if locals is None else locals
+        globals = f_back.f_globals if globals is None else globals
     mod = ast.parse(s)
     body = mod.body
     if len(body) != 1:
         raise ValueError(f"Expected a single type alias, got {ast.unparse(mod)}")
     type_alias = body[0]
-    if not isinstance(body[0], ast.TypeAlias):
+    if not isinstance(type_alias, ast.TypeAlias):
         raise ValueError(f"Expected a single type alias, got {ast.unparse(body[0])}")
     dt = kd.Inductive(type_alias.name.id)
     todo = [type_alias.value]
@@ -726,14 +731,27 @@ def datatype(s: str, locals=None, globals=None) -> smt.DatatypeSortRef:
             case ast.Call(func=ast.Name(id=name), args=args, keywords=[]):
                 dt.declare(
                     name,
-                    *[(f"{name}_{n}", locals[arg.id]) for n, arg in enumerate(args)],
-                )  # caller_frame = inspect.currentframe().f_back
+                    *[
+                        (
+                            f"{name}_{n}",
+                            _reflect_expr(arg, locals=locals, globals=globals),
+                        )
+                        for n, arg in enumerate(args)
+                    ],
+                )
             case ast.Call(func=ast.Name(id=name), args=[], keywords=keywords):
                 dt.declare(
-                    name, *[(kw.arg, locals[kw.value.id]) for kw in keywords]
-                )  # caller_frame = inspect.currentframe().f_back
+                    name,
+                    *[
+                        (
+                            kw.arg,
+                            _reflect_expr(kw.value, locals=locals, globals=globals),
+                        )
+                        for kw in keywords
+                    ],
+                )
             case _:
                 raise ValueError(
-                    f"Unexpected subexpresison: {ast.unparse(type_alias.value)}"
+                    f"Unexpected subexpression: {ast.unparse(type_alias.value)}"
                 )
     return dt.create()
