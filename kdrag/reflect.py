@@ -520,7 +520,9 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
             case ast.Attribute(value, attr, _ctx):
                 return getattr(rec(value), attr)
             case x:
-                raise ValueError("Could not interpret expression", ast.dump(x))
+                raise ValueError(
+                    "Could not interpret expression", ast.unparse(x), ast.dump(x)
+                )
 
     return rec(expr)
 
@@ -534,16 +536,16 @@ def _calling_globals_locals():
     raise ValueError("No calling site found")
 
 
-def reflect_expr_string(expr: str, globals=None, locals=None) -> smt.ExprRef:
+def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
     """
     Turn a string of a python expression into a z3 expressions.
     Globals are inferred to be current scope if not given.
 
-    >>> reflect_expr_string("x + 1", globals={"x": smt.Int("x")})
+    >>> expr("x + 1", globals={"x": smt.Int("x")})
     x + 1
     >>> x = smt.Int("x")
     >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
-    >>> reflect_expr_string("f(x) + 1 if 0 < x < 5 < 7 else x * x")
+    >>> expr("f(x) + 1 if 0 < x < 5 < 7 else x * x")
     If(And(0 < x, 5 > x, 5 < 7), f(x) + 1, x*x)
 
     """
@@ -607,6 +609,7 @@ def _sort_of_annotation(ann, env):
             else:
                 raise NotImplementedError(f"Name {id_}")
         case ast.Constant(value):
+            assert isinstance(value, str)
             s = eval(value.replace('"', ""), env)
             assert isinstance(s, smt.SortRef)
             return s
@@ -684,3 +687,53 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
         z3fun.domain(i) == z3fun1.domain(i) for i in range(z3fun.arity())
     )
     return functools.update_wrapper(z3fun1, f)  # type: ignore
+
+
+def datatype(s: str, locals=None, globals=None) -> smt.DatatypeSortRef:
+    """
+    Use python type syntax to define an algebraic datatype datatype.
+    Fields can be specified positionally or by name.
+    Reads the inner types from current environment.
+
+    >>> Int = smt.IntSort()
+    >>> Real = smt.RealSort()
+    >>> Foo = datatype("type Foo = Biz | Bar | Baz(Int, Int) | Boz(x = Int, y = Int)")
+    >>> Foo.Baz.domain(1)
+    Int
+    >>> Foo.x.range()
+    Int
+    """
+    if locals is None:
+        locals = inspect.currentframe().f_back.f_locals
+    if globals is None:
+        globals = inspect.currentframe().f_back.f_globals
+    mod = ast.parse(s)
+    body = mod.body
+    if len(body) != 1:
+        raise ValueError(f"Expected a single type alias, got {ast.unparse(mod)}")
+    type_alias = body[0]
+    if not isinstance(body[0], ast.TypeAlias):
+        raise ValueError(f"Expected a single type alias, got {ast.unparse(body[0])}")
+    dt = kd.Inductive(type_alias.name.id)
+    todo = [type_alias.value]
+    while todo:
+        match todo.pop():
+            case ast.BinOp(op=ast.BitOr(), left=left, right=right):
+                todo.append(right)
+                todo.append(left)
+            case ast.Name(id=name):
+                dt.declare(name)
+            case ast.Call(func=ast.Name(id=name), args=args, keywords=[]):
+                dt.declare(
+                    name,
+                    *[(f"{name}_{n}", locals[arg.id]) for n, arg in enumerate(args)],
+                )  # caller_frame = inspect.currentframe().f_back
+            case ast.Call(func=ast.Name(id=name), args=[], keywords=keywords):
+                dt.declare(
+                    name, *[(kw.arg, locals[kw.value.id]) for kw in keywords]
+                )  # caller_frame = inspect.currentframe().f_back
+            case _:
+                raise ValueError(
+                    f"Unexpected subexpresison: {ast.unparse(type_alias.value)}"
+                )
+    return dt.create()

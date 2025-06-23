@@ -37,7 +37,7 @@ class EGraph:
         >>> _ = E.union(x,y)
         >>> assert E.find(f(x)) != E.find(f(y))
         >>> E2 = E.copy()
-        >>> E2.rebuild()
+        >>> _ = E2.rebuild()
         >>> assert E2.find(f(x)) == E2.find(f(y))
         >>> assert E.find(f(x)) != E.find(f(y))
         """
@@ -149,7 +149,7 @@ class EGraph:
             res = self.solver.check()
         return res == smt.unsat
 
-    def rebuild(self):
+    def rebuild(self) -> list[tuple[smt.ExprRef, smt.ExprRef]]:
         """
         >>> E = EGraph()
         >>> f = smt.Function('f', smt.IntSort(), smt.IntSort())
@@ -159,9 +159,10 @@ class EGraph:
         >>> _ = E.union(x,y)
         >>> assert E.find(f(x)) != E.find(f(y))
         >>> E.rebuild()
+        [(f(y), f(x))]
         >>> assert E.find(f(x)) == E.find(f(y))
         """
-
+        propagates = []
         for sort, roots in self.roots.items():
             oldroots = list(roots)
             for n, eid1 in enumerate(oldroots):
@@ -175,6 +176,8 @@ class EGraph:
                             res = self.solver.check()
                         if res == smt.unsat:
                             self._union(t1, t2)
+                            propagates.append((t1, t2))
+        return propagates
 
     def rw(self, sorts: list[smt.SortRef], f):
         """
@@ -235,7 +238,7 @@ class EGraph:
         >>> x,y,z = smt.Ints('x y z')
         >>> E.add_term(f(x))
         >>> _ = E.union(f(x), x)
-        >>> E.rebuild()
+        >>> _ = E.rebuild()
         >>> E.ematch([y], f(f(y)))
         [[x]]
         """
@@ -254,11 +257,11 @@ class EGraph:
         >>> E = EGraph()
         >>> x,y,z = smt.Ints('x y z')
         >>> E.add_term(x + y)
-        >>> E.rebuild()
+        >>> _ = E.rebuild()
         >>> E.extract(x + y)
         x + y
         >>> _ = E.union(x + y, y)
-        >>> E.rebuild()
+        >>> _ = E.rebuild()
         >>> E.extract(x + y)
         y
         """
@@ -321,7 +324,7 @@ class EGraph:
         >>> E.add_term(x + y)
         >>> E.union(y,z)
         True
-        >>> E.rebuild()
+        >>> _ = E.rebuild()
         >>> _ = E.eclasses()
         """
         eclasses = defaultdict(lambda: defaultdict(set))
@@ -341,7 +344,7 @@ class EGraph:
         >>> E.add_term(x + y)
         >>> E.union(y,z)
         True
-        >>> E.rebuild()
+        >>> _ = E.rebuild()
         >>> _ = E.dot()
         """
         dot = graphviz.Digraph(filename, format="png")
