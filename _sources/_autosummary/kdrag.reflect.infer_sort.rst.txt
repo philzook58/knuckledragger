@@ -1,0 +1,6 @@
+kdrag.reflect.infer\_sort
+=========================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: infer_sort

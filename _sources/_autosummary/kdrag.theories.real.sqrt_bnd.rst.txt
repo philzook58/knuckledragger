@@ -1,0 +1,6 @@
+kdrag.theories.real.sqrt\_bnd
+=============================
+
+.. currentmodule:: kdrag.theories.real
+
+.. autofunction:: sqrt_bnd

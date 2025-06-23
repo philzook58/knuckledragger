@@ -1,0 +1,6 @@
+kdrag.kernel.proj
+=================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: proj

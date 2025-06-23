@@ -1,0 +1,6 @@
+kdrag.kernel.eqsym
+==================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: eqsym

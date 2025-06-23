@@ -1,0 +1,6 @@
+kdrag.kernel.eqrefl
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: eqrefl

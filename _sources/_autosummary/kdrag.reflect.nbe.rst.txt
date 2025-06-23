@@ -1,0 +1,6 @@
+kdrag.reflect.nbe
+=================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: nbe
