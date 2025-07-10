@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/philzook58/knuckledragger/main/docs/logo.webp" alt="drawing" width="200" align="left"/>
 
-Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. It is not attempting to be the most interesting, expressive, or flexible logic in the world. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.
+Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.
 
 <br clear="left"/>
 
@@ -193,8 +193,6 @@ Other theorem provers of interest: [cvc5](https://cvc5.github.io/), [Vampire](ht
 The de Bruijn criterion is going to be bent or broken in certain senses. Attention is paid to what is kernel and what is not. Proof objects are basically trees recording chains of lemmas discharged by Automated Theorem Prover (ATP) calls. Soundness will be attempted, accidental misuse will be made difficult but not impossible.
 
 Isabelle and ACL2 are the strongest influences. If you want dependent type theory, you are at a level of investment and sophistication that it behooves you to be in another system. Should there be a strong automated DTT solver someday, I will reconsider.
-
-I maintain the right to change my mind about anything.
 
 ## FAQ
 

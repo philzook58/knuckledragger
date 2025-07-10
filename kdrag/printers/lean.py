@@ -40,22 +40,22 @@ def of_expr(e: smt.ExprRef):
 
     >>> x,y,z = smt.Ints("x y z")
     >>> of_expr(x)
-    'x'
+    '(x : Int)'
     >>> of_expr(x + y + z)
-    '((x + y) + z)'
+    '(((x : Int) + (y : Int)) + (z : Int))'
     >>> of_expr(smt.If(x == x, y, z))
-    '(if (x = x) then y else z)'
+    '(if ((x : Int) = (x : Int)) then (y : Int) else (z : Int))'
     """
     if isinstance(e, smt.QuantifierRef):
+        vs, body = kd.utils.open_binder_unhygienic(e)
+        vs = " ".join([f"({v.decl().name()} : {of_sort(v.sort())})" for v in vs])
+        body = of_expr(body)
         if e.is_forall():
-            vs, body = kd.utils.open_binder_unhygienic(e)
-            return f"∀ {' '.join(v.decl().name() for v in vs)}, {of_expr(body)}"
+            return f"(Classical.propDecidable (∀ {vs}, {body})).decide"
         elif e.is_exists():
-            vs, body = kd.utils.open_binder_unhygienic(e)
-            return f"∃ {' '.join(v.decl().name() for v in vs)}, {of_expr(body)}"
+            return f"(Classical.propDecidable (∃ {vs}, {body})).decide"
         elif e.is_lambda():
-            vs, body = kd.utils.open_binder_unhygienic(e)
-            return f"λ {' '.join(v.decl().name() for v in vs)}, {of_expr(body)}"
+            return f"(λ {vs}, {body})"
         else:
             raise NotImplementedError(
                 "Cannot convert unknown quantifier to Lean expression."
@@ -75,7 +75,27 @@ def of_expr(e: smt.ExprRef):
         elif smt.is_if(e):
             return f"(if {args[0]} then {args[1]} else {args[2]})"
         elif len(args) == 0:
-            return name
+            return f"({name} : {of_sort(e.sort())})"
+        elif name == "distinct":
+            assert len(args) == 2
+            return f"({args[0]} != {args[1]})"
+        elif name == "=>":
+            assert len(args) == 2
+            return f"(not {args[0]} || {args[1]})"
+        elif name == "or":
+            return f"({' || '.join(args)})"
+        elif name == "and":
+            return f"({' && '.join(args)})"
+        elif name == "bvand":
+            return f"({' &&& '.join(args)})"
+        elif name == "bvor":
+            return f"({' ||| '.join(args)})"
+        elif name == "bvadd":
+            return f"({' + '.join(args)})"
+        elif name == "bvsub":
+            return f"({' - '.join(args)})"
+        elif name == "bvmul":
+            return f"({' * '.join(args)})"
         elif not name[0].isalpha() and len(args) == 2:
             return f"({args[0]} {name} {args[1]})"
         else:

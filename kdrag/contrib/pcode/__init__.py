@@ -319,7 +319,22 @@ class BinaryContext:
         else:
             raise ValueError(f"Unknown branch target: {destaddr.space.name}")
 
-    def sym_execute(self, memstate: MemState, addr: int, max_insns=1, verbose=False):
+    def execute1(self, memstate: MemState, pc: PC) -> tuple[MemState, PC]:
+        """
+        Execute a single PCode instruction at addr, returning the new memstate and pc.
+        """
+        addr = pc[0]
+        op = self.translate(addr)[pc[1]]
+        return self.executeCurrentOp(op, memstate, pc)
+
+    def sym_execute(
+        self, memstate: MemState, addr: int, max_insns=1, breakpoints=[], verbose=False
+    ) -> list[SimState]:
+        """
+        Symbolically execute a real instruction at addr, returning a list of SimState objects.
+        A single instruction may contain multiple Pcode instructions or even pcode loops.
+        Hence a symbolic execution may be required for even a single instruction.
+        """
         pc0: PC = (addr, 0)
         todo = [(memstate, pc0, max_insns, [])]
         res = []
@@ -327,9 +342,10 @@ class BinaryContext:
             memstate, pc, max_insns, path_cond = todo.pop()
             if verbose:
                 print(f"Executing {pretty_insn(self.disassemble(pc[0]))} at {pc}")
-            op = self.translate(pc[0])[pc[1]]
-            memstate1, pc1 = self.executeCurrentOp(op, memstate, pc)
-            if isinstance(pc1[0], smt.ExprRef):
+            memstate1, pc1 = self.execute1(memstate, pc)
+            if isinstance(
+                pc1[0], smt.ExprRef
+            ):  # PC has become symbolic, requiring branching
                 assert isinstance(pc1[1], smt.ExprRef)
                 for vaddr, vpcode_pc in kd.utils.all_values(pc1[0], pc1[1]):
                     assert isinstance(vaddr, smt.IntNumRef) and isinstance(
@@ -340,14 +356,18 @@ class BinaryContext:
                         max_insns -= 1
                     pc = (addr, pcode_pc)
                     path_cond1 = path_cond + [pc1[0] == addr, pc1[1] == pcode_pc]
-                    if max_insns > 0:
+                    if addr in breakpoints:
+                        res.append(SimState(memstate, pc, path_cond1))
+                    elif max_insns > 0:
                         todo.append((memstate, pc, max_insns, path_cond1))
                     else:
-                        res.append((memstate, pc, path_cond1))
-            else:
+                        res.append(SimState(memstate, pc, path_cond1))
+            else:  # PC is concrete
                 if pc[0] != pc1[0]:
                     max_insns -= 1
-                if max_insns > 0:
+                if pc1[0] in breakpoints:
+                    res.append(SimState(memstate1, pc1, path_cond))
+                elif max_insns > 0:
                     todo.append((memstate1, pc1, max_insns, path_cond))  # type: ignore
                 else:
                     res.append(SimState(memstate1, pc1, path_cond))

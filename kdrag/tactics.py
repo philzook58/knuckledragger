@@ -11,6 +11,7 @@ import operator as op
 from typing import NamedTuple, Optional, Sequence, Callable
 import pprint
 import time
+from dataclasses import dataclass
 
 
 class Calc:
@@ -316,6 +317,12 @@ class Goal(NamedTuple):
         return self == Goal.empty()
 
 
+@dataclass
+class LemmaCallback:
+    cb: Callable[[], None]
+    annot: object = None
+
+
 class Lemma:
     """
     A tactic class for interactive proofs.
@@ -575,7 +582,7 @@ class Lemma:
         """
         `auto` discharges a goal using z3. It forwards all parameters to `kd.prove`
         """
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         self.lemmas.append(kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.goals.pop()
@@ -586,7 +593,7 @@ class Lemma:
         einstan opens an exists quantifier in context and returns the fresh eigenvariable.
         `[exists x, p(x)] ?|- goal` becomes `p(x) ?|- goal`
         """
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         formula = ctx[n]
         if isinstance(formula, smt.QuantifierRef) and formula.is_exists():
@@ -618,7 +625,7 @@ class Lemma:
         >>> l.instan(0, smt.IntVal(42))
         [ForAll(x, x == y), 42 == y] ?|- True
         """
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         thm = goalctx.ctx[n]
         if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
             l = kd.kernel.instan2(ts, thm)
@@ -671,7 +678,7 @@ class Lemma:
         >>> l.auto() # next goal
         [] ?|- p
         """
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if at is None:
             if smt.is_and(goal):
@@ -737,7 +744,7 @@ class Lemma:
         [] ?|- p
         """
         # TODO: consider adding Not(right) to context since we're classical?
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if smt.is_or(goal):
             if n is None:
@@ -756,7 +763,7 @@ class Lemma:
         >>> l.right()
         [] ?|- q
         """
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if smt.is_or(goal):
             self.goals[-1] = goalctx._replace(
@@ -775,7 +782,7 @@ class Lemma:
         >>> Lemma(smt.Exists([x], x == y)).exists(y)
         [] ?|- y == y
         """
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         assert isinstance(goal, smt.QuantifierRef) and goal.is_exists()
         lemma = kd.kernel.forget2(ts, goal)
@@ -787,7 +794,7 @@ class Lemma:
         """
         `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.
         """
-        goalctx = self.goals[-1]
+        goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if isinstance(rule, int):
             rulethm = ctx[rule]
@@ -994,7 +1001,7 @@ class Lemma:
         """
         Remove a hypothesis from the context
         """
-        ctxgoal = self.goals[-1]
+        ctxgoal = self.top_goal()
         ctxgoal.ctx.pop(n)
         return self.top_goal()
 
@@ -1052,12 +1059,14 @@ class Lemma:
         return self.top_goal()
 
     # TODO
-    # def search():
     # def suggest():
     # def llm():
     # def calc
 
     def top_goal(self) -> Goal:
+        while len(self.goals) > 0 and isinstance(self.goals[-1], LemmaCallback):
+            # pop the callbacks
+            self.goals.pop().cb()
         if len(self.goals) == 0:
             return Goal.empty()  # kind of hacky
         return self.goals[-1]
