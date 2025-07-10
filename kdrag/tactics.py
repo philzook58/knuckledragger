@@ -1065,8 +1065,9 @@ class Lemma:
 
     def top_goal(self) -> Goal:
         while len(self.goals) > 0 and isinstance(self.goals[-1], LemmaCallback):
-            # pop the callbacks
-            self.goals.pop().cb()
+            lc = self.goals.pop()
+            assert isinstance(lc, LemmaCallback)  # for type checker
+            lc.cb()
         if len(self.goals) == 0:
             return Goal.empty()  # kind of hacky
         return self.goals[-1]
