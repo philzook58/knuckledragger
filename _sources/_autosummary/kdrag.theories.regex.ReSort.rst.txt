@@ -1,0 +1,6 @@
+kdrag.theories.regex.ReSort
+===========================
+
+.. currentmodule:: kdrag.theories.regex
+
+.. autofunction:: ReSort

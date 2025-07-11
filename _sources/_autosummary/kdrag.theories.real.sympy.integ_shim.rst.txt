@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.integ\_shim
+=====================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: integ_shim

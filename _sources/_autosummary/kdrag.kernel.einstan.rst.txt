@@ -1,0 +1,6 @@
+kdrag.kernel.einstan
+====================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: einstan

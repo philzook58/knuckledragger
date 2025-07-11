@@ -1,0 +1,6 @@
+kdrag.kernel.eqtrans
+====================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: eqtrans

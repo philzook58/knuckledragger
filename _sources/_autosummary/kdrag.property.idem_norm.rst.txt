@@ -1,0 +1,6 @@
+kdrag.property.idem\_norm
+=========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: idem_norm

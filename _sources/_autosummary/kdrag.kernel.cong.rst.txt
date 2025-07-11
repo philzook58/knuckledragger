@@ -1,0 +1,6 @@
+kdrag.kernel.cong
+=================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: cong

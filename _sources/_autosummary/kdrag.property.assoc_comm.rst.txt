@@ -1,0 +1,6 @@
+kdrag.property.assoc\_comm
+==========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: assoc_comm
