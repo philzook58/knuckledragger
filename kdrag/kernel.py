@@ -433,6 +433,22 @@ def modus(ab: Proof, a: Proof) -> Proof:
     return axiom(ab.thm.arg(1), ["modus", ab, a])
 
 
+def compose(ab: Proof, bc: Proof) -> Proof:
+    """
+    Compose two implications. Useful for chaining implications.
+
+    >>> a,b,c = smt.Bools("a b c")
+    >>> ab = axiom(smt.Implies(a, b))
+    >>> bc = axiom(smt.Implies(b, c))
+    >>> compose(ab, bc)
+    |- Implies(a, c)
+    """
+    assert isinstance(ab, Proof) and isinstance(bc, Proof)
+    assert smt.is_implies(ab.thm) and smt.is_implies(bc.thm)
+    assert ab.thm.arg(1).eq(bc.thm.arg(0))
+    return axiom(smt.Implies(ab.thm.arg(0), bc.thm.arg(1)), ["compose", ab, bc])
+
+
 def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
     """Build a basic induction principle for an algebraic datatype"""
     DT = x.sort()

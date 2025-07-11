@@ -303,6 +303,9 @@ class Goal(NamedTuple):
             else:
                 return repr(self.sig) + " ; " + goalctx
 
+    # def formula(self) -> smt.BoolRef:
+    #   return kd.QForAll(self.sig, *self.ctx, self.goal)
+
     @classmethod
     def empty(cls) -> "Goal":
         return Goal(
@@ -336,10 +339,23 @@ class Lemma:
 
     def __init__(self, goal: smt.BoolRef):
         self.start_time = time.perf_counter()
-        self.lemmas = []
+        self.lemmas: dict[int, kdrag.kernel.Proof] = {}
         self.thm = goal
         self.goals = [Goal(sig=[], ctx=[], goal=goal)]
         self.pushed = None
+
+    def add_lemma(self, lemma: kd.kernel.Proof):
+        """
+        Record a lemma in the current Lemma state.
+        """
+        self.lemmas[lemma.thm.get_id()] = lemma
+
+    def get_lemma(self, thm: smt.BoolRef) -> kd.kernel.Proof:
+        l = self.lemmas.get(thm.get_id())
+        if l is None:
+            return kdrag.kernel.prove(thm, by=list(self.lemmas.values()))
+        else:
+            return l
 
     def copy(self):
         """
@@ -428,10 +444,15 @@ class Lemma:
         if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             self.goals.pop()
             vs, herb_lemma = kd.kernel.herb(goal)
-            self.lemmas.append(herb_lemma)
-            self.goals.append(
-                goalctx._replace(sig=goalctx.sig + vs, goal=herb_lemma.thm.arg(0))
-            )
+            # self.add_lemma(herb_lemma)
+            newgoal = herb_lemma.thm.arg(0)
+
+            def cb():
+                l = self.get_lemma(smt.Implies(smt.And(goalctx.ctx), newgoal))
+                self.add_lemma(kd.kernel.compose(l, herb_lemma))
+
+            self.goals.append(LemmaCallback(cb, annot=goal))
+            self.goals.append(goalctx._replace(sig=goalctx.sig + vs, goal=newgoal))
             return vs
         else:
             raise ValueError(f"fixes tactic failed. Not a forall {goal}")
@@ -518,10 +539,13 @@ class Lemma:
         if at is None:
             oldgoal = goalctx.goal
             if unfold:
-                newgoal = kd.rewrite.simp(oldgoal, trace=self.lemmas)
+                trace = []
+                newgoal = kd.rewrite.simp(oldgoal, trace=trace)
+                for l in trace:
+                    self.add_lemma(l)
             else:
                 newgoal = smt.simplify(oldgoal)
-                self.lemmas.append(kd.kernel.prove(oldgoal == newgoal))
+                self.add_lemma(kd.kernel.prove(oldgoal == newgoal))
             # if newgoal.eq(oldgoal):
             #    raise ValueError(
             #        "Simplify failed. Goal is already simplified.", oldgoal
@@ -533,7 +557,7 @@ class Lemma:
             new = smt.simplify(old)
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
-            self.lemmas.append(kd.kernel.prove(old == new))
+            self.add_lemma(kd.kernel.prove(old == new))
             self.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
@@ -584,7 +608,7 @@ class Lemma:
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
-        self.lemmas.append(kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
+        self.add_lemma(kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.goals.pop()
         return self.top_goal()
 
@@ -599,7 +623,7 @@ class Lemma:
         if isinstance(formula, smt.QuantifierRef) and formula.is_exists():
             self.goals.pop()
             fs, einstan_lemma = kd.kernel.einstan(formula)
-            self.lemmas.append(einstan_lemma)
+            self.add_lemma(einstan_lemma)
             self.goals.append(
                 goalctx._replace(
                     sig=goalctx.sig + fs,
@@ -629,7 +653,7 @@ class Lemma:
         thm = goalctx.ctx[n]
         if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
             l = kd.kernel.instan2(ts, thm)
-            self.lemmas.append(l)
+            self.add_lemma(l)
             self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [l.thm.arg(1)])
             return self.top_goal()
         else:
@@ -652,7 +676,7 @@ class Lemma:
                 ext_ind = smt.Ext(lhs, rhs)
                 x = smt.FreshConst(ext_ind.sort())
                 newgoal = smt.Eq(lhs[x], rhs[x])
-                self.lemmas.append(
+                self.add_lemma(
                     kd.kernel.prove(
                         smt.Implies(x == ext_ind, smt.Eq(lhs, rhs) == newgoal)
                     )
@@ -786,7 +810,7 @@ class Lemma:
         ctx, goal = goalctx.ctx, goalctx.goal
         assert isinstance(goal, smt.QuantifierRef) and goal.is_exists()
         lemma = kd.kernel.forget2(ts, goal)
-        self.lemmas.append(lemma)
+        self.add_lemma(lemma)
         self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
         return self.top_goal()
 
@@ -834,9 +858,9 @@ class Lemma:
             rhs1 = smt.substitute(rhs, *[(v, t) for v, t in subst.items()])
             target: smt.BoolRef = smt.substitute(target, (lhs1, rhs1))
             if isinstance(rulethm, smt.QuantifierRef) and rulethm.is_forall():
-                self.lemmas.append(kd.kernel.instan2([subst[v] for v in vs], rulethm))
+                self.add_lemma(kd.kernel.instan2([subst[v] for v in vs], rulethm))
             if not isinstance(rule, int) and kd.kernel.is_proof(rule):
-                self.lemmas.append(rule)
+                self.add_lemma(rule)
             if at is None:
                 self.goals.append(goalctx._replace(ctx=ctx, goal=target))
             else:
@@ -875,7 +899,7 @@ class Lemma:
         # TODO: consider allow `by` keyword to reference context`
         ctxgoal = self.top_goal()
         if smt.is_eq(ctxgoal.goal):
-            self.lemmas.append(
+            self.add_lemma(
                 kd.kernel.prove(
                     smt.Implies(smt.And(ctxgoal.ctx), ctxgoal.goal.arg(1) == rhs),
                     **kwargs,
@@ -891,7 +915,7 @@ class Lemma:
         Try to show newgoal is sufficient to prove current goal
         """
         goalctx = self.top_goal()
-        self.lemmas.append(
+        self.add_lemma(
             kd.prove(
                 smt.Implies(smt.And(goalctx.ctx + [newgoal]), goalctx.goal), **kwargs
             )
@@ -916,12 +940,18 @@ class Lemma:
         decls1 = None if len(decls) == 0 else decls
         if at is None:
             e = goalctx.goal
-            e2 = kd.rewrite.unfold(e, decls=decls1, trace=self.lemmas)
+            trace = []
+            e2 = kd.rewrite.unfold(e, decls=decls1, trace=trace)
+            for l in trace:
+                self.add_lemma(l)
             self.goals.pop()
             self.goals.append(goalctx._replace(goal=e2))
         else:
             e = goalctx.ctx[at]
-            e2 = kd.rewrite.unfold(e, decls=decls, trace=self.lemmas)
+            trace = []
+            e2 = kd.rewrite.unfold(e, decls=decls, trace=trace)
+            for l in trace:
+                self.add_lemma(l)
             self.goals.pop()
             if at == -1:
                 at = len(goalctx.ctx) - 1
@@ -962,10 +992,10 @@ class Lemma:
             subst, newgoal = substgoal
             if isinstance(pf, kd.Proof) and len(rule.vs) > 0:
                 pf1 = kd.kernel.instan([subst[v] for v in rule.vs], pf)
-                self.lemmas.append(pf1)
+                self.add_lemma(pf1)
             elif isinstance(pf, int) and len(rule.vs) > 0:
                 pf1 = kd.kernel.instan2([subst[v] for v in rule.vs], ctx[pf])
-                self.lemmas.append(pf1)
+                self.add_lemma(pf1)
             self.goals[-1] = goalctx._replace(ctx=ctx, goal=newgoal)
             return self.top_goal()
 
@@ -987,7 +1017,7 @@ class Lemma:
             indlem = x.induct(smt.Lambda([x], goal))
         else:
             indlem = using(x, smt.Lambda([x], goal))
-        self.lemmas.append(indlem)
+        self.add_lemma(indlem)
         self.apply(indlem)
         if smt.is_and(self.top_goal().goal):
             # self.split()
@@ -1010,7 +1040,7 @@ class Lemma:
         Put variables forall quantified back on goal. Useful for strengthening induction hypotheses.
         """
         goalctx = self.goals.pop()
-        self.lemmas.append(kd.kernel.instan2(vs, smt.ForAll(vs, goalctx.goal)))
+        self.add_lemma(kd.kernel.instan2(vs, smt.ForAll(vs, goalctx.goal)))
         self.goals.append(goalctx._replace(goal=smt.ForAll(vs, goalctx.goal)))
         return self.top_goal()
 
@@ -1039,7 +1069,7 @@ class Lemma:
         Prove the given formula and add it to the current context
         """
         goalctx = self.goals.pop()
-        self.lemmas.append(
+        self.add_lemma(
             kd.kernel.prove(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
         )
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
@@ -1055,7 +1085,7 @@ class Lemma:
         |- False
         """
         goalctx = self.goals.pop()
-        self.lemmas.append(kd.kernel.prove(goalctx.goal, admit=True))
+        self.add_lemma(kd.kernel.prove(goalctx.goal, admit=True))
         return self.top_goal()
 
     # TODO
@@ -1081,11 +1111,15 @@ class Lemma:
         """
         return the actual final `Proof` of the lemma that was defined at the beginning.
         """
-
+        for lam_cb in reversed(self.goals):
+            if isinstance(lam_cb, LemmaCallback):
+                lam_cb.cb()
+        if self.thm.get_id() in self.lemmas:
+            return self.lemmas[self.thm.get_id()]
         if "by" in kwargs:
-            kwargs["by"].extend(self.lemmas)
+            kwargs["by"].extend(self.lemmas.values())
         else:
-            kwargs["by"] = self.lemmas
+            kwargs["by"] = list(self.lemmas.values())
         pf = kd.kernel.prove(self.thm, **kwargs)
         kdrag.config.perf_event(
             "Lemma", self.thm, time.perf_counter() - self.start_time
