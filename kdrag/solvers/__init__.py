@@ -222,6 +222,22 @@ predefined_names = [
     "distinct",
     "true",
     "false",
+    "bvor",
+    "bvand",
+    "bvxor",
+    "bvnot",
+    "bvadd",
+    "bvsub",
+    "bvmul",
+    "bvudiv",
+    "bvurem",
+    "bvshl",
+    "bvlshr",
+    "bvashr",
+    "bvult",
+    "bvule",
+    "bvugt",
+    "bvuge",
 ]
 
 

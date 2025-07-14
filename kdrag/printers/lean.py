@@ -3,6 +3,45 @@ import kdrag as kd
 import subprocess
 
 
+def decl_sig(f: smt.FuncDeclRef) -> str:
+    """
+    Convert a function declaration to a Lean signature.
+
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort(), smt.BoolSort())
+    >>> decl_sig(f)
+    'f : Int -> Int -> Bool'
+    """
+    typs = [f.domain(n) for n in range(f.arity())] + [f.range()]
+    typ = " -> ".join(map(of_sort, typs))
+    return f"{f.name()} : {typ}"
+
+
+def decl_axiom(f: smt.FuncDeclRef) -> str:
+    """
+    Convert a function declaration to a Lean axiom definition.
+
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort(), smt.BoolSort())
+    >>> decl_axiom(f)
+    'axiom f : Int -> Int -> Bool\\n'
+    """
+    return f"axiom {decl_sig(f)}\n"
+
+
+def sort_axiom(s: smt.SortRef) -> str:
+    """
+    Convert uninterpreted sort to a Lean axiom definition.
+    """
+    name = s.name()
+    assert name not in ["Bool", "Int"]
+    return f"""
+axiom {name} : Type
+axiom {name}_Inhabited : Inhabited {name}
+axiom {name}_BEq : BEq {name}
+axiom {name}_DecidableEq : DecidableEq {name}
+
+"""
+
+
 def of_sort(s: smt.SortRef) -> str:
     """
     Convert a sort to a Lean type.
@@ -32,7 +71,42 @@ def of_sort(s: smt.SortRef) -> str:
         # raise NotImplementedError(f"Cannot convert {s} to Lean type")
 
 
-# datatype definitions
+def of_datatype(dt: smt.DatatypeSortRef) -> str:
+    """
+    Convert a datatype to a Lean inductive type definition.
+
+    >>> Nat = smt.Datatype("Nat")
+    >>> Nat.declare("Zero")
+    >>> Nat.declare("Succ", ("pred", Nat))
+    >>> Nat = Nat.create()
+    >>> of_datatype(Nat)
+    'inductive Nat : Type where\\n| Zero : Nat\\n| Succ : Nat -> Nat\\nderiving BEq, Inhabited, Repr, DecidableEq\\n'
+    """
+    name = dt.name()
+    output = [f"inductive {name} : Type where"]
+    for n in range(dt.num_constructors()):
+        cons = dt.constructor(n)
+        output.append(f"| {decl_sig(cons)}")
+    output.append("deriving BEq, Inhabited, Repr, DecidableEq\n")
+    return "\n".join(output)
+
+
+def accessor_def(dt: smt.DatatypeSortRef, n, i) -> str:
+    """
+    Make a lean definition that matches accessor, otherwise returns default.
+    This might not be a perfect translation of accessor behavior in SMTLIB
+    """
+
+    cons = dt.constructor(n)
+    acc = dt.accessor(n, i)
+    pargs = " ".join(["_" if j != i else "x" for j in range(cons.arity())])
+    return f"""
+@[grind]
+def {decl_sig(acc)}
+| .{dt.constructor(n).name()} {pargs} => x 
+| _ => default
+
+"""
 
 
 def of_expr(e: smt.ExprRef):
@@ -78,7 +152,7 @@ def of_expr(e: smt.ExprRef):
             return f"({name} : {of_sort(e.sort())})"
         elif name == "distinct":
             assert len(args) == 2
-            return f"({args[0]} != {args[1]})"
+            return f"(Not ({args[0]} = {args[1]}))"
         elif name == "=>":
             assert len(args) == 2
             return f"(not {args[0]} || {args[1]})"
