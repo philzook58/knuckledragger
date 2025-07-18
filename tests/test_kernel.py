@@ -9,6 +9,7 @@ import kdrag.theories.bitvec as bitvec
 import kdrag.theories.real.complex as complex
 import kdrag.theories.algebra.group as group
 import kdrag.theories as datatypes
+import kdrag.theories.logic.axioms as axioms
 import re
 
 if smt.solver != smt.VAMPIRESOLVER:
@@ -302,11 +303,11 @@ def test_beta():
     x = smt.Int("x")
     y = smt.Bool("y")
     t = smt.Lambda([x, y], x + 1)
-    assert kd.kernel.beta_conv(t, smt.IntVal(3), smt.BoolVal(True)).thm.eq(
+    assert axioms.beta_conv(t, smt.IntVal(3), smt.BoolVal(True)).thm.eq(
         t[smt.IntVal(3), smt.BoolVal(True)] == smt.IntVal(3) + smt.IntVal(1)
     )
     t = smt.Lambda([x], x)
-    assert kd.kernel.beta_conv(t, smt.IntVal(42)).thm.eq(
+    assert axioms.beta_conv(t, smt.IntVal(42)).thm.eq(
         smt.Eq(t[smt.IntVal(42)], smt.IntVal(42))
     )
 

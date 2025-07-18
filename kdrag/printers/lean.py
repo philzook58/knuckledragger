@@ -91,7 +91,7 @@ def of_datatype(dt: smt.DatatypeSortRef) -> str:
     return "\n".join(output)
 
 
-def accessor_def(dt: smt.DatatypeSortRef, n, i) -> str:
+def accessor_def(dt: smt.DatatypeSortRef, n: int, i: int) -> str:
     """
     Make a lean definition that matches accessor, otherwise returns default.
     This might not be a perfect translation of accessor behavior in SMTLIB

@@ -2,9 +2,41 @@ import kdrag.smt as smt
 import kdrag as kd
 
 type SubSort = smt.QuantifierRef | smt.ArrayRef
+# User telescope
 type Telescope = list[
     tuple[smt.ExprRef, smt.BoolRef] | tuple[smt.ExprRef, SubSort] | smt.ExprRef
 ]
+# Internal normalized telescope
+type _Tele = list[tuple[smt.ExprRef, smt.BoolRef]]
+
+
+def normalize(xs: Telescope) -> _Tele:
+    """
+    Normalize a telescope to a list of (variable, formula) pairs.
+
+    >>> x, y, z = smt.Ints("x y z")
+    >>> normalize([x, y, z])
+    [(x, True), (y, True), (z, True)]
+    >>> normalize([(x, x > 0), (y, y > x), z])
+    [(x, x > 0), (y, y > x), (z, True)]
+    >>> normalize([(x, smt.Lambda([x], x > 0)), (y, smt.Lambda([y], y > x)), z])
+    [(x, x > 0), (y, y > x), (z, True)]
+    """
+    res: _Tele = []
+    for v in xs:
+        if isinstance(v, tuple):
+            (v, T) = v
+            if T.sort() == smt.BoolSort():
+                res.append((v, T))
+            elif isinstance(T, smt.ArrayRef) or (
+                isinstance(T, smt.QuantifierRef) and T.is_lambda()
+            ):
+                res.append((v, T(v)))
+            else:
+                raise TypeError(f"Unsupported type for quantifier: {T}")
+        else:
+            res.append((v, smt.BoolVal(True)))
+    return res
 
 
 def TForAll(xs: Telescope, P: smt.BoolRef) -> smt.BoolRef:
