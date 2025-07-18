@@ -27,11 +27,14 @@ def normalize(xs: Telescope) -> _Tele:
         if isinstance(v, tuple):
             (v, T) = v
             if T.sort() == smt.BoolSort():
+                assert isinstance(T, smt.BoolRef)
                 res.append((v, T))
             elif isinstance(T, smt.ArrayRef) or (
                 isinstance(T, smt.QuantifierRef) and T.is_lambda()
             ):
-                res.append((v, T(v)))
+                P = T(v)
+                assert isinstance(P, smt.BoolRef)
+                res.append((v, P))
             else:
                 raise TypeError(f"Unsupported type for quantifier: {T}")
         else:
