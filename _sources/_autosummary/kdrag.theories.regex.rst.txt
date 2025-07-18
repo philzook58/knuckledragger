@@ -1,0 +1,34 @@
+kdrag.theories.regex
+====================
+
+.. automodule:: kdrag.theories.regex
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      ReSort
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/regex.py
+   :language: python
