@@ -28,7 +28,8 @@ jobs:
       - name: Set up Lean
         run: | 
             curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
-            export PATH="$HOME/.elan/bin:$PATH"
+            echo 'export PATH="$HOME/.elan/bin:$PATH"' >> ~/.bashrc
+            source ~/.bashrc
             elan toolchain install 4.22.0-rc3
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v5
