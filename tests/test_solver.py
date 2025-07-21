@@ -7,6 +7,7 @@ from kdrag.solvers import (
     ZipperpositionSolver,
     TweeSolver,
     SATSolver,
+    LeanSolver,
 )
 import kdrag.solvers as solvers
 import kdrag.smt as smt
@@ -528,3 +529,85 @@ def test_huet_smt():
 )"""
     open("/tmp/central_groupoid.smt2", "w").write(example)
     assert len(kb.huet_smt2_file("/tmp/central_groupoid.smt2")) == 3
+
+def test_lean_fast():
+    s = LeanSolver()
+    x,y,z = smt.Bools("x y z")
+    s.add(smt.Not(smt.ForAll([x], x == x)))
+    assert s.check() == smt.unsat
+
+@pytest.mark.slow
+def test_lean():
+    s = LeanSolver()
+    x,y,z = smt.Bools("x y z")
+    s.add(smt.Not(smt.ForAll([x], x == x)))
+    assert s.check() == smt.unsat
+
+    x,y,z = smt.Ints("x y z")
+    s = LeanSolver()
+    s.add(smt.Not(smt.ForAll([x,y], x + y == y + x)))
+    assert s.check() == smt.unsat
+
+    s = LeanSolver()
+    s.add(smt.Not(smt.ForAll([x,y], x + 1 >= x)))
+    s.check()
+
+
+    s = LeanSolver()
+    x,y,z = smt.Bools("x y z")
+    s.add(smt.Not(smt.Implies(smt.And(x, y), x)))
+    s.check()
+
+    s = LeanSolver()
+    x,y,z = smt.Bools("x y z")
+    s.add(smt.Not(smt.Implies(smt.Or(x, y), x)))
+    assert s.check() != smt.unsat
+
+    s = LeanSolver()
+    x,y,z = smt.Bools("x y z")
+    s.add(smt.Not(smt.Implies(x, smt.Or(x, y, z))))
+    assert s.check() == smt.unsat
+
+    def testit(expr):
+        s = LeanSolver()
+        s.add(expr)
+        res = s.check()
+        assert res == smt.unsat, f"Expected unsat, got {res} for {expr}"
+
+    testit(smt.Not(smt.ForAll([x,y], x + y == y + x)))
+
+    x,y,z = smt.BitVecs("x y z", 8)
+    testit(smt.Not(smt.ForAll([x,y], x + y == y + x)))
+    testit(smt.Not(smt.ForAll([x,y], x | x == x)))
+
+
+    # uninterpreted functions
+    x,y,z = smt.Ints("x y z")
+    f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    s = LeanSolver()
+    s.add(smt.ForAll([x], f(x) == x))
+    s.add(smt.Not(f(f(y)) == y))
+    assert s.check() == smt.unsat
+
+
+    # Uninterpreted sorts
+    S = smt.DeclareSort("S")
+    n = smt.Const("n", S)
+    f = smt.Function("f", S, S)
+    s = LeanSolver()
+    s.add(f(n) == n)
+    s.add(f(f(n)) != n)
+    assert s.check() == smt.unsat
+
+    # Inductive Datatypes
+    #from kdrag.theories.nat import Nat
+    MyNat = smt.Datatype("MyNat")
+    MyNat.declare("Z")
+    MyNat.declare("S", ("pred", MyNat))
+    MyNat = MyNat.create()
+    n = smt.Const("n", MyNat)
+
+    s = LeanSolver()
+
+    s.add(smt.Not(smt.ForAll([n], MyNat.S(n).pred == n)))
+    assert s.check() == smt.unsat

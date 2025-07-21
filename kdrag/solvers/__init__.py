@@ -12,6 +12,8 @@ import re
 from typing import Optional
 import urllib.request
 import stat
+import kdrag.printers.lean as lean
+import json
 
 logger = logging.getLogger("knuckledragger")
 
@@ -821,3 +823,61 @@ class MultiSolver(BaseSolver):
             return smt.sat
         else:
             return smt.unknown
+
+
+class LeanSolver(BaseSolver):
+    def __init__(self):
+        self.imports = []
+        self.tactic = "grind"  # can replace by bv_decide or even tactic script. The string is just spliced in.\
+        # Lean version needs to be explicitly picked or else elan will check for version which is very slow.
+        self.lean_version = "4.22.0-rc3"
+        super().__init__()
+
+    def check(self):
+        with open("/tmp/test.lean", "w") as f:
+            for imp in self.imports:
+                f.write(f"import {imp}\n")
+            f.write("set_option linter.unusedVariables false\n")  # To remove an warning
+            f.write("set_option grind.warning false\n")
+            predefined = set()
+            # make inductive datatype definitions
+            for sort in collect_sorts(
+                self.adds + [thm for thm, name in self.assert_tracks]
+            ):
+                if isinstance(sort, smt.DatatypeSortRef):
+                    f.write(lean.of_datatype(sort))
+                    f.write("open " + sort.name() + "\n")
+                    for n in range(sort.num_constructors()):
+                        cons = sort.constructor(n)
+                        predefined.add(cons)
+                        for i in range(cons.arity()):
+                            f.write(lean.accessor_def(sort, n, i))
+                            predefined.add(sort.accessor(n, i))
+                elif sort.name() not in self.predefined_sorts:
+                    f.write(lean.sort_axiom(sort))
+            # state axioms for all non predefined declarations
+            for decl in collect_decls(
+                self.adds + [thm for thm, name in self.assert_tracks]
+            ):
+                if decl not in predefined and decl.name() not in predefined_names:
+                    f.write(lean.decl_axiom(decl))
+            # Make the actual goal
+            f.write("theorem mythm : Not (True ")
+            for expr in self.adds + [thm for thm, name in self.assert_tracks]:
+                f.write("  /\\ \n")
+                f.write(lean.of_expr(expr))
+            f.write(f") := by {self.tactic}\n")
+            f.write("#check mythm\n")
+            f.flush()
+        result = subprocess.run(
+            ["elan", "run", self.lean_version, "lean", "--json", "/tmp/test.lean"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            return smt.unknown
+        else:
+            result = json.loads(result.stdout)
+            assert result["severity"] == "information"
+            assert "mythm" in result["data"]
+            return smt.unsat
