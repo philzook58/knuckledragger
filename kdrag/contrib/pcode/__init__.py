@@ -194,7 +194,8 @@ def executeStore(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     val = memstate.getvalue(op.inputs[2])  # value being stored
     assert isinstance(val, smt.BitVecRef)
     off = memstate.getvalue(op.inputs[1])  # offset to store at
-    assert op.inputs[0].space.name == "ram"
+    # TODO: check if space is the "ram" space
+    # assert op.inputs[0].space.name == "const",
     return memstate.setvalue_ram(off, val)
 
 
@@ -232,23 +233,45 @@ class SimState:
 
 
 class BinaryContext:
-    def __init__(self, filename):
+    """
+    Almost all operations one wants to do on assembly are dependent on the binary and where it was loaded.
+    BinaryContext is a class that holds the binary and provides methods to disassemble and translate instructions.
+    It is the analog of an angr `Project` in some respects.
+
+    Run `python3 -m pypcode --list` to see available langid.
+    - RISCV:LE:64:default
+    """
+
+    def __init__(self, filename=None, langid="x86:LE:64:default"):
         self.pcode_cache = {}
         self.insn_cache = {}
-        self.filename = filename
-        self.loader = cle.loader.Loader(filename)
+        self.filename = None
+        self.loader = None
         self.bin_hash = None
-        self.ctx = pypcode.Context("x86:LE:64:default")  # TODO: derive from cle
-        decls = [
-            smt.BitVec(name, vnode.size * 8)
+        self.ctx = pypcode.Context(langid)  # TODO: derive from cle
+        if filename is not None:
+            self.load(filename)
+
+    def load(self, main_binary, **kwargs):
+        """
+        Load a binary file and initialize the context.
+        """
+        self.filename = main_binary
+        self.loader = cle.loader.Loader(main_binary, **kwargs)
+        # self.ctx = pypcode.Context(self.loader.arch.name) # TODO: derive from cle
+        self._subst_decls = {
+            name: smt.BitVec(name, vnode.size * 8)
             for name, vnode in self.ctx.registers.items()
-        ]
-        # decls.append(smt.Array("mem", smt.BitVecSort(64), smt.BitVecSort(8)))
-        self.decls = {decl.decl().name(): decl for decl in decls}
+        }
+        self.pcode_cache.clear()
+        self.insn_cache.clear()
 
     def disassemble(self, addr):
         if addr in self.insn_cache:
             return self.insn_cache[addr]
+        assert self.loader is not None, (
+            "BinaryContext must be loaded before disassembling"
+        )
         memory = self.loader.memory.load(addr, 0x128)  # 128 bytes? good enough?
         insns = self.ctx.disassemble(memory, addr, 0).instructions
         assert len(insns) > 0
@@ -260,6 +283,9 @@ class BinaryContext:
         if addr in self.pcode_cache:
             return self.pcode_cache[addr]
         insn = self.disassemble(addr)
+        assert self.loader is not None, (
+            "BinaryContext must be loaded before disassembling"
+        )
         memory = self.loader.memory.load(addr, insn.length)
         ops = self.ctx.translate(memory, base_address=addr, offset=0).ops
         assert len(ops) > 0
@@ -372,8 +398,8 @@ class BinaryContext:
                     pc1[0] == smt.FreshConst(pc1[0].sort())
                 )  # To seed them in the model
                 s.add(pc1[1] == smt.FreshConst(pc1[1].sort()))
-                while s.check() == smt.sat:
-                    m = s.model()
+                while s.check() != smt.unsat:
+                    m = s.model()  # smt.unknown should crash
                     vaddr, vpcode_pc = m.eval(pc1[0]), m.eval(pc1[1])
                     s.add(
                         smt.Not(smt.And(pc1[0] == vaddr, pc1[1] == vpcode_pc))
@@ -403,19 +429,64 @@ class BinaryContext:
     def get_reg(self, memstate: MemState, regname: str) -> smt.BitVecRef:
         """
         Get the value of a register from the memstate.
+
+        >>> ctx = BinaryContext()
+        >>> memstate = MemState.Const("test_mem")
+        >>> memstate = ctx.set_reg(memstate, "RAX", smt.BitVec("RAX", 64))
+        >>> ctx.get_reg(memstate, "RAX")
+        RAX
         """
         vnode = self.ctx.registers[regname]
         return smt.simplify(memstate.getvalue(vnode))
 
+    def set_reg(
+        self, memstate: MemState, regname: str, value: smt.BitVecRef
+    ) -> MemState:
+        """
+        Set the value of a register in the memstate.
+        """
+        vnode = self.ctx.registers[regname]
+        return memstate.setvalue(vnode, value)
+
+    def init_mem(self) -> MemState:
+        """
+        Initialize the memory state with empty memory.
+
+        >>> ctx = BinaryContext()
+        >>> memstate = ctx.init_mem()
+        >>> ctx.get_reg(memstate, "RAX")
+        RAX!...
+        """
+        memstate = MemState.Const("mem0")
+        for name, vnode in reversed(
+            self.ctx.registers.items()
+        ):  # hack to not have EAX stomp RAX
+            memstate = self.set_reg(
+                memstate,
+                name,
+                smt.FreshConst(smt.BitVecSort(vnode.size * 8), prefix=name),
+            )
+        return memstate
+
+    def get_regs(self, memstate: MemState) -> dict[str, smt.BitVecRef]:
+        """
+        Get the state of the registers from the memstate.
+        """
+        return {
+            regname: self.get_reg(memstate, regname)
+            for regname in self.ctx.registers.keys()
+        }
+
     def substitute(self, memstate: MemState, expr: smt.ExprRef) -> smt.ExprRef:
         """
-        Substitute the values in memstate into the expression expr.
+        Substitute the values in memstate into the expression `expr`.
+        `expr` uses the short register names and `ram`
         """
         substs = [
             (decl, self.get_reg(memstate, regname))
-            for regname, decl in self.decls.items()
+            for regname, decl in self._subst_decls.items()
         ]
-        # TODO: memory
+        substs.append((smt.Array("ram", BV64, BV8), memstate.mem.ram))
         return smt.substitute(expr, *substs)
 
 
