@@ -203,7 +203,7 @@ def executeCBranch(op, memstate: MemState) -> smt.BoolRef | bool:
     return cond != 0
 
 
-PC = tuple[int, int]  # (address, pcode_pc)
+type PC = tuple[int, int]  # (address, pcode_pc)
 
 
 def pc_of_addr(addr: int) -> PC:
@@ -348,10 +348,12 @@ class BinaryContext:
         A single instruction may contain multiple Pcode instructions or even pcode loops.
         Hence a symbolic execution may be required for even a single instruction.
         """
-        pc0: PC = (addr, 0)
+        pc0: tuple[int, int] = (addr, 0)
         if path_cond is None:
             path_cond = []
-        todo = [(memstate, pc0, max_insns, path_cond)]
+        todo: list[tuple[MemState, PC, int, list[smt.BoolRef]]] = [
+            (memstate, pc0, max_insns, path_cond)
+        ]
         res = []
         while todo:
             memstate, pc, max_insns, path_cond = todo.pop()
@@ -375,26 +377,27 @@ class BinaryContext:
                     vaddr, vpcode_pc = m.eval(pc1[0]), m.eval(pc1[1])
                     s.add(
                         smt.Not(smt.And(pc1[0] == vaddr, pc1[1] == vpcode_pc))
-                    )  # outlaw model for next loop
+                    )  # outlaw this model for next example
                     addr, pcode_pc = vaddr.as_long(), vpcode_pc.as_long()
+                    assert isinstance(addr, int) and isinstance(pcode_pc, int)
                     max_insns1 = max_insns if pc[0] == addr else max_insns - 1
                     next_pc = (addr, pcode_pc)
-                    path_cond1 = path_cond + [pc1[0] == addr, pc1[1] == pcode_pc]
+                    path_cond1 = path_cond + [pc1[0] == vaddr, pc1[1] == vpcode_pc]
                     if addr in breakpoints:
                         res.append(SimState(memstate1, next_pc, path_cond1))
-                    elif max_insns1 > 0:
-                        todo.append((memstate1, next_pc, max_insns1, path_cond1))
-                    else:
+                    elif max_insns1 <= 0:
                         res.append(SimState(memstate1, next_pc, path_cond1))
+                    else:
+                        todo.append((memstate1, next_pc, max_insns1, path_cond1))
             else:  # PC is concrete
                 if pc[0] != pc1[0]:
                     max_insns -= 1
                 if pc1[0] in breakpoints:
                     res.append(SimState(memstate1, pc1, path_cond))
-                elif max_insns > 0:
-                    todo.append((memstate1, pc1, max_insns, path_cond))  # type: ignore
-                else:
+                elif max_insns <= 0:
                     res.append(SimState(memstate1, pc1, path_cond))
+                else:
+                    todo.append((memstate1, pc1, max_insns, path_cond))  # type: ignore
         return res
 
     def get_reg(self, memstate: MemState, regname: str) -> smt.BitVecRef:
