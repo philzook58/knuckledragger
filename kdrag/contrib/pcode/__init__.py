@@ -15,6 +15,7 @@ import kdrag.smt as smt
 import kdrag.theories.bitvec as bv
 import operator
 from dataclasses import dataclass
+from typing import Optional
 
 TRUE = smt.BitVecVal(1, 8)
 FALSE = smt.BitVecVal(0, 8)
@@ -79,7 +80,7 @@ class _TestVarnode:
     size: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class MemState:
     """
     MemState is a wrapper that offers getvalue and setvalue methods
@@ -238,6 +239,12 @@ class BinaryContext:
         self.loader = cle.loader.Loader(filename)
         self.bin_hash = None
         self.ctx = pypcode.Context("x86:LE:64:default")  # TODO: derive from cle
+        decls = [
+            smt.BitVec(name, vnode.size * 8)
+            for name, vnode in self.ctx.registers.items()
+        ]
+        # decls.append(smt.Array("mem", smt.BitVecSort(64), smt.BitVecSort(8)))
+        self.decls = {decl.decl().name(): decl for decl in decls}
 
     def disassemble(self, addr):
         if addr in self.insn_cache:
@@ -328,7 +335,13 @@ class BinaryContext:
         return self.executeCurrentOp(op, memstate, pc)
 
     def sym_execute(
-        self, memstate: MemState, addr: int, max_insns=1, breakpoints=[], verbose=False
+        self,
+        memstate: MemState,
+        addr: int,
+        path_cond: Optional[list[smt.BoolRef]] = None,
+        max_insns=1,
+        breakpoints=[],
+        verbose=False,
     ) -> list[SimState]:
         """
         Symbolically execute a real instruction at addr, returning a list of SimState objects.
@@ -336,32 +349,43 @@ class BinaryContext:
         Hence a symbolic execution may be required for even a single instruction.
         """
         pc0: PC = (addr, 0)
-        todo = [(memstate, pc0, max_insns, [])]
+        if path_cond is None:
+            path_cond = []
+        todo = [(memstate, pc0, max_insns, path_cond)]
         res = []
         while todo:
             memstate, pc, max_insns, path_cond = todo.pop()
             if verbose:
-                print(f"Executing {pretty_insn(self.disassemble(pc[0]))} at {pc}")
+                print(
+                    f"Executing {pretty_insn(self.disassemble(pc[0]))} at {pc} PCODE {pretty_op(self.translate(pc[0])[pc[1]])}"
+                )
             memstate1, pc1 = self.execute1(memstate, pc)
             if isinstance(
                 pc1[0], smt.ExprRef
             ):  # PC has become symbolic, requiring branching
                 assert isinstance(pc1[1], smt.ExprRef)
-                for vaddr, vpcode_pc in kd.utils.all_values(pc1[0], pc1[1]):
-                    assert isinstance(vaddr, smt.IntNumRef) and isinstance(
-                        vpcode_pc, smt.IntNumRef
-                    )
+                s = smt.Solver()
+                s.add(path_cond)
+                s.add(
+                    pc1[0] == smt.FreshConst(pc1[0].sort())
+                )  # To seed them in the model
+                s.add(pc1[1] == smt.FreshConst(pc1[1].sort()))
+                while s.check() == smt.sat:
+                    m = s.model()
+                    vaddr, vpcode_pc = m.eval(pc1[0]), m.eval(pc1[1])
+                    s.add(
+                        smt.Not(smt.And(pc1[0] == vaddr, pc1[1] == vpcode_pc))
+                    )  # outlaw model for next loop
                     addr, pcode_pc = vaddr.as_long(), vpcode_pc.as_long()
-                    if pc[0] != addr:
-                        max_insns -= 1
-                    pc = (addr, pcode_pc)
+                    max_insns1 = max_insns if pc[0] == addr else max_insns - 1
+                    next_pc = (addr, pcode_pc)
                     path_cond1 = path_cond + [pc1[0] == addr, pc1[1] == pcode_pc]
                     if addr in breakpoints:
-                        res.append(SimState(memstate, pc, path_cond1))
-                    elif max_insns > 0:
-                        todo.append((memstate, pc, max_insns, path_cond1))
+                        res.append(SimState(memstate1, next_pc, path_cond1))
+                    elif max_insns1 > 0:
+                        todo.append((memstate1, next_pc, max_insns1, path_cond1))
                     else:
-                        res.append(SimState(memstate, pc, path_cond1))
+                        res.append(SimState(memstate1, next_pc, path_cond1))
             else:  # PC is concrete
                 if pc[0] != pc1[0]:
                     max_insns -= 1
@@ -372,6 +396,24 @@ class BinaryContext:
                 else:
                     res.append(SimState(memstate1, pc1, path_cond))
         return res
+
+    def get_reg(self, memstate: MemState, regname: str) -> smt.BitVecRef:
+        """
+        Get the value of a register from the memstate.
+        """
+        vnode = self.ctx.registers[regname]
+        return smt.simplify(memstate.getvalue(vnode))
+
+    def substitute(self, memstate: MemState, expr: smt.ExprRef) -> smt.ExprRef:
+        """
+        Substitute the values in memstate into the expression expr.
+        """
+        substs = [
+            (decl, self.get_reg(memstate, regname))
+            for regname, decl in self.decls.items()
+        ]
+        # TODO: memory
+        return smt.substitute(expr, *substs)
 
 
 def test_pcode():
