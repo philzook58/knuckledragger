@@ -586,6 +586,31 @@ def sorts(t: smt.ExprRef):
         yield t.sort()
 
 
+def consts(t: smt.ExprRef) -> set[smt.ExprRef]:
+    """
+    Return all constants in a term.
+
+    >>> x,y = smt.Ints("x y")
+    >>> consts(x + (y * y) + 1) == {smt.IntVal(1), x, y}
+    True
+    """
+    ts = set()
+    todo = [t]
+    while todo:
+        t = todo.pop()
+        if smt.is_const(t):
+            ts.add(t)
+        elif smt.is_app(t):
+            todo.extend(t.children())
+        elif isinstance(t, smt.QuantifierRef):
+            todo.append(t.body())
+        elif smt.is_var(t):
+            continue
+        else:
+            raise Exception("Unexpected term in consts", t)
+    return ts
+
+
 def decls(t: smt.ExprRef) -> set[smt.FuncDeclRef]:
     """Return all function declarations in a term."""
     return {e.decl() for e in subterms(t, into_binder=True) if smt.is_app(e)}

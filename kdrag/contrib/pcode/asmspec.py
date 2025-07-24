@@ -2,6 +2,7 @@ import re
 import kdrag.smt as smt
 import kdrag as kd
 import dataclasses
+from dataclasses import dataclass
 import kdrag.contrib.pcode as pcode
 from collections import defaultdict
 import json
@@ -9,29 +10,32 @@ import subprocess
 
 kd_macro = r"""
 #precondition
-.macro kd_entry label smt_expr
+.macro kd_entry label smt_bool
 \label :
 .endm
 
-.macro kd_assert label smt_expr
+.macro kd_assert label smt_bool
 \label :
 .endm
 
-.macro kd_assume label smt_expr
+.macro kd_assume label smt_bool
 \label :
 .endm
 
 #postcondition
-.macro kd_exit label smt_expr 
+.macro kd_exit label smt_bool 
 \label :
 .endm
 
 #invariant
-.macro kd_cut label smt_expr
+.macro kd_cut label smt_bool
 \label :
 .endm 
 
-.macro kd_always smt_expr
+.macro kd_always smt_bool
+.endm
+
+.macro kd_prelude smt_command
 .endm
 """
 
@@ -40,8 +44,21 @@ kd_macro = r"""
 type AddrMap = defaultdict[int, list[tuple[str, smt.BoolRef]]]
 
 
-@dataclasses.dataclass
+@dataclass
 class AsmSpec:
+    """
+    A specification of an assembly program.
+    https://www.philipzucker.com/assembly_verify/
+    Registers are named by their corresponding names in pypcode.
+    You can examine them by
+
+    ```python
+    import pypcode
+    print(pypcode.Context("x86:LE:64:default").registers)
+    ```
+
+    """
+
     entries: AddrMap = dataclasses.field(default_factory=lambda: defaultdict(list))
     asserts: AddrMap = dataclasses.field(default_factory=lambda: defaultdict(list))
     assumes: AddrMap = dataclasses.field(default_factory=lambda: defaultdict(list))
@@ -59,6 +76,8 @@ class AsmSpec:
                 \s*$""",
             re.VERBOSE,
         )
+        # prelude_pattern = re.compile("^\.kd_prelude\s+([^;]+);?\s*$")
+        preludes = []
         decls = ctx._subst_decls.copy()
         decls["ram"] = smt.Array("ram", smt.BitVecSort(64), smt.BitVecSort(8))
         spec = cls()
@@ -77,7 +96,8 @@ class AsmSpec:
                         )
                     else:
                         addr = sym.rebased_addr
-                    expr = smt.parse_smt2_string(expr, decls=decls)[0]
+                    smt_string = "\n".join(preludes + ["(assert ", expr, ")"])
+                    expr = smt.parse_smt2_string(smt_string, decls=decls)[0]
                     if cmd == "kd_entry":
                         spec.entries[addr].append((label, expr))
                     elif cmd == "kd_assert":
@@ -96,79 +116,136 @@ class AsmSpec:
         )
 
 
-@dataclasses.dataclass
+@dataclass
 class Results:
     successes: list[str] = dataclasses.field(default_factory=list)
     failures: list[str] = dataclasses.field(default_factory=list)
+    traces: list[object] = dataclasses.field(default_factory=list)
 
 
-def run_all_paths(ctx, spec: AsmSpec, mem=None, verbose=True) -> Results:
+@dataclass(frozen=True)
+class TraceState:
+    trace: list[object]
+    state: pcode.SimState
+
+
+def run_all_paths(
+    ctx: pcode.BinaryContext,
+    spec: AsmSpec,
+    mem=None,
+    verbose=True,
+    by: list[kd.Proof] = [],
+) -> Results:
     if mem is None:
         mem = pcode.MemState.Const("mem")  # ctx.init_mem() very slow
-    todo = []
+    todo: list[TraceState] = []
     res = Results([], [])
     if len(spec.entries) == 0:
         raise Exception("No entry points found in the assembly specification")
+    # Initialize executions out of entry points and cuts
     for addr, label_preconds in spec.entries.items():
         for label, precond in label_preconds:
             if verbose:
                 print(f"entry {label} at {addr} with precond {precond}")
-            todo.append(pcode.SimState(mem, (addr, 0), [ctx.substitute(mem, precond)]))
+            precond = ctx.substitute(mem, precond)
+            assert isinstance(precond, smt.BoolRef)
+            todo.append(TraceState([], pcode.SimState(mem, (addr, 0), [precond])))
+    for addr, label_preconds in spec.cuts.items():
+        for label, invariant in label_preconds:
+            if verbose:
+                print(f"cut {label} at {addr} with invariant {invariant}")
+            invariant = ctx.substitute(mem, invariant)
+            assert isinstance(invariant, smt.BoolRef)
+            todo.append(TraceState([], pcode.SimState(mem, (addr, 0), [invariant])))
 
-    def verif(state, prop):
+    def verif(state: pcode.SimState, prop: smt.BoolRef) -> kd.Proof:
         return kd.prove(
-            smt.Implies(smt.And(*state.path_cond), ctx.substitute(state.memstate, prop))
+            smt.Implies(
+                smt.And(*state.path_cond), ctx.substitute(state.memstate, prop)
+            ),
+            by=by,
         )
 
     while todo:
-        state = todo.pop()
+        tracestate = todo.pop()
+        trace, state = tracestate.trace, tracestate.state
         addr, pc = state.pc
         if pc != 0:  # We don't support intra instruction assertions
             raise Exception(f"Unexpected program counter {pc} at address {hex(addr)}")
-        if addr in spec.cuts:
-            raise Exception("Cut not implemented yet")
+        # check assert conditions
         if addr in spec.asserts:
             for label, _assert in spec.asserts[addr]:
                 try:
                     _pf = verif(state, _assert)
-                    res.successes.append(f"[✅] assert {label}: {_assert}")
+                    msg = f"[✅] assert {label}: {_assert}"
+                    res.successes.append(msg)
+                    trace.append(msg)
                 except Exception as e:
-                    res.failures.append(f"[❌] Error proving assert {label}: {_assert}")
+                    msg = f"[❌] Error proving assert {label}: {_assert}"
+                    res.failures.append(msg)
+                    trace.append(msg)
                     print("[❌] Error proving assert", label, _assert, e)
                     # raise e
                 # maybe prove form (state == current state => assert_expr)
-        if addr in spec.exits:
+        # If address is an exit or cut, we check postcondition and end the execution of this path
+        # The first time we encounter a cut is at the start of the path
+        if addr in spec.exits or (addr in spec.cuts and len(trace) != 0):
             for label, _exit in spec.exits[addr]:
                 try:
                     _pf = verif(state, _exit)
+                    msg = f"[✅] exit {label}: {_exit}"
                     print(f"[✅] exit {label}: {_exit}")
+                    trace.append(msg)
                     res.successes.append(f"[✅] exit {label}: {_exit}")
                 except Exception as e:
                     print("[❌] Error proving exit", label, _exit, e)
-                    res.failures.append(f"[❌] Error proving exit {label}: {_exit}")
+                    msg = f"[❌] Error proving exit {label}: {_exit}"
+                    trace.append(msg)
+                    res.failures.append(msg)
+            for label, _cut in spec.cuts[addr]:
+                try:
+                    _pf = verif(state, _cut)
+                    msg = f"[✅] cut {label}: {_cut}"
+                    print(f"[✅] cut {label}: {_cut}")
+                    trace.append(msg)
+                    res.successes.append(f"[✅] cut {label}: {_cut}")
+                except Exception as e:
+                    print("[❌] Error proving cut", label, _cut, e)
+                    msg = f"[❌] Error proving cut {label}: {_cut}"
+                    trace.append(msg)
+                    res.failures.append(msg)
+            res.traces.append(trace)
             continue  # Do not put back on todo
+        # If address is an assume, we add the assumption to the path condition
         if addr in spec.assumes:
             for label, _assume in spec.assumes[addr]:
-                state._replace(
+                dataclasses.replace(
+                    state,
                     path_cond=state.path_cond
-                    + [ctx.substitute(state.memstate, _assume)]
+                    + [ctx.substitute(state.memstate, _assume)],
                 )
         # Regular execution
+        trace.append((addr, pc))
         todo.extend(
-            ctx.sym_execute(
-                state.memstate,
-                addr,
-                path_cond=state.path_cond,
-                max_insns=1,
-                verbose=verbose,
-            )
+            [
+                TraceState(trace.copy(), state)
+                for state in ctx.sym_execute(
+                    state.memstate,
+                    addr,
+                    path_cond=state.path_cond,
+                    max_insns=1,
+                    verbose=verbose,
+                )
+            ]
         )
     return res
 
 
-def assemble_and_check(filename: str) -> Results:
-    subprocess.run(["as", filename, "-o", "/tmp/kdrag_temp.o"], check=True)
-    ctx = pcode.BinaryContext("/tmp/kdrag_temp.o")
+def assemble_and_check(
+    filename: str, langid="x86:LE:64:default", as_bin="as"
+) -> Results:
+    subprocess.run([as_bin, filename, "-o", "/tmp/kdrag_temp.o"], check=True)
+    ctx = pcode.BinaryContext("/tmp/kdrag_temp.o", langid=langid)
     spec = AsmSpec.of_file(filename, ctx)
     print(spec)
     return run_all_paths(ctx, spec)

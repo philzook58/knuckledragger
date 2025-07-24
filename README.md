@@ -151,6 +151,7 @@ A recent summary talk of Knuckledragger was presented at NEPLS 2025
 
 ## Blog Posts
 
+- [Semi-Automated Assembly Verification in Python using pypcode Semantics](https://www.philipzucker.com/assembly_verify/)
 - [NEPLS 2025 and a Short Talk on Knuckledragger](https://www.philipzucker.com/nepls_2025/) [video](https://www.youtube.com/watch?v=ENwKBC8dN4M&ab_channel=PhilipZucker)
 - ["Verified" "Compilation" of "Python" with Knuckledragger, GCC, and Ghidra](https://www.philipzucker.com/knuckle_C_pcode/)
 - [A Small Prolog on the Z3 AST](https://www.philipzucker.com/knuck_prolog/)

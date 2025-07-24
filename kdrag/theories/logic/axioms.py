@@ -123,3 +123,35 @@ def beta_conv(lam: smt.QuantifierRef, *args) -> kd.Proof:
     assert len(args) == lam.num_vars()
     assert smt.is_quantifier(lam) and lam.is_lambda()
     return kd.axiom(smt.Eq(lam[args], smt.substitute_vars(lam.body(), *reversed(args))))
+
+
+"""
+TODO: For better Lemma
+def modus_n(n: int, ab: Proof, bc: Proof):
+    ""
+    Plug together two theorems of the form
+    Implies(And(ps), b), Implies(And(qs, b, rs),  c)
+    -----------
+    Implies(And(qs, ps, rs), c)
+
+    Useful for backwards chaining.
+
+    
+    ""
+    assert (
+        is_proof(ab)
+        and is_proof(bc)
+        and smt.is_implies(ab.thm)
+        and smt.is_implies(bc.thm)
+    )
+    aa = ab.thm.arg(0)
+    assert smt.is_and(aa)
+    aa = aa.children()
+    b = ab.thm.arg(1)
+    bb = bc.thm.arg(0)
+    assert smt.is_and(bb)
+    bb = bb.children()
+    assert bb[n].eq(b)
+    c = bc.thm.arg(1)
+    return axiom(smt.Implies(smt.And(*bb[:n], *aa, *bb[n + 1 :]), c), [ab, bc])
+"""

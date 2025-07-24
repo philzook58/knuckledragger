@@ -406,7 +406,7 @@ class BinaryContext:
                     )  # outlaw this model for next example
                     addr, pcode_pc = vaddr.as_long(), vpcode_pc.as_long()
                     assert isinstance(addr, int) and isinstance(pcode_pc, int)
-                    max_insns1 = max_insns if pc[0] == addr else max_insns - 1
+                    max_insns1 = max_insns - 1 if pcode_pc == 0 else max_insns
                     next_pc = (addr, pcode_pc)
                     path_cond1 = path_cond + [pc1[0] == vaddr, pc1[1] == vpcode_pc]
                     if addr in breakpoints:
@@ -416,7 +416,9 @@ class BinaryContext:
                     else:
                         todo.append((memstate1, next_pc, max_insns1, path_cond1))
             else:  # PC is concrete
-                if pc[0] != pc1[0]:
+                if (
+                    pc1[1] == 0
+                ):  # pcode_pc == 0 means we are at the start of an instruction. Kind of. There are some edge cases, TODO
                     max_insns -= 1
                 if pc1[0] in breakpoints:
                     res.append(SimState(memstate1, pc1, path_cond))
@@ -482,12 +484,29 @@ class BinaryContext:
         Substitute the values in memstate into the expression `expr`.
         `expr` uses the short register names and `ram`
         """
+        # Much faster typically to pull only those constants that are used in the expression
+        consts = {t.decl().name(): t for t in kd.utils.consts(expr)}
         substs = [
-            (decl, self.get_reg(memstate, regname))
-            for regname, decl in self._subst_decls.items()
+            (t, self.get_reg(memstate, regname))
+            for regname, t in consts.items()
+            if regname in self.ctx.registers
         ]
-        substs.append((smt.Array("ram", BV64, BV8), memstate.mem.ram))
+        if "ram" in consts:
+            substs.append((smt.Array("ram", BV64, BV8), memstate.mem.ram))
         return smt.substitute(expr, *substs)
+
+    def model_registers(
+        self,
+        model: smt.ModelRef,
+        memstate: MemState,
+    ) -> dict[str, smt.BitVecRef]:
+        """
+        Get values of all registers in model.
+        """
+        return {
+            regname: model.eval(self.get_reg(memstate, regname))
+            for regname in self.ctx.registers.keys()
+        }
 
 
 def test_pcode():

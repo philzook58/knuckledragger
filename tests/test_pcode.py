@@ -3,42 +3,77 @@ from kdrag.all import *
 from kdrag.contrib.pcode.asmspec import assemble_and_check_str, AsmSpec, run_all_paths, kd_macro
 import pytest
 
-@pytest.mark.slow
-def test_42():
+
+
+def check_code(asm, nsucc, nfail):
     with open("/tmp/knuckle.s", "w") as f:
         f.write(kd_macro)
         f.flush()
+    res = assemble_and_check_str(asm)
+    assert len(res.successes) == nsucc, res.successes
+    assert len(res.failures) == nfail, res.failures
+
+
+@pytest.mark.slow
+def test_42():
     ret_42 = """
     .include "/tmp/knuckle.s"
     .globl myfunc
 
     .text
-        kd_entry myfunc "(assert true)"
+        kd_entry myfunc "true"
         movq $42, %rax
-        kd_assert my_assert "(assert (= RAX (_ bv42 64)))"
-        kd_exit func_end "(assert (= RAX (_ bv42 64)))"
+        kd_assert my_assert "(= RAX (_ bv42 64))"
+        kd_exit func_end "(= RAX (_ bv42 64))"
         ret
     """
-    res = assemble_and_check_str(ret_42)
-    assert len(res.successes) == 2, res.successes
-    assert len(res.failures) == 0, res.failures
-    
+    check_code(ret_42, 2, 0)
+
 @pytest.mark.slow
 def test_cmov():
-    with open("/tmp/knuckle.s", "w") as f:
-        f.write(kd_macro)
-        f.flush()
     ret_42 = """
     .include "/tmp/knuckle.s"
     .globl  _start
-    kd_entry _start "(assert true)"
+    kd_entry _start "true"
             movq     %rdi, %rax
             cmp     %rdi, %rsi
             cmovb   %rsi, %rax
-    kd_exit _start_end "(assert (= RAX (ite (bvult RDI RSI) RDI RSI)))"
-    #kd_exit _start_end "(assert (or (= RAX RDI) (= RAX RSI)))"
+    kd_exit _start_end "(= RAX (ite (bvult RDI RSI) RDI RSI))"
+    #kd_exit _start_end "(or (= RAX RDI) (= RAX RSI))"
             ret
     """
-    res = assemble_and_check_str(ret_42)
-    assert len(res.successes) == 2, res.successes
-    assert len(res.failures) == 0, res.failures
+    check_code(ret_42, 2, 0)
+
+
+@pytest.mark.slow
+def test_mem():
+    ret_42 = """
+.include "/tmp/knuckle.s"
+.global  _start
+kd_entry _start "true"
+    movq     $42, (%rsp)
+kd_exit _start_end "(= (select ram RSP) (_ bv42 8))"
+    ret
+    """
+    check_code(ret_42, 1, 0)
+    # wrong value in mem
+    ret_42 = """
+.include "/tmp/knuckle.s"
+.global  _start
+kd_entry _start "true"
+    movq     $42, (%rsp)
+kd_exit _start_end "(= (select ram RSP) (_ bv43 8))"
+    ret
+    """
+    check_code(ret_42, 0, 1)
+
+        # wrong addr
+    ret_42 = """
+.include "/tmp/knuckle.s"
+.global  _start
+kd_entry _start "true"
+    movq     $42, (%rsp)
+kd_exit _start_end "(= (select ram (bvadd RSP (_ bv1 64))) (_ bv43 8))"
+    ret
+    """
+    check_code(ret_42, 0, 1)

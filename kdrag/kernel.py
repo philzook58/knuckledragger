@@ -5,7 +5,7 @@ The kernel hold core proof datatypes and core inference rules. By and large, all
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable, Sequence, Optional
 import logging
 from . import config
 
@@ -284,38 +284,6 @@ def consider(x: smt.ExprRef) -> Proof:
     return axiom(smt.Eq(smt.FreshConst(x.sort(), prefix="consider"), x))
 
 
-"""
-TODO: For better Lemma
-def modus_n(n: int, ab: Proof, bc: Proof):
-    ""
-    Plug together two theorems of the form
-    Implies(And(ps), b), Implies(And(qs, b, rs),  c)
-    -----------
-    Implies(And(qs, ps, rs), c)
-
-    Useful for backwards chaining.
-
-    
-    ""
-    assert (
-        is_proof(ab)
-        and is_proof(bc)
-        and smt.is_implies(ab.thm)
-        and smt.is_implies(bc.thm)
-    )
-    aa = ab.thm.arg(0)
-    assert smt.is_and(aa)
-    aa = aa.children()
-    b = ab.thm.arg(1)
-    bb = bc.thm.arg(0)
-    assert smt.is_and(bb)
-    bb = bb.children()
-    assert bb[n].eq(b)
-    c = bc.thm.arg(1)
-    return axiom(smt.Implies(smt.And(*bb[:n], *aa, *bb[n + 1 :]), c), [ab, bc])
-"""
-
-
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.
@@ -516,3 +484,47 @@ def Inductive(name: str) -> smt.Datatype:
 
     dt.create = create
     return dt
+
+
+# Experimental Schema Vars
+
+
+@dataclass(frozen=True)
+class SchemaVarEvidence:
+    """
+    Do not instantiate this class directly.
+    Use schema_var. This class should always be created with a fresh variable.
+    Holding this data type is considered evidence analogous to `Proof` that the var was generated freshly
+    and hence is generic / schematic.
+
+    One can prove theorem using this variable as a constant, but once it comes to generalize, you need to supply the evidence
+    That it was originally generated freshly.
+    """
+
+    v: smt.ExprRef
+
+
+def schema_var(prefix: str, sort: smt.SortRef) -> SchemaVarEvidence:
+    """
+    Generate a fresh variable
+
+    >>> schema_var("x", smt.IntSort())
+    SchemaVarEvidence(v=x!...)
+    """
+    v = smt.FreshConst(sort, prefix=prefix)
+    return SchemaVarEvidence(v)
+
+
+def generalize(vs: list[SchemaVarEvidence], pf: Proof) -> Proof:
+    """
+    Generalize a theorem with respect to a list of schema variables.
+    This introduces a universal quantifier for schema variables.
+
+    >>> x = schema_var("x", smt.IntSort())
+    >>> y = schema_var("y", smt.IntSort())
+    >>> generalize([x, y], prove(x.v == x.v))
+    |- ForAll([x!..., y!...], x!... == x!...)
+    """
+    assert all(isinstance(v, SchemaVarEvidence) for v in vs)
+    assert isinstance(pf, Proof)
+    return axiom(smt.ForAll([v.v for v in vs], pf.thm), by=["generalize", vs, pf])
