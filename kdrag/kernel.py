@@ -5,7 +5,7 @@ The kernel hold core proof datatypes and core inference rules. By and large, all
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
-from typing import Any, Iterable, Sequence, Optional
+from typing import Any, Iterable, Sequence
 import logging
 from . import config
 
