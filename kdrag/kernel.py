@@ -12,8 +12,22 @@ from . import config
 logger = logging.getLogger("knuckledragger")
 
 
+class Judgement:
+    """
+    Judgements should be constructed by smart constructors.
+    Having an object of supertype judgement represents having shown some kind of truth.
+    Judgements are the things that go above and below inference lines in a proof system.
+    Don't worry about it. It is just nice to have a name for the concept.
+
+    See:
+    - https://en.wikipedia.org/wiki/Judgment_(mathematical_logic)
+    - https://mathoverflow.net/questions/254518/what-exactly-is-a-judgement
+    - https://ncatlab.org/nlab/show/judgment
+    """
+
+
 @dataclass(frozen=True)
-class Proof:
+class Proof(Judgement):
     """
     It is unlikely that users should be accessing the `Proof` constructor directly.
     This is not ironclad. If you really want the Proof constructor, I can't stop you.
@@ -500,7 +514,7 @@ def Inductive(name: str) -> smt.Datatype:
 
 
 @dataclass(frozen=True)
-class _SchemaVarEvidence:
+class _SchemaVarEvidence(Judgement):
     """
     Do not instantiate this class directly.
     Use `SchemaVar`. This class should always be created with a fresh variable.

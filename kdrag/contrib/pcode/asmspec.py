@@ -38,6 +38,13 @@ kd_macro = r"""
 
 .macro kd_prelude smt_command
 .endm
+
+.macro kd_assign label name value
+\label :
+.endm
+
+
+
 """
 
 
@@ -63,7 +70,15 @@ class Entry(BoolStmt): ...
 class Cut(BoolStmt): ...
 
 
-type SpecStmt = Entry | Assert | Assume | Exit | Cut
+@dataclass
+class Assign:
+    label: str
+    addr: int
+    name: str
+    expr: smt.ExprRef
+
+
+type SpecStmt = Entry | Assert | Assume | Exit | Cut | Assign
 
 
 @dataclass
@@ -87,47 +102,76 @@ class AsmSpec:
 
     @classmethod
     def of_file(cls, filename: str, ctx: pcode.BinaryContext):
-        pattern = re.compile(
-            r"""^\s*
-                (kd_assert|kd_assume|kd_exit|kd_entry|kd_cut)
-                \s+([A-Za-z_.$][A-Za-z0-9_.$]*) # valid GAS label
-                \s*(?:,\s*)?                         # optional comma
-                "([^"]+)"                        # quoted formula
-                \s*$""",
-            re.VERBOSE,
+        COMMASEP = r"\s*(?:,\s*)?"
+        LABEL = r"([A-Za-z_.$][A-Za-z0-9_.$]*)"  # valid GAS label
+        NAME = r"([A-Za-z_.$][A-Za-z0-9_.$]*)"  # valid GAS name
+        EXPR = r'"([^"]+)"'  # quoted formula
+        kd_prefix = re.compile(r"^\s*kd_")
+        boolstmt_pattern = re.compile(
+            rf"""^\s*(kd_assert|kd_assume|kd_exit|kd_entry|kd_cut)\s+{LABEL}{COMMASEP}{EXPR}\s*$""",
         )
-        # prelude_pattern = re.compile("^\.kd_prelude\s+([^;]+);?\s*$")
+        assign_pattern = re.compile(
+            rf"""^\s*kd_assign\s+{LABEL}\s+{NAME}\s+{EXPR}\s*$""",
+        )
+        prelude_pattern = re.compile(rf"^\s*kd_prelude\s+{EXPR}\s*$")
         preludes = []
         decls = ctx._subst_decls.copy()
         decls["ram"] = smt.Array("ram", smt.BitVecSort(64), smt.BitVecSort(8))
         spec = cls()
+
+        def find_label(label: str) -> int:
+            assert ctx.loader is not None, (
+                "BinaryContext must be loaded before disassembling"
+            )
+            sym = ctx.loader.find_symbol(label)
+            if sym is None:
+                raise Exception(f"Symbol {label} not found in binary {ctx.filename}")
+            return sym.rebased_addr
+
         with open(filename) as f:
             for lineno, line in enumerate(f.readlines()):
-                match = pattern.match(line)
-                if match:
-                    cmd, label, expr = match.groups()
-                    assert ctx.loader is not None, (
-                        "BinaryContext must be loaded before disassembling"
-                    )
-                    sym = ctx.loader.find_symbol(label)
-                    if sym is None:
-                        raise Exception(
-                            f"Symbol {label} as line {lineno} not found in binary {ctx.filename}"
+                if kd_prefix.match(
+                    line
+                ):  # A little bit of sanity checking that we don't miss any "kd_" line
+                    if match := boolstmt_pattern.match(line):
+                        cmd, label, expr = match.groups()
+                        addr = find_label(label)
+                        smt_string = "\n".join(preludes + ["(assert ", expr, ")"])
+                        expr = smt.parse_smt2_string(smt_string, decls=decls)[0]
+                        if cmd == "kd_entry":
+                            spec.addrmap[addr].append(Entry(label, addr, expr))
+                        elif cmd == "kd_assert":
+                            spec.addrmap[addr].append(Assert(label, addr, expr))
+                        elif cmd == "kd_assume":
+                            spec.addrmap[addr].append(Assume(label, addr, expr))
+                        elif cmd == "kd_exit":
+                            spec.addrmap[addr].append(Exit(label, addr, expr))
+                        elif cmd == "kd_cut":
+                            spec.addrmap[addr].append(Cut(label, addr, expr))
+                    elif match := assign_pattern.match(line):
+                        label, name, expr = match.groups()
+                        # Turn expression `expr` into dummy assertion `expr == expr` for parsing
+                        addr = find_label(label)
+                        smt_string = "\n".join(
+                            preludes + ["(assert (=", expr, expr, "))"]
                         )
+                        expr = smt.parse_smt2_string(smt_string, decls=decls)[0].arg(0)
+                        spec.addrmap[addr].append(
+                            Assign(
+                                label,
+                                addr,
+                                name,
+                                expr,
+                            )
+                        )
+                    elif match := prelude_pattern.match(line):
+                        expr = match.group(1)
+                        preludes.append(expr)
                     else:
-                        addr = sym.rebased_addr
-                    smt_string = "\n".join(preludes + ["(assert ", expr, ")"])
-                    expr = smt.parse_smt2_string(smt_string, decls=decls)[0]
-                    if cmd == "kd_entry":
-                        spec.addrmap[addr].append(Entry(label, addr, expr))
-                    elif cmd == "kd_assert":
-                        spec.addrmap[addr].append(Assert(label, addr, expr))
-                    elif cmd == "kd_assume":
-                        spec.addrmap[addr].append(Assume(label, addr, expr))
-                    elif cmd == "kd_exit":
-                        spec.addrmap[addr].append(Exit(label, addr, expr))
-                    elif cmd == "kd_cut":
-                        spec.addrmap[addr].append(Cut(label, addr, expr))
+                        raise ValueError(
+                            f"Invalid kd_ statement at line {lineno + 1}: {line}"
+                        )
+
         return spec
 
     def __repr__(self):
@@ -136,10 +180,12 @@ class AsmSpec:
         )
 
 
-class TraceState(NamedTuple):
+@dataclass
+class TraceState:
     start: SpecStmt
     trace: list[int]  # list of addresses
     state: pcode.SimState
+    ghost_env: dict[str, smt.ExprRef] = dataclasses.field(default_factory=dict)
 
 
 class VerificationCondition(NamedTuple):
@@ -147,11 +193,12 @@ class VerificationCondition(NamedTuple):
     trace: list[int]
     path_cond: list[smt.BoolRef]
     memstate: pcode.MemState
+    ghost_env: dict[str, smt.ExprRef]
     cause: SpecStmt
     # pf : Optional[kd.Proof] = None
 
     def __repr__(self):
-        return f"VC({self.start}, {[hex(addr) for addr in self.trace]}, {self.cause})"
+        return f"VC({self.start}, {[hex(addr) for addr in self.trace]}, {self.cause}, {self.ghost_env})"
 
     def verify(self, ctx: pcode.BinaryContext, by=[]) -> kd.Proof:
         """
@@ -159,15 +206,27 @@ class VerificationCondition(NamedTuple):
         """
         vc = smt.Implies(
             smt.And(*self.path_cond),
-            ctx.substitute(self.memstate, self.cause.expr),
+            ctx.substitute(
+                self.memstate, substitute_ghost(self.cause.expr, self.ghost_env)
+            ),
         )
         return kd.prove(vc, by=by)
 
 
+def substitute_ghost(e: smt.ExprRef, ghost_env: dict[str, smt.ExprRef]) -> smt.ExprRef:
+    """
+    Substitute ghost variables in an expression.
+    """
+    return smt.substitute(
+        e, *[(smt.Const(name, v.sort()), v) for name, v in ghost_env.items()]
+    )
+
+
 def execute_spec_stmts(
-    stmts: list[SpecStmt], tracestate: TraceState
+    stmts: list[SpecStmt], tracestate: TraceState, ctx: pcode.BinaryContext
 ) -> tuple[Optional[TraceState], list[VerificationCondition]]:
-    trace, state = tracestate.trace, tracestate.state
+    print("stmts", stmts)
+    trace, state, ghost_env = tracestate.trace, tracestate.state, tracestate.ghost_env
     vcs = []
     for stmt in stmts:
         if isinstance(stmt, Assume) or isinstance(stmt, Entry):
@@ -181,21 +240,37 @@ def execute_spec_stmts(
         ):
             vcs.append(
                 VerificationCondition(
-                    tracestate.start,
-                    trace.copy(),
-                    state.path_cond.copy(),
-                    state.memstate,
-                    stmt,
+                    start=tracestate.start,
+                    trace=trace.copy(),
+                    path_cond=state.path_cond.copy(),
+                    memstate=state.memstate,
+                    cause=stmt,
+                    ghost_env=ghost_env.copy(),
                 )
             )
             if isinstance(stmt, Exit) or isinstance(stmt, Cut):
                 # If this is an exit or cut, we end the execution of this path
+                print("finish", stmt, hex(state.pc[0]))
                 return None, vcs
+        elif isinstance(stmt, Assign):
+            # Assign a value to a variable in the ghost environment
+            ghost_env = ghost_env.copy()
+            print("assign addr", hex(stmt.addr))
+            print(ghost_env)
+            print(hex(state.pc[0]))
+            e1 = substitute_ghost(
+                stmt.expr, ghost_env
+            )  # TODO simultaneous assignment would be better.
+            print(e1)
+            ghost_env[stmt.name] = ctx.substitute(state.memstate, e1)
+            print(ghost_env)
         else:
             raise Exception(
                 f"Unexpected statement type {type(stmt)} in execute_specstmts"
             )
-    return TraceState(tracestate.start, trace, state), vcs
+    return TraceState(
+        start=tracestate.start, trace=trace, state=state, ghost_env=ghost_env
+    ), vcs
 
 
 def execute_insn(
@@ -207,7 +282,12 @@ def execute_insn(
     if pc != 0:
         raise Exception(f"Unexpected program counter {pc} at address {hex(addr)}")
     return [
-        TraceState(tracestate.start, tracestate.trace + [state0.pc[0]], state)
+        TraceState(
+            start=tracestate.start,
+            trace=tracestate.trace + [state0.pc[0]],
+            state=state,
+            ghost_env=tracestate.ghost_env,
+        )
         for state in ctx.sym_execute(
             state0.memstate,
             addr,
@@ -236,7 +316,9 @@ def run_all_paths(
                     trace=[],
                     state=pcode.SimState(mem, (addr, 0), [precond]),
                 )
-                tracestate, new_vcs = execute_spec_stmts(specstmts[n + 1 :], tracestate)
+                tracestate, new_vcs = execute_spec_stmts(
+                    specstmts[n + 1 :], tracestate, ctx
+                )
                 vcs.extend(new_vcs)
                 if tracestate is not None:
                     todo.extend(execute_insn(tracestate, ctx, verbose=verbose))
@@ -245,7 +327,7 @@ def run_all_paths(
         tracestate = todo.pop()
         addr = tracestate.state.pc[0]
         specstmts = spec.addrmap.get(addr, [])
-        tracestate, new_vcs = execute_spec_stmts(specstmts, tracestate)
+        tracestate, new_vcs = execute_spec_stmts(specstmts, tracestate, ctx)
         vcs.extend(new_vcs)
         if tracestate is not None:
             todo.extend(execute_insn(tracestate, ctx, verbose=verbose))

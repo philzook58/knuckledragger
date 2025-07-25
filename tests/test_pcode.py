@@ -30,6 +30,37 @@ def test_42():
     check_code(ret_42, 2, 0)
 
 @pytest.mark.slow
+def test_prelude():
+    code = """
+    .include "/tmp/knuckle.s"
+    .globl myfunc
+    kd_prelude "(define-const my42 (_ BitVec 64) (_ bv42 64))"
+
+    .text
+        kd_entry myfunc "true"
+        movq $42, %rax
+        kd_exit func_end "(= RAX my42)"
+        ret
+    """
+    check_code(code, 1, 0)
+
+@pytest.mark.slow
+def test_assign():
+    code = """
+    .include "/tmp/knuckle.s"
+    .globl myfunc
+    kd_prelude "(declare-const mytemp (_ BitVec 64))"
+
+    .text
+        kd_entry myfunc "true"
+        movq $42, %rax
+        kd_assign mylabel mytemp "(bvadd RAX (_ bv1 64))"
+        kd_exit func_end "(= mytemp (_ bv43 64))"
+        ret
+    """
+    check_code(code, 1, 0)
+
+@pytest.mark.slow
 def test_cmov():
     ret_42 = """
     .include "/tmp/knuckle.s"
