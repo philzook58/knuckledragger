@@ -436,13 +436,6 @@ def all_values(*es: smt.ExprRef) -> Generator[list[smt.ExprRef], None, None]:
             raise ValueError("Solver unknown in values", es)
 
 
-"""
-def expr_to_lean(expr: smt.ExprRef):
-    # TODO
-    pass
-"""
-
-
 def free_vars(t: smt.ExprRef) -> set[smt.ExprRef]:
     """
     Return free variables in an expression. Looks at kernel.defns to determine if contacts are free.

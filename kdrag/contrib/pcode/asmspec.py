@@ -148,11 +148,11 @@ class VerificationCondition(NamedTuple):
     path_cond: list[smt.BoolRef]
     memstate: pcode.MemState
     cause: SpecStmt
+    # pf : Optional[kd.Proof] = None
 
     def __repr__(self):
         return f"VC({self.start}, {[hex(addr) for addr in self.trace]}, {self.cause})"
 
-    # pf : Optional[kd.Proof] = None
     def verify(self, ctx: pcode.BinaryContext, by=[]) -> kd.Proof:
         """
         Verify the verification condition using the given context.
@@ -164,7 +164,7 @@ class VerificationCondition(NamedTuple):
         return kd.prove(vc, by=by)
 
 
-def execute_specstmts(
+def execute_spec_stmts(
     stmts: list[SpecStmt], tracestate: TraceState
 ) -> tuple[Optional[TraceState], list[VerificationCondition]]:
     trace, state = tracestate.trace, tracestate.state
@@ -236,7 +236,7 @@ def run_all_paths(
                     trace=[],
                     state=pcode.SimState(mem, (addr, 0), [precond]),
                 )
-                tracestate, new_vcs = execute_specstmts(specstmts[n + 1 :], tracestate)
+                tracestate, new_vcs = execute_spec_stmts(specstmts[n + 1 :], tracestate)
                 vcs.extend(new_vcs)
                 if tracestate is not None:
                     todo.extend(execute_insn(tracestate, ctx, verbose=verbose))
@@ -245,7 +245,7 @@ def run_all_paths(
         tracestate = todo.pop()
         addr = tracestate.state.pc[0]
         specstmts = spec.addrmap.get(addr, [])
-        tracestate, new_vcs = execute_specstmts(specstmts, tracestate)
+        tracestate, new_vcs = execute_spec_stmts(specstmts, tracestate)
         vcs.extend(new_vcs)
         if tracestate is not None:
             todo.extend(execute_insn(tracestate, ctx, verbose=verbose))

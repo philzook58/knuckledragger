@@ -14,6 +14,13 @@ import time
 from dataclasses import dataclass
 
 
+def SchemaVars(names: str, sort: smt.SortRef) -> list[smt.ExprRef]:
+    """
+    Create a list of schema variables with the given names and sort.
+    """
+    return [kd.kernel.SchemaVar(name, sort) for name in names.split()]
+
+
 class Calc:
     """
     Calc is for equational reasoning.

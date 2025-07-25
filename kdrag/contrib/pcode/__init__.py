@@ -247,7 +247,7 @@ class BinaryContext:
         self.insn_cache = {}
         self.filename = None
         self.loader = None
-        self.bin_hash = None
+        self.bin_hash = hash((filename, langid))
         self.ctx = pypcode.Context(langid)  # TODO: derive from cle
         if filename is not None:
             self.load(filename)
@@ -359,6 +359,68 @@ class BinaryContext:
         addr = pc[0]
         op = self.translate(addr)[pc[1]]
         return self.executeCurrentOp(op, memstate, pc)
+
+    def execute1_schema(self, pc: PC) -> kd.Proof:
+        """
+        For a given concrete PC and binary, we can generate an axiomatic description of how execution
+        of a single instruction at that PC will change the memory state and program counter.
+        """
+        assert (
+            isinstance(pc, tuple)
+            and len(pc) == 2
+            and isinstance(pc[0], int)
+            and isinstance(pc[1], int)
+        )
+        argsorts = [
+            smt.IntSort(),  # hash of context
+            MemStateSort,  # memstate
+            smt.IntSort(),  # address
+            smt.IntSort(),  # pcode_pc
+        ]
+        next_pcode_pc = smt.Function(
+            "next_pcode_pc",
+            *argsorts,
+            smt.IntSort(),
+        )
+        next_addr = smt.Function("next_addr", *argsorts, smt.IntSort())
+        next_mem = smt.Function(
+            "next_mem",
+            *argsorts,
+            MemStateSort,
+        )
+        mem = MemState.Const("mem")
+        mem1, pc1 = self.execute1(mem, pc)
+        mem, mem1 = mem.mem, mem1.mem
+        execute_ax = kd.axiom(
+            smt.ForAll(
+                [mem],
+                smt.And(
+                    next_mem(
+                        self.bin_hash,
+                        mem,
+                        pc[0],
+                        pc[1],
+                    )
+                    == mem1,
+                    next_addr(
+                        self.bin_hash,
+                        mem,
+                        pc[0],
+                        pc[1],
+                    )
+                    == pc1[0],
+                    next_pcode_pc(
+                        self.bin_hash,
+                        mem,
+                        pc[0],
+                        pc[1],
+                    )
+                    == pc1[1],
+                ),
+            )
+        )
+
+        return execute_ax
 
     def sym_execute(
         self,
