@@ -21,6 +21,33 @@ def SchemaVars(names: str, sort: smt.SortRef) -> list[smt.ExprRef]:
     return [kd.kernel.SchemaVar(name, sort) for name in names.split()]
 
 
+def ForAllI(vs: list[smt.ExprRef], pf: kd.kernel.Proof) -> kd.kernel.Proof:
+    """
+    All vs must be SchemaVars
+    Combinator name tries to make it clear that this is a
+    smt.ForAll that works on Proofs instead of BoolRefs.
+    """
+    return kd.kernel.generalize(vs, pf)
+
+
+def forallI(
+    e: smt.QuantifierRef, cb: Callable[[smt.BoolRef, smt.ExprRef], kd.kernel.Proof]
+) -> kd.kernel.Proof:
+    """
+    Open a forall quantifier but giving a new goal and fresh variables to a callback function.
+
+    >>> x = smt.Int("x")
+    >>> forallI(smt.ForAll([x], x > x - 1), lambda goal, x1: kd.prove(goal))
+    |- ForAll(x, x > x - 1)
+    """
+    assert isinstance(e, smt.QuantifierRef) and e.is_forall(), (
+        "forallI only works on forall quantifiers"
+    )
+    vs, ab = kd.kernel.herb(e)
+    a = cb(ab.thm.arg(0), *vs)
+    return kd.kernel.modus(ab, a)
+
+
 class Calc:
     """
     Calc is for equational reasoning.
@@ -134,24 +161,6 @@ def simp_tac(e: smt.ExprRef) -> kd.kernel.Proof:
     trace = []
     e1 = kd.simp(e, trace=trace)
     return kd.kernel.prove(smt.Eq(e, e1), by=trace)
-
-
-def forallI(
-    e: smt.QuantifierRef, cb: Callable[[smt.BoolRef, smt.ExprRef], kd.kernel.Proof]
-) -> kd.kernel.Proof:
-    """
-    Open a forall quantifier but giving a new goal and fresh variables to a callback function.
-
-    >>> x = smt.Int("x")
-    >>> forallI(smt.ForAll([x], x > x - 1), lambda goal, x1: kd.prove(goal))
-    |- ForAll(x, x > x - 1)
-    """
-    assert isinstance(e, smt.QuantifierRef) and e.is_forall(), (
-        "forallI only works on forall quantifiers"
-    )
-    vs, ab = kd.kernel.herb(e)
-    a = cb(ab.thm.arg(0), *vs)
-    return kd.kernel.modus(ab, a)
 
 
 simps = {}
