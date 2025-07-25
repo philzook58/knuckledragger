@@ -1,0 +1,6 @@
+kdrag.theories.option.Some
+==========================
+
+.. currentmodule:: kdrag.theories.option
+
+.. autofunction:: Some

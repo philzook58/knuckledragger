@@ -1,0 +1,6 @@
+kdrag.tactics.SchemaVars
+========================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: SchemaVars

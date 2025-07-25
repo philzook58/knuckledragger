@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.TForAll
+===============================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: TForAll

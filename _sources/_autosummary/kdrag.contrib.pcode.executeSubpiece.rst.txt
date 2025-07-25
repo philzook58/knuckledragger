@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executeSubpiece
+===================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executeSubpiece

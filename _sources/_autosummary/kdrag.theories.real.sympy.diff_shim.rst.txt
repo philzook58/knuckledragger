@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.diff\_shim
+====================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: diff_shim

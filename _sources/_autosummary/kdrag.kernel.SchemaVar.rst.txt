@@ -1,0 +1,6 @@
+kdrag.kernel.SchemaVar
+======================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: SchemaVar

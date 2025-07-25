@@ -1,0 +1,51 @@
+﻿kdrag
+=====
+
+.. automodule:: kdrag
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   all
+   config
+   contrib
+   datatype
+   hypothesis
+   kernel
+   notation
+   parsers
+   printers
+   property
+   reflect
+   rewrite
+   smt
+   solvers
+   tactics
+   theories
+   utils
+
+
+
+.. literalinclude:: ../../kdrag.py
+   :language: python

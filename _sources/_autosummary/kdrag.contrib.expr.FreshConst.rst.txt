@@ -1,0 +1,6 @@
+kdrag.contrib.expr.FreshConst
+=============================
+
+.. currentmodule:: kdrag.contrib.expr
+
+.. autofunction:: FreshConst
