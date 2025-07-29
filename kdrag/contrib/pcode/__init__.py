@@ -555,6 +555,15 @@ class BinaryContext:
         ]
         if "ram" in consts:
             substs.append((smt.Array("ram", BV64, BV8), memstate.mem.ram))
+        if "ram64" in consts:
+            addr = smt.BitVec("addr", 64)
+            substs.append(
+                (
+                    smt.Array("ram64", BV64, BV64),
+                    smt.Lambda([addr], memstate.getvalue_ram(addr, 8)),
+                )
+            )
+
         return smt.substitute(expr, *substs)
 
     def model_registers(

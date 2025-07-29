@@ -108,3 +108,28 @@ kd_exit _start_end "(= (select ram (bvadd RSP (_ bv1 64))) (_ bv43 8))"
     ret
     """
     check_code(ret_42, 0, 1)
+
+@pytest.mark.slow
+def test_mem64():
+    code = """
+.include "/tmp/knuckle.s"
+.global  _start
+kd_entry _start "true"
+    movq     $12345678, (%rsp)
+kd_exit _start_end "(= (select ram64 RSP) (_ bv12345678 64))"
+    ret
+    """
+    check_code(code, 1, 0)
+
+
+@pytest.mark.slow
+def test_cut():
+    code = """
+.include "/tmp/knuckle.s"
+.global  _start
+kd_entry _start "true"
+    movq     $42, %rdi
+kd_cut mycut "(= RDI (_ bv42 64))"
+    jmp mycut
+    """
+    check_code(code, 2, 0)

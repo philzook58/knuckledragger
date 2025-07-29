@@ -78,6 +78,11 @@ class Assign:
     expr: smt.ExprRef
 
 
+@dataclass
+class Always:
+    expr: smt.BoolRef
+
+
 type SpecStmt = Entry | Assert | Assume | Exit | Cut | Assign
 
 
@@ -117,6 +122,7 @@ class AsmSpec:
         preludes = []
         decls = ctx._subst_decls.copy()
         decls["ram"] = smt.Array("ram", smt.BitVecSort(64), smt.BitVecSort(8))
+        decls["ram64"] = smt.Array("ram64", smt.BitVecSort(64), smt.BitVecSort(64))
         spec = cls()
 
         def find_label(label: str) -> int:
@@ -343,6 +349,9 @@ class Results:
 def assemble_and_gen_vcs(
     filename: str, langid="x86:LE:64:default", as_bin="as"
 ) -> tuple[pcode.BinaryContext, list[VerificationCondition]]:
+    with open("/tmp/knuckle.s", "w") as f:
+        f.write(kd_macro)
+        f.flush()
     subprocess.run([as_bin, filename, "-o", "/tmp/kdrag_temp.o"], check=True)
     ctx = pcode.BinaryContext("/tmp/kdrag_temp.o", langid=langid)
     spec = AsmSpec.of_file(filename, ctx)
