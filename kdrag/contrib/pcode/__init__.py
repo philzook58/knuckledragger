@@ -94,7 +94,7 @@ class MemState:
 
     #>>> mem.getvalue(_TestVarnode("ram", 0, 8))
     #>>> mem.setvalue(_TestVarnode("ram", 0, 8), 1)
-    >>> mem = MemState(smt.Array("mymem", BV[64], BV[8]))
+    >>> mem = MemState(smt.Array("mymem", BV[64], BV[8]), bits=64)
 
     """
 
