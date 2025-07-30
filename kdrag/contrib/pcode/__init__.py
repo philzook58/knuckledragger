@@ -9,6 +9,7 @@
 import pypcode
 from pypcode import OpCode
 import cle
+import archinfo
 
 import kdrag as kd
 import kdrag.smt as smt
@@ -20,8 +21,6 @@ from typing import Optional
 TRUE = smt.BitVecVal(1, 8)
 FALSE = smt.BitVecVal(0, 8)
 
-BV8 = smt.BitVecSort(8)
-BV64 = smt.BitVecSort(64)
 
 unop = {
     OpCode.COPY: lambda x: x,
@@ -63,14 +62,22 @@ binop = {
     OpCode.BOOL_OR: operator.or_,
 }
 
-MemSort = smt.ArraySort(
-    smt.BitVecSort(64), smt.BitVecSort(8)
-)  # TODO: Architectures may not be 64 bit
+_possible_bits = [8, 16, 32, 64]
+
+BV = {bits: smt.BitVecSort(bits) for bits in _possible_bits}
+
+MemSorts = {
+    bits: smt.ArraySort(smt.BitVecSort(bits), smt.BitVecSort(8))
+    for bits in _possible_bits
+}
 """Memory is modelled as an array of 64-bit addresses to 8-bit values"""
 
-MemStateSort = kd.Struct(
-    "MemState", ("ram", MemSort), ("register", MemSort), ("unique", MemSort)
-)
+MemStateSort = {
+    bits: kd.Struct(
+        "MemState", ("ram", MemSort), ("register", MemSort), ("unique", MemSort)
+    )
+    for bits, MemSort in MemSorts.items()
+}
 
 
 @dataclass
@@ -87,15 +94,16 @@ class MemState:
 
     #>>> mem.getvalue(_TestVarnode("ram", 0, 8))
     #>>> mem.setvalue(_TestVarnode("ram", 0, 8), 1)
-    >>> mem = MemState(smt.Array("mymem", BV64, BV8))
+    >>> mem = MemState(smt.Array("mymem", BV[64], BV[8]))
 
     """
 
     mem: smt.DatatypeRef
+    bits: int
 
     @classmethod
-    def Const(cls, name: str):
-        return MemState(smt.Const(name, MemStateSort))
+    def Const(cls, name: str, bits: int = 64) -> "MemState":
+        return MemState(smt.Const(name, MemStateSort[bits]), bits=bits)
 
     def getvalue(self, vnode: pypcode.Varnode) -> smt.BitVecRef | int:
         if vnode.space.name == "const":
@@ -104,7 +112,9 @@ class MemState:
             mem = getattr(self.mem, vnode.space.name)
             if mem is None:
                 raise ValueError(f"Unknown memory space: {vnode.space.name}")
-            return bv.SelectConcat(mem, smt.BitVecVal(vnode.offset, 64), vnode.size)
+            return bv.SelectConcat(
+                mem, smt.BitVecVal(vnode.offset, self.bits), vnode.size
+            )
 
     def setvalue(self, vnode: pypcode.Varnode, value: smt.BitVecRef):
         assert vnode.space.name != "const"
@@ -113,11 +123,12 @@ class MemState:
                 **{
                     vnode.space.name: bv.StoreConcat(
                         getattr(self.mem, vnode.space.name),
-                        smt.BitVecVal(vnode.offset, 64),
+                        smt.BitVecVal(vnode.offset, self.bits),
                         value,
                     )
                 }
-            )
+            ),
+            bits=self.bits,
         )
 
     def getvalue_ram(self, offset: smt.BitVecRef | int, size: int) -> smt.BitVecRef:
@@ -125,7 +136,8 @@ class MemState:
 
     def setvalue_ram(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
         return MemState(
-            self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset, value))  # type: ignore
+            self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset, value)),  # type: ignore
+            bits=self.bits,
         )
 
 
@@ -248,6 +260,10 @@ class BinaryContext:
         self.filename = None
         self.loader = None
         self.bin_hash = hash((filename, langid))
+        ainfo = archinfo.ArchPcode(langid)
+        self.bits = ainfo.bits
+        self.memory_endness = ainfo.memory_endness  # TODO
+        self.register_endness = ainfo.register_endness  # TODO
         self.ctx = pypcode.Context(langid)  # TODO: derive from cle
         if filename is not None:
             self.load(filename)
@@ -259,10 +275,16 @@ class BinaryContext:
         self.filename = main_binary
         self.loader = cle.loader.Loader(main_binary, **kwargs)
         # self.ctx = pypcode.Context(self.loader.arch.name) # TODO: derive from cle
-        self._subst_decls = {
+        decls = {
             name: smt.BitVec(name, vnode.size * 8)
             for name, vnode in self.ctx.registers.items()
         }
+        decls["ram"] = smt.Array("ram", smt.BitVecSort(self.bits), smt.BitVecSort(8))
+        for b in _possible_bits:
+            decls[f"ram{b}"] = smt.Array(
+                f"ram{b}", smt.BitVecSort(self.bits), smt.BitVecSort(b)
+            )
+        self._subst_decls = decls
         self.pcode_cache.clear()
         self.insn_cache.clear()
 
@@ -554,15 +576,17 @@ class BinaryContext:
             if regname in self.ctx.registers
         ]
         if "ram" in consts:
-            substs.append((smt.Array("ram", BV64, BV8), memstate.mem.ram))
-        if "ram64" in consts:
-            addr = smt.BitVec("addr", 64)
-            substs.append(
-                (
-                    smt.Array("ram64", BV64, BV64),
-                    smt.Lambda([addr], memstate.getvalue_ram(addr, 8)),
+            substs.append((smt.Array("ram", BV[self.bits], BV[8]), memstate.mem.ram))
+        for n in _possible_bits:
+            ramn = f"ram{n}"
+            if ramn in consts:
+                addr = smt.BitVec("addr", self.bits)
+                substs.append(
+                    (
+                        smt.Array(ramn, BV[self.bits], BV[n]),
+                        smt.Lambda([addr], memstate.getvalue_ram(addr, self.bits // 8)),
+                    )
                 )
-            )
 
         return smt.substitute(expr, *substs)
 

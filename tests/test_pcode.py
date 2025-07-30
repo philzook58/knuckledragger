@@ -2,7 +2,7 @@
 from kdrag.all import *
 from kdrag.contrib.pcode.asmspec import assemble_and_check_str, AsmSpec, run_all_paths, kd_macro
 import pytest
-
+import subprocess
 
 
 def check_code(asm, nsucc, nfail):
@@ -133,3 +133,38 @@ kd_cut mycut "(= RDI (_ bv42 64))"
     jmp mycut
     """
     check_code(code, 2, 0)
+
+
+@pytest.mark.slow
+def test_cli():
+    code = """
+    .include "/tmp/knuckle.s"
+    .globl myfunc
+
+    .text
+        kd_entry myfunc "true"
+        movq $42, %rax
+        kd_exit func_end "(= RAX (_ bv42 64))"
+        ret
+    """
+    with open("/tmp/mov42.s", "w") as f:
+        f.write(code)
+        f.flush()
+    res = subprocess.run("python3 -m kdrag.contrib.pcode /tmp/mov42.s", shell=True, check=True, capture_output=True, text=True)
+    assert "verification conditions passed! ✅✅✅✅" in res.stdout
+
+    code = """
+    .include "/tmp/knuckle.s"
+    .globl myfunc
+
+    .text
+        kd_entry myfunc "true"
+        movq $42, %rax
+        kd_exit func_end "(= RAX (_ bv43 64))"
+        ret
+    """
+    with open("/tmp/mov42.s", "w") as f:
+        f.write(code)
+        f.flush()
+    res = subprocess.run("python3 -m kdrag.contrib.pcode /tmp/mov42.s", shell=True, capture_output=True, text=True)
+    assert "verification conditions failed. ❌❌❌❌" in res.stdout

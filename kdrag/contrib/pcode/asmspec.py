@@ -54,6 +54,9 @@ class BoolStmt:
     addr: int
     expr: smt.BoolRef
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.label}, {hex(self.addr)}, {self.expr})"
+
 
 class Assert(BoolStmt): ...
 
@@ -121,8 +124,6 @@ class AsmSpec:
         prelude_pattern = re.compile(rf"^\s*kd_prelude\s+{EXPR}\s*$")
         preludes = []
         decls = ctx._subst_decls.copy()
-        decls["ram"] = smt.Array("ram", smt.BitVecSort(64), smt.BitVecSort(8))
-        decls["ram64"] = smt.Array("ram64", smt.BitVecSort(64), smt.BitVecSort(64))
         spec = cls()
 
         def find_label(label: str) -> int:
@@ -218,6 +219,25 @@ class VerificationCondition(NamedTuple):
         )
         return kd.prove(vc, by=by)
 
+    def countermodel(self, ctx: pcode.BinaryContext, m: smt.ModelRef) -> dict:
+        """
+        Interpret a countermodel on the relevant constants
+        """
+        # find all interesting selects
+        interesting = set(
+            c
+            for c in kd.utils.consts(self.cause.expr)
+            if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
+        )
+        todo = [self.cause.expr]
+        while todo:
+            t = todo.pop()
+            if smt.is_select(t):
+                interesting.add(t)
+            elif smt.is_app(t):
+                todo.extend(t.children())
+        return {c: m.eval(ctx.substitute(self.memstate, c)) for c in interesting}
+
 
 def substitute_ghost(e: smt.ExprRef, ghost_env: dict[str, smt.ExprRef]) -> smt.ExprRef:
     """
@@ -229,12 +249,16 @@ def substitute_ghost(e: smt.ExprRef, ghost_env: dict[str, smt.ExprRef]) -> smt.E
 
 
 def execute_spec_stmts(
-    stmts: list[SpecStmt], tracestate: TraceState, ctx: pcode.BinaryContext
+    stmts: list[SpecStmt],
+    tracestate: TraceState,
+    ctx: pcode.BinaryContext,
+    verbose=True,
 ) -> tuple[Optional[TraceState], list[VerificationCondition]]:
-    print("stmts", stmts)
     trace, state, ghost_env = tracestate.trace, tracestate.state, tracestate.ghost_env
     vcs = []
     for stmt in stmts:
+        if verbose:
+            print("Executing SpecStmt:", stmt)
         if isinstance(stmt, Assume) or isinstance(stmt, Entry):
             # Add the assumption to the path condition
             state = dataclasses.replace(
@@ -256,20 +280,14 @@ def execute_spec_stmts(
             )
             if isinstance(stmt, Exit) or isinstance(stmt, Cut):
                 # If this is an exit or cut, we end the execution of this path
-                print("finish", stmt, hex(state.pc[0]))
                 return None, vcs
         elif isinstance(stmt, Assign):
             # Assign a value to a variable in the ghost environment
             ghost_env = ghost_env.copy()
-            print("assign addr", hex(stmt.addr))
-            print(ghost_env)
-            print(hex(state.pc[0]))
             e1 = substitute_ghost(
                 stmt.expr, ghost_env
             )  # TODO simultaneous assignment would be better.
-            print(e1)
             ghost_env[stmt.name] = ctx.substitute(state.memstate, e1)
-            print(ghost_env)
         else:
             raise Exception(
                 f"Unexpected statement type {type(stmt)} in execute_specstmts"
@@ -308,7 +326,7 @@ def run_all_paths(
     ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True
 ) -> list[VerificationCondition]:
     if mem is None:
-        mem = pcode.MemState.Const("mem")
+        mem = pcode.MemState.Const("mem", bits=ctx.bits)
     todo = []
     vcs = []
     # Initialize executions out of entry points and cuts
