@@ -50,7 +50,7 @@ class Proof(Judgement):
         return "&#8870;" + repr(self.thm)
 
     def __repr__(self):
-        return "|- " + repr(self.thm)
+        return "|= " + repr(self.thm)
 
     def forall(self, schema_vars: list[smt.ExprRef]) -> "Proof":
         """
@@ -58,7 +58,7 @@ class Proof(Judgement):
 
         >>> x = SchemaVar("x", smt.IntSort())
         >>> prove(x + 1 > x).forall([x])
-        |- ForAll(x!..., x!... + 1 > x!...)
+        |= ForAll(x!..., x!... + 1 > x!...)
         """
         return generalize(schema_vars, self)
 
@@ -68,17 +68,17 @@ class Proof(Judgement):
         >>> x,y = smt.Ints("x y")
         >>> p = prove(smt.ForAll([y], smt.ForAll([x], x >= x - 1)))
         >>> p(x)
-        |- ForAll(x, x >= x - 1)
+        |= ForAll(x, x >= x - 1)
         >>> p(x, smt.IntVal(7))
-        |- 7 >= 7 - 1
+        |= 7 >= 7 - 1
 
         >>> a,b,c = smt.Bools("a b c")
         >>> ab = prove(smt.Implies(a,smt.Implies(a, a)))
         >>> a = axiom(a)
         >>> ab(a)
-        |- Implies(a, a)
+        |= Implies(a, a)
         >>> ab(a,a)
-        |- a
+        |= a
         """
         # Note: Not trusted code. Trusted code is in `instan` and `modus`
         acc = self
@@ -148,9 +148,9 @@ def prove(
         Proof: A proof object of thm
 
     >>> prove(smt.BoolVal(True))
-    |- True
+    |= True
     >>> prove(smt.RealVal(1) >= smt.RealVal(0))
-    |- 1 >= 0
+    |= 1 >= 0
     """
     if isinstance(by, Proof):
         by = [by]
@@ -400,7 +400,7 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     """
     Herbrandize a theorem.
     It is sufficient to prove a theorem for fresh consts to prove a universal.
-    Note: Perhaps lambdaized form is better? Return vars and lamda that could receive `|- P[vars]`
+    Note: Perhaps lambdaized form is better? Return vars and lamda that could receive `|= P[vars]`
     """
     assert smt.is_quantifier(thm) and thm.is_forall()
     herbs = fresh_const(thm)  # We could mark these as schema variables? Useful?
@@ -418,7 +418,7 @@ def modus(ab: Proof, a: Proof) -> Proof:
     >>> ab = axiom(smt.Implies(a, b))
     >>> a = axiom(a)
     >>> modus(ab, a)
-    |- b
+    |= b
     """
     assert isinstance(ab, Proof) and isinstance(a, Proof)
     assert smt.is_implies(ab.thm) and ab.thm.arg(0).eq(a.thm)
@@ -433,7 +433,7 @@ def compose(ab: Proof, bc: Proof) -> Proof:
     >>> ab = axiom(smt.Implies(a, b))
     >>> bc = axiom(smt.Implies(b, c))
     >>> compose(ab, bc)
-    |- Implies(a, c)
+    |= Implies(a, c)
     """
     assert isinstance(ab, Proof) and isinstance(bc, Proof)
     assert smt.is_implies(ab.thm) and smt.is_implies(bc.thm)
@@ -562,7 +562,7 @@ def generalize(vs: list[smt.ExprRef], pf: Proof) -> Proof:
     >>> x = SchemaVar("x", smt.IntSort())
     >>> y = SchemaVar("y", smt.IntSort())
     >>> generalize([x, y], prove(x == x))
-    |- ForAll([x!..., y!...], x!... == x!...)
+    |= ForAll([x!..., y!...], x!... == x!...)
     """
     assert all(is_schema_var(v) for v in vs)
     assert isinstance(pf, Proof)
@@ -577,7 +577,7 @@ def substitute_schema_vars(pf: Proof, *subst) -> Proof:
     >>> x = SchemaVar("x", smt.IntSort())
     >>> y = SchemaVar("y", smt.IntSort())
     >>> substitute_schema_vars(prove(x == x), (x, smt.IntVal(42)), (y, smt.IntVal(43)))
-    |- 42 == 42
+    |= 42 == 42
     """
     assert all(is_schema_var(v) for v, t in subst) and isinstance(pf, Proof)
     return axiom(

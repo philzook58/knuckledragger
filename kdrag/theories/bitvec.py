@@ -14,7 +14,7 @@ def BitVecSort(N):
 
     >>> BV32 = BitVecSort(32)
     >>> BV32.bvadd_comm
-    |- ForAll([x, y], x + y == y + x)
+    |= ForAll([x, y], x + y == y + x)
     """
     S = smt.BitVecSort(N)
     smt.sort_registry[S.get_id()] = S

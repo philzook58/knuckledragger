@@ -198,7 +198,7 @@ def simp(e: smt.ExprRef) -> kdrag.kernel.Proof:
 
     >>> x = smt.Real("x")
     >>> simp(real.sin(x)**2 + real.cos(x)**2)
-    |- sin(x)**2 + cos(x)**2 == 1
+    |= sin(x)**2 + cos(x)**2 == 1
     """
     return kdrag.kernel.axiom(e == simplify(e), by=["sympy simplify"])  # type: ignore
 

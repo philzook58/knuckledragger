@@ -70,11 +70,11 @@ def flint_eq_ax_unsafe(lhs, rhs):
     but it is better than nothing.
 
     >>> flint_eq_ax_unsafe(real.pi, 4*real.atan(1))
-    |- pi == 4*atan(1)
+    |= pi == 4*atan(1)
     >>> flint_eq_ax_unsafe(smt.RealVal(0), real.sin(0))
-    |- 0 == sin(0)
+    |= 0 == sin(0)
     >>> flint_eq_ax_unsafe(real.sin(3*real.pi/2), -1)
-    |- sin((3*pi)/2) == -1
+    |= sin((3*pi)/2) == -1
     """
     if not interp_flint(lhs, {}).overlaps(interp_flint(rhs, {})):
         raise ValueError(f"lhs and rhs do not numerically overlap: {lhs} and {rhs}")
@@ -86,7 +86,7 @@ def arb_lt_ax(lhs: smt.ArithRef, rhs: smt.ArithRef) -> kd.kernel.Proof:
     Use numerical evaluation to confirm ball of lhs is completely below ball of rhs
 
     >>> arb_lt_ax(3.14, real.pi)
-    |- 157/50 < pi
+    |= 157/50 < pi
     """
     if isinstance(lhs, int) or isinstance(lhs, float):
         lhs = smt.RealVal(
@@ -106,9 +106,9 @@ def arb_le_ax(lhs0: smt.ArithRef, rhs: smt.ArithRef) -> kd.kernel.Proof:
     """
 
     >>> arb_le_ax(3.14, real.pi)
-    |- 157/50 <= pi
+    |= 157/50 <= pi
     >>> arb_le_ax(1,1)
-    |- 1 <= 1
+    |= 1 <= 1
     """
     if isinstance(lhs0, int) or isinstance(lhs0, float):
         lhs: smt.ArithRef = smt.RealVal(
@@ -139,13 +139,13 @@ def arb_ge(lhs, rhs):
 def sin_bnd(x: Arb) -> kd.kernel.Proof:
     """
     >>> sin_bnd(arb(0))
-    |- ForAll(x,
+    |= ForAll(x,
         Implies(And(0 - 0 <= x, x <= 0 + 0),
                 And(0 - 0 <= sin(x), sin(x) <= 0 + 0)))
     >>> kd.prove(real.sin(0) <= 2, by=[sin_bnd(arb(0,0.1))(smt.RealVal(0))])
-    |- sin(0) <= 2
+    |= sin(0) <= 2
     >>> kd.prove(real.sin(3.14) <= 0.02, by=[sin_bnd(arb(3.14, 0.01))])
-    |- sin(157/50) <= 1/50
+    |= sin(157/50) <= 1/50
     """
     xm, xr = z3_mid_rad_of_arb(x)
     smid, sr = z3_mid_rad_of_arb(arb.sin(x))
@@ -164,7 +164,7 @@ def sin_bnd(x: Arb) -> kd.kernel.Proof:
 def arb_bnd(arbf, z3f):
     """
     >>> kd.prove(real.cos(0) == 1, by=[cos_bnd(arb(0))])
-    |- cos(0) == 1
+    |= cos(0) == 1
     """
 
     def res(x: Arb) -> kd.kernel.Proof:

@@ -13,9 +13,9 @@ def proj(p: kd.Proof, n: int) -> kd.Proof:
     >>> x = smt.Int("x")
     >>> p = kd.prove(smt.And(x > x - 1, x > x - 2, x > x - 3))
     >>> proj(p, 0)
-    |- x > x - 1
+    |= x > x - 1
     >>> proj(p, 2)
-    |- x > x - 3
+    |= x > x - 3
     """
     assert isinstance(p, kd.Proof) and smt.is_and(p.thm)
     return kd.axiom(p.thm.arg(n), ["proj", p, n])
@@ -29,7 +29,7 @@ def andI(a: kd.Proof, b: kd.Proof) -> kd.Proof:
     >>> pa = kd.axiom(a)
     >>> pb = kd.axiom(b)
     >>> andI(pa, pb)
-    |- And(a, b)
+    |= And(a, b)
     """
     assert isinstance(a, kd.Proof) and isinstance(b, kd.Proof)
     return kd.axiom(smt.And(a.thm, b.thm), ["andI", a, b])
@@ -41,7 +41,7 @@ def eqrefl(x: smt.ExprRef) -> kd.Proof:
 
     >>> x = smt.Int("x")
     >>> eqrefl(x)
-    |- x == x
+    |= x == x
     """
     assert isinstance(x, smt.ExprRef)
     return kd.axiom(smt.Eq(x, x), ["eqrefl", x])
@@ -54,7 +54,7 @@ def eqsym(eq: kd.Proof) -> kd.Proof:
     >>> x, y = smt.Ints("x y")
     >>> eq = kd.axiom(x == y)
     >>> eqsym(eq)
-    |- y == x
+    |= y == x
     """
     assert isinstance(eq, kd.Proof) and smt.is_eq(eq.thm)
     return kd.axiom(smt.Eq(eq.thm.arg(1), eq.thm.arg(0)), ["eqsym", eq])
@@ -68,7 +68,7 @@ def eqtrans(eq1: kd.Proof, eq2: kd.Proof) -> kd.Proof:
     >>> eq1 = kd.axiom(x == y)
     >>> eq2 = kd.axiom(y == z)
     >>> eqtrans(eq1, eq2)
-    |- x == z
+    |= x == z
     """
     assert isinstance(eq1, kd.Proof) and isinstance(eq2, kd.Proof)
     assert smt.is_eq(eq1.thm) and smt.is_eq(eq2.thm)
@@ -84,7 +84,7 @@ def cong(f: smt.FuncDeclRef, *args: kd.Proof) -> kd.Proof:
     >>> y = smt.Real("y")
     >>> f = smt.Function("f", smt.IntSort(), smt.RealSort(), smt.IntSort())
     >>> cong(f, eqrefl(x), eqrefl(y))
-    |- f(x, y) == f(x, y)
+    |= f(x, y) == f(x, y)
     """
     assert (
         isinstance(f, smt.FuncDeclRef)
@@ -108,7 +108,7 @@ def subst(eq: kd.Proof, t: smt.ExprRef) -> kd.Proof:
     >>> x, y = smt.Ints("x y")
     >>> eq = kd.prove(x == ((x + 1) - 1))
     >>> subst(eq, x + 3)
-    |- x + 3 == x + 1 - 1 + 3
+    |= x + 3 == x + 1 - 1 + 3
     """
     assert isinstance(eq, kd.Proof) and smt.is_eq(eq.thm)
     return kd.axiom(

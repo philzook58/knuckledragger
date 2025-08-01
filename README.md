@@ -83,17 +83,17 @@ add_succ_x = kd.prove(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=
 # Under the hood, this boils down to calls to kd.prove
 # These proofs are best understood by seeing the interactive output in a Jupyter notebook
 l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
-# Output: [] ?|- ForAll(n, add(n, Zero) == n)
+# Output: [] ?|= ForAll(n, add(n, Zero) == n)
 
 _n = l.fix()            
-# Output: [] ?|- add(n!0, Zero) == n!2213
+# Output: [] ?|= add(n!0, Zero) == n!2213
 
 l.induct(_n)              
-# Output: [] ?|- add(Zero, Zero) == Zero
+# Output: [] ?|= add(Zero, Zero) == Zero
 
 # Base case
 l.auto(by=[add.defn])
-# Output: [] ?|- ForAll(a!0, Implies(add(a!0, Zero) == a!0, add(Succ(a!0), Zero) == Succ(a!0)))
+# Output: [] ?|= ForAll(a!0, Implies(add(a!0, Zero) == a!0, add(Succ(a!0), Zero) == Succ(a!0)))
 
 # Inductive case
 l.auto(by=[add.defn])

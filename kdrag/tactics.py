@@ -38,7 +38,7 @@ def forallI(
 
     >>> x = smt.Int("x")
     >>> forallI(smt.ForAll([x], x > x - 1), lambda goal, x1: kd.prove(goal))
-    |- ForAll(x, x > x - 1)
+    |= ForAll(x, x > x - 1)
     """
     assert isinstance(e, smt.QuantifierRef) and e.is_forall(), (
         "forallI only works on forall quantifiers"
@@ -156,7 +156,7 @@ def simp_tac(e: smt.ExprRef) -> kd.kernel.Proof:
 
     >>> import kdrag.theories.nat as nat
     >>> simp_tac(nat.Z + nat.S(nat.Z))
-    |- add(Z, S(Z)) == S(Z)
+    |= add(Z, S(Z)) == S(Z)
     """
     trace = []
     e1 = kd.simp(e, trace=trace)
@@ -196,20 +196,20 @@ def prove(
         Proof: A proof object of thm
 
     >>> prove(smt.BoolVal(True))
-    |- True
+    |= True
 
     >>> prove(smt.RealVal(1) >= smt.RealVal(0))
-    |- 1 >= 0
+    |= 1 >= 0
 
     >>> x = smt.Int("x")
     >>> succ = kd.define("succ", [x], x + 1)
     >>> prove(succ(x) == x + 1, unfold=1)
-    |- succ(x) == x + 1
+    |= succ(x) == x + 1
     >>> succ2 = kd.define("succ2", [x], succ(succ(x)))
     >>> prove(succ2(x) == x + 2, unfold=2)
-    |- succ2(x) == x + 2
+    |= succ2(x) == x + 2
     >>> prove(smt.ForAll([x], succ(x) == x + 1), instan=lambda x1: [succ.defn(x1)])
-    |- ForAll(x, succ(x) == x + 1)
+    |= ForAll(x, succ(x) == x + 1)
     """
     start_time = time.perf_counter()
     if by is None:
@@ -285,7 +285,7 @@ def subst(
     >>> x,y,z = smt.Reals("x y z")
     >>> p = kd.prove(smt.ForAll([x,z], smt.And(z == z, x == x)))
     >>> subst(p, [y, z], [y + 1, z])
-    |- ForAll([y, z], And(z == z, y + 1 == y + 1))
+    |= ForAll([y, z], And(z == z, y + 1 == y + 1))
     """
     assert isinstance(pf.thm, smt.QuantifierRef)
     vs1, ab = kd.kernel.herb(
@@ -307,9 +307,9 @@ class Goal(NamedTuple):
         ctxrepr = pprint.pformat(self.ctx)
         goalrepr = repr(self.goal)
         if len(ctxrepr) + len(goalrepr) <= 75:
-            goalctx = ctxrepr + " ?|- " + repr(self.goal)
+            goalctx = ctxrepr + " ?|= " + repr(self.goal)
         else:
-            goalctx = ctxrepr + "\n?|- " + repr(self.goal)
+            goalctx = ctxrepr + "\n?|= " + repr(self.goal)
         if len(self.sig) == 0:
             return goalctx
         else:
@@ -382,9 +382,9 @@ class Lemma:
         >>> l = Lemma(smt.Implies(p,q))
         >>> l1 = l.copy()
         >>> l.intros()
-        [p] ?|- q
+        [p] ?|= q
         >>> l1
-        [] ?|- Implies(p, q)
+        [] ?|= Implies(p, q)
         """
         lemma_cpy = Lemma(self.thm)
         lemma_cpy.goals = self.goals.copy()
@@ -400,11 +400,11 @@ class Lemma:
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p,q))
         >>> l.push()
-        [] ?|- Implies(p, q)
+        [] ?|= Implies(p, q)
         >>> l.intros()
-        [p] ?|- q
+        [p] ?|= q
         >>> l.pop()
-        [] ?|- Implies(p, q)
+        [] ?|= Implies(p, q)
         """
         cpy = self.copy()
         cpy.pushed = self.pushed
@@ -443,13 +443,13 @@ class Lemma:
             return kd.utils.search(*args, db=db)
 
     def fixes(self) -> list[smt.ExprRef]:
-        """fixes opens a forall quantifier. ?|- forall x, p(x) becomes x ?|- p(x)
+        """fixes opens a forall quantifier. ?|= forall x, p(x) becomes x ?|= p(x)
 
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(kd.QForAll([x,y], y >= 0, x + y >= x))
         >>> _x, _y = l.fixes()
         >>> l
-        [x!..., y!...] ?|- Implies(y!... >= 0, x!... + y!... >= x!...)
+        [x!..., y!...] ?|= Implies(y!... >= 0, x!... + y!... >= x!...)
         >>> _x, _y
         (x!..., y!...)
         >>> _x.eq(x)
@@ -481,7 +481,7 @@ class Lemma:
         >>> l = Lemma(smt.ForAll([x], x != x + 1))
         >>> _x = l.fix()
         >>> l
-        [x!...] ; [] ?|- x!... != x!... + 1
+        [x!...] ; [] ?|= x!... != x!... + 1
         >>> _x.eq(x)
         False
 
@@ -493,15 +493,15 @@ class Lemma:
 
     def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
         """
-        intros opens an implication. ?|- p -> q becomes p ?|- q
+        intros opens an implication. ?|= p -> q becomes p ?|= q
 
         >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Implies(p, q))
         >>> l.intros()
-        [p] ?|- q
+        [p] ?|= q
         >>> l = Lemma(smt.Not(q))
         >>> l.intros()
-        [q] ?|- False
+        [q] ?|= False
         """
         goalctx = self.top_goal()
         goal = goalctx.goal
@@ -543,13 +543,13 @@ class Lemma:
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(x + y == y + x)
         >>> l.simp()
-        [] ?|- True
+        [] ?|= True
         >>> l = Lemma(x == 3 + y + 7)
         >>> l.simp()
-        [] ?|- x == 10 + y
+        [] ?|= x == 10 + y
         >>> l = Lemma(smt.Lambda([x], x + 1)[3] == y)
         >>> l.simp()
-        [] ?|- 4 == y
+        [] ?|= 4 == y
         """
         goalctx = self.top_goal()
         if at is None:
@@ -589,9 +589,9 @@ class Lemma:
         >>> x = smt.Const("x", nat.Nat)
         >>> l = Lemma(smt.BoolVal(True))
         >>> l.cases(x)
-        [is(Z, x) == True] ?|- True
+        [is(Z, x) == True] ?|= True
         >>> l.auto() # next case
-        [is(S, x) == True] ?|- True
+        [is(S, x) == True] ?|= True
         """
         goalctx = self.top_goal()
         ctx = goalctx.ctx
@@ -631,7 +631,7 @@ class Lemma:
     def einstan(self, n):
         """
         einstan opens an exists quantifier in context and returns the fresh eigenvariable.
-        `[exists x, p(x)] ?|- goal` becomes `p(x) ?|- goal`
+        `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -661,9 +661,9 @@ class Lemma:
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))
         >>> l.intros()
-        [ForAll(x, x == y)] ?|- True
+        [ForAll(x, x == y)] ?|= True
         >>> l.instan(0, smt.IntVal(42))
-        [ForAll(x, x == y), 42 == y] ?|- True
+        [ForAll(x, x == y), 42 == y] ?|= True
         """
         goalctx = self.top_goal()
         thm = goalctx.ctx[n]
@@ -714,9 +714,9 @@ class Lemma:
         >>> p = smt.Bool("p")
         >>> l = Lemma(smt.And(True,p))
         >>> l.split()
-        [] ?|- True
+        [] ?|= True
         >>> l.auto() # next goal
-        [] ?|- p
+        [] ?|= p
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -781,7 +781,7 @@ class Lemma:
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Or(p,q))
         >>> l.left()
-        [] ?|- p
+        [] ?|= p
         """
         # TODO: consider adding Not(right) to context since we're classical?
         goalctx = self.top_goal()
@@ -801,7 +801,7 @@ class Lemma:
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Or(p,q))
         >>> l.right()
-        [] ?|- q
+        [] ?|= q
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -816,11 +816,11 @@ class Lemma:
     def exists(self, *ts):
         """
         Give terms `ts` to satisfy an exists goal
-        `?|- exists x, p(x)` becomes `?|- p(ts)`
+        `?|= exists x, p(x)` becomes `?|= p(ts)`
 
         >>> x,y = smt.Ints("x y")
         >>> Lemma(smt.Exists([x], x == y)).exists(y)
-        [] ?|- y == y
+        [] ?|= y == y
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -899,7 +899,7 @@ class Lemma:
 
         >>> x,y = smt.Ints("x y")
         >>> Lemma(x == y).symm()
-        [] ?|- y == x
+        [] ?|= y == x
         """
         ctxgoal = self.top_goal()
         if smt.is_eq(ctxgoal.goal):
@@ -946,11 +946,11 @@ class Lemma:
         >>> import kdrag.theories.nat as nat
         >>> l = Lemma(nat.Z + nat.Z == nat.Z)
         >>> l
-        [] ?|- add(Z, Z) == Z
+        [] ?|= add(Z, Z) == Z
         >>> l.unfold(nat.double) # does not unfold add
-        [] ?|- add(Z, Z) == Z
+        [] ?|= add(Z, Z) == Z
         >>> l.unfold()
-        [] ?|- If(is(Z, Z), Z, S(add(pred(Z), Z))) == Z
+        [] ?|= If(is(Z, Z), Z, S(add(pred(Z), Z))) == Z
         """
         goalctx = self.top_goal()
         decls1 = None if len(decls) == 0 else decls
@@ -984,13 +984,13 @@ class Lemma:
         >>> x,y = smt.Ints("x y")
         >>> l = kd.Lemma(smt.Implies(smt.Implies(x == 7, y == 3), y == 3))
         >>> l.intros()
-        [Implies(x == 7, y == 3)] ?|- y == 3
+        [Implies(x == 7, y == 3)] ?|= y == 3
         >>> l.apply(0)
-        [Implies(x == 7, y == 3)] ?|- x == 7
+        [Implies(x == 7, y == 3)] ?|= x == 7
 
         >>> mylemma = kd.prove(kd.QForAll([x], x > 1, x > 0))
         >>> kd.Lemma(x > 0).apply(mylemma)
-        [] ?|- x > 1
+        [] ?|= x > 1
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -1099,7 +1099,7 @@ class Lemma:
         >>> l = Lemma(smt.BoolVal(False)) # a false goal
         >>> _ = l.admit()
         >>> l.qed()
-        |- False
+        |= False
         """
         goalctx = self.pop_goal()
         self.add_lemma(kd.kernel.prove(goalctx.goal, admit=True))

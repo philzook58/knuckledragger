@@ -18,7 +18,7 @@ def induct_list(x: smt.SeqRef, P):
     >>> x = smt.Const("x", Seq(smt.IntSort()))
     >>> P = smt.Function("P", Seq(smt.IntSort()), smt.BoolSort())
     >>> induct_list(x, P)
-    |- Implies(And(P(Empty(Seq(Int))),
+    |= Implies(And(P(Empty(Seq(Int))),
                 ForAll([hd!..., tl!...],
                       Implies(P(tl!...),
                               P(Concat(Unit(hd!...), tl!...))))),

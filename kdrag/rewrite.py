@@ -57,7 +57,7 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
     >>> unfold(f(1), trace=trace)
     1 + 42
     >>> trace
-    [|- f(1) == 1 + 42, |- ForAll(x, f(x) == x + 42)]
+    [|= f(1) == 1 + 42, |= ForAll(x, f(x) == x + 42)]
 
     >>> unfold(smt.Lambda([x], f(x)))
     Lambda(x, x + 42)

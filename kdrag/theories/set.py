@@ -32,7 +32,7 @@ def Set(T):
     >>> A >= B
     subset(B, A)
     >>> IntSet.union_comm
-    |- ForAll([A, B], union(A, B) == union(B, A))
+    |= ForAll([A, B], union(A, B) == union(B, A))
     """
     S = smt.SetSort(T)
     smt.sort_registry[S.get_id()] = S
@@ -89,7 +89,7 @@ def diff(A: smt.ArrayRef, B: smt.ArrayRef) -> smt.ArrayRef:
     >>> IntSet = Set(smt.IntSort())
     >>> A = smt.Const("A", IntSet)
     >>> kd.prove(diff(A, A) == IntSet.empty)
-    |- setminus(A, A) == K(Int, False)
+    |= setminus(A, A) == K(Int, False)
     """
     return smt.SetDifference(A, B)
 
@@ -99,11 +99,11 @@ def subset(A: smt.ArrayRef, B: smt.ArrayRef) -> smt.BoolRef:
     >>> IntSet = Set(smt.IntSort())
     >>> A = smt.Const("A", IntSet)
     >>> kd.prove(subset(IntSet.empty, A))
-    |- subset(K(Int, False), A)
+    |= subset(K(Int, False), A)
     >>> kd.prove(subset(A, A))
-    |- subset(A, A)
+    |= subset(A, A)
     >>> kd.prove(subset(A, IntSet.full))
-    |- subset(A, K(Int, True))
+    |= subset(A, K(Int, True))
     """
     return smt.IsSubset(A, B)
 
@@ -114,7 +114,7 @@ def complement(A: smt.ArrayRef) -> smt.ArrayRef:
     >>> IntSet = Set(smt.IntSort())
     >>> A = smt.Const("A", IntSet)
     >>> kd.prove(complement(complement(A)) == A)
-    |- complement(complement(A)) == A
+    |= complement(complement(A)) == A
     """
     return smt.SetComplement(A)
 
@@ -140,7 +140,7 @@ def has_size(A: smt.ArrayRef, n: smt.ArithRef) -> smt.BoolRef:
     #>>> has_size(A, n)
     #SetHasSize(A, n)
     #>>> kd.prove(has_size(IntSet.empty, 0))
-    #|- SetHasSize(empty, 0)
+    #|= SetHasSize(empty, 0)
     
     return smt.SetHasSize(A, n)
 """
@@ -182,7 +182,7 @@ def Surjective(f: smt.FuncDeclRef) -> smt.BoolRef:
     >>> x = smt.Int("x")
     >>> neg = (-x).decl()
     >>> kd.prove(Surjective(neg))
-    |- ForAll(y!..., Lambda(y, Exists(x0, -x0 == y))[y!...])
+    |= ForAll(y!..., Lambda(y, Exists(x0, -x0 == y))[y!...])
     """
     # TODO: also support ArrayRef
     # TODO: I need to be consistent on whether I need FreshConst here or not.
@@ -197,7 +197,7 @@ def Injective(f: smt.FuncDeclRef) -> smt.BoolRef:
     >>> x, y = smt.Ints("x y")
     >>> neg = (-x).decl()
     >>> kd.prove(Injective(neg))
-    |- ForAll([x!..., y!...],
+    |= ForAll([x!..., y!...],
            Implies(-x!... == -y!..., x!... == y!...))
     """
     xs1 = [smt.FreshConst(f.domain(i), prefix="x") for i in range(f.arity())]
@@ -217,7 +217,7 @@ def Finite(A: smt.ArrayRef) -> smt.BoolRef:
 
     >>> IntSet = Set(smt.IntSort())
     >>> kd.prove(Finite(IntSet.empty))
-    |- Exists(finwit!...,
+    |= Exists(finwit!...,
            ForAll(x!...,
                   K(Int, False)[x!...] ==
                   Contains(finwit!..., Unit(x!...))))

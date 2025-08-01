@@ -674,7 +674,7 @@ def search_expr(
         "thm2" : kd.prove(z + 0 == z),\
         "thm3" : kd.prove(smt.ForAll([x], x + 1 == 1 + x)),\
         "thm4" : kd.prove(smt.BoolVal(True))})
-    {('thm1', |- ForAll(x, x + 0 == x)): [z], ('thm2', |- z + 0 == z): []}
+    {('thm1', |= ForAll(x, x + 0 == x)): [z], ('thm2', |= z + 0 == z): []}
     """
     found = {}
     # Hmm. This isn't that different from the implementation of rewrite itself...

@@ -14,7 +14,7 @@ is(Z, n)
 >>> n.pred
 pred(n)
 >>> kd.prove(nat.one.pred == nat.Z)
-|- pred(S(Z)) == Z
+|= pred(S(Z)) == Z
 """
 
 import kdrag.smt as smt
@@ -227,9 +227,9 @@ def define_fun(eqs):
     >>> myadd = define_fun([myadd(nat.Z, m)    == m,\
                             myadd(nat.S(n), m) == nat.S(myadd(n, m))])
     >>> myadd.case0
-    |- ForAll(m, myadd(Z, m) == m)
+    |= ForAll(m, myadd(Z, m) == m)
     >>> myadd.case1
-    |- ForAll([n, m], myadd(S(n), m) == S(myadd(n, m)))
+    |= ForAll([n, m], myadd(S(n), m) == S(myadd(n, m)))
     """
     decl = eqs[0].arg(0).decl()
     cases = []  # For kd.define of kd.cond
@@ -454,7 +454,7 @@ def inj_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
 
     >>> import kdrag.theories.nat as nat
     >>> inj_lemmas(nat.Nat)[0]
-    |- ForAll([x!..., y!...],
+    |= ForAll([x!..., y!...],
            (S(x!...) == S(y!...)) == And(x!... == y!...))
     """
     pfs = []
@@ -484,7 +484,7 @@ def recognizer_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
 
     >>> import kdrag.theories.nat as nat
     >>> recognizer_lemmas(nat.Nat)[0]
-    |- is(Z, Z) == True
+    |= is(Z, Z) == True
     """
     pfs = []
     for i in range(dt.num_constructors()):
@@ -510,7 +510,7 @@ def distinct_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
 
     >>> import kdrag.theories.nat as nat
     >>> distinct_lemmas(nat.Nat)[0]
-    |- ForAll(x!..., S(x!...) != Z)
+    |= ForAll(x!..., S(x!...) != Z)
     """
     pfs = []
     for i in range(dt.num_constructors()):
@@ -537,7 +537,7 @@ def accessor_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:
 
     >>> import kdrag.theories.nat as nat
     >>> accessor_lemmas(nat.Nat)[0]
-    |- ForAll(x!..., pred(S(x!...)) == x!...)
+    |= ForAll(x!..., pred(S(x!...)) == x!...)
     """
     pfs = []
     for i in range(dt.num_constructors()):

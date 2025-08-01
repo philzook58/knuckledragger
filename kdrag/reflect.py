@@ -635,7 +635,7 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     >>> foo.__wrapped__(3)
     6
     >>> foo.defn
-    |- ForAll(x, foo(x) == x + 3)
+    |= ForAll(x, foo(x) == x + 3)
 
     >>> @reflect
     ... def bar(x : int, y : str) -> int:
@@ -646,7 +646,7 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     ...     else:
     ...        return bar(x - 1, y)
     >>> bar.defn
-    |- ForAll([x, y],
+    |= ForAll([x, y],
            bar(x, y) ==
            If(4 < x, x + 3, If(y == "fred", 14, bar(x - 1, y))))
 
