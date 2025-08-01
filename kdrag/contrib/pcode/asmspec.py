@@ -135,7 +135,7 @@ class AsmSpec:
                 raise Exception(f"Symbol {label} not found in binary {ctx.filename}")
             return sym.rebased_addr
 
-        def parse_smt(smt_bool: str, linemo: int, line: str) -> smt.ExprRef:
+        def parse_smt(smt_bool: str, linemo: int, line: str) -> smt.BoolRef:
             # parse with slightly nicer error throwing, saying which line in asm responsible
             try:
                 return smt.parse_smt2_string(smt_string, decls=decls)[0]
@@ -196,7 +196,7 @@ class AsmSpec:
         )
 
 
-type Trace = list[int | SpecStmt]
+type Trace = list[int]  # TODO | SpecStmt
 
 
 def pretty_trace(ctx: pcode.BinaryContext, trace: Trace) -> str:
