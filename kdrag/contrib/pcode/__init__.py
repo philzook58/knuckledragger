@@ -166,6 +166,13 @@ def executeSignExtend(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     return memstate.setvalue(op.output, out)
 
 
+def executeZeroExtend(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
+    assert op.output is not None
+    in1 = memstate.getvalue(op.inputs[0])
+    out = smt.ZeroExt((op.output.size - op.inputs[0].size) * 8, in1)
+    return memstate.setvalue(op.output, out)
+
+
 def executeSubpiece(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
@@ -336,6 +343,8 @@ class BinaryContext:
             )
         elif opcode == pypcode.OpCode.INT_SEXT:
             return executeSignExtend(op, memstate), self.fallthruOp(pc)
+        elif opcode == pypcode.OpCode.INT_ZEXT:
+            return executeZeroExtend(op, memstate), self.fallthruOp(pc)
         elif opcode == pypcode.OpCode.SUBPIECE:
             return executeSubpiece(op, memstate), self.fallthruOp(pc)
         elif opcode == pypcode.OpCode.POPCOUNT:
@@ -544,14 +553,17 @@ class BinaryContext:
         RAX!...
         """
         memstate = MemState.Const("mem0")
-        for name, vnode in reversed(
-            self.ctx.registers.items()
-        ):  # hack to not have EAX stomp RAX
-            memstate = self.set_reg(
-                memstate,
-                name,
-                smt.FreshConst(smt.BitVecSort(vnode.size * 8), prefix=name),
-            )
+        free_offset = 0
+        for name, vnode in self.ctx.registers.items():
+            # interestingness heuristic on length of name
+            # and only store free space registers in order to speed up.
+            if vnode.offset >= free_offset and len(name) <= 4:
+                memstate = self.set_reg(
+                    memstate,
+                    name,
+                    smt.FreshConst(smt.BitVecSort(vnode.size * 8), prefix=name),
+                )
+                free_offset = vnode.offset + vnode.size
         return memstate
 
     def get_regs(self, memstate: MemState) -> dict[str, smt.BitVecRef]:
@@ -584,7 +596,7 @@ class BinaryContext:
                 substs.append(
                     (
                         smt.Array(ramn, BV[self.bits], BV[n]),
-                        smt.Lambda([addr], memstate.getvalue_ram(addr, self.bits // 8)),
+                        smt.Lambda([addr], memstate.getvalue_ram(addr, n // 8)),
                     )
                 )
 

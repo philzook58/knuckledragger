@@ -1,5 +1,5 @@
 import click
-from kdrag.contrib.pcode.asmspec import assemble_and_gen_vcs
+from kdrag.contrib.pcode.asmspec import assemble_and_gen_vcs, pretty_trace
 import sys
 import kdrag.smt as smt
 import pprint
@@ -24,30 +24,29 @@ def asmc(filename: str, langid: str, asm: str):
     print("Constructing Trace Fragments...")
     ctx, vcs = assemble_and_gen_vcs(filename, langid=langid, as_bin=asm)
     print("Checking verification conditions...")
-    fail = False
+    failures = 0
     for vc in vcs:
         try:
             vc.verify(ctx)
             print(f"[✅] {vc.cause}")
         except Exception as e:
-            fail = True
+            failures += 1
             countermodel = e.args[2]
             if not isinstance(countermodel, smt.ModelRef):
                 raise e
             print(f"[❌] {vc.cause}")
             print("---------------------------------------------")
             print("Trace:")
-            print("\t", vc.start)
-            for addr in vc.trace:
-                print("\t", pcode.pretty_insn(ctx.disassemble(addr)))
-            print("\t", vc.cause)
+            print(vc.start)
+            print(pretty_trace(ctx, vc.trace))
+            print(vc.cause)
             print("")
             print("Countermodel:")
             pprint.pp(vc.countermodel(ctx, countermodel))
 
             print("---------------------------------------------")
-    if fail:
-        print("❌❌❌❌ Some verification conditions failed. ❌❌❌❌")
+    if failures > 0:
+        print(f"❌❌❌❌ {failures} verification conditions failed. ❌❌❌❌")
         sys.exit(1)
     else:
         print(f"✅✅✅✅ All {len(vcs)} verification conditions passed! ✅✅✅✅")

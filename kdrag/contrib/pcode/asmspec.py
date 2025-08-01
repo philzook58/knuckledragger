@@ -135,6 +135,15 @@ class AsmSpec:
                 raise Exception(f"Symbol {label} not found in binary {ctx.filename}")
             return sym.rebased_addr
 
+        def parse_smt(smt_bool: str, linemo: int, line: str) -> smt.ExprRef:
+            # parse with slightly nicer error throwing, saying which line in asm responsible
+            try:
+                return smt.parse_smt2_string(smt_string, decls=decls)[0]
+            except Exception as e:
+                raise Exception(
+                    f"Error parsing SMT expression at line {lineno + 1}: {line}", e
+                )
+
         with open(filename) as f:
             for lineno, line in enumerate(f.readlines()):
                 if kd_prefix.match(
@@ -144,7 +153,7 @@ class AsmSpec:
                         cmd, label, expr = match.groups()
                         addr = find_label(label)
                         smt_string = "\n".join(preludes + ["(assert ", expr, ")"])
-                        expr = smt.parse_smt2_string(smt_string, decls=decls)[0]
+                        expr = parse_smt(smt_string, lineno, line)
                         if cmd == "kd_entry":
                             spec.addrmap[addr].append(Entry(label, addr, expr))
                         elif cmd == "kd_assert":
@@ -162,7 +171,7 @@ class AsmSpec:
                         smt_string = "\n".join(
                             preludes + ["(assert (=", expr, expr, "))"]
                         )
-                        expr = smt.parse_smt2_string(smt_string, decls=decls)[0].arg(0)
+                        expr = parse_smt(smt_string, lineno, line).arg(0)
                         spec.addrmap[addr].append(
                             Assign(
                                 label,
@@ -187,12 +196,50 @@ class AsmSpec:
         )
 
 
+type Trace = list[int | SpecStmt]
+
+
+def pretty_trace(ctx: pcode.BinaryContext, trace: Trace) -> str:
+    """
+    Pretty print a trace.
+    """
+    return "\n".join(
+        [
+            pcode.pretty_insn(ctx.disassemble(addr))
+            if isinstance(addr, int)
+            else str(addr)
+            for addr in trace
+        ]
+    )
+
+
 @dataclass
 class TraceState:
     start: SpecStmt
-    trace: list[int]  # list of addresses
+    trace: Trace  # list of addresses
     state: pcode.SimState
     ghost_env: dict[str, smt.ExprRef] = dataclasses.field(default_factory=dict)
+
+
+def substitute_ghost(e: smt.ExprRef, ghost_env: dict[str, smt.ExprRef]) -> smt.ExprRef:
+    """
+    Substitute ghost variables in an expression.
+    """
+    return smt.substitute(
+        e, *[(smt.Const(name, v.sort()), v) for name, v in ghost_env.items()]
+    )
+
+
+def substitute(
+    e: smt.ExprRef,
+    ctx: pcode.BinaryContext,
+    memstate: pcode.MemState,
+    ghost_env: dict[str, smt.ExprRef],
+) -> smt.ExprRef:
+    """
+    Subsititute both ghost state and context (ram / registers). Usually you want this
+    """
+    return ctx.substitute(memstate, substitute_ghost(e, ghost_env))
 
 
 class VerificationCondition(NamedTuple):
@@ -207,17 +254,20 @@ class VerificationCondition(NamedTuple):
     def __repr__(self):
         return f"VC({self.start}, {[hex(addr) for addr in self.trace]}, {self.cause}, {self.ghost_env})"
 
+    def vc(self, ctx: pcode.BinaryContext) -> smt.BoolRef:
+        """
+        Return the verification condition as an expression.
+        """
+        return smt.Implies(
+            smt.And(*self.path_cond),
+            substitute(self.cause.expr, ctx, self.memstate, self.ghost_env),
+        )
+
     def verify(self, ctx: pcode.BinaryContext, by=[]) -> kd.Proof:
         """
         Verify the verification condition using the given context.
         """
-        vc = smt.Implies(
-            smt.And(*self.path_cond),
-            ctx.substitute(
-                self.memstate, substitute_ghost(self.cause.expr, self.ghost_env)
-            ),
-        )
-        return kd.prove(vc, by=by)
+        return kd.prove(self.vc(ctx), by=by)
 
     def countermodel(self, ctx: pcode.BinaryContext, m: smt.ModelRef) -> dict:
         """
@@ -236,16 +286,10 @@ class VerificationCondition(NamedTuple):
                 interesting.add(t)
             elif smt.is_app(t):
                 todo.extend(t.children())
-        return {c: m.eval(ctx.substitute(self.memstate, c)) for c in interesting}
-
-
-def substitute_ghost(e: smt.ExprRef, ghost_env: dict[str, smt.ExprRef]) -> smt.ExprRef:
-    """
-    Substitute ghost variables in an expression.
-    """
-    return smt.substitute(
-        e, *[(smt.Const(name, v.sort()), v) for name, v in ghost_env.items()]
-    )
+        return {
+            c: m.eval(substitute(c, ctx, self.memstate, self.ghost_env))
+            for c in interesting
+        }
 
 
 def execute_spec_stmts(
@@ -284,10 +328,7 @@ def execute_spec_stmts(
         elif isinstance(stmt, Assign):
             # Assign a value to a variable in the ghost environment
             ghost_env = ghost_env.copy()
-            e1 = substitute_ghost(
-                stmt.expr, ghost_env
-            )  # TODO simultaneous assignment would be better.
-            ghost_env[stmt.name] = ctx.substitute(state.memstate, e1)
+            ghost_env[stmt.name] = substitute(stmt.expr, ctx, state.memstate, ghost_env)
         else:
             raise Exception(
                 f"Unexpected statement type {type(stmt)} in execute_specstmts"
@@ -326,14 +367,14 @@ def run_all_paths(
     ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True
 ) -> list[VerificationCondition]:
     if mem is None:
-        mem = pcode.MemState.Const("mem", bits=ctx.bits)
+        mem = ctx.init_mem()  # pcode.MemState.Const("mem", bits=ctx.bits)
     todo = []
     vcs = []
     # Initialize executions out of entry points and cuts
     for addr, specstmts in spec.addrmap.items():
         for n, stmt in enumerate(specstmts):
             if isinstance(stmt, Cut) or isinstance(stmt, Entry):
-                precond = ctx.substitute(mem, stmt.expr)
+                precond = ctx.substitute(mem, stmt.expr)  # No ghost? Use substitute?
                 assert isinstance(precond, smt.BoolRef)
                 tracestate = TraceState(
                     start=stmt,

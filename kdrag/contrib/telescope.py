@@ -42,6 +42,15 @@ def normalize(xs: Telescope) -> _Tele:
     return res
 
 
+class TProof:
+    tele: _Tele
+    conc: smt.BoolRef
+    pf: kd.Proof
+
+    def __repr__(self):
+        return f"{self.tele} |= {self.conc}"
+
+
 def TForAll(xs: Telescope, P: smt.BoolRef) -> smt.BoolRef:
     """
     Dependent forall quantifier for a telescope of variables.
