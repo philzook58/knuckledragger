@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.bool &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.fixed" href="kdrag.theories.fixed.html" />
+    <link rel="prev" title="kdrag.theories.bitvec.toBV" href="kdrag.theories.bitvec.toBV.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.bool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.bool.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.bool">
+<span id="kdrag-theories-bool"></span><h1>kdrag.theories.bool<a class="headerlink" href="#module-kdrag.theories.bool" title="Link to this heading"></a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+
+
+<span class="n">B</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">()</span>
+<span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Bools</span><span class="p">(</span><span class="s2">&quot;p q r&quot;</span><span class="p">)</span>
+
+<span class="n">or_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">p</span> <span class="o">|</span> <span class="n">q</span> <span class="o">==</span> <span class="n">q</span> <span class="o">|</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">or_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="p">(</span><span class="n">p</span> <span class="o">|</span> <span class="n">q</span><span class="p">)</span> <span class="o">|</span> <span class="n">r</span> <span class="o">==</span> <span class="n">p</span> <span class="o">|</span> <span class="p">(</span><span class="n">q</span> <span class="o">|</span> <span class="n">r</span><span class="p">)))</span>
+<span class="n">or_true</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">|</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+<span class="n">or_false</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">|</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+
+<span class="n">or_idem</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">|</span> <span class="n">p</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">or_absorb</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">p</span> <span class="o">|</span> <span class="p">(</span><span class="n">p</span> <span class="o">&amp;</span> <span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">or_distr</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="n">p</span> <span class="o">|</span> <span class="p">(</span><span class="n">q</span> <span class="o">&amp;</span> <span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">p</span> <span class="o">|</span> <span class="n">q</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">p</span> <span class="o">|</span> <span class="n">r</span><span class="p">)))</span>
+<span class="n">or_compl</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">|</span> <span class="o">~</span><span class="n">p</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+
+
+<span class="n">and_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="n">q</span> <span class="o">==</span> <span class="n">q</span> <span class="o">&amp;</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">and_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="p">(</span><span class="n">p</span> <span class="o">&amp;</span> <span class="n">q</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">r</span> <span class="o">==</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">q</span> <span class="o">&amp;</span> <span class="n">r</span><span class="p">)))</span>
+<span class="n">and_true</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">and_false</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)))</span>
+<span class="n">and_absorb</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="p">(</span><span class="n">p</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">p</span> <span class="o">|</span> <span class="n">q</span><span class="p">))</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">and_compl</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">p</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)))</span>
+
+<span class="n">and_idem</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">&amp;</span> <span class="n">p</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+
+
+<span class="n">imp_true</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">imp_false</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">imp_idem</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+<span class="n">imp_refl</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)))</span>
+<span class="n">imp_trans</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span>
+<span class="p">)</span>
+
+
+<span class="n">not_true</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="o">~</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span>
+<span class="n">not_false</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="o">~</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">not_inv</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="o">~~</span><span class="n">p</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>  <span class="c1"># Double negation elimination</span>
+<span class="n">not_and</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="o">~</span><span class="p">(</span><span class="n">p</span> <span class="o">&amp;</span> <span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="o">~</span><span class="n">p</span> <span class="o">|</span> <span class="o">~</span><span class="n">q</span><span class="p">)))</span>  <span class="c1"># De Morgan’s Law</span>
+<span class="n">not_or</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="o">~</span><span class="p">(</span><span class="n">p</span> <span class="o">|</span> <span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="o">~</span><span class="n">p</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">q</span><span class="p">)))</span>  <span class="c1"># De Morgan’s Law</span>
+
+<span class="n">xor_neq</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="p">(</span><span class="n">p</span> <span class="o">^</span> <span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">p</span> <span class="o">!=</span> <span class="n">q</span><span class="p">)))</span>
+<span class="n">xor_comm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">p</span> <span class="o">^</span> <span class="n">q</span> <span class="o">==</span> <span class="n">q</span> <span class="o">^</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">xor_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="p">(</span><span class="n">p</span> <span class="o">^</span> <span class="n">q</span><span class="p">)</span> <span class="o">^</span> <span class="n">r</span> <span class="o">==</span> <span class="n">p</span> <span class="o">^</span> <span class="p">(</span><span class="n">q</span> <span class="o">^</span> <span class="n">r</span><span class="p">)))</span>
+<span class="n">xor_idem</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">^</span> <span class="n">p</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)))</span>
+<span class="n">xor_true</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">^</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="o">~</span><span class="n">p</span><span class="p">))</span>
+<span class="n">xor_false</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span> <span class="o">^</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">p</span><span class="p">))</span>
+
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">DeclareTypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+<span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;a b&quot;</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+<span class="n">if_true</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="n">a</span><span class="p">))</span>
+<span class="n">if_false</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="n">b</span><span class="p">))</span>
+
+
+<span class="n">rws</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">or_true</span><span class="p">,</span>
+    <span class="n">or_false</span><span class="p">,</span>
+    <span class="n">or_idem</span><span class="p">,</span>
+    <span class="n">or_absorb</span><span class="p">,</span>
+    <span class="n">or_distr</span><span class="p">,</span>
+    <span class="n">or_compl</span><span class="p">,</span>
+    <span class="n">and_comm</span><span class="p">,</span>
+    <span class="n">and_assoc</span><span class="p">,</span>
+    <span class="n">and_true</span><span class="p">,</span>
+    <span class="n">and_false</span><span class="p">,</span>
+    <span class="n">and_absorb</span><span class="p">,</span>
+    <span class="n">and_compl</span><span class="p">,</span>
+    <span class="n">imp_true</span><span class="p">,</span>
+    <span class="n">imp_false</span><span class="p">,</span>
+    <span class="n">imp_idem</span><span class="p">,</span>
+    <span class="n">imp_refl</span><span class="p">,</span>
+    <span class="n">xor_idem</span><span class="p">,</span>
+    <span class="n">xor_true</span><span class="p">,</span>
+    <span class="n">xor_false</span><span class="p">,</span>
+    <span class="n">if_true</span><span class="p">,</span>
+    <span class="n">if_false</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.bitvec.toBV.html" class="btn btn-neutral float-left" title="kdrag.theories.bitvec.toBV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.fixed.html" class="btn btn-neutral float-right" title="kdrag.theories.fixed" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

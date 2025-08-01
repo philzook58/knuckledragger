@@ -1,0 +1,6 @@
+kdrag.property.comm\_norm
+=========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: comm_norm

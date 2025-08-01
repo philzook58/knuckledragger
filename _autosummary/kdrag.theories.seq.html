@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.seq &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.seq.Seq" href="kdrag.theories.seq.Seq.html" />
+    <link rel="prev" title="kdrag.theories.regex.ReSort" href="kdrag.theories.regex.ReSort.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.seq</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.seq.Seq.html">kdrag.theories.seq.Seq</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.seq.Unit.html">kdrag.theories.seq.Unit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.seq.induct.html">kdrag.theories.seq.induct</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.seq.induct_list.html">kdrag.theories.seq.induct_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.seq.seq.html">kdrag.theories.seq.seq</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.seq.Seq"><code class="docutils literal notranslate"><span class="pre">Seq()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.seq.Unit"><code class="docutils literal notranslate"><span class="pre">Unit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.seq.induct"><code class="docutils literal notranslate"><span class="pre">induct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.seq.induct_list"><code class="docutils literal notranslate"><span class="pre">induct_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.seq.seq"><code class="docutils literal notranslate"><span class="pre">seq()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.seq</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.seq.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.seq">
+<span id="kdrag-theories-seq"></span><h1>kdrag.theories.seq<a class="headerlink" href="#module-kdrag.theories.seq" title="Link to this heading"></a></h1>
+<p>Built in smtlib theory of finite sequences.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.seq.Seq.html#kdrag.theories.seq.Seq" title="kdrag.theories.seq.Seq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Seq</span></code></a>(T)</p></td>
+<td><p>Make sort of Sequences and prove useful lemmas.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.seq.Unit.html#kdrag.theories.seq.Unit" title="kdrag.theories.seq.Unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Unit</span></code></a>(x)</p></td>
+<td><p>Construct a sequence of length 1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.seq.induct.html#kdrag.theories.seq.induct" title="kdrag.theories.seq.induct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">induct</span></code></a>(T, P)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.seq.induct_list.html#kdrag.theories.seq.induct_list" title="kdrag.theories.seq.induct_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">induct_list</span></code></a>(x, P)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.seq.seq.html#kdrag.theories.seq.seq" title="kdrag.theories.seq.seq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seq</span></code></a>(*args)</p></td>
+<td><p>Helper to construct sequences.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.seq.Seq">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.seq.</span></span><span class="sig-name descname"><span class="pre">Seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SeqSortRef</span></span></span><a class="headerlink" href="#kdrag.theories.seq.Seq" title="Link to this definition"></a></dt>
+<dd><p>Make sort of Sequences and prove useful lemmas.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BoolSeq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">,</span> <span class="n">BoolSeq</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="go">Concat(x, y)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> (<em>SortRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>SeqSortRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.seq.Unit">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.seq.</span></span><span class="sig-name descname"><span class="pre">Unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SeqRef</span></span></span><a class="headerlink" href="#kdrag.theories.seq.Unit" title="Link to this definition"></a></dt>
+<dd><p>Construct a sequence of length 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>SeqRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.seq.induct">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.seq.</span></span><span class="sig-name descname"><span class="pre">induct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.theories.seq.induct" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> (<em>SortRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.seq.induct_list">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.seq.</span></span><span class="sig-name descname"><span class="pre">induct_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SeqRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.seq.induct_list" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">Seq</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="n">Seq</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">()),</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">induct_list</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+<span class="go">|= Implies(And(P(Empty(Seq(Int))),</span>
+<span class="go">            ForAll([hd!..., tl!...],</span>
+<span class="go">                  Implies(P(tl!...),</span>
+<span class="go">                          P(Concat(Unit(hd!...), tl!...))))),</span>
+<span class="go">        P(x))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>SeqRef</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.seq.seq">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.seq.</span></span><span class="sig-name descname"><span class="pre">seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.seq.seq" title="Link to this definition"></a></dt>
+<dd><p>Helper to construct sequences.
+&gt;&gt;&gt; seq(1, 2, 3)
+Concat(Unit(1), Concat(Unit(2), Unit(3)))
+&gt;&gt;&gt; seq(1)
+Unit(1)</p>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Built in smtlib theory of finite sequences.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+
+
+<span class="c1"># induct_list List style induction</span>
+<span class="c1"># induct_snoc</span>
+<span class="c1"># concat induction</span>
+<span class="c1"># Strong induction</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">induct_list</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqRef</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &gt;&gt;&gt; x = smt.Const(&quot;x&quot;, Seq(smt.IntSort()))</span>
+<span class="sd">    &gt;&gt;&gt; P = smt.Function(&quot;P&quot;, Seq(smt.IntSort()), smt.BoolSort())</span>
+<span class="sd">    &gt;&gt;&gt; induct_list(x, P)</span>
+<span class="sd">    |= Implies(And(P(Empty(Seq(Int))),</span>
+<span class="sd">                ForAll([hd!..., tl!...],</span>
+<span class="sd">                      Implies(P(tl!...),</span>
+<span class="sd">                              P(Concat(Unit(hd!...), tl!...))))),</span>
+<span class="sd">            P(x))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqRef</span><span class="p">)</span>
+    <span class="n">hd</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span><span class="o">.</span><span class="n">basis</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;hd&quot;</span><span class="p">)</span>
+    <span class="n">tl</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;tl&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span>
+                <span class="n">P</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Empty</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">())),</span>
+                <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">hd</span><span class="p">,</span> <span class="n">tl</span><span class="p">],</span> <span class="n">P</span><span class="p">(</span><span class="n">tl</span><span class="p">),</span> <span class="n">P</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">hd</span><span class="p">)</span> <span class="o">+</span> <span class="n">tl</span><span class="p">)),</span>
+            <span class="p">),</span>
+            <span class="n">P</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">induct</span><span class="p">(</span><span class="n">T</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
+    <span class="n">sort</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqSort</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">sort</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">sort</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span>
+            <span class="n">P</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Empty</span><span class="p">(</span><span class="n">sort</span><span class="p">)),</span>
+            <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">P</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">z</span><span class="p">))),</span>
+            <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">P</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">P</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">P</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))),</span>
+        <span class="p">)</span>  <span class="c1"># -------------------------------------------------</span>
+        <span class="o">==</span> <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">P</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">seq</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper to construct sequences.</span>
+<span class="sd">    &gt;&gt;&gt; seq(1, 2, 3)</span>
+<span class="sd">    Concat(Unit(1), Concat(Unit(2), Unit(3)))</span>
+<span class="sd">    &gt;&gt;&gt; seq(1)</span>
+<span class="sd">    Unit(1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;seq() requires at least one argument. use smt.Empty(sort) instead.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">_py2expr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Concat</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">_py2expr</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Seq</span><span class="p">(</span><span class="n">T</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqSortRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make sort of Sequences and prove useful lemmas.</span>
+
+<span class="sd">    &gt;&gt;&gt; BoolSeq = Seq(smt.BoolSort())</span>
+<span class="sd">    &gt;&gt;&gt; x,y,z = smt.Consts(&quot;x y z&quot;, BoolSeq)</span>
+<span class="sd">    &gt;&gt;&gt; x + y</span>
+<span class="sd">    Concat(x, y)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqSort</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">sort_registry</span><span class="p">[</span><span class="n">S</span><span class="o">.</span><span class="n">get_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">S</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
+    <span class="n">empty</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Empty</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">empty</span> <span class="o">=</span> <span class="n">empty</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">concat_empty</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">empty</span> <span class="o">+</span> <span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">empty_concat</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="n">empty</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">concat_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
+            <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">z</span> <span class="o">==</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">z</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">length_empty</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">length_unit</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">concat_length</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">length_zero_unique</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">empty</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">concat_head</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="p">],</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;n m&quot;</span><span class="p">)</span>
+
+    <span class="n">S</span><span class="o">.</span><span class="n">subseq_zero</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">empty</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">subseq_length</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">],</span>
+            <span class="n">m</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">n</span> <span class="o">+</span> <span class="n">m</span> <span class="o">&lt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span> <span class="o">==</span> <span class="n">m</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">subseq_all</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">subseq_concat</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span>
+            <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">n</span> <span class="o">&lt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># S.head_length = kd.prove(</span>
+    <span class="c1">#    kd.QForAll(</span>
+    <span class="c1">#        [x], smt.Length(x) != 0, x[0] + smt.SubSeq(x, 1, smt.Length(x) - 1) == x</span>
+    <span class="c1">#    )</span>
+    <span class="c1"># )</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">contains_empty</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">empty</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">contains_self</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">contains_concat_left</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">contains_concat_right</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">contains_subseq</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">SubSeq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">))))</span>
+    <span class="c1"># self.contains_unit = kd.kernel.prove(</span>
+    <span class="c1">#    kd.QForAll([x, y], smt.Contains(smt.Unit(x), y) == (smt.Unit(x) == y))</span>
+    <span class="c1"># )</span>
+    <span class="n">S</span><span class="o">.</span><span class="n">empty_contains</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+        <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">empty</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">empty</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="c1"># InRe, Extract, IndexOf, LastIndexOf, prefixof, replace, suffixof</span>
+    <span class="c1"># SeqMap, SeqMapI, SeqFoldLeft, SeqFoldLeftI</span>
+    <span class="c1"># Contains</span>
+    <span class="k">return</span> <span class="n">S</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Unit</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a sequence of length 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.regex.ReSort.html" class="btn btn-neutral float-left" title="kdrag.theories.regex.ReSort" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.seq.Seq.html" class="btn btn-neutral float-right" title="kdrag.theories.seq.Seq" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

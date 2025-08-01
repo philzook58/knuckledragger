@@ -1,0 +1,42 @@
+kdrag.contrib.telescope
+=======================
+
+.. automodule:: kdrag.contrib.telescope
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      TExists
+      TForAll
+      normalize
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      TProof
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/telescope.py
+   :language: python

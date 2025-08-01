@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.TExists
+===============================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: TExists

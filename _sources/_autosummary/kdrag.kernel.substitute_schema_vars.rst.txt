@@ -1,0 +1,6 @@
+kdrag.kernel.substitute\_schema\_vars
+=====================================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: substitute_schema_vars

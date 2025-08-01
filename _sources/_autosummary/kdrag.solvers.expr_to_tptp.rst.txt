@@ -1,0 +1,6 @@
+kdrag.solvers.expr\_to\_tptp
+============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: expr_to_tptp
