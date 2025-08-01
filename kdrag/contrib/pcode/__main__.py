@@ -3,7 +3,6 @@ from kdrag.contrib.pcode.asmspec import assemble_and_gen_vcs, pretty_trace
 import sys
 import kdrag.smt as smt
 import pprint
-import kdrag.contrib.pcode as pcode
 
 
 @click.command()
