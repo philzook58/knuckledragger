@@ -30,6 +30,24 @@ def ForAllI(vs: list[smt.ExprRef], pf: kd.kernel.Proof) -> kd.kernel.Proof:
     return kd.kernel.generalize(vs, pf)
 
 
+def open_binder(pf: kd.kernel.Proof) -> tuple[list[smt.ExprRef], kd.kernel.Proof]:
+    """
+    Open a proof with schematic variables so that it can be reconstructed.
+
+    >>> x,y,z = smt.Reals("x y z")
+    >>> pf = kd.prove(smt.ForAll([x,y], x + y + 1 > x + y))
+    >>> open_binder(pf)
+    ([x!..., y!...], |= x!... + y!... + 1 > x!... + y!...)
+    """
+    thm = pf.thm
+    assert isinstance(pf, kd.Proof) and isinstance(thm, smt.QuantifierRef)
+    vs = [
+        kd.kernel.SchemaVar(thm.var_name(n), thm.var_sort(n))
+        for n in range(thm.num_vars())
+    ]
+    return vs, pf(*vs)
+
+
 def forallI(
     e: smt.QuantifierRef, cb: Callable[[smt.BoolRef, smt.ExprRef], kd.kernel.Proof]
 ) -> kd.kernel.Proof:
