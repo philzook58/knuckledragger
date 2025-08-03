@@ -1,6 +1,5 @@
 import kdrag.smt as smt
 import kdrag as kd
-from typing import NamedTuple
 
 type SubSort = smt.QuantifierRef | smt.ArrayRef
 type Type = SubSort
