@@ -1,9 +1,17 @@
 import kdrag.smt as smt
 import kdrag as kd
+import functools
 
 type SubSort = smt.QuantifierRef | smt.ArrayRef
 type Type = SubSort
 # User telescope
+"""
+User telescope type.
+
+Telescopes are dependent or refined contexts of variables.
+They can tag variables with SubSet expressions or formulas that involve the bound variable.
+Internally, the are normalized to _Tele, which is a list of (variable, formula) pairs.
+"""
 type Telescope = list[
     tuple[smt.ExprRef, smt.BoolRef] | tuple[smt.ExprRef, SubSort] | smt.ExprRef
 ]
@@ -14,6 +22,13 @@ type _Tele = list[tuple[smt.ExprRef, smt.BoolRef]]
 def subsort_domain(T: SubSort) -> smt.SortRef:
     """
     Get the domain sort of a SubSort, which is either an ArrayRef or a QuantifierRef.
+
+    >>> T = smt.Array("T", smt.IntSort(), smt.BoolSort())
+    >>> subsort_domain(T)
+    Int
+    >>> x = smt.Int("x")
+    >>> subsort_domain(smt.Lambda([x], x > 0))
+    Int
     """
     if isinstance(T, smt.ArrayRef):
         return T.domain()
@@ -149,6 +164,35 @@ def TExists(xs: Telescope, P: smt.BoolRef) -> smt.BoolRef:
 _tsig: dict[smt.FuncDeclRef, kd.Proof] = {}
 
 
+def axiom_sig(f: smt.FuncDeclRef, tele0: Telescope, T: SubSort) -> kd.Proof:
+    """
+    Assign signature to a function `f` with a telescope of arguments `tele0` as an axiom
+
+    """
+    tele = normalize(tele0)
+    vs = [v for v, _ in tele]
+    ctx = [P for _, P in tele]
+    # T is nonempty when context is possible
+    # Otherwise even allowing this declaration is inconsistent
+    x = smt.FreshConst(f.range())
+    kd.prove(smt.ForAll(vs, smt.Implies(smt.And(ctx), smt.Exists([x], T[x]))))
+    pf = kd.axiom(smt.ForAll(vs, smt.Implies(smt.And(ctx), T[f(*vs)])))
+    if f in _tsig:
+        print("Warning: Redefining function signature", f)
+    _tsig[f] = pf
+    return pf
+
+
+def prove_sig(f: smt.FuncDeclRef, tele0: Telescope, T: SubSort, by=None) -> kd.Proof:
+    vs = [v for v, _ in normalize(tele0)]
+    P = has_type(tele0, f(*vs), T, by=by).forall(vs)
+    if f in _tsig:
+        print("Warning: Redefining function signature", f)
+    _tsig[f] = P
+    f.pre_post = P  # type: ignore
+    return P
+
+
 def DeclareFunction(name, tele0: Telescope, T: SubSort, by=[]) -> smt.FuncDeclRef:
     """
 
@@ -160,21 +204,20 @@ def DeclareFunction(name, tele0: Telescope, T: SubSort, by=[]) -> smt.FuncDeclRe
     tele = normalize(tele0)
     res_sort = subsort_domain(T)
     f = smt.Function(name, *[v.sort() for v, _ in tele], res_sort)
-    vs = [v for v, _ in tele]
-    ctx = [P for _, P in tele]
-    # T is nonempty when context is possible
-    # Otherwise even allowing this declaration is inconsistent
-    x = smt.FreshConst(res_sort)
-    kd.prove(smt.ForAll(vs, smt.Implies(smt.And(ctx), smt.Exists([x], T[x]))), by=by)
-    P = kd.axiom(smt.ForAll(vs, smt.Implies(smt.And(ctx), T[f(*vs)])))
+    P = axiom_sig(f, tele0, T)
     f.pre_post = P
-    if f in _tsig:
-        print("Warning: Redefining function", f)
-    _tsig[f] = P
     return f
 
 
 def has_type(ctx: Telescope, t0: smt.ExprRef, T: SubSort, by=None) -> kd.Proof:
+    """
+    Tactic to check that an expression `t0` has type `T` in a context `ctx`.
+
+    >>> x = smt.Int("x")
+    >>> Nat = smt.Lambda([x], x >= 0)
+    >>> has_type([(x, Nat)], x+1, Nat)
+    |= Implies(And(x >= 0), Lambda(x, x >= 0)[x + 1])
+    """
     tele = normalize(ctx)
     pctx = [P for _, P in tele]
     if by is None:
@@ -183,15 +226,25 @@ def has_type(ctx: Telescope, t0: smt.ExprRef, T: SubSort, by=None) -> kd.Proof:
     todo = [t0]
     while todo:
         t = todo.pop()
-        if t in seen:
-            continue
-        elif smt.is_app(t):
+        if smt.is_app(t):
             children = t.children()
-            todo.extend(children)
-            seen.union(children)
             decl = t.decl()
+            for c in children:
+                if c not in seen:
+                    todo.append(c)
+                    seen.add(c)
+            # TODO. Could recursively cut the children. Localize type error better.
+            if decl.name() == "ann":
+                try:
+                    x, T = children
+                    by.append(has_type(ctx, x, T, by=by))
+                    # TODO: unfold ann. by.append(kd.kernel.defn)
+                    # actually with new definition, ann is in _tsig
+                except Exception as e:
+                    raise TypeError(f"Invalid annotation {t} in context {ctx}", e)
             if decl in _tsig:
                 by.append(_tsig[decl](*children))
+
     return kd.prove(smt.Implies(smt.And(pctx), T[t0]), by=by)
 
 
@@ -208,21 +261,73 @@ def define(
     >>> m = smt.Int("m")
     >>> Nat = smt.Lambda([n], n >= 0)
     >>> Pos = smt.Lambda([n], n > 0)
-    >>> inc = define("inc", [(n,Nat)], Pos, n + 1)
+    >>> inc = define("test_inc", [(n,Nat)], Pos, n + 1)
     >>> inc.pre_post
     |= ForAll(n!...,
-           Implies(And(n!... >= 0),
-                   Lambda(n!..., n!... > 0)[inc(n!...)]))
+        Implies(And(n!... >= 0),
+            Lambda(n!..., n!... > 0)[test_inc(n!...)]))
     >>> pred = define("pred", [(n, Pos)], Nat, n - 1)
     >>> myid = define("myid", [(n, Nat)], Nat, pred(inc(n)))
     """
     P1 = has_type(args, body, T, by=by)
     tele = normalize(args)
     vs = [v for (v, _) in tele]
-    ctx = [P for _, P in tele]
+    for v in vs:
+        if not kd.kernel.is_schema_var(v):
+            raise TypeError(f"Arguments must be schema variables: {v}")
+    # ctx = [P for _, P in tele]
     f = kd.define(name, vs, body)
-    P2 = smt.Implies(smt.And(ctx), T[f(*vs)])
-    P2 = kd.prove(P2, by=[P1, f.defn(*vs)]).forall(vs)
-    _tsig[f] = P2
-    f.pre_post = P2  # type: ignore
+    # P2 = smt.Implies(smt.And(ctx), T[f(*vs)])
+    # P2 = kd.prove(P2, by=[P1, f.defn(*vs)]).forall(vs)
+    # _tsig[f] = P2
+    # f.pre_post = P2  # type: ignore
+    prove_sig(f, args, T, by=[P1, f.defn(*vs)])
     return f
+
+
+@functools.lru_cache(maxsize=None)
+def _gen_annotate(S: smt.SortRef):
+    x, y = kd.tactics.SchemaVars("x y", S)
+    T = kd.kernel.SchemaVar("T", smt.ArraySort(S, smt.BoolSort()))
+    assert isinstance(T, smt.ArrayRef)
+    return define(
+        "ann",
+        [(x, T), T],  # This is breaking telescoping rules. Is that ok?
+        smt.Lambda([y], y == x),
+        smt.If(T[x], x, smt.FreshFunction(S, S)(x)),
+    )
+
+
+def ann(x: smt.ExprRef, T: SubSort) -> smt.ExprRef:
+    """
+    Annotate an expression with a type.
+
+    >>> x = smt.Int("x")
+    >>> Nat = smt.Lambda([x], x >= 0)
+    >>> ann(x, Nat)
+    ann(x, Lambda(x, x >= 0))
+    """
+    return _gen_annotate(x.sort())(x, T)
+
+
+# For Proof objects
+Unit = kd.Inductive("Unit")
+Unit.declare("tt")
+Unit = Unit.create()
+
+n = smt.Int("n")
+Nat = smt.Lambda([n], n >= 0)
+Pos = smt.Lambda([n], n > 0)
+
+
+def Id(x: smt.ExprRef, y: smt.ExprRef) -> SubSort:
+    """
+    >>> x, y = smt.Ints("x y")
+    >>> p = smt.Const("p", Unit)
+    >>> has_type([x], Unit.tt, Id(x, x))
+    |= Implies(And(True), Lambda(p!..., x == x)[tt])
+    >>> has_type([x, y, (p, Id(x,y))], Unit.tt, Id(y, x))
+    |= Implies(And(True, True, x == y), Lambda(p!..., y == x)[tt])
+    """
+    p = smt.FreshConst(Unit, prefix="p")
+    return smt.Lambda([p], x == y)

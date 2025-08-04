@@ -18,13 +18,16 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
     https://chargueraud.org/research/2009/ln/main.pdf
     where it is harder to go wrong.
 
+    The variables are schema variables which when used in a proof may be generalized
+
     >>> x = smt.Int("x")
     >>> open_binder(smt.ForAll([x], x > 0))
     ([X!...], X!... > 0)
     """
     # Open with capitalized names to match tptp conventions
     vs = [
-        smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper().split("!")[0])
+        # smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper().split("!")[0])
+        kd.kernel.SchemaVar(lam.var_name(i).upper().split("!")[0], lam.var_sort(i))
         for i in range(lam.num_vars())
     ]
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
@@ -242,6 +245,7 @@ def unify_db(
 def free_in(vs: list[smt.ExprRef], t: smt.ExprRef) -> bool:
     """
     Returns True if none of the variables in vs exist unbound in t.
+    Distinct from `occurs` in that vs have to be constants, not general terms.
 
     >>> x,y,z = smt.Ints("x y z")
     >>> assert not free_in([x], x + y + z)

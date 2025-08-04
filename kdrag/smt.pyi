@@ -582,7 +582,8 @@ class ExprRef(AstRef):
         Real
         """
         ...
-
+    def __mul__(self, other):  # -> ExprRef:
+        ...
     def sort_kind(self):  # -> Any:
         """Shorthand for `self.sort().kind()`.
 

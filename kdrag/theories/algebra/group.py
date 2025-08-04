@@ -98,11 +98,12 @@ inv_left = kd.axiom(smt.ForAll([x], inv(x) * x == e))
 
 Semigroup.register(G, assoc=mul_assoc)
 
+x, y, z = kd.tactics.SchemaVars("x y z", G)
 
-c = kd.Calc([x], e, assume=[smt.ForAll([y], y * x == y)])
+c = kd.Calc([], e, assume=[smt.ForAll([y], y * x == y)])
 c.eq(e * x)
-c.eq(x, by=[id_left], timeout=2000)
-id_unique1 = c.qed()
+c.eq(x, by=[id_left(x)], timeout=2000)
+id_unique1 = c.qed().forall([x])
 
 c = kd.Calc([x], x * inv(x))
 c.eq(e * (x * inv(x)), by=[id_left])

@@ -536,8 +536,11 @@ def is_schema_var(v: smt.ExprRef) -> bool:
     >>> is_schema_var(SchemaVar("x", smt.IntSort()))
     True
     """
-    evidence = getattr(v, "schema_evidence")
-    return isinstance(evidence, _SchemaVarEvidence) and evidence.v.eq(v)
+    if not hasattr(v, "schema_evidence"):
+        return False
+    else:
+        evidence = getattr(v, "schema_evidence")
+        return isinstance(evidence, _SchemaVarEvidence) and evidence.v.eq(v)
 
 
 def SchemaVar(prefix: str, sort: smt.SortRef) -> smt.ExprRef:
