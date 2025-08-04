@@ -1,7 +1,6 @@
 import kdrag.smt as smt
 import kdrag as kd
 import functools
-from typing import Callable
 
 type SubSort = smt.QuantifierRef | smt.ArrayRef
 type Type = SubSort
