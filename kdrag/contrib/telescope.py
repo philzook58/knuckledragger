@@ -1,6 +1,7 @@
 import kdrag.smt as smt
 import kdrag as kd
 import functools
+from typing import Callable
 
 type SubSort = smt.QuantifierRef | smt.ArrayRef
 type Type = SubSort
@@ -275,12 +276,7 @@ def define(
     for v in vs:
         if not kd.kernel.is_schema_var(v):
             raise TypeError(f"Arguments must be schema variables: {v}")
-    # ctx = [P for _, P in tele]
     f = kd.define(name, vs, body)
-    # P2 = smt.Implies(smt.And(ctx), T[f(*vs)])
-    # P2 = kd.prove(P2, by=[P1, f.defn(*vs)]).forall(vs)
-    # _tsig[f] = P2
-    # f.pre_post = P2  # type: ignore
     prove_sig(f, args, T, by=[P1, f.defn(*vs)])
     return f
 
@@ -318,6 +314,30 @@ Unit = Unit.create()
 n = smt.Int("n")
 Nat = smt.Lambda([n], n >= 0)
 Pos = smt.Lambda([n], n > 0)
+
+# type Family = Callable[..., SubSort]
+
+
+def Pi(tele0: Telescope, B: SubSort) -> SubSort:
+    """
+    Multiarity Pi. Dependent Function subsort
+    B is a family because it may include parameters from tele0.
+
+    >>> x, y = smt.Ints("x y")
+    >>> GE = lambda x: smt.Lambda([y], y >= x)
+    >>> Pi([(x, Nat)], GE(x))
+    Lambda(f!...,
+        ForAll(x, Implies(x >= 0, Lambda(y, y >= x)[f!...[x]])))
+    >>> smt.simplify(Pi([(x, Nat)], GE(x))[smt.Lambda([x], x)])
+    True
+    """
+    tele = normalize(tele0)
+    vs = [v for v, _ in tele]
+    # TB: SubSort = B(*vs)  # B is a family of sorts
+    sorts = [v.sort() for (v, _) in tele]
+    fsort = smt.ArraySort(*sorts, subsort_domain(B))
+    f = smt.FreshConst(fsort, prefix="f")
+    return smt.Lambda([f], TForAll(tele0, B[f(*vs)]))
 
 
 def Id(x: smt.ExprRef, y: smt.ExprRef) -> SubSort:
