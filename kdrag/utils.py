@@ -27,7 +27,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
     # Open with capitalized names to match tptp conventions
     vs = [
         # smt.FreshConst(lam.var_sort(i), prefix=lam.var_name(i).upper().split("!")[0])
-        kd.kernel.SchemaVar(lam.var_name(i).upper().split("!")[0], lam.var_sort(i))
+        kd.kernel.FreshVar(lam.var_name(i).upper().split("!")[0], lam.var_sort(i))
         for i in range(lam.num_vars())
     ]
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))

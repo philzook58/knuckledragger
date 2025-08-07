@@ -98,7 +98,7 @@ inv_left = kd.axiom(smt.ForAll([x], inv(x) * x == e))
 
 Semigroup.register(G, assoc=mul_assoc)
 
-x, y, z = kd.tactics.SchemaVars("x y z", G)
+x, y, z = kd.tactics.FreshVars("x y z", G)
 
 c = kd.Calc([], e, assume=[smt.ForAll([y], y * x == y)])
 c.eq(e * x)

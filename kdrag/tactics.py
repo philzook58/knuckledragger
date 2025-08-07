@@ -14,16 +14,16 @@ import time
 from dataclasses import dataclass
 
 
-def SchemaVars(names: str, sort: smt.SortRef) -> list[smt.ExprRef]:
+def FreshVars(names: str, sort: smt.SortRef) -> list[smt.ExprRef]:
     """
     Create a list of schema variables with the given names and sort.
     """
-    return [kd.kernel.SchemaVar(name, sort) for name in names.split()]
+    return [kd.kernel.FreshVar(name, sort) for name in names.split()]
 
 
 def ForAllI(vs: list[smt.ExprRef], pf: kd.kernel.Proof) -> kd.kernel.Proof:
     """
-    All vs must be SchemaVars
+    All vs must be FreshVars
     Combinator name tries to make it clear that this is a
     smt.ForAll that works on Proofs instead of BoolRefs.
     """
@@ -42,7 +42,7 @@ def open_binder(pf: kd.kernel.Proof) -> tuple[list[smt.ExprRef], kd.kernel.Proof
     thm = pf.thm
     assert isinstance(pf, kd.Proof) and isinstance(thm, smt.QuantifierRef)
     vs = [
-        kd.kernel.SchemaVar(thm.var_name(n), thm.var_sort(n))
+        kd.kernel.FreshVar(thm.var_name(n), thm.var_sort(n))
         for n in range(thm.num_vars())
     ]
     return vs, pf(*vs)

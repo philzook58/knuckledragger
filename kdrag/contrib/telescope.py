@@ -257,7 +257,7 @@ def define(
 
     Automatically
 
-    >>> n = kd.kernel.SchemaVar("n", smt.IntSort())
+    >>> n = kd.kernel.FreshVar("n", smt.IntSort())
     >>> m = smt.Int("m")
     >>> Nat = smt.Lambda([n], n >= 0)
     >>> Pos = smt.Lambda([n], n > 0)
@@ -273,7 +273,7 @@ def define(
     tele = normalize(args)
     vs = [v for (v, _) in tele]
     for v in vs:
-        if not kd.kernel.is_schema_var(v):
+        if not kd.kernel.is_fresh_var(v):
             raise TypeError(f"Arguments must be schema variables: {v}")
     f = kd.define(name, vs, body)
     prove_sig(f, args, T, by=[P1, f.defn(*vs)])
@@ -282,8 +282,8 @@ def define(
 
 @functools.lru_cache(maxsize=None)
 def _gen_annotate(S: smt.SortRef):
-    x, y = kd.tactics.SchemaVars("x y", S)
-    T = kd.kernel.SchemaVar("T", smt.ArraySort(S, smt.BoolSort()))
+    x, y = kd.tactics.FreshVars("x y", S)
+    T = kd.kernel.FreshVar("T", smt.ArraySort(S, smt.BoolSort()))
     assert isinstance(T, smt.ArrayRef)
     return define(
         "ann",
