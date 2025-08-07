@@ -64,6 +64,10 @@ def accessor_num(s: smt.DatatypeSortRef, constr_num: int, k: str) -> int:
     raise ValueError(f"Accessor {k} not found in constructor {cons} of datatype {s}")
 
 
+call_dict: dict[smt.SortRef, typing.Callable] = {}
+"""A registry for overloadable call on datatypes"""
+
+
 def datatype_call(
     self: smt.DatatypeSortRef, *args: smt.ExprRef, **kwargs
 ) -> smt.DatatypeRef:
@@ -76,20 +80,24 @@ def datatype_call(
     >>> Point(y=2, x=1)
     Point(1, 2)
     """
-    # TODO: could also enable keyword syntax
-    assert self.num_constructors() == 1
-    cons = self.constructor(0)
-    if len(kwargs) == 0:
-        return cons(*[smt._py2expr(a) for a in args])
-    elif len(args) == 0:
-        args1 = [None] * cons.arity()
-        for k, v in kwargs.items():
-            j = accessor_num(self, 0, k)
-            args1[j] = v
-        assert all(a is not None for a in args)
-        return cons(*args1)
-    else:
-        raise TypeError("Cannot mix positional and keyword arguments")
+    f = call_dict.get(self, None)
+    if f is not None:
+        return f(*args, **kwargs)
+    else:  # default
+        # TODO: could also enable keyword syntax
+        assert self.num_constructors() == 1
+        cons = self.constructor(0)
+        if len(kwargs) == 0:
+            return cons(*[smt._py2expr(a) for a in args])
+        elif len(args) == 0:
+            args1 = [None] * cons.arity()
+            for k, v in kwargs.items():
+                j = accessor_num(self, 0, k)
+                args1[j] = v
+            assert all(a is not None for a in args)
+            return cons(*args1)
+        else:
+            raise TypeError("Cannot mix positional and keyword arguments")
 
 
 smt.DatatypeSortRef.__call__ = datatype_call  # type: ignore

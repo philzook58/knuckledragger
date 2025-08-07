@@ -68,6 +68,32 @@ def Set(T):
 
     S.finite = kd.define("finite", [A], Finite(A))
 
+    S.compl_invol = kd.prove(smt.ForAll([A], ~~A == A))
+    S.compl_empty = kd.prove(~S.empty == S.full)
+    S.compl_full = kd.prove(~S.full == S.empty)
+    S.DeM_union = kd.prove(smt.ForAll([A, B], ~(A | B) == ~A & ~B))
+    S.DeM_inter = kd.prove(smt.ForAll([A, B], ~(A & B) == ~A | ~B))
+    S.diff_as_inter = kd.prove(smt.ForAll([A, B], A - B == A & ~B))
+
+    S.absorp_or = kd.prove(smt.ForAll([A, B], A | (A & B) == A))
+    S.absorp_and = kd.prove(smt.ForAll([A, B], A & (A | B) == A))
+
+    S.dist_and_over_or = kd.prove(
+        smt.ForAll([A, B, C], A & (B | C) == (A & B) | (A & C))
+    )
+
+    S.dist_or_over_and = kd.prove(
+        smt.ForAll([A, B, C], A | (B & C) == (A | B) & (A | C))
+    )
+
+    S.sub_refl = kd.prove(smt.ForAll([A], A <= A))
+    S.sub_trans = kd.prove(
+        smt.ForAll([A, B, C], smt.Implies((A <= B) & (B <= C), (A <= C)))
+    )
+    S.sub_antisym = kd.prove(
+        smt.ForAll([A, B], smt.Implies((A <= B) & (B <= A), (A == B)))
+    )
+
     return S
 
 
@@ -146,6 +172,31 @@ def has_size(A: smt.ArrayRef, n: smt.ArithRef) -> smt.BoolRef:
 """
 
 
+def Singleton(x: smt.ExprRef) -> smt.ArrayRef:
+    """
+    >>> x = smt.Int("x")
+    >>> kd.prove(Singleton(smt.IntVal(3))[3])
+    |= Store(K(Int, False), 3, True)[3]
+    >>> kd.prove(smt.Not(Singleton(smt.IntVal(3))[4]))
+    |= Not(Store(K(Int, False), 3, True)[4])
+    """
+    return smt.Store(smt.EmptySet(x.sort()), x, smt.BoolVal(True))
+
+
+def PowerSet(A: smt.ArrayRef) -> smt.ArrayRef:
+    """
+    Power set of A : Set( Set(T) )
+    >>> IntSet = Set(smt.IntSort())
+    >>> A = Singleton(smt.IntVal(3))
+    >>> P = PowerSet(A)
+    >>> kd.prove(member(IntSet.empty, P))
+    |= Lambda(c!37, subset(c!37, Store(K(Int, False), 3, True)))[K(Int,
+        False)]
+    """
+    B = smt.FreshConst(A.sort())
+    return smt.Lambda([B], B <= A)
+
+
 def Range(f: smt.FuncDeclRef) -> smt.ArrayRef:
     """
     Range of a function. Also known as the Image of the function.
@@ -173,6 +224,48 @@ def BigUnion(A: smt.ArrayRef) -> smt.ArrayRef:
     assert is_set(B)
     x = smt.Const("x", sort.domain())
     return smt.Lambda([x], kd.QExists([B], B[x], A[B]))
+
+
+def FamilyUnion(family: smt.ArrayRef) -> smt.ArrayRef:
+    """
+    Countable union of a sequence of sets `Int -> A -> Bool`.
+
+    >>> ISet = Set(smt.IntSort())
+    >>> i,j,k = smt.Ints("i j k")
+    >>> kd.prove(smt.ForAll([k], FamilyUnion(smt.Lambda([i], smt.Lambda([j], i == j)))[k]))
+        |= ForAll(k,
+           Lambda(x!...,
+                  Exists(i!...,
+                         Lambda(i, Lambda(j, i == j))[i!...][x!...]))[k])
+    """
+    sort = family.sort()
+    I = sort.domain()
+    S = sort.range()
+    assert S.range() == smt.BoolSort()
+    x = smt.FreshConst(S.domain(), prefix="x")
+    i = smt.FreshConst(I, prefix="i")
+    return smt.Lambda([x], smt.Exists([i], family[i][x]))
+
+
+def CountInter(seq: smt.ArrayRef) -> smt.ArrayRef:
+    """
+    Countable intersection of a sequence of sets `Int -> A -> Bool`.
+
+    >>> ISet = Set(smt.IntSort())
+    >>> i,j,k = smt.Ints("i j k")
+    >>> kd.prove(smt.ForAll([k], smt.Not(CountInter(smt.Lambda([i], smt.Lambda([j], i == j)))[k])))
+    |= ForAll(k,
+           Not(Lambda(x!...,
+                      ForAll(i!...,
+                             Lambda(i, Lambda(j, i == j))[i!...][x!...]))[k]))
+    """
+    sort = seq.sort()
+    assert sort.domain() == smt.IntSort()
+    S = sort.range()
+    assert S.range() == smt.BoolSort()
+    x = smt.FreshConst(S.domain(), prefix="x")
+    i = smt.FreshInt(prefix="i")
+    return smt.Lambda([x], smt.ForAll([i], seq[i][x]))
 
 
 def Surjective(f: smt.FuncDeclRef) -> smt.BoolRef:

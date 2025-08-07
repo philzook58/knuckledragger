@@ -310,11 +310,27 @@ Unit = kd.Inductive("Unit")
 Unit.declare("tt")
 Unit = Unit.create()
 
-n = smt.Int("n")
-Nat = smt.Lambda([n], n >= 0)
-Pos = smt.Lambda([n], n > 0)
+_n = smt.Int("n")
+Nat = smt.Lambda([_n], _n >= 0)
+Pos = smt.Lambda([_n], _n > 0)
+
 
 # type Family = Callable[..., SubSort]
+def Fin(n):
+    """
+    >>> m = smt.Int("m")
+    >>> Fin(3)
+    Lambda(x, And(Lambda(n, n >= 0)[x], x < 3))
+    >>> kd.prove(smt.Not(smt.Exists([m], Fin(0)[m])))
+    |= Not(Exists(m,
+            Lambda(x, And(Lambda(n, n >= 0)[x], x < 0))[m]))
+    """
+    x = smt.Int("x")
+    return smt.Lambda([x], smt.And(Nat[x], x < n))
+
+
+_x = smt.Real("x")
+Interval = smt.Lambda([_x], smt.And(0 <= _x, _x <= 1))
 
 
 def Pi(tele0: Telescope, B: SubSort) -> SubSort:
