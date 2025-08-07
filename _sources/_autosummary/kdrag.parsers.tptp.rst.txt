@@ -1,0 +1,34 @@
+kdrag.parsers.tptp
+==================
+
+.. automodule:: kdrag.parsers.tptp
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      test
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/parsers/tptp.py
+   :language: python

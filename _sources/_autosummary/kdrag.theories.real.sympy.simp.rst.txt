@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.simp
+==============================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: simp

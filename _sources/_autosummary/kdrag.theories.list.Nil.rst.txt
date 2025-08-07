@@ -1,0 +1,6 @@
+kdrag.theories.list.Nil
+=======================
+
+.. currentmodule:: kdrag.theories.list
+
+.. autofunction:: Nil

@@ -1,0 +1,6 @@
+kdrag.property.assoc\_norm
+==========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: assoc_norm

@@ -1,0 +1,6 @@
+kdrag.utils.generate
+====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: generate

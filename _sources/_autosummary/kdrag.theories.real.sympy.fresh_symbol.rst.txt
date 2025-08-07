@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.fresh\_symbol
+=======================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: fresh_symbol

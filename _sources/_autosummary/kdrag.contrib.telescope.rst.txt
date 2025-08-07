@@ -1,0 +1,47 @@
+kdrag.contrib.telescope
+=======================
+
+.. automodule:: kdrag.contrib.telescope
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      DeclareFunction
+      Fin
+      Id
+      Pi
+      TExists
+      TForAll
+      ann
+      axiom_sig
+      define
+      has_type
+      normalize
+      open_binder
+      prove_sig
+      subsort_domain
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/telescope.py
+   :language: python

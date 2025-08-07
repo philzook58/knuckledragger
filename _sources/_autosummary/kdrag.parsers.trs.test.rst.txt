@@ -1,0 +1,6 @@
+kdrag.parsers.trs.test
+======================
+
+.. currentmodule:: kdrag.parsers.trs
+
+.. autofunction:: test

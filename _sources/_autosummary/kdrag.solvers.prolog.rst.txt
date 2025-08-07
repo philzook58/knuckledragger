@@ -1,0 +1,39 @@
+kdrag.solvers.prolog
+====================
+
+.. automodule:: kdrag.solvers.prolog
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_vars
+      interp
+      interp_pred
+      interp_term
+      prolog
+      run_string
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/prolog.py
+   :language: python

@@ -1,0 +1,37 @@
+kdrag.parsers
+=============
+
+.. automodule:: kdrag.parsers
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   smtlib
+   tptp
+   trs
+
+
+
+.. literalinclude:: ../../kdrag/parsers.py
+   :language: python

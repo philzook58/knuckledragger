@@ -1,0 +1,1252 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.reflect &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.reflect.datatype" href="kdrag.reflect.datatype.html" />
+    <link rel="prev" title="kdrag.property.idem_norm" href="kdrag.property.idem_norm.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.reflect</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.datatype.html">kdrag.reflect.datatype</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.eval_.html">kdrag.reflect.eval_</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.expr.html">kdrag.reflect.expr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.infer_sort.html">kdrag.reflect.infer_sort</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.namedtuple_of_constructor.html">kdrag.reflect.namedtuple_of_constructor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.nbe.html">kdrag.reflect.nbe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.reflect.html">kdrag.reflect.reflect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.reify.html">kdrag.reflect.reify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.sort_of_type.html">kdrag.reflect.sort_of_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.type_of_sort.html">kdrag.reflect.type_of_sort</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.KnuckleClosure"><code class="docutils literal notranslate"><span class="pre">KnuckleClosure</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.reflect.KnuckleClosure.default"><code class="docutils literal notranslate"><span class="pre">KnuckleClosure.default</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.reflect.KnuckleClosure.globals"><code class="docutils literal notranslate"><span class="pre">KnuckleClosure.globals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.reflect.KnuckleClosure.lam"><code class="docutils literal notranslate"><span class="pre">KnuckleClosure.lam</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.reflect.KnuckleClosure.locals"><code class="docutils literal notranslate"><span class="pre">KnuckleClosure.locals</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.datatype"><code class="docutils literal notranslate"><span class="pre">datatype()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.eval_"><code class="docutils literal notranslate"><span class="pre">eval_()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.expr"><code class="docutils literal notranslate"><span class="pre">expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.infer_sort"><code class="docutils literal notranslate"><span class="pre">infer_sort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.namedtuple_of_constructor"><code class="docutils literal notranslate"><span class="pre">namedtuple_of_constructor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.nbe"><code class="docutils literal notranslate"><span class="pre">nbe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.reflect"><code class="docutils literal notranslate"><span class="pre">reflect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.reify"><code class="docutils literal notranslate"><span class="pre">reify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.sort_of_type"><code class="docutils literal notranslate"><span class="pre">sort_of_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.reflect.type_of_sort"><code class="docutils literal notranslate"><span class="pre">type_of_sort()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+      <li class="breadcrumb-item active">kdrag.reflect</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.reflect.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.reflect">
+<span id="kdrag-reflect"></span><h1>kdrag.reflect<a class="headerlink" href="#module-kdrag.reflect" title="Link to this heading"></a></h1>
+<p>Reflecting and reifying SMT expressions from/into Python values.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.reflect.datatype.html#kdrag.reflect.datatype" title="kdrag.reflect.datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datatype</span></code></a>(s[, locals, globals])</p></td>
+<td><p>Use python type syntax to define an algebraic datatype datatype.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.reflect.eval_.html#kdrag.reflect.eval_" title="kdrag.reflect.eval_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eval_</span></code></a>(e[, globals, locals, default])</p></td>
+<td><p>Evaluate a z3 expression in a given environment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.reflect.expr.html#kdrag.reflect.expr" title="kdrag.reflect.expr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expr</span></code></a>(expr[, globals, locals])</p></td>
+<td><p>Turn a string of a python expression into a z3 expressions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.reflect.infer_sort.html#kdrag.reflect.infer_sort" title="kdrag.reflect.infer_sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_sort</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.reflect.namedtuple_of_constructor.html#kdrag.reflect.namedtuple_of_constructor" title="kdrag.reflect.namedtuple_of_constructor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">namedtuple_of_constructor</span></code></a>(sort, idx)</p></td>
+<td><p>Given a datatype sort and an index, return a named tuple with field names and the constructor.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.reflect.nbe.html#kdrag.reflect.nbe" title="kdrag.reflect.nbe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nbe</span></code></a>(x)</p></td>
+<td><p>Normalization by evaluation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.reflect.reflect.html#kdrag.reflect.reflect" title="kdrag.reflect.reflect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reflect</span></code></a>(f[, globals])</p></td>
+<td><p>Reflect a function definition by injecting the parameters and recursive self call into the local environment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.reflect.reify.html#kdrag.reflect.reify" title="kdrag.reflect.reify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reify</span></code></a>(s, x)</p></td>
+<td><p>sort directed reification of a python value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.reflect.sort_of_type.html#kdrag.reflect.sort_of_type" title="kdrag.reflect.sort_of_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_of_type</span></code></a>(t)</p></td>
+<td><p>Give equivalent SMT sort for a given Python type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.reflect.type_of_sort.html#kdrag.reflect.type_of_sort" title="kdrag.reflect.type_of_sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type_of_sort</span></code></a>(s)</p></td>
+<td><p>Give equivalent Python type for a given SMT sort.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.reflect.KnuckleClosure" title="kdrag.reflect.KnuckleClosure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KnuckleClosure</span></code></a>(lam, globals, locals, default)</p></td>
+<td><p>A closure that can be used to evaluate expressions in a given environment.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.reflect.KnuckleClosure">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">KnuckleClosure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QuantifierRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">globals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.reflect.KnuckleClosure" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A closure that can be used to evaluate expressions in a given environment.
+We don’t use lambda so that we can inspect</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>QuantifierRef</em>)</p></li>
+<li><p><strong>globals</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>)</p></li>
+<li><p><strong>locals</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>)</p></li>
+<li><p><strong>default</strong> (<em>Callable</em><em>[</em><em>[</em><em>ExprRef</em><em>]</em><em>, </em><em>object</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.reflect.KnuckleClosure.default">
+<span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.reflect.KnuckleClosure.default" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.reflect.KnuckleClosure.globals">
+<span class="sig-name descname"><span class="pre">globals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.reflect.KnuckleClosure.globals" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.reflect.KnuckleClosure.lam">
+<span class="sig-name descname"><span class="pre">lam</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">QuantifierRef</span></em><a class="headerlink" href="#kdrag.reflect.KnuckleClosure.lam" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.reflect.KnuckleClosure.locals">
+<span class="sig-name descname"><span class="pre">locals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.reflect.KnuckleClosure.locals" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.datatype">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">datatype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">globals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeSortRef</span></span></span><a class="headerlink" href="#kdrag.reflect.datatype" title="Link to this definition"></a></dt>
+<dd><p>Use python type syntax to define an algebraic datatype datatype.
+Fields can be specified positionally or by name.
+Reads the inner types from current environment.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Int</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Real</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span> <span class="o">=</span> <span class="n">datatype</span><span class="p">(</span><span class="s2">&quot;type Foo = Biz | Bar | Baz(Int, Int, smt.IntSort()) | Boz(x = Int, y = Int)&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span><span class="o">.</span><span class="n">Baz</span><span class="o">.</span><span class="n">domain</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">Int</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">range</span><span class="p">()</span>
+<span class="go">Int</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeSortRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.eval_">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">eval_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e:</span> <span class="pre">~z3.z3.ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">globals={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default=&lt;function</span> <span class="pre">__default_error&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.reflect.eval_" title="Link to this definition"></a></dt>
+<dd><p>Evaluate a z3 expression in a given environment. The analog of python’s <cite>eval</cite>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eval_</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
+<span class="go">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eval_</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eval_</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Struct</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">kd</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eval_</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eval_</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">is_R</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.expr">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">globals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.reflect.expr" title="Link to this definition"></a></dt>
+<dd><p>Turn a string of a python expression into a z3 expressions.
+Globals are inferred to be current scope if not given.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;x + 1&quot;</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)})</span>
+<span class="go">x + 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">(),</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;f(x) + 1 if 0 &lt; x &lt; 5 &lt; 7 else x * x&quot;</span><span class="p">)</span>
+<span class="go">If(And(0 &lt; x, 5 &gt; x, 5 &lt; 7), f(x) + 1, x*x)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expr</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.infer_sort">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">infer_sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SortRef</span></span></span><a class="headerlink" href="#kdrag.reflect.infer_sort" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>object</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>SortRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.namedtuple_of_constructor">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">namedtuple_of_constructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatatypeSortRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.reflect.namedtuple_of_constructor" title="Link to this definition"></a></dt>
+<dd><p>Given a datatype sort and an index, return a named tuple with field names and the constructor.
+&gt;&gt;&gt; Nat = smt.Datatype(“Nat”)
+&gt;&gt;&gt; Nat.declare(“Z”)
+&gt;&gt;&gt; Nat.declare(“S”, (“pred”, Nat))
+&gt;&gt;&gt; Nat = Nat.create()
+&gt;&gt;&gt; namedtuple_of_constructor(Nat, 1)(0)
+S(pred=0)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sort</strong> (<em>DatatypeSortRef</em>)</p></li>
+<li><p><strong>idx</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.nbe">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">nbe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.reflect.nbe" title="Link to this definition"></a></dt>
+<dd><p>Normalization by evaluation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nbe</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">41</span><span class="p">)</span> <span class="o">+</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nbe</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nbe</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<span class="go">Lambda(x, x + 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nbe</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<span class="go">Lambda(x, 3 + 1)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.reflect">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">reflect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">globals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FuncDeclRef</span></span></span><a class="headerlink" href="#kdrag.reflect.reflect" title="Link to this definition"></a></dt>
+<dd><p>Reflect a function definition by injecting the parameters and recursive self call into the local environment.
+Uses type annotations to do so.</p>
+<p>Only handles a purely functional subset of python.
+Simple assignment is handled as a <cite>let</cite> who’s scope extends to the end of it’s subbranch.
+Every branch must end with a return.</p>
+<p>You can still call original function under attribute <cite>__wrapped__</cite>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="n">x</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">reflect</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">__wrapped__</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">defn</span>
+<span class="go">|= ForAll(x, foo(x) == x + 3)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@reflect</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span><span class="n">x</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span> <span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span>
+<span class="gp">... </span>    <span class="k">elif</span> <span class="n">y</span> <span class="o">==</span> <span class="s2">&quot;fred&quot;</span><span class="p">:</span>
+<span class="gp">... </span>       <span class="k">return</span> <span class="mi">14</span>
+<span class="gp">... </span>    <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>       <span class="k">return</span> <span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bar</span><span class="o">.</span><span class="n">defn</span>
+<span class="go">|= ForAll([x, y],</span>
+<span class="go">       bar(x, y) ==</span>
+<span class="go">       If(4 &lt; x, x + 3, If(y == &quot;fred&quot;, 14, bar(x - 1, y))))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>FuncDeclRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.reify">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">reify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.reflect.reify" title="Link to this definition"></a></dt>
+<dd><p>sort directed reification of a python value. <a class="reference external" href="https://en.wikipedia.org/wiki/Normalisation_by_evaluation">https://en.wikipedia.org/wiki/Normalisation_by_evaluation</a>
+&gt;&gt;&gt; reify(smt.IntSort(), 42)
+42
+&gt;&gt;&gt; reify(smt.IntSort(), 42).sort()
+Int
+&gt;&gt;&gt; x = smt.Int(“x”)
+&gt;&gt;&gt; kd.utils.alpha_eq(reify(smt.ArraySort(smt.IntSort(), smt.IntSort()), lambda x: x + 1), smt.Lambda([x], x + 1))
+True
+&gt;&gt;&gt; reify(smt.RealSort(), fractions.Fraction(10,16))
+5/8</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s</strong> (<em>SortRef</em>)</p></li>
+<li><p><strong>x</strong> (<em>object</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.sort_of_type">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">sort_of_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SortRef</span></span></span><a class="headerlink" href="#kdrag.reflect.sort_of_type" title="Link to this definition"></a></dt>
+<dd><p>Give equivalent SMT sort for a given Python type.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sort_of_type</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="go">Int</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sort_of_type</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span>
+<span class="go">Seq(Int)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sort_of_type</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span>
+<span class="go">Array(String, Int)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>type</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>SortRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.type_of_sort">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">type_of_sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span></span></span><a class="headerlink" href="#kdrag.reflect.type_of_sort" title="Link to this definition"></a></dt>
+<dd><p>Give equivalent Python type for a given SMT sort.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">type_of_sort</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">())</span>
+<span class="go">&lt;class &#39;int&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">type_of_sort</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ArraySort</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">StringSort</span><span class="p">(),</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">()))</span>
+<span class="go">dict[str, int]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">type_of_sort</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">SeqSort</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">()))</span>
+<span class="go">list[int]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>SortRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Reflecting and reifying SMT expressions from/into Python values.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fractions</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">no_type_check</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sort_of_type</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Give equivalent SMT sort for a given Python type.</span>
+
+
+<span class="sd">    &gt;&gt;&gt; sort_of_type(int)</span>
+<span class="sd">    Int</span>
+<span class="sd">    &gt;&gt;&gt; sort_of_type(list[int])</span>
+<span class="sd">    Seq(Int)</span>
+<span class="sd">    &gt;&gt;&gt; sort_of_type(dict[str, int])</span>
+<span class="sd">    Array(String, Int)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_origin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="n">fractions</span><span class="o">.</span><span class="n">Fraction</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()</span>  <span class="c1"># Floats correspond to reals in SMT</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">StringSort</span><span class="p">()</span>
+        <span class="c1"># elif is_subclassof(t, NamedTuple):</span>
+        <span class="c1">#    # Handle NamedTuple fields as a tuple sort</span>
+        <span class="c1">#    fields = t._field_types  # Get fields and types from the NamedTuple</span>
+        <span class="c1">#    return smt.TupleSort(*[sort_of_type(typ) for typ in fields.values()])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> is not supported&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Handle generic types</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_args</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;List must have exactly one type parameter&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqSort</span><span class="p">(</span><span class="n">sort_of_type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>  <span class="c1"># Lists as sequences</span>
+        <span class="c1"># elif origin is tuple:</span>
+        <span class="c1">#    return smt.TupleSort(*[sort_of_type(arg) for arg in args])</span>
+        <span class="k">elif</span> <span class="n">origin</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Dict must have exactly two type parameters&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArraySort</span><span class="p">(</span><span class="n">sort_of_type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">sort_of_type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1"># elif origin == Union:</span>
+        <span class="c1">#    return smt.DatatypeSortRef(*[sort_of_type(arg) for arg in args])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generic type </span><span class="si">{</span><span class="n">origin</span><span class="si">}</span><span class="s2"> is not supported&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">type_of_sort</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Give equivalent Python type for a given SMT sort.</span>
+
+<span class="sd">    &gt;&gt;&gt; type_of_sort(smt.IntSort())</span>
+<span class="sd">    &lt;class &#39;int&#39;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; type_of_sort(smt.ArraySort(smt.StringSort(), smt.IntSort()))</span>
+<span class="sd">    dict[str, int]</span>
+<span class="sd">    &gt;&gt;&gt; type_of_sort(smt.SeqSort(smt.IntSort()))</span>
+<span class="sd">    list[int]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">int</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">fractions</span><span class="o">.</span><span class="n">Fraction</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">bool</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">StringSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">str</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArraySortRef</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">[</span><span class="n">type_of_sort</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">domain</span><span class="p">()),</span> <span class="n">type_of_sort</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">range</span><span class="p">())]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqSortRef</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">[</span><span class="n">type_of_sort</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">basis</span><span class="p">())]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sort </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> is not supported&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">namedtuple_of_constructor</span><span class="p">(</span><span class="n">sort</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a datatype sort and an index, return a named tuple with field names and the constructor.</span>
+<span class="sd">    &gt;&gt;&gt; Nat = smt.Datatype(&quot;Nat&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Nat.declare(&quot;Z&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Nat.declare(&quot;S&quot;, (&quot;pred&quot;, Nat))</span>
+<span class="sd">    &gt;&gt;&gt; Nat = Nat.create()</span>
+<span class="sd">    &gt;&gt;&gt; namedtuple_of_constructor(Nat, 1)(0)</span>
+<span class="sd">    S(pred=0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">decl</span> <span class="o">=</span> <span class="n">sort</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">sort</span><span class="o">.</span><span class="n">accessor</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">decl</span><span class="o">.</span><span class="n">arity</span><span class="p">())]</span>
+    <span class="k">return</span> <span class="n">namedtuple</span><span class="p">(</span><span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span> <span class="n">fields</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KnuckleClosure</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A closure that can be used to evaluate expressions in a given environment.</span>
+<span class="sd">    We don&#39;t use lambda so that we can inspect</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lam</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span>
+    <span class="nb">globals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
+    <span class="nb">locals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">],</span> <span class="nb">object</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="c1"># TODO: Should I open binder more eagerly before call?</span>
+        <span class="n">vs</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">open_binder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lam</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">eval_</span><span class="p">(</span>
+            <span class="n">body</span><span class="p">,</span>
+            <span class="nb">globals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">globals</span><span class="p">,</span>
+            <span class="nb">locals</span><span class="o">=</span><span class="p">{</span>
+                <span class="o">**</span><span class="p">{</span><span class="n">v</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">():</span> <span class="n">arg</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">args</span><span class="p">)},</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">locals</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__default_error</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot evaluate </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># This is fiendishly difficult to typecheck probably</span>
+<span class="nd">@no_type_check</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">eval_</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="p">{},</span> <span class="nb">locals</span><span class="o">=</span><span class="p">{},</span> <span class="n">default</span><span class="o">=</span><span class="n">__default_error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate a z3 expression in a given environment. The analog of python&#39;s `eval`.</span>
+
+<span class="sd">    &gt;&gt;&gt; eval_(smt.IntVal(42))</span>
+<span class="sd">    42</span>
+<span class="sd">    &gt;&gt;&gt; eval_(smt.IntVal(1) + smt.IntVal(2))</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Int(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; eval_(smt.Lambda([x], x + 1)[3])</span>
+<span class="sd">    4</span>
+<span class="sd">    &gt;&gt;&gt; R = kd.Struct(&quot;R&quot;, (&quot;x&quot;, kd.Z), (&quot;y&quot;, smt.BoolSort()))</span>
+<span class="sd">    &gt;&gt;&gt; eval_(R(42, True).x)</span>
+<span class="sd">    42</span>
+<span class="sd">    &gt;&gt;&gt; eval_(R(42,True).is_R)</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">locals</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">():</span>
+                <span class="c1"># also possibly lookup Lambda in globals.</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                if &quot;Lambda&quot; in globals:</span>
+<span class="sd">                    vs, body = open_binder(e)</span>
+<span class="sd">                    return globals[&quot;Lambda&quot;]</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="k">return</span> <span class="n">KnuckleClosure</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Quantifier not implemented&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntNumRef</span><span class="p">):</span>  <span class="c1"># smt.is_int_value(e):</span>
+            <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">as_long</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RatNumRef</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">fractions</span><span class="o">.</span><span class="n">Fraction</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">numerator_as_long</span><span class="p">(),</span> <span class="n">e</span><span class="o">.</span><span class="n">denominator_as_long</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">FPNumRef</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;FPNumRef not implemented&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="c1"># Lazy evaluation of if, and, or, implies</span>
+            <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_if</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s2">&quot;If&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">globals</span><span class="p">[</span><span class="s2">&quot;If&quot;</span><span class="p">](</span>
+                        <span class="n">c</span><span class="p">,</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">locals</span><span class="p">),</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span>
+                        <span class="n">c</span><span class="p">,</span>
+                        <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">locals</span><span class="p">),</span>
+                        <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="nb">locals</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># TODO: possibly lookup &quot;If&quot; in environment?</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If condition not a boolean or expression&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_and</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
+                    <span class="n">echild</span> <span class="o">=</span> <span class="n">worker</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">echild</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">echild</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="kc">False</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">echild</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">and_</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+                <span class="c1"># return smt.And(acc)</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_or</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
+                    <span class="n">echild</span> <span class="o">=</span> <span class="n">worker</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">echild</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+                    <span class="k">elif</span> <span class="n">echild</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">echild</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+                <span class="c1"># return smt.Or(acc)  # TODO: possibly simplify or</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_implies</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">cond</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span>
+                        <span class="n">cond</span><span class="p">,</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                    <span class="p">)</span>  <span class="c1"># TODO: possibly simplify implies if consequent evaluates to a bool?</span>
+            <span class="c1"># eval all children</span>
+            <span class="n">children</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">worker</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">locals</span><span class="p">),</span> <span class="n">e</span><span class="o">.</span><span class="n">children</span><span class="p">()))</span>
+            <span class="n">decl</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">decl</span> <span class="ow">in</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">defns</span><span class="p">:</span>
+                <span class="n">defn</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">defns</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">decl</span><span class="p">()]</span>
+                <span class="c1"># Fresh vars and add to context?</span>
+                <span class="c1"># e1 = z3.substitute(defn.body, *zip(defn.args, e.children()))</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">worker</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">defn</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">defn</span><span class="o">.</span><span class="n">body</span><span class="p">),</span> <span class="nb">locals</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+                <span class="c1"># return eval_(</span>
+                <span class="c1">#    smt.Select(smt.Lambda(defn.args, defn.body), *children), globals=globals</span>
+                <span class="c1"># )</span>
+                <span class="c1"># return eval_(env, e1)</span>
+            <span class="k">elif</span> <span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_const</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="nb">locals</span><span class="p">[</span><span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">locals</span><span class="p">[</span><span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()](</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">:</span>
+                <span class="c1"># hasattr(globals[decl.name()], &quot;__call__&quot;)?</span>
+                <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_const</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="nb">globals</span><span class="p">[</span><span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">globals</span><span class="p">[</span><span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()](</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_accessor</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="c1"># return children[0][decl.name()]</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_select</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>  <span class="c1"># apply</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Callable</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="o">*</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Select not implemented&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_store</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Store not implemented&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="c1">#    #return children[0]._replace(children[1], children[2])</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_const_array</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Maybe return a Closure here?</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_map</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Map not implemented&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="c1"># return map(children[0], children[1])</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_constructor</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">sort</span><span class="p">,</span> <span class="n">decl</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">e</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Can&#39;t have 0 constructors. Makes typechecker happy</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sort</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span> <span class="o">==</span> <span class="n">sort</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                        <span class="k">break</span>
+                <span class="n">cons</span> <span class="o">=</span> <span class="n">namedtuple_of_constructor</span><span class="p">(</span><span class="n">sort</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">cons</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_true</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_false</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_not</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="o">~</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_eq</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_lt</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_le</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_ge</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_gt</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_recognizer</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="n">sort</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+                    <span class="n">decl</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sort</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()):</span>
+                        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span> <span class="o">==</span> <span class="n">sort</span><span class="o">.</span><span class="n">recognizer</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                            <span class="n">name</span> <span class="o">=</span> <span class="n">sort</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+                    <span class="k">assert</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">default</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="c1"># elif smt.is_string_value(e):</span>
+            <span class="c1">#    return e.as_string()</span>
+            <span class="c1"># elif isisntance(e, ArithRef):</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_add</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">children</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_mul</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="n">children</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_neg</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_sub</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_div</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_idiv</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_power</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_mod</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># we could raise error, or just return the expression itself (object | ExprRef) semantics</span>
+                <span class="k">return</span> <span class="n">default</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">worker</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reify</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    sort directed reification of a python value. https://en.wikipedia.org/wiki/Normalisation_by_evaluation</span>
+<span class="sd">    &gt;&gt;&gt; reify(smt.IntSort(), 42)</span>
+<span class="sd">    42</span>
+<span class="sd">    &gt;&gt;&gt; reify(smt.IntSort(), 42).sort()</span>
+<span class="sd">    Int</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Int(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; kd.utils.alpha_eq(reify(smt.ArraySort(smt.IntSort(), smt.IntSort()), lambda x: x + 1), smt.Lambda([x], x + 1))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; reify(smt.RealSort(), fractions.Fraction(10,16))</span>
+<span class="sd">    5/8</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">KnuckleClosure</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">lam</span>  <span class="c1"># TODO: Do I need to substitute in the env? Probably. That stinks. recurse into subterms, find name matches, reify those out of env</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">!=</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sort mismatch of </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>  <span class="c1"># Although if we deeply modelled smt inside smt, maybe we&#39;d want to quote here.</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArraySortRef</span><span class="p">):</span>
+        <span class="c1"># TODO: Probably not right, also not dealing with multi arg lambdas.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">domain</span><span class="p">())</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">y</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">range</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot call </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> as an array sort </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">num_constructors</span><span class="p">()):</span>
+                <span class="n">decl</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+                    <span class="n">arity</span> <span class="o">=</span> <span class="n">decl</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">arity</span>
+                    <span class="k">return</span> <span class="n">decl</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">reify</span><span class="p">(</span><span class="n">decl</span><span class="o">.</span><span class="n">domain</span><span class="p">(</span><span class="n">j</span><span class="p">),</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">arity</span><span class="p">)])</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot reify </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> as a datatype </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reification on datatypesort not yet implemented&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealVal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">StringSort</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">StringVal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot reify </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> as an expression&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">infer_sort</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fractions</span><span class="o">.</span><span class="n">Fraction</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">StringSort</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">SeqSort</span><span class="p">(</span><span class="n">infer_sort</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">KnuckleClosure</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">lam</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot infer sort of </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">nbe</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalization by evaluation.</span>
+
+<span class="sd">    &gt;&gt;&gt; nbe(smt.IntVal(41) + smt.IntVal(1))</span>
+<span class="sd">    42</span>
+<span class="sd">    &gt;&gt;&gt; x,y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; nbe(smt.Lambda([x], x + 1)[3])</span>
+<span class="sd">    4</span>
+<span class="sd">    &gt;&gt;&gt; nbe(smt.Lambda([x], x + 1))</span>
+<span class="sd">    Lambda(x, x + 1)</span>
+<span class="sd">    &gt;&gt;&gt; nbe(smt.Lambda([x], smt.IntVal(3) + 1))</span>
+<span class="sd">    Lambda(x, 3 + 1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">reify</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">(),</span> <span class="n">eval_</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">locals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">locals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">globals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">globals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> in global or local environment&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reflect_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rec</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">expr</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">_py2expr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="c1"># case ast.UnaryOp(ast.UAdd(), operand):</span>
+            <span class="c1">#    return +rec(operand)</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">Not</span><span class="p">(),</span> <span class="n">operand</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">~</span><span class="n">rec</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">USub</span><span class="p">(),</span> <span class="n">operand</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">rec</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">Invert</span><span class="p">(),</span> <span class="n">operand</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">~</span><span class="n">rec</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span><span class="w"> </span><span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">(</span><span class="k">_</span><span class="p">,</span> <span class="n">operand</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;UnaryOp </span><span class="si">{</span><span class="n">expr</span><span class="o">.</span><span class="n">op</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Add</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">+</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Sub</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">-</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Mult</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Div</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">/</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Mod</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">%</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Pow</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">**</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">LShift</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">RShift</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">BitOr</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">|</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">BitXor</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">^</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">BitAnd</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">FloorDiv</span><span class="p">(),</span> <span class="n">right</span><span class="o">=</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">//</span> <span class="n">rec</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BoolOp</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">And</span><span class="p">(),</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BoolOp</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Or</span><span class="p">(),</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Compare</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">rights</span><span class="p">):</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">rec</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">right</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">rights</span><span class="p">):</span>
+                    <span class="n">right</span> <span class="o">=</span> <span class="n">rec</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+                    <span class="k">match</span> <span class="n">op</span><span class="p">:</span>
+                        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Eq</span><span class="p">():</span>
+                            <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Eq</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">))</span>
+                        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">NotEq</span><span class="p">():</span>
+                            <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span> <span class="o">!=</span> <span class="n">right</span><span class="p">)</span>
+                        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Lt</span><span class="p">():</span>
+                            <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">LtE</span><span class="p">():</span>
+                            <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Gt</span><span class="p">():</span>
+                            <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span> <span class="o">&gt;</span> <span class="n">right</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">GtE</span><span class="p">():</span>
+                            <span class="n">acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span> <span class="o">&gt;=</span> <span class="n">right</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compare </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">left</span> <span class="o">=</span> <span class="n">right</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="o">*</span><span class="n">acc</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">acc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">keywords</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="n">keywords</span> <span class="o">==</span> <span class="p">[]</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">rec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Callable</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">IfExp</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">orelse</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="n">rec</span><span class="p">(</span><span class="n">test</span><span class="p">),</span> <span class="n">rec</span><span class="p">(</span><span class="n">body</span><span class="p">),</span> <span class="n">rec</span><span class="p">(</span><span class="n">orelse</span><span class="p">))</span>
+            <span class="k">case</span><span class="w"> </span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="k">_</span><span class="p">,</span> <span class="n">_ctx</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">id_</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="nb">globals</span><span class="p">)</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">_ctx</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rec</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="k">case</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Could not interpret expression&quot;</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ast</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rec</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_calling_globals_locals</span><span class="p">():</span>
+    <span class="n">stack</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">caller_frame</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">caller_frame</span><span class="o">.</span><span class="n">frame</span>
+        <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No calling site found&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">expr</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn a string of a python expression into a z3 expressions.</span>
+<span class="sd">    Globals are inferred to be current scope if not given.</span>
+
+<span class="sd">    &gt;&gt;&gt; expr(&quot;x + 1&quot;, globals={&quot;x&quot;: smt.Int(&quot;x&quot;)})</span>
+<span class="sd">    x + 1</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Int(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; f = smt.Function(&quot;f&quot;, smt.IntSort(), smt.IntSort())</span>
+<span class="sd">    &gt;&gt;&gt; expr(&quot;f(x) + 1 if 0 &lt; x &lt; 5 &lt; 7 else x * x&quot;)</span>
+<span class="sd">    If(And(0 &lt; x, 5 &gt; x, 5 &lt; 7), f(x) + 1, x*x)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">globals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">globals</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_calling_globals_locals</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_reflect_expr</span><span class="p">(</span>
+        <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reflect_stmts</span><span class="p">(</span><span class="n">stmts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">stmt</span><span class="p">],</span> <span class="nb">globals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn a list of python statements into a z3 Expression.</span>
+
+<span class="sd">    This is a &quot;purely functional&quot; subset of python, with assignment treated as a `let`.</span>
+
+<span class="sd">    It is possible to model more of python but that is not what this function is for. It works for a subset of python for which</span>
+<span class="sd">    the behavior of the mathematical language of Knuckledragger and python coincide.</span>
+
+<span class="sd">    A very restricted subset of python statements are allowed.</span>
+<span class="sd">    It must be a sequence of simple assignments ended by a return or if statement.</span>
+<span class="sd">    for loops, while loops are not allowed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">stmts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">locals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">locals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">stmts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">match</span> <span class="n">stmt</span><span class="p">:</span>
+            <span class="k">case</span><span class="w"> </span><span class="n">ast</span><span class="o">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="k">_</span><span class="p">,</span> <span class="n">_ctx</span><span class="p">)],</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">_reflect_expr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span><span class="p">)</span>
+                <span class="nb">locals</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="nb">locals</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Statement </span><span class="si">{</span><span class="n">stmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">match</span> <span class="n">stmts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Return</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Returning None not allowed&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_reflect_expr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">orelse</span><span class="p">):</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="n">_reflect_expr</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">_reflect_stmts</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+            <span class="n">orelse</span> <span class="o">=</span> <span class="n">_reflect_stmts</span><span class="p">(</span><span class="n">orelse</span><span class="p">,</span> <span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">orelse</span><span class="p">)</span>
+        <span class="c1"># Todo match.</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Statement </span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">stmts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2"> not supported as last statement. Must be a return or if&quot;</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sort_of_annotation</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="k">match</span> <span class="n">ann</span><span class="p">:</span>
+        <span class="k">case</span><span class="w"> </span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="k">_</span><span class="p">):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">id_</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">s</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">sort_of_type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="c1"># if id_ == &quot;int&quot;:</span>
+            <span class="c1">#    return smt.IntSort()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name </span><span class="si">{</span><span class="n">id_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">env</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">s</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Annotation </span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reflect</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reflect a function definition by injecting the parameters and recursive self call into the local environment.</span>
+<span class="sd">    Uses type annotations to do so.</span>
+
+<span class="sd">    Only handles a purely functional subset of python.</span>
+<span class="sd">    Simple assignment is handled as a `let` who&#39;s scope extends to the end of it&#39;s subbranch.</span>
+<span class="sd">    Every branch must end with a return.</span>
+
+<span class="sd">    You can still call original function under attribute `__wrapped__`.</span>
+
+<span class="sd">    &gt;&gt;&gt; def foo(x : int) -&gt; int:</span>
+<span class="sd">    ...     return x + 3</span>
+<span class="sd">    &gt;&gt;&gt; foo = reflect(foo)</span>
+<span class="sd">    &gt;&gt;&gt; foo.__wrapped__(3)</span>
+<span class="sd">    6</span>
+<span class="sd">    &gt;&gt;&gt; foo.defn</span>
+<span class="sd">    |= ForAll(x, foo(x) == x + 3)</span>
+
+<span class="sd">    &gt;&gt;&gt; @reflect</span>
+<span class="sd">    ... def bar(x : int, y : str) -&gt; int:</span>
+<span class="sd">    ...     if x &gt; 4:</span>
+<span class="sd">    ...         return x + 3</span>
+<span class="sd">    ...     elif y == &quot;fred&quot;:</span>
+<span class="sd">    ...        return 14</span>
+<span class="sd">    ...     else:</span>
+<span class="sd">    ...        return bar(x - 1, y)</span>
+<span class="sd">    &gt;&gt;&gt; bar.defn</span>
+<span class="sd">    |= ForAll([x, y],</span>
+<span class="sd">           bar(x, y) ==</span>
+<span class="sd">           If(4 &lt; x, x + 3, If(y == &quot;fred&quot;, 14, bar(x - 1, y))))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">body</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">fun</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">posonlyargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">kwonlyargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="nb">locals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">globals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">globals</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_calling_globals_locals</span><span class="p">()</span>
+    <span class="c1"># infer arguments from type annotations.</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span> <span class="n">_sort_of_annotation</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">annotation</span><span class="p">,</span> <span class="nb">globals</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">fun</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">args</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">fun</span><span class="o">.</span><span class="n">returns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Function </span><span class="si">{</span><span class="n">fun</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have a return type annotation&quot;</span><span class="p">)</span>
+    <span class="c1"># insert self name into locals so that recursive calls work.</span>
+    <span class="n">z3fun</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span>
+        <span class="n">fun</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">[</span><span class="n">arg</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">],</span>
+        <span class="n">_sort_of_annotation</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">returns</span><span class="p">,</span> <span class="nb">globals</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="nb">locals</span><span class="p">[</span><span class="n">fun</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">z3fun</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="nb">locals</span><span class="p">[</span><span class="n">arg</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">arg</span>
+    <span class="c1"># Actually interpret body.</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">_reflect_stmts</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span><span class="p">)</span>
+    <span class="n">z3fun1</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="c1"># Check that types work out.</span>
+    <span class="k">if</span> <span class="n">z3fun</span><span class="o">.</span><span class="n">range</span><span class="p">()</span> <span class="o">!=</span> <span class="n">z3fun1</span><span class="o">.</span><span class="n">range</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Function </span><span class="si">{</span><span class="n">fun</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> has return type </span><span class="si">{</span><span class="n">_sort_of_annotation</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="n">returns</span><span class="p">,</span><span class="w"> </span><span class="nb">globals</span><span class="p">)</span><span class="si">}</span><span class="s2"> but body evaluates to </span><span class="si">{</span><span class="n">body</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># This should never fail.</span>
+    <span class="k">assert</span> <span class="n">z3fun</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span> <span class="o">==</span> <span class="n">z3fun1</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="n">z3fun</span><span class="o">.</span><span class="n">domain</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="n">z3fun1</span><span class="o">.</span><span class="n">domain</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">z3fun</span><span class="o">.</span><span class="n">arity</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="n">z3fun1</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">datatype</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">DatatypeSortRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use python type syntax to define an algebraic datatype datatype.</span>
+<span class="sd">    Fields can be specified positionally or by name.</span>
+<span class="sd">    Reads the inner types from current environment.</span>
+
+<span class="sd">    &gt;&gt;&gt; Int = smt.IntSort()</span>
+<span class="sd">    &gt;&gt;&gt; Real = smt.RealSort()</span>
+<span class="sd">    &gt;&gt;&gt; Foo = datatype(&quot;type Foo = Biz | Bar | Baz(Int, Int, smt.IntSort()) | Boz(x = Int, y = Int)&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Foo.Baz.domain(1)</span>
+<span class="sd">    Int</span>
+<span class="sd">    &gt;&gt;&gt; Foo.x.range()</span>
+<span class="sd">    Int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">locals</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">globals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No calling site found&quot;</span><span class="p">)</span>
+        <span class="n">f_back</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span>
+        <span class="nb">locals</span> <span class="o">=</span> <span class="n">f_back</span><span class="o">.</span><span class="n">f_locals</span> <span class="k">if</span> <span class="nb">locals</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">locals</span>
+        <span class="nb">globals</span> <span class="o">=</span> <span class="n">f_back</span><span class="o">.</span><span class="n">f_globals</span> <span class="k">if</span> <span class="nb">globals</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">globals</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">body</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected a single type alias, got </span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">type_alias</span> <span class="o">=</span> <span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_alias</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">TypeAlias</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected a single type alias, got </span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Inductive</span><span class="p">(</span><span class="n">type_alias</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">type_alias</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">():</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">BitOr</span><span class="p">(),</span> <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">):</span>
+                <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+                <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">dt</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">keywords</span><span class="o">=</span><span class="p">[]):</span>
+                <span class="n">dt</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="o">*</span><span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">_reflect_expr</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="nb">globals</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">keywords</span><span class="o">=</span><span class="n">keywords</span><span class="p">):</span>
+                <span class="n">dt</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="o">*</span><span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">kw</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span>
+                            <span class="n">_reflect_expr</span><span class="p">(</span><span class="n">kw</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="nb">locals</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="nb">globals</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">keywords</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unexpected subexpression: </span><span class="si">{</span><span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">type_alias</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.property.idem_norm.html" class="btn btn-neutral float-left" title="kdrag.property.idem_norm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.reflect.datatype.html" class="btn btn-neutral float-right" title="kdrag.reflect.datatype" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.has\_type
+=================================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: has_type
