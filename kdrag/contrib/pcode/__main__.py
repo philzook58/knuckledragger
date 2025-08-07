@@ -1,5 +1,5 @@
 import click
-from kdrag.contrib.pcode.asmspec import assemble_and_gen_vcs, pretty_trace
+from kdrag.contrib.pcode.asmspec import assemble_and_gen_vcs, pretty_trace, kd_macro
 import sys
 import kdrag.smt as smt
 import pprint
@@ -17,8 +17,38 @@ import pprint
     default="as",
     help="Assembler to use. Default is 'as'.",
 )
-def asmc(filename: str, langid: str, asm: str):
-    """Simple program that greets NAME for a total of COUNT times."""
+@click.option(
+    "--print-macros",
+    is_flag=True,
+    help="Print annotation GAS macros. Give it a dummy filename",
+)
+def asmc(filename: str, langid: str, asm: str, print_macros: bool):
+    """
+    asmc - Assembly Checker
+    A tool to check verification conditions for assembly code using Ghidra PCode.
+
+    Example:
+
+    \b
+    ```/tmp/test.s
+    .include "/tmp/knuckle.s"
+    .globl myfunc
+    \b
+    .text
+        kd_entry myfunc "true"
+        movq $42, %rax
+        kd_exit .Lfunc_end "(= RAX (_ bv42 64))"
+    ret
+    ```
+    \b
+    ```
+    python3 -m kdrag.contrib.pcode /tmp/test.s
+    ```
+
+    """
+    if print_macros:
+        print(kd_macro)  # TODO. This requires a filename still. Go to subcommands?
+        sys.exit(0)
     print(f"Processing {filename} with language ID {langid} using assembler {asm}")
     print("Constructing Trace Fragments...")
     ctx, vcs = assemble_and_gen_vcs(filename, langid=langid, as_bin=asm)

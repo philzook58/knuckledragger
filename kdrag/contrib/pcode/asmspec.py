@@ -10,41 +10,59 @@ import subprocess
 from typing import NamedTuple, Optional
 
 kd_macro = r"""
-#precondition
-.macro kd_entry label smt_bool
-\label :
+# For injection of SMT commands, e.g., declare-const
+.macro kd_prelude smt_command
+.pushsection .asmspec,"a"
+.ascii "kd_prelude \"\expr\"\n"
+.popsection
 .endm
 
+
+.macro kd_always smt_bool
+.pushsection .asmspec,"a"
+.ascii "kd_always \"\expr\"\n"
+.popsection
+.endm
+
+
+.macro kd_boolstmt kind label expr
+.pushsection .asmspec,"a"
+.ascii "\kind \label \"\expr\" \n"
+.popsection
+\label:
+.endm
+
+# symbolic execution start points and precondition
+.macro kd_entry label smt_bool
+kd_boolstmt "kd_entry" \label \smt_bool
+.endm
+
+# Assert properties
 .macro kd_assert label smt_bool
-\label :
+kd_boolstmt "kd_assert" \label \smt_bool
 .endm
 
 .macro kd_assume label smt_bool
-\label :
+kd_boolstmt "kd_assume" \label \smt_bool
 .endm
 
-#postcondition
+# symbolic execution end points and postcondition
 .macro kd_exit label smt_bool 
-\label :
+kd_boolstmt "kd_entry" \label \smt_bool
 .endm
 
-#invariant
+# invariant
 .macro kd_cut label smt_bool
-\label :
+kd_boolstmt "kd_cut" \label \smt_bool
 .endm 
 
-.macro kd_always smt_bool
-.endm
-
-.macro kd_prelude smt_command
-.endm
-
+# For manipulation of executor ghost state. Often for saving values
 .macro kd_assign label name value
+.pushsection .asmspec,"a"
+.ascii "kd_assign \"\expr\"\n"
+.popsection
 \label :
 .endm
-
-
-
 """
 
 
@@ -411,7 +429,9 @@ def assemble_and_gen_vcs(
     with open("/tmp/knuckle.s", "w") as f:
         f.write(kd_macro)
         f.flush()
-    subprocess.run([as_bin, filename, "-o", "/tmp/kdrag_temp.o"], check=True)
+    subprocess.run(
+        [as_bin, filename, "-L", "-o", "/tmp/kdrag_temp.o"], check=True
+    )  # -L to support local labels
     ctx = pcode.BinaryContext("/tmp/kdrag_temp.o", langid=langid)
     spec = AsmSpec.of_file(filename, ctx)
     return ctx, run_all_paths(ctx, spec)

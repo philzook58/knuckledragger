@@ -190,7 +190,7 @@ def PowerSet(A: smt.ArrayRef) -> smt.ArrayRef:
     >>> A = Singleton(smt.IntVal(3))
     >>> P = PowerSet(A)
     >>> kd.prove(member(IntSet.empty, P))
-    |= Lambda(c!37, subset(c!37, Store(K(Int, False), 3, True)))[K(Int,
+    |= Lambda(c!..., subset(c!..., Store(K(Int, False), 3, True)))[K(Int,
         False)]
     """
     B = smt.FreshConst(A.sort())
@@ -321,6 +321,8 @@ def Finite(A: smt.ArrayRef) -> smt.BoolRef:
     return kd.QExists(
         [finwit], kd.QForAll([x], A[x] == smt.Contains(finwit, smt.Unit(x)))
     )
+    # Lambda form?
+    # return A == smt.Lambda([x], smt.Contains(finwit(A), smt.Unit(x))
 
 
 # TODO: Theorems: Finite is closed under most operations
