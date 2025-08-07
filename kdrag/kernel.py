@@ -536,22 +536,26 @@ def is_fresh_var(v: smt.ExprRef) -> bool:
     >>> is_fresh_var(FreshVar("x", smt.IntSort()))
     True
     """
-    if not hasattr(v, "schema_evidence"):
+    if not hasattr(v, "fresh_evidence"):
         return False
     else:
-        evidence = getattr(v, "schema_evidence")
+        evidence = getattr(v, "fresh_evidence")
         return isinstance(evidence, _FreshVarEvidence) and evidence.v.eq(v)
 
 
 def FreshVar(prefix: str, sort: smt.SortRef) -> smt.ExprRef:
     """
-    Generate a fresh variable
+    Generate a fresh variable. This is distinguished from FreshConst by the fact that it has freshness evidence.
+    This is intended to be used for constants that represent arbitrary terms (implicitly universally quantified).
+    For example, axioms like `c_fresh = t` should never be asserted about bare FreshVars as they imply a probably inconsistent axiom,
+    whereas asserting such an axiom about FreshConst is ok, effectively defining a new rigid constant.
 
-    >>> FreshVar("x", smt.IntSort()).schema_evidence
+
+    >>> FreshVar("x", smt.IntSort()).fresh_evidence
     _FreshVarEvidence(v=x!...)
     """
     v = smt.FreshConst(sort, prefix=prefix)
-    v.schema_evidence = _FreshVarEvidence(
+    v.fresh_evidence = _FreshVarEvidence(
         v
     )  # Is cyclic reference a garbage collection problem?
     return v
