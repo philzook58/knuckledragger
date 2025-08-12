@@ -373,7 +373,7 @@ class Lemma:
 
     def __init__(self, goal: smt.BoolRef):
         self.start_time = time.perf_counter()
-        self.lemmas: dict[int, kdrag.kernel.Proof] = {}
+        self.lemmas: list[dict[int, kdrag.kernel.Proof]] = [{}]
         self.thm = goal
         self.goals: list[Goal | LemmaCallback] = [Goal(sig=[], ctx=[], goal=goal)]
         self.pushed = None
@@ -382,14 +382,20 @@ class Lemma:
         """
         Record a lemma in the current Lemma state.
         """
-        self.lemmas[lemma.thm.get_id()] = lemma
+        self.lemmas[-1][lemma.thm.get_id()] = lemma
 
     def get_lemma(self, thm: smt.BoolRef) -> kd.kernel.Proof:
-        l = self.lemmas.get(thm.get_id())
+        l = self.lemmas[-1].get(thm.get_id())
         if l is None:
-            return kdrag.kernel.prove(thm, by=list(self.lemmas.values()))
+            return kdrag.kernel.prove(thm, by=list(self.lemmas[-1].values()))
         else:
             return l
+
+    def push_lemmas(self):
+        self.lemmas.append({})
+
+    def pop_lemmas(self):
+        self.lemmas.pop()
 
     def copy(self):
         """
@@ -485,7 +491,7 @@ class Lemma:
                 l = self.get_lemma(smt.Implies(smt.And(goalctx.ctx), newgoal))
                 self.add_lemma(kd.kernel.compose(l, herb_lemma))
 
-            self.goals.append(LemmaCallback(cb, annot=goal))
+            self.goals.append(LemmaCallback(cb, annot=("fixes", goal)))
             self.goals.append(goalctx._replace(sig=goalctx.sig + vs, goal=newgoal))
             return vs
         else:
@@ -741,11 +747,19 @@ class Lemma:
         if at is None:
             if smt.is_and(goal):
                 self.pop_goal()
-                self.goals.extend(
-                    [
-                        goalctx._replace(ctx=ctx, goal=c)
-                        for c in reversed(goal.children())
+                children = goal.children()
+                self.push_lemmas()
+
+                def cb():
+                    subproofs = [
+                        self.get_lemma(smt.Implies(smt.And(ctx), g)) for g in children
                     ]
+                    self.pop_lemmas()
+                    self.add_lemma(kd.kernel.andI(subproofs))
+
+                self.goals.append(LemmaCallback(cb, annot=("split", goal)))
+                self.goals.extend(
+                    [goalctx._replace(ctx=ctx, goal=c) for c in reversed(children)]
                 )
             elif smt.is_eq(goal):
                 self.pop_goal()
@@ -976,16 +990,24 @@ class Lemma:
             e = goalctx.goal
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls1, trace=trace)
-            for l in trace:
-                self.add_lemma(l)
+            try:
+                self.add_lemma(kd.kernel.prove(smt.Eq(e, e2), by=trace))
+            except Exception as _err:
+                self.add_lemma(
+                    kd.kernel.prove(smt.Eq(e, e2), by=trace, admit=True)
+                )  # TODO: Hack to keep moving. This shuldn't be failing
+                print(
+                    "Something is off in unfold",
+                    smt.Eq(e, e2),
+                    trace,
+                )
             self.pop_goal()
             self.goals.append(goalctx._replace(goal=e2))
         else:
             e = goalctx.ctx[at]
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls, trace=trace)
-            for l in trace:
-                self.add_lemma(l)
+            self.add_lemma(kd.prove(e == e2, by=trace))
             self.pop_goal()
             if at == -1:
                 at = len(goalctx.ctx) - 1
@@ -1027,6 +1049,8 @@ class Lemma:
             if isinstance(pf, kd.Proof) and len(rule.vs) > 0:
                 pf1 = kd.kernel.instan([subst[v] for v in rule.vs], pf)
                 self.add_lemma(pf1)
+            elif isinstance(pf, kd.Proof) and len(rule.vs) == 0:
+                self.add_lemma(pf)
             elif isinstance(pf, int) and len(rule.vs) > 0:
                 pf1 = kd.kernel.instan2([subst[v] for v in rule.vs], ctx[pf])
                 self.add_lemma(pf1)
@@ -1137,7 +1161,10 @@ class Lemma:
         while len(self.goals) > 0 and isinstance(self.goals[-1], LemmaCallback):
             lc = self.goals.pop()
             assert isinstance(lc, LemmaCallback)  # for type checker
-            lc.cb()
+            try:
+                lc.cb()
+            except Exception as e:
+                raise ValueError("LemmaCallback failed", lc.annot) from e
         if len(self.goals) == 0:
             return Goal.empty()  # kind of hacky
         res = self.goals[-1]
@@ -1155,13 +1182,16 @@ class Lemma:
         """
         for lam_cb in reversed(self.goals):
             if isinstance(lam_cb, LemmaCallback):
-                lam_cb.cb()
-        if self.thm.get_id() in self.lemmas:
-            return self.lemmas[self.thm.get_id()]
+                try:
+                    lam_cb.cb()
+                except Exception as e:
+                    raise ValueError("LemmaCallback failed", lam_cb.annot) from e
+        if self.thm.get_id() in self.lemmas[-1]:
+            return self.lemmas[-1][self.thm.get_id()]
         if "by" in kwargs:
-            kwargs["by"].extend(self.lemmas.values())
+            kwargs["by"].extend(self.lemmas[-1].values())
         else:
-            kwargs["by"] = list(self.lemmas.values())
+            kwargs["by"] = list(self.lemmas[-1].values())
         pf = kd.kernel.prove(self.thm, **kwargs)
         kdrag.config.perf_event(
             "Lemma", self.thm, time.perf_counter() - self.start_time

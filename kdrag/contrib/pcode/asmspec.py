@@ -155,12 +155,22 @@ class AsmSpec:
 
         def parse_smt(smt_bool: str, linemo: int, line: str) -> smt.BoolRef:
             # parse with slightly nicer error throwing, saying which line in asm responsible
-            try:
-                return smt.parse_smt2_string(smt_string, decls=decls)[0]
-            except Exception as e:
-                raise Exception(
-                    f"Error parsing SMT expression at line {lineno + 1}: {line}", e
+            left_count, right_count = smt_bool.count("("), smt_bool.count(")")
+            if left_count < right_count:
+                raise ValueError(
+                    f'Too many ")" parentheses in SMT expression at line {lineno + 1}: {line}'
                 )
+            elif left_count > right_count:
+                raise ValueError(
+                    f'Too many "(" parentheses in SMT expression at line {lineno + 1}: {line}'
+                )
+            else:
+                try:
+                    return smt.parse_smt2_string(smt_string, decls=decls)[0]
+                except Exception as e:
+                    raise Exception(
+                        f"Error parsing SMT expression at line {lineno + 1}: {line}", e
+                    )
 
         with open(filename) as f:
             for lineno, line in enumerate(f.readlines()):
@@ -281,11 +291,11 @@ class VerificationCondition(NamedTuple):
             substitute(self.cause.expr, ctx, self.memstate, self.ghost_env),
         )
 
-    def verify(self, ctx: pcode.BinaryContext, by=[]) -> kd.Proof:
+    def verify(self, ctx: pcode.BinaryContext, **kwargs) -> kd.Proof:
         """
         Verify the verification condition using the given context.
         """
-        return kd.prove(self.vc(ctx), by=by)
+        return kd.prove(self.vc(ctx), **kwargs)
 
     def countermodel(self, ctx: pcode.BinaryContext, m: smt.ModelRef) -> dict:
         """
@@ -295,6 +305,11 @@ class VerificationCondition(NamedTuple):
         interesting = set(
             c
             for c in kd.utils.consts(self.cause.expr)
+            if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
+        )
+        interesting.update(
+            c
+            for c in kd.utils.consts(self.start.expr)
             if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
         )
         todo = [self.cause.expr]

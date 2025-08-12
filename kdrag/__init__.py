@@ -28,6 +28,9 @@ axiom = kernel.axiom
 
 define = kernel.define
 
+FreshVar = kernel.FreshVar
+
+FreshVars = tactics.FreshVars
 
 QForAll = notation.QForAll
 
@@ -73,6 +76,8 @@ __all__ = [
     "axiom",
     "define",
     "Proof",
+    "FreshVar",
+    "FreshVars",
     "QForAll",
     "QExists",
     "cond",

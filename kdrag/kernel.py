@@ -410,19 +410,82 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     )
 
 
+def free_in(vs: list[smt.ExprRef], t: smt.ExprRef) -> bool:
+    """
+    Returns True if none of the variables in vs exist unbound in t.
+    Distinct from `occurs` in that vs have to be constants, not general terms.
+
+    >>> x,y,z = smt.Ints("x y z")
+    >>> assert not free_in([x], x + y + z)
+    >>> assert free_in([x], y + z)
+    >>> assert free_in([x], smt.Lambda([x], x + y + z))
+    """
+    return smt.Lambda(vs, t).body().eq(t)
+
+
+def rename_vars(
+    t: smt.QuantifierRef, vs: list[smt.ExprRef]
+) -> tuple[smt.QuantifierRef, Proof]:
+    """
+
+    >>> x,y = smt.Ints("x y")
+    >>> rename_vars(smt.ForAll([x, y], x + 1 > y), [y,x])
+    (ForAll([y, x], y + 1 > x), |= (ForAll([x, y], x + 1 > y)) == (ForAll([y, x], y + 1 > x)))
+    >>> rename_vars(smt.Exists([x], x + 1 > y), [y])
+    Traceback (most recent call last):
+        ...
+    ValueError: ('Cannot rename vars to ones that already occur in term', [y], Exists(x, x + 1 > y))
+    """
+    assert isinstance(t, smt.QuantifierRef)
+    if not free_in(vs, t):
+        raise ValueError("Cannot rename vars to ones that already occur in term", vs, t)
+    body = smt.substitute_vars(t.body(), *reversed(vs))
+    if t.is_forall():
+        t2 = smt.ForAll(vs, body)
+    elif t.is_exists():
+        t2 = smt.ForAll(vs, body)
+    elif t.is_lambda():
+        t2 = smt.Lambda(vs, body)
+    else:
+        raise Exception("Unknown quantifier type", t)
+    return t2, kd.axiom(t == t2, by=["rename", t, vs])
+
+
 def modus(ab: Proof, a: Proof) -> Proof:
     """
-    Modus ponens
+    Modus ponens for implies and equality.
 
     >>> a,b = smt.Bools("a b")
     >>> ab = axiom(smt.Implies(a, b))
     >>> a = axiom(a)
     >>> modus(ab, a)
     |= b
+    >>> ab1 = axiom(smt.Eq(a.thm, b))
+    >>> modus(ab1, a)
+    |= b
     """
     assert isinstance(ab, Proof) and isinstance(a, Proof)
-    assert smt.is_implies(ab.thm) and ab.thm.arg(0).eq(a.thm)
+    assert smt.is_implies(ab.thm) or smt.is_eq(ab.thm)
+    assert ab.thm.arg(0).eq(a.thm)
     return axiom(ab.thm.arg(1), ["modus", ab, a])
+
+
+def andI(pfs: Sequence[Proof]) -> Proof:
+    """
+    Prove an and from two kd.Proofs of its conjuncts.
+
+    >>> a, b = smt.Bools("a b")
+    >>> pa = kd.axiom(smt.Implies(True, a))
+    >>> pb = kd.axiom(smt.Implies(True, b))
+    >>> andI([pa, pb, pb])
+    |= Implies(True, And(a, b, b))
+    """
+    assert all(isinstance(pf, Proof) for pf in pfs)
+    ctx = pfs[0].thm.arg(0)
+    assert all(smt.is_implies(pf.thm) and pf.thm.arg(0).eq(ctx) for pf in pfs)
+    return kd.axiom(
+        smt.Implies(ctx, smt.And([pf.thm.arg(1) for pf in pfs])), ["andI", pfs]
+    )
 
 
 def compose(ab: Proof, bc: Proof) -> Proof:

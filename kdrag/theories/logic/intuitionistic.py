@@ -107,7 +107,11 @@ kd.notation.and_.register(Prop, and_)
 kd.notation.or_.register(Prop, or_)
 kd.notation.invert.register(Prop, not_)
 
-impl_aba = kd.prove(kd.QForAll([a, b], valid(impl_(a, impl_(b, a)))), unfold=1)
+impl_aba = kd.prove(
+    kd.QForAll([a, b], valid(impl_(a, impl_(b, a)))),
+    # unfold=1,
+    by=[impl_.defn, valid.defn],
+)
 
 
 impl_aba = kd.prove(kd.QForAll([a, b], Valid(Implies(a, Implies(b, a)))))

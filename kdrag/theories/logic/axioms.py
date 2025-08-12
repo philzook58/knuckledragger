@@ -4,6 +4,7 @@ Axioms that could be in the Kernel, but aren't needed for everyday functioning o
 
 import kdrag as kd
 import kdrag.smt as smt
+from typing import Sequence
 
 
 def proj(p: kd.Proof, n: int) -> kd.Proof:
@@ -19,20 +20,6 @@ def proj(p: kd.Proof, n: int) -> kd.Proof:
     """
     assert isinstance(p, kd.Proof) and smt.is_and(p.thm)
     return kd.axiom(p.thm.arg(n), ["proj", p, n])
-
-
-def andI(a: kd.Proof, b: kd.Proof) -> kd.Proof:
-    """
-    Prove an and from two kd.Proofs of its conjuncts.
-
-    >>> a, b = smt.Bools("a b")
-    >>> pa = kd.axiom(a)
-    >>> pb = kd.axiom(b)
-    >>> andI(pa, pb)
-    |= And(a, b)
-    """
-    assert isinstance(a, kd.Proof) and isinstance(b, kd.Proof)
-    return kd.axiom(smt.And(a.thm, b.thm), ["andI", a, b])
 
 
 def eqrefl(x: smt.ExprRef) -> kd.Proof:
@@ -114,6 +101,38 @@ def subst(eq: kd.Proof, t: smt.ExprRef) -> kd.Proof:
     return kd.axiom(
         t == smt.substitute(t, (eq.thm.arg(0), eq.thm.arg(1))), ["subst", eq, t]
     )
+
+
+def unfold(e: smt.ExprRef, defn_eqs: Sequence[kd.Proof]):
+    """
+    Unfold a definitional equation. The order of variables is off from what kd.define returns.
+
+    >>> x = smt.Int("x")
+    >>> y = smt.Real("y")
+    >>> f = smt.Function("test_f", smt.IntSort(), smt.RealSort(), smt.RealSort())
+    >>> defn = kd.axiom(smt.ForAll([y,x], f(x,y) == (x + 2*y)))
+    >>> unfold(f(7,8), [defn])
+    |= test_f(7, 8) == ToReal(7) + 2*8
+    """
+    assert all(isinstance(pf, kd.Proof) for pf in defn_eqs)
+    subst = []
+    for pf in defn_eqs:
+        thm = pf.thm
+        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+            eq = thm.body()
+            lhs, rhs = eq.arg(0), eq.arg(1)
+            decl = lhs.decl()
+            for n, v in enumerate(lhs.children()):
+                assert smt.is_var(v) and smt.get_var_index(v) == n
+            subst.append((decl, rhs))
+        elif smt.is_eq(thm):
+            lhs, rhs = thm.arg(0), thm.arg(1)
+            assert smt.is_const(lhs)
+            decl = lhs.decl()
+            subst.append((decl, rhs))
+        else:
+            raise ValueError("Unfolding only works for definitional equalities", pf)
+    return kd.axiom(e == smt.substitute_funs(e, *subst), by=["unfold", defn_eqs])
 
 
 def beta_conv(lam: smt.QuantifierRef, *args) -> kd.Proof:

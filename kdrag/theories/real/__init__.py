@@ -8,7 +8,6 @@ import kdrag.smt as smt
 from kdrag.smt import ForAll, Function
 import kdrag as kd
 
-
 R = smt.RealSort()
 RFun = smt.ArraySort(R, R)
 RSeq = smt.ArraySort(smt.IntSort(), R)

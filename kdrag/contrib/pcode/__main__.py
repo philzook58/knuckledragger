@@ -18,11 +18,16 @@ import pprint
     help="Assembler to use. Default is 'as'.",
 )
 @click.option(
+    "--timeout",
+    default=1000,
+    help="Timeout on verification conditions in milliseconds. Default is 1000ms.",
+)
+@click.option(
     "--print-macros",
     is_flag=True,
     help="Print annotation GAS macros. Give it a dummy filename",
 )
-def asmc(filename: str, langid: str, asm: str, print_macros: bool):
+def asmc(filename: str, langid: str, asm: str, print_macros: bool, timeout: int):
     """
     asmc - Assembly Checker
     A tool to check verification conditions for assembly code using Ghidra PCode.
@@ -54,17 +59,29 @@ def asmc(filename: str, langid: str, asm: str, print_macros: bool):
     ctx, vcs = assemble_and_gen_vcs(filename, langid=langid, as_bin=asm)
     print("Checking verification conditions...")
     failures = 0
-    for vc in vcs:
+    for vc in reversed(vcs):
         try:
-            vc.verify(ctx)
+            vc.verify(ctx, timeout=timeout)
             print(f"[✅] {vc.cause}")
+        except TimeoutError:
+            failures += 1
+            print("")
+            print("---------------------------------------------")
+            print(f"[⏳] {vc.cause} - Verification timed out.")
+            print("Trace:")
+            print(vc.start)
+            print(pretty_trace(ctx, vc.trace))
+            print(vc.cause)
+            print("---------------------------------------------")
+            print("")
         except Exception as e:
             failures += 1
             countermodel = e.args[2]
             if not isinstance(countermodel, smt.ModelRef):
                 raise e
-            print(f"[❌] {vc.cause}")
+            print("")
             print("---------------------------------------------")
+            print(f"[❌] {vc.cause}")
             print("Trace:")
             print(vc.start)
             print(pretty_trace(ctx, vc.trace))
@@ -72,8 +89,8 @@ def asmc(filename: str, langid: str, asm: str, print_macros: bool):
             print("")
             print("Countermodel:")
             pprint.pp(vc.countermodel(ctx, countermodel))
-
             print("---------------------------------------------")
+            print("")
     if failures > 0:
         print(f"❌❌❌❌ {failures} verification conditions failed. ❌❌❌❌")
         sys.exit(1)

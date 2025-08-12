@@ -57,7 +57,7 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
     >>> unfold(f(1), trace=trace)
     1 + 42
     >>> trace
-    [|= f(1) == 1 + 42, |= ForAll(x, f(x) == x + 42)]
+    [|= f(1) == 1 + 42]
 
     >>> unfold(smt.Lambda([x], f(x)))
     Lambda(x, x + 42)
@@ -77,22 +77,34 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
                 # When we have traversed under a binder, things get complicated.
                 # instantiating the axiom on the fresh variable will not be useful.
                 # so just emitting the needed axiom is a hack for now.
-                trace.append(defn.ax)
+                # trace.append(defn.ax)
             return e1
         else:
             return decl(*children)
     elif isinstance(e, smt.QuantifierRef):
-        vs, e1 = kd.utils.open_binder_unhygienic(e)
+        vs0 = [smt.Const(e.var_name(i), e.var_sort(i)) for i in range(e.num_vars())]
+        vs, e1 = kd.utils.open_binder(e)
+        if trace is not None:
+            subtrace = []
+            e2 = unfold(e1, decls=decls, trace=subtrace)
+            if not e2.eq(e1):
+                trace.extend([pf.forall(vs) for pf in subtrace])
+        else:
+            e2 = unfold(e1, decls=decls, trace=None)
         if e.is_forall():
             # TODO: When we go under a quantifier, any trace breadcrumb should really be re-quantified in order to be useful.
             # maybe herbrandize?
-            return smt.ForAll(vs, unfold(e1, decls=decls, trace=trace))
+            e3 = smt.ForAll(vs, e2)
         elif e.is_exists():
-            return smt.Exists(vs, unfold(e1, decls=decls, trace=trace))
+            e3 = smt.Exists(vs, e2)
         elif e.is_lambda():
-            return smt.Lambda(vs, unfold(e1, decls=decls, trace=trace))
+            e3 = smt.Lambda(vs, e2)
         else:
             raise Exception("Unexpected quantifier", e)
+        t, pf = kd.kernel.rename_vars(e3, vs0)
+        if trace is not None and not t.eq(e):
+            trace.append(pf)
+        return t
     else:
         return e
 

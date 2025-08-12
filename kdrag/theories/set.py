@@ -226,6 +226,15 @@ def BigUnion(A: smt.ArrayRef) -> smt.ArrayRef:
     return smt.Lambda([x], kd.QExists([B], B[x], A[B]))
 
 
+@functools.cache
+def bigunion(T: smt.SortRef) -> smt.FuncDeclRef:
+    """
+    Abstracted bigunion
+    """
+    A = smt.Const("A", Set(Set(T)))
+    return kd.define("bigunion", [A], BigUnion(A))
+
+
 def FamilyUnion(family: smt.ArrayRef) -> smt.ArrayRef:
     """
     Countable union of a sequence of sets `Int -> A -> Bool`.
