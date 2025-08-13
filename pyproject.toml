@@ -10,7 +10,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-requires-python = ">= 3.10"
+requires-python = ">= 3.12"
 dependencies = [
     "z3-solver >= 4.8",
     "egglog >= 9.0.0",
@@ -31,9 +31,7 @@ homepage = "https://github.com/philzook58/knuckledragger"
 dev = ["pytest>=6.0", "nbclient", "jupyter"]
 yosys = ["yowasp-yosys>=0.50.0.0.post858"]
 pypcode = ["cle>=9.2.148", "pypcode>=3.0.3"]
-rust = [
-    "maturin>=1.8.6",
-]
+rust = ["maturin>=1.8.6"]
 
 [tool.setuptools]
 include-package-data = true
@@ -55,6 +53,14 @@ ignore = ["E741"]
 "examples/short_talk.ipynb" = ["F401"]
 
 [tool.pyright]
+include = ["kdrag"]
+exclude = [
+    "kdrag/solvers/eprover/*",
+    "kdrag/solvers/gappa*",
+    "kdrag/solvers/Prover9/*",
+]
+
+[tool.ty.src]
 include = ["kdrag"]
 exclude = [
     "kdrag/solvers/eprover/*",
