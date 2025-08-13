@@ -201,6 +201,7 @@ class Defn:
     args: list[smt.ExprRef]
     body: smt.ExprRef
     ax: Proof
+    subst_funs_body: smt.ExprRef
 
 
 _datatypes = {}
@@ -267,7 +268,13 @@ def define(
         def_ax = axiom(smt.ForAll(args, smt.Eq(f(*args), body)), by="definition")
     # assert f not in __sig or __sig[f].eq(   def_ax.thm)  # Check for redefinitions. This is kind of painful. Hmm.
     # Soft warning is more pleasant.
-    defn = Defn(name, args, body, def_ax)
+    defn = Defn(
+        name,
+        args,
+        body,
+        def_ax,
+        smt.substitute(body, *[(a, smt.Var(n, a.sort())) for n, a in enumerate(args)]),
+    )
     if f not in defns or defns[f].ax.thm.eq(def_ax.thm):
         defns[f] = defn
     else:
@@ -297,6 +304,27 @@ def define_fix(name: str, args: list[smt.ExprRef], retsort, fix_lam) -> smt.Func
     defn = define(name, args, fix_lam(record_f))
     # TODO: check for well foundedness/termination, custom induction principle.
     return defn
+
+
+def unfold(
+    e: smt.ExprRef, decls: Sequence[smt.FuncDeclRef]
+) -> tuple[smt.ExprRef, Proof]:
+    """
+    Unfold function definitions in an expression.
+
+    >>> x,y = smt.Ints("x y")
+    >>> f = define("f", [x,y], x + 2*y)
+    >>> g = define("g", [x,y], f(x,y) + 1)
+    >>> unfold(f(42,13) + g(7,8), [f])
+    (42 + 2*13 + g(7, 8), |= f(42, 13) + g(7, 8) == 42 + 2*13 + g(7, 8))
+    >>> unfold(f(42,13) + g(7,8), [f,g])
+    (42 + 2*13 + f(7, 8) + 1, |= f(42, 13) + g(7, 8) == 42 + 2*13 + f(7, 8) + 1)
+    """
+    assert all(isinstance(d, smt.FuncDeclRef) and d in defns for d in decls), (
+        "All decls must be defined functions",
+    )
+    t = smt.substitute_funs(e, *[(f, defns[f].subst_funs_body) for f in decls])
+    return t, kd.axiom(smt.Eq(e, t), by=["unfold", decls])
 
 
 def consider(x: smt.ExprRef) -> Proof:
