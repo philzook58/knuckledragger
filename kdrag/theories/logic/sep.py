@@ -60,8 +60,20 @@ class Sep:
     def Pto(self, key, v):
         """
         Pto(key, v) says that key is allocated but separately a special variable call heap has value v at location key.
+
+        >>> Sep8 = make_sep(smt.BitVecSort(8))
+        >>> key = smt.BitVec("key", 8)
+        >>> v = smt.BitVec("v", 8)
+        >>> Sep8.Pto(key, v)
+        Lambda(h!...,
+           And(Lambda(h!...,
+                      h!... ==
+                      Store(K(BitVec(8), False), key, True))[h!...],
+               Lambda(h!..., heap[key] == v)[h!...]))
         """
-        heap = smt.Const("heap", self.KeySort, v.sort())
+        # TODO: expand out to make cleaner
+        # Is this even a good idea?
+        heap = smt.Const("heap", smt.ArraySort(self.KeySort, v.sort()))
         return self.And(self.Alloc(key), self.Lift(heap[key] == v))
 
     def Sep(self, a, b):  # multistar *args?

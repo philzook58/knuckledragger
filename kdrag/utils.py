@@ -648,7 +648,7 @@ def domain(f: FuncRef) -> list[smt.SortRef]:
     if isinstance(f, smt.ArrayRef):
         res = []
         i = 0
-        try:
+        try:  # I do not know a better way than to try and catch to determine arity of array
             while True:
                 res.append(f.domain_n(i))
                 i += 1
