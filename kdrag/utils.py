@@ -619,6 +619,67 @@ def is_value(t: smt.ExprRef):
     )
 
 
+type FuncRef = smt.ArrayRef | smt.QuantifierRef
+
+
+def is_func(f: FuncRef) -> bool:
+    """
+    Check if a term is a function or an array.
+
+    >>> x = smt.Int("x")
+    >>> assert is_func(smt.Lambda([x], x))
+    """
+    return smt.is_array(f) or (isinstance(f, smt.QuantifierRef) and f.is_lambda())
+
+
+def domain(f: FuncRef) -> list[smt.SortRef]:
+    """
+    Get the domain sorts of a lambda or an array.
+
+    >>> x = smt.Int("x")
+    >>> y = smt.Real("y")
+    >>> f = smt.Array("f", smt.IntSort(), smt.RealSort(), smt.IntSort())
+    >>> domain(f)
+    [Int, Real]
+    >>> lam = smt.Lambda([x, y], x + y)
+    >>> domain(lam)
+    [Int, Real]
+    """
+    if isinstance(f, smt.ArrayRef):
+        res = []
+        i = 0
+        try:
+            while True:
+                res.append(f.domain_n(i))
+                i += 1
+        except smt.Z3Exception:
+            return res
+    elif isinstance(f, smt.QuantifierRef) and f.is_lambda():
+        return [f.var_sort(i) for i in range(f.num_vars())]
+    else:
+        raise TypeError(f"Expected ArrayRef or Lambda, got {f}")
+
+
+def range_(f: FuncRef) -> smt.SortRef:
+    """
+    >>> x = smt.Int("x")
+    >>> y = smt.Int("y")
+    >>> f = smt.Array("f", smt.IntSort(), smt.RealSort())
+    >>> range_(f)
+    Real
+    >>> lam = smt.Lambda([x, y], x + y)
+    >>> range_(lam)
+    Int
+
+    """
+    if isinstance(f, smt.ArrayRef):
+        return f.range()
+    elif isinstance(f, smt.QuantifierRef) and f.is_lambda():
+        return f.body().sort()
+    else:
+        raise TypeError(f"Expected ArrayRef or Lambda, got {f}")
+
+
 def ast_size_sexpr(t: smt.AstRef) -> int:
     """
     Get an approximate size of an AST node by its s-expression length.
