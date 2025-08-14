@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.shim\_ho
+==================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: shim_ho

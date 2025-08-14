@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.select64
+==============================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: select64

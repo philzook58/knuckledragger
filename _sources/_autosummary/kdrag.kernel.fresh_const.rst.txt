@@ -1,0 +1,6 @@
+kdrag.kernel.fresh\_const
+=========================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: fresh_const

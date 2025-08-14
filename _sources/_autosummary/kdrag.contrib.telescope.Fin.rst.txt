@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.Fin
+===========================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: Fin

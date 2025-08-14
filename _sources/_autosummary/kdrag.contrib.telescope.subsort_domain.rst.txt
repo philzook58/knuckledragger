@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.subsort\_domain
+=======================================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: subsort_domain

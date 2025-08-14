@@ -1,0 +1,523 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.float &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.float.IsFinite" href="kdrag.theories.float.IsFinite.html" />
+    <link rel="prev" title="kdrag.theories.fixed.FixedSort" href="kdrag.theories.fixed.FixedSort.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.float</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.float.IsFinite.html">kdrag.theories.float.IsFinite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.float.NoOverflow.html">kdrag.theories.float.NoOverflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.float.in_range.html">kdrag.theories.float.in_range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.float.is_finite.html">kdrag.theories.float.is_finite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.float.no_overflow.html">kdrag.theories.float.no_overflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.float.IsFinite"><code class="docutils literal notranslate"><span class="pre">IsFinite()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.float.NoOverflow"><code class="docutils literal notranslate"><span class="pre">NoOverflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.float.in_range"><code class="docutils literal notranslate"><span class="pre">in_range()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.float.is_finite"><code class="docutils literal notranslate"><span class="pre">is_finite()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.float.min_float64"><code class="docutils literal notranslate"><span class="pre">min_float64</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.float.no_overflow"><code class="docutils literal notranslate"><span class="pre">no_overflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.float.round_up_neg"><code class="docutils literal notranslate"><span class="pre">round_up_neg</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.float</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.float.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.float">
+<span id="kdrag-theories-float"></span><h1>kdrag.theories.float<a class="headerlink" href="#module-kdrag.theories.float" title="Link to this heading"></a></h1>
+<p>Theory of built in floating point and connection to the reals</p>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.float.round_up_neg" title="kdrag.theories.float.round_up_neg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">round_up_neg</span></code></a></p></td>
+<td><p>round_idem_finite = kd.prove(</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.theories.float.min_float64" title="kdrag.theories.float.min_float64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_float64</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.float.IsFinite.html#kdrag.theories.float.IsFinite" title="kdrag.theories.float.IsFinite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IsFinite</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.float.NoOverflow.html#kdrag.theories.float.NoOverflow" title="kdrag.theories.float.NoOverflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoOverflow</span></code></a>(m, x, s)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.float.in_range.html#kdrag.theories.float.in_range" title="kdrag.theories.float.in_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">in_range</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.float.is_finite.html#kdrag.theories.float.is_finite" title="kdrag.theories.float.is_finite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_finite</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.float.no_overflow.html#kdrag.theories.float.no_overflow" title="kdrag.theories.float.no_overflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">no_overflow</span></code></a>(m, x)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.IsFinite">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">IsFinite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FPRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.theories.float.IsFinite" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>FPRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.NoOverflow">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">NoOverflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArithRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.NoOverflow" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ArithRef</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.in_range">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">in_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.in_range" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.is_finite">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">is_finite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FPRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.is_finite" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>FPRef</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.float.min_float64">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">min_float64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(z,</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Implies(Or(fpIsNormal(z),</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">fpIsSubnormal(z),</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">fpIsZero(z)),</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">z</span> <span class="pre">&gt;=</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">fpToFP(RNE(),</span> <span class="pre">-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)))</span></em><a class="headerlink" href="#kdrag.theories.float.min_float64" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.no_overflow">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">no_overflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.no_overflow" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.float.round_up_neg">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">round_up_neg</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(x,</span> <span class="pre">round32(RTP(),</span> <span class="pre">-x)</span> <span class="pre">==</span> <span class="pre">-round32(RTN(),</span> <span class="pre">x))</span></em><a class="headerlink" href="#kdrag.theories.float.round_up_neg" title="Link to this definition"></a></dt>
+<dd><dl>
+<dt>round_idem_finite = kd.prove(</dt><dd><dl class="simple">
+<dt>kd.QForAll(</dt><dd><p>[x, m1, m2],
+NoOverflow(m2, x, F32),
+round(m1, round(m2, x)) == round(m2, x),</p>
+</dd>
+</dl>
+<p>),
+by=round_def,</p>
+</dd>
+</dl>
+<p>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Theory of built in floating point and connection to the reals</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="n">F16</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Float16</span><span class="p">()</span>
+<span class="n">F32</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FloatSingle</span><span class="p">()</span>
+<span class="n">F64</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FloatDouble</span><span class="p">()</span>
+<span class="n">F128</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FloatQuadruple</span><span class="p">()</span>
+
+<span class="c1"># https://www.why3.org/stdlib/ieee_float.html</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">IsFinite</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">FPRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpIsNormal</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpIsSubnormal</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpIsZero</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">NoOverflow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArithRef</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">IsFinite</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpRealToFP</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+
+
+<span class="n">zeroF_is_positive</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpIsPositive</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpZero</span><span class="p">(</span><span class="n">F32</span><span class="p">,</span> <span class="kc">False</span><span class="p">)))</span>
+<span class="n">zeroF_is_negative</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpIsNegative</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpZero</span><span class="p">(</span><span class="n">F32</span><span class="p">,</span> <span class="kc">True</span><span class="p">)))</span>
+
+<span class="n">RMSort</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">RNE</span><span class="p">()</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+<span class="c1"># a real -&gt; real extension of rounding</span>
+<span class="nb">round</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;round32&quot;</span><span class="p">,</span> <span class="n">RMSort</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">(),</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">())</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Reals</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;m m1 m2&quot;</span><span class="p">,</span> <span class="n">RMSort</span><span class="p">)</span>
+<span class="c1"># Actually, let&#39;s just complete it to the identity function and use kd.define?</span>
+<span class="n">round_def</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span>
+        <span class="n">NoOverflow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">F32</span><span class="p">),</span>
+        <span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpToReal</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpRealToFP</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">F32</span><span class="p">)),</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+
+<span class="n">pow2sb</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mi">16777216</span><span class="p">)</span>
+<span class="n">max_int</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntVal</span><span class="p">(</span><span class="mh">0xFFFF_FF00_0000_0000_0000_0000_0000_0000</span><span class="p">)</span>
+<span class="n">max_real</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealVal</span><span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span><span class="o">**-</span><span class="mi">23</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="mi">127</span>  <span class="c1"># smt.RealVal(0xFFFFFE * 2**121)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">F32</span><span class="p">)</span>
+<span class="n">max_real_thm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">IsFinite</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpRealToFP</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RNE</span><span class="p">(),</span> <span class="n">max_real</span><span class="p">,</span> <span class="n">F32</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">minfloat</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">IsFinite</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpRealToFP</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RNE</span><span class="p">(),</span> <span class="o">-</span><span class="n">max_real</span><span class="p">,</span> <span class="n">F32</span><span class="p">))</span>
+<span class="p">)</span>
+
+<span class="n">special_cases</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">z</span><span class="p">],</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">fpIsNaN</span><span class="p">(</span><span class="n">z</span><span class="p">),</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">fpIsInf</span><span class="p">(</span><span class="n">z</span><span class="p">),</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">fpIsZero</span><span class="p">(</span><span class="n">z</span><span class="p">),</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">fpIsNormal</span><span class="p">(</span><span class="n">z</span><span class="p">),</span>
+            <span class="n">smt</span><span class="o">.</span><span class="n">fpIsSubnormal</span><span class="p">(</span><span class="n">z</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">in_range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="o">-</span><span class="n">max_real</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">max_real</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_finite</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">FPRef</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">in_range</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">fpToReal</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">no_overflow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">in_range</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+
+<span class="n">bounded_real_no_overflow</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="c1"># kd.QForAll( # quantifier form doesn&#39;t pass?</span>
+    <span class="c1">#    [m, x],</span>
+    <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">in_range</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">NoOverflow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">F32</span><span class="p">))</span>
+    <span class="c1"># )</span>
+<span class="p">)</span>
+
+<span class="n">bounded_no_overflow</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span> <span class="n">in_range</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">no_overflow</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
+<span class="c1"># round_monotonic shouldn&#39;t be an axiom if IsFinite(round). We need the axiom to extend rounding to be monotonic outside the range out floats.</span>
+<span class="n">round_monotonic</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">y</span><span class="p">)))</span>
+<span class="n">round_idem</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">],</span> <span class="nb">round</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
+
+<span class="n">round_to_real</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">m</span><span class="p">],</span> <span class="n">IsFinite</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpToReal</span><span class="p">(</span><span class="n">z</span><span class="p">))</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpToReal</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+<span class="p">)</span>
+
+<span class="n">round_down_le</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="nb">round</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RTN</span><span class="p">(),</span> <span class="n">x</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">))</span>
+<span class="n">round_up_ge</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="nb">round</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RTP</span><span class="p">(),</span> <span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">x</span><span class="p">))</span>
+<span class="n">round_down_neg</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="nb">round</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RTN</span><span class="p">(),</span> <span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="nb">round</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RTP</span><span class="p">(),</span> <span class="n">x</span><span class="p">)))</span>
+<span class="n">round_up_neg</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="nb">round</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RTP</span><span class="p">(),</span> <span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="nb">round</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RTN</span><span class="p">(),</span> <span class="n">x</span><span class="p">)))</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">round_idem_finite = kd.prove(</span>
+<span class="sd">    kd.QForAll(</span>
+<span class="sd">        [x, m1, m2],</span>
+<span class="sd">        NoOverflow(m2, x, F32),</span>
+<span class="sd">        round(m1, round(m2, x)) == round(m2, x),</span>
+<span class="sd">    ),</span>
+<span class="sd">    by=round_def,</span>
+<span class="sd">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">max64</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealVal</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">F64</span><span class="p">)</span>
+<span class="n">max_real_thm</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">IsFinite</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpRealToFP</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RNE</span><span class="p">(),</span> <span class="n">max64</span><span class="p">,</span> <span class="n">F64</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">min_float64</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">z</span><span class="p">],</span> <span class="n">IsFinite</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">fpRealToFP</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RNE</span><span class="p">(),</span> <span class="o">-</span><span class="n">max64</span><span class="p">,</span> <span class="n">F64</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; assert True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Single</span>
+<span class="sd">  lemma round_bound_ne :</span>
+<span class="sd">    forall x:real [round RNE x].</span>
+<span class="sd">      no_overflow RNE x -&gt;</span>
+<span class="sd">        x - 0x1p-24 * Abs.abs(x) - 0x1p-150 &lt;= round RNE x &lt;= x + 0x1p-24 * Abs.abs(x) + 0x1p-150</span>
+
+<span class="sd">  lemma round_bound :</span>
+<span class="sd">    forall m:mode, x:real [round m x].</span>
+<span class="sd">      no_overflow m x -&gt;</span>
+<span class="sd">      x - 0x1p-23 * Abs.abs(x) - 0x1p-149 &lt;= round m x &lt;= x + 0x1p-23 * Abs.abs(x) + 0x1p-149</span>
+
+<span class="sd">Double</span>
+<span class="sd">  lemma round_bound_ne :</span>
+<span class="sd">    forall x:real [round RNE x].</span>
+<span class="sd">      no_overflow RNE x -&gt;</span>
+<span class="sd">        x - 0x1p-53 * Abs.abs(x) - 0x1p-1075 &lt;= round RNE x &lt;= x + 0x1p-53 * Abs.abs(x) + 0x1p-1075</span>
+
+<span class="sd">  lemma round_bound :</span>
+<span class="sd">    forall m:mode, x:real [round m x].</span>
+<span class="sd">      no_overflow m x -&gt;</span>
+<span class="sd">      x - 0x1p-52 * Abs.abs(x) - 0x1p-1074 &lt;= round m x &lt;= x + 0x1p-52 * Abs.abs(x) + 0x1p-1074</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">get_default_rounding_mode (ctx=None)</span>
+<span class="sd">set_default_rounding_mode (rm, ctx=None)</span>
+<span class="sd">get_default_fp_sort (ctx=None)</span>
+<span class="sd">set_default_fp_sort (ebits, sbits, ctx=None)</span>
+<span class="sd">Float16 (ctx=None)</span>
+<span class="sd">FloatHalf (ctx=None)</span>
+<span class="sd">Float32 (ctx=None)</span>
+<span class="sd">FloatSingle (ctx=None)</span>
+<span class="sd">Float64 (ctx=None)</span>
+<span class="sd">FloatDouble (ctx=None)</span>
+<span class="sd">Float128 (ctx=None)</span>
+<span class="sd">FloatQuadruple (ctx=None)</span>
+<span class="sd">is_fp_sort (s)</span>
+<span class="sd">is_fprm_sort (s)</span>
+<span class="sd">RoundNearestTiesToEven (ctx=None)</span>
+<span class="sd">RNE (ctx=None)</span>
+<span class="sd">RoundNearestTiesToAway (ctx=None)</span>
+<span class="sd">RNA (ctx=None)</span>
+<span class="sd">RoundTowardPositive (ctx=None)</span>
+<span class="sd">RTP (ctx=None)</span>
+<span class="sd">RoundTowardNegative (ctx=None)</span>
+<span class="sd">RTN (ctx=None)</span>
+<span class="sd">RoundTowardZero (ctx=None)</span>
+<span class="sd">RTZ (ctx=None)</span>
+<span class="sd">is_fprm (a)</span>
+<span class="sd">is_fprm_value (a)</span>
+<span class="sd">is_fp (a)</span>
+<span class="sd">is_fp_value (a)</span>
+<span class="sd">FPSort (ebits, sbits, ctx=None)</span>
+<span class="sd">fpNaN (s)</span>
+<span class="sd">fpPlusInfinity (s)</span>
+<span class="sd">fpMinusInfinity (s)</span>
+<span class="sd">fpInfinity (s, negative)</span>
+<span class="sd">fpPlusZero (s)</span>
+<span class="sd">fpMinusZero (s)</span>
+<span class="sd">fpZero (s, negative)</span>
+<span class="sd">FPVal (sig, exp=None, fps=None, ctx=None)</span>
+<span class="sd">FP (name, fpsort, ctx=None)</span>
+<span class="sd">FPs (names, fpsort, ctx=None)</span>
+<span class="sd">fpAbs (a, ctx=None)</span>
+<span class="sd">fpNeg (a, ctx=None)</span>
+<span class="sd">fpAdd (rm, a, b, ctx=None)</span>
+<span class="sd">fpSub (rm, a, b, ctx=None)</span>
+<span class="sd">fpMul (rm, a, b, ctx=None)</span>
+<span class="sd">fpDiv (rm, a, b, ctx=None)</span>
+<span class="sd">fpRem (a, b, ctx=None)</span>
+<span class="sd">fpMin (a, b, ctx=None)</span>
+<span class="sd">fpMax (a, b, ctx=None)</span>
+<span class="sd">fpFMA (rm, a, b, c, ctx=None)</span>
+<span class="sd">fpSqrt (rm, a, ctx=None)</span>
+<span class="sd">fpRoundToIntegral (rm, a, ctx=None)</span>
+<span class="sd">fpIsNaN (a, ctx=None)</span>
+<span class="sd">fpIsInf (a, ctx=None)</span>
+<span class="sd">fpIsZero (a, ctx=None)</span>
+<span class="sd">fpIsNormal (a, ctx=None)</span>
+<span class="sd">fpIsSubnormal (a, ctx=None)</span>
+<span class="sd">fpIsNegative (a, ctx=None)</span>
+<span class="sd">fpIsPositive (a, ctx=None)</span>
+<span class="sd">fpLT (a, b, ctx=None)</span>
+<span class="sd">fpLEQ (a, b, ctx=None)</span>
+<span class="sd">fpGT (a, b, ctx=None)</span>
+<span class="sd">fpGEQ (a, b, ctx=None)</span>
+<span class="sd">fpEQ (a, b, ctx=None)</span>
+<span class="sd">fpNEQ (a, b, ctx=None)</span>
+<span class="sd">fpFP (sgn, exp, sig, ctx=None)</span>
+<span class="sd">fpToFP (a1, a2=None, a3=None, ctx=None)</span>
+<span class="sd">fpBVToFP (v, sort, ctx=None)</span>
+<span class="sd">fpFPToFP (rm, v, sort, ctx=None)</span>
+<span class="sd">fpRealToFP (rm, v, sort, ctx=None)</span>
+<span class="sd"> </span>
+<span class="sd">fpSignedToFP (rm, v, sort, ctx=None)</span>
+<span class="sd">fpUnsignedToFP (rm, v, sort, ctx=None)</span>
+<span class="sd">fpToFPUnsigned (rm, x, s, ctx=None)</span>
+<span class="sd">fpToSBV (rm, x, s, ctx=None)</span>
+<span class="sd">fpToUBV (rm, x, s, ctx=None)</span>
+<span class="sd">fpToReal (x, ctx=None)</span>
+<span class="sd">fpToIEEEBV (x, ctx=None)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.fixed.FixedSort.html" class="btn btn-neutral float-left" title="kdrag.theories.fixed.FixedSort" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.float.IsFinite.html" class="btn btn-neutral float-right" title="kdrag.theories.float.IsFinite" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

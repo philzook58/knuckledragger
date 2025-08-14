@@ -1,0 +1,6 @@
+kdrag.theories.list.list
+========================
+
+.. currentmodule:: kdrag.theories.list
+
+.. autofunction:: list

@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.prove\_sig
+==================================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: prove_sig

@@ -1,0 +1,6 @@
+kdrag.kernel.substitute\_fresh\_vars
+====================================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: substitute_fresh_vars

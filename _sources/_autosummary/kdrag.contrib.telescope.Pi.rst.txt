@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.Pi
+==========================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: Pi

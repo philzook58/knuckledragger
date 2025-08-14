@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.open\_binder
+====================================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: open_binder

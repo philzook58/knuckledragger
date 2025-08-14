@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.axiom\_sig
+==================================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: axiom_sig

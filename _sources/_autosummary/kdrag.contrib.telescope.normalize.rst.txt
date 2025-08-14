@@ -1,0 +1,6 @@
+kdrag.contrib.telescope.normalize
+=================================
+
+.. currentmodule:: kdrag.contrib.telescope
+
+.. autofunction:: normalize
