@@ -990,17 +990,8 @@ class Lemma:
             e = goalctx.goal
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls1, trace=trace)
-            try:
-                self.add_lemma(kd.kernel.prove(smt.Eq(e, e2), by=trace))
-            except Exception as _err:
-                self.add_lemma(
-                    kd.kernel.prove(smt.Eq(e, e2), by=trace, admit=True)
-                )  # TODO: Hack to keep moving. This shuldn't be failing
-                print(
-                    "Something is off in unfold",
-                    smt.Eq(e, e2),
-                    trace,
-                )
+            for lem in trace:
+                self.add_lemma(lem)
             self.pop_goal()
             self.goals.append(goalctx._replace(goal=e2))
         else:

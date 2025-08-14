@@ -45,7 +45,7 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
 #    return G2[len(G2) - 1].children()[1]
 
 
-def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
+def unfold_old(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
     """
     Do a single unfold sweep, unfolding definitions defined by `kd.define`.
     The optional trace parameter will record proof along the way.
@@ -54,12 +54,12 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
     >>> x = smt.Int("x")
     >>> f = kd.define("f", [x], x + 42)
     >>> trace = []
-    >>> unfold(f(1), trace=trace)
+    >>> unfold_old(f(1), trace=trace)
     1 + 42
     >>> trace
     [|= f(1) == 1 + 42]
 
-    >>> unfold(smt.Lambda([x], f(x)))
+    >>> unfold_old(smt.Lambda([x], f(x)))
     Lambda(x, x + 42)
     """
     if smt.is_app(e):
@@ -107,6 +107,29 @@ def unfold(e: smt.ExprRef, decls=None, trace=None) -> smt.ExprRef:
         return t
     else:
         return e
+
+
+def unfold(
+    e: smt.ExprRef, decls: Optional[Sequence[smt.FuncDeclRef]] = None, trace=None
+) -> smt.ExprRef:
+    """
+    >>> x = smt.Int("x")
+    >>> f = kd.define("f", [x], x + 42)
+    >>> trace = []
+    >>> unfold(f(1), trace=trace)
+    1 + 42
+    >>> trace
+    [|= f(1) == 1 + 42]
+
+    >>> unfold(smt.Lambda([x], f(x)))
+    Lambda(x, x + 42)
+    """
+    if decls is None:
+        decls = kd.utils.defined_decls(e)
+    e1, pf = kd.kernel.unfold(e, decls=decls)
+    if trace is not None and not e1.eq(e):
+        trace.append(pf)
+    return e1
 
 
 def beta(e):

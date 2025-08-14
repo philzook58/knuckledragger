@@ -603,6 +603,18 @@ def decls(t: smt.ExprRef) -> set[smt.FuncDeclRef]:
     return {e.decl() for e in subterms(t, into_binder=True) if smt.is_app(e)}
 
 
+def defined_decls(t: smt.ExprRef) -> list[smt.FuncDeclRef]:
+    """
+
+    >>> x,y = smt.Ints("x y")
+    >>> f = kd.define("test_f", [x,y], x + y)
+    >>> g = smt.Function("g", smt.IntSort(), smt.IntSort())
+    >>> defined_decls(f(x,y) + g(1))
+    [test_f]
+    """
+    return [decl for decl in decls(t) if decl in kd.kernel.defns]
+
+
 def is_value(t: smt.ExprRef):
     # TODO, could make faster check using Z3 internals
     return (
