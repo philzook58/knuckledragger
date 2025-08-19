@@ -993,7 +993,7 @@ class Lemma:
                 raise ValueError(
                     "Beta tactic failed. Goal is already beta reduced.", oldgoal
                 )
-            self.add_lemma(kd.kernel.prove(oldgoal == newgoal))
+            self.add_lemma(kd.kernel.prove(smt.Eq(oldgoal, newgoal)))
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
