@@ -11,14 +11,14 @@ from typing import NamedTuple, Optional
 
 kd_macro = r"""
 # For injection of SMT commands, e.g., declare-const
-.macro kd_prelude smt_command
+.macro kd_prelude expr
 .pushsection .asmspec,"a"
 .ascii "kd_prelude \"\expr\"\n"
 .popsection
 .endm
 
 
-.macro kd_always smt_bool
+.macro kd_always expr
 .pushsection .asmspec,"a"
 .ascii "kd_always \"\expr\"\n"
 .popsection
@@ -59,7 +59,7 @@ kd_boolstmt "kd_cut" \label \smt_bool
 # For manipulation of executor ghost state. Often for saving values
 .macro kd_assign label name value
 .pushsection .asmspec,"a"
-.ascii "kd_assign \"\expr\"\n"
+.ascii "kd_assign \label \name \"\value\"\n"
 .popsection
 \label :
 .endm

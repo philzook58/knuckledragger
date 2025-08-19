@@ -971,6 +971,44 @@ class Lemma:
         self.goals[-1] = goalctx._replace(goal=newgoal)
         return self.top_goal()
 
+    def beta(self, at=None):
+        """
+        Perform beta reduction on goal or context
+
+        >>> x = smt.Int("x")
+        >>> l = Lemma(smt.Lambda([x], x + 1)[3] == 4)
+        >>> l.beta()
+        [] ?|= 3 + 1 == 4
+        >>> l = Lemma(smt.Implies(smt.Lambda([x], x + 1)[3] == 5, True))
+        >>> l.intros()
+        [Lambda(x, x + 1)[3] == 5] ?|= True
+        >>> l.beta(at=0)
+        [3 + 1 == 5] ?|= True
+        """
+        goalctx = self.top_goal()
+        if at is None:
+            oldgoal = goalctx.goal
+            newgoal = kd.rewrite.beta(oldgoal)
+            if newgoal.eq(oldgoal):
+                raise ValueError(
+                    "Beta tactic failed. Goal is already beta reduced.", oldgoal
+                )
+            self.add_lemma(kd.kernel.prove(oldgoal == newgoal))
+            self.goals[-1] = goalctx._replace(goal=newgoal)
+        else:
+            oldctx = goalctx.ctx
+            old = oldctx[at]
+            new = kd.rewrite.beta(old)
+            if new.eq(old):
+                raise ValueError(
+                    "Beta tactic failed. Ctx is already beta reduced.", old
+                )
+            self.add_lemma(kd.kernel.prove(old == new))
+            self.goals[-1] = goalctx._replace(
+                ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
+            )
+        return self.top_goal()
+
     def unfold(self, *decls: smt.FuncDeclRef, at=None):
         """
         Unfold all definitions once. If declarations are given, only those are unfolded.

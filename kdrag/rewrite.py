@@ -126,13 +126,15 @@ def unfold(
     """
     if decls is None:
         decls = kd.utils.defined_decls(e)
+    if len(decls) == 0:
+        return e
     e1, pf = kd.kernel.unfold(e, decls=decls)
     if trace is not None and not e1.eq(e):
         trace.append(pf)
     return e1
 
 
-def beta(e):
+def beta(e: smt.ExprRef) -> smt.ExprRef:
     """
     Do one pass of beta normalization.
 
@@ -242,6 +244,7 @@ def def_eq(e1: smt.ExprRef, e2: smt.ExprRef, trace=None) -> bool:
     return kd.utils.alpha_eq(e1, e2)
     """
     TODO: But we can have early stopping if we do these processes interleaved.
+    Do each step and keep list of seen ids.
     while not e1.eq(e2):
         e1 = unfold(e1, trace=trace)
         e2 = unfold(e2, trace=trace)
