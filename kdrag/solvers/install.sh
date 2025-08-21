@@ -30,8 +30,8 @@ wget -nc https://github.com/leoprover/Leo-III/releases/download/v1.7.15/leo3-v1.
 
 
 echo "Installing Eprover"
-git -C eprover pull || git clone https://github.com/eprover/eprover.git #--depth 1
-git checkout E-3.2.5
+git -C eprover pull || git clone https://github.com/eprover/eprover.git --depth 1 --branch E-3.2.5
+#git checkout E-3.2.5
 cd eprover
 ./configure --enable-ho
 make rebuild
