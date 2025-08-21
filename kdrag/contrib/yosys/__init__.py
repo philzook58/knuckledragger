@@ -4,9 +4,11 @@ import json
 from dataclasses import dataclass, field
 import kdrag as kd
 import os
+import shutil
 
 
 def call_yosys_functional(mod_name, verilog_filename):
+    # TODO: Maybe I need to do the /tmp/ shell game to avoid issues with yosys sandboxing
     directory, filename = os.path.split(verilog_filename)
     # clues about yosys processing for formal
     # https://github.com/YosysHQ/sby/blob/9675d158cea5b5289ef062297bff283788214a3b/sbysrc/sby_core.py#L1000
@@ -38,6 +40,24 @@ def call_yosys_functional(mod_name, verilog_filename):
         capture_output=True,
     )
     return open(os.path.join(directory, f"functional_{mod_name}.smt2"), "r").read()
+
+
+def read_yosys_relational(filepath: str) -> str:
+    filename = os.path.split(filepath)[-1]
+    filepath1 = os.path.join("/tmp", filename)
+    if filepath1 != filepath:
+        shutil.copy(filepath, filepath1)
+    outfile = "kdrag_verilog.smt2"
+    yosys_command = f"read_verilog {filename}; \
+        hierarchy -check; proc; opt; check -assert; \
+        write_smt2 -bv {outfile}"
+    res = subprocess.run(
+        ["yowasp-yosys", "-p", yosys_command], cwd="/tmp", capture_output=True
+    )
+    if res.returncode != 0:
+        raise Exception("Yosys error:", res.stderr.decode())
+
+    return open(os.path.join("/tmp", outfile), "r").read()
 
 
 @dataclass
@@ -91,6 +111,71 @@ class VerilogModule:
             state_sort=state.sort(),
             init_constrs=initial_constraints,
             trans_fun=trans_fun,
+        )
+
+
+@dataclass
+class VerilogModuleRel:
+    """
+    A relational model of a verilog module using yosys write_smt2 backend
+    """
+
+    name: str
+    state_sort: smt.SortRef
+    trans: smt.FuncDeclRef
+    init: smt.FuncDeclRef
+    init_unconstr: smt.FuncDeclRef
+    asserts: smt.FuncDeclRef
+    assumes: smt.FuncDeclRef
+    wires: dict[str, smt.FuncDeclRef]
+
+    @classmethod
+    def from_file(cls, name: str, wire_names: list[str], filepath: str):
+        # https://yosyshq.readthedocs.io/projects/yosys/en/0.33/cmd/write_smt2.html
+        yosys_smt = read_yosys_relational(filepath)
+        smtlib = [yosys_smt]
+
+        state_sort = smt.DeclareSort(f"|{name}_s|")
+        st, next_st = smt.Consts("state next_state", state_sort)
+
+        # asserts can be read out by z3.parse_smt2_string. `define-fun` are automatically unfolded in the parser
+        smtlib.append(f"""
+        (declare-const state    |{name}_s|)
+        (declare-const next_state |{name}_s|)
+        """)
+        smtlib.append(f"""
+        (assert (|{name}_is| state))
+        (assert (|{name}_i| state))
+        (assert (|{name}_t| state next_state)) ; transition relation
+        (assert (|{name}_a| state)) ; true if all assertions
+        (assert (|{name}_u| state)) ; true is all assumptions
+        """)
+        for wire in wire_names:
+            wire_name = f"|{name}_n {wire}|"
+            # dummy equality. Easiest way
+            smtlib.append(f"(assert (= ({wire_name} state) ({wire_name} state)))")
+        smt_asserts = smt.parse_smt2_string("\n".join(smtlib))
+        assert len(smt_asserts) == 5 + len(wire_names)
+        init = kd.define(f"|{name}_is|", [st], smt_asserts[0])
+        init_unconstr = kd.define(f"|{name}_i|", [st], smt_asserts[1])
+        trans = kd.define(f"|{name}_t|", [st, next_st], smt_asserts[2])
+        asserts = kd.define(f"|{name}_a|", [st], smt_asserts[3])
+        assumes = kd.define(f"|{name}_u|", [st], smt_asserts[4])
+        wires = {}
+
+        for wire_name, expr in zip(wire_names, smt_asserts[5:]):
+            assert smt.is_eq(expr)
+            expr = expr.arg(0)
+            wires[wire_name] = kd.define(f"|{name}_n {wire_name}|", [st], expr)
+        return cls(
+            name=name,
+            state_sort=state_sort,
+            init=init,
+            init_unconstr=init_unconstr,
+            trans=trans,
+            asserts=asserts,
+            assumes=assumes,
+            wires=wires,
         )
 
 
