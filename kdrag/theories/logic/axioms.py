@@ -88,21 +88,6 @@ def cong(f: smt.FuncDeclRef, *args: kd.Proof) -> kd.Proof:
     return kd.axiom(smt.Eq(f(*lhs), f(*rhs)), ["cong", f, *args])
 
 
-def subst(eq: kd.Proof, t: smt.ExprRef) -> kd.Proof:
-    """
-    Substitute subterms using equality proof
-
-    >>> x, y = smt.Ints("x y")
-    >>> eq = kd.prove(x == ((x + 1) - 1))
-    >>> subst(eq, x + 3)
-    |= x + 3 == x + 1 - 1 + 3
-    """
-    assert isinstance(eq, kd.Proof) and smt.is_eq(eq.thm)
-    return kd.axiom(
-        t == smt.substitute(t, (eq.thm.arg(0), eq.thm.arg(1))), ["subst", eq, t]
-    )
-
-
 def ext(*sorts: smt.SortRef) -> kd.Proof:
     """
     >>> ext(smt.IntSort(), smt.IntSort())

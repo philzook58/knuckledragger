@@ -327,6 +327,21 @@ def unfold(
     return t, kd.axiom(smt.Eq(e, t), by=["unfold", decls])
 
 
+def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
+    """
+    Substitute using equality proofs
+
+    >>> x, y = smt.Ints("x y")
+    >>> eq = kd.prove(x == ((x + 1) - 1))
+    >>> subst(x + 3, [eq])
+    (x + 1 - 1 + 3, |= x + 3 == x + 1 - 1 + 3)
+    """
+    assert all(isinstance(eq, kd.Proof) and smt.is_eq(eq.thm) for eq in eqs)
+    subst = [(eq.thm.arg(0), eq.thm.arg(1)) for eq in eqs]
+    t1 = smt.substitute(t, *subst)
+    return t1, kd.axiom(t == t1, ["subst", t, eqs])
+
+
 def consider(x: smt.ExprRef) -> Proof:
     """
     The purpose of this is to seed the solver with interesting terms.

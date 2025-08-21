@@ -7,7 +7,7 @@ import os
 
 
 def call_yosys_functional(mod_name, verilog_filename):
-    dir, filename = os.path.split(verilog_filename)
+    directory, filename = os.path.split(verilog_filename)
     # clues about yosys processing for formal
     # https://github.com/YosysHQ/sby/blob/9675d158cea5b5289ef062297bff283788214a3b/sbysrc/sby_core.py#L1000
     yosys_command = f"""
@@ -32,9 +32,12 @@ def call_yosys_functional(mod_name, verilog_filename):
     write_functional_smt2 functional_{mod_name}.smt2
     """
     subprocess.run(
-        ["yowasp-yosys", "-p", yosys_command], cwd=dir, check=True, capture_output=True
+        ["yowasp-yosys", "-p", yosys_command],
+        cwd=directory,
+        check=True,
+        capture_output=True,
     )
-    return open(os.path.join(dir, f"functional_{mod_name}.smt2"), "r").read()
+    return open(os.path.join(directory, f"functional_{mod_name}.smt2"), "r").read()
 
 
 @dataclass
