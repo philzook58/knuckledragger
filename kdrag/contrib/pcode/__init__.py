@@ -282,10 +282,20 @@ class BinaryContext:
         self.filename = main_binary
         self.loader = cle.loader.Loader(main_binary, **kwargs)
         # self.ctx = pypcode.Context(self.loader.arch.name) # TODO: derive from cle
+        # Note: These decls need to be synchronized with the code in BinaryContext.substitute
+        # The decls are used for parsing textual smtlib
+        # substitute is used to convert these names into memstate expressions
         decls = {
             name: smt.BitVec(name, vnode.size * 8)
             for name, vnode in self.ctx.registers.items()
         }
+        # support %reg names
+        decls.update(
+            {
+                "%" + name.lower(): smt.BitVec("%" + name.lower(), vnode.size * 8)
+                for name, vnode in self.ctx.registers.items()
+            }
+        )
         decls["ram"] = smt.Array("ram", smt.BitVecSort(self.bits), smt.BitVecSort(8))
         for b in _possible_bits:
             decls[f"ram{b}"] = smt.Array(
@@ -580,6 +590,7 @@ class BinaryContext:
         Substitute the values in memstate into the expression `expr`.
         `expr` uses the short register names and `ram`
         """
+        # Note: These substs need to be synchronized with the decls in BinaryContext.loads
         # Much faster typically to pull only those constants that are used in the expression
         consts = {t.decl().name(): t for t in kd.utils.consts(expr)}
         substs = [
@@ -587,6 +598,14 @@ class BinaryContext:
             for regname, t in consts.items()
             if regname in self.ctx.registers
         ]
+        # substitute in registers of form %reg
+        substs.extend(
+            [
+                (t, self.get_reg(memstate, regname[1:].upper()))
+                for regname, t in consts.items()
+                if regname[0] == "%" and regname[1:].upper() in self.ctx.registers
+            ]
+        )
         if "ram" in consts:
             substs.append((smt.Array("ram", BV[self.bits], BV[8]), memstate.mem.ram))
         for n in _possible_bits:

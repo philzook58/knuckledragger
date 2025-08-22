@@ -16,7 +16,7 @@ def check_code(asm, nsucc, nfail):
 
 @pytest.mark.slow
 def test_42():
-    ret_42 = """
+    ret_42 = r"""
     .include "/tmp/knuckle.s"
     .globl myfunc
 
@@ -24,10 +24,11 @@ def test_42():
         kd_entry myfunc "true"
         movq $42, %rax
         kd_assert my_assert "(= RAX (_ bv42 64))"
-        kd_exit func_end "(= RAX (_ bv42 64))"
+        kd_exit func_end "(= %rax (_ bv42 64))"
         ret
     """
     check_code(ret_42, 2, 0)
+
 
 @pytest.mark.slow
 def test_prelude():

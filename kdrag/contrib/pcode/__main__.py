@@ -62,16 +62,16 @@ def asmc(filename: str, langid: str, asm: str, print_macros: bool, timeout: int)
     for vc in reversed(vcs):
         try:
             vc.verify(ctx, timeout=timeout)
-            print(f"[✅] {vc.cause}")
+            print(f"[✅] {vc.assertion}")
         except TimeoutError:
             failures += 1
             print("")
             print("---------------------------------------------")
-            print(f"[⏳] {vc.cause} - Verification timed out.")
+            print(f"[⏳] {vc.assertion} - Verification timed out.")
             print("Trace:")
             print(vc.start)
             print(pretty_trace(ctx, vc.trace))
-            print(vc.cause)
+            print(vc.assertion)
             print("---------------------------------------------")
             print("")
         except Exception as e:
@@ -81,11 +81,11 @@ def asmc(filename: str, langid: str, asm: str, print_macros: bool, timeout: int)
                 raise e
             print("")
             print("---------------------------------------------")
-            print(f"[❌] {vc.cause}")
+            print(f"[❌] {vc.assertion}")
             print("Trace:")
             print(vc.start)
             print(pretty_trace(ctx, vc.trace))
-            print(vc.cause)
+            print(vc.assertion)
             print("")
             print("Countermodel:")
             pprint.pp(vc.countermodel(ctx, countermodel))

@@ -126,6 +126,24 @@ class AsmSpec:
         default_factory=lambda: defaultdict(list)
     )
 
+    def add_entry(self, label: str, addr: int, expr: smt.BoolRef):
+        self.addrmap[addr].append(Entry(label, addr, expr))
+
+    def add_assert(self, label: str, addr: int, expr: smt.BoolRef):
+        self.addrmap[addr].append(Assert(label, addr, expr))
+
+    def add_assume(self, label: str, addr: int, expr: smt.BoolRef):
+        self.addrmap[addr].append(Assume(label, addr, expr))
+
+    def add_exit(self, label: str, addr: int, expr: smt.BoolRef):
+        self.addrmap[addr].append(Exit(label, addr, expr))
+
+    def add_cut(self, label: str, addr: int, expr: smt.BoolRef):
+        self.addrmap[addr].append(Cut(label, addr, expr))
+
+    def add_assign(self, label: str, addr: int, name: str, expr: smt.ExprRef):
+        self.addrmap[addr].append(Assign(label, addr, name, expr))
+
     @classmethod
     def of_file(cls, filename: str, ctx: pcode.BinaryContext):
         COMMASEP = r"\s*(?:,\s*)?"
@@ -183,15 +201,15 @@ class AsmSpec:
                         smt_string = "\n".join(preludes + ["(assert ", expr, ")"])
                         expr = parse_smt(smt_string, lineno, line)
                         if cmd == "kd_entry":
-                            spec.addrmap[addr].append(Entry(label, addr, expr))
+                            spec.add_entry(label, addr, expr)
                         elif cmd == "kd_assert":
-                            spec.addrmap[addr].append(Assert(label, addr, expr))
+                            spec.add_assert(label, addr, expr)
                         elif cmd == "kd_assume":
-                            spec.addrmap[addr].append(Assume(label, addr, expr))
+                            spec.add_assume(label, addr, expr)
                         elif cmd == "kd_exit":
-                            spec.addrmap[addr].append(Exit(label, addr, expr))
+                            spec.add_exit(label, addr, expr)
                         elif cmd == "kd_cut":
-                            spec.addrmap[addr].append(Cut(label, addr, expr))
+                            spec.add_cut(label, addr, expr)
                     elif match := assign_pattern.match(line):
                         label, name, expr = match.groups()
                         # Turn expression `expr` into dummy assertion `expr == expr` for parsing
@@ -200,14 +218,7 @@ class AsmSpec:
                             preludes + ["(assert (=", expr, expr, "))"]
                         )
                         expr = parse_smt(smt_string, lineno, line).arg(0)
-                        spec.addrmap[addr].append(
-                            Assign(
-                                label,
-                                addr,
-                                name,
-                                expr,
-                            )
-                        )
+                        spec.add_assign(label, addr, name, expr)
                     elif match := prelude_pattern.match(line):
                         expr = match.group(1)
                         preludes.append(expr)
@@ -271,16 +282,25 @@ def substitute(
 
 
 class VerificationCondition(NamedTuple):
+    """
+    The result of symbolic execution over a path.
+    There is a reason the execution started (entry point),
+    the necessary conditions on the initial state to follow this path (path_cond),
+    the memory state at the end of the path (memstate),
+    the ghost environment at the end of the path (ghost_env),
+    and the assertion that must hold at the end of the path (assertion).
+    """
+
     start: SpecStmt
     trace: list[int]
     path_cond: list[smt.BoolRef]
     memstate: pcode.MemState
     ghost_env: dict[str, smt.ExprRef]
-    cause: SpecStmt
+    assertion: SpecStmt
     # pf : Optional[kd.Proof] = None
 
     def __repr__(self):
-        return f"VC({self.start}, {[hex(addr) for addr in self.trace]}, {self.cause}, {self.ghost_env})"
+        return f"VC({self.start}, {[hex(addr) for addr in self.trace]}, {self.assertion}, {self.ghost_env})"
 
     def vc(self, ctx: pcode.BinaryContext) -> smt.BoolRef:
         """
@@ -288,7 +308,7 @@ class VerificationCondition(NamedTuple):
         """
         return smt.Implies(
             smt.And(*self.path_cond),
-            substitute(self.cause.expr, ctx, self.memstate, self.ghost_env),
+            substitute(self.assertion.expr, ctx, self.memstate, self.ghost_env),
         )
 
     def verify(self, ctx: pcode.BinaryContext, **kwargs) -> kd.Proof:
@@ -304,7 +324,7 @@ class VerificationCondition(NamedTuple):
         # find all interesting selects
         interesting = set(
             c
-            for c in kd.utils.consts(self.cause.expr)
+            for c in kd.utils.consts(self.assertion.expr)
             if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
         )
         interesting.update(
@@ -312,7 +332,7 @@ class VerificationCondition(NamedTuple):
             for c in kd.utils.consts(self.start.expr)
             if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
         )
-        todo = [self.cause.expr]
+        todo = [self.assertion.expr]
         while todo:
             t = todo.pop()
             if smt.is_select(t):
@@ -351,7 +371,7 @@ def execute_spec_stmts(
                     trace=trace.copy(),
                     path_cond=state.path_cond.copy(),
                     memstate=state.memstate,
-                    cause=stmt,
+                    assertion=stmt,
                     ghost_env=ghost_env.copy(),
                 )
             )
@@ -399,6 +419,11 @@ def execute_insn(
 def run_all_paths(
     ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True
 ) -> list[VerificationCondition]:
+    """
+    Initialize queue with all stated entry points, and then symbolically execute all paths,
+    collecting verification conditions (VCs) along the way.
+    This interleaves executions of actual assembly instructions with spec statements.
+    """
     if mem is None:
         mem = ctx.init_mem()  # pcode.MemState.Const("mem", bits=ctx.bits)
     todo = []
