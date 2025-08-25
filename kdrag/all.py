@@ -9,6 +9,7 @@ import kdrag.smt as smt
 import kdrag.solvers as solvers
 import kdrag.theories as thy
 import kdrag.rewrite as rw
+import kdrag.tele as tele
 
 import kdrag.theories.option as option
 import kdrag.theories.list as list_

@@ -209,7 +209,9 @@ def DeclareFunction(name, tele0: Telescope, T: SubSort, by=[]) -> smt.FuncDeclRe
     return f
 
 
-def has_type(ctx: Telescope, t0: smt.ExprRef, T: SubSort, by=None) -> kd.Proof:
+def has_type(
+    ctx: Telescope, t0: smt.ExprRef, T: SubSort, by=None, **kwargs
+) -> kd.Proof:
     """
     Tactic to check that an expression `t0` has type `T` in a context `ctx`.
 
@@ -245,11 +247,11 @@ def has_type(ctx: Telescope, t0: smt.ExprRef, T: SubSort, by=None) -> kd.Proof:
             if decl in _tsig:
                 by.append(_tsig[decl](*children))
 
-    return kd.prove(smt.Implies(smt.And(pctx), T[t0]), by=by)
+    return kd.prove(smt.Implies(smt.And(pctx), T[t0]), by=by, **kwargs)
 
 
 def define(
-    name: str, args: Telescope, T: SubSort, body: smt.ExprRef, by=None
+    name: str, args: Telescope, T: SubSort, body: smt.ExprRef, by=None, **kwargs
 ) -> smt.FuncDeclRef:
     """
     Define a function with a precondition given by a telescope of arguments
@@ -269,7 +271,7 @@ def define(
     >>> pred = define("pred", [(n, Pos)], Nat, n - 1)
     >>> myid = define("myid", [(n, Nat)], Nat, pred(inc(n)))
     """
-    P1 = has_type(args, body, T, by=by)
+    P1 = has_type(args, body, T, by=by, **kwargs)
     tele = normalize(args)
     vs = [v for (v, _) in tele]
     for v in vs:

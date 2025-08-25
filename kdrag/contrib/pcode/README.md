@@ -32,3 +32,18 @@ For more options:
 ```bash
 python3 -m kdrag.contrib.pcode --help
 ```
+
+# Known soundness issues and concerns
+
+These are a mix of works in progress and won't fixes.
+
+- I don’t think Ghidra semantics updates RIP explicitly
+- MMIO and interrupts
+- Interrupt throwing like div 0
+- No modelling of memory permissions
+- Concurrent code issues are unmodelled
+- Alignment issues
+- The code is concretely loaded at wherever cle says to
+- Loaded code, bss, .data is not available.
+- Dynamically generated or self modifying code is not modelled
+- Syscalls

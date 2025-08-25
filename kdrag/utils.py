@@ -48,6 +48,25 @@ def open_binder_unhygienic(
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
+def pathmap(function, e: smt.ExprRef, path: list[int]) -> smt.ExprRef:
+    """
+    Apply function at position in term
+    >>> x,y,z = smt.Ints("x y z")
+    >>> pathmap(lambda t: t + 1, x + y * z, [1,0])
+    x + (y + 1)*z
+    """
+    if path:
+        args = e.children()
+        args = (
+            args[: path[0]]
+            + [pathmap(function, args[path[0]], path[1:])]
+            + args[path[0] + 1 :]
+        )
+        return e.decl()(*args)
+    else:
+        return function(e)
+
+
 def pmatch(
     vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef, subst=None
 ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:

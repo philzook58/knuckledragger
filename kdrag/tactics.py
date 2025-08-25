@@ -560,7 +560,7 @@ class Lemma:
         else:
             raise ValueError("Intros failed.")
 
-    def simp(self, at=None, unfold=False):
+    def simp(self, at=None, unfold=False, path=None):
         """
         Use built in z3 simplifier. May be useful for boolean, arithmetic, lambda, and array simplifications.
 
@@ -574,6 +574,9 @@ class Lemma:
         >>> l = Lemma(smt.Lambda([x], x + 1)[3] == y)
         >>> l.simp()
         [] ?|= 4 == y
+        >>> l = Lemma(1 + ((2 + smt.IntVal(4)) + 3))
+        >>> l.simp(path=[1,0])
+        [] ?|= 1 + 6 + 3
         """
         goalctx = self.top_goal()
         if at is None:
@@ -584,7 +587,7 @@ class Lemma:
                 for l in trace:
                     self.add_lemma(l)
             else:
-                newgoal = smt.simplify(oldgoal)
+                newgoal = kd.utils.pathmap(smt.simplify, oldgoal, path)
                 self.add_lemma(kd.kernel.prove(oldgoal == newgoal))
             # if newgoal.eq(oldgoal):
             #    raise ValueError(
@@ -594,7 +597,7 @@ class Lemma:
         else:
             oldctx = goalctx.ctx
             old = oldctx[at]
-            new = smt.simplify(old)
+            new = kd.utils.pathmap(smt.simplify, old, path)
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
             self.add_lemma(kd.kernel.prove(old == new))
