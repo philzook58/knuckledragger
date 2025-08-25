@@ -1,0 +1,6 @@
+kdrag.theories.real.analysis.Ball
+=================================
+
+.. currentmodule:: kdrag.theories.real.analysis
+
+.. autofunction:: Ball

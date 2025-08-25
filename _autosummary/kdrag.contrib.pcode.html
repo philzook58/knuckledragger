@@ -1,0 +1,814 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.contrib.pcode &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.contrib.pcode.executeBinary" href="kdrag.contrib.pcode.executeBinary.html" />
+    <link rel="prev" title="kdrag.contrib.hoare.wps" href="kdrag.contrib.hoare.wps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.data_modulo.html">kdrag.contrib.data_modulo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.expr.html">kdrag.contrib.expr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.hoare.html">kdrag.contrib.hoare</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.contrib.pcode</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeBinary.html">kdrag.contrib.pcode.executeBinary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeCBranch.html">kdrag.contrib.pcode.executeCBranch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeLoad.html">kdrag.contrib.pcode.executeLoad</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executePopcount.html">kdrag.contrib.pcode.executePopcount</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeSignExtend.html">kdrag.contrib.pcode.executeSignExtend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeStore.html">kdrag.contrib.pcode.executeStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeSubpiece.html">kdrag.contrib.pcode.executeSubpiece</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeUnary.html">kdrag.contrib.pcode.executeUnary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeZeroExtend.html">kdrag.contrib.pcode.executeZeroExtend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.pc_of_addr.html">kdrag.contrib.pcode.pc_of_addr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.pretty_insn.html">kdrag.contrib.pcode.pretty_insn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.pretty_op.html">kdrag.contrib.pcode.pretty_op</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.test_pcode.html">kdrag.contrib.pcode.test_pcode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.BinaryContext"><code class="docutils literal notranslate"><span class="pre">BinaryContext</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.MemSorts"><code class="docutils literal notranslate"><span class="pre">MemSorts</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.MemState"><code class="docutils literal notranslate"><span class="pre">MemState</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.SimState"><code class="docutils literal notranslate"><span class="pre">SimState</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeBinary"><code class="docutils literal notranslate"><span class="pre">executeBinary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeCBranch"><code class="docutils literal notranslate"><span class="pre">executeCBranch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeLoad"><code class="docutils literal notranslate"><span class="pre">executeLoad()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executePopcount"><code class="docutils literal notranslate"><span class="pre">executePopcount()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeSignExtend"><code class="docutils literal notranslate"><span class="pre">executeSignExtend()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeStore"><code class="docutils literal notranslate"><span class="pre">executeStore()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeSubpiece"><code class="docutils literal notranslate"><span class="pre">executeSubpiece()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeUnary"><code class="docutils literal notranslate"><span class="pre">executeUnary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.executeZeroExtend"><code class="docutils literal notranslate"><span class="pre">executeZeroExtend()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.pc_of_addr"><code class="docutils literal notranslate"><span class="pre">pc_of_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.pretty_insn"><code class="docutils literal notranslate"><span class="pre">pretty_insn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.pretty_op"><code class="docutils literal notranslate"><span class="pre">pretty_op()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.contrib.pcode.test_pcode"><code class="docutils literal notranslate"><span class="pre">test_pcode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.asmspec.html">kdrag.contrib.pcode.asmspec</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.yosys.html">kdrag.contrib.yosys</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tele.html">kdrag.tele</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.contrib.html">kdrag.contrib</a></li>
+      <li class="breadcrumb-item active">kdrag.contrib.pcode</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.contrib.pcode.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.contrib.pcode">
+<span id="kdrag-contrib-pcode"></span><h1>kdrag.contrib.pcode<a class="headerlink" href="#module-kdrag.contrib.pcode" title="Link to this heading"></a></h1>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.MemSorts" title="kdrag.contrib.pcode.MemSorts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemSorts</span></code></a></p></td>
+<td><p>Memory is modelled as an array of 64-bit addresses to 8-bit values</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeBinary.html#kdrag.contrib.pcode.executeBinary" title="kdrag.contrib.pcode.executeBinary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeBinary</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeCBranch.html#kdrag.contrib.pcode.executeCBranch" title="kdrag.contrib.pcode.executeCBranch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeCBranch</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeLoad.html#kdrag.contrib.pcode.executeLoad" title="kdrag.contrib.pcode.executeLoad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeLoad</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executePopcount.html#kdrag.contrib.pcode.executePopcount" title="kdrag.contrib.pcode.executePopcount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executePopcount</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeSignExtend.html#kdrag.contrib.pcode.executeSignExtend" title="kdrag.contrib.pcode.executeSignExtend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeSignExtend</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeStore.html#kdrag.contrib.pcode.executeStore" title="kdrag.contrib.pcode.executeStore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeStore</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeSubpiece.html#kdrag.contrib.pcode.executeSubpiece" title="kdrag.contrib.pcode.executeSubpiece"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeSubpiece</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeUnary.html#kdrag.contrib.pcode.executeUnary" title="kdrag.contrib.pcode.executeUnary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeUnary</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.executeZeroExtend.html#kdrag.contrib.pcode.executeZeroExtend" title="kdrag.contrib.pcode.executeZeroExtend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executeZeroExtend</span></code></a>(op, memstate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.pc_of_addr.html#kdrag.contrib.pcode.pc_of_addr" title="kdrag.contrib.pcode.pc_of_addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pc_of_addr</span></code></a>(addr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.pretty_insn.html#kdrag.contrib.pcode.pretty_insn" title="kdrag.contrib.pcode.pretty_insn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty_insn</span></code></a>(insn)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.pretty_op.html#kdrag.contrib.pcode.pretty_op" title="kdrag.contrib.pcode.pretty_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty_op</span></code></a>(op)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.test_pcode.html#kdrag.contrib.pcode.test_pcode" title="kdrag.contrib.pcode.test_pcode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_pcode</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BinaryContext</span></code></a>([filename, langid])</p></td>
+<td><p>Almost all operations one wants to do on assembly are dependent on the binary and where it was loaded.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemState</span></code></a>(mem, bits)</p></td>
+<td><p>MemState is a wrapper that offers getvalue and setvalue methods</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.SimState" title="kdrag.contrib.pcode.SimState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimState</span></code></a>(memstate, pc, path_cond)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">BinaryContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">langid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x86:LE:64:default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Almost all operations one wants to do on assembly are dependent on the binary and where it was loaded.
+BinaryContext is a class that holds the binary and provides methods to disassemble and translate instructions.
+It is the analog of an angr <cite>Project</cite> in some respects.</p>
+<p>Run <cite>python3 -m pypcode –list</cite> to see available langid.
+- RISCV:LE:64:default</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.disassemble">
+<span class="sig-name descname"><span class="pre">disassemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.disassemble" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.execute1">
+<span class="sig-name descname"><span class="pre">execute1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PC</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.execute1" title="Link to this definition"></a></dt>
+<dd><p>Execute a single PCode instruction at addr, returning the new memstate and pc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>pc</strong> (<em>PC</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>, PC]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.execute1_schema">
+<span class="sig-name descname"><span class="pre">execute1_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.execute1_schema" title="Link to this definition"></a></dt>
+<dd><p>For a given concrete PC and binary, we can generate an axiomatic description of how execution
+of a single instruction at that PC will change the memory state and program counter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pc</strong> (<em>PC</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.executeBranch">
+<span class="sig-name descname"><span class="pre">executeBranch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PC</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.executeBranch" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>pc</strong> (<em>PC</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>PC</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.executeCurrentOp">
+<span class="sig-name descname"><span class="pre">executeCurrentOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PC</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.executeCurrentOp" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>pc</strong> (<em>PC</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>, PC]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.executeInsn">
+<span class="sig-name descname"><span class="pre">executeInsn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.executeInsn" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.fallthruOp">
+<span class="sig-name descname"><span class="pre">fallthruOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PC</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.fallthruOp" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pc</strong> (<em>PC</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.get_reg">
+<span class="sig-name descname"><span class="pre">get_reg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">regname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BitVecRef</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.get_reg" title="Link to this definition"></a></dt>
+<dd><p>Get the value of a register from the memstate.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span> <span class="o">=</span> <span class="n">BinaryContext</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">memstate</span> <span class="o">=</span> <span class="n">MemState</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;test_mem&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">memstate</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_reg</span><span class="p">(</span><span class="n">memstate</span><span class="p">,</span> <span class="s2">&quot;RAX&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVec</span><span class="p">(</span><span class="s2">&quot;RAX&quot;</span><span class="p">,</span> <span class="mi">64</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">get_reg</span><span class="p">(</span><span class="n">memstate</span><span class="p">,</span> <span class="s2">&quot;RAX&quot;</span><span class="p">)</span>
+<span class="go">RAX</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>regname</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BitVecRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.get_regs">
+<span class="sig-name descname"><span class="pre">get_regs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BitVecRef</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.get_regs" title="Link to this definition"></a></dt>
+<dd><p>Get the state of the registers from the memstate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>BitVecRef</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.init_mem">
+<span class="sig-name descname"><span class="pre">init_mem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.init_mem" title="Link to this definition"></a></dt>
+<dd><p>Initialize the memory state with empty memory.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span> <span class="o">=</span> <span class="n">BinaryContext</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">memstate</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">init_mem</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">get_reg</span><span class="p">(</span><span class="n">memstate</span><span class="p">,</span> <span class="s2">&quot;RAX&quot;</span><span class="p">)</span>
+<span class="go">RAX!...</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_binary</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.load" title="Link to this definition"></a></dt>
+<dd><p>Load a binary file and initialize the context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.model_registers">
+<span class="sig-name descname"><span class="pre">model_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ModelRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BitVecRef</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.model_registers" title="Link to this definition"></a></dt>
+<dd><p>Get values of all registers in model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>ModelRef</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>BitVecRef</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.set_reg">
+<span class="sig-name descname"><span class="pre">set_reg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">regname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.set_reg" title="Link to this definition"></a></dt>
+<dd><p>Set the value of a register in the memstate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>regname</strong> (<em>str</em>)</p></li>
+<li><p><strong>value</strong> (<em>BitVecRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.substitute">
+<span class="sig-name descname"><span class="pre">substitute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.substitute" title="Link to this definition"></a></dt>
+<dd><p>Substitute the values in memstate into the expression <cite>expr</cite>.
+<cite>expr</cite> uses the short register names and <cite>ram</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>expr</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.sym_execute">
+<span class="sig-name descname"><span class="pre">sym_execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_insns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">breakpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.SimState" title="kdrag.contrib.pcode.SimState"><span class="pre">SimState</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.sym_execute" title="Link to this definition"></a></dt>
+<dd><p>Symbolically execute a real instruction at addr, returning a list of SimState objects.
+A single instruction may contain multiple Pcode instructions or even pcode loops.
+Hence a symbolic execution may be required for even a single instruction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>path_cond</strong> (<em>list</em><em>[</em><em>BoolRef</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#kdrag.contrib.pcode.SimState" title="kdrag.contrib.pcode.SimState"><em>SimState</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.BinaryContext.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.BinaryContext.translate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemSorts">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">MemSorts</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{8:</span> <span class="pre">Array(BitVec(8),</span> <span class="pre">BitVec(8)),</span> <span class="pre">16:</span> <span class="pre">Array(BitVec(16),</span> <span class="pre">BitVec(8)),</span> <span class="pre">32:</span> <span class="pre">Array(BitVec(32),</span> <span class="pre">BitVec(8)),</span> <span class="pre">64:</span> <span class="pre">Array(BitVec(64),</span> <span class="pre">BitVec(8))}</span></em><a class="headerlink" href="#kdrag.contrib.pcode.MemSorts" title="Link to this definition"></a></dt>
+<dd><p>Memory is modelled as an array of 64-bit addresses to 8-bit values</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">MemState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatatypeRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.MemState" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>MemState is a wrapper that offers getvalue and setvalue methods</p>
+<p>#&gt;&gt;&gt; mem.getvalue(_TestVarnode(“ram”, 0, 8))
+#&gt;&gt;&gt; mem.setvalue(_TestVarnode(“ram”, 0, 8), 1)
+&gt;&gt;&gt; mem = MemState(smt.Array(“mymem”, BV[64], BV[8]), bits=64)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mem</strong> (<em>DatatypeRef</em>)</p></li>
+<li><p><strong>bits</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState.Const">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.MemState.Const" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>bits</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState.bits">
+<span class="sig-name descname"><span class="pre">bits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.MemState.bits" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState.getvalue">
+<span class="sig-name descname"><span class="pre">getvalue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vnode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Varnode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BitVecRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.MemState.getvalue" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vnode</strong> (<em>Varnode</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BitVecRef</em> | int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState.getvalue_ram">
+<span class="sig-name descname"><span class="pre">getvalue_ram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BitVecRef</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.MemState.getvalue_ram" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset</strong> (<em>BitVecRef</em><em> | </em><em>int</em>)</p></li>
+<li><p><strong>size</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BitVecRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState.mem">
+<span class="sig-name descname"><span class="pre">mem</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DatatypeRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.MemState.mem" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState.setvalue">
+<span class="sig-name descname"><span class="pre">setvalue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vnode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Varnode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.MemState.setvalue" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vnode</strong> (<em>Varnode</em>)</p></li>
+<li><p><strong>value</strong> (<em>BitVecRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.MemState.setvalue_ram">
+<span class="sig-name descname"><span class="pre">setvalue_ram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BitVecRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.MemState.setvalue_ram" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset</strong> (<em>BitVecRef</em><em> | </em><em>int</em>)</p></li>
+<li><p><strong>value</strong> (<em>BitVecRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.SimState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">SimState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">kdrag.contrib.pcode.MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">z3.z3.BoolRef</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.SimState" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>pc</strong> (<em>PC</em>)</p></li>
+<li><p><strong>path_cond</strong> (<em>list</em><em>[</em><em>BoolRef</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.SimState.memstate">
+<span class="sig-name descname"><span class="pre">memstate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></em><a class="headerlink" href="#kdrag.contrib.pcode.SimState.memstate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.SimState.path_cond">
+<span class="sig-name descname"><span class="pre">path_cond</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.SimState.path_cond" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.SimState.pc">
+<span class="sig-name descname"><span class="pre">pc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PC</span></em><a class="headerlink" href="#kdrag.contrib.pcode.SimState.pc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeBinary">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeBinary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeBinary" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeCBranch">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeCBranch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeCBranch" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em> | bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeLoad">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeLoad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeLoad" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executePopcount">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executePopcount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executePopcount" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeSignExtend">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeSignExtend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeSignExtend" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeStore">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeStore" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeSubpiece">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeSubpiece</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeSubpiece" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeUnary">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeUnary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeUnary" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.executeZeroExtend">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">executeZeroExtend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.executeZeroExtend" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<em>PcodeOp</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.pc_of_addr">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">pc_of_addr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PC</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.pc_of_addr" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>addr</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>PC</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.pretty_insn">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">pretty_insn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">insn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Instruction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.pretty_insn" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>insn</strong> (<em>Instruction</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.pretty_op">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">pretty_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PcodeOp</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.pretty_op" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>op</strong> (<em>PcodeOp</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.test_pcode">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.</span></span><span class="sig-name descname"><span class="pre">test_pcode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.test_pcode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Modules</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.html#module-kdrag.contrib.pcode.asmspec" title="kdrag.contrib.pcode.asmspec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asmspec</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.contrib.hoare.wps.html" class="btn btn-neutral float-left" title="kdrag.contrib.hoare.wps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.contrib.pcode.executeBinary.html" class="btn btn-neutral float-right" title="kdrag.contrib.pcode.executeBinary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

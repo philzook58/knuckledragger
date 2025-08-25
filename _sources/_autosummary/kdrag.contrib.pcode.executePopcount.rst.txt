@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executePopcount
+===================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executePopcount

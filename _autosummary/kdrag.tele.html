@@ -1,0 +1,927 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.tele &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.tele.DeclareFunction" href="kdrag.tele.DeclareFunction.html" />
+    <link rel="prev" title="kdrag.tactics.subst" href="kdrag.tactics.subst.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.tele</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.DeclareFunction.html">kdrag.tele.DeclareFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.Fin.html">kdrag.tele.Fin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.Id.html">kdrag.tele.Id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.Pi.html">kdrag.tele.Pi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.TExists.html">kdrag.tele.TExists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.TForAll.html">kdrag.tele.TForAll</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.ann.html">kdrag.tele.ann</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.axiom_sig.html">kdrag.tele.axiom_sig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.define.html">kdrag.tele.define</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.has_type.html">kdrag.tele.has_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.normalize.html">kdrag.tele.normalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.open_binder.html">kdrag.tele.open_binder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.prove_sig.html">kdrag.tele.prove_sig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.tele.subsort_domain.html">kdrag.tele.subsort_domain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.DeclareFunction"><code class="docutils literal notranslate"><span class="pre">DeclareFunction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.Fin"><code class="docutils literal notranslate"><span class="pre">Fin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.Id"><code class="docutils literal notranslate"><span class="pre">Id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.Pi"><code class="docutils literal notranslate"><span class="pre">Pi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.TExists"><code class="docutils literal notranslate"><span class="pre">TExists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.TForAll"><code class="docutils literal notranslate"><span class="pre">TForAll()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.ann"><code class="docutils literal notranslate"><span class="pre">ann()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.axiom_sig"><code class="docutils literal notranslate"><span class="pre">axiom_sig()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.has_type"><code class="docutils literal notranslate"><span class="pre">has_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.open_binder"><code class="docutils literal notranslate"><span class="pre">open_binder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.prove_sig"><code class="docutils literal notranslate"><span class="pre">prove_sig()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.tele.subsort_domain"><code class="docutils literal notranslate"><span class="pre">subsort_domain()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+      <li class="breadcrumb-item active">kdrag.tele</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.tele.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.tele">
+<span id="kdrag-tele"></span><h1>kdrag.tele<a class="headerlink" href="#module-kdrag.tele" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.DeclareFunction.html#kdrag.tele.DeclareFunction" title="kdrag.tele.DeclareFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeclareFunction</span></code></a>(name, tele0, T[, by])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tele.Fin.html#kdrag.tele.Fin" title="kdrag.tele.Fin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Fin</span></code></a>(n)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.Id.html#kdrag.tele.Id" title="kdrag.tele.Id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Id</span></code></a>(x, y)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tele.Pi.html#kdrag.tele.Pi" title="kdrag.tele.Pi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pi</span></code></a>(tele0, B)</p></td>
+<td><p>Multiarity Pi.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.TExists.html#kdrag.tele.TExists" title="kdrag.tele.TExists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TExists</span></code></a>(xs, P)</p></td>
+<td><p>Dependent exists quantifier for a telescope of variables.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tele.TForAll.html#kdrag.tele.TForAll" title="kdrag.tele.TForAll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TForAll</span></code></a>(xs, P)</p></td>
+<td><p>Dependent forall quantifier for a telescope of variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.ann.html#kdrag.tele.ann" title="kdrag.tele.ann"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ann</span></code></a>(x, T)</p></td>
+<td><p>Annotate an expression with a type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tele.axiom_sig.html#kdrag.tele.axiom_sig" title="kdrag.tele.axiom_sig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">axiom_sig</span></code></a>(f, tele0, T)</p></td>
+<td><p>Assign signature to a function <cite>f</cite> with a telescope of arguments <cite>tele0</cite> as an axiom</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.define.html#kdrag.tele.define" title="kdrag.tele.define"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define</span></code></a>(name, args, T, body[, by])</p></td>
+<td><p>Define a function with a precondition given by a telescope of arguments and a postcondition given by a subset that output will lie in.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tele.has_type.html#kdrag.tele.has_type" title="kdrag.tele.has_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_type</span></code></a>(ctx, t0, T[, by])</p></td>
+<td><p>Tactic to check that an expression <cite>t0</cite> has type <cite>T</cite> in a context <cite>ctx</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.normalize.html#kdrag.tele.normalize" title="kdrag.tele.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(xs)</p></td>
+<td><p>Normalize a telescope to a list of (variable, formula) pairs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tele.open_binder.html#kdrag.tele.open_binder" title="kdrag.tele.open_binder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_binder</span></code></a>(e[, n])</p></td>
+<td><p>Open a formula in telescope form <cite>forall x, P(x), forall y, Q(y), R</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.prove_sig.html#kdrag.tele.prove_sig" title="kdrag.tele.prove_sig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prove_sig</span></code></a>(f, tele0, T[, by])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tele.subsort_domain.html#kdrag.tele.subsort_domain" title="kdrag.tele.subsort_domain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subsort_domain</span></code></a>(T)</p></td>
+<td><p>Get the domain sort of a SubSort, which is either an ArrayRef or a QuantifierRef.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.DeclareFunction">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">DeclareFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tele0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FuncDeclRef</span></span></span><a class="headerlink" href="#kdrag.tele.DeclareFunction" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">GE</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inc</span> <span class="o">=</span> <span class="n">DeclareFunction</span><span class="p">(</span><span class="s2">&quot;inc&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)],</span> <span class="n">GE</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tele0</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>T</strong> (<em>SubSort</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>FuncDeclRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.Fin">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">Fin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.tele.Fin" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Fin</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">Lambda(x, And(Lambda(n, n &gt;= 0)[x], x &lt; 3))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Not</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Exists</span><span class="p">([</span><span class="n">m</span><span class="p">],</span> <span class="n">Fin</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">m</span><span class="p">])))</span>
+<span class="go">|= Not(Exists(m,</span>
+<span class="go">        Lambda(x, And(Lambda(n, n &gt;= 0)[x], x &lt; 0))[m]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.Id">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">Id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SubSort</span></span></span><a class="headerlink" href="#kdrag.tele.Id" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">Unit</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">has_type</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">Unit</span><span class="o">.</span><span class="n">tt</span><span class="p">,</span> <span class="n">Id</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+<span class="go">|= Implies(And(True), Lambda(p!..., x == x)[tt])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">has_type</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Id</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))],</span> <span class="n">Unit</span><span class="o">.</span><span class="n">tt</span><span class="p">,</span> <span class="n">Id</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+<span class="go">|= Implies(And(True, True, x == y), Lambda(p!..., y == x)[tt])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ExprRef</em>)</p></li>
+<li><p><strong>y</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>SubSort</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.Pi">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">Pi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tele0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SubSort</span></span></span><a class="headerlink" href="#kdrag.tele.Pi" title="Link to this definition"></a></dt>
+<dd><p>Multiarity Pi. Dependent Function subsort
+B is a family because it may include parameters from tele0.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">GE</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Pi</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)],</span> <span class="n">GE</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="go">Lambda(f!...,</span>
+<span class="go">    ForAll(x, Implies(x &gt;= 0, Lambda(y, y &gt;= x)[f!...[x]])))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smt</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">Pi</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)],</span> <span class="n">GE</span><span class="p">(</span><span class="n">x</span><span class="p">))[</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span><span class="p">)])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tele0</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>B</strong> (<em>SubSort</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>SubSort</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.TExists">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">TExists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.tele.TExists" title="Link to this definition"></a></dt>
+<dd><p>Dependent exists quantifier for a telescope of variables.
+Kind of like a proof irrelevant Sigma type.</p>
+<p>Subtype / Refinement style usage</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Reals</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TExists</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)],</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">Exists(x, And(x &gt; 0, Exists(y, And(y &gt; x, y &gt; -1))))</span>
+</pre></div>
+</div>
+<p>“Dependent type” style usage</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pos</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">GT</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TExists</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pos</span><span class="p">),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">GT</span><span class="p">(</span><span class="n">x</span><span class="p">))],</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">Exists(x, And(x &gt; 0, Exists(y, And(y &gt; x, y &gt; -1))))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>P</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.TForAll">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">TForAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.tele.TForAll" title="Link to this definition"></a></dt>
+<dd><p>Dependent forall quantifier for a telescope of variables.
+Kind of like a proof irrelevant Pi type.</p>
+<p>Subtype / Refinement style usage</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Reals</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TForAll</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)],</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">ForAll(x, Implies(x &gt; 0, ForAll(y, Implies(y &gt; x, y &gt; -1))))</span>
+</pre></div>
+</div>
+<p>“Dependent type” style usage</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pos</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">GT</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TForAll</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pos</span><span class="p">),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">GT</span><span class="p">(</span><span class="n">x</span><span class="p">))],</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">ForAll(x, Implies(x &gt; 0, ForAll(y, Implies(y &gt; x, y &gt; -1))))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>P</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.ann">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">ann</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.tele.ann" title="Link to this definition"></a></dt>
+<dd><p>Annotate an expression with a type.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ann</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)</span>
+<span class="go">ann(x, Lambda(x, x &gt;= 0))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ExprRef</em>)</p></li>
+<li><p><strong>T</strong> (<em>SubSort</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.axiom_sig">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">axiom_sig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncDeclRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tele0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.tele.axiom_sig" title="Link to this definition"></a></dt>
+<dd><p>Assign signature to a function <cite>f</cite> with a telescope of arguments <cite>tele0</cite> as an axiom</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>FuncDeclRef</em>)</p></li>
+<li><p><strong>tele0</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>T</strong> (<em>SubSort</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.define">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">define</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FuncDeclRef</span></span></span><a class="headerlink" href="#kdrag.tele.define" title="Link to this definition"></a></dt>
+<dd><p>Define a function with a precondition given by a telescope of arguments
+and a postcondition given by a subset that output will lie in.</p>
+<p>Automatically</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">FreshVar</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">n</span><span class="p">],</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Pos</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">n</span><span class="p">],</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inc</span> <span class="o">=</span> <span class="n">define</span><span class="p">(</span><span class="s2">&quot;test_inc&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="n">n</span><span class="p">,</span><span class="n">Nat</span><span class="p">)],</span> <span class="n">Pos</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inc</span><span class="o">.</span><span class="n">pre_post</span>
+<span class="go">|= ForAll(n!...,</span>
+<span class="go">    Implies(And(n!... &gt;= 0),</span>
+<span class="go">        Lambda(n!..., n!... &gt; 0)[test_inc(n!...)]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">define</span><span class="p">(</span><span class="s2">&quot;pred&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="n">n</span><span class="p">,</span> <span class="n">Pos</span><span class="p">)],</span> <span class="n">Nat</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myid</span> <span class="o">=</span> <span class="n">define</span><span class="p">(</span><span class="s2">&quot;myid&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="n">n</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)],</span> <span class="n">Nat</span><span class="p">,</span> <span class="n">pred</span><span class="p">(</span><span class="n">inc</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>args</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>T</strong> (<em>SubSort</em>)</p></li>
+<li><p><strong>body</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>FuncDeclRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.has_type">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">has_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.tele.has_type" title="Link to this definition"></a></dt>
+<dd><p>Tactic to check that an expression <cite>t0</cite> has type <cite>T</cite> in a context <cite>ctx</cite>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">has_type</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)],</span> <span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)</span>
+<span class="go">|= Implies(And(x &gt;= 0), Lambda(x, x &gt;= 0)[x + 1])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>t0</strong> (<em>ExprRef</em>)</p></li>
+<li><p><strong>T</strong> (<em>SubSort</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.normalize">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">_Tele</span></span></span><a class="headerlink" href="#kdrag.tele.normalize" title="Link to this definition"></a></dt>
+<dd><p>Normalize a telescope to a list of (variable, formula) pairs.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
+<span class="go">[(x, True), (y, True), (z, True)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">),</span> <span class="n">z</span><span class="p">])</span>
+<span class="go">[(x, x &gt; 0), (y, y &gt; x), (z, True)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)),</span> <span class="n">z</span><span class="p">])</span>
+<span class="go">[(x, x &gt; 0), (y, y &gt; x), (z, True)]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xs</strong> (<em>Telescope</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>_Tele</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.open_binder">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">open_binder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">_Tele</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.tele.open_binder" title="Link to this definition"></a></dt>
+<dd><p>Open a formula in telescope form <cite>forall x, P(x), forall y, Q(y), R</cite></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">open_binder</span><span class="p">(</span><span class="n">TForAll</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">))</span>
+<span class="go">([(X!..., X!... &gt; 0), (Y!..., Y!... &gt; 0)], X!... == Y!...)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">open_binder</span><span class="p">(</span><span class="n">TForAll</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">([(X!..., X!... &gt; 0)], ForAll(y, Implies(y &gt; 0, X!... == y)))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>e</strong> (<em>BoolRef</em>)</p></li>
+<li><p><strong>n</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[_Tele, <em>BoolRef</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.prove_sig">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">prove_sig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncDeclRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tele0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Telescope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.tele.prove_sig" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>FuncDeclRef</em>)</p></li>
+<li><p><strong>tele0</strong> (<em>Telescope</em>)</p></li>
+<li><p><strong>T</strong> (<em>SubSort</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.tele.subsort_domain">
+<span class="sig-prename descclassname"><span class="pre">kdrag.tele.</span></span><span class="sig-name descname"><span class="pre">subsort_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubSort</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SortRef</span></span></span><a class="headerlink" href="#kdrag.tele.subsort_domain" title="Link to this definition"></a></dt>
+<dd><p>Get the domain sort of a SubSort, which is either an ArrayRef or a QuantifierRef.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">(),</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subsort_domain</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+<span class="go">Int</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subsort_domain</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
+<span class="go">Int</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> (<em>SubSort</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>SortRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+
+<span class="nb">type</span> <span class="n">SubSort</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span> <span class="o">|</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span>
+<span class="nb">type</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">SubSort</span>
+<span class="c1"># User telescope</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">User telescope type.</span>
+
+<span class="sd">Telescopes are dependent or refined contexts of variables.</span>
+<span class="sd">They can tag variables with SubSet expressions or formulas that involve the bound variable.</span>
+<span class="sd">Internally, the are normalized to _Tele, which is a list of (variable, formula) pairs.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="nb">type</span> <span class="n">Telescope</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span>
+    <span class="nb">tuple</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">SubSort</span><span class="p">]</span> <span class="o">|</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span>
+<span class="p">]</span>
+<span class="c1"># Internal normalized telescope</span>
+<span class="nb">type</span> <span class="n">_Tele</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">]]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">subsort_domain</span><span class="p">(</span><span class="n">T</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the domain sort of a SubSort, which is either an ArrayRef or a QuantifierRef.</span>
+
+<span class="sd">    &gt;&gt;&gt; T = smt.Array(&quot;T&quot;, smt.IntSort(), smt.BoolSort())</span>
+<span class="sd">    &gt;&gt;&gt; subsort_domain(T)</span>
+<span class="sd">    Int</span>
+<span class="sd">    &gt;&gt;&gt; x = smt.Int(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; subsort_domain(smt.Lambda([x], x &gt; 0))</span>
+<span class="sd">    Int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">domain</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">T</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">var_sort</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported type for subsort: </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Tele</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize a telescope to a list of (variable, formula) pairs.</span>
+
+<span class="sd">    &gt;&gt;&gt; x, y, z = smt.Ints(&quot;x y z&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; normalize([x, y, z])</span>
+<span class="sd">    [(x, True), (y, True), (z, True)]</span>
+<span class="sd">    &gt;&gt;&gt; normalize([(x, x &gt; 0), (y, y &gt; x), z])</span>
+<span class="sd">    [(x, x &gt; 0), (y, y &gt; x), (z, True)]</span>
+<span class="sd">    &gt;&gt;&gt; normalize([(x, smt.Lambda([x], x &gt; 0)), (y, smt.Lambda([y], y &gt; x)), z])</span>
+<span class="sd">    [(x, x &gt; 0), (y, y &gt; x), (z, True)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span><span class="p">:</span> <span class="n">_Tele</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">if</span> <span class="n">T</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">)</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">T</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">T</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">)</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">P</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported type for quantifier: </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">open_binder</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">_Tele</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Open a formula in telescope form `forall x, P(x), forall y, Q(y), R`</span>
+
+<span class="sd">    &gt;&gt;&gt; x, y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; open_binder(TForAll([(x, x &gt; 0), (y, y &gt; 0)], x == y))</span>
+<span class="sd">    ([(X!..., X!... &gt; 0), (Y!..., Y!... &gt; 0)], X!... == Y!...)</span>
+<span class="sd">    &gt;&gt;&gt; open_binder(TForAll([(x, x &gt; 0), (y, y &gt; 0)], x == y), n=1)</span>
+<span class="sd">    ([(X!..., X!... &gt; 0)], ForAll(y, Implies(y &gt; 0, X!... == y)))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tele</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="n">vs</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">open_binder</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_implies</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">tele</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">body</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">tele</span><span class="p">,</span> <span class="n">e</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">TForAll</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">P</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dependent forall quantifier for a telescope of variables.</span>
+<span class="sd">    Kind of like a proof irrelevant Pi type.</span>
+
+<span class="sd">    Subtype / Refinement style usage</span>
+
+<span class="sd">    &gt;&gt;&gt; x, y, z = smt.Reals(&quot;x y z&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; TForAll([(x, x &gt; 0), (y, y &gt; x)], y &gt; -1)</span>
+<span class="sd">    ForAll(x, Implies(x &gt; 0, ForAll(y, Implies(y &gt; x, y &gt; -1))))</span>
+
+<span class="sd">    &quot;Dependent type&quot; style usage</span>
+
+<span class="sd">    &gt;&gt;&gt; Pos = smt.Lambda([x], x &gt; 0)</span>
+<span class="sd">    &gt;&gt;&gt; GT = lambda x: smt.Lambda([y], y &gt; x)</span>
+<span class="sd">    &gt;&gt;&gt; TForAll([(x, Pos), (y, GT(x))], y &gt; -1)</span>
+<span class="sd">    ForAll(x, Implies(x &gt; 0, ForAll(y, Implies(y &gt; x, y &gt; -1))))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">xs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">if</span> <span class="n">T</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">():</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">T</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="n">T</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">P</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported type for quantifier: </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="n">P</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">P</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">TExists</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">P</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dependent exists quantifier for a telescope of variables.</span>
+<span class="sd">    Kind of like a proof irrelevant Sigma type.</span>
+
+<span class="sd">    Subtype / Refinement style usage</span>
+
+<span class="sd">    &gt;&gt;&gt; x, y, z = smt.Reals(&quot;x y z&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; TExists([(x, x &gt; 0), (y, y &gt; x)], y &gt; -1)</span>
+<span class="sd">    Exists(x, And(x &gt; 0, Exists(y, And(y &gt; x, y &gt; -1))))</span>
+
+<span class="sd">    &quot;Dependent type&quot; style usage</span>
+
+<span class="sd">    &gt;&gt;&gt; Pos = smt.Lambda([x], x &gt; 0)</span>
+<span class="sd">    &gt;&gt;&gt; GT = lambda x: smt.Lambda([y], y &gt; x)</span>
+<span class="sd">    &gt;&gt;&gt; TExists([(x, Pos), (y, GT(x))], y &gt; -1)</span>
+<span class="sd">    Exists(x, And(x &gt; 0, Exists(y, And(y &gt; x, y &gt; -1))))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">xs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">if</span> <span class="n">T</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="o">==</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">():</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QExists</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">QuantifierRef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">T</span><span class="o">.</span><span class="n">is_lambda</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QExists</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="n">T</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">P</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported type for quantifier: </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">QExists</span><span class="p">([</span><span class="n">v</span><span class="p">],</span> <span class="n">P</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">P</span>
+
+
+<span class="n">_tsig</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">,</span> <span class="n">kd</span><span class="o">.</span><span class="n">Proof</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">axiom_sig</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">,</span> <span class="n">tele0</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">T</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assign signature to a function `f` with a telescope of arguments `tele0` as an axiom</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tele</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">tele0</span><span class="p">)</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tele</span><span class="p">]</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="p">[</span><span class="n">P</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">P</span> <span class="ow">in</span> <span class="n">tele</span><span class="p">]</span>
+    <span class="c1"># T is nonempty when context is possible</span>
+    <span class="c1"># Otherwise even allowing this declaration is inconsistent</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">range</span><span class="p">())</span>
+    <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">ctx</span><span class="p">),</span> <span class="n">smt</span><span class="o">.</span><span class="n">Exists</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="n">x</span><span class="p">]))))</span>
+    <span class="n">pf</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">ctx</span><span class="p">),</span> <span class="n">T</span><span class="p">[</span><span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">vs</span><span class="p">)])))</span>
+    <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">_tsig</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Redefining function signature&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="n">_tsig</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">pf</span>
+    <span class="k">return</span> <span class="n">pf</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">prove_sig</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">,</span> <span class="n">tele0</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">T</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">normalize</span><span class="p">(</span><span class="n">tele0</span><span class="p">)]</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">has_type</span><span class="p">(</span><span class="n">tele0</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">vs</span><span class="p">),</span> <span class="n">T</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">)</span><span class="o">.</span><span class="n">forall</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">_tsig</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Redefining function signature&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="n">_tsig</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">pre_post</span> <span class="o">=</span> <span class="n">P</span>  <span class="c1"># type: ignore</span>
+    <span class="k">return</span> <span class="n">P</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">DeclareFunction</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tele0</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">T</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[])</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &gt;&gt;&gt; x, y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Nat = smt.Lambda([x], x &gt;= 0)</span>
+<span class="sd">    &gt;&gt;&gt; GE = lambda x: smt.Lambda([y], y &gt;= x)</span>
+<span class="sd">    &gt;&gt;&gt; inc = DeclareFunction(&quot;inc&quot;, [(x, Nat)], GE(x))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tele</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">tele0</span><span class="p">)</span>
+    <span class="n">res_sort</span> <span class="o">=</span> <span class="n">subsort_domain</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tele</span><span class="p">],</span> <span class="n">res_sort</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">axiom_sig</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">tele0</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">pre_post</span> <span class="o">=</span> <span class="n">P</span>
+    <span class="k">return</span> <span class="n">f</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">has_type</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">T</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">kd</span><span class="o">.</span><span class="n">Proof</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tactic to check that an expression `t0` has type `T` in a context `ctx`.</span>
+
+<span class="sd">    &gt;&gt;&gt; x = smt.Int(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Nat = smt.Lambda([x], x &gt;= 0)</span>
+<span class="sd">    &gt;&gt;&gt; has_type([(x, Nat)], x+1, Nat)</span>
+<span class="sd">    |= Implies(And(x &gt;= 0), Lambda(x, x &gt;= 0)[x + 1])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tele</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+    <span class="n">pctx</span> <span class="o">=</span> <span class="p">[</span><span class="n">P</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">P</span> <span class="ow">in</span> <span class="n">tele</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">by</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">t0</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">smt</span><span class="o">.</span><span class="n">is_app</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+            <span class="n">children</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">children</span><span class="p">()</span>
+            <span class="n">decl</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">decl</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                    <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="c1"># TODO. Could recursively cut the children. Localize type error better.</span>
+            <span class="k">if</span> <span class="n">decl</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ann&quot;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">children</span>
+                    <span class="n">by</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">has_type</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">))</span>
+                    <span class="c1"># TODO: unfold ann. by.append(kd.kernel.defn)</span>
+                    <span class="c1"># actually with new definition, ann is in _tsig</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid annotation </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> in context </span><span class="si">{</span><span class="n">ctx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">decl</span> <span class="ow">in</span> <span class="n">_tsig</span><span class="p">:</span>
+                <span class="n">by</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_tsig</span><span class="p">[</span><span class="n">decl</span><span class="p">](</span><span class="o">*</span><span class="n">children</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">pctx</span><span class="p">),</span> <span class="n">T</span><span class="p">[</span><span class="n">t0</span><span class="p">]),</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">define</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">T</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">FuncDeclRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Define a function with a precondition given by a telescope of arguments</span>
+<span class="sd">    and a postcondition given by a subset that output will lie in.</span>
+
+<span class="sd">    Automatically</span>
+
+<span class="sd">    &gt;&gt;&gt; n = kd.kernel.FreshVar(&quot;n&quot;, smt.IntSort())</span>
+<span class="sd">    &gt;&gt;&gt; m = smt.Int(&quot;m&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Nat = smt.Lambda([n], n &gt;= 0)</span>
+<span class="sd">    &gt;&gt;&gt; Pos = smt.Lambda([n], n &gt; 0)</span>
+<span class="sd">    &gt;&gt;&gt; inc = define(&quot;test_inc&quot;, [(n,Nat)], Pos, n + 1)</span>
+<span class="sd">    &gt;&gt;&gt; inc.pre_post</span>
+<span class="sd">    |= ForAll(n!...,</span>
+<span class="sd">        Implies(And(n!... &gt;= 0),</span>
+<span class="sd">            Lambda(n!..., n!... &gt; 0)[test_inc(n!...)]))</span>
+<span class="sd">    &gt;&gt;&gt; pred = define(&quot;pred&quot;, [(n, Pos)], Nat, n - 1)</span>
+<span class="sd">    &gt;&gt;&gt; myid = define(&quot;myid&quot;, [(n, Nat)], Nat, pred(inc(n)))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P1</span> <span class="o">=</span> <span class="n">has_type</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">tele</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tele</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">is_fresh_var</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Arguments must be schema variables: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">vs</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="n">prove_sig</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">P1</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">defn</span><span class="p">(</span><span class="o">*</span><span class="n">vs</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">f</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_gen_annotate</span><span class="p">(</span><span class="n">S</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">SortRef</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">tactics</span><span class="o">.</span><span class="n">FreshVars</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">FreshVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArraySort</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">BoolSort</span><span class="p">()))</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArrayRef</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">define</span><span class="p">(</span>
+        <span class="s2">&quot;ann&quot;</span><span class="p">,</span>
+        <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">T</span><span class="p">),</span> <span class="n">T</span><span class="p">],</span>  <span class="c1"># This is breaking telescoping rules. Is that ok?</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">y</span> <span class="o">==</span> <span class="n">x</span><span class="p">),</span>
+        <span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshFunction</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">S</span><span class="p">)(</span><span class="n">x</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ann</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">T</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Annotate an expression with a type.</span>
+
+<span class="sd">    &gt;&gt;&gt; x = smt.Int(&quot;x&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Nat = smt.Lambda([x], x &gt;= 0)</span>
+<span class="sd">    &gt;&gt;&gt; ann(x, Nat)</span>
+<span class="sd">    ann(x, Lambda(x, x &gt;= 0))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_gen_annotate</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sort</span><span class="p">())(</span><span class="n">x</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+
+
+<span class="c1"># For Proof objects</span>
+<span class="n">Unit</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Inductive</span><span class="p">(</span><span class="s2">&quot;Unit&quot;</span><span class="p">)</span>
+<span class="n">Unit</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s2">&quot;tt&quot;</span><span class="p">)</span>
+<span class="n">Unit</span> <span class="o">=</span> <span class="n">Unit</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+<span class="n">_n</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">)</span>
+<span class="n">Nat</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">_n</span><span class="p">],</span> <span class="n">_n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">Pos</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">_n</span><span class="p">],</span> <span class="n">_n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+
+<span class="c1"># type Family = Callable[..., SubSort]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">Fin</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; m = smt.Int(&quot;m&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; Fin(3)</span>
+<span class="sd">    Lambda(x, And(Lambda(n, n &gt;= 0)[x], x &lt; 3))</span>
+<span class="sd">    &gt;&gt;&gt; kd.prove(smt.Not(smt.Exists([m], Fin(0)[m])))</span>
+<span class="sd">    |= Not(Exists(m,</span>
+<span class="sd">            Lambda(x, And(Lambda(n, n &gt;= 0)[x], x &lt; 0))[m]))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">Nat</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">))</span>
+
+
+<span class="n">_x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Real</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">Interval</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">_x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">_x</span><span class="p">,</span> <span class="n">_x</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Pi</span><span class="p">(</span><span class="n">tele0</span><span class="p">:</span> <span class="n">Telescope</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">SubSort</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubSort</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Multiarity Pi. Dependent Function subsort</span>
+<span class="sd">    B is a family because it may include parameters from tele0.</span>
+
+<span class="sd">    &gt;&gt;&gt; x, y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; GE = lambda x: smt.Lambda([y], y &gt;= x)</span>
+<span class="sd">    &gt;&gt;&gt; Pi([(x, Nat)], GE(x))</span>
+<span class="sd">    Lambda(f!...,</span>
+<span class="sd">        ForAll(x, Implies(x &gt;= 0, Lambda(y, y &gt;= x)[f!...[x]])))</span>
+<span class="sd">    &gt;&gt;&gt; smt.simplify(Pi([(x, Nat)], GE(x))[smt.Lambda([x], x)])</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tele</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">tele0</span><span class="p">)</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tele</span><span class="p">]</span>
+    <span class="c1"># TB: SubSort = B(*vs)  # B is a family of sorts</span>
+    <span class="n">sorts</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span> <span class="k">for</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tele</span><span class="p">]</span>
+    <span class="n">fsort</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">ArraySort</span><span class="p">(</span><span class="o">*</span><span class="n">sorts</span><span class="p">,</span> <span class="n">subsort_domain</span><span class="p">(</span><span class="n">B</span><span class="p">))</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">fsort</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">f</span><span class="p">],</span> <span class="n">TForAll</span><span class="p">(</span><span class="n">tele0</span><span class="p">,</span> <span class="n">B</span><span class="p">[</span><span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">vs</span><span class="p">)]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Id</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubSort</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; x, y = smt.Ints(&quot;x y&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; p = smt.Const(&quot;p&quot;, Unit)</span>
+<span class="sd">    &gt;&gt;&gt; has_type([x], Unit.tt, Id(x, x))</span>
+<span class="sd">    |= Implies(And(True), Lambda(p!..., x == x)[tt])</span>
+<span class="sd">    &gt;&gt;&gt; has_type([x, y, (p, Id(x,y))], Unit.tt, Id(y, x))</span>
+<span class="sd">    |= Implies(And(True, True, x == y), Lambda(p!..., y == x)[tt])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshConst</span><span class="p">(</span><span class="n">Unit</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">smt</span><span class="o">.</span><span class="n">Lambda</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.tactics.subst.html" class="btn btn-neutral float-left" title="kdrag.tactics.subst" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.tele.DeclareFunction.html" class="btn btn-neutral float-right" title="kdrag.tele.DeclareFunction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

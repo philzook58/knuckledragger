@@ -1,0 +1,41 @@
+kdrag.solvers.gappa
+===================
+
+.. automodule:: kdrag.solvers.gappa
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      gappa_of_bool
+      gappa_of_real
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      GappaSolver
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/gappa.py
+   :language: python

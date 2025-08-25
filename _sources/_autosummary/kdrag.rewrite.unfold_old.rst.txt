@@ -1,0 +1,6 @@
+kdrag.rewrite.unfold\_old
+=========================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: unfold_old
