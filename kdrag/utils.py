@@ -6,7 +6,7 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, Generator, Any
+from typing import Optional, Generator, Any, Callable
 import os
 import glob
 import inspect
@@ -48,7 +48,11 @@ def open_binder_unhygienic(
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
-def pathmap(function, e: smt.ExprRef, path: list[int]) -> smt.ExprRef:
+def pathmap(
+    function: Callable[[smt.ExprRef], smt.ExprRef],
+    e: smt.ExprRef,
+    path: Optional[list[int]],
+) -> smt.ExprRef:
     """
     Apply function at position in term
     >>> x,y,z = smt.Ints("x y z")

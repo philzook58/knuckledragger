@@ -588,7 +588,7 @@ class Lemma:
                     self.add_lemma(l)
             else:
                 newgoal = kd.utils.pathmap(smt.simplify, oldgoal, path)
-                self.add_lemma(kd.kernel.prove(oldgoal == newgoal))
+                self.add_lemma(kd.kernel.prove(smt.Eq(oldgoal, newgoal)))
             # if newgoal.eq(oldgoal):
             #    raise ValueError(
             #        "Simplify failed. Goal is already simplified.", oldgoal
