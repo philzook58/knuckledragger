@@ -71,7 +71,7 @@ class Add:
     assoc = add_assoc
     e = smt.RealVal(0)
     left_id = kd.prove(ForAll([x], add(0, x) == x), by=[add.defn])
-    # right_id = kd.prove(ForAll([x], add(x, 0) == x), by=[add.defn])
+    right_id = kd.prove(ForAll([x], add(x, 0) == x), by=[add.defn])
 
 
 AddComm: type[prop.Comm] = Add

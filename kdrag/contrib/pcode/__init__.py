@@ -145,11 +145,15 @@ class MemState:
         return bv.SelectConcat(self.mem.ram, offset, size)
 
     def setvalue_ram(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
+        if not isinstance(offset, smt.BitVecRef):
+            offset1 = smt.BitVecVal(offset, self.bits)
+        else:
+            offset1 = offset
         return dataclasses.replace(
             self,
-            mem=self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset, value)),  # type: ignore
+            mem=self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset1, value)),  # type: ignore
             write=fun.MultiStore(
-                self.write, offset, *([smt.BoolVal(True)] * value.size())
+                self.write, offset1, *([smt.BoolVal(True)] * value.size())
             ),
         )
 

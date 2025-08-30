@@ -9,7 +9,7 @@ def MultiStore(a: smt.ArrayRef, addr: smt.ExprRef, *vs: smt.ExprRef) -> smt.Arra
     Store(Store(Store(a, 42, 1), 43, 2), 44, 3)
     """
     for n, v in enumerate(vs):
-        a = smt.Store(a, addr + n, v)
+        a = smt.Store(a, addr + n, v)  # type: ignore
     return a
 
 
