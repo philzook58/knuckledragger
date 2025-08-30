@@ -5,12 +5,18 @@ Transcendental functions and bounds.
 """
 
 import kdrag.smt as smt
+import kdrag.theories.set as set_
 from kdrag.smt import ForAll, Function
 import kdrag as kd
+import kdrag.property as prop
+
+T = smt.RealSort()
 
 R = smt.RealSort()
 RFun = smt.ArraySort(R, R)
 RSeq = smt.ArraySort(smt.IntSort(), R)
+RSet = set_.Set(R)
+S = RSet.full
 
 real_db = []
 real_simp = []
@@ -48,6 +54,8 @@ Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
 # NReal = kd.NewType("NReal", R)
 
 
+zero = kd.define("zero", [], smt.RealVal(0))
+
 add = kd.define("add", [x, y], x + y)
 
 add_0 = kd.prove(ForAll([x], add(x, 0) == x), by=[add.defn])
@@ -55,6 +63,20 @@ add_comm = kd.prove(ForAll([x, y], add(x, y) == add(y, x)), by=[add.defn])
 add_assoc = kd.prove(
     smt.ForAll([x, y, z], add(x, add(y, z)) == add(add(x, y), z)), by=[add.defn]
 )
+
+
+class Add:
+    f = add
+    comm = add_comm
+    assoc = add_assoc
+    e = smt.RealVal(0)
+    left_id = kd.prove(ForAll([x], add(0, x) == x), by=[add.defn])
+    # right_id = kd.prove(ForAll([x], add(x, 0) == x), by=[add.defn])
+
+
+AddComm: type[prop.Comm] = Add
+AddAssoc: type[prop.Assoc] = Add
+AddId: type[prop.Identity] = Add
 
 sub = kd.define("sub", [x, y], x - y)
 sub_0 = kd.prove(ForAll([x], sub(x, 0) == x), by=[sub.defn])
@@ -64,7 +86,9 @@ sub_add = kd.prove(
 
 mul = kd.define("mul", [x, y], x * y)
 mul_zero = kd.prove(ForAll([x], mul(x, 0) == 0), by=[mul.defn])
-mul_1 = kd.prove(ForAll([x], mul(x, 1) == x), by=[mul.defn])
+one = kd.define("one", [], smt.RealVal(1))
+mul_one = kd.prove(ForAll([x], mul(x, one) == x), by=[mul.defn, one.defn])
+one_mul = kd.prove(ForAll([x], mul(one, x) == x), by=[mul.defn, one.defn])
 mul_comm = kd.prove(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
 # mul_assoc = kd.prove(
 #    ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)), by=[mul.defn]
@@ -74,6 +98,18 @@ _x, _y, _z = _l.fixes()
 _l.unfold()
 _l.auto()
 mul_assoc = _l.qed()
+
+
+class Mul:
+    f = mul
+    comm = mul_comm
+    assoc = mul_assoc
+    e = smt.RealVal(1)
+    left_id = kd.prove(ForAll([x], mul(1, x) == x), by=[mul.defn])
+    right_id = kd.prove(ForAll([x], mul(x, 1) == x), by=[mul.defn])
+
+
+MulAssoc: type[prop.Assoc] = Mul
 
 mul_distrib = kd.prove(
     ForAll([x, y, z], mul(x, add(y, z)) == add(mul(x, y), mul(x, z))),

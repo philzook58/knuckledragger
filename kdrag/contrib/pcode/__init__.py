@@ -14,8 +14,10 @@ import archinfo
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.bitvec as bv
+import kdrag.theories.fun as fun
 import operator
 from dataclasses import dataclass
+import dataclasses
 from typing import Optional
 
 TRUE = smt.BitVecVal(1, 8)
@@ -94,16 +96,23 @@ class MemState:
 
     #>>> mem.getvalue(_TestVarnode("ram", 0, 8))
     #>>> mem.setvalue(_TestVarnode("ram", 0, 8), 1)
-    >>> mem = MemState(smt.Array("mymem", BV[64], BV[8]), bits=64)
+    >>> mem = MemState.Const("mymem") #(smt.Array("mymem", BV[64], BV[8]), bits=64)
 
     """
 
     mem: smt.DatatypeRef
-    bits: int
+    bits: int  # bitwidth of addresses
+    read: smt.ArrayRef
+    write: smt.ArrayRef
 
     @classmethod
     def Const(cls, name: str, bits: int = 64) -> "MemState":
-        return MemState(smt.Const(name, MemStateSort[bits]), bits=bits)
+        return MemState(
+            smt.Const(name, MemStateSort[bits]),
+            bits=bits,
+            read=smt.Array(name + "_read", BV[bits], smt.BoolSort()),
+            write=smt.Array(name + "_write", BV[bits], smt.BoolSort()),
+        )
 
     def getvalue(self, vnode: pypcode.Varnode) -> smt.BitVecRef | int:
         if vnode.space.name == "const":
@@ -118,8 +127,9 @@ class MemState:
 
     def setvalue(self, vnode: pypcode.Varnode, value: smt.BitVecRef):
         assert vnode.space.name != "const"
-        return MemState(
-            self.mem._replace(
+        return dataclasses.replace(
+            self,
+            mem=self.mem._replace(
                 **{
                     vnode.space.name: bv.StoreConcat(
                         getattr(self.mem, vnode.space.name),
@@ -128,16 +138,19 @@ class MemState:
                     )
                 }
             ),
-            bits=self.bits,
         )
 
     def getvalue_ram(self, offset: smt.BitVecRef | int, size: int) -> smt.BitVecRef:
+        # TODO: update read?
         return bv.SelectConcat(self.mem.ram, offset, size)
 
     def setvalue_ram(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
-        return MemState(
-            self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset, value)),  # type: ignore
-            bits=self.bits,
+        return dataclasses.replace(
+            self,
+            mem=self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset, value)),  # type: ignore
+            write=fun.MultiStore(
+                self.write, offset, *([smt.BoolVal(True)] * value.size())
+            ),
         )
 
 
