@@ -34,7 +34,7 @@ rust = ["maturin>=1.8.6"]
 
 [tool.setuptools]
 include-package-data = true
-
+package-dir = { "" = "kdrag" }
 [tool.setuptools.package-data]
 knuckledragger = ["*.sh"]
 
