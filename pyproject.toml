@@ -34,7 +34,8 @@ rust = ["maturin>=1.8.6"]
 
 [tool.setuptools]
 include-package-data = true
-package-dir = { "" = "kdrag" }
+#package-dir = { "" = "kdrag" }
+packages = ["kdrag"]
 [tool.setuptools.package-data]
 knuckledragger = ["*.sh"]
 
@@ -69,9 +70,10 @@ exclude = [
 
 [tool.pytest.ini_options]
 norecursedirs = [
-    "kdrag/solvers/eprover",
-    "kdrag/solvers/gappa*",
-    "kdrag/solvers/Prover9",
+    "solvers/eprover",
+    "solvers/gappa*",
+    "solvers/Prover9",
+    "rust/",
     "examples/converted_notebooks",
 ]
 addopts = "--doctest-modules"
