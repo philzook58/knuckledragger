@@ -3,6 +3,13 @@ from kdrag.printers.rust import init_proj, compile_rust, default_dir
 import shutil
 import pytest
 
+import kdragrs
+
+
+def test_myadd():
+    assert kdragrs.myadd(3, 4) == 7
+
+
 @pytest.mark.slow
 def test_rust():
     try:
@@ -13,4 +20,3 @@ def test_rust():
     mymod = compile_rust("myadd", "fn myadd(x: i64, y: i64) -> i64 { x + y }")
     assert mymod.myadd(3, 4) == 7
 
-    

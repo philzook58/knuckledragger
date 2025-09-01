@@ -6,9 +6,15 @@ fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
     Ok((a + b).to_string())
 }
 
+#[pyfunction]
+fn myadd(a: i32, b: i32) -> i32 {
+    kdrag::myadd(a, b)
+}
+
 /// A Python module implemented in Rust.
 #[pymodule]
 fn kdragrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
+    m.add_function(wrap_pyfunction!(myadd, m)?)?;
     Ok(())
 }
