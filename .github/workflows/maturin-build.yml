@@ -3,6 +3,7 @@ on:
     push:
         paths:
         - 'rust/**'
+    workflow_dispatch:
 
 jobs:
   build:
