@@ -4,7 +4,7 @@ version = "0.1.1"
 authors = [{ name = "Philip Zucker", email = "philzook58@gmail.com" }]
 description = "Interactive Theorem Prover"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -88,6 +88,4 @@ dev = [
     "pytest>=8.3.4",
     "ruff>=0.11.13",
 ]
-rust = [
-    "maturin>=1.8.6",
-]
+rust = ["maturin>=1.8.6"]
