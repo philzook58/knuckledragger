@@ -1,0 +1,6 @@
+kdrag.tele.has\_type
+====================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: has_type

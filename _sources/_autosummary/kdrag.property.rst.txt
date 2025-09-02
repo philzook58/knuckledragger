@@ -1,0 +1,55 @@
+kdrag.property
+==============
+
+.. automodule:: kdrag.property
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      assoc_comm
+      assoc_norm
+      comm_norm
+      idem_norm
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Antisymm
+      Assoc
+      Asymm
+      Comm
+      GenericProof
+      Idem
+      Identity
+      Irrefl
+      LeftIdentity
+      Refl
+      RightIdentity
+      Total
+      TypeClass
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/property.py
+   :language: python

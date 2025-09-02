@@ -1,0 +1,6 @@
+kdrag.kernel.rename\_vars
+=========================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: rename_vars

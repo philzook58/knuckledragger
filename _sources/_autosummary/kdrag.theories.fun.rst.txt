@@ -1,0 +1,35 @@
+kdrag.theories.fun
+==================
+
+.. automodule:: kdrag.theories.fun
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      MultiStore
+      store_view
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/fun.py
+   :language: python

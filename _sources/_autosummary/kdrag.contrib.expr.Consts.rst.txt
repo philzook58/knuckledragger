@@ -1,0 +1,6 @@
+kdrag.contrib.expr.Consts
+=========================
+
+.. currentmodule:: kdrag.contrib.expr
+
+.. autofunction:: Consts
