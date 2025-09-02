@@ -20,9 +20,8 @@ print(os.path.join(os.path.dirname(z3.__file__), "lib"))
 # Shows Two libz3 being loaded. Hmm.
 """
 
-def test_myadd():
-    assert kdragrs.myadd(3, 4) == 7
-
+#def test_version():
+#    assert kdragrs.full_version() == z3.get_version_string()
 
 def test_id():
     x = z3.Int('x')

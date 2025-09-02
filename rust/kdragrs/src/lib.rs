@@ -1,14 +1,4 @@
 use pyo3::prelude::*;
-/// Formats the sum of two numbers as string.
-#[pyfunction]
-fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
-}
-
-#[pyfunction]
-fn myadd(a: i32, b: i32) -> i32 {
-    kdrag::myadd(a, b)
-}
 
 #[pyfunction]
 fn full_version() -> String {
@@ -37,8 +27,6 @@ fn my_id<'py>(py: Python<'py>, z3_expr: Bound<'py, PyAny>) -> PyResult<Bound<'py
 /// A Python module implemented in Rust.
 #[pymodule]
 fn kdragrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
-    m.add_function(wrap_pyfunction!(myadd, m)?)?;
     m.add_function(wrap_pyfunction!(full_version, m)?)?;
     m.add_function(wrap_pyfunction!(my_id, m)?)?;
     Ok(())

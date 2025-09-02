@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-z3 = { workspace = true }
-z3-sys = { workspace = true }
+z3 = { workspace = true, features = ["gh-release"] }
+z3-sys = { workspace = true, features = ["gh-release"] }

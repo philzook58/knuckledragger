@@ -3,5 +3,6 @@ resolver = "3"
 members = ["kdrag", "kdragrs"]
 
 [workspace.dependencies]
-z3 = "0.16.2"
-z3-sys = "^0.9.8"
+z3 = { version = "0.16.2", features = ["gh-release"] }
+z3-sys = { version = "^0.9.8", features = ["gh-release"] }
+# setup env as Z3_SYS_Z3_VERSION = $(python3 -c "import z3; print(z3.get_version_string())") to match python version?

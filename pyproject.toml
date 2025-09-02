@@ -55,6 +55,7 @@ ignore = ["E741"]
 [tool.pyright]
 include = ["kdrag"]
 exclude = [
+    "rust/target",
     "kdrag/solvers/eprover/*",
     "kdrag/solvers/gappa*",
     "kdrag/solvers/Prover9/*",
@@ -70,10 +71,10 @@ exclude = [
 
 [tool.pytest.ini_options]
 norecursedirs = [
+    "rust/target",
     "solvers/eprover",
     "solvers/gappa*",
     "solvers/Prover9",
-    "rust/",
     "examples/converted_notebooks",
 ]
 addopts = "--doctest-modules"
@@ -89,6 +90,4 @@ dev = [
     "pytest>=8.3.4",
     "ruff>=0.11.13",
 ]
-rust = [
-    "maturin[patchelf]>=1.8.6",
-]
+rust = ["maturin[patchelf]>=1.8.6"]

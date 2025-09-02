@@ -3,10 +3,6 @@ use z3;
 use z3::ast::Ast;
 use z3_sys;
 
-pub fn myadd(a: i32, b: i32) -> i32 {
-    a + b
-}
-
 pub fn deserialize(sexp0: &str) -> Option<z3::ast::Dynamic> {
     let ctx = z3::Context::thread_local();
     let raw_ctx = ctx.get_z3_context();
