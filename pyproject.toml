@@ -89,4 +89,6 @@ dev = [
     "pytest>=8.3.4",
     "ruff>=0.11.13",
 ]
-rust = ["maturin>=1.8.6"]
+rust = [
+    "maturin[patchelf]>=1.8.6",
+]

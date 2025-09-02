@@ -11,3 +11,5 @@ crate-type = ["cdylib"]
 [dependencies]
 pyo3 = "0.24.0"
 kdrag = { path = "../kdrag" }
+z3 = { workspace = true }
+z3-sys = { workspace = true }
