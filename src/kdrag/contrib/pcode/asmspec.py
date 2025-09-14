@@ -315,7 +315,9 @@ class VerificationCondition(NamedTuple):
         """
         Verify the verification condition using the given context.
         """
-        return kd.prove(ctx.unfold(self.vc(ctx)), **kwargs)
+        vc = ctx.unfold(self.vc(ctx))
+        assert isinstance(vc, smt.BoolRef)
+        return kd.prove(vc, **kwargs)
 
     def countermodel(self, ctx: pcode.BinaryContext, m: smt.ModelRef) -> dict:
         """

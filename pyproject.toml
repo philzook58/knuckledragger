@@ -35,7 +35,7 @@ rust = ["maturin>=1.8.6"]
 [tool.setuptools]
 include-package-data = true
 #package-dir = { "" = "kdrag" }
-packages = ["kdrag"]
+#packages = ["kdrag"] # automatic discovery is better
 [tool.setuptools.package-data]
 knuckledragger = ["*.sh"]
 
@@ -46,27 +46,26 @@ exclude = ["tests"]
 ignore = ["E741"]
 
 [tool.ruff.lint.per-file-ignores]
-"kdrag/smt.py" = ["F405", "F403"]
-"kdrag/all.py" = ["F401"]
+"src/kdrag/smt.py" = ["F405", "F403"]
+"src/kdrag/all.py" = ["F401"]
 "tutorial.ipynb" = ["F811"]
 "examples/**/*.py" = ["F401", "F405", "F403", "E402"]
 "examples/short_talk.ipynb" = ["F401"]
 
 [tool.pyright]
-include = ["kdrag"]
+include = ["src"]
 exclude = [
-    "rust/target",
-    "kdrag/solvers/eprover/*",
-    "kdrag/solvers/gappa*",
-    "kdrag/solvers/Prover9/*",
+    "src/kdrag/solvers/eprover/*",
+    "src/kdrag/solvers/gappa*",
+    "src/kdrag/solvers/Prover9/*",
 ]
 
 [tool.ty.src]
-include = ["kdrag"]
+include = ["src"]
 exclude = [
-    "kdrag/solvers/eprover/*",
-    "kdrag/solvers/gappa*",
-    "kdrag/solvers/Prover9/*",
+    "src/kdrag/solvers/eprover/*",
+    "src/kdrag/solvers/gappa*",
+    "src/kdrag/solvers/Prover9/*",
 ]
 
 [tool.pytest.ini_options]
