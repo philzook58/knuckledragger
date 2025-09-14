@@ -289,6 +289,12 @@ class BinaryContext:
         self.memory_endness = ainfo.memory_endness  # TODO
         self.register_endness = ainfo.register_endness  # TODO
         self.ctx = pypcode.Context(langid)  # TODO: derive from cle
+
+        # Defintions that are used but may need to be unfolded
+        self.definitions = list(bv.select64_le.values())
+        self.definitions.extend(bv.select64_be.values())
+        self.definitions.extend(bv.select32_le.values())
+        self.definitions.extend(bv.select32_be.values())
         if filename is not None:
             self.load(filename)
 
@@ -637,6 +643,22 @@ class BinaryContext:
                 )
 
         return smt.substitute(expr, *substs)
+
+    def unfold(self, expr: smt.ExprRef) -> smt.ExprRef:
+        """
+        Fully unpacked, the expressions are not readable. But definitions are opaque to z3 until unfolded.
+        This unfolds helper definitions used during constraint production.
+
+        >>> x = smt.BitVec("x", 64)
+        >>> ctx = BinaryContext()
+        >>> ctx.unfold(x)
+        x
+        >>> import kdrag.theories.bitvec as bv
+        >>> ram = smt.Array("ram", BV[64], BV[8])
+        >>> smt.simplify(ctx.unfold(bv.select64_le[16](ram, x)))
+        Concat(ram[1 + x], ram[x])
+        """
+        return kd.kernel.unfold(expr, self.definitions)[0]
 
     def model_registers(
         self,
