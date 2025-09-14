@@ -1,1 +1,1 @@
-bash kdrag/solvers/install.sh 
+bash src/kdrag/solvers/install.sh 
