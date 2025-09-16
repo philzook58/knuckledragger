@@ -1,9 +1,10 @@
 import kdrag as kd
 import kdrag.smt as smt
-import kdrag.property as prop
+
+import kdrag.contrib.junk_drawer.generic as generic
 
 
-class PreOrder(prop.TypeClass):
+class PreOrder(generic.TypeClass):
     key: smt.SortRef
     refl: kd.Proof
     trans: kd.Proof

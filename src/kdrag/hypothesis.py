@@ -118,9 +118,9 @@ def sort_occurs(s, s2, visited=None):
     Check if a sort occurs in the datatype.
 
     >>> import kdrag.theories.list as list
-    >>> sort_occurs(smt.IntSort(), list.List(smt.IntSort()))
+    >>> sort_occurs(smt.IntSort(), list.List(smt.IntSort()).T)
     True
-    >>> sort_occurs(smt.IntSort(), list.List(smt.BoolSort()))
+    >>> sort_occurs(smt.IntSort(), list.List(smt.BoolSort()).T)
     False
     >>> sort_occurs(smt.IntSort(), smt.IntSort())
     True

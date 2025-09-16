@@ -1,7 +1,7 @@
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.set as set_
-import kdrag.property as prop
+import kdrag.contrib.junk_drawer.generic as generic
 
 # https://leanprover-community.github.io/mathematics_in_lean/C10_Topology.html
 # https://isabelle.in.tum.de/library/HOL/HOL/Topological_Spaces.html
@@ -9,7 +9,7 @@ import kdrag.property as prop
 open = kd.notation.SortDispatch(name="open")
 
 
-class Topology(prop.TypeClass):
+class Topology(generic.TypeClass):
     key: smt.SortRef
     open_UNIV: kd.Proof
     open_Int: kd.Proof

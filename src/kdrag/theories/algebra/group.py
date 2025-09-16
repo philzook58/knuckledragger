@@ -1,7 +1,7 @@
 import kdrag as kd
 import kdrag.smt as smt
 
-from kdrag.property import TypeClass
+from kdrag.contrib.junk_drawer.generic import TypeClass
 
 
 # https://isabelle.in.tum.de/library/HOL/HOL/Groups.html

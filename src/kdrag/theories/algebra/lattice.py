@@ -1,12 +1,12 @@
 import kdrag.theories.algebra.group as group
 import kdrag as kd
 import kdrag.smt as smt
-import kdrag.property as prop
+import kdrag.contrib.junk_drawer.generic as generic
 
 # https://isabelle.in.tum.de/library/HOL/HOL/Lattices.html
 
 
-class SemiLattice(prop.TypeClass):
+class SemiLattice(generic.TypeClass):
     key: smt.SortRef
     idem: kd.Proof
 

@@ -1,13 +1,14 @@
 
 import pytest
 import kdrag.property as prop
+import kdrag.contrib.junk_drawer.generic as generic
 import kdrag as kd
 import kdrag.smt as smt
-class Foo1(prop.TypeClass):
+class Foo1(generic.TypeClass):
     def check(self, key):
         assert self.x == 1
 
-class Foo2(prop.TypeClass):
+class Foo2(generic.TypeClass):
     def check(self, key):
         assert self.x == 2
 
@@ -34,10 +35,10 @@ def test_aci():
     assoc = kd.axiom(smt.ForAll([x,y,z], (x * y) * z == x * (y * z)))
     comm = kd.axiom(smt.ForAll([x,y], x * y == y * x))
 
-    prop.assoc.register(mul, assoc)
-    prop.comm.register(mul, comm)
+    generic.assoc.register(mul, assoc)
+    generic.comm.register(mul, comm)
     trace = []
     t1 = x * ((x * y) * z)
     t2 = x * (x * (y * z))
-    assert prop.assoc_norm(t1, trace=trace).eq(t2)
+    assert generic.assoc_norm(t1, trace=trace).eq(t2)
     kd.prove(t1 == t2, by=trace)

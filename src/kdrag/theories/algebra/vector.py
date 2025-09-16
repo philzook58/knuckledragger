@@ -1,12 +1,12 @@
 import kdrag as kd
 import kdrag.smt as smt
-import kdrag.property as prop
+import kdrag.contrib.junk_drawer.generic as generic
 
 # dispatching on the first argument isn't great
 # smul = kd.notation.SortDispatch(name="smul")
 
 
-class VectorSpace(prop.TypeClass):
+class VectorSpace(generic.TypeClass):
     key: smt.SortRef
     scalar: smt.SortRef
 
@@ -48,7 +48,7 @@ norm = kd.notation.SortDispatch(name="norm")
 dot = kd.notation.SortDispatch(name="dot")
 
 
-class Normed(prop.TypeClass):
+class Normed(generic.TypeClass):
     """
     https://en.wikipedia.org/wiki/Normed_vector_space
     """

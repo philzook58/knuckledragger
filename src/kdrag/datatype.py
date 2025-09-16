@@ -225,6 +225,46 @@ def multipattern_match(
     return constraints, subst
 
 
+def define_primrec(fun_name, vs: list[smt.ExprRef], res_type: smt.SortRef, **cases):
+    """
+    Define a function by primitive recursion. https://en.wikipedia.org/wiki/Primitive_recursive_function
+    This is the analog of a fold.
+
+    >>> import kdrag.theories.nat as nat
+    >>> n, m = smt.Consts("n m", nat.Nat)
+    >>> myadd2 = define_primrec("myadd2", [n, m], nat.Nat, \
+                                Z = lambda: m,\
+                                S = lambda a: nat.S(a))
+    >>> myadd2.defn
+    |= ForAll([n, m],
+        myadd2(n, m) == If(is(S, n), S(myadd2(pred(n), m)), m))
+    """
+    l = vs[0]
+    assert isinstance(l, smt.DatatypeRef)
+    params = vs[1:]
+    sort = l.sort()
+    f = smt.Function(fun_name, *[v.sort() for v in vs], res_type)
+    acc = None
+    for i in range(sort.num_constructors()):
+        constr = sort.constructor(i)
+        name = constr.name()
+        args = [
+            sort.accessor(i, j)(l)
+            if constr.domain(j) != sort
+            else f(sort.accessor(i, j)(l), *params)
+            for j in range(constr.arity())
+        ]
+        if acc is None:
+            acc = cases[name](*args)
+        else:
+            acc = smt.If(sort.recognizer(i)(l), cases[name](*args), acc)
+        del cases[name]
+    if len(cases) != 0:
+        raise ValueError("unused cases", cases)
+    assert isinstance(acc, smt.ExprRef)
+    return kd.define(fun_name, vs, acc)
+
+
 def define_fun(eqs):
     """
     Define a function by pattern matching equations.
@@ -288,7 +328,7 @@ def datatype_match_(x, *cases, default=None):
 
     >>> import kdrag.theories.list as list_
     >>> IntList = list_.List(smt.IntSort())
-    >>> l = smt.Const("l", IntList)
+    >>> l = smt.Const("l", IntList.T)
     >>> x,y,z = smt.Ints("x y z")
     >>> l.match_((IntList.Nil, 0), (IntList.Cons(x, l), 1 + x))
     If(is(Nil, l),

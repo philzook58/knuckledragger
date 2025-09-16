@@ -52,8 +52,9 @@ def test_forall1():
     with pytest.raises(Exception) as _:
         hyp.quickcheck(smt.ForAll([n], n + nat.Z == n + nat.one))
     hyp.quickcheck(smt.ForAll([n,m], smt.Or(n.is_Z, n.is_S)))
-    l = smt.Const("l", list_.List(smt.IntSort()))
-    hyp.quickcheck(smt.ForAll([l], smt.Or(l == list_.Nil(smt.IntSort()), l.is_Cons)))
+    IntList = list_.List(smt.IntSort())
+    l = smt.Const("l", IntList.T)
+    hyp.quickcheck(smt.ForAll([l], smt.Or(l == IntList.Nil, l.is_Cons)))
 
 
 @pytest.mark.slow
