@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/philzook58/knuckledragger/main/docs/logo.webp" alt="drawing" width="200" align="left"/>
 
-Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.
+Knuckledragger ([git repo](https://github.com/philzook58/knuckledragger)) is an attempt at creating a down to earth, highly automated interactive proof assistant in python. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.
 
 <br clear="left"/>
 

@@ -319,3 +319,42 @@ def PopCount(x: smt.BitVecRef) -> smt.ArithRef:
     2
     """
     return smt.Sum([smt.BV2Int(smt.Extract(i, i, x)) for i in range(x.size())])
+
+
+def UnConcat(x: smt.BitVecRef, lane_num: int) -> list[smt.BitVecRef]:
+    """
+    Unpack a bitvector into lanes.
+
+    >>> x,y = smt.BitVecs("x y", 32)
+    >>> kd.prove(smt.Concat(UnConcat(x, 4)) == x)
+    |= Concat(Concat(Concat(Extract(31, 24, x), Extract(23, 16, x)),
+                  Extract(15, 8, x)),
+           Extract(7, 0, x)) == x
+    >>> kd.prove(UnConcat(smt.Concat(x,y), 2)[0] == x)
+    |= Extract(63, 32, Concat(x, y)) == x
+    """
+    assert x.size() % lane_num == 0
+    lanesize = x.size() // lane_num
+    return [
+        smt.Extract((i + 1) * lanesize - 1, i * lanesize, x)
+        for i in reversed(range(lane_num))
+    ]
+
+
+def vmap(f, n):
+    """
+
+    >>> x,y = smt.BitVecs("x y", 16)
+    >>> kd.prove(vmap(lambda a: a, 2)(x) == x)
+    |= Concat(Extract(15, 8, x), Extract(7, 0, x)) == x
+    >>> vmap(lambda a,b: a - b, 2)(x, y)
+    Concat(Extract(15, 8, x) - Extract(15, 8, y),
+           Extract(7, 0, x) - Extract(7, 0, y))
+    """
+
+    def res(*args):
+        return smt.Concat(
+            [f(*smallargs) for smallargs in zip(*[UnConcat(arg, n) for arg in args])]
+        )
+
+    return res
