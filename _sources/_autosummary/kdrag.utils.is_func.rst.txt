@@ -1,0 +1,6 @@
+kdrag.utils.is\_func
+====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: is_func

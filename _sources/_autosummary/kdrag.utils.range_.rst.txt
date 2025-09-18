@@ -1,0 +1,6 @@
+kdrag.utils.range\_
+===================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: range_

@@ -1,0 +1,43 @@
+kdrag.property
+==============
+
+.. automodule:: kdrag.property
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Antisymm
+      Assoc
+      Asymm
+      Comm
+      Idem
+      Identity
+      Irrefl
+      LeftIdentity
+      Refl
+      RightIdentity
+      Total
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/property.py
+   :language: python

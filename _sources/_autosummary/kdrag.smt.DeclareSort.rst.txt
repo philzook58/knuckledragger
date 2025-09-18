@@ -1,0 +1,6 @@
+kdrag.smt.DeclareSort
+=====================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: DeclareSort
