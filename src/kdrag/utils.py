@@ -10,6 +10,7 @@ from typing import Optional, Generator, Any, Callable
 import os
 import glob
 import inspect
+from dataclasses import dataclass
 
 
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
@@ -728,6 +729,127 @@ def ast_size_sexpr(t: smt.AstRef) -> int:
     7
     """
     return len(t.sexpr())
+
+
+@dataclass(frozen=True)
+class QuantifierHole:
+    vs: list[smt.ExprRef]
+    # orig_vs : list[smt.ExprRef] to be able to exactly reconstruct original term?
+
+
+class LambdaHole(QuantifierHole):
+    def wrap(self, body: smt.ExprRef) -> smt.ExprRef:
+        return smt.Lambda(self.vs, body)
+
+
+class ForAllHole(QuantifierHole):
+    def wrap(self, body: smt.ExprRef) -> smt.ExprRef:
+        return smt.ForAll(self.vs, body)
+
+
+class ExistsHole(QuantifierHole):
+    def wrap(self, body: smt.ExprRef) -> smt.ExprRef:
+        return smt.Exists(self.vs, body)
+
+
+@dataclass(frozen=True)
+class DeclHole:
+    f: smt.FuncDeclRef
+    _left: tuple[smt.ExprRef, ...]
+    _right: tuple[smt.ExprRef, ...]
+
+    def wrap(self, e: smt.ExprRef) -> smt.ExprRef:
+        return self.f(*self._left, e, *self._right)
+
+    def left(self, t: smt.ExprRef) -> tuple["DeclHole", smt.ExprRef]:
+        assert len(self._left) > 0
+        return DeclHole(self.f, self._left[:-1], (t,) + self._right), self._left[-1]
+
+    def right(self, t: smt.ExprRef) -> tuple["DeclHole", smt.ExprRef]:
+        assert len(self._right) > 0
+        return DeclHole(self.f, self._left + (t,), self._right[1:]), self._right[0]
+
+    def has_left(self) -> bool:
+        return len(self._left) > 0
+
+    def has_right(self) -> bool:
+        return len(self._right) > 0
+
+
+type Hole = ForAllHole | ExistsHole | LambdaHole | DeclHole
+
+
+@dataclass
+class Zipper:
+    """
+    A zipper for traversing and modifying terms. The Zipper retains a context stack of "holes" and the current term.
+
+    >>> x,y,z = smt.Ints("x y z")
+    >>> t = smt.Lambda([x,y], (x + y) * (y + z))
+    >>> z1 = Zipper.from_term(t)
+    >>> z1.open_binder().arg(1).left().arg(0)
+    Zipper(ctx=[LambdaHole(vs=[X!..., Y!...]), DeclHole(f=*, _left=(), _right=(Y!... + z,)), DeclHole(f=+, _left=(), _right=(Y!...,))], t=X!...)
+    >>> z1.pop().pop().pop()
+    Zipper(ctx=[], t=Lambda([X!..., Y!...], (X!... + Y!...)*(Y!... + z)))
+    """
+
+    ctx: list[Hole]  # trail / stack
+    t: smt.ExprRef
+
+    @classmethod
+    def from_term(cls, t: smt.ExprRef) -> "Zipper":
+        return cls([], t)
+
+    def pop(self) -> "Zipper":  # up?
+        hole = self.ctx.pop()
+        self.t = hole.wrap(self.t)
+        return self
+
+    def copy(self) -> "Zipper":
+        return Zipper(self.ctx.copy(), self.t)
+
+    def left(self) -> "Zipper":
+        hole = self.ctx.pop()
+        assert isinstance(hole, DeclHole)
+        hole, self.t = hole.left(self.t)
+        self.ctx.append(hole)
+        return self
+
+    def right(self) -> "Zipper":
+        hole = self.ctx.pop()
+        assert isinstance(hole, DeclHole)
+        hole, self.t = hole.right(self.t)
+        self.ctx.append(hole)
+        return self
+
+    def arg(self, n: int) -> "Zipper":
+        children = self.t.children()
+        self.ctx.append(
+            DeclHole(self.t.decl(), tuple(children[:n]), tuple(children[n + 1 :]))
+        )
+        self.t = children[n]
+        return self
+
+    def open_binder(self) -> "Zipper":
+        assert isinstance(self.t, smt.QuantifierRef)
+        vs, body = kd.utils.open_binder(self.t)
+        if self.t.is_forall():
+            hole = ForAllHole(vs)
+        elif self.t.is_exists():
+            hole = ExistsHole(vs)
+        elif self.t.is_lambda():
+            hole = LambdaHole(vs)
+        else:
+            raise NotImplementedError("Unknown quantifier type", self.t)
+        self.ctx.append(hole)
+        self.t = body
+        return self
+
+    def __hash__(self):
+        """
+        Warning: If you are hashing Zippers, make sure you are copying them.
+        """
+        return hash((tuple(self.ctx), self.t))
 
 
 def lemma_db() -> dict[str, kd.kernel.Proof]:
