@@ -783,6 +783,7 @@ type Hole = ForAllHole | ExistsHole | LambdaHole | DeclHole
 class Zipper:
     """
     A zipper for traversing and modifying terms. The Zipper retains a context stack of "holes" and the current term.
+    https://en.wikipedia.org/wiki/Zipper_(data_structure)
 
     >>> x,y,z = smt.Ints("x y z")
     >>> t = smt.Lambda([x,y], (x + y) * (y + z))

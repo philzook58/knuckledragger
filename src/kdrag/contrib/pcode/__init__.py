@@ -585,7 +585,7 @@ class BinaryContext:
         >>> ctx.get_reg(memstate, "RAX")
         RAX!...
         """
-        memstate = MemState.Const("mem0")
+        memstate = MemState.Const("mem0", bits=self.bits)
         free_offset = 0
         for name, vnode in self.ctx.registers.items():
             # interestingness heuristic on length of name

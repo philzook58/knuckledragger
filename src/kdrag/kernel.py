@@ -47,7 +47,7 @@ class Proof(Judgement):
         return hash(self.thm)
 
     def _repr_html_(self):
-        return "&#8870;" + repr(self.thm)
+        return "&#x22A8;" + repr(self.thm)
 
     def __repr__(self):
         return "|= " + repr(self.thm)

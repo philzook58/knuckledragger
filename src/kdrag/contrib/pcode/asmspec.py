@@ -29,31 +29,31 @@ kd_macro = r"""
 .pushsection .asmspec,"a"
 .ascii "\kind \label \"\expr\" \n"
 .popsection
-\label:
+\label :
 .endm
 
 # symbolic execution start points and precondition
 .macro kd_entry label smt_bool
-kd_boolstmt "kd_entry" \label \smt_bool
+kd_boolstmt "kd_entry" \label, \smt_bool
 .endm
 
 # Assert properties
 .macro kd_assert label smt_bool
-kd_boolstmt "kd_assert" \label \smt_bool
+kd_boolstmt "kd_assert" \label, \smt_bool
 .endm
 
 .macro kd_assume label smt_bool
-kd_boolstmt "kd_assume" \label \smt_bool
+kd_boolstmt "kd_assume" \label, \smt_bool
 .endm
 
 # symbolic execution end points and postcondition
 .macro kd_exit label smt_bool 
-kd_boolstmt "kd_entry" \label \smt_bool
+kd_boolstmt "kd_entry" \label, \smt_bool
 .endm
 
 # invariant
 .macro kd_cut label smt_bool
-kd_boolstmt "kd_cut" \label \smt_bool
+kd_boolstmt "kd_cut" \label, \smt_bool
 .endm 
 
 # For manipulation of executor ghost state. Often for saving values
