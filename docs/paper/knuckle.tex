@@ -1,0 +1,185 @@
+\documentclass{article}% {\twocolumn}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+
+
+\title{Knuckledragger: The K-Mart of Proof Assistants}
+
+
+\author{Philip Zucker}
+
+\maketitle
+\begin{abstract}
+Knuckledragger is a Python-based interactive proof assistant designed for accessibility, ease of installation, and integration with existing Python tools. It enables interactive theorem proving for software engineers, mathematicians, and scientists already using Python for modeling, computation, and verification. This talk introduces interactive theorem proving, demonstrates Knuckledragger in action, and explores the challenges and opportunities in this space.
+\end{abstract}
+
+
+\section{Introduction}
+
+Many automated verification systems boil down to a sequence of SMT
+queries with hand waving in between. Knuckledragger is an LCF-style
+interactive theorem prover designed as a minimal Python library on top
+of Z3 \cite{z3solver}. Knuckledragger can systematically link SMT queries in a Hilbert
+style proof system. All of the Z3 Python bindings are directly exposed
+and available because the terms, sorts, and formulas of Knuckledragger
+are literally Z3 Python objects. The Proof objects of Knuckledragger
+are a DAG of axiom instantiations and SMT queries. The basic design is
+portable between host languages but leveraging python's ecosystem gets
+a lot for free in terms of libraries, tooling, ML ecosystem, and
+interactive Jupyter notebooks. The goal of Knuckledragger is to
+support software/hardware verification, numerics, and other
+applications of interest to the hackers, scientists, and engineers
+that already are comfortable in Python. The project is available here
+https://github.com/philzook58/knuckledragger.
+
+% Take scipycon
+A goal of formal logic is to show that mathematical manipulations can be reduced to mechanical rules. A computer can both be used to find the right manipulations, but also to check given manipulations for correct usage. Systems that emphasize the first part of the spectrum are called computer algebra systems (CAS) like SymPy. Those that emphasize user-guided proof development and proof checking are called interactive theorem provers (ITPs). There are a variety of highly developed interactive theorem prover systems already available including Lean, Coq, Isabelle and others. However, these systems require users to adopt new languages, ecosystems, and workflows. These are unnecessary barriers to the uptake of the fun and useful ideas of interactive theorem proving.
+
+Knuckledragger is an interactive theorem proving system built as a Python library around the pre-existing bindings of the solver Z3. Z3 is a popular automated theorem prover that is widely used for verification and software engineering tasks (and solving puzzles!). Because of this design choice, Knuckledragger inherits powerful automation from the start. The core logic of Knuckledragger is SMT-LIBv2, a standard logic for Satisfiability Module Theories (SMT) solvers based on simply typed higher-order logic. The goal of Knuckledragger is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.
+
+Come on over and have a chat! I want to discuss what Knuckledragger can do for your problem domain !
+
+Knuckledragger code, documentation, and blog posts are available here https://github.com/philzook58/knuckledragger
+
+% Take readme
+% take NEPLS
+
+
+
+% submit to JOSS
+% upload to arxiv
+
+It is designed to be a minimal layer on top of the existing successful SMT systems to be metaprogrammed in your programming language of choice.
+
+A sequence of related SMT solves is the core of many automated software verification tools. There is a hand waving of sorts how these (mangled) calls combine into the larger property of interest. It is a natural if one wants a more rigorous approach to work within the language of SMT if possible rather than required a radical switch to a whole new system like Lean or Isabelle.
+
+SMT solvers themselves are interested in producing proof certificates for their internal reasoning \cite{smtproofs1}, both for self checking and for translation into systems like Lean and Isabelle. I consider this area well attacked by the people most qualified to attack it, the SMT authors themselves. However, it is outside the solver’s purview to check the reasoning linking user calls. This is where the proof rules of knuckledragger come in.
+
+There are other proof systems like F*, Why3, Boogie, and Dafny that deeply integrate with SMT solvers from the get go, but the design here is take the logic the SMT solver gives and work with it, warts, and all. A lot of inexpressivity can be papered over by rich metaprogramming in a host language (python here, but others work). This is the opposite approach to systems that try to internalize as much as possible. There is a lot to be said to having these richer systems, but I feel the weak logic macro approach is underexplored these days.
+
+SMT solvers can only scale so far at which point a large query may need to be broken up into multiple pieces. An SMT solver will never prove Fermat’s Last Theorem given the axioms of set theory in one shot.
+
+In this respect, the proof system of Knuckledragger is a MetaSMT proof system.
+
+I’ll note that basically the formulas of SMTLIB is monomorphic higher order logic, so the logic itself is quite well trodden.
+
+
+\section{A Tour of Knuckledragger}
+
+\begin{lstlisting}[language=Python, caption=Example]
+    print("Hello World")
+\end{lstlisting}
+
+\section{Knuckledragger Core}
+
+\subsection{LCF Architecture}
+Software and programming languages have a variety of protection mechanisms for the sanctity of information, invariants, and data structures. Permissions, cryptographic signing, smart constructors, public and private interfaces. Probably all of these mechanisms can be used in one way or another as the foundation of a proof assistant. https://www.philipzucker.com/python-itp/
+
+The LCF approach has a special datatype Proof with smart constructors. Inference rules are mapped into trusted functions that take in Proof, any auxiliary data and produce new Proof. Axiom schema are just a special case of an inference rule that does not require any Proof arguments.
+
+Knuckledragger is written using this style. A distinction in some manner between formulas that are to be proven and formulas that have been proven is crucial, and a datatype distinction is a natural way to do so.
+
+The internals of the Proof datatype are irrelevant to the user. At minimum it should store the formula in question that has been proven, but it may also contain a record/trace of the steps/api calls that led to it’s production. A sufficiently complete API trace such that it can be replayed is a proof object/tree. Complete API traces are very powerful, for example a trace of all syscalls of a IO reading and writing program are succificient to completely determinize it.
+
+\subsection{Mega Modus}
+SMT solvers have a model like character, answering satisfisability (model existence) or unsatisfiability (mode non existence) questions. For this reason the main judgement of Knuckledragger is written using a $\models$ instead of a $\vdash$.
+
+$\models$ is informally specified but includes an understanding of which model of the integers, reals, and booleans baked into the SMT solver. Metatheoretically modelling $\models$ could be done inside a proof assistant like Lean for example.
+
+SMT solvers are not exactly a random collection of features, although they are also that. The language of SMTLIB and the solvers themselves encode roughly decidable theories via an evolutionary forcing desire to remain fast and reliable.
+
+The degree to which SMT solvers do handle some undecidable queries, they are within their rights to bail out at unknown or have a timeout.
+
+For this reason, there is a subset of a large $\models$ which can be automatically handled $\models_{\text{dec}}$ and $\models_{\text{auto}}$.
+
+
+
+
+\subsection{Definitions}
+
+A relatively underemphasized aspect of logic is definitional mechanisms. \url{https://en.wikipedia.org/wiki/Conservative_extension} For some reason many mathematical logic textbooks seem to think it is acceptable to have all names and definitions to be basically at the metalevel. This seems kind of nuts.
+
+As a MetaSMT system, this is a crucial aspect, as we expect o build abstractions and then reason about the abstractions without giving the solver access to the original definitions. To some degree, theorem proving is all about defining abstractions and unfolding them only at special points in order to build new principles at which to reason at.
+
+Definitions are registered into a dictionary kept in the kernel. Definitions return an axiom of the form |= forall args, myfun(args) == body .
+
+It has turned out to be important to make definitions fast and reliable to unfold.
+
+There is also the general logical design principle that any “introduction” of a capability should be pair with an ability to use the capability.
+
+An emergent principle is that any functionality z3 exposes should be wrapped as a proof rule it it makes sense.
+
+Z3 exposes a function \lstinline|substitute_funs| which can quickly unfold a definitions for a function symbol. This is wrapped by unfoldm which takesin which definitions to unfold as a parameter.
+
+
+\begin{lstlisting}[language=Python, caption=Definitions]
+myadd = kd.define("myadd", [x,y], x + y)
+kd.kernel.defns[myadd]
+Defn(name='myadd', args=[x, y], body=x + y, ax=|= ForAll([x, y], myadd(x, y) == x + y), subst_funs_body=Var(0) + Var(1))
+kd.kernel.is_defined(myadd(x,y))
+True
+kd.kernel.unfold(myadd(1,2), [myadd])
+(1 + 2, |= myadd(1, 2) == 1 + 2)
+\end{lstlisting}
+
+
+Reliable unfold is extremely useful and important. The definitional equality of knuckledragger, to the degree there is a single one, is the iteration of z3.simplify and unfold. This is available as a tactic at \lstinline|kd.rewrite.full_simp|
+
+
+\subsection{Quantifiers}
+Quantifiers are an extremely useful modelling feature. Proofs using them require more invention/synthesis than simple quantifier free reasoning. It certainly helps the solver if you point out which terms to instantiate the quantifier with.
+
+
+\subsection{Induction}
+
+
+\section{Features}
+
+\subsection{Backwards Tactics}
+\subsection{Modules}
+\subsection{Rewriting}
+\subsection{Proof Certificates}
+
+\section{Case Studies}
+
+
+\section{Related Work}
+
+\section{Acknowledgements}
+Thanks to Cody Roux, Graham Leach-Krouse, Greg Sullivan, Sam Lasser, 
+
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
