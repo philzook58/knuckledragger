@@ -169,3 +169,22 @@ def test_cli():
         f.flush()
     res = subprocess.run("python3 -m kdrag.contrib.pcode /tmp/mov42.s", shell=True, capture_output=True, text=True)
     assert "verification conditions failed. ❌❌❌❌" in res.stdout
+
+@pytest.mark.slow
+def test_riscv32():
+    code = """
+    .include "/tmp/knuckle.s"
+        .text
+        .globl  myfunc
+    kd_entry myfunc, "true"
+        addi    sp, sp, -4       # make room on the stack
+        li      t0, 42           # t0 ← 42
+        sw      t0, 0(sp)        # [sp] = 42
+    kd_exit myfunc_end,  "(= (select ram32 sp) (_ bv42 32))"
+        ret
+    """
+    with open("/tmp/mov42.s", "w") as f:
+        f.write(code)
+        f.flush()
+    res = subprocess.run("""nix-shell -p pkgsCross.riscv32-embedded.buildPackages.gcc \
+        --run "riscv32-none-elf-as /tmp/mov42.s -o /tmp/mov42.o" """, shell=True, check=True, capture_output=True, text=True)
