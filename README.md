@@ -151,6 +151,11 @@ A recent summary talk of Knuckledragger was presented at NEPLS 2025
 
 ## Blog Posts
 
+- [Proof Rules for MetaSMT](https://www.philipzucker.com/kdrag_proof_rules/)
+- [A Python CLI for Verifying Assembly](https://www.philipzucker.com/asm_verify3/)
+- [Knuckledragger Analysis Etudes](https://www.philipzucker.com/knuckle_analysis1/)
+- [Semantic Refinement/Dependent Typing for Knuckledragger/SMTLIB Pt 1](https://www.philipzucker.com/refinement_kdrag1/)
+- [Verified Assembly 2: Memory, RISC-V, Cuts for Invariants, and Ghost Code](https://www.philipzucker.com/asm_verify2/)
 - [Semi-Automated Assembly Verification in Python using pypcode Semantics](https://www.philipzucker.com/assembly_verify/)
 - [NEPLS 2025 and a Short Talk on Knuckledragger](https://www.philipzucker.com/nepls_2025/) [video](https://www.youtube.com/watch?v=ENwKBC8dN4M&ab_channel=PhilipZucker)
 - ["Verified" "Compilation" of "Python" with Knuckledragger, GCC, and Ghidra](https://www.philipzucker.com/knuckle_C_pcode/)
