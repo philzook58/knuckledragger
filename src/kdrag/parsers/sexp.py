@@ -5,8 +5,8 @@ tokens = [
     ("COMMENT", r";[^\n\r]*"),
     ("LPAREN", r"\("),
     ("RPAREN", r"\)"),
-    ("IDENT", r"[A-Za-z\-!=\+\*\_<>][A-Za-z0-9\-!=\+\*\_<>]*"),
     ("NUMBER", r"-?\d+(?:\.\d+)?"),
+    ("IDENT", r"[A-Za-z\-!=\+\*\_\.<>][A-Za-z0-9\-!=\+\*\_\.<>]*"),
     # TODO ("QUOTE", r"\|")
 ]
 
@@ -30,8 +30,29 @@ def parse(s: str) -> list:
      ['define-fun', 'f', [['a', 'Int'], ['b', 'Int']], 'Int'], 
      ['assert', ['=', ['f', 'x', 3], 4, 4.7]], 
      ['check-sat']]
+    >>> parse("(-17)")
+    [[-17]]
+    >>> parse("(- 1 2 3 -3.6)")
+    [['-', 1, 2, 3, -3.6]]
+    >>> parse("(foo @@@)")
+    Traceback (most recent call last):
+     ...
+    ValueError: ('unexpected characters', '@@@', '(foo @@@)')
     """
-    it = pattern.finditer(s)
+
+    def pat():
+        curr = 0
+        for match_ in pattern.finditer(s):
+            if match_.start() != curr:
+                raise ValueError(
+                    "unexpected characters",
+                    s[curr : match_.start()],
+                    s[max(0, curr - 40) : min(curr + 40, len(s))],
+                )
+            curr = match_.end()
+            yield match_
+
+    it = pat()
 
     def sexp():
         # opening "(" is assumed already consumed

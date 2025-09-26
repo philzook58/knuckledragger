@@ -209,6 +209,19 @@ def DeclareFunction(name, tele0: Telescope, T: SubSort, by=[]) -> smt.FuncDeclRe
     return f
 
 
+def HasType(ctx: Telescope, t0: smt.ExprRef, T: SubSort) -> smt.BoolRef:
+    """
+    Formula that corresponds to typing judgement `ctx |= t0 : T`
+
+    >>> x = smt.Int("x")
+    >>> HasType([(x, Nat)], x+1, Pos)
+    Implies(And(x >= 0), Lambda(n, n > 0)[x + 1])
+    """
+    tele = normalize(ctx)
+    pctx = [P for _, P in tele]
+    return smt.Implies(smt.And(pctx), T[t0])
+
+
 def has_type(
     ctx: Telescope, t0: smt.ExprRef, T: SubSort, by=None, **kwargs
 ) -> kd.Proof:
@@ -220,8 +233,6 @@ def has_type(
     >>> has_type([(x, Nat)], x+1, Nat)
     |= Implies(And(x >= 0), Lambda(x, x >= 0)[x + 1])
     """
-    tele = normalize(ctx)
-    pctx = [P for _, P in tele]
     if by is None:
         by = []
     seen = set()
@@ -247,7 +258,7 @@ def has_type(
             if decl in _tsig:
                 by.append(_tsig[decl](*children))
 
-    return kd.prove(smt.Implies(smt.And(pctx), T[t0]), by=by, **kwargs)
+    return kd.prove(HasType(ctx, t0, T), by=by, **kwargs)
 
 
 def define(
@@ -261,13 +272,11 @@ def define(
 
     >>> n = kd.kernel.FreshVar("n", smt.IntSort())
     >>> m = smt.Int("m")
-    >>> Nat = smt.Lambda([n], n >= 0)
-    >>> Pos = smt.Lambda([n], n > 0)
     >>> inc = define("test_inc", [(n,Nat)], Pos, n + 1)
     >>> inc.pre_post
     |= ForAll(n!...,
         Implies(And(n!... >= 0),
-            Lambda(n!..., n!... > 0)[test_inc(n!...)]))
+            Lambda(n, n > 0)[test_inc(n!...)]))
     >>> pred = define("pred", [(n, Pos)], Nat, n - 1)
     >>> myid = define("myid", [(n, Nat)], Nat, pred(inc(n)))
     """
@@ -280,6 +289,30 @@ def define(
     f = kd.define(name, vs, body)
     prove_sig(f, args, T, by=[P1, f.defn(*vs)])
     return f
+
+
+class Program(kd.tactics.Lemma):
+    """
+    Interactive proof of a function definition.
+    See https://rocq-prover.org/doc/master/refman/addendum/program.html
+
+    >>> n = kd.kernel.FreshVar("n", smt.IntSort())
+    >>> m = smt.Int("m")
+    >>> l = Program("test_inc1", [(n,Nat)], Pos, n + 1)
+    >>> l.define()
+    test_inc1
+    """
+
+    def __init__(self, name: str, args: Telescope, T: SubSort, body: smt.ExprRef):
+        self.name = name
+        self.args = args
+        self.T = T
+        self.body = body
+        super().__init__(HasType(args, body, T))
+
+    def define(self):
+        # TODO: we prove twice?
+        return define(self.name, self.args, self.T, self.body, by=[self.qed()])
 
 
 @functools.lru_cache(maxsize=None)
@@ -300,9 +333,8 @@ def ann(x: smt.ExprRef, T: SubSort) -> smt.ExprRef:
     Annotate an expression with a type.
 
     >>> x = smt.Int("x")
-    >>> Nat = smt.Lambda([x], x >= 0)
     >>> ann(x, Nat)
-    ann(x, Lambda(x, x >= 0))
+    ann(x, Lambda(n, n >= 0))
     """
     return _gen_annotate(x.sort())(x, T)
 
