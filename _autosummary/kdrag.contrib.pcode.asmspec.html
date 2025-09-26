@@ -1,0 +1,936 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.contrib.pcode.asmspec &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.contrib.pcode.asmspec.assemble_and_check" href="kdrag.contrib.pcode.asmspec.assemble_and_check.html" />
+    <link rel="prev" title="kdrag.contrib.pcode.test_pcode" href="kdrag.contrib.pcode.test_pcode.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.data_modulo.html">kdrag.contrib.data_modulo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.expr.html">kdrag.contrib.expr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.hoare.html">kdrag.contrib.hoare</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="kdrag.contrib.pcode.html">kdrag.contrib.pcode</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeBinary.html">kdrag.contrib.pcode.executeBinary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeCBranch.html">kdrag.contrib.pcode.executeCBranch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeLoad.html">kdrag.contrib.pcode.executeLoad</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executePopcount.html">kdrag.contrib.pcode.executePopcount</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeSignExtend.html">kdrag.contrib.pcode.executeSignExtend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeStore.html">kdrag.contrib.pcode.executeStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeSubpiece.html">kdrag.contrib.pcode.executeSubpiece</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeUnary.html">kdrag.contrib.pcode.executeUnary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.executeZeroExtend.html">kdrag.contrib.pcode.executeZeroExtend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.pc_of_addr.html">kdrag.contrib.pcode.pc_of_addr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.pretty_insn.html">kdrag.contrib.pcode.pretty_insn</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.pretty_op.html">kdrag.contrib.pcode.pretty_op</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.test_pcode.html">kdrag.contrib.pcode.test_pcode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext"><code class="docutils literal notranslate"><span class="pre">BinaryContext</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.MemSorts"><code class="docutils literal notranslate"><span class="pre">MemSorts</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.MemState"><code class="docutils literal notranslate"><span class="pre">MemState</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.SimState"><code class="docutils literal notranslate"><span class="pre">SimState</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeBinary"><code class="docutils literal notranslate"><span class="pre">executeBinary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeCBranch"><code class="docutils literal notranslate"><span class="pre">executeCBranch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeLoad"><code class="docutils literal notranslate"><span class="pre">executeLoad()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executePopcount"><code class="docutils literal notranslate"><span class="pre">executePopcount()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeSignExtend"><code class="docutils literal notranslate"><span class="pre">executeSignExtend()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeStore"><code class="docutils literal notranslate"><span class="pre">executeStore()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeSubpiece"><code class="docutils literal notranslate"><span class="pre">executeSubpiece()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeUnary"><code class="docutils literal notranslate"><span class="pre">executeUnary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.executeZeroExtend"><code class="docutils literal notranslate"><span class="pre">executeZeroExtend()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.pc_of_addr"><code class="docutils literal notranslate"><span class="pre">pc_of_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.pretty_insn"><code class="docutils literal notranslate"><span class="pre">pretty_insn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.pretty_op"><code class="docutils literal notranslate"><span class="pre">pretty_op()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.test_pcode"><code class="docutils literal notranslate"><span class="pre">test_pcode()</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">kdrag.contrib.pcode.asmspec</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.contrib.yosys.html">kdrag.contrib.yosys</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tele.html">kdrag.tele</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.contrib.html">kdrag.contrib</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.contrib.pcode.html">kdrag.contrib.pcode</a></li>
+      <li class="breadcrumb-item active">kdrag.contrib.pcode.asmspec</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.contrib.pcode.asmspec.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.contrib.pcode.asmspec">
+<span id="kdrag-contrib-pcode-asmspec"></span><h1>kdrag.contrib.pcode.asmspec<a class="headerlink" href="#module-kdrag.contrib.pcode.asmspec" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.assemble_and_check.html#kdrag.contrib.pcode.asmspec.assemble_and_check" title="kdrag.contrib.pcode.asmspec.assemble_and_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble_and_check</span></code></a>(filename[, langid, as_bin])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.assemble_and_check_str.html#kdrag.contrib.pcode.asmspec.assemble_and_check_str" title="kdrag.contrib.pcode.asmspec.assemble_and_check_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble_and_check_str</span></code></a>(asm_str)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.assemble_and_gen_vcs.html#kdrag.contrib.pcode.asmspec.assemble_and_gen_vcs" title="kdrag.contrib.pcode.asmspec.assemble_and_gen_vcs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble_and_gen_vcs</span></code></a>(filename[, langid, as_bin])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.execute_insn.html#kdrag.contrib.pcode.asmspec.execute_insn" title="kdrag.contrib.pcode.asmspec.execute_insn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_insn</span></code></a>(tracestate, ctx[, verbose])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.execute_spec_stmts.html#kdrag.contrib.pcode.asmspec.execute_spec_stmts" title="kdrag.contrib.pcode.asmspec.execute_spec_stmts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_spec_stmts</span></code></a>(stmts, tracestate, ctx[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.pretty_trace.html#kdrag.contrib.pcode.asmspec.pretty_trace" title="kdrag.contrib.pcode.asmspec.pretty_trace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty_trace</span></code></a>(ctx, trace)</p></td>
+<td><p>Pretty print a trace.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.run_all_paths.html#kdrag.contrib.pcode.asmspec.run_all_paths" title="kdrag.contrib.pcode.asmspec.run_all_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_all_paths</span></code></a>(ctx, spec[, mem, verbose])</p></td>
+<td><p>Initialize queue with all stated entry points, and then symbolically execute all paths, collecting verification conditions (VCs) along the way.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.substitute.html#kdrag.contrib.pcode.asmspec.substitute" title="kdrag.contrib.pcode.asmspec.substitute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substitute</span></code></a>(e, ctx, memstate, ghost_env)</p></td>
+<td><p>Subsititute both ghost state and context (ram / registers).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.pcode.asmspec.substitute_ghost.html#kdrag.contrib.pcode.asmspec.substitute_ghost" title="kdrag.contrib.pcode.asmspec.substitute_ghost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substitute_ghost</span></code></a>(e, ghost_env)</p></td>
+<td><p>Substitute ghost variables in an expression.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Always" title="kdrag.contrib.pcode.asmspec.Always"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Always</span></code></a>(expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.AsmSpec" title="kdrag.contrib.pcode.asmspec.AsmSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsmSpec</span></code></a>(addrmap, list[SpecStmt]] =)</p></td>
+<td><p>A specification of an assembly program.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Assert" title="kdrag.contrib.pcode.asmspec.Assert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Assert</span></code></a>(label, addr, expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Assign" title="kdrag.contrib.pcode.asmspec.Assign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Assign</span></code></a>(label, addr, name, expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Assume" title="kdrag.contrib.pcode.asmspec.Assume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Assume</span></code></a>(label, addr, expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.BoolStmt" title="kdrag.contrib.pcode.asmspec.BoolStmt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoolStmt</span></code></a>(label, addr, expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Cut" title="kdrag.contrib.pcode.asmspec.Cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cut</span></code></a>(label, addr, expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Entry" title="kdrag.contrib.pcode.asmspec.Entry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Entry</span></code></a>(label, addr, expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Exit" title="kdrag.contrib.pcode.asmspec.Exit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Exit</span></code></a>(label, addr, expr)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Results" title="kdrag.contrib.pcode.asmspec.Results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Results</span></code></a>(successes, failures)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TraceState</span></code></a>(start, trace, state, ghost_env, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="kdrag.contrib.pcode.asmspec.VerificationCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VerificationCondition</span></code></a>(start, trace, ...)</p></td>
+<td><p>The result of symbolic execution over a path.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Always">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Always</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">z3.z3.BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Always" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>expr</strong> (<em>BoolRef</em>)</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Always.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Always.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">AsmSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addrmap:</span> <span class="pre">~collections.defaultdict[int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list[SpecStmt]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A specification of an assembly program.
+<a class="reference external" href="https://www.philipzucker.com/assembly_verify/">https://www.philipzucker.com/assembly_verify/</a>
+Registers are named by their corresponding names in pypcode.
+You can examine them by</p>
+<p><code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">import</span> <span class="pre">pypcode</span>
+<span class="pre">print(pypcode.Context(&quot;x86:LE:64:default&quot;).registers)</span>
+<span class="pre">`</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>addrmap</strong> (<em>defaultdict</em><em>[</em><em>int</em><em>, </em><em>list</em><em>[</em><em>SpecStmt</em><em>]</em><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.add_assert">
+<span class="sig-name descname"><span class="pre">add_assert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.add_assert" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.add_assign">
+<span class="sig-name descname"><span class="pre">add_assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.add_assign" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>expr</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.add_assume">
+<span class="sig-name descname"><span class="pre">add_assume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.add_assume" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.add_cut">
+<span class="sig-name descname"><span class="pre">add_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.add_cut" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.add_entry">
+<span class="sig-name descname"><span class="pre">add_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.add_entry" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.add_exit">
+<span class="sig-name descname"><span class="pre">add_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.add_exit" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.addrmap">
+<span class="sig-name descname"><span class="pre">addrmap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">defaultdict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">SpecStmt</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.addrmap" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.AsmSpec.of_file">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">of_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.AsmSpec.of_file" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>)</p></li>
+<li><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assert">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Assert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assert" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kdrag.contrib.pcode.asmspec.BoolStmt" title="kdrag.contrib.pcode.asmspec.BoolStmt"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoolStmt</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assert.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assert.addr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assert.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assert.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assert.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assert.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assign">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">z3.z3.ExprRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assign" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>expr</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assign.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assign.addr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assign.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ExprRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assign.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assign.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assign.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assign.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assign.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assume">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Assume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assume" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kdrag.contrib.pcode.asmspec.BoolStmt" title="kdrag.contrib.pcode.asmspec.BoolStmt"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoolStmt</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assume.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assume.addr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assume.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assume.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Assume.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Assume.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.BoolStmt">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">BoolStmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">z3.z3.BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.BoolStmt" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.BoolStmt.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.BoolStmt.addr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.BoolStmt.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.BoolStmt.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.BoolStmt.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.BoolStmt.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Cut">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Cut" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kdrag.contrib.pcode.asmspec.BoolStmt" title="kdrag.contrib.pcode.asmspec.BoolStmt"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoolStmt</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Cut.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Cut.addr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Cut.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Cut.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Cut.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Cut.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Entry">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Entry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kdrag.contrib.pcode.asmspec.BoolStmt" title="kdrag.contrib.pcode.asmspec.BoolStmt"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoolStmt</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Entry.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Entry.addr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Entry.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Entry.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Entry.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Entry.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Exit">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Exit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kdrag.contrib.pcode.asmspec.BoolStmt" title="kdrag.contrib.pcode.asmspec.BoolStmt"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoolStmt</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>)</p></li>
+<li><p><strong>addr</strong> (<em>int</em>)</p></li>
+<li><p><strong>expr</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Exit.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Exit.addr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Exit.expr">
+<span class="sig-name descname"><span class="pre">expr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Exit.expr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Exit.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Exit.label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Results">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">Results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">successes:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failures:</span> <span class="pre">list[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Results" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>successes</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>failures</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Results.failures">
+<span class="sig-name descname"><span class="pre">failures</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Results.failures" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.Results.successes">
+<span class="sig-name descname"><span class="pre">successes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.Results.successes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.TraceState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">TraceState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start:</span> <span class="pre">SpecStmt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace:</span> <span class="pre">Trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state:</span> <span class="pre">kdrag.contrib.pcode.SimState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ghost_env:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z3.z3.ExprRef]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.TraceState" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>SpecStmt</em>)</p></li>
+<li><p><strong>trace</strong> (<em>Trace</em>)</p></li>
+<li><p><strong>state</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.SimState" title="kdrag.contrib.pcode.SimState"><em>SimState</em></a>)</p></li>
+<li><p><strong>ghost_env</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>ExprRef</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.TraceState.ghost_env">
+<span class="sig-name descname"><span class="pre">ghost_env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.TraceState.ghost_env" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.TraceState.start">
+<span class="sig-name descname"><span class="pre">start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SpecStmt</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.TraceState.start" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.TraceState.state">
+<span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.SimState" title="kdrag.contrib.pcode.SimState"><span class="pre">SimState</span></a></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.TraceState.state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.TraceState.trace">
+<span class="sig-name descname"><span class="pre">trace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Trace</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.TraceState.trace" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">VerificationCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SpecStmt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ghost_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assertion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SpecStmt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>The result of symbolic execution over a path.
+There is a reason the execution started (entry point),
+the necessary conditions on the initial state to follow this path (path_cond),
+the memory state at the end of the path (memstate),
+the ghost environment at the end of the path (ghost_env),
+and the assertion that must hold at the end of the path (assertion).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>SpecStmt</em>)</p></li>
+<li><p><strong>trace</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>)</p></li>
+<li><p><strong>path_cond</strong> (<em>list</em><em>[</em><em>BoolRef</em><em>]</em>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>ghost_env</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>ExprRef</em><em>]</em>)</p></li>
+<li><p><strong>assertion</strong> (<em>SpecStmt</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.assertion">
+<span class="sig-name descname"><span class="pre">assertion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SpecStmt</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.assertion" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.count" title="Link to this definition"></a></dt>
+<dd><p>Return number of occurrences of value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.countermodel">
+<span class="sig-name descname"><span class="pre">countermodel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ModelRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.countermodel" title="Link to this definition"></a></dt>
+<dd><p>Interpret a countermodel on the relevant constants</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p></li>
+<li><p><strong>m</strong> (<em>ModelRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.ghost_env">
+<span class="sig-name descname"><span class="pre">ghost_env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.ghost_env" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.index" title="Link to this definition"></a></dt>
+<dd><p>Return first index of value.</p>
+<p>Raises ValueError if the value is not present.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.memstate">
+<span class="sig-name descname"><span class="pre">memstate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.memstate" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.path_cond">
+<span class="sig-name descname"><span class="pre">path_cond</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.path_cond" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.start">
+<span class="sig-name descname"><span class="pre">start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SpecStmt</span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.start" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.trace">
+<span class="sig-name descname"><span class="pre">trace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.trace" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.vc">
+<span class="sig-name descname"><span class="pre">vc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.vc" title="Link to this definition"></a></dt>
+<dd><p>Return the verification condition as an expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.VerificationCondition.verify">
+<span class="sig-name descname"><span class="pre">verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.VerificationCondition.verify" title="Link to this definition"></a></dt>
+<dd><p>Verify the verification condition using the given context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.assemble_and_check">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">assemble_and_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">langid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x86:LE:64:default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_bin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'as'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Results" title="kdrag.contrib.pcode.asmspec.Results"><span class="pre">Results</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.assemble_and_check" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Results" title="kdrag.contrib.pcode.asmspec.Results"><em>Results</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.assemble_and_check_str">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">assemble_and_check_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asm_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Results" title="kdrag.contrib.pcode.asmspec.Results"><span class="pre">Results</span></a></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.assemble_and_check_str" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>asm_str</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.Results" title="kdrag.contrib.pcode.asmspec.Results"><em>Results</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.assemble_and_gen_vcs">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">assemble_and_gen_vcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">langid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x86:LE:64:default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_bin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'as'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="kdrag.contrib.pcode.asmspec.VerificationCondition"><span class="pre">VerificationCondition</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.assemble_and_gen_vcs" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>, list[<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="kdrag.contrib.pcode.asmspec.VerificationCondition"><em>VerificationCondition</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.execute_insn">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">execute_insn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracestate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><span class="pre">TraceState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><span class="pre">TraceState</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.execute_insn" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tracestate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><em>TraceState</em></a>)</p></li>
+<li><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><em>TraceState</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.execute_spec_stmts">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">execute_spec_stmts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stmts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">SpecStmt</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracestate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><span class="pre">TraceState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><span class="pre">TraceState</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="kdrag.contrib.pcode.asmspec.VerificationCondition"><span class="pre">VerificationCondition</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.execute_spec_stmts" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stmts</strong> (<em>list</em><em>[</em><em>SpecStmt</em><em>]</em>)</p></li>
+<li><p><strong>tracestate</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><em>TraceState</em></a>)</p></li>
+<li><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.TraceState" title="kdrag.contrib.pcode.asmspec.TraceState"><em>TraceState</em></a> | None, list[<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="kdrag.contrib.pcode.asmspec.VerificationCondition"><em>VerificationCondition</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.pretty_trace">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">pretty_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Trace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.pretty_trace" title="Link to this definition"></a></dt>
+<dd><p>Pretty print a trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p></li>
+<li><p><strong>trace</strong> (<em>Trace</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.run_all_paths">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">run_all_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.AsmSpec" title="kdrag.contrib.pcode.asmspec.AsmSpec"><span class="pre">AsmSpec</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="kdrag.contrib.pcode.asmspec.VerificationCondition"><span class="pre">VerificationCondition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.run_all_paths" title="Link to this definition"></a></dt>
+<dd><p>Initialize queue with all stated entry points, and then symbolically execute all paths,
+collecting verification conditions (VCs) along the way.
+This interleaves executions of actual assembly instructions with spec statements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p></li>
+<li><p><strong>spec</strong> (<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.AsmSpec" title="kdrag.contrib.pcode.asmspec.AsmSpec"><em>AsmSpec</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#kdrag.contrib.pcode.asmspec.VerificationCondition" title="kdrag.contrib.pcode.asmspec.VerificationCondition"><em>VerificationCondition</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.substitute">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">substitute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><span class="pre">BinaryContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">memstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><span class="pre">MemState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ghost_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.substitute" title="Link to this definition"></a></dt>
+<dd><p>Subsititute both ghost state and context (ram / registers). Usually you want this</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>e</strong> (<em>ExprRef</em>)</p></li>
+<li><p><strong>ctx</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.BinaryContext" title="kdrag.contrib.pcode.BinaryContext"><em>BinaryContext</em></a>)</p></li>
+<li><p><strong>memstate</strong> (<a class="reference internal" href="kdrag.contrib.pcode.html#kdrag.contrib.pcode.MemState" title="kdrag.contrib.pcode.MemState"><em>MemState</em></a>)</p></li>
+<li><p><strong>ghost_env</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>ExprRef</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.contrib.pcode.asmspec.substitute_ghost">
+<span class="sig-prename descclassname"><span class="pre">kdrag.contrib.pcode.asmspec.</span></span><span class="sig-name descname"><span class="pre">substitute_ghost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ghost_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.contrib.pcode.asmspec.substitute_ghost" title="Link to this definition"></a></dt>
+<dd><p>Substitute ghost variables in an expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>e</strong> (<em>ExprRef</em>)</p></li>
+<li><p><strong>ghost_env</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>ExprRef</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.contrib.pcode.test_pcode.html" class="btn btn-neutral float-left" title="kdrag.contrib.pcode.test_pcode" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.contrib.pcode.asmspec.assemble_and_check.html" class="btn btn-neutral float-right" title="kdrag.contrib.pcode.asmspec.assemble_and_check" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

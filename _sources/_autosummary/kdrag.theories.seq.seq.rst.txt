@@ -1,0 +1,6 @@
+kdrag.theories.seq.seq
+======================
+
+.. currentmodule:: kdrag.theories.seq
+
+.. autofunction:: seq

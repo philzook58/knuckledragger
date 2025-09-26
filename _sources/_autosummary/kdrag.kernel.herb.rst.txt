@@ -1,0 +1,6 @@
+kdrag.kernel.herb
+=================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: herb

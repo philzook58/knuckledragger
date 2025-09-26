@@ -1,0 +1,54 @@
+kdrag.tele
+==========
+
+.. automodule:: kdrag.tele
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      DeclareFunction
+      Fin
+      HasType
+      Id
+      Pi
+      TExists
+      TForAll
+      ann
+      axiom_sig
+      define
+      has_type
+      normalize
+      open_binder
+      prove_sig
+      subsort_domain
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Program
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/tele.py
+   :language: python

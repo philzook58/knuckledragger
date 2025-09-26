@@ -1,0 +1,6 @@
+kdrag.utils.search\_expr
+========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: search_expr
