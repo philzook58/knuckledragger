@@ -196,7 +196,7 @@ def prove(
     # induct=False,
     # simps=simps,
     # intros / fix / herb = False
-    unfold=0,
+    unfold: Optional[int | list[smt.FuncDeclRef]] = None,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
@@ -226,6 +226,8 @@ def prove(
     >>> succ2 = kd.define("succ2", [x], succ(succ(x)))
     >>> prove(succ2(x) == x + 2, unfold=2)
     |= succ2(x) == x + 2
+    >>> prove(succ(x) == x + 1, unfold=[succ])
+    |= succ(x) == x + 1
     >>> prove(smt.ForAll([x], succ(x) == x + 1), instan=lambda x1: [succ.defn(x1)])
     |= ForAll(x, succ(x) == x + 1)
     """
@@ -251,15 +253,22 @@ def prove(
             ),
         )
 
-    if unfold != 0:
-        assert isinstance(unfold, int)
+    if unfold is None:
+        pass
+    elif isinstance(unfold, int):
         trace = []
         thm1 = thm
         for i in range(unfold):
             thm1 = kd.rewrite.unfold(thm1, trace=trace)
         # It is arguable if we're better off dumping trace into by or hiding trace
         if not thm.eq(thm1):
-            by.append(kd.kernel.prove(thm == thm1, by=trace, timeout=timeout))  # type: ignore
+            by.extend(trace)
+    elif isinstance(unfold, list):
+        trace = []
+        thm1 = kd.rewrite.unfold(thm, decls=unfold, trace=trace)
+        if not thm.eq(thm1):
+            by.extend(trace)
+
     try:
         pf = kd.kernel.prove(
             thm, by, timeout=timeout, dump=dump, solver=solver, admit=admit
