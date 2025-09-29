@@ -109,3 +109,64 @@ choose_ax = kd.axiom(smt.ForAll([P], P[choose(P)] == smt.Exists([n], P[n])))
 NatI = kd.Struct("NatI", ("val", Z))
 n, m, k = smt.Consts("n m k", NatI)
 kd.notation.wf.register(NatI, lambda x: x.val >= 0)
+
+
+n, m, p, q = smt.Ints("n m p q")
+prime = kd.define(
+    "prime",
+    [n],
+    smt.And(n > 1, smt.Not(smt.Exists([p, q], smt.And(p > 1, q > 1, n == p * q)))),
+)
+dvd = kd.define("dvd", [n, m], smt.Exists([p], m == n * p))
+fact = smt.Function("fact", smt.IntSort(), smt.IntSort())
+fact = kd.define("fact", [n], smt.If(n <= 0, 1, n * fact(n - 1)))
+
+n, k = kd.FreshVars("n k", Z)
+prime_nat = kd.prove(smt.Implies(prime(n), n >= 0), by=prime.defn(n)).forall([n])
+
+prime_gt_1 = kd.prove(smt.Implies(prime(n), n > 1), by=prime.defn(n)).forall([n])
+
+
+dvd_imp_le = kd.prove(
+    smt.Implies(smt.And(dvd(k, n), k >= 0, n > 0), k <= n), unfold=1
+).forall([k, n])
+
+
+_l = kd.Lemma(fact(n) >= 1)
+_l.induct(n)
+_l.unfold(fact)
+_l.auto()
+_l.auto(unfold=1)
+_n = _l.fix()
+_l.intros()
+_l.simp()
+_l.unfold(fact)
+_l.simp()
+_l.auto()
+fact_ge_1 = _l.qed().forall([n])
+
+m = kd.FreshVar("m", smt.IntSort())
+
+_l = kd.Lemma(smt.Implies(smt.And(1 <= m, m <= n), dvd(m, fact(n))))
+_l.induct(n)
+# inductive case n < 0 is vacuous
+_l.auto()
+# inductive case n == 0
+_l.auto(by=[fact.defn(smt.IntVal(0))])
+# inductive case n > 0
+_l.unfold(dvd)
+_n = _l.fix()
+_l.intros()
+_l.unfold(fact)
+_l.simp()
+_l.intros()
+_l.simp(at=0)
+_l.cases(m == 1 + _n)
+# case m != 1 + _n
+_l.have(smt.Exists([p], fact(_n) == m * p))
+_p = _l.einstan(3)
+_l.exists(_p * (1 + _n))
+_l.auto()
+# case m == 1 + _n
+_l.auto()
+dvd_fact = _l.qed().forall([m, n])

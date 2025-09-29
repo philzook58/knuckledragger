@@ -192,16 +192,22 @@ def axiom(thm: smt.BoolRef, by=["axiom"]) -> Proof:
 
 
 @dataclass(frozen=True)
-class Defn:
+class Defn(Judgement):
     """
     A record storing definition. It is useful to record definitions as special axioms because we often must unfold them.
     """
 
     name: str
+    decl: smt.FuncDeclRef
     args: list[smt.ExprRef]
     body: smt.ExprRef
     ax: Proof
-    subst_funs_body: smt.ExprRef
+    _subst_fun_body: (
+        smt.ExprRef
+    )  # Body with Vars for args. Used for unfolding by z3.substitute_funs
+
+    def __call__(self, *args) -> smt.ExprRef:
+        return self.decl(*args)
 
 
 _datatypes = {}
@@ -269,11 +275,14 @@ def define(
     # assert f not in __sig or __sig[f].eq(   def_ax.thm)  # Check for redefinitions. This is kind of painful. Hmm.
     # Soft warning is more pleasant.
     defn = Defn(
-        name,
-        args,
-        body,
-        def_ax,
-        smt.substitute(body, *[(a, smt.Var(n, a.sort())) for n, a in enumerate(args)]),
+        name=name,
+        decl=f,
+        args=args,
+        body=body,
+        ax=def_ax,
+        _subst_fun_body=smt.substitute(
+            body, *[(a, smt.Var(n, a.sort())) for n, a in enumerate(args)]
+        ),
     )
     if f not in defns or defns[f].ax.thm.eq(def_ax.thm):
         defns[f] = defn
@@ -323,7 +332,7 @@ def unfold(
     assert all(isinstance(d, smt.FuncDeclRef) and d in defns for d in decls), (
         "All decls must be defined functions",
     )
-    t = smt.substitute_funs(e, *[(f, defns[f].subst_funs_body) for f in decls])
+    t = smt.substitute_funs(e, *[(f, defns[f]._subst_fun_body) for f in decls])
     return t, kd.axiom(smt.Eq(e, t), by=["unfold", decls])
 
 
@@ -449,7 +458,7 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     herbs = fresh_const(thm)  # We could mark these as schema variables? Useful?
     return herbs, axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
-        ["herband"],
+        ["herbrand"],
     )
 
 

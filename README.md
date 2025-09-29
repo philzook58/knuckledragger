@@ -151,6 +151,7 @@ A recent summary talk of Knuckledragger was presented at NEPLS 2025
 
 ## Blog Posts
 
+- [Proving the Infinitude of Primes in Knuckledragger](https://www.philipzucker.com/knuckle_primes/)
 - [Proof Rules for MetaSMT](https://www.philipzucker.com/kdrag_proof_rules/)
 - [A Python CLI for Verifying Assembly](https://www.philipzucker.com/asm_verify3/)
 - [Knuckledragger Analysis Etudes](https://www.philipzucker.com/knuckle_analysis1/)

@@ -597,10 +597,10 @@ def _reflect_stmts(stmts: list[ast.stmt], globals=None, locals=None) -> smt.Expr
             )
 
 
-def _sort_of_annotation(ann, env):
+def _sort_of_annotation(ann, globals={}, locals={}):
     match ann:
         case ast.Name(id_):
-            s = eval(id_, env)
+            s = eval(id_, globals, locals)
             if isinstance(s, smt.SortRef):
                 return s
             elif isinstance(s, type):
@@ -611,9 +611,15 @@ def _sort_of_annotation(ann, env):
                 raise NotImplementedError(f"Name {id_}")
         case ast.Constant(value):
             assert isinstance(value, str)
-            s = eval(value.replace('"', ""), env)
-            assert isinstance(s, smt.SortRef)
-            return s
+            s = eval(value.replace('"', ""), globals, locals)
+            if isinstance(s, type):
+                return sort_of_type(s)
+            elif kd.utils.is_func(s):
+                raise NotImplementedError("Subsort types not yet supported")
+            elif isinstance(s, smt.SortRef):
+                return s
+            else:
+                raise ValueError(f"Constant {value} is not a supported type or sort")
         case _:
             raise NotImplementedError(f"Annotation {ast.dump(ann)}")
 
@@ -649,7 +655,11 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     |= ForAll([x, y],
            bar(x, y) ==
            If(4 < x, x + 3, If(y == "fred", 14, bar(x - 1, y))))
-
+    >>> @reflect
+    ... def inc_7(n: "int") -> "int":
+    ...    return n + 1
+    >>> inc_7(6)
+    inc_7(6)
     """
     module = ast.parse(inspect.getsource(f))
     assert isinstance(module, ast.Module) and len(module.body) == 1
@@ -660,28 +670,36 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     if globals is None:
         globals, _ = _calling_globals_locals()
     # infer arguments from type annotations.
-    args = [
-        smt.Const(arg.arg, _sort_of_annotation(arg.annotation, globals))
-        for arg in fun.args.args
-    ]
+    args = []
+    # We add arguments to locals in order to support dependent types.
+    for arg in fun.args.args:
+        v = smt.Const(
+            arg.arg, _sort_of_annotation(arg.annotation, globals=globals, locals=locals)
+        )
+        args.append(v)
+        locals[v.decl().name()] = v
+
+    # args = [
+    #    smt.Const(
+    #        arg.arg, _sort_of_annotation(arg.annotation, locals=locals, globals=globals)
+    #    )
+    # ]
     if fun.returns is None:
         raise ValueError(f"Function {fun.name} must have a return type annotation")
     # insert self name into locals so that recursive calls work.
     z3fun = smt.Function(
         fun.name,
         *[arg.sort() for arg in args],
-        _sort_of_annotation(fun.returns, globals),
+        _sort_of_annotation(fun.returns, globals=globals, locals=locals),
     )
     locals[fun.name] = z3fun
-    for arg in args:
-        locals[arg.decl().name()] = arg
     # Actually interpret body.
     body = _reflect_stmts(fun.body, globals=globals, locals=locals)
     z3fun1 = kd.define(fun.name, args, body)
     # Check that types work out.
     if z3fun.range() != z3fun1.range():
         raise ValueError(
-            f"Function {fun.name} has return type {_sort_of_annotation(fun.returns, globals)} but body evaluates to {body.sort()}"
+            f"Function {fun.name} has return type {_sort_of_annotation(fun.returns, globals=globals, locals=locals)} but body evaluates to {body.sort()}"
         )
     # This should never fail.
     assert z3fun.arity() == z3fun1.arity() and all(

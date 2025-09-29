@@ -1135,10 +1135,27 @@ class Lemma:
         self.goals.append(goalctx._replace(goal=smt.ForAll(vs, goalctx.goal)))
         return self.top_goal()
 
+    def revert(self, n: int):
+        """
+        Move a hypothesis back onto the goal as an implication.
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, q))
+        >>> l.intros()
+        [p] ?|= q
+        >>> l.revert(0)
+        [] ?|= Implies(p, q)
+        """
+        goalctx = self.top_goal()
+        hyp = goalctx.ctx.pop(n)
+        self.pop_goal()
+        self.goals.append(goalctx._replace(goal=smt.Implies(hyp, goalctx.goal)))
+        return self.top_goal()
+
     def show(self, thm: smt.BoolRef):
         """
         To document the current goal
         """
+        # TODO: maybe search through goal stack?
         goal = self.top_goal().goal
         if not thm.eq(goal):
             raise ValueError("Goal does not match", thm, goal)
