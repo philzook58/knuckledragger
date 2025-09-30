@@ -23,11 +23,23 @@ import pprint
     help="Timeout on verification conditions in milliseconds. Default is 1000ms.",
 )
 @click.option(
+    "--max_insn",
+    default=100000000,
+    help="Maximum number of instructions to symbolically execute per path. Default is no limit.",
+)
+@click.option(
     "--print-macros",
     is_flag=True,
     help="Print annotation GAS macros. Give it a dummy filename",
 )
-def asmc(filename: str, langid: str, asm: str, print_macros: bool, timeout: int):
+def asmc(
+    filename: str,
+    langid: str,
+    asm: str,
+    print_macros: bool,
+    timeout: int,
+    max_insn: int,
+):
     """
     asmc - Assembly Checker
     A tool to check verification conditions for assembly code using Ghidra PCode.
@@ -56,7 +68,9 @@ def asmc(filename: str, langid: str, asm: str, print_macros: bool, timeout: int)
         sys.exit(0)
     print(f"Processing {filename} with language ID {langid} using assembler {asm}")
     print("Constructing Trace Fragments...")
-    ctx, vcs = assemble_and_gen_vcs(filename, langid=langid, as_bin=asm)
+    ctx, vcs = assemble_and_gen_vcs(
+        filename, langid=langid, as_bin=asm, max_insn=max_insn
+    )
     print("Checking verification conditions...")
     failures = 0
     for vc in reversed(vcs):

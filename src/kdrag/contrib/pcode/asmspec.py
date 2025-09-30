@@ -104,7 +104,13 @@ class Always:
     expr: smt.BoolRef
 
 
-type SpecStmt = Entry | Assert | Assume | Exit | Cut | Assign
+@dataclass
+class OutOfGas: ...
+
+
+type StartStmt = Entry | Cut
+type EndStmt = Assert | Exit | OutOfGas | Cut
+type SpecStmt = StartStmt | EndStmt | Assume | Assign
 
 
 @dataclass
@@ -254,7 +260,7 @@ def pretty_trace(ctx: pcode.BinaryContext, trace: Trace) -> str:
 
 @dataclass
 class TraceState:
-    start: SpecStmt
+    start: StartStmt
     trace: Trace  # list of addresses
     state: pcode.SimState
     ghost_env: dict[str, smt.ExprRef] = dataclasses.field(default_factory=dict)
@@ -291,12 +297,12 @@ class VerificationCondition(NamedTuple):
     and the assertion that must hold at the end of the path (assertion).
     """
 
-    start: SpecStmt
+    start: StartStmt
     trace: list[int]
     path_cond: list[smt.BoolRef]
     memstate: pcode.MemState
     ghost_env: dict[str, smt.ExprRef]
-    assertion: SpecStmt
+    assertion: EndStmt
     # pf : Optional[kd.Proof] = None
 
     def __repr__(self):
@@ -306,6 +312,8 @@ class VerificationCondition(NamedTuple):
         """
         Return the verification condition as an expression.
         """
+        if isinstance(self.assertion, OutOfGas):
+            return smt.BoolVal(False)
         return smt.Implies(
             smt.And(*self.path_cond),
             substitute(self.assertion.expr, ctx, self.memstate, self.ghost_env),
@@ -324,27 +332,30 @@ class VerificationCondition(NamedTuple):
         Interpret a countermodel on the relevant constants
         """
         # find all interesting selects
-        interesting = set(
-            c
-            for c in kd.utils.consts(self.assertion.expr)
-            if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
-        )
-        interesting.update(
-            c
-            for c in kd.utils.consts(self.start.expr)
-            if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
-        )
-        todo = [self.assertion.expr]
-        while todo:
-            t = todo.pop()
-            if smt.is_select(t):
-                interesting.add(t)
-            elif smt.is_app(t):
-                todo.extend(t.children())
-        return {
-            c: m.eval(substitute(c, ctx, self.memstate, self.ghost_env))
-            for c in interesting
-        }
+        if isinstance(self.assertion, OutOfGas):
+            return {}
+        else:
+            interesting = set(
+                c
+                for c in kd.utils.consts(self.assertion.expr)
+                if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
+            )
+            interesting.update(
+                c
+                for c in kd.utils.consts(self.start.expr)
+                if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
+            )
+            todo = [self.assertion.expr]
+            while todo:
+                t = todo.pop()
+                if smt.is_select(t):
+                    interesting.add(t)
+                elif smt.is_app(t):
+                    todo.extend(t.children())
+            return {
+                c: m.eval(substitute(c, ctx, self.memstate, self.ghost_env))
+                for c in interesting
+            }
 
 
 def execute_spec_stmts(
@@ -419,7 +430,7 @@ def execute_insn(
 
 
 def run_all_paths(
-    ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True
+    ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True, max_insn=None
 ) -> list[VerificationCondition]:
     """
     Initialize queue with all stated entry points, and then symbolically execute all paths,
@@ -450,6 +461,18 @@ def run_all_paths(
     # Execute pre specstmts and instructions
     while todo:
         tracestate = todo.pop()
+        if max_insn is not None and len(tracestate.trace) >= max_insn:
+            vcs.append(
+                VerificationCondition(
+                    start=tracestate.start,
+                    trace=tracestate.trace.copy(),
+                    path_cond=tracestate.state.path_cond.copy(),
+                    memstate=tracestate.state.memstate,
+                    assertion=OutOfGas(),
+                    ghost_env=tracestate.ghost_env.copy(),
+                )
+            )
+            continue
         addr = tracestate.state.pc[0]
         specstmts = spec.addrmap.get(addr, [])
         tracestate, new_vcs = execute_spec_stmts(specstmts, tracestate, ctx)
@@ -466,7 +489,7 @@ class Results:
 
 
 def assemble_and_gen_vcs(
-    filename: str, langid="x86:LE:64:default", as_bin="as"
+    filename: str, langid="x86:LE:64:default", as_bin="as", max_insn=None
 ) -> tuple[pcode.BinaryContext, list[VerificationCondition]]:
     with open("/tmp/knuckle.s", "w") as f:
         f.write(kd_macro)
@@ -476,7 +499,7 @@ def assemble_and_gen_vcs(
     )  # -L to support local labels
     ctx = pcode.BinaryContext("/tmp/kdrag_temp.o", langid=langid)
     spec = AsmSpec.of_file(filename, ctx)
-    return ctx, run_all_paths(ctx, spec)
+    return ctx, run_all_paths(ctx, spec, max_insn=max_insn)
 
 
 def assemble_and_check(
