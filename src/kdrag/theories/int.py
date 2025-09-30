@@ -162,11 +162,11 @@ _l.simp()
 _l.intros()
 _l.simp(at=0)
 _l.cases(m == _n + 1)
+# case m == 1 + _n
+_l.auto()
 # case m != 1 + _n
 _l.have(smt.Exists([p], fact(_n) == m * p))
 _p = _l.einstan(3)
 _l.exists(_p * (_n + 1))
-_l.auto()
-# case m == 1 + _n
 _l.auto()
 dvd_fact = _l.qed().forall([m, n])

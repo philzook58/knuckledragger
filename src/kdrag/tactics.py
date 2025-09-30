@@ -191,7 +191,6 @@ def prove(
     timeout=1000,
     dump=False,
     solver=None,
-    instan: Optional[Callable[..., list[kd.kernel.Proof]]] = None,
     # defns=True,
     # induct=False,
     # simps=simps,
@@ -228,30 +227,15 @@ def prove(
     |= succ2(x) == x + 2
     >>> prove(succ(x) == x + 1, unfold=[succ])
     |= succ(x) == x + 1
-    >>> prove(smt.ForAll([x], succ(x) == x + 1), instan=lambda x1: [succ.defn(x1)])
-    |= ForAll(x, succ(x) == x + 1)
     """
     start_time = time.perf_counter()
+
     if by is None:
         by = []
     elif isinstance(by, kd.Proof):
         by = [by]
     elif not isinstance(by, list):
         by = list(by)
-    if instan is not None:
-        assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
-        return forallI(
-            thm,
-            lambda goal, *vs: prove(
-                goal,
-                by=by + instan(*vs),
-                timeout=timeout,
-                dump=dump,
-                solver=solver,
-                admit=admit,
-                unfold=unfold,
-            ),
-        )
 
     if unfold is None:
         pass
@@ -635,10 +619,10 @@ class Lemma:
         if t.sort() == smt.BoolSort():
             self.pop_goal()
             self.goals.append(
-                goalctx._replace(ctx=ctx + [t == smt.BoolVal(True)], goal=goal)
+                goalctx._replace(ctx=ctx + [t == smt.BoolVal(False)], goal=goal)
             )
             self.goals.append(
-                goalctx._replace(ctx=ctx + [t == smt.BoolVal(False)], goal=goal)
+                goalctx._replace(ctx=ctx + [t == smt.BoolVal(True)], goal=goal)
             )
         elif isinstance(t, smt.DatatypeRef):
             self.pop_goal()
@@ -1034,6 +1018,7 @@ class Lemma:
         >>> l.unfold()
         [] ?|= If(is(Z, Z), Z, S(add(pred(Z), Z))) == Z
         """
+        assert all(isinstance(d, smt.FuncDeclRef) for d in decls)
         goalctx = self.top_goal()
         decls1 = None if len(decls) == 0 else decls
         if at is None:
