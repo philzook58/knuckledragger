@@ -805,19 +805,24 @@ class Lemma:
     def left(self, n=0):
         """
         Select the left case of an `Or` goal.
+        Since we're working classically, the other cases are negated and added to the context.
 
-        >>> p,q = smt.Bools("p q")
+        >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Or(p,q))
         >>> l.left()
-        [] ?|= p
+        [Not(q)] ?|= p
+        >>> l = Lemma(smt.Or(p,q,r))
+        >>> l.left(1)
+        [Not(p), Not(r)] ?|= q
         """
-        # TODO: consider adding Not(right) to context since we're classical?
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if smt.is_or(goal):
-            if n is None:
-                n = 0
-            self.goals[-1] = goalctx._replace(ctx=ctx, goal=goal.arg(n))
+            children = goal.children()
+            newgoal = children.pop(n)
+            self.goals[-1] = goalctx._replace(
+                ctx=ctx + list(map(smt.Not, children)), goal=newgoal
+            )
             return self.top_goal()
         else:
             raise ValueError("Left failed. Not an or")
@@ -825,17 +830,19 @@ class Lemma:
     def right(self):
         """
         Select the right case of an `Or` goal.
+        Since we're working classically, the other cases are negated and added to the context.
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Or(p,q))
         >>> l.right()
-        [] ?|= q
+        [Not(p)] ?|= q
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if smt.is_or(goal):
+            children = goal.children()
             self.goals[-1] = goalctx._replace(
-                ctx=ctx, goal=goal.arg(goal.num_args() - 1)
+                ctx=ctx + list(map(smt.Not, children[:-1])), goal=children[-1]
             )
             return self.top_goal()
         else:
