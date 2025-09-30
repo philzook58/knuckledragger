@@ -263,6 +263,7 @@ class TraceState:
     start: StartStmt
     trace: Trace  # list of addresses
     state: pcode.SimState
+    trace_id: list[int]
     ghost_env: dict[str, smt.ExprRef] = dataclasses.field(default_factory=dict)
 
 
@@ -332,17 +333,15 @@ class VerificationCondition(NamedTuple):
         Interpret a countermodel on the relevant constants
         """
         # find all interesting selects
-        if isinstance(self.assertion, OutOfGas):
-            return {}
-        else:
-            interesting = set(
-                c
-                for c in kd.utils.consts(self.assertion.expr)
-                if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
-            )
+        interesting = {
+            c
+            for c in kd.utils.consts(self.start.expr)
+            if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
+        }
+        if not isinstance(self.assertion, OutOfGas):
             interesting.update(
                 c
-                for c in kd.utils.consts(self.start.expr)
+                for c in kd.utils.consts(self.assertion.expr)
                 if not kd.utils.is_value(c) and not c.decl().name().startswith("ram")
             )
             todo = [self.assertion.expr]
@@ -352,10 +351,11 @@ class VerificationCondition(NamedTuple):
                     interesting.add(t)
                 elif smt.is_app(t):
                     todo.extend(t.children())
-            return {
-                c: m.eval(substitute(c, ctx, self.memstate, self.ghost_env))
-                for c in interesting
-            }
+
+        return {
+            c: m.eval(substitute(c, ctx, self.memstate, self.ghost_env))
+            for c in interesting
+        }
 
 
 def execute_spec_stmts(
@@ -367,9 +367,11 @@ def execute_spec_stmts(
     trace, state, ghost_env = tracestate.trace, tracestate.state, tracestate.ghost_env
     vcs = []
     for stmt in stmts:
-        if verbose:
+        if verbose and not isinstance(stmt, Entry):
             print("Executing SpecStmt:", stmt)
-        if isinstance(stmt, Assume) or isinstance(stmt, Entry):
+        if isinstance(stmt, Entry):
+            pass  # TODO: Tough to see if it should be nothing, assert or assume if you retouch entry point.
+        elif isinstance(stmt, Assume):
             # Add the assumption to the path condition
             state = dataclasses.replace(
                 state,
@@ -400,7 +402,11 @@ def execute_spec_stmts(
                 f"Unexpected statement type {type(stmt)} in execute_specstmts"
             )
     return TraceState(
-        start=tracestate.start, trace=trace, state=state, ghost_env=ghost_env
+        start=tracestate.start,
+        trace=trace,
+        state=state,
+        trace_id=tracestate.trace_id,
+        ghost_env=ghost_env,
     ), vcs
 
 
@@ -412,20 +418,24 @@ def execute_insn(
     addr, pc = state0.pc
     if pc != 0:
         raise Exception(f"Unexpected program counter {pc} at address {hex(addr)}")
+    new_tracestates = ctx.sym_execute(
+        state0.memstate,
+        addr,
+        path_cond=state0.path_cond,
+        max_insns=1,
+        verbose=verbose,
+    )
     return [
         TraceState(
             start=tracestate.start,
             trace=tracestate.trace + [state0.pc[0]],
             state=state,
+            trace_id=tracestate.trace_id
+            if len(new_tracestates) == 1
+            else tracestate.trace_id + [i],
             ghost_env=tracestate.ghost_env,
         )
-        for state in ctx.sym_execute(
-            state0.memstate,
-            addr,
-            path_cond=state0.path_cond,
-            max_insns=1,
-            verbose=verbose,
-        )
+        for i, state in enumerate(new_tracestates)
     ]
 
 
@@ -442,14 +452,17 @@ def run_all_paths(
     todo = []
     vcs = []
     # Initialize executions out of entry points and cuts
+    init_trace_id = -1
     for addr, specstmts in spec.addrmap.items():
         for n, stmt in enumerate(specstmts):
             if isinstance(stmt, Cut) or isinstance(stmt, Entry):
+                init_trace_id += 1
                 precond = ctx.substitute(mem, stmt.expr)  # No ghost? Use substitute?
                 assert isinstance(precond, smt.BoolRef)
                 tracestate = TraceState(
                     start=stmt,
                     trace=[],
+                    trace_id=[init_trace_id],
                     state=pcode.SimState(mem, (addr, 0), [precond]),
                 )
                 tracestate, new_vcs = execute_spec_stmts(
@@ -461,6 +474,15 @@ def run_all_paths(
     # Execute pre specstmts and instructions
     while todo:
         tracestate = todo.pop()
+        if verbose:
+            print(
+                "Continuing execution at:",
+                hex(tracestate.state.pc[0]),
+                "trace_id",
+                tracestate.trace_id,
+                "num insns",
+                len(tracestate.trace),
+            )
         if max_insn is not None and len(tracestate.trace) >= max_insn:
             vcs.append(
                 VerificationCondition(
