@@ -440,7 +440,7 @@ def execute_insn(
 
 
 def run_all_paths(
-    ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True, max_insn=None
+    ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True, max_insns=None
 ) -> list[VerificationCondition]:
     """
     Initialize queue with all stated entry points, and then symbolically execute all paths,
@@ -483,7 +483,7 @@ def run_all_paths(
                 "num insns",
                 len(tracestate.trace),
             )
-        if max_insn is not None and len(tracestate.trace) >= max_insn:
+        if max_insns is not None and len(tracestate.trace) >= max_insns:
             vcs.append(
                 VerificationCondition(
                     start=tracestate.start,
@@ -511,7 +511,7 @@ class Results:
 
 
 def assemble_and_gen_vcs(
-    filename: str, langid="x86:LE:64:default", as_bin="as", max_insn=None
+    filename: str, langid="x86:LE:64:default", as_bin="as", max_insns=None
 ) -> tuple[pcode.BinaryContext, list[VerificationCondition]]:
     with open("/tmp/knuckle.s", "w") as f:
         f.write(kd_macro)
@@ -521,7 +521,7 @@ def assemble_and_gen_vcs(
     )  # -L to support local labels
     ctx = pcode.BinaryContext("/tmp/kdrag_temp.o", langid=langid)
     spec = AsmSpec.of_file(filename, ctx)
-    return ctx, run_all_paths(ctx, spec, max_insn=max_insn)
+    return ctx, run_all_paths(ctx, spec, max_insns=max_insns)
 
 
 def assemble_and_check(

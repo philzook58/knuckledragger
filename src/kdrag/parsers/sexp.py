@@ -40,9 +40,10 @@ def parse(s: str) -> list:
     ValueError: ('unexpected characters', '@@@', '(foo @@@)')
     """
 
-    def pat():
+    def tokens():
         curr = 0
         for match_ in pattern.finditer(s):
+            # Check for skipped characters
             if match_.start() != curr:
                 raise ValueError(
                     "unexpected characters",
@@ -50,17 +51,19 @@ def parse(s: str) -> list:
                     s[max(0, curr - 40) : min(curr + 40, len(s))],
                 )
             curr = match_.end()
-            yield match_
+            match match_.lastgroup:
+                case "WS" | "COMMENT":
+                    continue
+                case _:
+                    yield match_
 
-    it = pat()
+    it = tokens()
 
     def sexp():
         # opening "(" is assumed already consumed
         items = []
         for match_ in it:
             match match_.lastgroup:
-                case "WS" | "COMMENT":
-                    continue
                 case "LPAREN":
                     items.append(sexp())
                 case "RPAREN":
@@ -80,8 +83,6 @@ def parse(s: str) -> list:
     out = []
     for match_ in it:
         match match_.lastgroup:
-            case "WS" | "COMMENT":
-                continue
             case "LPAREN":
                 out.append(sexp())
             case "RPAREN":

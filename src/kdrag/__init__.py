@@ -32,8 +32,9 @@ FreshVar = kernel.FreshVar
 
 FreshVars = tactics.FreshVars
 
-QForAll = notation.QForAll
+QImplies = notation.QImplies
 
+QForAll = notation.QForAll
 
 QExists = notation.QExists
 
@@ -78,6 +79,7 @@ __all__ = [
     "Proof",
     "FreshVar",
     "FreshVars",
+    "QImplies",
     "QForAll",
     "QExists",
     "cond",

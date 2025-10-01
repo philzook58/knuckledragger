@@ -145,7 +145,7 @@ def test_cond():
 def test_Lemma():
     x = smt.Int("x")
     l = kd.tactics.Lemma(x != x + 1)
-    l.have(x != x + 1)
+    l.have(x != x + 1, by=[])
     l.assumption()
     l.qed()
 

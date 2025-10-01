@@ -23,7 +23,7 @@ import pprint
     help="Timeout on verification conditions in milliseconds. Default is 1000ms.",
 )
 @click.option(
-    "--max_insn",
+    "--max_insns",
     default=100000000,
     help="Maximum number of instructions to symbolically execute per path. Default is no limit.",
 )
@@ -38,7 +38,7 @@ def asmc(
     asm: str,
     print_macros: bool,
     timeout: int,
-    max_insn: int,
+    max_insns: int,
 ):
     """
     asmc - Assembly Checker
@@ -69,7 +69,7 @@ def asmc(
     print(f"Processing {filename} with language ID {langid} using assembler {asm}")
     print("Constructing Trace Fragments...")
     ctx, vcs = assemble_and_gen_vcs(
-        filename, langid=langid, as_bin=asm, max_insn=max_insn
+        filename, langid=langid, as_bin=asm, max_insns=max_insns
     )
     print("Checking verification conditions...")
     failures = 0

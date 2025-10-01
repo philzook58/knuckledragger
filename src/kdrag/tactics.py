@@ -343,6 +343,28 @@ class Goal(NamedTuple):
             ),  # trivial _and_ specially marked
         )
 
+    def to_expr(self):
+        """
+        Convert goal into formula it represents
+
+        >>> x = smt.Int("x")
+        >>> Goal(sig=[x], ctx=[x > 0], goal=x > -1).to_expr()
+        Implies(x > 0, x > -1)
+        >>> Goal(sig=[], ctx=[], goal=x > 0).to_expr()
+        x > 0
+        >>> Goal(sig=[], ctx=[x > 0], goal=x > -1).to_expr()
+        Implies(x > 0, x > -1)
+        """
+        if self.ctx:
+            return kd.QImplies(*self.ctx, self.goal)
+        else:
+            return self.goal
+
+    def proof(self) -> "Lemma":
+        l = Lemma(self.to_expr())
+        l.goals[0] = self
+        return l
+
     def is_empty(self) -> bool:
         return self == Goal.empty()
 
@@ -364,12 +386,13 @@ class Lemma:
 
     """
 
-    def __init__(self, goal: smt.BoolRef):
+    def __init__(self, goal: smt.BoolRef, _parent=None):
         self.start_time = time.perf_counter()
         self.lemmas: list[dict[int, kdrag.kernel.Proof]] = [{}]
         self.thm = goal
         self.goals: list[Goal | LemmaCallback] = [Goal(sig=[], ctx=[], goal=goal)]
         self.pushed = None
+        self._parent = _parent
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
@@ -589,6 +612,8 @@ class Lemma:
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
+            if at < 0:
+                at = len(oldctx) + at
             old = oldctx[at]
             new = kd.utils.pathmap(smt.simplify, old, path)
             if new.eq(old):
@@ -655,6 +680,8 @@ class Lemma:
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
+        if n < 0:
+            n = len(ctx) + n
         formula = ctx[n]
         if isinstance(formula, smt.QuantifierRef) and formula.is_exists():
             self.pop_goal()
@@ -1152,17 +1179,109 @@ class Lemma:
         self.goals.append(goalctx._replace(goal=smt.Implies(hyp, goalctx.goal)))
         return self.top_goal()
 
-    def show(self, thm: smt.BoolRef):
+    def sublemma(self) -> "Lemma":
         """
-        To document the current goal
+        Create a sub Lemma for the current goal. This is useful to break up a proof into smaller lemmas.
+        The goal is the same but the internally held `kd.Proof` database is cleared, making it easier for z3
+        On calling `'l.qed()`, the sublemma will propagate it's `kd.Proof`  back to it's parent.
+
+        >>> l1 = Lemma(smt.BoolVal(True))
+        >>> l2 = l1.sublemma()
+        >>> l2
+        [] ?|= True
+        >>> l2.auto()
+        Nothing to do!
+        >>> l1
+        [] ?|= True
+        >>> l2.qed()
+        |= True
+        >>> l1
+        Nothing to do. Hooray!
+        >>> l1.qed()
+        |= True
+        """
+        goalctx = self.top_goal()
+        l = Lemma(goalctx.to_expr(), _parent=self)
+        l.goals[0] = goalctx
+        return l
+
+    def sub(self) -> "Lemma":
+        return self.sublemma()
+
+    def __enter__(self) -> "Lemma":
+        """
+        On entering a `with` block, return self.
+        This marks that at the exit of the `with` block, qed will be automatically called
+        and `kd.Proof` propagated back to a parent
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        On exiting a `with` block, if no exception occurred, call qed and propagate the proof to the parent
+        """
+        if exc_type is not None:
+            return False  # propagate exception
+        else:
+            if len(self.goals) == 0:
+                self.qed()
+            else:
+                print("Goal", self.top_goal())
+
+    def show(self, thm: smt.BoolRef, **kwargs) -> "Lemma":
+        """
+        Produces a new sub Lemma object and documents the current goal.
+
+        >>> x = smt.Int("x")
+        >>> l = Lemma(smt.Implies(x > 0, smt.And(x > -2, x > -1)))
+        >>> l.intros()
+        [x > 0] ?|= And(x > -2, x > -1)
+        >>> l.split()
+        [x > 0] ?|= x > -2
+        >>> with l.show(x > -2) as sub1:
+        ...     _ = sub1.auto()
+        >>> l
+        [x > 0] ?|= x > -1
+        >>> l.show(x > -1, by=[])
+        Nothing to do. Hooray!
+        >>> l.qed()
+        |= Implies(x > 0, And(x > -2, x > -1))
         """
         # TODO: maybe search through goal stack?
         goal = self.top_goal().goal
         if not thm.eq(goal):
             raise ValueError("Goal does not match", thm, goal)
-        return self.top_goal()
+        if len(kwargs) == 0:
+            return self.sublemma()
+        else:
+            self.auto(**kwargs)
+            return self
 
-    def assumption(self):
+    def exact(self, pf: kd.kernel.Proof):
+        """
+        Exact match of goal with given proof
+
+        >>> p = smt.Bool("p")
+        >>> l = Lemma(smt.Implies(p, p))
+        >>> l.exact(kd.prove(smt.BoolVal(True)))
+        Traceback (most recent call last):
+            ...
+        ValueError: Exact tactic failed. Given: True Expected: Implies(p, p)
+        >>> l.exact(kd.prove(smt.Implies(p, p)))
+        Nothing to do!
+        """
+        goalctx = self.top_goal()
+        goalexpr = goalctx.to_expr()
+        if pf.thm.eq(goalexpr):
+            self.add_lemma(pf)
+            self.pop_goal()
+            return self.top_goal()
+        else:
+            raise ValueError(
+                "Exact tactic failed. Given:", pf.thm, "Expected:", goalexpr
+            )
+
+    def assumption(self) -> Goal:
         """
         Exact match of goal in the context
         """
@@ -1173,16 +1292,31 @@ class Lemma:
         else:
             raise ValueError("Assumption tactic failed", goal, ctx)
 
-    def have(self, conc: smt.BoolRef, **kwargs):
+    def have(self, conc: smt.BoolRef, **kwargs) -> "Lemma":
         """
         Prove the given formula and add it to the current context
+
+        >>> x = smt.Int("x")
+        >>> l = Lemma(smt.Implies(x > 0, x > -2))
+        >>> l.intros()
+        [x > 0] ?|= x > -2
+        >>> l.have(x > -1, by=[])
+        [x > 0, x > -1] ?|= x > -2
+        >>> l.have(x > 42)
+        [x > 0, x > -1] ?|= x > 42
         """
         goalctx = self.pop_goal()
-        self.add_lemma(
-            kd.kernel.prove(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
-        )
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
-        return self.top_goal()
+        newgoal = goalctx._replace(goal=conc)
+        self.goals.append(newgoal)
+        if len(kwargs) == 0:
+            return self.sublemma()
+        else:
+            self.auto(**kwargs)
+            # self.add_lemma(
+            #    kd.kernel.prove(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
+            # )
+            return self
 
     def admit(self) -> Goal:
         """
@@ -1246,4 +1380,6 @@ class Lemma:
         kdrag.config.perf_event(
             "Lemma", self.thm, time.perf_counter() - self.start_time
         )
+        if self._parent is not None:
+            self._parent.exact(pf)
         return pf

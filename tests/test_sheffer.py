@@ -143,7 +143,7 @@ def test_sheffer():
     l = kd.Lemma(kd.QForAll([a, b], ~a == ~b, a == b))
     _a, _b = l.intros()
     l.intros()
-    l.have(~~_a == ~~_b)
+    l.have(~~_a == ~~_b, by=[])
     l.rw(dne, at=-1)
     l.auto(by=dne(_a))
     inv_elim = l.qed()

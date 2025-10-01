@@ -154,7 +154,7 @@ def test_cli():
     res = subprocess.run("python3 -m kdrag.contrib.pcode /tmp/mov42.s", shell=True, check=True, capture_output=True, text=True)
     assert "verification conditions passed! ✅✅✅✅" in res.stdout
 
-    res = subprocess.run("python3 -m kdrag.contrib.pcode /tmp/mov42.s --max_insn 1", shell=True, capture_output=True, text=True)
+    res = subprocess.run("python3 -m kdrag.contrib.pcode /tmp/mov42.s --max_insns 1", shell=True, capture_output=True, text=True)
     assert "[❌] OutOfGas()" in res.stdout
 
     code = """

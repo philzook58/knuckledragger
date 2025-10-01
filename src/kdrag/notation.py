@@ -198,6 +198,27 @@ to_real = SortDispatch(name="to_real")
 smt.ExprRef.to_real = lambda x: to_real(x)  # type: ignore
 
 
+def QImplies(*hyp_conc) -> smt.BoolRef:
+    """Quantified Implies
+
+    Shorthand for `Implies(And(hyp[0], hyp[1], ...), conc)`
+
+    >>> x,y = smt.Ints("x y")
+    >>> QImplies(x > 0, y > 0, x + y > 0)
+    Implies(And(x > 0, y > 0), x + y > 0)
+
+    """
+    conc = hyp_conc[-1]
+    hyps = hyp_conc[:-1]
+    if len(hyps) == 0:
+        raise ValueError("No hypotheses given in QImplies", conc)
+    elif len(hyps) == 1:
+        return smt.Implies(hyps[0], conc)
+    else:
+        hyp = smt.And(hyps)
+        return smt.Implies(hyp, conc)
+
+
 def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
     """Quantified ForAll
 
