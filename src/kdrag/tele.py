@@ -312,7 +312,8 @@ class ProgramState(kd.tactics.ProofState):
         self.args = args
         self.T = T
         self.body = body
-        super().__init__(HasType(args, body, T))
+        # TODO: start with args in the sig
+        super().__init__(kd.tactics.Goal(sig=[], ctx=[], goal=HasType(args, body, T)))
 
     def define(self):
         # TODO: we prove twice?

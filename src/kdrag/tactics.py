@@ -361,9 +361,7 @@ class Goal(NamedTuple):
             return self.goal
 
     def proof(self) -> "ProofState":
-        l = ProofState(self.to_expr())
-        l.goals[0] = self
-        return l
+        return ProofState(self)
 
     def is_empty(self) -> bool:
         return self == Goal.empty()
@@ -398,11 +396,11 @@ class ProofState:
 
     """
 
-    def __init__(self, goal: smt.BoolRef, _parent=None):
+    def __init__(self, goal: Goal, _parent=None):
         self.start_time = time.perf_counter()
         self.lemmas: list[dict[int, kdrag.kernel.Proof]] = [{}]
         self.thm = goal
-        self.goals: list[Goal | LemmaCallback] = [Goal(sig=[], ctx=[], goal=goal)]
+        self.goals: list[Goal | LemmaCallback] = [goal]
         self.pushed = None
         self._parent = _parent
 
@@ -438,7 +436,7 @@ class ProofState:
         >>> l1
         [] ?|= Implies(p, q)
         """
-        lemma_cpy = ProofState(self.thm)
+        lemma_cpy = ProofState(self.thm, _parent=self._parent)
         lemma_cpy.goals = self.goals.copy()
         lemma_cpy.lemmas = self.lemmas.copy()
         lemma_cpy.pushed = None
@@ -1213,9 +1211,7 @@ class ProofState:
         |= True
         """
         goalctx = self.top_goal()
-        l = ProofState(goalctx.to_expr(), _parent=self)
-        l.goals[0] = goalctx
-        return l
+        return ProofState(goalctx, _parent=self)
 
     def sub(self) -> "ProofState":
         return self.sublemma()
@@ -1382,13 +1378,15 @@ class ProofState:
                     lam_cb.cb()
                 except Exception as e:
                     raise ValueError("LemmaCallback failed", lam_cb.annot) from e
-        if self.thm.get_id() in self.lemmas[-1]:
-            return self.lemmas[-1][self.thm.get_id()]
+        thm = self.thm.to_expr()
+        pf0 = self.lemmas[-1].get(thm.get_id())
+        if pf0 is not None:
+            return pf0
         if "by" in kwargs:
             kwargs["by"].extend(self.lemmas[-1].values())
         else:
             kwargs["by"] = list(self.lemmas[-1].values())
-        pf = kd.kernel.prove(self.thm, **kwargs)
+        pf = kd.kernel.prove(thm, **kwargs)
         kdrag.config.perf_event(
             "ProofState", self.thm, time.perf_counter() - self.start_time
         )
