@@ -291,7 +291,11 @@ def define(
     return f
 
 
-class Program(kd.tactics.Lemma):
+def Program(name: str, args: Telescope, T: SubSort, body: smt.ExprRef):
+    return ProgramState(name, args, T, body)
+
+
+class ProgramState(kd.tactics.ProofState):
     """
     Interactive proof of a function definition.
     See https://rocq-prover.org/doc/master/refman/addendum/program.html

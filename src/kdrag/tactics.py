@@ -360,8 +360,8 @@ class Goal(NamedTuple):
         else:
             return self.goal
 
-    def proof(self) -> "Lemma":
-        l = Lemma(self.to_expr())
+    def proof(self) -> "ProofState":
+        l = ProofState(self.to_expr())
         l.goals[0] = self
         return l
 
@@ -375,14 +375,26 @@ class LemmaCallback:
     annot: object = None
 
 
-class Lemma:
+def Lemma(goal: smt.BoolRef, fixes=None, assumes=None) -> "ProofState":
+    return Goal(
+        sig=[] if fixes is None else fixes,
+        ctx=[] if assumes is None else assumes,
+        goal=goal,
+    ).proof()
+
+
+class ProofState:
     """
     A tactic class for interactive proofs.
-    `Lemma` stores a mutational partial proof state that can be changed via tactic methods.
+    `ProofState` stores a mutational partial proof state that can be changed via tactic methods.
     Once proof is completed, an actual `kd.Proof` object is constructed by the `Lemma.qed` method.
-    `Lemma` is not part of the trusted code base and bugs in its implementation are not a soundness concern.
-    `Lemma` "merely" orchestrates and infers info for calls to the kernel.
+    `ProofState` is not part of the trusted code base and bugs in its implementation are not a soundness concern.
+    `ProofState` "merely" orchestrates and infers info for calls to the kernel.
     In my experience it is best to run the entire Lemma mutation in a single Jupyter cell while experimenting.
+
+    ProofState can be seen as
+    - A Builder or Factory for kd.Proof objects. `l.qed()` is the analog of a `build` function which calls the constructor `kd.prove` under the hood
+    - A node of a Zipper-like context for a proof tree. In other words a partially complete proof.
 
     """
 
@@ -396,7 +408,7 @@ class Lemma:
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
-        Record a lemma in the current Lemma state.
+        Record a lemma in the current ProofState state.
         """
         self.lemmas[-1][lemma.thm.get_id()] = lemma
 
@@ -415,8 +427,8 @@ class Lemma:
 
     def copy(self):
         """
-        Lemma methods mutates the proof state. This can make you a copy.
-        Does not copy the pushed Lemma stack.
+        ProofState methods mutates the proof state. This can make you a copy.
+        Does not copy the pushed ProofState stack.
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p,q))
@@ -426,7 +438,7 @@ class Lemma:
         >>> l1
         [] ?|= Implies(p, q)
         """
-        lemma_cpy = Lemma(self.thm)
+        lemma_cpy = ProofState(self.thm)
         lemma_cpy.goals = self.goals.copy()
         lemma_cpy.lemmas = self.lemmas.copy()
         lemma_cpy.pushed = None
@@ -434,7 +446,7 @@ class Lemma:
 
     def push(self):
         """
-        Push a copy of the current Lemma state onto a stack.
+        Push a copy of the current ProofState state onto a stack.
         This why you can try things out, and if they fail
 
         >>> p,q = smt.Bools("p q")
@@ -453,7 +465,7 @@ class Lemma:
 
     def pop(self):
         """
-        Pop state off the Lemma stack.
+        Pop state off the ProofState stack.
         """
         assert self.pushed is not None
         self.lemmas = self.pushed.lemmas  # maybe we should store lemmas incrementally?
@@ -1179,9 +1191,9 @@ class Lemma:
         self.goals.append(goalctx._replace(goal=smt.Implies(hyp, goalctx.goal)))
         return self.top_goal()
 
-    def sublemma(self) -> "Lemma":
+    def sublemma(self) -> "ProofState":
         """
-        Create a sub Lemma for the current goal. This is useful to break up a proof into smaller lemmas.
+        Create a sub ProofState for the current goal. This is useful to break up a proof into smaller lemmas.
         The goal is the same but the internally held `kd.Proof` database is cleared, making it easier for z3
         On calling `'l.qed()`, the sublemma will propagate it's `kd.Proof`  back to it's parent.
 
@@ -1201,14 +1213,14 @@ class Lemma:
         |= True
         """
         goalctx = self.top_goal()
-        l = Lemma(goalctx.to_expr(), _parent=self)
+        l = ProofState(goalctx.to_expr(), _parent=self)
         l.goals[0] = goalctx
         return l
 
-    def sub(self) -> "Lemma":
+    def sub(self) -> "ProofState":
         return self.sublemma()
 
-    def __enter__(self) -> "Lemma":
+    def __enter__(self) -> "ProofState":
         """
         On entering a `with` block, return self.
         This marks that at the exit of the `with` block, qed will be automatically called
@@ -1228,9 +1240,9 @@ class Lemma:
             else:
                 print("Goal", self.top_goal())
 
-    def show(self, thm: smt.BoolRef, **kwargs) -> "Lemma":
+    def show(self, thm: smt.BoolRef, **kwargs) -> "ProofState":
         """
-        Produces a new sub Lemma object and documents the current goal.
+        Produces a new sub ProofState object and documents the current goal.
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, smt.And(x > -2, x > -1)))
@@ -1292,7 +1304,7 @@ class Lemma:
         else:
             raise ValueError("Assumption tactic failed", goal, ctx)
 
-    def have(self, conc: smt.BoolRef, **kwargs) -> "Lemma":
+    def have(self, conc: smt.BoolRef, **kwargs) -> "ProofState":
         """
         Prove the given formula and add it to the current context
 
@@ -1378,7 +1390,7 @@ class Lemma:
             kwargs["by"] = list(self.lemmas[-1].values())
         pf = kd.kernel.prove(self.thm, **kwargs)
         kdrag.config.perf_event(
-            "Lemma", self.thm, time.perf_counter() - self.start_time
+            "ProofState", self.thm, time.perf_counter() - self.start_time
         )
         if self._parent is not None:
             self._parent.exact(pf)
