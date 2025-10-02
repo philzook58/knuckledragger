@@ -184,8 +184,16 @@ def simp_tac(e: smt.ExprRef) -> kd.kernel.Proof:
 simps = {}
 
 
+def auto(shows=None, **kwargs) -> kd.kernel.Proof:
+    # enables shows parameter. Should I just put this in prove? Makes it a bit weird
+    assert shows is not None
+    return kd.prove(shows, **kwargs)
+
+
 def prove(
     thm: smt.BoolRef,
+    fixes: list[smt.ExprRef] = [],
+    assumes: list[smt.BoolRef] = [],
     by: Optional[kd.kernel.Proof | Sequence[kd.kernel.Proof]] = None,
     admit=False,
     timeout=1000,
@@ -230,6 +238,9 @@ def prove(
     """
     start_time = time.perf_counter()
 
+    if assumes:
+        thm = smt.Implies(smt.And(assumes), thm)
+
     if by is None:
         by = []
     elif isinstance(by, kd.Proof):
@@ -257,6 +268,8 @@ def prove(
         pf = kd.kernel.prove(
             thm, by, timeout=timeout, dump=dump, solver=solver, admit=admit
         )
+        if fixes:
+            pf = kd.kernel.generalize(fixes, pf)
         kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
         return pf
     except kd.kernel.LemmaError as e:
@@ -683,9 +696,9 @@ class ProofState:
         self.pop_goal()
         return self.top_goal()
 
-    def einstan(self, n):
+    def obtain(self, n):
         """
-        einstan opens an exists quantifier in context and returns the fresh eigenvariable.
+        obtain opens an exists quantifier in context and returns the fresh eigenvariable.
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
         """
         goalctx = self.top_goal()
@@ -695,12 +708,12 @@ class ProofState:
         formula = ctx[n]
         if isinstance(formula, smt.QuantifierRef) and formula.is_exists():
             self.pop_goal()
-            fs, einstan_lemma = kd.kernel.einstan(formula)
-            self.add_lemma(einstan_lemma)
+            fs, obtain_lemma = kd.kernel.obtain(formula)
+            self.add_lemma(obtain_lemma)
             self.goals.append(
                 goalctx._replace(
                     sig=goalctx.sig + fs,
-                    ctx=ctx[:n] + [einstan_lemma.thm.arg(1)] + ctx[n + 1 :],
+                    ctx=ctx[:n] + [obtain_lemma.thm.arg(1)] + ctx[n + 1 :],
                     goal=goal,
                 )
             )
@@ -709,7 +722,7 @@ class ProofState:
             else:
                 return fs
         else:
-            raise ValueError("Einstan failed. Not an exists")
+            raise ValueError("obtain failed. Not an exists")
 
     def instan(self, n, *ts):
         """
@@ -1101,11 +1114,26 @@ class ProofState:
         >>> mylemma = kd.prove(kd.QForAll([x], x > 1, x > 0))
         >>> kd.Lemma(x > 0).apply(mylemma)
         [] ?|= x > 1
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = kd.Lemma(smt.Implies(smt.Not(p), q))
+        >>> l.intros()
+        [Not(p)] ?|= q
+        >>> l.apply(0)
+        [Not(q)] ?|= p
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if isinstance(pf, int):
             thm = ctx[pf]
+            if smt.is_not(thm):
+                # Not(p) is spiritually a `p -> False`
+                self.pop_goal()
+                ctx.pop(pf)
+                self.goals.append(
+                    goalctx._replace(ctx=ctx + [smt.Not(goalctx.goal)], goal=thm.arg(0))
+                )
+                return self.top_goal()
         elif isinstance(pf, kd.Proof):
             thm = pf.thm
         else:
@@ -1153,6 +1181,23 @@ class ProofState:
             self.goals.extend(
                 [goalctx._replace(goal=c) for c in reversed(goalctx.goal.children())]
             )
+        return self.top_goal()
+
+    def contra(self):
+        """
+        Prove the goal by contradiction.
+
+        >>> p = smt.Bool("p")
+        >>> l = Lemma(p)
+        >>> l.contra()
+        [Not(p)] ?|= False
+        """
+        goalctx = self.pop_goal()
+        self.goals.append(
+            goalctx._replace(
+                ctx=goalctx.ctx + [smt.Not(goalctx.goal)], goal=smt.BoolVal(False)
+            )
+        )
         return self.top_goal()
 
     def clear(self, n: int):
@@ -1222,6 +1267,10 @@ class ProofState:
         This marks that at the exit of the `with` block, qed will be automatically called
         and `kd.Proof` propagated back to a parent
         """
+        if len(self.goals) != 1 or len(self.lemmas[-1]) != 0:
+            raise ValueError(
+                "Entered a non-fresh ProofState. Did you forget to call l.subproof?"
+            )
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -1246,7 +1295,7 @@ class ProofState:
         [x > 0] ?|= And(x > -2, x > -1)
         >>> l.split()
         [x > 0] ?|= x > -2
-        >>> with l.show(x > -2) as sub1:
+        >>> with l.show(x > -2).sub() as sub1:
         ...     _ = sub1.auto()
         >>> l
         [x > 0] ?|= x > -1
@@ -1259,11 +1308,9 @@ class ProofState:
         goal = self.top_goal().goal
         if not thm.eq(goal):
             raise ValueError("Goal does not match", thm, goal)
-        if len(kwargs) == 0:
-            return self.sublemma()
-        else:
+        if len(kwargs) != 0:
             self.auto(**kwargs)
-            return self
+        return self
 
     def exact(self, pf: kd.kernel.Proof):
         """
@@ -1317,14 +1364,12 @@ class ProofState:
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
         newgoal = goalctx._replace(goal=conc)
         self.goals.append(newgoal)
-        if len(kwargs) == 0:
-            return self.sublemma()
-        else:
+        if len(kwargs) != 0:
             self.auto(**kwargs)
             # self.add_lemma(
             #    kd.kernel.prove(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
             # )
-            return self
+        return self
 
     def admit(self) -> Goal:
         """

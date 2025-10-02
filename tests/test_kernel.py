@@ -220,7 +220,7 @@ def test_Lemma():
     l.intros()
     l.rw(even.defn)
     l.rewrite(even.defn, at=0)
-    y1 = l.einstan(0)
+    y1 = l.obtain(0)
     l.exists(y1 + 1)
     l.auto()
     l.qed()
@@ -234,7 +234,7 @@ def test_Lemma():
         l.intros(),
         l.rw(even.defn),
         l.rewrite(even.defn, at=0),
-        y1 := l.einstan(0),
+        y1 := l.obtain(0),
         l.exists(y1 + 1),
         l.auto(),
     ]

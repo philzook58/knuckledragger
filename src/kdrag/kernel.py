@@ -419,7 +419,7 @@ def forget2(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     )
 
 
-def einstan(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
+def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     """
     Skolemize an existential quantifier.
     `exists xs, P(xs) -> P(cs)` for fresh cs
@@ -431,7 +431,7 @@ def einstan(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     skolems = fresh_const(thm)
     return skolems, axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
-        ["einstan"],
+        ["obtain"],
     )
 
 
