@@ -1,0 +1,6 @@
+kdrag.printers.c.of\_defn
+=========================
+
+.. currentmodule:: kdrag.printers.c
+
+.. autofunction:: of_defn

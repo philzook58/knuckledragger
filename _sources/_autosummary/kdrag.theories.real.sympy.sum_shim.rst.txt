@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.sum\_shim
+===================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: sum_shim

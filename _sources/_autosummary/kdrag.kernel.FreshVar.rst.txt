@@ -1,0 +1,6 @@
+kdrag.kernel.FreshVar
+=====================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: FreshVar

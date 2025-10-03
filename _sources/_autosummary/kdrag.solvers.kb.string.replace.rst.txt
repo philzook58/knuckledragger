@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.replace
+===============================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: replace

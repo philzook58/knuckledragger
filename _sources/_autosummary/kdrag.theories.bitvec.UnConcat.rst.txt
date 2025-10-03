@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.UnConcat
+==============================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: UnConcat
