@@ -69,7 +69,7 @@ class Proof(Judgement):
         >>> p = prove(smt.ForAll([y], smt.ForAll([x], x >= x - 1)))
         >>> p(x)
         |= ForAll(x, x >= x - 1)
-        >>> p(x, smt.IntVal(7))
+        >>> p(x, 7)
         |= 7 >= 7 - 1
 
         >>> a,b,c = smt.Bools("a b c")
@@ -86,7 +86,11 @@ class Proof(Judgement):
         while n < len(args):
             if isinstance(self.thm, smt.QuantifierRef) and self.thm.is_forall():
                 i = self.thm.num_vars()
-                acc = instan(args[n : n + i], acc)  # type: ignore
+                subargs = [
+                    a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
+                    for a in args[n : n + i]
+                ]
+                acc = instan(subargs, acc)  # type: ignore
                 n += i
             elif smt.is_implies(self.thm):
                 x = args[n]

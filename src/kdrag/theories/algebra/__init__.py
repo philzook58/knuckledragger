@@ -6,6 +6,7 @@ from typing import Protocol, runtime_checkable
 
 
 # https://leanprover-community.github.io/mathlib4_docs/Mathlib/Algebra/Group/Defs.html#Semigroup
+# https://isabelle.in.tum.de/library/HOL/HOL/Groups.html
 @runtime_checkable
 class SemiGroup(Protocol):
     """

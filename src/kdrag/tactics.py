@@ -811,12 +811,12 @@ class ProofState:
                 self.pop_goal()
                 self.goals.append(
                     goalctx._replace(
-                        ctx=ctx, goal=smt.Implies(goal.arg(0), goal.arg(1))
+                        ctx=ctx, goal=smt.Implies(goal.arg(1), goal.arg(0))
                     )
                 )
                 self.goals.append(
                     goalctx._replace(
-                        ctx=ctx, goal=smt.Implies(goal.arg(1), goal.arg(0))
+                        ctx=ctx, goal=smt.Implies(goal.arg(0), goal.arg(1))
                     )
                 )
             elif smt.is_distinct(goal):

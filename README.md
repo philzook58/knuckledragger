@@ -8,9 +8,10 @@ Knuckledragger ([git repo](https://github.com/philzook58/knuckledragger)) is an 
 
 ## Installation
 
+To install run
+
 ```bash
 python3 -m pip install git+https://github.com/philzook58/knuckledragger.git
-python3 -m kdrag.solvers install # install extra solvers
 ```
 
 Or to install locally
@@ -19,7 +20,6 @@ Or to install locally
 git clone https://github.com/philzook58/knuckledragger.git
 cd knuckledragger
 python3 -m pip install -e .
-./install.sh # install extra solvers
 ```
 
 ## Getting Started

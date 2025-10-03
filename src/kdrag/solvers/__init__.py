@@ -1,5 +1,17 @@
 """
 Facilities for pretty printing and calling external solvers
+
+To install extra solvers, run either:
+```
+python3 -m kdrag.solvers install # install extra solvers
+```
+
+or from project root run
+
+```
+./install.sh # install extra solvers
+```
+
 """
 
 import kdrag as kd

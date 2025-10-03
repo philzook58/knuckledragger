@@ -1,5 +1,8 @@
 import re
 
+
+type Sexp = str | int | float | list["Sexp"]
+
 tokens = [
     ("WS", r"\s+"),
     ("COMMENT", r";[^\n\r]*"),
@@ -14,7 +17,7 @@ regex = "|".join(f"(?P<{name}>{regex})" for name, regex in tokens)
 pattern = re.compile(regex)
 
 
-def parse(s: str) -> list:
+def parse(s: str) -> list[Sexp]:
     """
     Parse an s-expression
 
@@ -92,7 +95,7 @@ def parse(s: str) -> list:
     return out
 
 
-def pprint_sexp(sexp) -> str:
+def pprint_sexp(sexp: Sexp) -> str:
     """
     Pretty print a single s-expression
 
@@ -106,7 +109,7 @@ def pprint_sexp(sexp) -> str:
         return str(sexp)
 
 
-def pprint_sexps(sexps: list) -> str:
+def pprint_sexps(sexps: list[Sexp]) -> str:
     """
     Pretty print s-expressions
 
