@@ -466,19 +466,6 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     )
 
 
-def free_in(vs: list[smt.ExprRef], t: smt.ExprRef) -> bool:
-    """
-    Returns True if none of the variables in vs exist unbound in t.
-    Distinct from `occurs` in that vs have to be constants, not general terms.
-
-    >>> x,y,z = smt.Ints("x y z")
-    >>> assert not free_in([x], x + y + z)
-    >>> assert free_in([x], y + z)
-    >>> assert free_in([x], smt.Lambda([x], x + y + z))
-    """
-    return smt.Lambda(vs, t).body().eq(t)
-
-
 def rename_vars(
     t: smt.QuantifierRef, vs: list[smt.ExprRef]
 ) -> tuple[smt.QuantifierRef, Proof]:
@@ -493,9 +480,8 @@ def rename_vars(
     ValueError: ('Cannot rename vars to ones that already occur in term', [y], Exists(x, x + 1 > y))
     """
     assert isinstance(t, smt.QuantifierRef)
-    if not free_in(vs, t):
-        raise ValueError("Cannot rename vars to ones that already occur in term", vs, t)
-    body = smt.substitute_vars(t.body(), *reversed(vs))
+    t_body = t.body()
+    body = smt.substitute_vars(t_body, *reversed(vs))
     if t.is_forall():
         t2 = smt.ForAll(vs, body)
     elif t.is_exists():
@@ -504,6 +490,8 @@ def rename_vars(
         t2 = smt.Lambda(vs, body)
     else:
         raise Exception("Unknown quantifier type", t)
+    if not t2.body().eq(t_body):
+        raise ValueError("Cannot rename vars to ones that already occur in term", vs, t)
     return t2, kd.axiom(t == t2, by=["rename", t, vs])
 
 

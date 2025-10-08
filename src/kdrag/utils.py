@@ -266,7 +266,17 @@ def unify_db(
     return subst
 
 
-free_in = kd.kernel.free_in
+def free_in(vs: list[smt.ExprRef], t: smt.ExprRef) -> bool:
+    """
+    Returns True if none of the variables in vs exist unbound in t.
+    Distinct from `occurs` in that vs have to be constants, not general terms.
+
+    >>> x,y,z = smt.Ints("x y z")
+    >>> assert not free_in([x], x + y + z)
+    >>> assert free_in([x], y + z)
+    >>> assert free_in([x], smt.Lambda([x], x + y + z))
+    """
+    return smt.Lambda(vs, t).body().eq(t)
 
 
 def occurs(x: smt.ExprRef, t: smt.ExprRef) -> bool:
