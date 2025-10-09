@@ -75,7 +75,9 @@ def skolem(pf: kd.kernel.Proof) -> tuple[list[smt.ExprRef], kd.kernel.Proof]:
     >>> skolem(pf)
     ([x!...], |= x!... > 0)
     """
-    skolems, pfab = kd.kernel.obtain(pf.thm)
+    thm = pf.thm
+    assert isinstance(thm, smt.QuantifierRef)
+    skolems, pfab = kd.kernel.obtain(thm)
     return skolems, kd.kernel.modus(pfab, pf)
 
 
