@@ -1,0 +1,13 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index cb76a38..85d4538 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -4,7 +4,7 @@ version = "0.1.1"
+ authors = [{ name = "Philip Zucker", email = "philzook58@gmail.com" }]
+ description = "Interactive Theorem Prover"
+ readme = "README.md"
+-license = "MIT"
++license = { text = "MIT" }
+ classifiers = [
+     "Programming Language :: Python :: 3",
+     "Operating System :: OS Independent",
