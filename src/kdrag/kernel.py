@@ -6,10 +6,7 @@ import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
 from typing import Any, Iterable, Sequence
-import logging
 from . import config
-
-logger = logging.getLogger("knuckledragger")
 
 
 class Judgement:
@@ -105,23 +102,6 @@ class Proof(Judgement):
         return acc
 
 
-"""
-Proof_new = Proof.__new__
-
-def sin_check(cls, thm, reason, admit=False, i_am_a_sinner=False):
-    if admit and not config.admit_enabled:
-        raise ValueError(
-            thm, "was called with admit=True but config.admit_enabled=False"
-        )
-    if not i_am_a_sinner:
-        raise ValueError("Proof is private. Use `kd.prove` or `kd.axiom`")
-    return Proof_new(cls, thm, list(reason), admit)
-
-
-Proof.__new__ = sin_check
-"""
-
-
 def is_proof(p: Proof) -> bool:
     return isinstance(p, Proof)
 
@@ -159,7 +139,7 @@ def prove(
     if isinstance(by, Proof):
         by = [by]
     if admit:
-        logger.warning("Admitting lemma {}".format(thm))
+        print("Admitting lemma {}".format(thm))
         return Proof(thm, list(by), admit=True)
     else:
         if solver is None:
@@ -256,28 +236,11 @@ def define(
     """
     sorts = [arg.sort() for arg in args] + [body.sort()]
     f = smt.Function(name, *sorts)
-
-    # TODO: This is getting too hairy for the kernel? Reassess. Maybe just a lambda flag? Autolift?
-    if lift_lambda and isinstance(body, smt.QuantifierRef) and body.is_lambda():
-        # It is worth it to avoid having lambdas in definition.
-        vs = fresh_const(body)
-        # print(vs, f(*args)[tuple(vs)])
-        # print(smt.substitute_vars(body.body(), *vs))
-        def_ax = axiom(
-            smt.ForAll(
-                args + vs,
-                smt.Eq(
-                    f(*args)[tuple(vs)], smt.substitute_vars(body.body(), *reversed(vs))
-                ),
-            ),
-            by="definition",
-        )
-    elif len(args) == 0:
+    # TODO: Check body only contain fresh_vars in args
+    if len(args) == 0:
         def_ax = axiom(smt.Eq(f(), body), by="definition")
     else:
         def_ax = axiom(smt.ForAll(args, smt.Eq(f(*args), body)), by="definition")
-    # assert f not in __sig or __sig[f].eq(   def_ax.thm)  # Check for redefinitions. This is kind of painful. Hmm.
-    # Soft warning is more pleasant.
     defn = Defn(
         name=name,
         decl=f,
@@ -397,18 +360,7 @@ def instan2(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     )
 
 
-def forget(ts: Iterable[smt.ExprRef], pf: Proof) -> Proof:
-    """
-    "Forget" a term using existentials. This is existential introduction.
-    This could be derived from forget2
-    """
-    # Hmm. I seem to have rarely been using this
-    assert is_proof(pf)
-    vs = [smt.FreshConst(t.sort()) for t in ts]
-    return axiom(smt.Exists(vs, smt.substitute(pf.thm, *zip(ts, vs))), ["forget", pf])
-
-
-def forget2(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
+def forget(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     """
     "Forget" a term using existentials. This is existential introduction.
     `P(ts) -> exists xs, P(xs)`
@@ -428,27 +380,46 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     Skolemize an existential quantifier.
     `exists xs, P(xs) -> P(cs)` for fresh cs
     https://en.wikipedia.org/wiki/Existential_instantiation
+
+    >>> x = smt.Int("x")
+    >>> obtain(smt.Exists([x], x >= 0))
+    ([x!...], |=  Implies(Exists(x, x >= 0), x!... >= 0))
+    >>> y = FreshVar("y", smt.IntSort())
+    >>> obtain(smt.Exists([x], x >= y))
+    ([f!...(y!...)], |=  Implies(Exists(x, x >= y!...), f!...(y!...) >= y!...))
+
     """
     # TODO: Hmm. Maybe we don't need to have a Proof? Lessen this to thm.
     assert smt.is_quantifier(thm) and thm.is_exists()
 
-    skolems = fresh_const(thm)
+    free_vars = set()
+    todo = [thm.body()]
+    # collect free variables in body
+    while todo:
+        t = todo.pop()
+        if smt.is_const(t):
+            if t.get_id() in _overapproximate_fresh_ids:
+                free_vars.add(t)
+        elif smt.is_app(t):
+            todo.extend(t.children())
+        elif isinstance(t, smt.QuantifierRef):
+            todo.append(t.body())
+        elif smt.is_var(t):
+            continue
+        else:
+            raise Exception("Unexpected term in consts", t)
+    if len(free_vars) == 0:
+        skolems = fresh_const(thm)
+    else:
+        free_vars = list(free_vars)
+        sorts = [v.sort() for v in free_vars]
+        skolems = [
+            smt.FreshFunction(*sorts, thm.var_sort(i))(*free_vars)
+            for i in range(thm.num_vars())
+        ]
     return skolems, axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
         ["obtain"],
-    )
-
-
-def skolem(pf: Proof) -> tuple[list[smt.ExprRef], Proof]:
-    """
-    Skolemize an existential quantifier.
-    """
-    # TODO: Hmm. Maybe we don't need to have a Proof? Lessen this to thm.
-    assert is_proof(pf) and isinstance(pf.thm, smt.QuantifierRef) and pf.thm.is_exists()
-
-    skolems = fresh_const(pf.thm)
-    return skolems, axiom(
-        smt.substitute_vars(pf.thm.body(), *reversed(skolems)), ["skolem", pf]
     )
 
 
@@ -457,6 +428,10 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     Herbrandize a theorem.
     It is sufficient to prove a theorem for fresh consts to prove a universal.
     Note: Perhaps lambdaized form is better? Return vars and lamda that could receive `|= P[vars]`
+
+    >>> x = smt.Int("x")
+    >>> herb(smt.ForAll([x], x >= x))
+    ([x!...], |=  Implies(x!... >= x!..., ForAll(x, x >= x)))
     """
     assert smt.is_quantifier(thm) and thm.is_forall()
     herbs = fresh_const(thm)  # We could mark these as schema variables? Useful?
@@ -619,6 +594,13 @@ def Inductive(name: str) -> smt.Datatype:
 
 # Experimental Schema Vars
 
+_overapproximate_fresh_ids = set()
+"""
+This set tracks an overapproximation of the ids of schema variables.
+It is an overapproximation because I think it is possible that z3 reuses ids of deleted terms.
+This overapproximation is nevertheless useful for finding an overapproximation of free schema variables in a term. for skolemization
+"""
+
 
 @dataclass(frozen=True)
 class _FreshVarEvidence(Judgement):
@@ -662,6 +644,7 @@ def FreshVar(prefix: str, sort: smt.SortRef) -> smt.ExprRef:
     _FreshVarEvidence(v=x!...)
     """
     v = smt.FreshConst(sort, prefix=prefix)
+    _overapproximate_fresh_ids.add(v.get_id())
     v.fresh_evidence = _FreshVarEvidence(
         v
     )  # Is cyclic reference a garbage collection problem?

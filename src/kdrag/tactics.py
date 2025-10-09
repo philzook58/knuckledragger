@@ -66,6 +66,19 @@ def forallI(
     return kd.kernel.modus(ab, a)
 
 
+def skolem(pf: kd.kernel.Proof) -> tuple[list[smt.ExprRef], kd.kernel.Proof]:
+    """
+    Skolemize an existential quantifier.
+
+    >>> x = smt.Int("x")
+    >>> pf = kd.prove(smt.Exists([x], x > 0))
+    >>> skolem(pf)
+    ([x!...], |= x!... > 0)
+    """
+    skolems, pfab = kd.kernel.obtain(pf.thm)
+    return skolems, kd.kernel.modus(pfab, pf)
+
+
 class Calc:
     """
     Calc is for equational reasoning.
@@ -910,7 +923,7 @@ class ProofState:
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         assert isinstance(goal, smt.QuantifierRef) and goal.is_exists()
-        lemma = kd.kernel.forget2(ts, goal)
+        lemma = kd.kernel.forget(ts, goal)
         self.add_lemma(lemma)
         self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
         return self.top_goal()
@@ -1377,6 +1390,7 @@ class ProofState:
 
         >>> l = Lemma(smt.BoolVal(False)) # a false goal
         >>> _ = l.admit()
+        Admitting lemma False
         >>> l.qed()
         |= False
         """

@@ -50,7 +50,7 @@ def test_skolem():
 
     thm = smt.Exists([x, y, z], smt.And(x == x, y == y, z == z))
     pf = kd.kernel.prove(thm)
-    vs, pf1 = kd.kernel.skolem(pf)
+    vs, pf1 = kd.tactics.skolem(pf)
     print(vs, pf1)
     assert smt.Exists(vs, pf1.thm).body().eq(thm.body())
 
@@ -312,12 +312,6 @@ def test_beta():
     )
 
 
-def test_lambda_def():
-    # test that the lambda has been removed by the definition mechanism
-    x, y = smt.Ints("x y")
-    z, w = smt.Bools("z w")
-    test = kd.define("test", [x], smt.Lambda([x], x), lift_lambda=True)
-    assert test.defn.thm.body().eq(smt.ForAll([x, y], test(x)[y] == y).body())
 
 
 """
@@ -346,7 +340,7 @@ def test_bv():
 
 def test_forget():
     x, y = smt.Ints("x y")
-    assert kd.kernel.forget2(
+    assert kd.kernel.forget(
         [smt.IntVal(2), smt.IntVal(3)], smt.Exists([x, y], smt.And(x == 2, y == 3))
     ).thm.eq(
         smt.Implies(
