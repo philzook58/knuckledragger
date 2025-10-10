@@ -32,6 +32,15 @@ elem_upair = kd.axiom(
     kd.QForAll([x, y, z], elem(z, upair(x, y)) == smt.Or(z == x, z == y))
 )
 
+l = kd.Lemma(smt.ForAll([a, b], smt.Not(upair(a, b) == emp)))
+_a, _b = l.fixes()
+l.rw(ext_ax)
+l.intros()
+l.have(elem(_a, upair(_a, _b)), by=[elem_upair(_a, _b, _a)])
+l.have(smt.Not(elem(_a, emp)), by=[elem_emp(_a)])
+l.auto()
+upair_not_emp = l.qed()
+
 l = kd.Lemma(smt.ForAll([a, b], upair(a, b) == upair(b, a)))
 l.fixes()
 l.rw(ext_ax)
@@ -94,9 +103,14 @@ not_emp_exists_elem = l.qed()
 pf1 = kd.prove(
     smt.Exists([x], smt.Implies(a != emp, elem(x, a))), by=[emp_exists_elem(a)]
 )
-(skolem,), pf = kd.tactics.skolem(pf1)
+(skolem,), elem_pick0 = kd.tactics.skolem(pf1)
+# Note that pick(emp) is undefined. You will not be able to prove anything about it.
 pick = kd.define("pick", [a], skolem)
-elem_pick = kd.prove(smt.Implies(a != emp, elem(pick(a), a)), unfold=1, by=[pf])
+
+
+elem_pick = kd.prove(
+    smt.Implies(a != emp, elem(pick(a), a)), unfold=1, by=[elem_pick0]
+).forall([a])
 
 # Binary Union
 
@@ -167,6 +181,42 @@ l.rw(elem_union)
 l.auto()
 le_union = l.qed()
 
+
+# Biginter
+biginter = kd.define(
+    "biginter",
+    [a],
+    sep(pick(a), smt.Lambda([x], kd.QForAll([b], elem(b, a), elem(x, b)))),
+)
+# huh. biginter(emp) is undefined since we can't pick from it.
+l = kd.Lemma(
+    smt.ForAll(
+        [A, x],
+        smt.Implies(
+            A != emp, elem(x, biginter(A)) == kd.QForAll([b], elem(b, A), elem(x, b))
+        ),
+    )
+)
+_A, _x = l.fixes()
+l.intros()
+l.unfold(biginter)
+l.rw(sep_ax)
+l.simp()
+l.split()
+l.intros()
+l.split()
+l.auto()
+l.have(elem(pick(_A), _A), by=[elem_pick])
+l.auto()
+
+l.intros()
+_b = l.fix()
+l.intros()
+l.have(elem(pick(_A), _A), by=[elem_pick])
+l.auto()
+elem_biginter = l.qed()
+
+
 # Intersection
 
 inter = kd.define("inter", [A, B], sep(A, smt.Lambda([x], elem(x, B))))
@@ -179,6 +229,14 @@ l.rw(sep_ax)
 l.auto()
 elem_inter = l.qed()
 
+l = kd.Lemma(smt.ForAll([A, B], biginter(upair(A, B)) == inter(A, B)))
+_A, _B = l.fixes()
+l.rw(ext_ax)
+l.have(upair(_A, _B) != emp, by=[upair_not_emp(_A, _B)])
+_x = l.fix()
+l.rw(elem_inter)
+l.auto(by=[elem_biginter, elem_upair])
+biginter_upair_inter = l.qed()
 
 l = kd.Lemma(smt.ForAll([A, B], A & B == B & A))
 l.fixes()
