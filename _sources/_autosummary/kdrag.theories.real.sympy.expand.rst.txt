@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.expand
+================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: expand

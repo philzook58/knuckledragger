@@ -1,0 +1,35 @@
+kdrag.theories.logic.zf
+=======================
+
+.. automodule:: kdrag.theories.logic.zf
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      slemma
+      test
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/zf.py
+   :language: python

@@ -1,0 +1,81 @@
+kdrag.utils
+===========
+
+.. automodule:: kdrag.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      all_values
+      alpha_eq
+      alpha_norm
+      antipattern
+      ast_size_sexpr
+      consts
+      decls
+      defined_decls
+      domain
+      find_calls
+      free_in
+      free_vars
+      generate
+      is_func
+      is_strict_subterm
+      is_subterm
+      is_value
+      lemma_db
+      occurs
+      open_binder
+      open_binder_unhygienic
+      pathmap
+      pmatch
+      pmatch_fo
+      pmatch_rec
+      prompt
+      prune
+      quant_kind_eq
+      range_
+      sanity_check_consistency
+      search
+      search_decl
+      search_expr
+      sorts
+      subterms
+      unify
+      unify_db
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      DeclHole
+      ExistsHole
+      ForAllHole
+      LambdaHole
+      QuantifierHole
+      Zipper
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/utils.py
+   :language: python

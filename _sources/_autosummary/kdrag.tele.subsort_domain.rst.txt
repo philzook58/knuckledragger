@@ -1,0 +1,6 @@
+kdrag.tele.subsort\_domain
+==========================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: subsort_domain

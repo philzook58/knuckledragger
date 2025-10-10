@@ -1,0 +1,6 @@
+kdrag.utils.pmatch\_rec
+=======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: pmatch_rec
