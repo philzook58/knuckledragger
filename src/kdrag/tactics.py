@@ -1460,3 +1460,36 @@ class ProofState:
         if self._parent is not None:
             self._parent.exact(pf)
         return pf
+
+
+def Theorem(
+    goal: smt.BoolRef,
+) -> Callable[[Callable[[ProofState], None]], kd.kernel.Proof]:
+    """
+    A decorator to create a theorem from a function that takes a `ProofState` as argument.
+
+    >>> x = smt.Int("x")
+    >>> @Theorem(x + 1 > x)
+    ... def mytheorem(l: ProofState):
+    ...     "An example theorem"
+    ...     l.auto()
+    >>> mytheorem
+    |= x + 1 > x
+    >>> mytheorem.__doc__
+    'An example theorem'
+    """
+
+    def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
+        l = kd.Lemma(goal)
+        f(l)
+        pf = l.qed()
+        # To override metadata of the returned proof
+        # Proof is frozen, so this is a bit fishy
+        # @functools.update_wrapper had assumptions about return type being a function
+        object.__setattr__(pf, "__doc__", getattr(f, "__doc__", None))
+        object.__setattr__(pf, "__module__", getattr(f, "__module__", None))
+        object.__setattr__(pf, "__name__", getattr(f, "__name__", None))
+        object.__setattr__(pf, "__qualname__", getattr(f, "__qualname__", None))
+        return pf
+
+    return res

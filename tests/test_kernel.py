@@ -377,3 +377,5 @@ def test_smart_prove():
     #    kd.prove(smt.ForAll([x], f(x) == g(x)), unfold=[g])
     with pytest.raises(kd.kernel.LemmaError):
         kd.prove(smt.ForAll([x], d(x) == x+1), unfold=1)
+
+

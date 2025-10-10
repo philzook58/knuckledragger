@@ -59,25 +59,30 @@ bigunion_ax = kd.axiom(
     )
 )
 
-l = kd.Lemma(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
-_A = l.fix()
-l.split()
-with l.sub() as l1:
-    l1.intros()
-    l1.intros()
-    _x = l1.obtain(-1)
-    l1.show(smt.BoolVal(False), by=[ext_ax, elem_emp])
-with l.sub() as l2:
-    l2.intros()
-    l2.rw(ext_ax)
-    _x = l2.fix()
-    l2.apply(0)
-    l2.exists(_x)
-    l2.have(elem(_x, emp) == smt.BoolVal(False), by=[elem_emp(_x)])
-    l2.have(elem(_x, _A), by=[])
 
-    l2.auto()
-emp_exists_elem = l.qed()
+# l = kd.Lemma(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
+@kd.tactics.Theorem(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
+def emp_exists_elem(l):
+    _A = l.fix()
+    l.split()
+    with l.sub() as l1:
+        l1.intros()
+        l1.intros()
+        _x = l1.obtain(-1)
+        l1.show(smt.BoolVal(False), by=[ext_ax, elem_emp])
+    with l.sub() as l2:
+        l2.intros()
+        l2.rw(ext_ax)
+        _x = l2.fix()
+        l2.apply(0)
+        l2.exists(_x)
+        l2.have(elem(_x, emp) == smt.BoolVal(False), by=[elem_emp(_x)])
+        l2.have(elem(_x, _A), by=[])
+
+        l2.auto()
+
+
+# emp_exists_elem = l.qed()
 
 
 l = kd.Lemma(smt.ForAll([A], smt.Implies((A != emp), smt.Exists([x], elem(x, A)))))
