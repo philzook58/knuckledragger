@@ -240,7 +240,10 @@ def define(
     if len(args) == 0:
         def_ax = axiom(smt.Eq(f(), body), by="definition")
     else:
-        def_ax = axiom(smt.ForAll(args, smt.Eq(f(*args), body)), by="definition")
+        def_ax = axiom(
+            smt.ForAll(args, smt.Eq(f(*args), body), patterns=[f(*args)]),
+            by="definition",
+        )
     defn = Defn(
         name=name,
         decl=f,
@@ -318,20 +321,12 @@ def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
     return t1, kd.axiom(t == t1, ["subst", t, eqs])
 
 
-def consider(x: smt.ExprRef) -> Proof:
-    """
-    The purpose of this is to seed the solver with interesting terms.
-    Axiom schema. We may give a fresh name to any constant. An "anonymous" form of define.
-    Pointing out the interesting terms is sometimes the essence of a proof.
-    """
-    return axiom(smt.Eq(smt.FreshConst(x.sort(), prefix="consider"), x))
-
-
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.
     This is forall elimination
     """
+    # Note: modus + instan2 easily derive this rule, but it is to have it directly.
     assert (
         is_proof(pf)
         and isinstance(pf.thm, smt.QuantifierRef)
@@ -439,35 +434,6 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
         ["herbrand"],
     )
-
-
-def rename_vars(
-    t: smt.QuantifierRef, vs: list[smt.ExprRef]
-) -> tuple[smt.QuantifierRef, Proof]:
-    """
-
-    >>> x,y = smt.Ints("x y")
-    >>> rename_vars(smt.ForAll([x, y], x + 1 > y), [y,x])
-    (ForAll([y, x], y + 1 > x), |= (ForAll([x, y], x + 1 > y)) == (ForAll([y, x], y + 1 > x)))
-    >>> rename_vars(smt.Exists([x], x + 1 > y), [y])
-    Traceback (most recent call last):
-        ...
-    ValueError: ('Cannot rename vars to ones that already occur in term', [y], Exists(x, x + 1 > y))
-    """
-    assert isinstance(t, smt.QuantifierRef)
-    t_body = t.body()
-    body = smt.substitute_vars(t_body, *reversed(vs))
-    if t.is_forall():
-        t2 = smt.ForAll(vs, body)
-    elif t.is_exists():
-        t2 = smt.ForAll(vs, body)
-    elif t.is_lambda():
-        t2 = smt.Lambda(vs, body)
-    else:
-        raise Exception("Unknown quantifier type", t)
-    if not t2.body().eq(t_body):
-        raise ValueError("Cannot rename vars to ones that already occur in term", vs, t)
-    return t2, kd.axiom(t == t2, by=["rename", t, vs])
 
 
 def modus(ab: Proof, a: Proof) -> Proof:
@@ -592,8 +558,6 @@ def Inductive(name: str) -> smt.Datatype:
     return dt
 
 
-# Experimental Schema Vars
-
 _overapproximate_fresh_ids = set()
 """
 This set tracks an overapproximation of the ids of schema variables.
@@ -664,19 +628,3 @@ def generalize(vs: list[smt.ExprRef], pf: Proof) -> Proof:
     assert all(is_fresh_var(v) for v in vs)
     assert isinstance(pf, Proof)
     return axiom(smt.ForAll(vs, pf.thm), by=["generalize", vs, pf])
-
-
-def substitute_fresh_vars(pf: Proof, *subst) -> Proof:
-    """
-    Substitute schematic variables in a theorem.
-    This is is single step instead of generalizing to a Forall and then eliminating it.
-
-    >>> x = FreshVar("x", smt.IntSort())
-    >>> y = FreshVar("y", smt.IntSort())
-    >>> substitute_fresh_vars(prove(x == x), (x, smt.IntVal(42)), (y, smt.IntVal(43)))
-    |= 42 == 42
-    """
-    assert all(is_fresh_var(v) for v, t in subst) and isinstance(pf, Proof)
-    return axiom(
-        smt.substitute(pf.thm, *subst), by=["substitute_fresh_vars", pf, subst]
-    )

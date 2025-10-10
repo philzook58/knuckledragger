@@ -534,7 +534,7 @@ class ProofState:
         False
         """
         goalctx = self.top_goal()
-        goal = goalctx.goal
+        ctx, goal = goalctx.ctx, goalctx.goal
         if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             self.pop_goal()
             vs, herb_lemma = kd.kernel.herb(goal)
@@ -542,7 +542,7 @@ class ProofState:
             newgoal = herb_lemma.thm.arg(0)
 
             def cb():
-                l = self.get_lemma(smt.Implies(smt.And(goalctx.ctx), newgoal))
+                l = self.get_lemma(smt.Implies(smt.And(ctx), newgoal))
                 self.add_lemma(kd.kernel.compose(l, herb_lemma))
 
             self.goals.append(LemmaCallback(cb, annot=("fixes", goal)))
@@ -1144,10 +1144,10 @@ class ProofState:
             if smt.is_not(thm):
                 # Not(p) is spiritually a `p -> False`
                 self.pop_goal()
-                ctx.pop(pf)
-                self.goals.append(
-                    goalctx._replace(ctx=ctx + [smt.Not(goalctx.goal)], goal=thm.arg(0))
-                )
+                newctx = ctx.copy()
+                newctx.pop(pf)
+                newctx.append(smt.Not(goal))
+                self.goals.append(goalctx._replace(ctx=newctx, goal=thm.arg(0)))
                 return self.top_goal()
         elif isinstance(pf, kd.Proof):
             thm = pf.thm
@@ -1219,8 +1219,10 @@ class ProofState:
         """
         Remove a hypothesis from the context
         """
-        ctxgoal = self.top_goal()
-        ctxgoal.ctx.pop(n)
+        ctxgoal = self.pop_goal()
+        ctx = ctxgoal.ctx.copy()
+        ctx.pop(n)
+        self.goals.append(ctxgoal._replace(ctx=ctx))
         return self.top_goal()
 
     def generalize(self, *vs: smt.ExprRef):
@@ -1244,9 +1246,12 @@ class ProofState:
         [] ?|= Implies(p, q)
         """
         goalctx = self.top_goal()
-        hyp = goalctx.ctx.pop(n)
+        ctx = goalctx.ctx.copy()
+        hyp = ctx.pop(n)
         self.pop_goal()
-        self.goals.append(goalctx._replace(goal=smt.Implies(hyp, goalctx.goal)))
+        self.goals.append(
+            goalctx._replace(ctx=ctx, goal=smt.Implies(hyp, goalctx.goal))
+        )
         return self.top_goal()
 
     def sublemma(self) -> "ProofState":
@@ -1375,6 +1380,7 @@ class ProofState:
         >>> l.have(x > 42)
         [x > 0, x > -1] ?|= x > 42
         """
+        assert isinstance(conc, smt.BoolRef)
         goalctx = self.pop_goal()
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
         newgoal = goalctx._replace(goal=conc)

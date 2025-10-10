@@ -167,6 +167,95 @@ def beta_conv(lam: smt.QuantifierRef, *args) -> kd.Proof:
     return kd.axiom(smt.Eq(lam[args], smt.substitute_vars(lam.body(), *reversed(args))))
 
 
+def substitute_fresh_vars(pf: kd.Proof, *subst) -> kd.Proof:
+    """
+    Substitute schematic variables in a theorem.
+    This is is single step instead of generalizing to a Forall and then eliminating it.
+
+    >>> x = kd.FreshVar("x", smt.IntSort())
+    >>> y = kd.FreshVar("y", smt.IntSort())
+    >>> substitute_fresh_vars(kd.kernel.prove(x == x), (x, smt.IntVal(42)), (y, smt.IntVal(43)))
+    |= 42 == 42
+    """
+    assert all(kd.kernel.is_fresh_var(v) for v, t in subst) and isinstance(pf, kd.Proof)
+    return kd.kernel.axiom(
+        smt.substitute(pf.thm, *subst), by=["substitute_fresh_vars", pf, subst]
+    )
+
+
+def consider(x: smt.ExprRef) -> kd.Proof:
+    """
+    The purpose of this is to seed the solver with interesting terms.
+    Axiom schema. We may give a fresh name to any constant. An "anonymous" form of define.
+    Pointing out the interesting terms is sometimes the essence of a proof.
+    """
+    # should be the same as skolem(smt.Exists([t], t == x))
+    return kd.axiom(smt.Eq(smt.FreshConst(x.sort(), prefix="consider"), x))
+
+
+def rename_vars(
+    t: smt.QuantifierRef,
+    vs: list[smt.ExprRef],
+) -> tuple[smt.QuantifierRef, kd.Proof]:
+    """
+
+    >>> x,y = smt.Ints("x y")
+    >>> rename_vars(smt.ForAll([x, y], x + 1 > y), [y,x])
+    (ForAll([y, x], y + 1 > x), |= (ForAll([x, y], x + 1 > y)) == (ForAll([y, x], y + 1 > x)))
+    >>> rename_vars(smt.Exists([x], x + 1 > y), [y])
+    Traceback (most recent call last):
+        ...
+    ValueError: ('Cannot rename vars to ones that already occur in term', [y], Exists(x, x + 1 > y))
+    """
+    assert isinstance(t, smt.QuantifierRef)
+    t_body = t.body()
+    body = smt.substitute_vars(t_body, *reversed(vs))
+    if t.is_forall():
+        t2 = smt.ForAll(vs, body)
+    elif t.is_exists():
+        t2 = smt.Exists(vs, body)
+    elif t.is_lambda():
+        t2 = smt.Lambda(vs, body)
+    else:
+        raise Exception("Unknown quantifier type", t)
+    if not t2.body().eq(t_body):
+        raise ValueError("Cannot rename vars to ones that already occur in term", vs, t)
+    return t2, kd.axiom(t == t2, by=["rename", t, vs])
+
+
+def rename_vars2(
+    pf: kd.Proof, vs: list[smt.ExprRef], patterns=[], no_patterns=[]
+) -> kd.Proof:
+    """
+    Rename bound variables and also attach triggers
+
+    >>> x,y = smt.Ints("x y")
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    >>> rename_vars2(kd.prove(smt.ForAll([x, y], x + 1 > x)), [y,x], patterns=[x+y])
+    |= ForAll([y, x], y + 1 > y)
+    >>> rename_vars2(kd.prove(smt.Exists([x], x + 1 > y)), [y])
+    Traceback (most recent call last):
+        ...
+    ValueError: ('Cannot rename vars to ones that already occur in term', [y], Exists(x, x + 1 > y))
+    """
+    assert isinstance(pf, kd.Proof)
+    thm = pf.thm
+    assert isinstance(thm, smt.QuantifierRef)
+    t_body = thm.body()
+    body = smt.substitute_vars(t_body, *reversed(vs))
+    if thm.is_forall():
+        t2 = smt.ForAll(vs, body, patterns=patterns, no_patterns=no_patterns)
+    elif thm.is_exists():
+        t2 = smt.Exists(vs, body, patterns=patterns, no_patterns=no_patterns)
+    else:
+        raise Exception("Unknown quantifier type", thm)
+    if not t2.body().eq(t_body):
+        raise ValueError(
+            "Cannot rename vars to ones that already occur in term", vs, thm
+        )
+    return kd.axiom(t2, by=["rename", pf, vs])
+
+
 """
 TODO: For better Lemma
 def modus_n(n: int, ab: Proof, bc: Proof):
