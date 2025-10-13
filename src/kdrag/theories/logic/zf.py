@@ -1,15 +1,30 @@
+"""
+ZF style set theory
+
+- https://en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory
+- Naive Set Theory by Paul Halmos
+- https://www.isa-afp.org/entries/ZFC_in_HOL.html
+
+There are multiple specific ways to go about roughly the same thing.
+
+Some versions, such as in Suppes' text have a predicate `is_set` to distinguish
+sets from classes. This is not done here.
+
+"""
+
 import kdrag as kd
 import kdrag.smt as smt
+import functools
 
 ZFSet = smt.DeclareSort("ZFSet")
 Set = ZFSet
 A, B, x, y, z = smt.Consts("A B x y z", ZFSet)
 
-a, b, c = kd.FreshVars("a b c", ZFSet)
+a, b, c, d, p = kd.FreshVars("a b c d p", ZFSet)
 elem = smt.Function("elem", ZFSet, ZFSet, smt.BoolSort())
 Class = ZFSet >> smt.BoolSort()
 P, Q = smt.Consts("P Q", Class)
-klass = kd.define("klass", [A], smt.Lambda([x], elem(x, A)))
+elts = kd.define("elts", [A], smt.Lambda([x], elem(x, A)))
 
 zf_db = []
 
@@ -50,15 +65,58 @@ l.rw(elem_upair)
 l.auto()
 upair_comm = l.qed()
 
+elem_upair_1 = kd.prove(
+    smt.ForAll([a, b], elem(a, upair(a, b)) == smt.BoolVal(True)), by=[elem_upair]
+)
+elem_upair_2 = kd.prove(
+    smt.ForAll([a, b], elem(b, upair(a, b)) == smt.BoolVal(True)), by=[elem_upair]
+)
+
+
+@kd.tactics.Theorem(
+    smt.ForAll(
+        [a, b, c, d],
+        (upair(a, b) == upair(c, d))
+        == smt.Or(smt.And(a == c, b == d), smt.And(a == d, b == c)),
+    )
+)
+def upair_inj(l):
+    a, b, c, d = l.fixes()
+    l.split()
+    l.intros()
+    l.rw(ext_ax, at=0)
+    l.have(elem(a, upair(a, b)), by=elem_upair_1)
+    l.have(elem(b, upair(a, b)), by=elem_upair_2)
+    l.have(elem(c, upair(c, d)), by=elem_upair_1)
+    l.have(elem(d, upair(c, d)), by=elem_upair_2)
+    l.auto(by=[elem_upair])
+    l.intros()
+    l.auto(by=[upair_comm])
+
+
 sing = kd.define("sing", [x], upair(x, x))
 
 
+def FinSet(*xs):
+    """
+    A helper for sets of the form {x1, x2, ..., xn}
+    """
+    return functools.reduce(lambda a, b: sing(b) | a, xs, emp)
+
+
+@kd.tactics.Theorem(smt.ForAll([a, b], elem(a, sing(b)) == (a == b)))
+def elem_sing(l):
+    a, b = l.fixes()
+    l.unfold(sing)
+    l.auto(by=[elem_upair])
+
+
 sep = smt.Function("sep", ZFSet, Class, ZFSet)
-sep_ax = kd.axiom(
+elem_sep = kd.axiom(
     kd.QForAll([P, A, x], elem(x, sep(A, P)) == smt.And(P[x], elem(x, A)))
 )
 
-zf_db.extend([elem_emp, elem_upair, ext_ax, sep_ax])
+zf_db.extend([elem_emp, elem_upair, ext_ax, elem_sep])
 le = kd.notation.le.define([A, B], kd.QForAll([x], elem(x, A), elem(x, B)))
 
 bigunion = smt.Function("bigunion", ZFSet, ZFSet)
@@ -112,6 +170,52 @@ elem_pick = kd.prove(
     smt.Implies(a != emp, elem(pick(a), a)), unfold=1, by=[elem_pick0]
 ).forall([a])
 
+pick_upair = kd.prove(
+    smt.ForAll([a, b], smt.Or(pick(upair(a, b)) == a, pick(upair(a, b)) == b)),
+    by=[elem_pick, elem_upair, elem_emp],
+)
+
+
+@kd.tactics.Theorem(smt.ForAll([a], pick(sing(a)) == a))
+def pick_sing(l):
+    _a = l.fix()
+    l.unfold(sing)
+    l.auto(by=[pick_upair])
+    # l.rw(ext_ax)
+    # _x = l.fix()
+    # l.auto(by=[elem_sing, elem_pick, elem_emp])
+
+
+@kd.Theorem(
+    kd.QForAll(
+        [a, b, P],
+        sep(upair(a, b), P)
+        == smt.If(P(a), smt.If(P(b), upair(a, b), sing(a)), smt.If(P(b), sing(b), emp)),
+    )
+)
+def sep_upair(l):
+    a, b, P = l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_sep)
+    l.cases(P(a))
+    l.rw(-1)
+    l.cases(P(b))
+    l.rw(-1)
+    l.simp()
+    l.auto(by=[elem_upair])
+    l.rw(-1)
+    l.simp()
+    l.auto(by=[elem_upair, elem_sing])
+    l.rw(-1)
+    l.cases(P(b))
+    l.rw(-1)
+    l.auto(by=[elem_upair, elem_sing])
+    l.rw(-1)
+    l.simp()
+    l.auto(by=[elem_emp, elem_upair])
+
+
 # Binary Union
 
 union = kd.define("union", [A, B], bigunion(upair(A, B)))
@@ -147,12 +251,24 @@ with l.sub() as c2:
     c2.auto()
 elem_bigunion_upair = l.qed()
 
+
 l = kd.Lemma(smt.ForAll([x, A, B], elem(x, A | B) == (elem(x, A) | elem(x, B))))
 _x, _A, _B = l.fixes()
 l.unfold(union)
 l.rw(elem_bigunion_upair)
 l.auto()
 elem_union = l.qed()
+
+
+@kd.tactics.Theorem(smt.ForAll([a, b], bigunion(upair(a, b)) == a | b))
+def bigunion_upair(l):
+    a, b = l.fixes()
+    l.rw(ext_ax)
+    _ = l.fix()
+    l.rw(elem_bigunion_upair)
+    l.rw(elem_union)
+    l.auto()
+
 
 l = kd.Lemma(smt.ForAll([a, b, c], (a | b) | c == a | (b | c)))
 _a, _b, _c = l.fixes()
@@ -182,6 +298,17 @@ l.auto()
 le_union = l.qed()
 
 
+@kd.tactics.Theorem(smt.ForAll([a, b], sing(a) | upair(a, b) == upair(a, b)))
+def sing_union_upair(l):
+    a, b = l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_union)
+    l.rw(elem_upair)
+    l.rw(elem_sing)
+    l.auto()
+
+
 # Biginter
 biginter = kd.define(
     "biginter",
@@ -200,7 +327,7 @@ l = kd.Lemma(
 _A, _x = l.fixes()
 l.intros()
 l.unfold(biginter)
-l.rw(sep_ax)
+l.rw(elem_sep)
 l.simp()
 l.split()
 l.intros()
@@ -225,7 +352,7 @@ kd.notation.and_.register(Set, inter)
 l = kd.Lemma(smt.ForAll([x, A, B], elem(x, A & B) == (elem(x, A) & elem(x, B))))
 l.fixes()
 l.unfold(inter)
-l.rw(sep_ax)
+l.rw(elem_sep)
 l.auto()
 elem_inter = l.qed()
 
@@ -303,15 +430,183 @@ l.fixes()
 l.auto(by=[inter_comm, inter_union_distr])
 union_inter_distr = l.qed()
 
+
+@kd.tactics.Theorem(
+    smt.ForAll(
+        [a, b, c],
+        inter(a, upair(b, c))
+        == smt.If(
+            elem(b, a),
+            smt.If(elem(c, a), upair(b, c), sing(b)),
+            smt.If(elem(c, a), sing(c), emp),
+        ),
+    )
+)
+def inter_upair_2(l):
+    a, b, c = l.fixes()
+    l.unfold(inter)
+    l.rw(ext_ax)
+    _x = l.fix()
+    l.rw(elem_sep)
+    l.simp()
+    l.rw(elem_upair)
+    l.cases(elem(b, a))
+    l.rw(-1)
+    l.cases(elem(c, a))
+
+    l.rw(-1)
+    l.simp()
+    l.rw(elem_upair)
+    l.auto()
+
+    l.rw(-1)
+    l.simp()
+    l.rw(elem_sing)
+    l.auto()
+
+    l.rw(-1)
+    l.cases(elem(c, a))
+    l.rw(-1)
+    l.simp()
+    l.rw(elem_sing)
+    l.auto()
+
+    l.rw(-1)
+    l.simp()
+    l.auto(by=[elem_emp])
+
+
+inter_upair_1 = kd.prove(
+    smt.ForAll(
+        [a, b, c],
+        inter(upair(b, c), a)
+        == smt.If(
+            elem(b, a),
+            smt.If(elem(c, a), upair(b, c), sing(b)),
+            smt.If(elem(c, a), sing(c), emp),
+        ),
+    ),
+    by=[inter_upair_2, inter_comm],
+)
+
 # Difference
 
 sub = kd.notation.sub.define([A, B], sep(A, smt.Lambda([x], smt.Not(elem(x, B)))))
+
+
+@kd.Theorem(kd.QForAll([a, b], upair(a, b) - sing(a) == smt.If(a == b, emp, sing(b))))
+def upair_sub_sing(l):
+    a, b = l.fixes()
+    l.unfold(sub)
+    l.rw(sep_upair)
+    l.simp()
+    l.rw(elem_sing)
+    l.rw(elem_sing)
+    l.simp()
+    l.auto()
 
 
 # Power
 
 pow = smt.Function("pow", ZFSet, ZFSet)
 elem_pow = kd.axiom(smt.ForAll([A, x], elem(x, pow(A)) == (x <= A)))
+
+# Ordered Pair
+
+
+pair = kd.define("pair", [a, b], upair(sing(a), upair(a, b)))
+is_pair = kd.define("is_pair", [c], smt.Exists([a, b], pair(a, b) == c))
+fst = kd.define("fst", [p], pick(biginter(p)))
+snd = kd.define(
+    "snd",
+    [p],
+    smt.If(sing(sing(fst(p))) == p, fst(p), pick(bigunion(p) - sing(fst(p)))),
+)
+
+
+@kd.Theorem(smt.ForAll([a, b], is_pair(pair(a, b)) == smt.BoolVal(True)))
+def is_pair_pair(l):
+    a, b = l.fixes()
+    l.unfold(is_pair)
+    l.auto()
+
+
+@kd.tactics.Theorem(
+    smt.ForAll([a, b, c, d], (pair(a, b) == pair(c, d)) == smt.And(a == c, b == d))
+)
+def pair_inj(l):
+    a, b, c, d = l.fixes()
+    l.unfold(pair)
+    l.unfold(sing)
+    l.split()
+    l.intros()
+    l.rw(upair_inj, at=0)
+    l.auto(by=[upair_inj])
+    l.intros()
+    l.auto(by=[upair_comm])
+
+
+@kd.tactics.Theorem(smt.ForAll([a, b], fst(pair(a, b)) == a))
+def fst_pair(l):
+    a, b = l.fixes()
+    l.unfold(fst)
+    l.unfold(pair)
+    l.rw(biginter_upair_inter)
+    l.rw(inter_upair_2)
+    l.rw(elem_sing)
+    l.rw(elem_sing)
+    l.simp()
+    l.cases(b == a)
+
+    # case a == b
+    l.rw(-1)
+    l.simp()
+    l.auto(by=[pick_upair])
+
+    # case a != b
+    l.rw(-1)
+    l.simp()
+    l.auto(by=[pick_sing])
+
+
+@kd.tactics.Theorem(smt.ForAll([a, b], snd(pair(a, b)) == b))
+def snd_pair(l):
+    a, b = l.fixes()
+    l.unfold(snd)
+    l.rw(fst_pair)
+    l.cases(sing(sing(a)) == pair(a, b))
+
+    l.rw(-1)
+    l.simp()
+    l.unfold(sing, at=0)
+    l.unfold(pair, at=0)
+    l.unfold(sing, at=0)
+    l.auto(by=[upair_inj])
+
+    l.rw(-1)
+    l.simp()
+    l.unfold(pair)
+    l.rw(bigunion_upair)
+    l.rw(sing_union_upair)
+    l.rw(upair_sub_sing)
+    l.have((a == b) == smt.BoolVal(False))
+    l.unfold(pair, at=0)
+    l.unfold(sing, at=0)
+    l.auto(by=[upair_inj])
+    l.rw(-1)
+    l.simp()
+    l.rw(pick_sing)
+    l.auto()
+
+
+@kd.tactics.Theorem(
+    smt.ForAll([a, b, x], elem(x, pair(a, b)) == smt.Or(x == sing(a), x == upair(a, b)))
+)
+def elem_pair(l):
+    a, b, c = l.fixes()
+    l.unfold(pair)
+    l.rw(elem_upair)
+    l.auto()
 
 
 def test():

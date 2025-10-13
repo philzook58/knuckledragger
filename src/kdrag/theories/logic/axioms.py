@@ -88,6 +88,57 @@ def cong(f: smt.FuncDeclRef, *args: kd.Proof) -> kd.Proof:
     return kd.axiom(smt.Eq(f(*lhs), f(*rhs)), ["cong", f, *args])
 
 
+def forall_cong(vs: list[smt.ExprRef], pf: kd.Proof) -> kd.Proof:
+    """
+    Congruence for forall binders
+
+    >>> x = smt.Bool("x")
+    >>> forall_cong([x], kd.prove(x | x == x))
+    |= (ForAll(x, Or(x, x))) == (ForAll(x, x))
+    """
+    assert isinstance(pf, kd.Proof) and smt.is_eq(pf.thm)
+    return kd.axiom(
+        smt.Eq(smt.ForAll(vs, pf.thm.arg(0)), smt.ForAll(vs, pf.thm.arg(1))),
+        by=["forall_cong", pf],
+    )
+
+
+def exists_cong(vs: list[smt.ExprRef], pf: kd.Proof) -> kd.Proof:
+    """
+    Congruence for exists binders
+
+    >>> x = smt.Bool("x")
+    >>> exists_cong([x], kd.prove(x | x == x))
+    |= (Exists(x, Or(x, x))) == (Exists(x, x))
+    """
+
+    assert isinstance(pf, kd.Proof) and smt.is_eq(pf.thm)
+    return kd.axiom(
+        smt.Eq(
+            smt.Exists(vs, pf.thm.arg(0)),
+            smt.Exists(vs, pf.thm.arg(1)),
+        ),
+        by=["exists_cong", pf],
+    )
+
+
+def lambda_cong(vs: list[smt.ExprRef], pf: kd.Proof) -> kd.Proof:
+    """
+
+    >>> x = smt.Int("x")
+    >>> lambda_cong([x], kd.prove(x + 1 == 1 + x))
+    |= (Lambda(x, x + 1)) == (Lambda(x, 1 + x))
+    """
+    assert isinstance(pf, kd.Proof) and smt.is_eq(pf.thm)
+    return kd.axiom(
+        smt.Eq(
+            smt.Lambda(vs, pf.thm.arg(0)),
+            smt.Lambda(vs, pf.thm.arg(1)),
+        ),
+        by=["lambda_cong", pf],
+    )
+
+
 def ext(*sorts: smt.SortRef) -> kd.Proof:
     """
     >>> ext(smt.IntSort(), smt.IntSort())

@@ -1,5 +1,6 @@
 import kdrag.smt as smt
 import kdrag as kd
+import kdrag.theories.set as set_
 
 # https://en.wikipedia.org/wiki/Extended_real_number_line
 # https://isabelle.in.tum.de/library/HOL/HOL-Library/Extended_Real.html
@@ -67,6 +68,14 @@ add_comm1 = kd.prove(
     kd.QForAll([x, y], add_undef(x, y) == add_undef(y, x), x + y == y + x),
     by=[add.defn],
 )
+
+ERSet = set_.Set(EReal)
+A = smt.Const("A", ERSet)
+is_ub = kd.define("upper_bound", [A, x], kd.QForAll([y], A[y], y <= x))
+is_lub = kd.define("is_lub", [A, x], is_ub(A, x) & kd.QForAll([y], is_ub(A, y), x <= y))
+inf = smt.Function("lub", ERSet, EReal)
+inf_ax = kd.axiom(smt.ForAll([A], is_lub(A, inf(A))))
+
 
 EPosReal = smt.Datatype("EPosReal")
 EPosReal.declare("real", ("val", smt.RealSort()))

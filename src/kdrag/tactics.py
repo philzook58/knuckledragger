@@ -597,6 +597,16 @@ class ProofState:
                 goalctx._replace(ctx=ctx + [goal.arg(0)], goal=smt.BoolVal(False))
             )
             return self.top_goal()
+        elif smt.is_distinct(goal):
+            if goal.num_args() != 2:
+                raise NotImplementedError("Intros only implemented for two arguments")
+            else:
+                self.goals.append(
+                    goalctx._replace(
+                        ctx=ctx + [goal.arg(0) == goal.arg(1)], goal=smt.BoolVal(False)
+                    )
+                )
+                return self.top_goal()
         elif (
             smt.is_or(goal) and smt.is_not(goal.arg(0))
         ):  # if implies a -> b gets classically unwound to Or(Not(a), b). TODO: Maybe I should remove this
@@ -613,6 +623,13 @@ class ProofState:
             return self.top_goal()
         else:
             raise ValueError("Intros failed.")
+
+    def assumes(self, hyp: smt.BoolRef):
+        goalctx = self.intros()
+        if goalctx.ctx[-1].eq(hyp):
+            return goalctx
+        else:
+            raise ValueError("hypotheses does not match", hyp, goalctx.ctx[-1])
 
     def simp(self, at=None, unfold=False, path=None):
         """
@@ -930,9 +947,17 @@ class ProofState:
         self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
         return self.top_goal()
 
-    def rewrite(self, rule: kd.kernel.Proof | int, at=None, rev=False):
+    def rewrite(self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs):
         """
         `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.
+
+        >>> x = kd.FreshVar("x", smt.RealSort())
+        >>> pf = kd.prove(smt.Implies(x >= 0, smt.Sqrt(x) ** 2 == x)).forall([x])
+        >>> l = Lemma(smt.Implies(x >= 0, smt.Sqrt(x + 2)**2 == x + 2))
+        >>> l.intros()
+        [x!... >= 0] ?|= ((x!... + 2)**(1/2))**2 == x!... + 2
+        >>> l.rewrite(pf,by=[])
+        [x!... >= 0, x!... + 2 >= 0] ?|= x!... + 2 == x!... + 2
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -949,6 +974,10 @@ class ProofState:
         else:
             vs = []
             body = rulethm
+        if smt.is_implies(body):
+            cond, body = body.children()
+        else:
+            cond = None
         if smt.is_eq(body):
             lhs, rhs = body.arg(0), body.arg(1)
             if rev:
@@ -985,13 +1014,18 @@ class ProofState:
                 self.goals.append(
                     goalctx._replace(ctx=ctx[:at] + [target] + ctx[at + 1 :], goal=goal)
                 )
-            return self.top_goal()
+            if cond is not None:
+                return self.have(
+                    smt.substitute(cond, *[(v, t) for v, t in subst.items()]), **kwargs
+                )
+            else:
+                return self.top_goal()
 
-    def rw(self, rule: kd.kernel.Proof | int, at=None, rev=False):
+    def rw(self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs):
         """
         shorthand for rewrite
         """
-        return self.rewrite(rule, at=at, rev=rev)
+        return self.rewrite(rule, at=at, rev=rev, **kwargs)
 
     def symm(self):
         """
@@ -1156,7 +1190,9 @@ class ProofState:
         rule = kd.rewrite.rule_of_expr(thm)
         substgoal = kd.rewrite.backward_rule(rule, goal)
         if substgoal is None:
-            raise ValueError(f"Apply tactic failed to apply lemma {pf} to goal {goal} ")
+            raise ValueError(
+                f"Apply tactic failed to apply lemma {thm} to goal {goal} "
+            )
         else:
             subst, newgoal = substgoal
             if isinstance(pf, kd.Proof) and len(rule.vs) > 0:
@@ -1462,6 +1498,9 @@ class ProofState:
         return pf
 
 
+_TRUE = kd.kernel.prove(smt.BoolVal(True))
+
+
 def Theorem(
     goal: smt.BoolRef,
 ) -> Callable[[Callable[[ProofState], None]], kd.kernel.Proof]:
@@ -1491,5 +1530,34 @@ def Theorem(
         object.__setattr__(pf, "__name__", getattr(f, "__name__", None))
         object.__setattr__(pf, "__qualname__", getattr(f, "__qualname__", None))
         return pf
+
+    return res
+
+
+def PTheorem(
+    goal: smt.BoolRef,
+):
+    """
+    A decorator to create a theorem from a function that takes a `ProofState` as argument.
+
+    >>> x = smt.Int("x")
+    >>> @Theorem(x + 1 > x)
+    ... def mytheorem(l: ProofState):
+    ...     "An example theorem"
+    ...     l.auto()
+    >>> mytheorem
+    |= x + 1 > x
+    >>> mytheorem.__doc__
+    'An example theorem'
+    """
+
+    def res(f: Callable[[ProofState], None]) -> None:
+        l = kd.Lemma(goal)
+        f(l)
+        if len(l.goals) == 0:
+            l.qed()
+            print("Lemma Complete! Change PTheorem to Theorem")
+        else:
+            print("Next Goal:\n", l.top_goal())
 
     return res
