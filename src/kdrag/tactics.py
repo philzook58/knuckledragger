@@ -14,6 +14,16 @@ import time
 from dataclasses import dataclass
 
 
+def FreshVar(name: str, sort: smt.SortRef, assume=None) -> smt.ExprRef:
+    """
+    Create a schema variable with the given name and sort.
+    """
+    v = kd.kernel.FreshVar(name, sort)
+    if assume is not None:
+        v.assume = assume(v)  # type: ignore
+    return v
+
+
 def FreshVars(names: str, sort: smt.SortRef) -> list[smt.ExprRef]:
     """
     Create a list of schema variables with the given names and sort.
@@ -640,7 +650,7 @@ class ProofState:
         else:
             raise ValueError("hypotheses does not match", hyp, goalctx.ctx[-1])
 
-    def simp(self, at=None, unfold=False, path=None):
+    def simp(self, at=None, unfold=False, path=None) -> "ProofState":
         """
         Use built in z3 simplifier. May be useful for boolean, arithmetic, lambda, and array simplifications.
 
@@ -686,7 +696,7 @@ class ProofState:
             self.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
-        return self.top_goal()
+        return self
 
     def cases(self, t):
         """
@@ -782,7 +792,7 @@ class ProofState:
             l = kd.kernel.instan2(ts, thm)
             self.add_lemma(l)
             self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [l.thm.arg(1)])
-            return self.top_goal()
+            return self
         else:
             raise ValueError("Instan failed. Not a forall", thm)
 
@@ -817,7 +827,7 @@ class ProofState:
         else:
             raise ValueError("Ext failed. Goal is not an equality", goal)
 
-    def split(self, at=None):
+    def split(self, at=None) -> "ProofState":
         """
         `split` breaks apart an `And` or bi-implication `==` goal.
         The optional keyword at allows you to break apart an And or Or in the context
@@ -872,7 +882,7 @@ class ProofState:
                         )
             else:
                 raise ValueError("Unexpected case in goal for split tactic", goal)
-            return self.top_goal()
+            return self
         else:
             if at < 0:
                 at = len(ctx) + at
@@ -891,7 +901,7 @@ class ProofState:
                 )
             else:
                 raise ValueError("Split failed")
-            return self.top_goal()
+            return self
 
     def left(self, n=0):
         """
@@ -939,7 +949,7 @@ class ProofState:
         else:
             raise ValueError("Right failed. Not an or")
 
-    def exists(self, *ts):
+    def exists(self, *ts) -> "ProofState":
         """
         Give terms `ts` to satisfy an exists goal
         `?|= exists x, p(x)` becomes `?|= p(ts)`
@@ -954,9 +964,11 @@ class ProofState:
         lemma = kd.kernel.forget(ts, goal)
         self.add_lemma(lemma)
         self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
-        return self.top_goal()
+        return self
 
-    def rewrite(self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs):
+    def rewrite(
+        self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs
+    ) -> "ProofState":
         """
         `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.
 
@@ -1028,7 +1040,7 @@ class ProofState:
                     smt.substitute(cond, *[(v, t) for v, t in subst.items()]), **kwargs
                 )
             else:
-                return self.top_goal()
+                return self
 
     def rw(self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs):
         """
@@ -1120,7 +1132,7 @@ class ProofState:
             )
         return self.top_goal()
 
-    def unfold(self, *decls: smt.FuncDeclRef, at=None):
+    def unfold(self, *decls: smt.FuncDeclRef, at=None) -> "ProofState":
         """
         Unfold all definitions once. If declarations are given, only those are unfolded.
 
@@ -1156,7 +1168,7 @@ class ProofState:
                 goalctx._replace(ctx=goalctx.ctx[:at] + [e2] + goalctx.ctx[at + 1 :])
             )
 
-        return self.top_goal()
+        return self
 
     def apply(self, pf: kd.kernel.Proof | int):
         """
@@ -1437,6 +1449,27 @@ class ProofState:
             # )
         return self
 
+    def case(self, thm=None) -> "ProofState":
+        """
+        To make more readable proofs, `case` lets you state which case you are currently in from a `cases`
+        It is basically an alias for `have` followed by `clear(-1)`.
+
+        >>> p = smt.Bool("p")
+        >>> l = Lemma(smt.Or(p, smt.Not(p)))
+        >>> _ = l.cases(p)
+        >>> l.case(p)
+        [p == True] ?|= Or(p, Not(p))
+        >>> _ = l.auto()
+        >>> l.case(smt.Not(p))
+        [p == False] ?|= Or(p, Not(p))
+        """
+        if thm is None:
+            return self
+        else:
+            self.have(thm, by=[])  # self.assumption()?
+            self.clear(-1)
+            return self
+
     def admit(self) -> Goal:
         """
         admit the current goal without proof. Don't feel bad about keeping yourself moving, but be aware that you're not done.
@@ -1450,6 +1483,24 @@ class ProofState:
         goalctx = self.pop_goal()
         self.add_lemma(kd.kernel.prove(goalctx.goal, admit=True))
         return self.top_goal()
+
+    def repeat(self, f: Callable[[], Goal]) -> Goal:
+        """
+        >>> p = smt.Bool("p")
+        >>> l = Lemma(smt.Implies(p, smt.Implies(p, p)))
+        >>> l.intros()
+        [p] ?|= Implies(p, p)
+        >>> l = Lemma(smt.Implies(p, smt.Implies(p, p)))
+        >>> l.repeat(lambda: l.intros())
+        [p, p] ?|= p
+
+        """
+        g = f()
+        while True:
+            try:
+                g = f()
+            except Exception as _:
+                return g
 
     # TODO
     # def suggest():

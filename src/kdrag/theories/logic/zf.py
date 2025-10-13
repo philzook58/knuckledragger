@@ -19,16 +19,32 @@ import functools
 ZFSet = smt.DeclareSort("ZFSet")
 Set = ZFSet
 A, B, x, y, z = smt.Consts("A B x y z", ZFSet)
-
 a, b, c, d, p = kd.FreshVars("a b c d p", ZFSet)
-elem = smt.Function("elem", ZFSet, ZFSet, smt.BoolSort())
+
 Class = ZFSet >> smt.BoolSort()
 P, Q = smt.Consts("P Q", Class)
+
+elem = smt.Function("elem", ZFSet, ZFSet, smt.BoolSort())
 elts = kd.define("elts", [A], smt.Lambda([x], elem(x, A)))
 
 zf_db = []
 
 kd.notation.getitem.register(ZFSet, lambda A, x: elem(x, A))
+
+reflects = kd.define("reflects", [P, A], smt.ForAll([x], elem(x, A) == P[x]))
+is_set = kd.define("is_set", [P], smt.Exists([A], reflects(P, A)))
+
+
+# general comprehension is not true. This is Russell's paradox.
+@kd.Theorem(smt.Not(smt.ForAll([P], is_set(P))))
+def russell(l):
+    l.unfold(is_set).unfold(reflects)
+    l.assumes(smt.ForAll([P], smt.Exists([A], smt.ForAll([x], elem(x, A) == P[x]))))
+    Q = smt.Lambda([x], smt.Not(elem(x, x)))
+    l.have(smt.Exists([A], smt.ForAll([x], elem(x, A) == Q[x]))).instan(0, Q).auto()
+    A1 = l.obtain(-1)
+    l.have(elem(A1, A1) == Q(A1)).instan(-1, A1).auto()
+    l.show(smt.BoolVal(False), by=[])
 
 
 def slemma(thm, by=[], **kwargs):
@@ -39,8 +55,55 @@ ext_ax = kd.axiom(
     kd.QForAll([A, B], smt.Eq((A == B), smt.ForAll([x], elem(x, A) == elem(x, B))))
 )
 
+le = kd.notation.le.define([A, B], kd.QForAll([x], elem(x, A), elem(x, B)))
+
 emp = smt.Const("emp", ZFSet)
 elem_emp = kd.axiom(smt.ForAll([x], elem(x, emp) == smt.BoolVal(False)))
+
+
+# l = kd.Lemma(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
+@kd.tactics.Theorem(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
+def emp_exists_elem(l):
+    _A = l.fix()
+    l.split()
+    with l.sub() as l1:
+        l1.intros()
+        l1.intros()
+        _x = l1.obtain(-1)
+        l1.show(smt.BoolVal(False), by=[ext_ax, elem_emp])
+    with l.sub() as l2:
+        l2.intros()
+        l2.rw(ext_ax)
+        _x = l2.fix()
+        l2.apply(0)
+        l2.exists(_x)
+        l2.have(elem(_x, emp) == smt.BoolVal(False), by=[elem_emp(_x)])
+        l2.have(elem(_x, _A), by=[])
+
+        l2.auto()
+
+
+# emp_exists_elem = l.qed()
+
+
+l = kd.Lemma(smt.ForAll([A], smt.Implies((A != emp), smt.Exists([x], elem(x, A)))))
+_A = l.fix()
+l.auto(by=[emp_exists_elem(_A)])
+l.qed()
+not_emp_exists_elem = l.qed()
+
+pf1 = kd.prove(
+    smt.Exists([x], smt.Implies(a != emp, elem(x, a))), by=[emp_exists_elem(a)]
+)
+(skolem,), elem_pick0 = kd.tactics.skolem(pf1)
+# Note that pick(emp) is undefined. You will not be able to prove anything about it.
+pick = kd.define("pick", [a], skolem)
+
+
+elem_pick = kd.prove(
+    smt.Implies(a != emp, elem(pick(a), a)), unfold=1, by=[elem_pick0]
+).forall([a])
+
 
 upair = smt.Function("upair", ZFSet, ZFSet, ZFSet)
 elem_upair = kd.axiom(
@@ -94,6 +157,12 @@ def upair_inj(l):
     l.auto(by=[upair_comm])
 
 
+pick_upair = kd.prove(
+    smt.ForAll([a, b], smt.Or(pick(upair(a, b)) == a, pick(upair(a, b)) == b)),
+    by=[elem_pick, elem_upair, elem_emp],
+)
+
+
 sing = kd.define("sing", [x], upair(x, x))
 
 
@@ -111,68 +180,8 @@ def elem_sing(l):
     l.auto(by=[elem_upair])
 
 
-sep = smt.Function("sep", ZFSet, Class, ZFSet)
-elem_sep = kd.axiom(
-    kd.QForAll([P, A, x], elem(x, sep(A, P)) == smt.And(P[x], elem(x, A)))
-)
-
-zf_db.extend([elem_emp, elem_upair, ext_ax, elem_sep])
-le = kd.notation.le.define([A, B], kd.QForAll([x], elem(x, A), elem(x, B)))
-
-bigunion = smt.Function("bigunion", ZFSet, ZFSet)
-bigunion_ax = kd.axiom(
-    kd.QForAll(
-        [A, x], smt.Eq(elem(x, bigunion(A)), kd.QExists([B], elem(B, A), elem(x, B)))
-    )
-)
-
-
-# l = kd.Lemma(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
-@kd.tactics.Theorem(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
-def emp_exists_elem(l):
-    _A = l.fix()
-    l.split()
-    with l.sub() as l1:
-        l1.intros()
-        l1.intros()
-        _x = l1.obtain(-1)
-        l1.show(smt.BoolVal(False), by=[ext_ax, elem_emp])
-    with l.sub() as l2:
-        l2.intros()
-        l2.rw(ext_ax)
-        _x = l2.fix()
-        l2.apply(0)
-        l2.exists(_x)
-        l2.have(elem(_x, emp) == smt.BoolVal(False), by=[elem_emp(_x)])
-        l2.have(elem(_x, _A), by=[])
-
-        l2.auto()
-
-
-# emp_exists_elem = l.qed()
-
-
-l = kd.Lemma(smt.ForAll([A], smt.Implies((A != emp), smt.Exists([x], elem(x, A)))))
-_A = l.fix()
-l.auto(by=[emp_exists_elem(_A)])
-l.qed()
-not_emp_exists_elem = l.qed()
-
-pf1 = kd.prove(
-    smt.Exists([x], smt.Implies(a != emp, elem(x, a))), by=[emp_exists_elem(a)]
-)
-(skolem,), elem_pick0 = kd.tactics.skolem(pf1)
-# Note that pick(emp) is undefined. You will not be able to prove anything about it.
-pick = kd.define("pick", [a], skolem)
-
-
-elem_pick = kd.prove(
-    smt.Implies(a != emp, elem(pick(a), a)), unfold=1, by=[elem_pick0]
-).forall([a])
-
-pick_upair = kd.prove(
-    smt.ForAll([a, b], smt.Or(pick(upair(a, b)) == a, pick(upair(a, b)) == b)),
-    by=[elem_pick, elem_upair, elem_emp],
+sing_not_emp = kd.prove(smt.Not(sing(a) == emp), unfold=1, by=[upair_not_emp]).forall(
+    [a]
 )
 
 
@@ -184,6 +193,14 @@ def pick_sing(l):
     # l.rw(ext_ax)
     # _x = l.fix()
     # l.auto(by=[elem_sing, elem_pick, elem_emp])
+
+
+# Separation
+
+sep = smt.Function("sep", ZFSet, Class, ZFSet)
+elem_sep = kd.axiom(
+    kd.QForAll([P, A, x], elem(x, sep(A, P)) == smt.And(P[x], elem(x, A)))
+)
 
 
 @kd.Theorem(
@@ -214,6 +231,18 @@ def sep_upair(l):
     l.rw(-1)
     l.simp()
     l.auto(by=[elem_emp, elem_upair])
+
+
+zf_db.extend([elem_emp, elem_upair, ext_ax, elem_sep])
+
+# bigunion
+
+bigunion = smt.Function("bigunion", ZFSet, ZFSet)
+bigunion_ax = kd.axiom(
+    kd.QForAll(
+        [A, x], smt.Eq(elem(x, bigunion(A)), kd.QExists([B], elem(B, A), elem(x, B)))
+    )
+)
 
 
 # Binary Union
@@ -260,16 +289,6 @@ l.auto()
 elem_union = l.qed()
 
 
-@kd.tactics.Theorem(smt.ForAll([a, b], bigunion(upair(a, b)) == a | b))
-def bigunion_upair(l):
-    a, b = l.fixes()
-    l.rw(ext_ax)
-    _ = l.fix()
-    l.rw(elem_bigunion_upair)
-    l.rw(elem_union)
-    l.auto()
-
-
 l = kd.Lemma(smt.ForAll([a, b, c], (a | b) | c == a | (b | c)))
 _a, _b, _c = l.fixes()
 l.rw(ext_ax)
@@ -306,6 +325,16 @@ def sing_union_upair(l):
     l.rw(elem_union)
     l.rw(elem_upair)
     l.rw(elem_sing)
+    l.auto()
+
+
+@kd.tactics.Theorem(smt.ForAll([a, b], bigunion(upair(a, b)) == a | b))
+def bigunion_upair(l):
+    a, b = l.fixes()
+    l.rw(ext_ax)
+    _ = l.fix()
+    l.rw(elem_bigunion_upair)
+    l.rw(elem_union)
     l.auto()
 
 
@@ -415,6 +444,16 @@ l.rw(elem_inter)
 l.auto()
 inter_le = l.qed()
 
+
+@kd.Theorem(smt.ForAll([a, b, x], (x <= (a & b)) == ((x <= a) & (x <= b))))
+def le_inter_2(l):
+    a, b, x = l.fixes()
+    l.unfold(le)
+    l.split()
+    l.auto(by=[elem_inter])
+    l.auto(by=[elem_inter])
+
+
 l = kd.Lemma(smt.ForAll([x], x & emp == emp))
 l.fixes()
 l.rw(ext_ax)
@@ -510,6 +549,15 @@ def upair_sub_sing(l):
 
 pow = smt.Function("pow", ZFSet, ZFSet)
 elem_pow = kd.axiom(smt.ForAll([A, x], elem(x, pow(A)) == (x <= A)))
+
+
+@kd.Theorem(smt.ForAll([a, b], pow(a & b) == pow(a) & pow(b)))
+def pow_inter(l):
+    a, b = l.fixes()
+    l.rw(ext_ax).fix()
+    l.rw(elem_inter).rw(elem_pow).rw(elem_pow).rw(elem_pow).rw(le_inter_2)
+    l.auto()
+
 
 # Ordered Pair
 
