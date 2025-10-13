@@ -584,6 +584,7 @@ class ProofState:
         goalctx = self.top_goal()
         goal = goalctx.goal
         ctx = goalctx.ctx
+        # TODO: Let's remove this
         if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             return self.fixes()
         self.pop_goal()
@@ -625,7 +626,15 @@ class ProofState:
             raise ValueError("Intros failed.")
 
     def assumes(self, hyp: smt.BoolRef):
+        """
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, q))
+        >>> l.assumes(p)
+        [p] ?|= q
+        """
         goalctx = self.intros()
+        assert isinstance(goalctx, Goal)
         if goalctx.ctx[-1].eq(hyp):
             return goalctx
         else:

@@ -6,7 +6,7 @@ Transcendental functions and bounds.
 
 import kdrag.smt as smt
 import kdrag.theories.set as set_
-from kdrag.smt import ForAll, Function
+from kdrag.smt import ForAll
 import kdrag as kd
 import kdrag.property as prop
 
