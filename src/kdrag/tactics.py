@@ -796,7 +796,7 @@ class ProofState:
         else:
             raise ValueError("Instan failed. Not a forall", thm)
 
-    def ext(self):
+    def ext(self, at=None):
         """
         Apply extensionality to a goal
 
@@ -805,27 +805,20 @@ class ProofState:
         >>> _ = l.ext()
         """
         goalctx = self.top_goal()
-        goal = goalctx.goal
-        if smt.is_eq(goal):
-            lhs, rhs = goal.arg(0), goal.arg(1)
-            if smt.is_array_sort(lhs):
-                self.pop_goal()
-                ext_ind = smt.Ext(lhs, rhs)
-                x = smt.FreshConst(ext_ind.sort())
-                newgoal = smt.Eq(lhs[x], rhs[x])
-                self.add_lemma(
-                    kd.kernel.prove(
-                        smt.Implies(x == ext_ind, smt.Eq(lhs, rhs) == newgoal)
-                    )
-                )
-                self.goals.append(
-                    goalctx._replace(ctx=goalctx.ctx + [x == ext_ind], goal=newgoal)
-                )
-                return x
-            else:
-                raise ValueError("Ext failed. Goal is not an array equality", goal)
+        if at is None:
+            target = goalctx.goal
         else:
-            raise ValueError("Ext failed. Goal is not an equality", goal)
+            target = goalctx.ctx[at]
+        if smt.is_eq(target):
+            lhs = target.arg(0)
+            if kd.utils.is_func(lhs):
+                return self.rw(
+                    kd.kernel.ext(kd.utils.domain(lhs), kd.utils.range_(lhs)), at=at
+                )
+            else:
+                raise ValueError("Ext failed. Target is not an array equality", target)
+        else:
+            raise ValueError("Ext failed. Target is not an equality", target)
 
     def split(self, at=None) -> "ProofState":
         """
@@ -1016,7 +1009,7 @@ class ProofState:
         t_subst = kd.utils.pmatch_rec(vs, lhs, target)
         if t_subst is None:
             raise ValueError(
-                f"Rewrite tactic failed to apply lemma {rulethm} to goal {goal}"
+                f"Rewrite tactic failed to apply lemma {rulethm} to target {target}"
             )
         else:
             self.pop_goal()

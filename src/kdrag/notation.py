@@ -234,8 +234,9 @@ def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
 
     """
     conc = hyp_conc[-1]
-    hyps = hyp_conc[:-1]
-    hyps = [v.wf() for v in vs if v.sort() in wf.methods] + list(hyps)
+    hyps = [v.assumes for v in vs if v.assumes is not None]
+    hyps.extend([v.wf() for v in vs if v.sort() in wf.methods])
+    hyps.extend(hyp_conc[:-1])
     if len(hyps) == 0:
         return smt.ForAll(vs, conc)
     elif len(hyps) == 1:
@@ -245,14 +246,16 @@ def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
         return smt.ForAll(vs, smt.Implies(hyp, conc))
 
 
-def QExists(vs: list[smt.ExprRef], *concs) -> smt.BoolRef:
+def QExists(vs: list[smt.ExprRef], *concs0) -> smt.BoolRef:
     """Quantified Exists
 
     Shorthand for `ForAll(vars, And(conc[0], conc[1], ...))`
 
     If variables have a property `wf` attached, this is anded into the properties.
     """
-    concs = [v.wf() for v in vs if v.sort() in wf.methods] + list(concs)
+    concs = [v.assumes for v in vs if v.assumes is not None]
+    concs.extend([v.wf() for v in vs if v.sort() in wf.methods])
+    concs.extend(concs0)
     if len(concs) == 1:
         return smt.Exists(vs, concs[0])
     else:

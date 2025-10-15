@@ -6,7 +6,7 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, Generator, Any, Callable
+from typing import Optional, Generator, Any, Callable, Sequence
 import os
 import glob
 import inspect
@@ -576,6 +576,42 @@ def prune(
         return used
     else:
         raise ValueError("Unexpected solver response")
+
+
+def bysect(
+    thm, by0: list[kd.kernel.Proof] | dict[object, kd.kernel.Proof], **kwargs
+) -> Sequence[tuple[object, kd.kernel.Proof]]:
+    """
+    Bisect the `by` list to find a minimal set of premises that prove `thm`. Presents the same interface as `prove`
+
+    >>> x,y,z = smt.Ints("x y z")
+    >>> by = [kd.prove(x + 1 > x), kd.axiom(x == y), kd.prove(y + 1 > y), kd.axiom(y == z)]
+    >>> bysect(x == z, by=by)
+    [(1, |= x == y), (3, |= y == z)]
+    """
+    if isinstance(by0, list):
+        by = list(enumerate(by0))
+    elif isinstance(by0, dict):
+        by = list(by0.items())
+    else:
+        raise ValueError("by must be a list or dict")
+    n = 2
+    while len(by) >= 2:
+        subset_size = len(by) // n
+        for i in range(0, len(by), subset_size):
+            rest = by[:i] + by[i + subset_size :]
+            try:
+                kd.prove(thm, by=[b for _, b in rest], **kwargs)
+                by = rest
+                n = max(n - 1, 2)
+                break
+            except Exception as _:
+                pass
+        else:
+            if n == len(by):
+                break
+            n = min(len(by), n * 2)
+    return by
 
 
 def subterms(t: smt.ExprRef, into_binder=False):

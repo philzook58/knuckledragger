@@ -139,24 +139,6 @@ def lambda_cong(vs: list[smt.ExprRef], pf: kd.Proof) -> kd.Proof:
     )
 
 
-def ext(*sorts: smt.SortRef) -> kd.Proof:
-    """
-    >>> ext(smt.IntSort(), smt.IntSort())
-    |= ForAll([f, g], (f == g) == (ForAll(x0, f[x0] == g[x0])))
-    >>> ext(smt.IntSort(), smt.RealSort(), smt.IntSort())
-    |= ForAll([f, g],
-           (f == g) ==
-           (ForAll([x0, x1],
-                   Select(f, x0, x1) == Select(g, x0, x1))))
-    """
-    T = smt.ArraySort(*sorts)
-    f, g = smt.Consts("f g", T)
-    xs = [smt.Const(f"x{n}", sort) for n, sort in enumerate(sorts[:-1])]
-    return kd.axiom(
-        smt.ForAll([f, g], smt.Eq((f == g), smt.ForAll(xs, f[*xs] == g[*xs]))), ["ext"]
-    )
-
-
 def neg_ext(*sorts: smt.SortRef) -> kd.Proof:
     """
 

@@ -15,8 +15,17 @@ x, y, z, eps, delta = smt.Reals("x y z eps delta")
 
 zero = kd.define("zero", [], smt.K(smt.IntSort(), smt.RealVal(0)))
 const = kd.define("const", [x], smt.Lambda([i], x))
+id_ = kd.define("id", [], smt.Lambda([i], smt.ToReal(i)))
+assert isinstance(id_, smt.ExprRef)
+
+# Domain operations
 shift = kd.define("shift", [a, n], smt.Lambda([i], a[i - n]))
 delay = kd.define("delay", [a], shift(a, 1))
+rev = kd.define("rev", [a], smt.Lambda([i], a[-i]))
+dilate = kd.define("dilate", [a, n], smt.Lambda([i], a[i / n]))
+decimate = kd.define("decimate", [a, n], smt.Lambda([i], a[i * n]))
+
+
 mask = smt.Array("mask", smt.IntSort(), smt.BoolSort())
 where = kd.define("where", [mask, a, b], smt.Lambda([i], smt.If(mask[i], a[i], b[i])))
 krondelta = kd.define(
@@ -32,26 +41,6 @@ roll = shift
 
 diff = kd.define("diff", [a], smt.Lambda([i], a[i + 1] - a[i]))
 
-
-cumsum = smt.Function("cumsum", RSeq, RSeq)
-cumsum = kd.define(
-    "cumsum",
-    [a],
-    smt.Lambda(
-        [i],
-        smt.If(
-            i == 0,
-            a[0],
-            smt.If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i]),
-        ),
-    ),
-)
-
-Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
-
-
-sin = kd.define("sin", [a], smt.Map(real.sin, a))
-cos = kd.define("cos", [a], smt.Map(real.cos, a))
 
 add = kd.notation.add.define([a, b], smt.Lambda([i], a[i] + b[i]))
 # add = kd.define("add", [a, b], smt.Map(real.add, a, b))
@@ -70,6 +59,51 @@ add_assoc = kd.prove(
 sub = kd.notation.sub.define([a, b], smt.Lambda([i], a[i] - b[i]))
 mul = kd.notation.mul.define([a, b], smt.Lambda([i], a[i] * b[i]))
 div = kd.notation.div.define([a, b], smt.Lambda([i], a[i] / b[i]))
+neg = kd.notation.neg.define([a], smt.Lambda([i], -a[i]))
+
+
+rev_rev = kd.prove(rev(rev(A)) == A, by=[rev.defn]).forall([A])
+shift_shit = kd.prove(
+    smt.ForAll([n, m, a], shift(shift(a, n), m) == shift(a, n + m)), by=[shift.defn]
+)
+rev_shift = kd.prove(
+    smt.ForAll([n, a], rev(shift(a, n)) == shift(rev(a), -n)), by=[shift.defn, rev.defn]
+)
+rev_zero = kd.prove(rev(zero) == zero, by=[rev.defn, zero.defn])
+rev_const = kd.prove(
+    smt.ForAll([x], rev(const(x)) == const(x)), by=[rev.defn, const.defn]
+)
+rev_id = kd.prove(rev(id_) == -id_, by=[rev.defn, id_.defn, neg.defn])
+
+
+def test():
+    """
+    >>> True
+    True
+    """
+
+
+cumsum = smt.Function("cumsum", RSeq, RSeq)
+cumsum = kd.define(
+    "cumsum",
+    [a],
+    smt.Lambda(
+        [i],
+        smt.If(
+            i == 0,
+            a[0],
+            smt.If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i]),
+        ),
+    ),
+)
+
+
+Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
+finsum = kd.define("finsum", [a, n], cumsum(a)[n])
+
+
+sin = kd.define("sin", [a], smt.Map(real.sin, a))
+cos = kd.define("cos", [a], smt.Map(real.cos, a))
 
 
 # https://en.wikipedia.org/wiki/Cauchy_sequence
@@ -144,6 +178,28 @@ def has_lim_inv(l):
     l.assumes(n > smt.ToInt(1 / eps) + 1)
     l.unfold(real.abs)
     l.auto()
+
+
+has_sum = kd.define("has_sum", [a, y], has_lim(cumsum(a), y))
+is_summable = kd.define("is_summable", [a], smt.Exists([y], has_sum(a, y)))
+
+
+class Series:
+    # https://www.cs.dartmouth.edu/~doug/powser.html
+    powers = smt.Function("powers", R, RSeq)
+    powers = kd.define(
+        "powers",
+        [x],
+        smt.Lambda(
+            [i],
+            smt.If(
+                i == 0,
+                smt.RealVal(1),
+                smt.If(i < 0, powers(x)[i + 1] / x, x * powers(x)[i - 1]),
+            ),
+        ),
+    )
+    # sin =
 
 
 # %%

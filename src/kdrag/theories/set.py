@@ -334,6 +334,9 @@ def Finite(A: smt.ArrayRef) -> smt.BoolRef:
     # return A == smt.Lambda([x], smt.Contains(finwit(A), smt.Unit(x))
 
 
+RSet = Set(smt.RealSort())
+IntSet = Set(smt.IntSort())
+BoolSet = Set(smt.BoolSort())
 # TODO: Theorems: Finite is closed under most operations
 
 # @functools.cache

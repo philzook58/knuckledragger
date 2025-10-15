@@ -364,6 +364,9 @@ def execute_spec_stmts(
     ctx: pcode.BinaryContext,
     verbose=True,
 ) -> tuple[Optional[TraceState], list[VerificationCondition]]:
+    """
+    Execute a list of spec statements on a given trace state.
+    """
     trace, state, ghost_env = tracestate.trace, tracestate.state, tracestate.ghost_env
     vcs = []
     for stmt in stmts:
@@ -413,6 +416,9 @@ def execute_spec_stmts(
 def execute_insn(
     tracestate: TraceState, ctx: pcode.BinaryContext, verbose=True
 ) -> list[TraceState]:
+    """
+    Execute one actual instruction from the current trace state.
+    """
     # TODO : copy trace less. if single result
     state0 = tracestate.state
     addr, pc = state0.pc
@@ -439,16 +445,13 @@ def execute_insn(
     ]
 
 
-def run_all_paths(
-    ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True, max_insns=None
-) -> list[VerificationCondition]:
+def init_trace_states(
+    ctx: pcode.BinaryContext, mem: pcode.MemState, spec: AsmSpec, verbose=True
+) -> tuple[list[TraceState], list[VerificationCondition]]:
     """
-    Initialize queue with all stated entry points, and then symbolically execute all paths,
-    collecting verification conditions (VCs) along the way.
-    This interleaves executions of actual assembly instructions with spec statements.
+    Initialize all trace states from the entry points in the spec.
+    This will run the spec statements after the entry statement and also the first actual instruction.
     """
-    if mem is None:
-        mem = ctx.init_mem()  # pcode.MemState.Const("mem", bits=ctx.bits)
     todo = []
     vcs = []
     # Initialize executions out of entry points and cuts
@@ -471,6 +474,20 @@ def run_all_paths(
                 vcs.extend(new_vcs)
                 if tracestate is not None:
                     todo.extend(execute_insn(tracestate, ctx, verbose=verbose))
+    return todo, vcs
+
+
+def run_all_paths(
+    ctx: pcode.BinaryContext, spec: AsmSpec, mem=None, verbose=True, max_insns=None
+) -> list[VerificationCondition]:
+    """
+    Initialize queue with all stated entry points, and then symbolically execute all paths,
+    collecting verification conditions (VCs) along the way.
+    This interleaves executions of actual assembly instructions with spec statements.
+    """
+    if mem is None:
+        mem = ctx.init_mem()  # pcode.MemState.Const("mem", bits=ctx.bits)
+    todo, vcs = init_trace_states(ctx, mem, spec, verbose=verbose)
     # Execute pre specstmts and instructions
     while todo:
         tracestate = todo.pop()

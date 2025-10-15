@@ -412,3 +412,6 @@ def DeclareSort(name):
         return T
     else:
         return sort_registry[tid]
+
+
+ExprRef.assumes = None

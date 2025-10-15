@@ -436,6 +436,25 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     )
 
 
+def ext(domain: Sequence[smt.SortRef], range_: smt.SortRef) -> Proof:
+    """
+    >>> ext([smt.IntSort()], smt.IntSort())
+    |= ForAll([f, g], (f == g) == (ForAll(x0, f[x0] == g[x0])))
+    >>> ext([smt.IntSort(), smt.RealSort()], smt.IntSort())
+    |= ForAll([f, g],
+           (f == g) ==
+           (ForAll([x0, x1],
+                   Select(f, x0, x1) == Select(g, x0, x1))))
+    """
+    assert len(domain) >= 1
+    T = smt.ArraySort(*domain, range_)
+    f, g = smt.Consts("f g", T)
+    xs = [smt.Const(f"x{n}", sort) for n, sort in enumerate(domain)]
+    return kd.axiom(
+        smt.ForAll([f, g], smt.Eq((f == g), smt.ForAll(xs, f[*xs] == g[*xs]))), ["ext"]
+    )
+
+
 def modus(ab: Proof, a: Proof) -> Proof:
     """
     Modus ponens for implies and equality.
