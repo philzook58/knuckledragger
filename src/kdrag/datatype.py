@@ -429,6 +429,7 @@ def Enum(name: str, args: str | list[str]) -> smt.DatatypeSortRef:
 rel = kd.notation.SortDispatch(name="rel")
 """SortDispatch for the relation associated with a Datatype of evidence"""
 smt.DatatypeRef.rel = lambda *args: rel(*args)
+# smt.DatatypeRef.rel = lambda self, *args: self.rel(*args)
 
 
 def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
@@ -439,8 +440,13 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
     >>> Even.declare("Ev_Z",                           pred = x == 0)
     >>> Even.declare("Ev_SS", ("sub2_evidence", Even), pred = lambda evid: evid.rel(x-2))
     >>> Even = Even.create()
-    >>> smt.Const("ev", Even).rel(4)
-    even(ev, 4)
+    >>> ev = smt.Const("ev", Even)
+    >>> ev.rel(4)
+    even(4)[ev]
+    >>> ev(4)
+    even(4)[ev]
+    >>> Even(4)
+    even(4)
     """
 
     dt = Inductive(name)
@@ -477,19 +483,26 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
                 args = [dt.accessor(i, j)(ev) for j in range(dt.constructor(i).arity())]
                 res = pred(*args)
             cases.append((precond, res))
-        args = [ev]
-        args.extend(params)
-        rel = kd.define(relname, args, kd.cond(*cases))
+        rel = kd.define(relname, list(params), smt.Lambda([ev], kd.cond(*cases)))
         return rel
 
     def create():
         dt = oldcreate()
-        dtrel = smt.Function(relname, dt, *[x.sort() for x in params], smt.BoolSort())
-        rel.register(
-            dt, lambda *args: dtrel(*args)
-        )  # doing this here let's us tie the knot inside of lambdas and refer to the predicate.
-        dtrel = create_relation(dt)
-        dt.rel = dtrel
+        if any(p is not None for p in preds):
+            dtrel = smt.Function(
+                relname, *[x.sort() for x in params], smt.ArraySort(dt, smt.BoolSort())
+            )
+            kd.notation.call.register(dt, lambda self, *args: dtrel(*args)[self])
+            rel.register(
+                dt, lambda self, *args: dtrel(*args)[self]
+            )  # doing this here let's us tie the knot inside of lambdas and refer to the predicate.
+            dtrel = create_relation(dt)
+            dt.rel = dtrel
+            # ev = smt.FreshConst(dt, prefix=name.lower())
+            call_dict[dt] = dtrel  # lambda *args: smt.Lambda([ev], ev.rel(*args))
+
+            if len(params) == 0:
+                kd.notation.wf.register(dt, lambda x: x.rel())
         return dt
 
     dt.create = create

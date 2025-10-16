@@ -579,7 +579,7 @@ def prune(
 
 
 def bysect(
-    thm, by0: list[kd.kernel.Proof] | dict[object, kd.kernel.Proof], **kwargs
+    thm, by: list[kd.kernel.Proof] | dict[object, kd.kernel.Proof], **kwargs
 ) -> Sequence[tuple[object, kd.kernel.Proof]]:
     """
     Bisect the `by` list to find a minimal set of premises that prove `thm`. Presents the same interface as `prove`
@@ -589,29 +589,29 @@ def bysect(
     >>> bysect(x == z, by=by)
     [(1, |= x == y), (3, |= y == z)]
     """
-    if isinstance(by0, list):
-        by = list(enumerate(by0))
-    elif isinstance(by0, dict):
-        by = list(by0.items())
+    if isinstance(by, list):
+        by1 = list(enumerate(by))
+    elif isinstance(by, dict):
+        by1 = list(by.items())
     else:
         raise ValueError("by must be a list or dict")
     n = 2
-    while len(by) >= 2:
-        subset_size = len(by) // n
-        for i in range(0, len(by), subset_size):
-            rest = by[:i] + by[i + subset_size :]
+    while len(by1) >= 2:
+        subset_size = len(by1) // n
+        for i in range(0, len(by1), subset_size):
+            rest = by1[:i] + by1[i + subset_size :]
             try:
                 kd.prove(thm, by=[b for _, b in rest], **kwargs)
-                by = rest
+                by1 = rest
                 n = max(n - 1, 2)
                 break
             except Exception as _:
                 pass
         else:
-            if n == len(by):
+            if n == len(by1):
                 break
-            n = min(len(by), n * 2)
-    return by
+            n = min(len(by1), n * 2)
+    return by1
 
 
 def subterms(t: smt.ExprRef, into_binder=False):
@@ -780,22 +780,28 @@ def ast_size_sexpr(t: smt.AstRef) -> int:
 @dataclass(frozen=True)
 class QuantifierHole:
     vs: list[smt.ExprRef]
-    # orig_vs : list[smt.ExprRef] to be able to exactly reconstruct original term?
+    orig_vs: list[smt.ExprRef]  # to be able to exactly reconstruct original term?
+
+    def has_right(self) -> bool:
+        return False
 
 
 class LambdaHole(QuantifierHole):
     def wrap(self, body: smt.ExprRef) -> smt.ExprRef:
-        return smt.Lambda(self.vs, body)
+        body = smt.substitute(body, *zip(self.vs, self.orig_vs))
+        return smt.Lambda(self.orig_vs, body)
 
 
 class ForAllHole(QuantifierHole):
     def wrap(self, body: smt.ExprRef) -> smt.ExprRef:
-        return smt.ForAll(self.vs, body)
+        body = smt.substitute(body, *zip(self.vs, self.orig_vs))
+        return smt.ForAll(self.orig_vs, body)
 
 
 class ExistsHole(QuantifierHole):
     def wrap(self, body: smt.ExprRef) -> smt.ExprRef:
-        return smt.Exists(self.vs, body)
+        body = smt.substitute(body, *zip(self.vs, self.orig_vs))
+        return smt.Exists(self.orig_vs, body)
 
 
 @dataclass(frozen=True)
@@ -835,22 +841,27 @@ class Zipper:
     >>> t = smt.Lambda([x,y], (x + y) * (y + z))
     >>> z1 = Zipper.from_term(t)
     >>> z1.open_binder().arg(1).left().arg(0)
-    Zipper(ctx=[LambdaHole(vs=[X!..., Y!...]), DeclHole(f=*, _left=(), _right=(Y!... + z,)), DeclHole(f=+, _left=(), _right=(Y!...,))], t=X!...)
-    >>> z1.pop().pop().pop()
-    Zipper(ctx=[], t=Lambda([X!..., Y!...], (X!... + Y!...)*(Y!... + z)))
+    Zipper(ctx=[LambdaHole(vs=[X!..., Y!...], orig_vs=[x, y]), DeclHole(f=*, _left=(), _right=(Y!... + z,)), DeclHole(f=+, _left=(), _right=(Y!...,))], t=X!...)
+    >>> z1.up().up().up()
+    Zipper(ctx=[], t=Lambda([x, y], (x + y)*(y + z)))
     """
 
-    ctx: list[Hole]  # trail / stack
+    ctx: list[Hole]  # trail / stack,. Consider saving old term
     t: smt.ExprRef
 
     @classmethod
     def from_term(cls, t: smt.ExprRef) -> "Zipper":
         return cls([], t)
 
-    def pop(self) -> "Zipper":  # up?
+    def up(self) -> "Zipper":  # up?
         hole = self.ctx.pop()
         self.t = hole.wrap(self.t)
         return self
+
+    def rebuild(self) -> smt.ExprRef:
+        while self.ctx:
+            self.up()
+        return self.t
 
     def copy(self) -> "Zipper":
         return Zipper(self.ctx.copy(), self.t)
@@ -879,18 +890,74 @@ class Zipper:
 
     def open_binder(self) -> "Zipper":
         assert isinstance(self.t, smt.QuantifierRef)
+        t = self.t
+        orig_vs, _body = kd.utils.open_binder_unhygienic(
+            t
+        )  # TODO: don't need to build body
         vs, body = kd.utils.open_binder(self.t)
         if self.t.is_forall():
-            hole = ForAllHole(vs)
+            hole = ForAllHole(vs, orig_vs)
         elif self.t.is_exists():
-            hole = ExistsHole(vs)
+            hole = ExistsHole(vs, orig_vs)
         elif self.t.is_lambda():
-            hole = LambdaHole(vs)
+            hole = LambdaHole(vs, orig_vs)
         else:
             raise NotImplementedError("Unknown quantifier type", self.t)
         self.ctx.append(hole)
         self.t = body
         return self
+
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> smt.ExprRef:
+        """
+        All subterms of the term in a pre-order traversal.
+
+        >>> x,y,z = smt.Ints("x y z")
+        >>> list(Zipper([], x + y*z))
+        [x, y*z, y, z]
+        """
+        if isinstance(self.t, smt.QuantifierRef):
+            self.open_binder()
+            return self.t
+        elif smt.is_const(self.t):
+            while len(self.ctx) != 0 and not self.ctx[-1].has_right():
+                self.up()
+            if len(self.ctx) == 0:
+                raise StopIteration
+            else:
+                self.right()
+                return self.t
+        elif smt.is_app(self.t):
+            self.arg(0)
+            return self.t
+        else:
+            raise ValueError("Unexpected term in Zipper iteration", self.t)
+
+    def pmatch(
+        self, vs: list[smt.ExprRef], pat: smt.ExprRef
+    ) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
+        """
+        Pattern match the current term against a pattern with variables vs.
+        Leaves the zipper in a context state.
+        This can be used to replace but rebuild using original context
+
+        >>> x,y,z,a,b,c = smt.Ints("x y z a b c")
+        >>> zip = Zipper([], x + smt.Lambda([y], y*z)[x])
+        >>> (subst := zip.pmatch([a,b], a*b))
+        {b: z, a: Y!...}
+        >>> zip.t = smt.IntVal(1) * subst[a]
+        >>> zip.rebuild()
+        x + Lambda(y, 1*y)[x]
+        """
+        subst = pmatch(vs, pat, self.t)
+        if subst is not None:
+            return subst
+        for t in self:
+            subst = pmatch(vs, pat, t)
+            if subst is not None:
+                return subst
 
     def __hash__(self):
         """

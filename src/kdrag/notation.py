@@ -98,6 +98,15 @@ class SortDispatch:
         return defn
 
 
+call = SortDispatch(name="call")
+"""Sort based dispatch for `()` call syntax"""
+smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)
+
+getitem = SortDispatch(name="getitem")
+"""Sort based dispatch for `[]` getitem syntax"""
+smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)  # type: ignore
+
+
 add = SortDispatch(name="add")
 """Sort based dispatch for `+` syntax"""
 smt.ExprRef.__add__ = lambda x, y: add(x, y)  # type: ignore
@@ -183,10 +192,6 @@ smt.ExprRef.wf = lambda x: wf(x)  # type: ignore
 induct = SortDispatch(name="induct")
 """Sort based dispatch for induction principles. Should instantiate an induction scheme for variable x and predicate P"""
 smt.ExprRef.induct = lambda x, P: induct(x, P)  # type: ignore
-
-getitem = SortDispatch(name="getitem")
-"""Sort based dispatch for `[]` getitem syntax"""
-smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)  # type: ignore
 
 
 to_int = SortDispatch(name="to_int")
