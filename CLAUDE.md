@@ -79,7 +79,7 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 - `l.induct(x, using=None)` - induct on variable `x` (auto-detects or use custom principle)
 
 **Advanced:**
-- `l.instan(n, *ts)` - instantiate universal in hypothesis `n` with terms
+- `l.specialize(n, *ts)` - instantiate universal in hypothesis `n` with terms
 - `with l.sub() as l1: ...` - create subgoal
 
 **Finish:**
