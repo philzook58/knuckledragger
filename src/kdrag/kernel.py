@@ -326,7 +326,7 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     Instantiate a universally quantified formula.
     This is forall elimination
     """
-    # Note: modus + instan2 easily derive this rule, but it is to have it directly.
+    # Note: modus + specialize easily derive this rule, but it is nice to have it directly.
     assert (
         is_proof(pf)
         and isinstance(pf.thm, smt.QuantifierRef)
@@ -337,7 +337,7 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), [pf])
 
 
-def instan2(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
+def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     """
     Instantiate a universally quantified formula
     `forall xs, P(xs) -> P(ts)`
