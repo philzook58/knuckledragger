@@ -77,6 +77,9 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 
 **Induction:**
 - `l.induct(x, using=None)` - induct on variable `x` (auto-detects or use custom principle)
+  - **Important**: After `l.induct(x)` on an inductive datatype, the constructor case generates `ForAll` for ALL constructor fields
+  - For `Cons(head, tail)` you must use `head, tail = l.fixes()` not `l.fix()`
+  - Example: After inducting on a list, the `Cons` case needs `fixes()` to open both head and tail
 
 **Advanced:**
 - `l.specialize(n, *ts)` - instantiate universal in hypothesis `n` with terms
@@ -122,14 +125,42 @@ result = c.qed()
 
 Supports `.eq`, `.le`, `.lt`, `.ge`, `.gt` for chained reasoning.
 
+### Common Proof Patterns
+
+**Induction on datatypes:**
+```python
+@kd.Theorem(smt.ForAll([l], my_property(l)))
+def my_lemma(pf):
+    _l = pf.fix()
+    pf.induct(_l)
+    # Base case (e.g., Nil)
+    pf.auto(by=[relevant_defns])
+    # Constructor case (e.g., Cons) - use fixes() for all fields!
+    _head, _tail = pf.fixes()
+    pf.auto(by=[relevant_defns, helper_lemmas])
+```
+
+**Passing lemmas to `by=`:**
+- Use `by=[lemma1, lemma2]` to provide previously proved theorems
+- Z3 will use these as assumptions
+- Sometimes you need to pass helper lemmas that seem "obvious" to help Z3 find the proof
+- Order can matter - Z3 may need earlier lemmas to prove later steps
+
+**When proofs timeout:**
+- Break into smaller lemmas
+- Prove helper lemmas first and use them in `by=`
+- Check if you need identity lemmas (e.g., `append(l, Nil) == l` before `rev_append`)
+- Consider increasing `timeout` parameter to `l.auto(by=[...], timeout=5000)`
+
 ### Theory Status
 
 **Stable/Mature** (good examples):
 - `kdrag.theories.int` - integer arithmetic with induction
-- `kdrag.theories.nat` - Peano naturals
+- `kdrag.theories.nat` - Peano naturals (excellent induction examples)
 - `kdrag.theories.logic.zf` - ZF set theory (excellent proof examples)
 - `kdrag.theories.seq` - sequences
-- `kdrag.theories.list` - lists
+- `kdrag.theories.list` - polymorphic lists (use only if needed, prefer monomorphic versions)
+- `examples/intlist.py` - pedagogical example of integer lists with many proofs
 
 **Experimental** (avoid for examples):
 - `kdrag.theories.algebra.*` - category theory, groups, etc.
