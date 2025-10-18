@@ -2,6 +2,11 @@
 
 - Try to follow the style that already exists in the repo
 - Simple and non verbose is much preferred
+- Recommend changes to improve clarity of error messages
+- Recommend changes to make more consistent with Lean/Rocq/Isabelle/ACL2 conventions
+- Reccomend new features that this system is missing that Lean/Rocq/Isabelle/ACL2/Mizar might have
+- Record new learnings in this file to avoid repeating failures
+- I am worried about proof instability and solve time. So try to keep track of those.
 
 ## Library Usage
 
@@ -17,6 +22,7 @@ Knuckledragger is a python library for interactive theorem proving backed by Z3.
 ### Z3 Basics (from `kdrag.smt`)
 
 Common functions:
+
 - `smt.Const(name, sort)` or `smt.Ints("x y z")`, `smt.Reals("x y z")`
 - `smt.ForAll(vs, body)`, `smt.Exists(vs, body)`
 - `smt.And(...)`, `smt.Or(...)`, `smt.Implies(p, q)`
@@ -27,6 +33,7 @@ Operators naturally overload: `+`, `-`, `*`, `/`, `==`, `!=`, `<`, `>`, `<=`, `>
 ### Simple Proofs
 
 `kd.prove(thm, by=[lemma1, lemma2], timeout=1000)` - Prove a theorem in one Z3 call
+
 - Returns a `kd.Proof` object
 - Use `by=[...]` to provide lemmas as assumptions
 - Throws `kd.kernel.LemmaError` if unprovable
@@ -34,6 +41,7 @@ Operators naturally overload: `+`, `-`, `*`, `/`, `==`, `!=`, `<`, `>`, `<=`, `>
 ### Proof State Tactics (Preferred: `@Theorem` decorator)
 
 **Modern style** (preferred):
+
 ```python
 @kd.Theorem(smt.ForAll([x], x + 0 == x))
 def add_zero(l):
@@ -43,6 +51,7 @@ def add_zero(l):
 ```
 
 **Old style** (less preferred):
+
 ```python
 l = kd.Lemma(smt.ForAll([x], x + 0 == x))
 x = l.fix()
@@ -57,17 +66,20 @@ For development, use `@kd.PTheorem` which prints next goal instead of erroring.
 Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theorem`):
 
 **Opening quantifiers/assumptions:**
+
 - `l.fix()` - open one ∀, returns the fresh variable
 - `l.fixes()` - open multiple ∀s, returns list
 - `l.intros()` - move implication hypothesis into context
 - `l.obtain(n)` - open ∃ in hypothesis `n`, returns witness constants
 
 **Proving subgoals:**
+
 - `l.auto(**kwargs)` - call Z3 on current goal with context
 - `l.show(thm, by=[...])` - prove goal equals `thm` using lemmas
 - `l.exact(pf)` - close goal with proof `pf`
 
 **Manipulating context/goal:**
+
 - `l.have(thm, by=[...])` - add lemma to context (must be implied by context)
 - `l.rw(rule, at=None, rev=False)` - rewrite using equality `rule` (at goal or hyp index)
 - `l.unfold(*decls, at=None)` - unfold definitions
@@ -76,16 +88,19 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 - `l.exists(*ts)` - provide witnesses for ∃ goal
 
 **Induction:**
+
 - `l.induct(x, using=None)` - induct on variable `x` (auto-detects or use custom principle)
   - **Important**: After `l.induct(x)` on an inductive datatype, the constructor case generates `ForAll` for ALL constructor fields
   - For `Cons(head, tail)` you must use `head, tail = l.fixes()` not `l.fix()`
   - Example: After inducting on a list, the `Cons` case needs `fixes()` to open both head and tail
 
 **Advanced:**
+
 - `l.specialize(n, *ts)` - instantiate universal in hypothesis `n` with terms
 - `with l.sub() as l1: ...` - create subgoal
 
 **Finish:**
+
 - `l.qed()` - complete proof and return `kd.Proof`
 
 ### Definitions and Axioms
@@ -127,7 +142,7 @@ Supports `.eq`, `.le`, `.lt`, `.ge`, `.gt` for chained reasoning.
 
 ### Common Proof Patterns
 
-**Induction on datatypes:**
+**Tactic-style (Lean/Rocq): Simple and direct**
 ```python
 @kd.Theorem(smt.ForAll([l], my_property(l)))
 def my_lemma(pf):
@@ -139,6 +154,29 @@ def my_lemma(pf):
     _head, _tail = pf.fixes()
     pf.auto(by=[relevant_defns, helper_lemmas])
 ```
+
+**Isar-style (Isabelle): Explicit forward reasoning with have/show**
+```python
+@kd.Theorem(smt.ForAll([l1, l2], sum(append(l1, l2)) == sum(l1) + sum(l2)))
+def sum_append(pf):
+    _l1, _l2 = pf.fixes()
+    pf.induct(_l1)
+    # Base case - establish facts with have, finish with auto
+    pf.have(append(Nil, _l2) == _l2, by=[append.defn])
+    pf.have(sum(Nil) == 0, by=[sum.defn])
+    pf.auto(by=[append.defn, sum.defn])  # Discharge accumulated implications
+    # Inductive case
+    _head, _tail = pf.fixes()
+    pf.have(append(Cons(_head, _tail), _l2) == Cons(_head, append(_tail, _l2)), by=[append.defn])
+    pf.auto(by=[append.defn, sum.defn])
+```
+
+**Important about `have` and `show`:**
+- `pf.have(fact, by=[...])` adds `fact -> goal` as the new goal (forward reasoning)
+- After multiple `have` statements, use `pf.auto()` to discharge all accumulated implications
+- `pf.show(exact_goal, by=[...])` checks the goal matches exactly, then proves it
+- Isar-style is more verbose but shows explicit reasoning steps
+- Tactic-style is more concise and lets Z3 do more work
 
 **Passing lemmas to `by=`:**
 - Use `by=[lemma1, lemma2]` to provide previously proved theorems
@@ -155,6 +193,7 @@ def my_lemma(pf):
 ### Theory Status
 
 **Stable/Mature** (good examples):
+
 - `kdrag.theories.int` - integer arithmetic with induction
 - `kdrag.theories.nat` - Peano naturals (excellent induction examples)
 - `kdrag.theories.logic.zf` - ZF set theory (excellent proof examples)
@@ -163,6 +202,7 @@ def my_lemma(pf):
 - `examples/intlist.py` - pedagogical example of integer lists with many proofs
 
 **Experimental** (avoid for examples):
+
 - `kdrag.theories.algebra.*` - category theory, groups, etc.
 - `kdrag.theories.real.calc` - needs updating
 

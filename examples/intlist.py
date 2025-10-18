@@ -188,6 +188,268 @@ def rev_rev(pf):
 print(f"Proved: {rev_rev}")
 print()
 
+# ============================================================================
+# Define membership predicate
+# ============================================================================
+
+mem = smt.Function("mem", smt.IntSort(), IntList, smt.BoolSort())
+mem = kd.define("mem", [x, l], smt.If(l.is_Nil, False, smt.Or(l.head == x, mem(x, l.tail))))
+
+print("Testing membership:")
+mem_test1 = kd.prove(mem(2, list_123) == True, by=[mem.defn])
+mem_test2 = kd.prove(mem(5, list_123) == False, by=[mem.defn])
+print(f"  2 ∈ [1,2,3]: {mem_test1}")
+print(f"  5 ∈ [1,2,3]: {mem_test2}")
+print()
+
+# ============================================================================
+# Prove: membership in append (Lean/Rocq tactic style)
+# ============================================================================
+
+@kd.Theorem(smt.ForAll([x, l1, l2], mem(x, append(l1, l2)) == smt.Or(mem(x, l1), mem(x, l2))))
+def mem_append_tactic(pf):
+    """Membership in append - tactic style proof"""
+    _x, _l1, _l2 = pf.fixes()
+    pf.induct(_l1)
+    # Base case: mem(x, append(Nil, l2)) == mem(x, l2)
+    pf.auto(by=[append.defn, mem.defn])
+    # Inductive case
+    _head, _tail = pf.fixes()
+    pf.auto(by=[append.defn, mem.defn])
+
+print(f"Proved (tactic style): {mem_append_tactic}")
+print()
+
+# ============================================================================
+# Prove: membership preserved by append - easier version for Isar style
+# ============================================================================
+
+# This one is easier to prove - just use the full characterization
+@kd.Theorem(smt.ForAll([x, l1, l2], smt.Implies(mem(x, l1), mem(x, append(l1, l2)))))
+def mem_append_left(pf):
+    """If x is in l1, then x is in append(l1, l2) - using helper lemma"""
+    _x, _l1, _l2 = pf.fixes()
+    pf.intros()
+    # Just use mem_append_tactic which already proved the equivalence
+    pf.show(mem(_x, append(_l1, _l2)), by=[mem_append_tactic])
+
+print(f"Proved: {mem_append_left}")
+print()
+
+# ============================================================================
+# Length of reverse equals length of original
+# ============================================================================
+
+@kd.Theorem(smt.ForAll([l], length(rev(l)) == length(l)))
+def length_rev(pf):
+    """Length of reverse equals length of original"""
+    _l = pf.fix()
+    pf.induct(_l)
+    # Base case
+    pf.auto(by=[rev.defn, length.defn])
+    # Inductive case
+    _head, _tail = pf.fixes()
+    # Need length_append to help
+    pf.auto(by=[rev.defn, length.defn, length_append])
+
+print(f"Proved: {length_rev}")
+print()
+
+# ============================================================================
+# Define map function
+# ============================================================================
+
+map_f = smt.Function("map", (smt.IntSort() >> smt.IntSort()), IntList, IntList)
+f = smt.Const("f", smt.IntSort() >> smt.IntSort())
+map_f = kd.define("map", [f, l], smt.If(l.is_Nil, Nil, Cons(f(l.head), map_f(f, l.tail))))
+
+# Example: map (+1) over a list
+succ = smt.Lambda([x], x + 1)
+print("Testing map:")
+map_test = kd.prove(map_f(succ, Cons(1, Cons(2, Nil))) == Cons(2, Cons(3, Nil)), by=[map_f.defn])
+print(f"  map(+1, [1,2]) = [2,3]: {map_test}")
+print()
+
+# ============================================================================
+# Prove: length of map equals length of original
+# ============================================================================
+
+@kd.Theorem(smt.ForAll([f, l], length(map_f(f, l)) == length(l)))
+def length_map(pf):
+    """Length of map equals length of original"""
+    _f, _l = pf.fixes()
+    pf.induct(_l)
+    # Base case
+    pf.auto(by=[map_f.defn, length.defn])
+    # Inductive case
+    _head, _tail = pf.fixes()
+    pf.auto(by=[map_f.defn, length.defn])
+
+print(f"Proved: {length_map}")
+print()
+
+# ============================================================================
+# Prove: map distributes over append (Isar style)
+# ============================================================================
+
+@kd.Theorem(smt.ForAll([f, l1, l2], map_f(f, append(l1, l2)) == append(map_f(f, l1), map_f(f, l2))))
+def map_append(pf):
+    """Map distributes over append - Isar style with explicit reasoning"""
+    _f, _l1, _l2 = pf.fixes()
+    pf.induct(_l1)
+
+    # Base case: map(f, append(Nil, l2)) == append(map(f, Nil), map(f, l2))
+    pf.have(append(Nil, _l2) == _l2, by=[append.defn])
+    pf.have(map_f(_f, Nil) == Nil, by=[map_f.defn])
+    pf.have(append(Nil, map_f(_f, _l2)) == map_f(_f, _l2), by=[append.defn])
+    pf.show(map_f(_f, append(Nil, _l2)) == append(map_f(_f, Nil), map_f(_f, _l2)), by=[])
+
+    # Inductive case
+    _head, _tail = pf.fixes()
+    # IH: map(f, append(tail, l2)) == append(map(f, tail), map(f, l2))
+    # Show: map(f, append(Cons(h,t), l2)) == append(map(f, Cons(h,t)), map(f, l2))
+    pf.auto(by=[append.defn, map_f.defn])
+
+print(f"Proved (Isar style): {map_append}")
+print()
+
+# ============================================================================
+# Define filter function
+# ============================================================================
+
+pred = smt.Const("pred", smt.IntSort() >> smt.BoolSort())
+filter_f = smt.Function("filter", (smt.IntSort() >> smt.BoolSort()), IntList, IntList)
+filter_f = kd.define(
+    "filter",
+    [pred, l],
+    smt.If(
+        l.is_Nil,
+        Nil,
+        smt.If(pred(l.head), Cons(l.head, filter_f(pred, l.tail)), filter_f(pred, l.tail))
+    )
+)
+
+# Example: filter positive numbers
+is_pos = smt.Lambda([x], x > 0)
+print("Testing filter:")
+filter_test = kd.prove(
+    filter_f(is_pos, Cons(-1, Cons(2, Cons(-3, Cons(4, Nil))))) == Cons(2, Cons(4, Nil)),
+    by=[filter_f.defn]
+)
+print(f"  filter(>0, [-1,2,-3,4]) = [2,4]: {filter_test}")
+print()
+
+# ============================================================================
+# Prove: length of filter is at most length of original
+# ============================================================================
+
+@kd.Theorem(smt.ForAll([pred, l], length(filter_f(pred, l)) <= length(l)))
+def length_filter(pf):
+    """Length of filtered list is at most length of original"""
+    _pred, _l = pf.fixes()
+    pf.induct(_l)
+    # Base case
+    pf.auto(by=[filter_f.defn, length.defn])
+    # Inductive case
+    _head, _tail = pf.fixes()
+    # Two sub-cases: pred(head) is true or false
+    # Z3 should handle the case split automatically
+    pf.auto(by=[filter_f.defn, length.defn])
+
+print(f"Proved: {length_filter}")
+print()
+
+# ============================================================================
+# Define sum function
+# ============================================================================
+
+sum_f = smt.Function("sum", IntList, smt.IntSort())
+sum_f = kd.define("sum", [l], smt.If(l.is_Nil, 0, l.head + sum_f(l.tail)))
+
+print("Testing sum:")
+sum_test = kd.prove(sum_f(list_123) == 6, by=[sum_f.defn])
+print(f"  sum([1,2,3]) = 6: {sum_test}")
+print()
+
+# ============================================================================
+# Prove: sum of append is sum of parts (Isar style with careful steps)
+# ============================================================================
+
+@kd.Theorem(smt.ForAll([l1, l2], sum_f(append(l1, l2)) == sum_f(l1) + sum_f(l2)))
+def sum_append(pf):
+    """Sum distributes over append - detailed Isar style proof"""
+    _l1, _l2 = pf.fixes()
+    pf.induct(_l1)
+
+    # Base case: sum(append(Nil, l2)) == sum(Nil) + sum(l2)
+    pf.have(append(Nil, _l2) == _l2, by=[append.defn])
+    pf.have(sum_f(Nil) == 0, by=[sum_f.defn])
+    pf.have(0 + sum_f(_l2) == sum_f(_l2), by=[])
+    # Now the goal has implications from the have statements
+    # We need to discharge them all with auto
+    pf.auto(by=[append.defn, sum_f.defn])
+
+    # Inductive case: sum(append(Cons(h,t), l2)) == sum(Cons(h,t)) + sum(l2)
+    _head, _tail = pf.fixes()
+    # IH: sum(append(tail, l2)) == sum(tail) + sum(l2)
+    pf.have(append(Cons(_head, _tail), _l2) == Cons(_head, append(_tail, _l2)), by=[append.defn])
+    pf.have(sum_f(Cons(_head, _tail)) == _head + sum_f(_tail), by=[sum_f.defn])
+    # sum(append(Cons(h,t), l2)) = sum(Cons(h, append(t, l2))) = h + sum(append(t, l2))
+    #                             = h + (sum(t) + sum(l2))      [by IH]
+    #                             = (h + sum(t)) + sum(l2)
+    #                             = sum(Cons(h,t)) + sum(l2)
+    pf.auto(by=[append.defn, sum_f.defn])
+
+print(f"Proved (Isar style): {sum_append}")
+print()
+
+# ============================================================================
+# Map-sum fusion (advanced property)
+# ============================================================================
+
+@kd.Theorem(smt.ForAll([f, l], sum_f(map_f(f, l)) == sum_f(map_f(f, l))))
+def map_sum_fusion_trivial(pf):
+    """Trivial identity for demonstration"""
+    pf.auto()
+
+# More interesting: if we had homomorphism properties
+# But for now let's prove something concrete
+
+# Define double function
+double_lam = smt.Lambda([x], 2 * x)
+
+@kd.Theorem(smt.ForAll([l], sum_f(map_f(double_lam, l)) == 2 * sum_f(l)))
+def sum_map_double(pf):
+    """Sum of doubled list is double the sum"""
+    _l = pf.fix()
+    pf.induct(_l)
+    # Base case
+    pf.auto(by=[map_f.defn, sum_f.defn])
+    # Inductive case
+    _head, _tail = pf.fixes()
+    pf.auto(by=[map_f.defn, sum_f.defn])
+
+print(f"Proved: {sum_map_double}")
+print()
+
+# ============================================================================
+# Append is not commutative (for non-empty lists)
+# ============================================================================
+
+# We can't prove append IS commutative, but we can show a counterexample exists
+# This is more of a sanity check
+
+print("Sanity check: append is NOT commutative")
+l1 = Cons(1, Nil)
+l2 = Cons(2, Nil)
+not_comm = kd.prove(append(l1, l2) != append(l2, l1), by=[append.defn])
+print(f"  [1] ++ [2] != [2] ++ [1]: {not_comm}")
+print()
+
 print("=" * 70)
 print("All proofs completed successfully!")
+print(f"Total theorems proved: 15")
+print("Styles demonstrated:")
+print("  - Tactic style (Lean/Rocq): fix, induct, auto")
+print("  - Isar style: have/show with explicit reasoning")
 print("=" * 70)
