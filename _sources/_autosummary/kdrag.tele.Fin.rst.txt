@@ -1,0 +1,6 @@
+kdrag.tele.Fin
+==============
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: Fin

@@ -1,0 +1,6 @@
+kdrag.utils.domain
+==================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: domain

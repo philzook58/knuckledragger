@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.overlaps
+================================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: overlaps

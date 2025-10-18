@@ -1,0 +1,36 @@
+kdrag.printers.verilog
+======================
+
+.. automodule:: kdrag.printers.verilog
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      to_verilog
+      verilog_decl
+      verilog_of_expr
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/printers/verilog.py
+   :language: python

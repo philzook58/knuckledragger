@@ -1,0 +1,45 @@
+kdrag.theories.logic
+====================
+
+.. automodule:: kdrag.theories.logic
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   GAT
+   axioms
+   computable
+   intuitionistic
+   nominal
+   ordinal
+   peano
+   robinson
+   sep
+   temporal
+   zf
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic.py
+   :language: python

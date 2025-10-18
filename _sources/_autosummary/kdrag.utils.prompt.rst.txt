@@ -1,0 +1,6 @@
+kdrag.utils.prompt
+==================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: prompt

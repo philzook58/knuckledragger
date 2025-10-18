@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.rename\_vars2
+=========================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: rename_vars2
