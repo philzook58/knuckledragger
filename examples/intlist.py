@@ -30,7 +30,7 @@ empty = Nil
 singleton_1 = Cons(1, Nil)
 list_123 = Cons(1, Cons(2, Cons(3, Nil)))
 
-print(f"Example lists:")
+print("Example lists:")
 print(f"  empty = {empty}")
 print(f"  singleton = {singleton_1}")
 print(f"  [1,2,3] = {list_123}")
@@ -81,7 +81,7 @@ append = kd.define(
 kd.notation.add.register(IntList, append)
 
 print("Testing append:")
-print(f"  Nil ++ [1,2,3] = Cons(1, Cons(2, Cons(3, Nil)))")
+print("  Nil ++ [1,2,3] = Cons(1, Cons(2, Cons(3, Nil)))")
 append_test = kd.prove(append(Nil, list_123) == list_123, by=[append.defn])
 print(f"  Proved: {append_test}")
 print()
@@ -150,7 +150,7 @@ rev = kd.define("rev", [l], smt.If(l.is_Nil, Nil, append(rev(l.tail), Cons(l.hea
 
 print("Testing reverse:")
 rev_test = kd.prove(rev(Cons(1, Cons(2, Cons(3, Nil)))) == Cons(3, Cons(2, Cons(1, Nil))), by=[rev.defn, append.defn])
-print(f"  rev([1,2,3]) = [3,2,1]")
+print("  rev([1,2,3]) = [3,2,1]")
 print(f"  Proved: {rev_test}")
 print()
 
@@ -196,8 +196,8 @@ mem = smt.Function("mem", smt.IntSort(), IntList, smt.BoolSort())
 mem = kd.define("mem", [x, l], smt.If(l.is_Nil, False, smt.Or(l.head == x, mem(x, l.tail))))
 
 print("Testing membership:")
-mem_test1 = kd.prove(mem(2, list_123) == True, by=[mem.defn])
-mem_test2 = kd.prove(mem(5, list_123) == False, by=[mem.defn])
+mem_test1 = kd.prove(mem(2, list_123) == smt.BoolVal(True), by=[mem.defn])
+mem_test2 = kd.prove(mem(5, list_123) == smt.BoolVal(False), by=[mem.defn])
 print(f"  2 ∈ [1,2,3]: {mem_test1}")
 print(f"  5 ∈ [1,2,3]: {mem_test2}")
 print()
@@ -563,7 +563,7 @@ all_f = kd.define("all", [pred_var, l],
 
 # Test with concrete predicate
 is_positive = smt.Lambda([x], x > 0)
-all_pos_test = kd.prove(all_f(is_positive, Cons(1, Cons(2, Nil))) == True, by=[all_f.defn])
+all_pos_test = kd.prove(all_f(is_positive, Cons(1, Cons(2, Nil))) == smt.BoolVal(True), by=[all_f.defn])
 print(f"  all(>0, [1,2]) = True: {all_pos_test}")
 print()
 
@@ -617,8 +617,8 @@ c.eq(length(append(l_fresh, m_fresh)) + length(n_fresh), by=[length_append])
 c.eq(length(l_fresh) + length(m_fresh) + length(n_fresh), by=[length_append])
 length_append_assoc_calc = c.qed()
 
-print(f"Proved with Calc:")
-print(f"  length(l ++ (m ++ n)) = length(l) + length(m) + length(n)")
+print("Proved with Calc:")
+print("  length(l ++ (m ++ n)) = length(l) + length(m) + length(n)")
 print(f"  Result: {length_append_assoc_calc}")
 print()
 
@@ -686,7 +686,7 @@ print()
 
 print("=" * 70)
 print("All proofs completed successfully!")
-print(f"Total theorems proved: 25+")
+print("Total theorems proved: 25+")
 print()
 print("Features demonstrated:")
 print("  1. Tactic style (Lean/Rocq): fix, induct, auto")
