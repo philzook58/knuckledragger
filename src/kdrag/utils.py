@@ -966,6 +966,103 @@ class Zipper:
         return hash((tuple(self.ctx), self.t))
 
 
+class ExprCtx(list):
+    """
+    A context of holes for an expression. Similar to Zipper, but with a nonmutating api
+    """
+
+    def copy(self) -> "ExprCtx":
+        return ExprCtx(self[:])
+
+    def arg(self, t: smt.ExprRef, n: int) -> tuple["ExprCtx", smt.ExprRef]:
+        """
+        >>> x,y,z = smt.Ints("x y z")
+        >>> t = (x + y) * (y + z)
+        >>> ExprCtx().arg(t, 1)
+        ([DeclHole(f=*, _left=(x + y,), _right=())], y + z)
+        """
+        ctx = self.copy()
+        children = t.children()
+        ctx.append(DeclHole(t.decl(), tuple(children[:n]), tuple(children[n + 1 :])))
+        return ctx, children[n]
+
+    def wrap(self, t) -> smt.ExprRef:
+        """
+        Wrap a term t in the context
+        >>> x,y,z = smt.Ints("x y z")
+        >>> t = (x + y) * (y + z)
+        >>> ctx, t1 = ExprCtx().arg(t, 1)
+        >>> ctx.wrap(t1)
+        (x + y)*(y + z)
+        """
+        for hole in reversed(self):
+            t = hole.wrap(t)
+        return t
+
+    def children(self, t) -> list[tuple["ExprCtx", smt.ExprRef]]:
+        """
+        >>> x,y,z = smt.Ints("x y z")
+        >>> t = (x + y) * (y + z)
+        >>> ExprCtx().children(t)
+        [([DeclHole(f=*, _left=(), _right=(y + z,))], x + y), ([DeclHole(f=*, _left=(x + y,), _right=())], y + z)]
+        """
+        children = t.children()
+        res = []
+        decl = t.decl()
+        for n in range(len(children)):
+            ctx = self.copy()
+            ctx.append(DeclHole(decl, tuple(children[:n]), tuple(children[n + 1 :])))
+            res.append((ctx, children[n]))
+        return res
+
+    def open_binder(self, t: smt.QuantifierRef) -> tuple["ExprCtx", smt.ExprRef]:
+        """
+        >>> x,y = smt.Ints("x y")
+        >>> t = smt.Lambda([x], x + y)
+        >>> ExprCtx().open_binder(t)
+        ([LambdaHole(vs=[X!...], orig_vs=[x])], X!... + y)
+        """
+        assert isinstance(t, smt.QuantifierRef)
+        ctx = self.copy()
+        orig_vs, _body = kd.utils.open_binder_unhygienic(
+            t
+        )  # TODO: don't need to build body
+        vs, body = kd.utils.open_binder(t)
+        if t.is_forall():
+            hole = ForAllHole(vs, orig_vs)
+        elif t.is_exists():
+            hole = ExistsHole(vs, orig_vs)
+        elif t.is_lambda():
+            hole = LambdaHole(vs, orig_vs)
+        else:
+            raise NotImplementedError("Unknown quantifier type", t)
+        ctx.append(hole)
+        return ctx, body
+
+
+def pmatch_rec_ctx(
+    vs: list[smt.ExprRef], pat: smt.ExprRef, t: smt.ExprRef
+) -> Optional[tuple[ExprCtx, smt.ExprRef, dict[smt.ExprRef, smt.ExprRef]]]:
+    """
+    Pattern match `pat` against subterms of `t`, returning the context, matched term, and substitution if successful.
+    >>> x,y,z,a,b = smt.Ints("x y z a b")
+    >>> kd.utils.pmatch_rec_ctx([a,b], a*b, smt.Lambda([x], x * y))
+    ([LambdaHole(vs=[X!...], orig_vs=[x])], X!...*y, {b: y, a: X!...})
+    """
+    todo = [(ExprCtx(), t)]
+    while todo:
+        ctx, t = todo.pop()
+        subst = pmatch(vs, pat, t)
+        if subst is not None:
+            return ctx, t, subst
+        elif smt.is_app(t):
+            todo.extend(ctx.children(t))
+        elif isinstance(t, smt.QuantifierRef):
+            todo.append(ctx.open_binder(t))
+        else:
+            raise ValueError("Unexpected term in pmatch_rec_ctx", t)
+
+
 def lemma_db() -> dict[str, kd.kernel.Proof]:
     """Scan all modules for Proof objects and return a dictionary of them."""
     db: dict[str, kd.kernel.Proof] = {}
