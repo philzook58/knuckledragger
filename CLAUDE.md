@@ -4,9 +4,10 @@
 - Simple and non verbose is much preferred
 - Recommend changes to improve clarity of error messages
 - Recommend changes to make more consistent with Lean/Rocq/Isabelle/ACL2 conventions
-- Reccomend new features that this system is missing that Lean/Rocq/Isabelle/ACL2/Mizar might have
+- Recommend new features that this system is missing that Lean/Rocq/Isabelle/ACL2/Mizar might have
 - Record new learnings in this file to avoid repeating failures
 - I am worried about proof instability and solve time. So try to keep track of those.
+- DO NOT try to be sneaky to get a proof though (mutating stuff, using python craziness). Knuckledragger relies on proper usage to remain sound.
 
 ## Library Usage
 
@@ -143,6 +144,7 @@ Supports `.eq`, `.le`, `.lt`, `.ge`, `.gt` for chained reasoning.
 ### Common Proof Patterns
 
 **Tactic-style (Lean/Rocq): Simple and direct**
+
 ```python
 @kd.Theorem(smt.ForAll([l], my_property(l)))
 def my_lemma(pf):
@@ -156,6 +158,7 @@ def my_lemma(pf):
 ```
 
 **Isar-style (Isabelle): Explicit forward reasoning with have/show**
+
 ```python
 @kd.Theorem(smt.ForAll([l1, l2], sum(append(l1, l2)) == sum(l1) + sum(l2)))
 def sum_append(pf):
@@ -172,6 +175,7 @@ def sum_append(pf):
 ```
 
 **Important about `have` and `show`:**
+
 - `pf.have(fact, by=[...])` adds `fact -> goal` as the new goal (forward reasoning)
 - After multiple `have` statements, use `pf.auto()` to discharge all accumulated implications
 - `pf.show(exact_goal, by=[...])` checks the goal matches exactly, then proves it
@@ -179,12 +183,14 @@ def sum_append(pf):
 - Tactic-style is more concise and lets Z3 do more work
 
 **Passing lemmas to `by=`:**
+
 - Use `by=[lemma1, lemma2]` to provide previously proved theorems
 - Z3 will use these as assumptions
 - Sometimes you need to pass helper lemmas that seem "obvious" to help Z3 find the proof
 - Order can matter - Z3 may need earlier lemmas to prove later steps
 
 **When proofs timeout:**
+
 - Break into smaller lemmas
 - Prove helper lemmas first and use them in `by=`
 - Check if you need identity lemmas (e.g., `append(l, Nil) == l` before `rev_append`)
