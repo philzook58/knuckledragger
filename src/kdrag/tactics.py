@@ -775,7 +775,7 @@ class ProofState:
         else:
             raise ValueError("obtain failed. Not an exists")
 
-    def instan(self, n, *ts):
+    def specialize(self, n, *ts):
         """
         Instantiate a universal quantifier in the context.
 
@@ -783,18 +783,18 @@ class ProofState:
         >>> l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))
         >>> l.intros()
         [ForAll(x, x == y)] ?|= True
-        >>> l.instan(0, smt.IntVal(42))
+        >>> l.specialize(0, smt.IntVal(42))
         [ForAll(x, x == y), 42 == y] ?|= True
         """
         goalctx = self.top_goal()
         thm = goalctx.ctx[n]
         if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-            l = kd.kernel.instan2(ts, thm)
+            l = kd.kernel.specialize(ts, thm)
             self.add_lemma(l)
             self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [l.thm.arg(1)])
             return self
         else:
-            raise ValueError("Instan failed. Not a forall", thm)
+            raise ValueError("Specialize failed. Not a forall", thm)
 
     def ext(self, at=None):
         """
@@ -1017,7 +1017,7 @@ class ProofState:
             rhs1 = smt.substitute(rhs, *[(v, t) for v, t in subst.items()])
             target: smt.BoolRef = smt.substitute(target, (lhs1, rhs1))
             if isinstance(rulethm, smt.QuantifierRef) and rulethm.is_forall():
-                self.add_lemma(kd.kernel.instan2([subst[v] for v in vs], rulethm))
+                self.add_lemma(kd.kernel.specialize([subst[v] for v in vs], rulethm))
             if not isinstance(rule, int) and kd.kernel.is_proof(rule):
                 self.add_lemma(rule)
             if at is None:
@@ -1215,7 +1215,7 @@ class ProofState:
             elif isinstance(pf, kd.Proof) and len(rule.vs) == 0:
                 self.add_lemma(pf)
             elif isinstance(pf, int) and len(rule.vs) > 0:
-                pf1 = kd.kernel.instan2([subst[v] for v in rule.vs], ctx[pf])
+                pf1 = kd.kernel.specialize([subst[v] for v in rule.vs], ctx[pf])
                 self.add_lemma(pf1)
             self.goals[-1] = goalctx._replace(ctx=ctx, goal=newgoal)
             return self.top_goal()
@@ -1281,7 +1281,7 @@ class ProofState:
         """
         goalctx = self.top_goal()
         self.pop_goal()
-        self.add_lemma(kd.kernel.instan2(vs, smt.ForAll(vs, goalctx.goal)))
+        self.add_lemma(kd.kernel.specialize(vs, smt.ForAll(vs, goalctx.goal)))
         self.goals.append(goalctx._replace(goal=smt.ForAll(vs, goalctx.goal)))
         return self.top_goal()
 
@@ -1357,7 +1357,7 @@ class ProofState:
 
     def show(self, thm: smt.BoolRef, **kwargs) -> "ProofState":
         """
-        Produces a new sub ProofState object and documents the current goal.
+        Documents the current goal and discharge it if by keyword is used
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, smt.And(x > -2, x > -1)))
