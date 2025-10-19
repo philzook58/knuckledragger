@@ -1357,7 +1357,7 @@ class ProofState:
 
     def show(self, thm: smt.BoolRef, **kwargs) -> "ProofState":
         """
-        Produces a new sub ProofState object and documents the current goal.
+        Documents the current goal and discharge it if by keyword is used
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, smt.And(x > -2, x > -1)))
