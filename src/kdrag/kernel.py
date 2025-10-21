@@ -552,27 +552,42 @@ def Inductive(name: str) -> smt.Datatype:
     assert name not in _datatypes
     dt = smt.Datatype(name)
     oldcreate = dt.create
+    olddeclare = dt.declare
+
+    def declare(constructor_name, *fields):
+        """Wrapped declare that checks for duplicate names immediately."""
+        # Check for duplicate constructor name
+        existing_names = set()
+        for cons_name, _, cons_fields in dt.constructors:
+            if cons_name == constructor_name:
+                raise ValueError(f"Duplicate constructor '{constructor_name}' in datatype '{name}'")
+            existing_names.add(cons_name)
+            # Collect existing field names
+            for field_name, _ in cons_fields:
+                existing_names.add(field_name)
+        
+        # Check for duplicate field names within this constructor
+        field_names = set()
+        for field in fields:
+            if isinstance(field, tuple) and len(field) >= 2:
+                field_name = field[0]
+                if field_name in field_names:
+                    raise ValueError(f"Duplicate field '{field_name}' in constructor '{constructor_name}'")
+                if field_name in existing_names:
+                    raise ValueError(f"Field '{field_name}' conflicts with existing name in datatype '{name}'")
+                field_names.add(field_name)
+        
+        # Call the original declare
+        return olddeclare(constructor_name, *fields)
 
     def create():
-        dt = oldcreate()
-        # Sanity check no duplicate names. Causes confusion.
-        names = set()
-        for i in range(dt.num_constructors()):
-            cons = dt.constructor(i)
-            n = cons.name()
-            if n in names:
-                raise Exception("Duplicate constructor name", n)
-            names.add(n)
-            for j in range(cons.arity()):
-                n = dt.accessor(i, j).name()
-                if n in names:
-                    raise Exception("Duplicate field name", n)
-                names.add(n)
-        kd.notation.induct.register(dt, induct_inductive)
-        _datatypes[name] = dt
-        smt.sort_registry[dt.get_id()] = dt
-        return dt
+        dt_result = oldcreate()
+        kd.notation.induct.register(dt_result, induct_inductive)
+        _datatypes[name] = dt_result
+        smt.sort_registry[dt_result.get_id()] = dt_result
+        return dt_result
 
+    dt.declare = declare
     dt.create = create
     return dt
 
