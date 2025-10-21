@@ -14,6 +14,19 @@ import time
 from dataclasses import dataclass
 
 
+class ProofStateError(Exception):
+    """
+    Exception raised when a proof fails within a ProofState context.
+    Wraps the original error with additional context about the goal state.
+    """
+
+    def __init__(self, goal_state, original_error):
+        self.goal_state = goal_state
+        self.original_error = original_error
+        message = f"\nProof failed in goal state:\n{goal_state}\n\nOriginal error: {original_error}"
+        super().__init__(message)
+
+
 def FreshVar(name: str, sort: smt.SortRef, assume=None) -> smt.ExprRef:
     """
     Create a schema variable with the given name and sort.
@@ -451,7 +464,9 @@ class ProofState:
     def get_lemma(self, thm: smt.BoolRef) -> kd.kernel.Proof:
         l = self.lemmas[-1].get(thm.get_id())
         if l is None:
-            return kdrag.kernel.prove(thm, by=list(self.lemmas[-1].values()))
+            return self._wrap_prove_error(
+                kdrag.kernel.prove, thm, by=list(self.lemmas[-1].values())
+            )
         else:
             return l
 
@@ -460,6 +475,16 @@ class ProofState:
 
     def pop_lemmas(self):
         self.lemmas.pop()
+
+    def _wrap_prove_error(self, func: Callable, *args, **kwargs):
+        """
+        Helper method to wrap prove calls and add goal state context to errors.
+        """
+        try:
+            return func(*args, **kwargs)
+        except kd.kernel.LemmaError as e:
+            goal_state = self.top_goal()
+            raise ProofStateError(goal_state, e) from e
 
     def copy(self):
         """
@@ -678,7 +703,9 @@ class ProofState:
                     self.add_lemma(l)
             else:
                 newgoal = kd.utils.pathmap(smt.simplify, oldgoal, path)
-                self.add_lemma(kd.kernel.prove(smt.Eq(oldgoal, newgoal)))
+                self.add_lemma(
+                    self._wrap_prove_error(kd.kernel.prove, smt.Eq(oldgoal, newgoal))
+                )
             # if newgoal.eq(oldgoal):
             #    raise ValueError(
             #        "Simplify failed. Goal is already simplified.", oldgoal
@@ -692,7 +719,7 @@ class ProofState:
             new = kd.utils.pathmap(smt.simplify, old, path)
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
-            self.add_lemma(kd.kernel.prove(old == new))
+            self.add_lemma(self._wrap_prove_error(kd.kernel.prove, old == new))
             self.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
@@ -743,7 +770,11 @@ class ProofState:
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
-        self.add_lemma(kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
+        self.add_lemma(
+            self._wrap_prove_error(
+                kd.prove, smt.Implies(smt.And(ctx), goal), **kwargs
+            )
+        )
         self.pop_goal()
         return self.top_goal()
 
@@ -1064,7 +1095,8 @@ class ProofState:
         ctxgoal = self.top_goal()
         if smt.is_eq(ctxgoal.goal):
             self.add_lemma(
-                kd.kernel.prove(
+                self._wrap_prove_error(
+                    kd.kernel.prove,
                     smt.Implies(smt.And(ctxgoal.ctx), ctxgoal.goal.arg(1) == rhs),
                     **kwargs,
                 )
@@ -1080,8 +1112,10 @@ class ProofState:
         """
         goalctx = self.top_goal()
         self.add_lemma(
-            kd.prove(
-                smt.Implies(smt.And(goalctx.ctx + [newgoal]), goalctx.goal), **kwargs
+            self._wrap_prove_error(
+                kd.prove,
+                smt.Implies(smt.And(goalctx.ctx + [newgoal]), goalctx.goal),
+                **kwargs,
             )
         )
         self.goals[-1] = goalctx._replace(goal=newgoal)
@@ -1109,7 +1143,9 @@ class ProofState:
                 raise ValueError(
                     "Beta tactic failed. Goal is already beta reduced.", oldgoal
                 )
-            self.add_lemma(kd.kernel.prove(smt.Eq(oldgoal, newgoal)))
+            self.add_lemma(
+                self._wrap_prove_error(kd.kernel.prove, smt.Eq(oldgoal, newgoal))
+            )
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
@@ -1119,7 +1155,7 @@ class ProofState:
                 raise ValueError(
                     "Beta tactic failed. Ctx is already beta reduced.", old
                 )
-            self.add_lemma(kd.kernel.prove(old == new))
+            self.add_lemma(self._wrap_prove_error(kd.kernel.prove, old == new))
             self.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
@@ -1153,7 +1189,7 @@ class ProofState:
             e = goalctx.ctx[at]
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls, trace=trace)
-            self.add_lemma(kd.prove(e == e2, by=trace))
+            self.add_lemma(self._wrap_prove_error(kd.prove, e == e2, by=trace))
             self.pop_goal()
             if at == -1:
                 at = len(goalctx.ctx) - 1
