@@ -19,7 +19,7 @@ def induct_nat(x, P):
     )
 
 
-n, x = smt.Ints("n x")
+n, x, N = smt.Ints("n x N")
 P = smt.Array("P", Z, smt.BoolSort())
 _l = kd.Lemma(
     kd.QForAll(
@@ -170,3 +170,27 @@ _p = _l.obtain(3)
 _l.exists(_p * (_n + 1))
 _l.auto()
 dvd_fact = _l.qed().forall([m, n])
+
+
+P = smt.Array("P", Z, smt.BoolSort())
+search = kd.define("search", [P, n], smt.If(P[n], n, smt.If(P[-n], -n, P[n + 1])))
+choose = kd.notation.choose.define([P], search(P, 0))
+# A choice operator. Also a relative of Kleene Mu
+# https://en.wikipedia.org/wiki/%CE%9C_operator
+
+
+# undef_downsearch = smt.FreshFunction(
+#    "undef_downsearch", smt.ArraySort(Z, smt.BoolSort())
+# )
+downsearch = smt.Function("downsearch", smt.ArraySort(Z, smt.BoolSort()), Z, Z)
+downsearch = kd.define(
+    "downsearch",
+    [P, n],
+    smt.If(P[n], n, smt.If(n < 0, 0, downsearch(P, n - 1))),
+)
+bchoose = kd.define(
+    "bchoose", [P, N], downsearch(P, N)
+)  # Default to 0 if no n satisfies P[n]
+
+# 0 <= bchoose() <= N
+bexists = kd.define("bexists", [P, N], P[bchoose(P, N)])

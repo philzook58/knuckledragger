@@ -189,6 +189,25 @@ wf = SortDispatch(name="wf")
 """`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists."""
 smt.ExprRef.wf = lambda x: wf(x)  # type: ignore
 
+measure = SortDispatch(name="measure")
+"""`measure is an Int value associated with an ExprRef for use in defining well-founded recursion."""
+# smt.ExprRef.measure = lambda x: measure(x)  # type: ignore
+measure.register(smt.IntSort(), lambda x: smt.Abs(x))  # type: ignore
+measure.register(smt.BoolSort(), lambda x: smt.If(x, smt.IntVal(1), smt.IntVal(0)))
+
+choose = SortDispatch(name="choose")
+"""Sort based dispatch for Hilbert choice operator."""
+# smt.ExprRef.choose = lambda P: choose(P)  # type: ignore
+
+# These are of questionable utility, but conceptually should be here.
+forall = SortDispatch(name="forall")
+"""Sort based dispatch for `ForAll` quantifier."""
+# smt.ExprRef.forall = lambda vs, body: forall(vs, body)
+
+exists = SortDispatch(name="exists")
+"""Sort based dispatch for `Exists` quantifier."""
+# smt.ExprRef.exists = lambda vs, body: exists(vs, body)
+
 induct = SortDispatch(name="induct")
 """Sort based dispatch for induction principles. Should instantiate an induction scheme for variable x and predicate P"""
 smt.ExprRef.induct = lambda x, P: induct(x, P)  # type: ignore

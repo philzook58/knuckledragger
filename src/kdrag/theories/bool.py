@@ -80,3 +80,8 @@ rws = [
     if_true,
     if_false,
 ]
+
+P = smt.Array("P", B, B)
+choose = kd.notation.choose.define(
+    [P], smt.If(P[True], smt.BoolVal(True), smt.BoolVal(False))
+)
