@@ -9,3 +9,6 @@ _build/
 .mypy_cache
 test.sh
 .hypothesis/
+.pytest_timing_report.json
+.pytest_profile.prof
+.pytest_profile.txt
