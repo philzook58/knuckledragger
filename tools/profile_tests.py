@@ -46,7 +46,7 @@ def main():
     print("\nTop 20 functions by cumulative time:")
     print("-" * 80)
     s = io.StringIO()
-    stats.stream = s
+    stats.stream = s  # type: ignore[misc]
     stats.sort_stats('cumulative')
     stats.print_stats(20)
     print(s.getvalue())
@@ -55,7 +55,7 @@ def main():
     print("\nTop 20 functions by internal time:")
     print("-" * 80)
     s = io.StringIO()
-    stats.stream = s
+    stats.stream = s  # type: ignore[misc]
     stats.sort_stats('time')
     stats.print_stats(20)
     print(s.getvalue())
@@ -63,7 +63,7 @@ def main():
     # Save detailed report to file
     report_file = Path('.pytest_profile.txt')
     with open(report_file, 'w') as f:
-        stats.stream = f
+        stats.stream = f  # type: ignore[misc]
         stats.sort_stats('cumulative')
         stats.print_stats()
     print(f"\n✓ Detailed profile report saved to: {report_file}")

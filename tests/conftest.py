@@ -7,7 +7,6 @@ and generates reports that are useful for CI/CD pipelines.
 import time
 import json
 from pathlib import Path
-import pytest
 import kdrag.config as config
 
 
@@ -33,7 +32,8 @@ class TimingPlugin:
     def pytest_runtest_teardown(self, item):
         """Called after each test completes."""
         if hasattr(item, 'test_start'):
-            duration = time.perf_counter() - item.test_start
+            start_time: float = item.test_start  # type: ignore[attr-defined]
+            duration = time.perf_counter() - start_time
             self.test_timings.append({
                 'nodeid': item.nodeid,
                 'duration': duration,
@@ -50,7 +50,7 @@ class TimingPlugin:
             
     def pytest_sessionfinish(self, session):
         """Called at the end of the test session."""
-        session_duration = time.perf_counter() - self.session_start
+        session_duration = time.perf_counter() - (self.session_start or 0)
         
         # Generate timing report
         report = self._generate_report(session_duration)
@@ -139,7 +139,7 @@ class TimingPlugin:
                         print(f"  {event['duration']:7.4f}s  {desc}")
         
         print("\n" + "=" * 70)
-        print(f"Full report saved to: .pytest_timing_report.json")
+        print("Full report saved to: .pytest_timing_report.json")
         print("=" * 70 + "\n")
 
 
