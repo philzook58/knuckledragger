@@ -121,3 +121,21 @@ def test_simp_error_with_goal_state():
     # The wrapping is in place for when it does call prove
     l.simp()
     assert True  # If we got here, simp didn't crash
+
+
+def test_qed_error_with_goal_state():
+    """Test that qed() errors include goal state context."""
+    x = smt.Int("x")
+    # Create a lemma but don't prove it
+    l = kd.Lemma(x > 100)
+    
+    with pytest.raises(ProofStateError) as exc_info:
+        # Try to finalize without proving the goal
+        l.qed(by=[])
+    
+    error = exc_info.value
+    assert isinstance(error, ProofStateError)
+    # Check that the goal state is in the error message
+    assert "x > 100" in str(error)
+    # Check that the original error is also present
+    assert "Countermodel" in str(error)

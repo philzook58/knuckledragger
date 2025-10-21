@@ -1578,7 +1578,7 @@ class ProofState:
             kwargs["by"].extend(self.lemmas[-1].values())
         else:
             kwargs["by"] = list(self.lemmas[-1].values())
-        pf = kd.kernel.prove(thm, **kwargs)
+        pf = self._wrap_prove_error(kd.kernel.prove, thm, **kwargs)
         kdrag.config.perf_event(
             "ProofState", self.thm, time.perf_counter() - self.start_time
         )
