@@ -187,8 +187,16 @@ def ForAll(vs: list[ExprRef], *hyp_conc, **kwargs) -> QuantifierRef:
     >>> x,y = Ints("x y")
     >>> ForAll([x,y], x > 0, y > 0, x + y > 0)
     ForAll([x, y], Implies(And(x > 0, y > 0), x + y > 0))
+    >>> x = Const("x", Lambda([x], x >= 0))
+    >>> ForAll([x], x > 3)
+    ForAll(x, Implies(x >= 0, x > 3))
 
     """
+    if any(v.assumes is not None for v in vs):
+        # fast path avoids this
+        hyp_conc0 = hyp_conc
+        hyp_conc = [v.assumes for v in vs if v.assumes is not None]
+        hyp_conc.extend(hyp_conc0)
     l = len(hyp_conc)
     assert l > 0
     if l == 1:
@@ -199,16 +207,28 @@ def ForAll(vs: list[ExprRef], *hyp_conc, **kwargs) -> QuantifierRef:
         return RawForAll(vs, Implies(And(hyp_conc[:-1]), hyp_conc[-1]), **kwargs)
 
 
-def Exists(vs: list[ExprRef], *concs0, **kwargs) -> QuantifierRef:
+def Exists(vs: list[ExprRef], *concs, **kwargs) -> QuantifierRef:
     """
     Quantified Exists
 
     Shorthand for `Exists(vars, And(conc[0], conc[1], ...))`
+
+    >>> x,y = Ints("x y")
+    >>> Exists([x,y], x > 0, y > 0)
+    Exists([x, y], And(x > 0, y > 0))
+    >>> x = Const("x", Lambda([x], x >= 0))
+    >>> Exists([x], x > 3)
+    Exists(x, And(x >= 0, x > 3))
     """
-    if len(concs0) == 1:
-        return RawExists(vs, concs0[0], **kwargs)
+    if any(v.assumes is not None for v in vs):
+        # fast path avoids this
+        concs0 = concs
+        concs = [v.assumes for v in vs if v.assumes is not None]
+        concs.extend(concs0)
+    if len(concs) == 1:
+        return RawExists(vs, concs[0], **kwargs)
     else:
-        return RawExists(vs, And(concs0), **kwargs)
+        return RawExists(vs, And(concs), **kwargs)
 
 
 ExprRef.induct = lambda x, P: None
@@ -510,3 +530,49 @@ def codomain(f: FuncRef) -> SortRef:
         return f.body().sort()
     else:
         raise TypeError(f"Expected ArrayRef or Lambda, got {f}")
+
+
+RawConst = Const
+
+
+def Const(name: str, sort: SortRef | FuncRef) -> ExprRef:
+    """
+    Create a constant of a given sort.
+    If a set value is given as the sort, this is treated as a constraint
+    held in the `assumes` field of the constant.
+    This field may be used by quantifiers.
+
+    >>> n = Int("n")
+    >>> x = Const("x", Lambda([n], n >= 0))
+    >>> x.assumes
+    x >= 0
+    """
+    if isinstance(sort, SortRef):
+        return RawConst(name, sort)
+    else:
+        doms = domains(sort)
+        assert len(doms) == 1 and codomain(sort) == BoolSort()
+        x = RawConst(name, doms[0])
+        x.assumes = sort(x)
+        return x
+
+
+RawConsts = Consts
+
+
+def Consts(names: str, sort: SortRef | FuncRef) -> list[ExprRef]:
+    """
+    >>> n = Int("n")
+    >>> xs = Consts("x y z", Lambda([n], n >= 0))
+    >>> [x.assumes for x in xs]
+    [x >= 0, y >= 0, z >= 0]
+    """
+    if isinstance(sort, SortRef):
+        return RawConsts(names, sort)
+    else:
+        doms = domains(sort)
+        assert len(doms) == 1 and codomain(sort) == BoolSort()
+        xs = RawConsts(names, doms[0])
+        for x in xs:
+            x.assumes = sort(x)
+        return xs

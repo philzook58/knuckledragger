@@ -18,10 +18,6 @@ Importing this module will add some syntactic sugar to smt.
 import kdrag.smt as smt
 import kdrag as kd
 
-smt.BoolRef.__and__ = lambda self, other: smt.And(self, other)
-smt.BoolRef.__or__ = lambda self, other: smt.Or(self, other)
-smt.BoolRef.__invert__ = lambda self: smt.Not(self)
-
 
 smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore
 
@@ -63,10 +59,11 @@ class SortDispatch:
     Not(True)
     """
 
-    def __init__(self, name=None, default=None):
+    def __init__(self, name=None, default=None, pointwise=False):
         self.methods = {}
         self.default = default
         self.name = name
+        self.pointwise = pointwise
 
     def register(self, sort, func):
         self.methods[sort] = func
@@ -78,14 +75,51 @@ class SortDispatch:
         return sort in self.methods
 
     def __call__(self, *args, **kwargs):
+        """
+
+        TODO: Overloading in theories.set is interfering. Which to keep?
+        # >>> _ = smt.Lambda([x], x > 0) & smt.BoolVal(False)
+
+        >>> x = smt.Int("x")
+        >>> _ = smt.Lambda([x], x > 0) & smt.Lambda([x], x > 1)
+        >>> foo = SortDispatch("foo", pointwise=True)
+        >>> foo.register(smt.IntSort(), lambda x: x + 1)
+        >>> foo(x)
+        x + 1
+        >>> z = smt.Array("z", smt.RealSort(), smt.IntSort())
+        >>> foo(z)
+        Lambda(x0!..., z[x0!...] + 1)
+        >>> smt.Lambda([x], x) + smt.Lambda([x], x)
+        Lambda(x0!..., x0!... + x0!...)
+        >>> smt.Lambda([x], x) + 1
+        Lambda(x0!..., x0!... + 1)
+        """
         if not args:
             raise TypeError("No arguments provided")
         sort = args[0].sort()
         res = self.methods.get(sort, self.default)
         if res is None:
-            raise NotImplementedError(
-                f"No implementation of {self.name} for sort {sort}. Register a definition via {self.name}.register({sort}, your_code)",
-            )
+            x0 = args[0]
+            if self.pointwise and smt.is_func(x0):
+                doms = smt.domains(x0)
+                vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
+                sort = x0.sort()
+                # sorts are same or attempt coerce/lift
+                return smt.Lambda(
+                    vs,
+                    self(
+                        *[
+                            arg(*vs)
+                            if isinstance(arg, smt.ExprRef) and arg.sort() == x0.sort()
+                            else arg
+                            for arg in args
+                        ]
+                    ),
+                )
+            else:
+                raise NotImplementedError(
+                    f"No implementation of {self.name} for sort {sort}. Register a definition via {self.name}.register({sort}, your_code)",
+                )
         return res(*args, **kwargs)
 
     def define(self, args, body):
@@ -100,16 +134,19 @@ class SortDispatch:
 
 call = SortDispatch(name="call")
 """Sort based dispatch for `()` call syntax"""
-smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)
+smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)  # type: ignore
 
 getitem = SortDispatch(name="getitem")
 """Sort based dispatch for `[]` getitem syntax"""
 smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)  # type: ignore
 
 
-add = SortDispatch(name="add")
+add = SortDispatch(name="add", pointwise=True)
 """Sort based dispatch for `+` syntax"""
 smt.ExprRef.__add__ = lambda x, y: add(x, y)  # type: ignore
+# BoolRef has an __add__ method, and QuantifierRef subclasses it even though this makes no sense.
+# Clearing this restores better behavior.
+smt.QuantifierRef.__add__ = lambda x, y: add(x, y)  # type: ignore
 
 _n, _m = smt.Ints("n m")
 _x, _y = smt.Reals("x y")
@@ -117,61 +154,88 @@ add.register(smt.IntSort(), (_n + _m).decl())
 add.register(smt.RealSort(), (_x + _y).decl())
 
 
-radd = SortDispatch(name="radd")
+radd = SortDispatch(name="radd", pointwise=True)
 """Sort based dispatch for `+` syntax"""
+radd.register(smt.IntSort(), (_n + _m).decl())
+radd.register(smt.RealSort(), (_x + _y).decl())
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
 
-sub = SortDispatch(name="sub")
+
+sub = SortDispatch(name="sub", pointwise=True)
 """Sort based dispatch for `-` syntax"""
+sub.register(smt.IntSort(), lambda x, y: x - y)
+sub.register(smt.RealSort(), lambda x, y: x - y)
 smt.ExprRef.__sub__ = lambda x, y: sub(x, y)  # type: ignore
+smt.QuantifierRef.__sub__ = lambda x, y: sub(x, y)  # type: ignore
 
-mul = SortDispatch(name="mul")
+mul = SortDispatch(name="mul", pointwise=True)
 """Sort based dispatch for `*` syntax"""
+mul.register(smt.IntSort(), lambda x, y: x * y)
+mul.register(smt.RealSort(), lambda x, y: x * y)
 smt.ExprRef.__mul__ = lambda x, y: mul(x, y)  # type: ignore
+smt.QuantifierRef.__mul__ = lambda x, y: mul(x, y)  # type: ignore
 
-rmul = SortDispatch(name="rmul")
+rmul = SortDispatch(name="rmul", pointwise=True)
 """Sort based dispatch for `*` syntax"""
 smt.ExprRef.__rmul__ = lambda x, y: rmul(x, y)  # type: ignore
 
-matmul = SortDispatch(name="matmul")
+
+matmul = SortDispatch(name="matmul", pointwise=True)
 """Sort based dispatch for `@` syntax"""
 smt.ExprRef.__matmul__ = lambda x, y: matmul(x, y)  # type: ignore
 
-neg = SortDispatch(name="neg")
+neg = SortDispatch(name="neg", pointwise=True)
 """Sort based dispatch for `-` syntax"""
+neg.register(smt.IntSort(), lambda x: -x)
+neg.register(smt.RealSort(), lambda x: -x)
 smt.ExprRef.__neg__ = lambda x: neg(x)  # type: ignore
 
-div = SortDispatch(name="div_")
+div = SortDispatch(name="div_", pointwise=True)
 """Sort based dispatch for `/` syntax"""
 smt.ExprRef.__truediv__ = lambda x, y: div(x, y)  # type: ignore
 
-and_ = SortDispatch(name="and_")
+and_ = SortDispatch(name="and_", pointwise=True)
 """Sort based dispatch for `&` syntax"""
 smt.ExprRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
+smt.QuantifierRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
+and_.register(smt.BoolSort(), smt.And)
 
-or_ = SortDispatch(name="or_")
+or_ = SortDispatch(name="or_", pointwise=True)
 """Sort based dispatch for `|` syntax"""
 smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
+smt.QuantifierRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
+or_.register(smt.BoolSort(), smt.Or)
 
-invert = SortDispatch(name="invert")
+invert = SortDispatch(name="invert", pointwise=True)
 """Sort based dispatch for `~` syntax"""
 smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore
+smt.QuantifierRef.__invert__ = lambda x: invert(x)  # type: ignore
+invert.register(smt.BoolSort(), smt.Not)
 
-lt = SortDispatch(name="lt")
+lt = SortDispatch(name="lt", pointwise=True)
 """Sort based dispatch for `<` syntax"""
 smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore
+lt.register(smt.IntSort(), lambda x, y: x < y)
+lt.register(smt.RealSort(), lambda x, y: x < y)
 
-le = SortDispatch(name="le")
+
+le = SortDispatch(name="le", pointwise=True)
 """Sort based dispatch for `<=` syntax"""
 smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore
+le.register(smt.IntSort(), lambda x, y: x <= y)
+le.register(smt.RealSort(), lambda x, y: x <= y)
 
-ge = SortDispatch(name="ge")
+ge = SortDispatch(name="ge", pointwise=True)
 """Sort based dispatch for `>=` syntax"""
 smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore
+ge.register(smt.IntSort(), lambda x, y: x >= y)
+ge.register(smt.RealSort(), lambda x, y: x >= y)
 
-gt = SortDispatch(name="gt")
+gt = SortDispatch(name="gt", pointwise=True)
 """Sort based dispatch for `>` syntax"""
 smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore
+gt.register(smt.IntSort(), lambda x, y: x > y)
+gt.register(smt.RealSort(), lambda x, y: x > y)
 
 # contains cannot work because python demands a concrete bool.
 # contains = SortDispatch(name="contains")
@@ -180,6 +244,46 @@ smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore
 eq = SortDispatch(name="eq", default=smt.Eq)
 """Sort based dispatch for `==` syntax"""
 smt.ExprRef.__eq__ = lambda x, y: eq(x, y)  # type: ignore
+
+
+def PointEq(x: smt.ExprRef, y) -> smt.ExprRef:
+    """
+    Pointwise equality rather than on the nose equality.
+
+    >>> x = smt.Int("x")
+    >>> PointEq(smt.Lambda([x], x), 1)
+    Lambda(x0!..., x0!... == 1)
+    """
+    # Overloading Eq seems too violent as it already had a meaning
+    if (
+        isinstance(x, smt.QuantifierRef) or isinstance(x, smt.ArrayRef)
+    ) and smt.is_func(x):
+        doms = smt.domains(x)
+        vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
+        if isinstance(y, smt.ExprRef) and x.sort() == y.sort():
+            return smt.Lambda(vs, PointEq(x(*vs), y(*vs)))
+        else:
+            # Try to lift y to x's domain
+            return smt.Lambda(vs, PointEq(x(*vs), y))
+    else:
+        return smt.Eq(x, y)
+
+
+def PointIf(c, t, e):
+    """
+    Pointwise if-then-else rather than on the nose if-then-else.
+
+    >>> x = smt.Int("x")
+    >>> PointIf(smt.Lambda([x], x > 0), 1, -1)
+    Lambda(x0!..., If(x0!... > 0, 1, -1))
+    """
+    if smt.is_func(c):
+        doms = smt.domains(c)
+        vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
+        return smt.Lambda(vs, PointIf(c(*vs), t, e))
+    else:
+        return smt.If(c, t, e)
+
 
 ne = SortDispatch(name="ne", default=smt.NEq)
 """Sort based dispatch for `!=` syntax"""
