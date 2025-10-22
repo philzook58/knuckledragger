@@ -449,3 +449,64 @@ def DeclareSort(name):
 
 
 ExprRef.assumes = None
+
+
+type FuncRef = ArrayRef | QuantifierRef
+
+
+def is_func(f: FuncRef) -> bool:
+    """
+    Check if a term is a function or an array.
+
+    >>> x = Int("x")
+    >>> assert is_func(Lambda([x], x))
+    """
+    return is_array(f) or (isinstance(f, QuantifierRef) and f.is_lambda())
+
+
+def domains(f: FuncRef) -> list[SortRef]:
+    """
+    Get the domain sorts of a lambda or an array.
+
+    >>> x = Int("x")
+    >>> y = Real("y")
+    >>> f = Array("f", IntSort(), RealSort(), IntSort())
+    >>> domains(f)
+    [Int, Real]
+    >>> lam = Lambda([x, y], x + y)
+    >>> domains(lam)
+    [Int, Real]
+    """
+    if isinstance(f, ArrayRef):
+        res = []
+        i = 0
+        try:  # I do not know a better way than to try and catch to determine arity of array
+            while True:
+                res.append(f.domain_n(i))
+                i += 1
+        except Z3Exception:
+            return res
+    elif isinstance(f, QuantifierRef) and f.is_lambda():
+        return [f.var_sort(i) for i in range(f.num_vars())]
+    else:
+        raise TypeError(f"Expected ArrayRef or Lambda, got {f}")
+
+
+def codomain(f: FuncRef) -> SortRef:
+    """
+    >>> x = Int("x")
+    >>> y = Int("y")
+    >>> f = Array("f", IntSort(), RealSort())
+    >>> codomain(f)
+    Real
+    >>> lam = Lambda([x, y], x + y)
+    >>> codomain(lam)
+    Int
+
+    """
+    if isinstance(f, ArrayRef):
+        return f.range()
+    elif isinstance(f, QuantifierRef) and f.is_lambda():
+        return f.body().sort()
+    else:
+        raise TypeError(f"Expected ArrayRef or Lambda, got {f}")

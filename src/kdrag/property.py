@@ -6,7 +6,7 @@ from typing import Protocol, runtime_checkable
 import kdrag as kd
 from . import smt
 
-type SetRef = kd.utils.FuncRef
+type SetRef = smt.FuncRef
 
 
 # https://leanprover-community.github.io/mathlib4_docs/Init/Core.html#Std.Associative

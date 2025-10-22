@@ -167,6 +167,49 @@ def simp(e: smt.ExprRef, trace=None, max_iter=3) -> smt.ExprRef:
             e = e1
 
 
+def esimp(vs: list[smt.ExprRef], goal: smt.BoolRef, max_iters=7, timeout=50):
+    """
+    Simplify and unfold goal while seeking a ground model for vs that is provably a solution.
+    This can be used in a minikanren-lite way or to produce counterexamples.
+    Does not produce generalized solutions like a prolog would.
+
+    >>> n,x,y = smt.Ints("n x y")
+    >>> fact = smt.Function("fact", smt.IntSort(), smt.IntSort())
+    >>> fact = kd.define("fact", [n], smt.If(n <= 0, 1, n * fact(n - 1)))
+    >>> esimp([x], fact(x) == 6)
+    {x: 3}
+    """
+    for i in range(max_iters):
+        goal0 = goal
+        goal = smt.simplify(goal)
+        goal1 = unfold(goal)
+        assert isinstance(goal1, smt.BoolRef)  # type checker
+        goal = goal1
+        s = smt.Solver()
+        s.set("timeout", timeout)
+        s.add(goal)
+        res = s.check()
+        if res == smt.unsat:
+            return False  # Can't be satisfied. raise?
+        elif res == smt.sat:
+            # Do loop or generalize here?
+            m = s.model()
+            subst = {v: m.eval(v) for v in vs}
+            sgoal = smt.substitute(goal, *subst.items())
+            s = smt.Solver()
+            s.set("timeout", timeout)
+            s.add(smt.Not(sgoal))
+            res = s.check()
+            if res == smt.unsat:
+                return subst
+            else:
+                # still satisfiable. Not provably a solution.
+                pass
+        if goal0.eq(goal):
+            # No progress. TODO: Could start eliminating models at this point.
+            return None
+
+
 def def_eq(e1: smt.ExprRef, e2: smt.ExprRef, trace=None) -> bool:
     """
     A notion of computational equality. Unfold and simp.

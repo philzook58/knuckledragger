@@ -8284,3 +8284,31 @@ def RawExists(
     False
     """
     ...
+
+type FuncRef = ArrayRef | QuantifierRef
+
+def is_func(f: FuncRef) -> bool:
+    """
+    Check if a term is a function or an array.
+
+    >>> x = Int("x")
+    >>> assert is_func(Lambda([x], x))
+    """
+    ...
+
+def domains(f: FuncRef) -> list[SortRef]:
+    """
+    Get the domain sorts of a lambda or an array.
+
+    >>> x = Int("x")
+    >>> y = Real("y")
+    >>> f = Array("f", IntSort(), RealSort(), IntSort())
+    >>> domains(f)
+    [Int, Real]
+    >>> lam = Lambda([x, y], x + y)
+    >>> domains(lam)
+    [Int, Real]
+    """
+    ...
+
+def codomain(f: FuncRef) -> SortRef: ...

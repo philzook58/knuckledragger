@@ -614,7 +614,7 @@ def _sort_of_annotation(ann, globals={}, locals={}):
             s = eval(value.replace('"', ""), globals, locals)
             if isinstance(s, type):
                 return sort_of_type(s)
-            elif kd.utils.is_func(s):
+            elif smt.is_func(s):
                 raise NotImplementedError("Subsort types not yet supported")
             elif isinstance(s, smt.SortRef):
                 return s

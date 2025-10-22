@@ -811,9 +811,9 @@ class ProofState:
             target = goalctx.ctx[at]
         if smt.is_eq(target):
             lhs = target.arg(0)
-            if kd.utils.is_func(lhs):
+            if smt.is_func(lhs):
                 return self.rw(
-                    kd.kernel.ext(kd.utils.domain(lhs), kd.utils.range_(lhs)), at=at
+                    kd.kernel.ext(smt.domains(lhs), smt.codomain(lhs)), at=at
                 )
             else:
                 raise ValueError("Ext failed. Target is not an array equality", target)
