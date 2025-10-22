@@ -70,6 +70,41 @@ def seq(*args):
         return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
 
 
+def Cons(x: smt.ExprRef, tl: smt.SeqSortRef):
+    """
+    >>> smt.simplify(Cons(smt.IntVal(3), Nil(smt.IntSort())))
+    Unit(3)
+    """
+    return smt.Concat([smt.Unit(x), tl])
+
+
+def Tail(s: smt.SeqSortRef):
+    """
+    >>> x = smt.Const("x", Seq(smt.BoolSort()))
+    >>> Tail(x)
+    seq.extract(x, 1, Length(x) - 1)
+    """
+    return smt.SubSeq(s, 1, smt.Length(s) - 1)
+
+
+def Nil(s: smt.SortRef):
+    return smt.Empty(smt.SeqSort(s))
+
+
+def Head(s: smt.SeqRef):
+    """
+    >>> x = smt.Const("x", Seq(smt.BoolSort()))
+    >>> Head(x)
+    Nth(x, 0)
+    >>> kd.prove(smt.Implies(smt.Length(x) > 0, smt.Concat([smt.Unit(Head(x)), Tail(x)]) == x))
+    |= Implies(Length(x) > 0,
+        Concat(Unit(Nth(x, 0)),
+                seq.extract(x, 1, Length(x) - 1)) ==
+        x)
+    """
+    return s[0]
+
+
 def Seq(T: smt.SortRef) -> smt.SeqSortRef:
     """
     Make sort of Sequences and prove useful lemmas.

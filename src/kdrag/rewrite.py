@@ -518,6 +518,49 @@ def forward_rule(r: Rule, tgt: smt.BoolRef):
         return None
 
 
+def horn_trig(e: kd.kernel.Proof) -> kd.kernel.Proof:
+    """
+    Take a horn clause and add triggers to it for the head
+
+    >>> x = smt.Int("x")
+    >>> pf = kd.prove(smt.ForAll([x], x > 0, x >= 0))
+    >>> pf2 = horn_trig(pf)
+    >>> pf2
+    |= ForAll(X!..., Implies(X!... > 0, X!... >= 0))
+    >>> pf2.thm.pattern(0)
+    Var(0) >= 0
+    """
+    rule = rule_of_expr(e)
+    if rule.vs:
+        return kd.kernel.rename_vars2(e, rule.vs, patterns=[rule.conc])
+    else:
+        raise Exception("No variables in horn clause", e)
+
+
+def rw_trig(e: kd.kernel.Proof, rev=False) -> kd.kernel.Proof:
+    """
+    Take a rewrite rule and add triggers to it for the lhs or rhs
+
+    >>> x = smt.Int("x")
+    >>> pf = kd.prove(smt.ForAll([x], x + 1 == 1 + x))
+    >>> pf2 = rw_trig(pf)
+    >>> pf2
+    |= ForAll(X!..., X!... + 1 == 1 + X!...)
+    >>> pf2.thm.pattern(0)
+    Var(0) + 1
+    >>> rw_trig(pf,rev=True).thm.pattern(0)
+    1 + Var(0)
+    """
+    rule = rewrite_of_expr(e)
+    if rule.vs:
+        if not rev:
+            return kd.kernel.rename_vars2(e, rule.vs, patterns=[rule.lhs])
+        else:
+            return kd.kernel.rename_vars2(e, rule.vs, patterns=[rule.rhs])
+    else:
+        raise Exception("No variables in rewrite", e)
+
+
 """
 def apply_horn(thm: smt.BoolRef, horn: smt.BoolRef) -> smt.BoolRef:
     pat = horn

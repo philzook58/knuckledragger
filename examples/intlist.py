@@ -159,8 +159,10 @@ rev = kd.define(
 )
 
 print("Testing reverse:")
+print(kd.rewrite.full_simp(rev(Cons(1, Cons(2, Cons(3, Nil))))))
 rev_test = kd.prove(
     rev(Cons(1, Cons(2, Cons(3, Nil)))) == Cons(3, Cons(2, Cons(1, Nil))),
+    unfold=5,
     by=[rev.defn, append.defn],
 )
 print("  rev([1,2,3]) = [3,2,1]")
@@ -180,7 +182,9 @@ def rev_append(pf):
     pf.induct(_l1)
     # Base case: rev(append(Nil, l2)) == append(rev(l2), rev(Nil))
     # Need append_nil_r to simplify append(rev(l2), Nil)
-    pf.auto(by=[append.defn, rev.defn, append_nil_r])
+    pf.auto(
+        by=[append.defn(Nil, _l2), append.defn, rev.defn, rev.defn(Nil), append_nil_r]
+    )
     # Inductive case
     _x, _tail = pf.fixes()
     pf.auto(by=[append.defn, rev.defn, append_assoc])
@@ -196,7 +200,7 @@ def rev_rev(pf):
     _l = pf.fix()
     pf.induct(_l)
     # Base case: rev(rev(Nil)) == Nil
-    pf.auto(by=[rev.defn])
+    pf.auto(by=[rev.defn(Nil)])
     # Inductive case: rev(rev(Cons(x, tail))) == Cons(x, tail)
     _x, _tail = pf.fixes()
     pf.auto(by=[rev.defn, rev_append, append.defn])

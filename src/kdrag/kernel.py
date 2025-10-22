@@ -241,7 +241,7 @@ def define(
         def_ax = axiom(smt.Eq(f(), body), by="definition")
     else:
         def_ax = axiom(
-            smt.ForAll(args, smt.Eq(f(*args), body), patterns=[f(*args)]),
+            smt.RawForAll(args, smt.Eq(f(*args), body), patterns=[f(*args)]),
             by="definition",
         )
     defn = Defn(
@@ -451,7 +451,8 @@ def ext(domain: Sequence[smt.SortRef], range_: smt.SortRef) -> Proof:
     f, g = smt.Consts("f g", T)
     xs = [smt.Const(f"x{n}", sort) for n, sort in enumerate(domain)]
     return kd.axiom(
-        smt.ForAll([f, g], smt.Eq((f == g), smt.ForAll(xs, f[*xs] == g[*xs]))), ["ext"]
+        smt.RawForAll([f, g], smt.Eq((f == g), smt.RawForAll(xs, f[*xs] == g[*xs]))),
+        ["ext"],
     )
 
 
@@ -646,4 +647,37 @@ def generalize(vs: list[smt.ExprRef], pf: Proof) -> Proof:
     """
     assert all(is_fresh_var(v) for v in vs)
     assert isinstance(pf, Proof)
-    return axiom(smt.ForAll(vs, pf.thm), by=["generalize", vs, pf])
+    return axiom(smt.RawForAll(vs, pf.thm), by=["generalize", vs, pf])
+
+
+def rename_vars2(
+    pf: Proof, vs: list[smt.ExprRef], patterns=[], no_patterns=[]
+) -> Proof:
+    """
+    Rename bound variables and also attach triggers
+
+    >>> x,y = smt.Ints("x y")
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    >>> rename_vars2(kd.prove(smt.ForAll([x, y], x + 1 > x)), [y,x], patterns=[x+y])
+    |= ForAll([y, x], y + 1 > y)
+    >>> rename_vars2(kd.prove(smt.Exists([x], x + 1 > y)), [y])
+    Traceback (most recent call last):
+        ...
+    ValueError: ('Cannot rename vars to ones that already occur in term', [y], Exists(x, x + 1 > y))
+    """
+    assert isinstance(pf, Proof)
+    thm = pf.thm
+    assert isinstance(thm, smt.QuantifierRef)
+    t_body = thm.body()
+    body = smt.substitute_vars(t_body, *reversed(vs))
+    if thm.is_forall():
+        t2 = smt.ForAll(vs, body, patterns=patterns, no_patterns=no_patterns)
+    elif thm.is_exists():
+        t2 = smt.Exists(vs, body, patterns=patterns, no_patterns=no_patterns)
+    else:
+        raise Exception("Unknown quantifier type", thm)
+    if not t2.body().eq(t_body):
+        raise ValueError(
+            "Cannot rename vars to ones that already occur in term", vs, thm
+        )
+    return axiom(t2, by=["rename", pf, vs])

@@ -8243,3 +8243,44 @@ def is_neg(a: ExprRef) -> bool: ...
 sort_registry: dict[str, SortRef]
 
 class Z3Exception(Exception): ...
+
+def RawForAll(
+    vs, body, weight=..., qid=..., skid=..., patterns=..., no_patterns=...
+):  # -> BoolRef | QuantifierRef:
+    """Create a Z3 forall formula.
+
+    The parameters `weight`, `qid`, `skid`, `patterns` and `no_patterns` are optional annotations.
+
+    >>> f = Function('f', IntSort(), IntSort(), IntSort())
+    >>> x = Int('x')
+    >>> y = Int('y')
+    >>> ForAll([x, y], f(x, y) >= x)
+    ForAll([x, y], f(x, y) >= x)
+    >>> ForAll([x, y], f(x, y) >= x, patterns=[ f(x, y) ])
+    ForAll([x, y], f(x, y) >= x)
+    >>> ForAll([x, y], f(x, y) >= x, weight=10)
+    ForAll([x, y], f(x, y) >= x)
+    """
+    ...
+
+def RawExists(
+    vs, body, weight=..., qid=..., skid=..., patterns=..., no_patterns=...
+):  # -> BoolRef | QuantifierRef:
+    """Create a Z3 exists formula.
+
+    The parameters `weight`, `qif`, `skid`, `patterns` and `no_patterns` are optional annotations.
+
+
+    >>> f = Function('f', IntSort(), IntSort(), IntSort())
+    >>> x = Int('x')
+    >>> y = Int('y')
+    >>> q = Exists([x, y], f(x, y) >= x, skid="foo")
+    >>> q
+    Exists([x, y], f(x, y) >= x)
+    >>> is_quantifier(q)
+    True
+    >>> r = Tactic('nnf')(q).as_expr()
+    >>> is_quantifier(r)
+    False
+    """
+    ...

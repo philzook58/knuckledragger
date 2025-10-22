@@ -177,6 +177,40 @@ NEq = ExprRef.__ne__
 RawForAll = ForAll
 RawExists = Exists
 
+
+def ForAll(vs: list[ExprRef], *hyp_conc, **kwargs) -> QuantifierRef:
+    """
+    Quantified ForAll
+
+    Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`
+
+    >>> x,y = Ints("x y")
+    >>> ForAll([x,y], x > 0, y > 0, x + y > 0)
+    ForAll([x, y], Implies(And(x > 0, y > 0), x + y > 0))
+
+    """
+    l = len(hyp_conc)
+    assert l > 0
+    if l == 1:
+        return RawForAll(vs, hyp_conc[0], **kwargs)
+    elif l == 2:
+        return RawForAll(vs, Implies(hyp_conc[0], hyp_conc[1]), **kwargs)
+    else:
+        return RawForAll(vs, Implies(And(hyp_conc[:-1]), hyp_conc[-1]), **kwargs)
+
+
+def Exists(vs: list[ExprRef], *concs0, **kwargs) -> QuantifierRef:
+    """
+    Quantified Exists
+
+    Shorthand for `Exists(vars, And(conc[0], conc[1], ...))`
+    """
+    if len(concs0) == 1:
+        return RawExists(vs, concs0[0], **kwargs)
+    else:
+        return RawExists(vs, And(concs0), **kwargs)
+
+
 ExprRef.induct = lambda x, P: None
 ExprRef.__add__ = lambda x, y: None
 ExprRef.__sub__ = lambda x, y: None

@@ -262,12 +262,12 @@ def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
     hyps.extend([v.wf() for v in vs if v.sort() in wf.methods])
     hyps.extend(hyp_conc[:-1])
     if len(hyps) == 0:
-        return smt.ForAll(vs, conc)
+        return smt.RawForAll(vs, conc)
     elif len(hyps) == 1:
-        return smt.ForAll(vs, smt.Implies(hyps[0], conc))
+        return smt.RawForAll(vs, smt.Implies(hyps[0], conc))
     else:
         hyp = smt.And(hyps)
-        return smt.ForAll(vs, smt.Implies(hyp, conc))
+        return smt.RawForAll(vs, smt.Implies(hyp, conc))
 
 
 def QExists(vs: list[smt.ExprRef], *concs0) -> smt.BoolRef:
@@ -281,9 +281,9 @@ def QExists(vs: list[smt.ExprRef], *concs0) -> smt.BoolRef:
     concs.extend([v.wf() for v in vs if v.sort() in wf.methods])
     concs.extend(concs0)
     if len(concs) == 1:
-        return smt.Exists(vs, concs[0])
+        return smt.RawExists(vs, concs[0])
     else:
-        return smt.Exists(vs, smt.And(concs))
+        return smt.RawExists(vs, smt.And(concs))
 
 
 def QLambda(xs: list[smt.ExprRef], *args):

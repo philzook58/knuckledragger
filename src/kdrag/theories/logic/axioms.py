@@ -256,39 +256,6 @@ def rename_vars(
     return t2, kd.axiom(t == t2, by=["rename", t, vs])
 
 
-def rename_vars2(
-    pf: kd.Proof, vs: list[smt.ExprRef], patterns=[], no_patterns=[]
-) -> kd.Proof:
-    """
-    Rename bound variables and also attach triggers
-
-    >>> x,y = smt.Ints("x y")
-    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
-    >>> rename_vars2(kd.prove(smt.ForAll([x, y], x + 1 > x)), [y,x], patterns=[x+y])
-    |= ForAll([y, x], y + 1 > y)
-    >>> rename_vars2(kd.prove(smt.Exists([x], x + 1 > y)), [y])
-    Traceback (most recent call last):
-        ...
-    ValueError: ('Cannot rename vars to ones that already occur in term', [y], Exists(x, x + 1 > y))
-    """
-    assert isinstance(pf, kd.Proof)
-    thm = pf.thm
-    assert isinstance(thm, smt.QuantifierRef)
-    t_body = thm.body()
-    body = smt.substitute_vars(t_body, *reversed(vs))
-    if thm.is_forall():
-        t2 = smt.ForAll(vs, body, patterns=patterns, no_patterns=no_patterns)
-    elif thm.is_exists():
-        t2 = smt.Exists(vs, body, patterns=patterns, no_patterns=no_patterns)
-    else:
-        raise Exception("Unknown quantifier type", thm)
-    if not t2.body().eq(t_body):
-        raise ValueError(
-            "Cannot rename vars to ones that already occur in term", vs, thm
-        )
-    return kd.axiom(t2, by=["rename", pf, vs])
-
-
 """
 TODO: For better Lemma
 def modus_n(n: int, ab: Proof, bc: Proof):
