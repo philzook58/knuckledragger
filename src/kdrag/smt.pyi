@@ -8289,7 +8289,7 @@ def RawExists(
 
 type FuncRef = ArrayRef | QuantifierRef
 
-def is_func(f: FuncRef) -> bool:
+def is_func(f: ExprRef) -> bool:
     """
     Check if a term is a function or an array.
 
@@ -8298,7 +8298,7 @@ def is_func(f: FuncRef) -> bool:
     """
     ...
 
-def domains(f: FuncRef) -> list[SortRef]:
+def domains(f: FuncRef | ArraySortRef) -> list[SortRef]:
     """
     Get the domain sorts of a lambda or an array.
 
@@ -8313,4 +8313,4 @@ def domains(f: FuncRef) -> list[SortRef]:
     """
     ...
 
-def codomain(f: FuncRef) -> SortRef: ...
+def codomain(f: FuncRef | ArraySortRef) -> SortRef: ...

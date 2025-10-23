@@ -474,7 +474,7 @@ ExprRef.assumes = None
 type FuncRef = ArrayRef | QuantifierRef
 
 
-def is_func(f: FuncRef) -> bool:
+def is_func(f: ExprRef) -> bool:
     """
     Check if a term is a function or an array.
 
@@ -484,7 +484,7 @@ def is_func(f: FuncRef) -> bool:
     return is_array(f) or (isinstance(f, QuantifierRef) and f.is_lambda())
 
 
-def domains(f: FuncRef) -> list[SortRef]:
+def domains(f: FuncRef | ArraySortRef) -> list[SortRef]:
     """
     Get the domain sorts of a lambda or an array.
 
@@ -497,7 +497,7 @@ def domains(f: FuncRef) -> list[SortRef]:
     >>> domains(lam)
     [Int, Real]
     """
-    if isinstance(f, ArrayRef):
+    if isinstance(f, ArrayRef) or isinstance(f, ArraySortRef):
         res = []
         i = 0
         try:  # I do not know a better way than to try and catch to determine arity of array
@@ -512,7 +512,7 @@ def domains(f: FuncRef) -> list[SortRef]:
         raise TypeError(f"Expected ArrayRef or Lambda, got {f}")
 
 
-def codomain(f: FuncRef) -> SortRef:
+def codomain(f: FuncRef | ArraySortRef) -> SortRef:
     """
     >>> x = Int("x")
     >>> y = Int("y")
@@ -524,7 +524,7 @@ def codomain(f: FuncRef) -> SortRef:
     Int
 
     """
-    if isinstance(f, ArrayRef):
+    if isinstance(f, ArrayRef) or isinstance(f, ArraySortRef):
         return f.range()
     elif isinstance(f, QuantifierRef) and f.is_lambda():
         return f.body().sort()

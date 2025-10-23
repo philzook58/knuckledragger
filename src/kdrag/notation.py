@@ -217,6 +217,8 @@ lt = SortDispatch(name="lt", pointwise=True)
 smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore
 lt.register(smt.IntSort(), lambda x, y: x < y)
 lt.register(smt.RealSort(), lambda x, y: x < y)
+# Conceptually this kind of makes sense, but SubSet is the more natural thing.
+# lt.register(smt.BoolSort(), lambda x, y: smt.And(smt.Not(x), y))
 
 
 le = SortDispatch(name="le", pointwise=True)
@@ -224,18 +226,21 @@ le = SortDispatch(name="le", pointwise=True)
 smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore
 le.register(smt.IntSort(), lambda x, y: x <= y)
 le.register(smt.RealSort(), lambda x, y: x <= y)
+# le.register(smt.BoolSort(), lambda x, y: smt.Implies(x, y))
 
 ge = SortDispatch(name="ge", pointwise=True)
 """Sort based dispatch for `>=` syntax"""
 smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore
 ge.register(smt.IntSort(), lambda x, y: x >= y)
 ge.register(smt.RealSort(), lambda x, y: x >= y)
+# ge.register(smt.BoolSort(), lambda x, y: smt.Implies(y, x))
 
 gt = SortDispatch(name="gt", pointwise=True)
 """Sort based dispatch for `>` syntax"""
 smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore
 gt.register(smt.IntSort(), lambda x, y: x > y)
 gt.register(smt.RealSort(), lambda x, y: x > y)
+# gt.register(smt.BoolSort(), lambda x, y: smt.And(x, smt.Not(y)))
 
 # contains cannot work because python demands a concrete bool.
 # contains = SortDispatch(name="contains")
@@ -269,21 +274,50 @@ def PointEq(x: smt.ExprRef, y) -> smt.ExprRef:
         return smt.Eq(x, y)
 
 
-def PointIf(c, t, e):
+PEq = PointEq
+
+
+def coerce(s: smt.SortRef, e) -> smt.ExprRef:  # pointwise_cast? domain_cast?
+    if isinstance(e, smt.ExprRef) and e.sort() == s:
+        return e
+    elif isinstance(s, smt.ArraySortRef):
+        try:
+            res = coerce(s.range(), e)
+        except Exception as e:
+            raise Exception("Cannot automatically coerce", e, s)
+        vs = [smt.FreshConst(dom) for dom in smt.domains(s)]
+        return smt.Lambda(vs, res)
+    else:
+        return s.cast(e)
+
+
+def PointIf(c, t: smt.ExprRef, e: smt.ExprRef) -> smt.ExprRef:
     """
     Pointwise if-then-else rather than on the nose if-then-else.
 
     >>> x = smt.Int("x")
     >>> PointIf(smt.Lambda([x], x > 0), 1, -1)
     Lambda(x0!..., If(x0!... > 0, 1, -1))
+    >>> PointIf(smt.Lambda([x], x > 0), smt.Lambda([x], x+1), -1)
+    Lambda(x0!..., If(x0!... > 0, x0!... + 1, -1))
     """
-    if smt.is_func(c):
-        doms = smt.domains(c)
-        vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
-        return smt.Lambda(vs, PointIf(c(*vs), t, e))
-    else:
-        return smt.If(c, t, e)
+    if not smt.is_func(c):
+        raise Exception("Condition must be a function", c, c.sort())
+    if isinstance(t, smt.ExprRef):
+        tsort = t.sort()
+        e = coerce(tsort, e)
+    elif isinstance(e, smt.ExprRef):
+        esort = e.sort()
+        t = coerce(esort, t)
+    doms = smt.domains(c)
+    vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
+    if smt.is_func(t):  # pass parameters into t and e
+        return smt.Lambda(vs, smt.If(c(*vs), t(*vs), e(*vs)))
+    else:  # lift constants
+        return smt.Lambda(vs, smt.If(c(*vs), t, e))
 
+
+PIf = PointIf
 
 ne = SortDispatch(name="ne", default=smt.NEq)
 """Sort based dispatch for `!=` syntax"""
