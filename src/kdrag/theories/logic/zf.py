@@ -261,7 +261,7 @@ l = kd.Lemma(
     smt.ForAll([x, A, B], elem(x, bigunion(upair(A, B))) == (elem(x, A) | elem(x, B)))
 )
 _x, _A, _B = l.fixes()
-l.rewrite(bigunion_ax)
+l.rw(bigunion_ax)
 l.split()
 with l.sub() as c1:
     c1.intros()

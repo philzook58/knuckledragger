@@ -210,8 +210,8 @@ l = kd.Lemma(
 _a, _b, _c, _d, _e, _f = l.fixes()
 l.intros()
 l.split(0)
-l.rewrite(0)
-l.rewrite(1)
+l.rw(0)
+l.rw(1)
 l.auto()
 trans_eq_example = l.qed()
 

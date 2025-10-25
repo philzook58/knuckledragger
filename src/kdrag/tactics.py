@@ -974,7 +974,7 @@ class ProofState:
         self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
         return self
 
-    def rewrite(
+    def rw(
         self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs
     ) -> "ProofState":
         """
@@ -985,7 +985,7 @@ class ProofState:
         >>> l = Lemma(smt.Implies(x >= 0, smt.Sqrt(x + 2)**2 == x + 2))
         >>> l.intros()
         [x!... >= 0] ?|= ((x!... + 2)**(1/2))**2 == x!... + 2
-        >>> l.rewrite(pf,by=[])
+        >>> l.rw(pf,by=[])
         [x!... >= 0, x!... + 2 >= 0] ?|= x!... + 2 == x!... + 2
         """
         goalctx = self.top_goal()
@@ -1049,12 +1049,6 @@ class ProofState:
                 )
             else:
                 return self
-
-    def rw(self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs):
-        """
-        shorthand for rewrite
-        """
-        return self.rewrite(rule, at=at, rev=rev, **kwargs)
 
     def symm(self):
         """
