@@ -342,3 +342,43 @@ BoolSet = Set(smt.BoolSort())
 # @functools.cache
 # def FinSet(T : smt.SortRef) -> smt.DatatypeRef:
 #    return NewType("FinSet_" + str(T), T, pred=Finite)
+
+
+def EClass(x: smt.ExprRef, eqrel) -> smt.QuantifierRef:
+    """
+    Equivalence class [x] under equivalence relation eqrel.
+    The set of all v such that eqrel(x, v) holds.
+    https://en.wikipedia.org/wiki/Equivalence_class
+
+    >>> x,y = smt.Ints("x y")
+    >>> (A := EClass(x, lambda a,b: a % 3 == b % 3))
+    Lambda(v!..., x%3 == v!...%3)
+    >>> kd.prove(EClass(3, lambda a,b: a % 3 == b % 3)[3])
+    |= Lambda(v!..., 3%3 == v!...%3)[3]
+
+    """
+    x = smt._py2expr(x)
+    v = smt.FreshConst(x.sort(), prefix="v")
+    return smt.Lambda([v], eqrel(x, v))
+
+
+def Quot(dom: smt.SortRef, eqrel) -> smt.QuantifierRef:
+    """
+    Quotient space under equivalence relation eqrel.
+    A set of sets of A.
+    The set of equivalence classes
+    https://en.wikipedia.org/wiki/Equivalence_class
+
+    >>> x = smt.Int("x")
+    >>> l = kd.Lemma((smt.IntSort() // (lambda a,b: a % 3 == b % 3))[EClass(x, lambda a,b: a % 3 == b % 3)])
+    >>> l.simp().exists(x).auto()
+    Nothing to do!
+    >>> _ = l.qed()
+    """
+    # TODO: consider supporting ArrayRef too as first argument
+    x = smt.FreshConst(dom, prefix="x")
+    A = smt.FreshConst(smt.SetSort(dom), prefix="A")
+    return smt.Lambda([A], smt.Exists([x], A == EClass(x, eqrel)))
+
+
+smt.SortRef.__floordiv__ = Quot  # type: ignore
