@@ -166,6 +166,12 @@ class AsmSpec:
         prelude_pattern = re.compile(rf"^\s*kd_prelude\s+{EXPR}\s*$")
         preludes = []
         decls = ctx._subst_decls.copy()
+        decls["write"] = smt.Array(
+            "write", smt.BitVecSort(ctx.bits), smt.BoolSort()
+        ).decl()
+        decls["read"] = smt.Array(
+            "read", smt.BitVecSort(ctx.bits), smt.BoolSort()
+        ).decl()
         spec = cls()
 
         def find_label(label: str) -> int:
@@ -264,7 +270,7 @@ class TraceState:
     trace: Trace  # list of addresses
     state: pcode.SimState
     trace_id: list[int]
-    ghost_env: dict[str, smt.ExprRef] = dataclasses.field(default_factory=dict)
+    ghost_env: dict[str, smt.ExprRef]  # = dataclasses.field(default_factory=dict)
 
 
 def substitute_ghost(e: smt.ExprRef, ghost_env: dict[str, smt.ExprRef]) -> smt.ExprRef:
@@ -324,7 +330,8 @@ class VerificationCondition(NamedTuple):
         """
         Verify the verification condition using the given context.
         """
-        vc = ctx.unfold(self.vc(ctx))
+        vc1 = self.vc(ctx)
+        vc = ctx.unfold(vc1)
         assert isinstance(vc, smt.BoolRef)
         return kd.prove(vc, **kwargs)
 
@@ -413,6 +420,19 @@ def execute_spec_stmts(
     ), vcs
 
 
+def update_write(state, ghost_env):
+    write = ghost_env["write"]
+    for offset, size in state.memstate.write:
+        for i in range(size // 8):
+            write = smt.Store(write, smt.simplify(offset + i), True)
+    state.memstate.write.clear()  #  TODO: This is really dirty
+    res = {
+        **ghost_env,
+        "write": write,
+    }
+    return res
+
+
 def execute_insn(
     tracestate: TraceState, ctx: pcode.BinaryContext, verbose=True
 ) -> list[TraceState]:
@@ -439,7 +459,7 @@ def execute_insn(
             trace_id=tracestate.trace_id
             if len(new_tracestates) == 1
             else tracestate.trace_id + [i],
-            ghost_env=tracestate.ghost_env,
+            ghost_env=update_write(state, tracestate.ghost_env),
         )
         for i, state in enumerate(new_tracestates)
     ]
@@ -461,12 +481,18 @@ def init_trace_states(
             if isinstance(stmt, Cut) or isinstance(stmt, Entry):
                 init_trace_id += 1
                 precond = ctx.substitute(mem, stmt.expr)  # No ghost? Use substitute?
+                ghost_env = {
+                    "write": smt.K(smt.BitVecSort(mem.bits), smt.BoolVal(False))
+                    if isinstance(stmt, Entry)
+                    else smt.Array("write", smt.BitVecSort(mem.bits), smt.BoolSort())
+                }
                 assert isinstance(precond, smt.BoolRef)
                 tracestate = TraceState(
                     start=stmt,
                     trace=[],
                     trace_id=[init_trace_id],
                     state=pcode.SimState(mem, (addr, 0), [precond]),
+                    ghost_env=ghost_env,
                 )
                 tracestate, new_vcs = execute_spec_stmts(
                     specstmts[n + 1 :], tracestate, ctx
@@ -518,6 +544,7 @@ def run_all_paths(
         vcs.extend(new_vcs)
         if tracestate is not None:
             todo.extend(execute_insn(tracestate, ctx, verbose=verbose))
+
     return vcs
 
 

@@ -1,6 +1,8 @@
 
 from kdrag.all import *
 from kdrag.contrib.pcode.asmspec import assemble_and_check_str, AsmSpec, run_all_paths, kd_macro
+import kdrag.contrib.pcode as pcode
+
 import pytest
 import subprocess
 
@@ -191,3 +193,32 @@ def test_riscv32():
         f.flush()
     res = subprocess.run("""nix-shell -p pkgsCross.riscv32-embedded.buildPackages.gcc \
         --run "riscv32-none-elf-as /tmp/mov42.s -o /tmp/mov42.o" """, shell=True, check=True, capture_output=True, text=True)
+
+
+@pytest.mark.slow
+def test_riscv32_write():
+    code = """
+    .include "/tmp/knuckle.s"
+    .option norvc
+    .text
+    .globl _start
+    _start:
+kd_entry myfunc, "true"
+    li   t0, 42          # load immediate 42 into t0
+    li   t1, 1000        # load address 1000 into t1
+    sw   t0, 0(t1)       # store t0 at memory address
+
+kd_exit myfunc_end, "(select write (_ bv1000 32))"
+    ret
+    """
+    with open("/tmp/mov42.s", "w") as f:
+        f.write(code)
+        f.flush()
+    res = subprocess.run("""nix-shell -p pkgsCross.riscv32-embedded.buildPackages.gcc \
+        --run "riscv32-none-elf-as /tmp/mov42.s -o /tmp/mov42.o" """, shell=True, check=True, capture_output=True, text=True)
+    ctx = pcode.BinaryContext("/tmp/mov42.o", langid="RISCV:LE:32:default")
+    spec = AsmSpec.of_file("/tmp/mov42.s", ctx)
+    vcs = run_all_paths(ctx, spec)
+    assert len(vcs) == 1
+    for vc in vcs:
+        vc.verify(ctx)

@@ -14,7 +14,6 @@ import archinfo
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.bitvec as bv
-import kdrag.theories.fun as fun
 import operator
 from dataclasses import dataclass
 import dataclasses
@@ -103,7 +102,8 @@ class MemState:
     mem: smt.DatatypeRef
     bits: int  # bitwidth of addresses
     read: smt.ArrayRef
-    write: smt.ArrayRef
+    # write: smt.ArrayRef
+    write: list[tuple[smt.BitVecRef, int]]
 
     @classmethod
     def Const(cls, name: str, bits: int = 64) -> "MemState":
@@ -111,7 +111,7 @@ class MemState:
             smt.Const(name, MemStateSort[bits]),
             bits=bits,
             read=smt.Array(name + "_read", BV[bits], smt.BoolSort()),
-            write=smt.Array(name + "_write", BV[bits], smt.BoolSort()),
+            write=[],  # smt.Array(name + "_write", BV[bits], smt.BoolSort()),
         )
 
     def getvalue(self, vnode: pypcode.Varnode) -> smt.BitVecRef | int:
@@ -152,9 +152,9 @@ class MemState:
         return dataclasses.replace(
             self,
             mem=self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset1, value)),  # type: ignore
-            write=fun.MultiStore(
-                self.write, offset1, *([smt.BoolVal(True)] * value.size())
-            ),
+            write=self.write + [(offset1, value.size())],  # fun.MultiStore(
+            #     self.write, offset1, *([smt.BoolVal(True)] * value.size())
+            # ),
         )
 
 
