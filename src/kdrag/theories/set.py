@@ -382,3 +382,16 @@ def Quot(dom: smt.SortRef, eqrel) -> smt.QuantifierRef:
 
 
 smt.SortRef.__floordiv__ = Quot  # type: ignore
+
+
+def Choose(A: smt.FuncRef, auto=False) -> tuple[smt.ExprRef, kd.Proof]:
+    """
+    Choose an arbitrary element from set A.
+
+    >>> x = smt.Int("x")
+    >>> Choose(smt.Lambda([x], x > 0))
+    ([c!...], |= Implies(Exists(c!..., c!... > 0), c!... > 0))
+    """
+    # TODO: maybe discharge the existential too?
+    xs = [smt.FreshConst(sort) for sort in smt.domains(A)]
+    return kd.kernel.obtain(smt.Exists(xs, A(*xs)))
