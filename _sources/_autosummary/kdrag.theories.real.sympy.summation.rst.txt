@@ -1,0 +1,6 @@
+kdrag.theories.real.sympy.summation
+===================================
+
+.. currentmodule:: kdrag.theories.real.sympy
+
+.. autofunction:: summation

@@ -1,0 +1,6 @@
+kdrag.modal.Valid
+=================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: Valid

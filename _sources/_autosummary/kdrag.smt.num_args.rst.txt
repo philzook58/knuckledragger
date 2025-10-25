@@ -1,0 +1,6 @@
+kdrag.smt.num\_args
+===================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: num_args

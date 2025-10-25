@@ -1,0 +1,6 @@
+kdrag.theories.seq.Head
+=======================
+
+.. currentmodule:: kdrag.theories.seq
+
+.. autofunction:: Head

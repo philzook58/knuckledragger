@@ -1,0 +1,42 @@
+kdrag.theories.seq
+==================
+
+.. automodule:: kdrag.theories.seq
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Cons
+      Head
+      Nil
+      Seq
+      Tail
+      Unit
+      induct
+      induct_list
+      seq
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/seq.py
+   :language: python

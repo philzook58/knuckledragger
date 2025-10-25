@@ -1,0 +1,6 @@
+kdrag.printers.lean.of\_datatype
+================================
+
+.. currentmodule:: kdrag.printers.lean
+
+.. autofunction:: of_datatype

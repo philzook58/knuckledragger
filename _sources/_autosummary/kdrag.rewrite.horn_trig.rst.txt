@@ -1,0 +1,6 @@
+kdrag.rewrite.horn\_trig
+========================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: horn_trig
