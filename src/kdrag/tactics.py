@@ -530,7 +530,7 @@ class ProofState:
         else:
             return kd.utils.search(*args, db=db)
 
-    def fixes(self) -> list[smt.ExprRef]:
+    def fixes(self, prefixes=None) -> list[smt.ExprRef]:
         """fixes opens a forall quantifier. ?|= forall x, p(x) becomes x ?|= p(x)
 
         >>> x,y = smt.Ints("x y")
@@ -542,12 +542,14 @@ class ProofState:
         (x!..., y!...)
         >>> _x.eq(x)
         False
+        >>> Lemma(kd.QForAll([x,y], x >= 0)).fixes("z w")
+        [z!..., w!...]
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             self.pop_goal()
-            vs, herb_lemma = kd.kernel.herb(goal)
+            vs, herb_lemma = kd.kernel.herb(goal, prefixes)
             # self.add_lemma(herb_lemma)
             newgoal = herb_lemma.thm.arg(0)
 
@@ -561,7 +563,7 @@ class ProofState:
         else:
             raise ValueError(f"fixes tactic failed. Not a forall {goal}")
 
-    def fix(self) -> smt.ExprRef:
+    def fix(self, prefix=None) -> smt.ExprRef:
         """
         Open a single ForAll quantifier
 
@@ -572,12 +574,24 @@ class ProofState:
         [x!...] ; [] ?|= x!... != x!... + 1
         >>> _x.eq(x)
         False
+        >>> Lemma(smt.ForAll([x], x != x + 1)).fix("w")
+        w!...
 
         """
-        vs = self.fixes()
+        vs = self.fixes(prefixes=prefix)
         if len(vs) > 1:
             raise ValueError("fix tactic failed. More than one variable in quantifier")
         return vs[0]
+
+    def qfix(self, prefix=None) -> smt.ExprRef:
+        n = self.fix(prefix=prefix)
+        self.intros()
+        return n
+
+    def qfixes(self, prefixes=None) -> list[smt.ExprRef]:
+        vs = self.fixes(prefixes=prefixes)
+        self.intros()
+        return vs
 
     def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
         """
@@ -737,7 +751,7 @@ class ProofState:
             raise ValueError("Cases failed. Not a bool or datatype")
         return self.top_goal()
 
-    def auto(self, **kwargs):
+    def auto(self, **kwargs) -> "ProofState":
         """
         `auto` discharges a goal using z3. It forwards all parameters to `kd.prove`
         """
@@ -745,9 +759,10 @@ class ProofState:
         ctx, goal = goalctx.ctx, goalctx.goal
         self.add_lemma(kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
         self.pop_goal()
-        return self.top_goal()
+        self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
+        return self
 
-    def obtain(self, n):
+    def obtain(self, n) -> smt.ExprRef | list[smt.ExprRef]:
         """
         obtain opens an exists quantifier in context and returns the fresh eigenvariable.
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
@@ -1315,7 +1330,7 @@ class ProofState:
         >>> l2
         [] ?|= True
         >>> l2.auto()
-        Nothing to do!
+        Nothing to do. Hooray!
         >>> l1
         [] ?|= True
         >>> l2.qed()

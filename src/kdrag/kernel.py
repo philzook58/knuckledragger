@@ -210,13 +210,21 @@ def is_defined(x: smt.ExprRef) -> bool:
     return smt.is_app(x) and x.decl() in defns
 
 
-def fresh_const(q: smt.QuantifierRef):
+def fresh_const(q: smt.QuantifierRef, prefixes=None) -> list[smt.ExprRef]:
     """Generate fresh constants of same sort as quantifier."""
     # .split("!") is to remove ugly multiple freshness from names
-    return [
-        smt.FreshConst(q.var_sort(i), prefix=q.var_name(i).split("!")[0])
-        for i in range(q.num_vars())
-    ]
+    if prefixes is None:
+        return [
+            smt.FreshConst(q.var_sort(i), prefix=q.var_name(i).split("!")[0])
+            for i in range(q.num_vars())
+        ]
+    else:
+        prefixes = prefixes.split()
+        assert len(prefixes) == q.num_vars()
+        return [
+            smt.FreshConst(q.var_sort(i), prefix=prefixes[i])
+            for i in range(q.num_vars())
+        ]
 
 
 def define(
@@ -418,7 +426,7 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     )
 
 
-def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
+def herb(thm: smt.QuantifierRef, prefixes=None) -> tuple[list[smt.ExprRef], Proof]:
     """
     Herbrandize a theorem.
     It is sufficient to prove a theorem for fresh consts to prove a universal.
@@ -429,7 +437,9 @@ def herb(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     ([x!...], |=  Implies(x!... >= x!..., ForAll(x, x >= x)))
     """
     assert smt.is_quantifier(thm) and thm.is_forall()
-    herbs = fresh_const(thm)  # We could mark these as schema variables? Useful?
+    herbs = fresh_const(
+        thm, prefixes=prefixes
+    )  # We could mark these as schema variables? Useful?
     return herbs, axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
         ["herbrand"],

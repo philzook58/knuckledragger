@@ -372,7 +372,7 @@ def Quot(dom: smt.SortRef, eqrel) -> smt.QuantifierRef:
     >>> x = smt.Int("x")
     >>> l = kd.Lemma((smt.IntSort() // (lambda a,b: a % 3 == b % 3))[EClass(x, lambda a,b: a % 3 == b % 3)])
     >>> l.simp().exists(x).auto()
-    Nothing to do!
+    Nothing to do. Hooray!
     >>> _ = l.qed()
     """
     # TODO: consider supporting ArrayRef too as first argument
@@ -384,7 +384,7 @@ def Quot(dom: smt.SortRef, eqrel) -> smt.QuantifierRef:
 smt.SortRef.__floordiv__ = Quot  # type: ignore
 
 
-def Choose(A: smt.FuncRef, auto=False) -> tuple[smt.ExprRef, kd.Proof]:
+def Choose(A: smt.FuncRef, auto=False) -> tuple[list[smt.ExprRef], kd.Proof]:
     """
     Choose an arbitrary element from set A.
 
