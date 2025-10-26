@@ -48,3 +48,5 @@ class FilterMod:
         self.filter_inter = kd.prove(
             kd.QForAll([F], smt.ForAll([A, B], F(A), F(B), F(A & B))), unfold=1
         )
+
+    # @functools,cached_property
