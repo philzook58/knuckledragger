@@ -59,11 +59,12 @@ class SortDispatch:
     Not(True)
     """
 
-    def __init__(self, name=None, default=None, pointwise=False):
+    def __init__(self, name=None, default=None, pointwise=False, default_factory=None):
         self.methods = {}
         self.default = default
         self.name = name
         self.pointwise = pointwise
+        self.default_factory = default_factory
 
     def register(self, sort, func):
         self.methods[sort] = func
@@ -96,30 +97,36 @@ class SortDispatch:
         """
         if not args:
             raise TypeError("No arguments provided")
+        x0 = args[0]
         sort = args[0].sort()
-        res = self.methods.get(sort, self.default)
-        if res is None:
-            x0 = args[0]
-            if self.pointwise and smt.is_func(x0):
-                doms = smt.domains(x0)
-                vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
-                sort = x0.sort()
-                # sorts are same or attempt coerce/lift
-                return smt.Lambda(
-                    vs,
-                    self(
-                        *[
-                            arg(*vs)
-                            if isinstance(arg, smt.ExprRef) and arg.sort() == x0.sort()
-                            else arg
-                            for arg in args
-                        ]
-                    ),
-                )
-            else:
-                raise NotImplementedError(
-                    f"No implementation of {self.name} for sort {sort}. Register a definition via {self.name}.register({sort}, your_code)",
-                )
+        res = self.methods.get(sort)
+        if res is not None:
+            return res(*args, **kwargs)
+        elif self.default is not None:
+            return self.default(*args, **kwargs)
+        elif self.default_factory is not None:
+            res = self.default_factory(sort)
+            self.register(sort, res)
+            return res(*args, **kwargs)
+        elif self.pointwise and smt.is_func(x0):
+            doms = smt.domains(x0)
+            vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
+            # sorts are same or attempt coerce/lift
+            return smt.Lambda(
+                vs,
+                self(
+                    *[
+                        arg(*vs)
+                        if isinstance(arg, smt.ExprRef) and arg.sort() == x0.sort()
+                        else arg
+                        for arg in args
+                    ]
+                ),
+            )
+        else:
+            raise NotImplementedError(
+                f"No implementation of {self.name} for sort {sort}. Register a definition via {self.name}.register({sort}, your_code)",
+            )
         return res(*args, **kwargs)
 
     def define(self, args, body):
@@ -130,6 +137,21 @@ class SortDispatch:
         defn = kd.define(self.name, args, body)
         self.register(args[0].sort(), defn)
         return defn
+
+
+def GenericDispatch(default_factory) -> SortDispatch:
+    """
+    A decorator version of SortDispatch with a default factory.
+    This is useful for definition Sort generic definitions.
+
+    >>> @GenericDispatch
+    ... def id(sort):
+    ...    x = smt.Const("x", sort)
+    ...    return kd.define("id", [x], x)
+    >>> id(smt.IntVal(3))
+    id(3)
+    """
+    return SortDispatch(default_factory.__name__, default_factory=default_factory)
 
 
 call = SortDispatch(name="call")

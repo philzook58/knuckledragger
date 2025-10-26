@@ -1,6 +1,6 @@
 
 from kdrag.all import *
-from kdrag.contrib.pcode.asmspec import assemble_and_check_str, AsmSpec, run_all_paths, kd_macro
+from kdrag.contrib.pcode.asmspec import assemble_and_check_str, AsmSpec, run_all_paths, kd_macro, Debug
 import kdrag.contrib.pcode as pcode
 
 import pytest
@@ -175,6 +175,15 @@ def test_cli():
     res = subprocess.run("python3 -m kdrag.contrib.pcode /tmp/mov42.s", shell=True, capture_output=True, text=True)
     assert "verification conditions failed. ❌❌❌❌" in res.stdout
 
+def riscv_as(code):
+    with open("/tmp/mov42.s", "w") as f:
+        f.write(code)
+        f.flush()
+    res = subprocess.run("""nix-shell -p pkgsCross.riscv32-embedded.buildPackages.gcc \
+        --run "riscv32-none-elf-as /tmp/mov42.s -o /tmp/mov42.o" """, shell=True, check=True, capture_output=True, text=True)
+
+
+
 @pytest.mark.slow
 def test_riscv32():
     code = """
@@ -222,3 +231,37 @@ kd_exit myfunc_end, "(select write (_ bv1000 32))"
     assert len(vcs) == 1
     for vc in vcs:
         vc.verify(ctx)
+
+@pytest.mark.slow
+def test_debugger():
+    code = """
+    .include "/tmp/knuckle.s"
+    .option norvc
+    .text
+    .globl _start
+    _start:
+    li   t0, 42          # load immediate 42 into t0
+    li   t1, 1000        # load address 1000 into t1
+    sw   t0, 0(t1)       # store t0 at memory address
+    ret
+    """
+    riscv_as(code)
+    ctx = pcode.BinaryContext("/tmp/mov42.o", langid="RISCV:LE:32:default")
+    spec = AsmSpec.of_file("/tmp/mov42.s", ctx)
+    d = Debug(ctx, spec)
+    d.add_entry("_start")
+    d.start()
+    print(d.insn())
+    print(d.addr())
+    assert d.reg("t0").eq(smt.BitVecVal(42,32))
+    assert not d.reg("t1").eq(smt.BitVecVal(1000,32))
+    d.step()
+    assert d.reg("t1").eq(smt.BitVecVal(1000,32))
+    d.step()
+    assert d.ram(smt.BitVecVal(1000,32), 4).eq(smt.BitVecVal(42,32))
+
+
+    
+
+
+

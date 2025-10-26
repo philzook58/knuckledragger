@@ -465,6 +465,24 @@ def execute_insn(
     ]
 
 
+def execute_spec_and_insn(
+    tracestate0: TraceState,
+    spec: AsmSpec,
+    ctx: pcode.BinaryContext,
+    verbose=True,
+) -> tuple[list[TraceState], list[VerificationCondition]]:
+    """
+    Execute spec statements and then one instruction.
+    """
+    addr = tracestate0.state.pc[0]
+    specstmts = spec.addrmap.get(addr, [])
+    tracestate, vcs = execute_spec_stmts(specstmts, tracestate0, ctx, verbose=verbose)
+    if tracestate is None:
+        return [], vcs
+    new_tracestates = execute_insn(tracestate, ctx, verbose=verbose)
+    return new_tracestates, vcs
+
+
 def init_trace_states(
     ctx: pcode.BinaryContext, mem: pcode.MemState, spec: AsmSpec, verbose=True
 ) -> tuple[list[TraceState], list[VerificationCondition]]:
@@ -538,14 +556,93 @@ def run_all_paths(
                 )
             )
             continue
-        addr = tracestate.state.pc[0]
-        specstmts = spec.addrmap.get(addr, [])
-        tracestate, new_vcs = execute_spec_stmts(specstmts, tracestate, ctx)
+        new_tracestates, new_vcs = execute_spec_and_insn(
+            tracestate, spec, ctx, verbose=verbose
+        )
         vcs.extend(new_vcs)
-        if tracestate is not None:
-            todo.extend(execute_insn(tracestate, ctx, verbose=verbose))
+        todo.extend(new_tracestates)
+
+        # addr = tracestate.state.pc[0]
+        # specstmts = spec.addrmap.get(addr, [])
+        # tracestate, new_vcs = execute_spec_stmts(specstmts, tracestate, ctx)
+        # vcs.extend(new_vcs)
+        # if tracestate is not None:
+        #    todo.extend(execute_insn(tracestate, ctx, verbose=verbose))
 
     return vcs
+
+
+class Debug:
+    def __init__(self, ctx: pcode.BinaryContext, spec: AsmSpec):
+        self.ctx = ctx
+        self.spec: AsmSpec = spec
+        self.tracestates: list[TraceState] = []
+        self.vcs: list[VerificationCondition] = []
+        self.breakpoints = set()
+
+    def spec_file(self, filename: str):
+        self.spec = AsmSpec.of_file(filename, self.ctx)
+
+    def add_entry(self, name, precond=smt.BoolVal(True)):
+        assert self.ctx.loader is not None, (
+            "BinaryContext must be loaded before disassembling"
+        )
+        sym = self.ctx.loader.find_symbol(name)
+        if sym is None:
+            raise Exception(f"Symbol {name} not found in binary {self.ctx.filename}")
+        self.spec.add_entry(name, sym.rebased_addr, precond)
+
+    def start(self, mem=None):
+        if mem is None:
+            mem = self.ctx.init_mem()
+        tracestates, vcs = init_trace_states(self.ctx, mem, self.spec)
+        self.tracestates = tracestates
+        self.vcs = vcs
+
+    def breakpoint(self, addr):
+        self.breakpoints.add(addr)
+
+    def step(self, n=1):
+        for _ in range(n):
+            tracestate = self.pop()
+            new_tracestates, new_vcs = execute_spec_and_insn(
+                tracestate, self.spec, self.ctx
+            )
+            self.vcs.extend(new_vcs)
+            self.tracestates.extend(new_tracestates)
+
+    def run(self):
+        while self.tracestates:
+            if self.addr() in self.breakpoints:
+                break
+            self.step()
+
+    def pop(self):
+        return self.tracestates.pop()
+
+    def addr(self):
+        return self.tracestates[-1].state.pc[0]
+
+    def ghost(self, name):
+        return self.tracestates[-1].ghost_env[name]
+
+    def reg(self, name):
+        reg = self.ctx._subst_decls[name]
+        return smt.simplify(
+            self.ctx.substitute(self.tracestates[-1].state.memstate, reg)
+        )
+
+    def ram(self, addr, size=None):
+        if size is None:
+            size = self.ctx.bits // 8
+        return smt.simplify(
+            self.tracestates[-1].state.memstate.getvalue_ram(addr, size)
+        )
+
+    def insn(self):
+        return self.ctx.disassemble(self.addr())
+
+    def model(self): ...  # TODO.
 
 
 @dataclass
