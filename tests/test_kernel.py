@@ -383,3 +383,29 @@ def test_assumes():
     x = smt.Int("x")
     x.assumes = x >= 0
     kd.QForAll([x], x > 1).eq(smt.ForAll([x], smt.Implies(x >= 0, x > 1)))
+
+
+def test_duplicate_names():
+    """Test that duplicate constructor and field names are detected immediately at declare time."""
+    # Test duplicate constructor names
+    with pytest.raises(ValueError, match="Duplicate constructor 'foo'"):
+        Foo = kd.Inductive("Foo")
+        Foo.declare("foo")
+        Foo.declare("foo")  # duplicate constructor
+    
+    # Test duplicate field names within same constructor
+    with pytest.raises(ValueError, match="Duplicate field 'x' in constructor 'bar'"):
+        Bar = kd.Inductive("Bar")
+        Bar.declare("bar", ("x", smt.IntSort()), ("x", smt.BoolSort()))
+    
+    # Test duplicate field names across constructors
+    with pytest.raises(ValueError, match="Field 'field' conflicts with existing name"):
+        Baz = kd.Inductive("Baz")
+        Baz.declare("baz1", ("field", smt.IntSort()))
+        Baz.declare("baz2", ("field", smt.BoolSort()))
+    
+    # Test that field name conflicts with constructor name
+    with pytest.raises(ValueError, match="Field 'mycons' conflicts with existing name"):
+        Qux = kd.Inductive("Qux")
+        Qux.declare("mycons")
+        Qux.declare("other", ("mycons", smt.IntSort()))
