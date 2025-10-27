@@ -23,7 +23,6 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.autodoc.typehints",
     "sphinx.ext.napoleon",
     "myst_parser",
 ]
@@ -34,12 +33,106 @@ autodoc_default_options = {
     "undoc-members": True,  # Include undocumented members
     "inherited-members": True,
     "show-inheritance": True,
+    "member-order": "bysource",  # Keep source order
+    "special-members": False,  # Don't show __special__ methods
 }
-autodoc_typehints = "both"
+
+# Enable documenting module-level data/attributes
+autodoc_member_order = 'bysource'
+autodoc_class_signature = 'separated'
+
+# Include module-level attributes (like Proof objects)
+# This ensures that module-level variables are documented
+automodule_include_private = False
+autodata_content = "both"
+
+# Disable autodoc typehints to avoid conflicts with Z3's custom __eq__
+autodoc_typehints = "none"
+autodoc_typehints_format = "short"
+
+# Setup function to monkey-patch Z3's __eq__ to work with Sphinx and customize autosummary
+def setup(app):
+    """Monkey-patch Z3's custom __eq__ methods and customize autosummary for Proof objects."""
+    import kdrag.smt as smt
+    import kdrag as kd
+    
+    # Store original eq function
+    _original_eq = smt.eq
+    
+    # Create a safer version that checks if both objects have get_id
+    def safe_eq(x, y):
+        """Safe equality that handles non-Z3 objects."""
+        try:
+            # Only use get_id if both objects have it
+            if hasattr(x, 'get_id') and hasattr(y, 'get_id') and callable(x.get_id):
+                return x.get_id() == y.get_id()
+            # Fall back to normal Python equality
+            return x is y
+        except (AttributeError, TypeError):
+            return x is y
+    
+    # Replace the eq method on the classes
+    smt.SortRef.__eq__ = safe_eq
+    smt.FuncDeclRef.__eq__ = safe_eq
+    smt.SortRef.__ne__ = lambda x, y: not safe_eq(x, y)
+    smt.FuncDeclRef.__ne__ = lambda x, y: not safe_eq(x, y)
+    
+    # Custom autosummary member collection to include Proof objects
+    from sphinx.ext.autosummary import get_documenter, Autosummary
+    from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
+    import importlib
+    
+    # Custom ModuleDocumenter that includes Proof objects
+    from sphinx.ext.autodoc import ModuleDocumenter as OrigModuleDocumenter
+    
+    class ProofAwareModuleDocumenter(OrigModuleDocumenter):
+        """Module documenter that includes Proof objects."""
+        
+        def filter_members(self, members, want_all):
+            """Override to include Proof objects."""
+            ret = super().filter_members(members, want_all)
+            
+            # Add Proof objects explicitly
+            if hasattr(self.object, '__dict__'):
+                for name, obj in self.object.__dict__.items():
+                    if not name.startswith('_') and isinstance(obj, kd.Proof):
+                        # Add as a data member
+                        if not any(n == name for n, *_ in ret):
+                            ret.append((name, obj, False))
+            
+            return ret
+    
+    # Register the custom documenter
+    app.add_autodocumenter(ProofAwareModuleDocumenter, override=True)
+    
+    # Add post-processing of RST files to add Proof objects after autosummary generates them
+    def process_rst_for_proofs(app, env, docnames):
+        """Post-process generated RST files to add Proof objects after autosummary."""
+        import sys
+        from pathlib import Path
+        
+        # Run the post-processing script
+        script_path = Path(app.srcdir) / 'add_proofs_to_rst.py'
+        if script_path.exists():
+            import subprocess
+            result = subprocess.run([sys.executable, str(script_path)], 
+                                  cwd=app.srcdir, 
+                                  capture_output=True, 
+                                  text=True)
+            if result.stdout:
+                print(result.stdout)
+    
+    app.connect('env-before-read-docs', process_rst_for_proofs)
 
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# Suppress warnings from autodoc when dealing with Z3's custom __eq__
+suppress_warnings = [
+    'autodoc',
+    'autodoc.import_object',
+]
 
 # Napoleon settings
 napoleon_google_docstring = True
