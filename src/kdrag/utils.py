@@ -11,6 +11,7 @@ import os
 import glob
 import inspect
 from dataclasses import dataclass
+from collections import defaultdict
 
 
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
@@ -462,6 +463,48 @@ def all_values(*es: smt.ExprRef) -> Generator[list[smt.ExprRef], None, None]:
                 s.add(e != v)
         else:
             raise ValueError("Solver unknown in values", es)
+
+
+def propagate(maybes: list[smt.BoolRef], known: smt.BoolRef) -> list[smt.BoolRef]:
+    """
+    Prune the list of maybes to the ones implies by known
+
+    >>> p,q,r = smt.Bools("p q r")
+    >>> propagate([p, q, r, smt.And(p,q)], p & q)
+    [p, q, And(p, q)]
+    """
+    s = smt.Solver()
+    s.add(known)
+    maybes = list(maybes)
+    while True:
+        res = s.check()
+        if res == smt.unsat:
+            return maybes
+        assert res == smt.sat
+        m = s.model()
+        maybes = [e for e in maybes if smt.is_true(m.eval(e))]
+        s.add(smt.Not(smt.And(maybes)))
+
+
+def propagate_eqs(terms: list[smt.ExprRef], known: smt.ExprRef) -> list[smt.BoolRef]:
+    """
+    Given a list of terms, propagate equalities among them that are implied by known.
+    >>> x,y,z = smt.Ints("x y z")
+    >>> terms = [x, y, z, x + 1, y + 1]
+    >>> known = smt.And(x == y, y == z)
+    >>> propagate_eqs(terms, known)
+    [y == x, z == x, z == y, y + 1 == x + 1]
+    """
+    ts = defaultdict(list)
+    for t in terms:
+        ts[t.sort()].append(t)
+    eqs = [
+        t1 == t2
+        for terms in ts.values()
+        for n, t1 in enumerate(terms)
+        for t2 in terms[:n]
+    ]
+    return propagate(eqs, known)
 
 
 def free_vars(t: smt.ExprRef) -> set[smt.ExprRef]:
