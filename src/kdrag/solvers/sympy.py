@@ -1,9 +1,26 @@
-import kdrag.theories.real as real
+# import kdrag.theories.real as real
 import kdrag.reflect
 import kdrag.smt as smt
 
 import sympy
 import sympy.abc
+
+R = smt.RealSort()
+RFun = smt.ArraySort(R, R)
+cos = smt.Function("cos", smt.RealSort(), smt.RealSort())
+sin = smt.Function("sin", smt.RealSort(), smt.RealSort())
+tan = smt.Function("tan", smt.RealSort(), smt.RealSort())
+acos = smt.Function("acos", smt.RealSort(), smt.RealSort())
+asin = smt.Function("asin", smt.RealSort(), smt.RealSort())
+deriv = smt.Function(
+    "deriv", smt.ArraySort(smt.RealSort(), smt.RealSort()), smt.RealSort()
+)
+exp = smt.Function("exp", smt.RealSort(), smt.RealSort())
+integrate_ = smt.Function("integrate", smt.ArraySort(R, R), R, R, R)
+summation_ = smt.Function("summation", smt.ArraySort(R, R), R, R, R)
+lim = smt.Function("lim", RFun, R, R)
+pi = smt.Const("pi", R)
+ln = smt.Function("ln", R, R)
 
 
 def shim_ho(f):
@@ -67,9 +84,9 @@ def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:  # type: ignore
     x + 1
     >>> sympify(smt.RatVal(1,3))
     Fraction(1, 3)
-    >>> sympify(real.deriv(smt.Lambda([x], real.cos(real.sin(x)))))(sympy.abc.x)
+    >>> sympify(deriv(smt.Lambda([x], cos(sin(x)))))(sympy.abc.x)
     Derivative(cos(sin(x)), x)
-    >>> sympify(real.integrate(smt.Lambda([x], real.sin(x)), 0,x))
+    >>> sympify(integrate_(smt.Lambda([x], sin(x)), 0,x))
     1 - cos(x)
     >>> sympify(smt.Lambda([x], x + 1))
     Lambda(X__..., X__... + 1)
@@ -128,7 +145,7 @@ def kdify(e: sympy.Basic, **kwargs) -> smt.ExprRef:
     >>> x = smt.Real("x")
     >>> kdify(sympify(x + 1))
     x + 1
-    >>> kdify(sympify(real.sin(x) + 1))
+    >>> kdify(sympify(sin(x) + 1))
     sin(x) + 1
     >>> kdify(sympify(x + smt.RatVal(1,3)))
     x + 1/3
@@ -150,8 +167,17 @@ def kdify(e: sympy.Basic, **kwargs) -> smt.ExprRef:
                 "Order": smt.Function("Order", smt.RealSort(), smt.RealSort()),
                 # "Lambda": lambda x, y: smt.Lambda(kdify(x), kdify(y)),
                 "KD_Lambda": smt.Lambda,
+                "sin": sin,
+                "cos": cos,
+                "tan": tan,
+                "acos": acos,
+                "asin": asin,
+                "exp": exp,
+                "ln": ln,
+                "integrate": integrate,
+                "pi": pi,
             },
-            real,
+            # real,
         ],
         **kwargs,
     )(*vs)
@@ -183,7 +209,7 @@ def simplify(e: smt.ExprRef) -> smt.ExprRef:
     >>> x = smt.Real("x")
     >>> simplify((x + 1)**2 - x**2)
     2*x + 1
-    >>> simplify(real.sin(x)**2 + real.cos(x)**2)
+    >>> simplify(sin(x)**2 + cos(x)**2)
     1
     """
     return kdify(sympy.simplify(sympify(e)))
@@ -197,7 +223,7 @@ def simp(e: smt.ExprRef) -> kdrag.kernel.Proof:
     Your mileage may vary
 
     >>> x = smt.Real("x")
-    >>> simp(real.sin(x)**2 + real.cos(x)**2)
+    >>> simp(sin(x)**2 + cos(x)**2)
     |= sin(x)**2 + cos(x)**2 == 1
     """
     return kdrag.kernel.axiom(e == simplify(e), by=["sympy simplify"])  # type: ignore
@@ -257,7 +283,7 @@ def series(e, x=None, x0=0, n=6, dir="+"):
     """
     Compute the series expansion of a z3 expression.
     >>> x = smt.Real("x")
-    >>> series(real.sin(x), x, n=2)
+    >>> series(sin(x), x, n=2)
     x + Order(x**2)
     """
     if x is not None:
@@ -286,7 +312,7 @@ def solve(
     >>> x,y,z = smt.Reals("x y z")
     >>> solve([x + y == 1, x - z == 2], [x, y, z])
     [{x: z + 2, y: -z - 1}]
-    >>> solve([real.cos(x) == 3], [x]) # Note that does not return all possible solutions.
+    >>> solve([cos(x) == 3], [x]) # Note that does not return all possible solutions.
     [{x: 2*pi - acos(3)}, {x: acos(3)}]
     """
     assert isinstance(vs, list) and isinstance(constrs, list)

@@ -324,7 +324,7 @@ class BinaryContext:
             decls[f"ram{b}"] = smt.Array(
                 f"ram{b}", smt.BitVecSort(self.bits), smt.BitVecSort(b)
             )
-        self._subst_decls = decls
+        self.state_vars = decls
         self.pcode_cache.clear()
         self.insn_cache.clear()
 

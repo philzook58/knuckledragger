@@ -3,7 +3,7 @@ from kdrag.theories.real import *
 import kdrag.smt as smt
 import kdrag.solvers as solvers
 import kdrag.theories.real as real
-import kdrag.theories.real.sympy
+import kdrag.solvers.sympy
 import kdrag.theories.real.arb
 
 

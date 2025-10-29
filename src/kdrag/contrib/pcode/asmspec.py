@@ -8,6 +8,7 @@ from collections import defaultdict
 import json
 import subprocess
 from typing import NamedTuple, Optional
+import pprint
 
 kd_macro = r"""
 # For injection of SMT commands, e.g., declare-const
@@ -165,7 +166,7 @@ class AsmSpec:
         )
         prelude_pattern = re.compile(rf"^\s*kd_prelude\s+{EXPR}\s*$")
         preludes = []
-        decls = ctx._subst_decls.copy()
+        decls = ctx.state_vars.copy()
         decls["write"] = smt.Array(
             "write", smt.BitVecSort(ctx.bits), smt.BoolSort()
         ).decl()
@@ -291,7 +292,9 @@ def substitute(
     """
     Subsititute both ghost state and context (ram / registers). Usually you want this
     """
-    return ctx.substitute(memstate, substitute_ghost(e, ghost_env))
+    return smt.simplify(
+        ctx.substitute(memstate, smt.simplify(substitute_ghost(e, ghost_env)))
+    )
 
 
 class VerificationCondition(NamedTuple):
@@ -333,7 +336,17 @@ class VerificationCondition(NamedTuple):
         vc1 = self.vc(ctx)
         vc = ctx.unfold(vc1)
         assert isinstance(vc, smt.BoolRef)
-        return kd.prove(vc, **kwargs)
+        try:
+            return kd.prove(vc, **kwargs)
+        except Exception as e:
+            countermodel = e.args[2]
+            if not isinstance(countermodel, smt.ModelRef):
+                raise e
+            raise Exception(
+                "Verification failed for",
+                self.assertion,
+                self.countermodel(ctx, countermodel),
+            )
 
     def countermodel(self, ctx: pcode.BinaryContext, m: smt.ModelRef) -> dict:
         """
@@ -494,7 +507,7 @@ def init_trace_states(
     vcs = []
     # Initialize executions out of entry points and cuts
     init_trace_id = -1
-    for addr, specstmts in spec.addrmap.items():
+    for addr, specstmts in sorted(spec.addrmap.items(), key=lambda x: -x[0]):
         for n, stmt in enumerate(specstmts):
             if isinstance(stmt, Cut) or isinstance(stmt, Entry):
                 init_trace_id += 1
@@ -573,24 +586,53 @@ def run_all_paths(
 
 
 class Debug:
-    def __init__(self, ctx: pcode.BinaryContext, spec: AsmSpec):
+    def __init__(
+        self, ctx: pcode.BinaryContext, spec: Optional[AsmSpec] = None, verbose=True
+    ):
         self.ctx = ctx
-        self.spec: AsmSpec = spec
+        if spec is None:
+            self.spec = AsmSpec()
+        else:
+            self.spec: AsmSpec = spec
         self.tracestates: list[TraceState] = []
         self.vcs: list[VerificationCondition] = []
         self.breakpoints = set()
+        self.verbose = verbose
+        self._cur_model = None
 
     def spec_file(self, filename: str):
         self.spec = AsmSpec.of_file(filename, self.ctx)
 
-    def add_entry(self, name, precond=smt.BoolVal(True)):
+    def label(self, label: str | int) -> int:
         assert self.ctx.loader is not None, (
             "BinaryContext must be loaded before disassembling"
         )
-        sym = self.ctx.loader.find_symbol(name)
-        if sym is None:
-            raise Exception(f"Symbol {name} not found in binary {self.ctx.filename}")
-        self.spec.add_entry(name, sym.rebased_addr, precond)
+        if isinstance(label, str):
+            sym = self.ctx.loader.find_symbol(label)
+            if sym is None:
+                raise Exception(
+                    f"Symbol {label} not found in binary {self.ctx.filename}"
+                )
+            return sym.rebased_addr
+        elif isinstance(label, int):
+            return label
+        else:
+            raise Exception(f"Unexpected type {type(label)} for label")
+
+    def add_entry(self, name, precond=smt.BoolVal(True)):
+        self.spec.add_entry(name, self.label(name), precond)
+
+    def add_exit(self, name, postcond=smt.BoolVal(True)):
+        self.spec.add_exit(name, self.label(name), postcond)
+
+    def add_cut(self, name, invariant):
+        self.spec.add_cut(name, self.label(name), invariant)
+
+    def add_assert(self, name, assertion):
+        self.spec.add_assert(name, self.label(name), assertion)
+
+    def add_assign(self, name, var_name, expr):
+        self.spec.add_assign(name, self.label(name), var_name, expr)
 
     def start(self, mem=None):
         if mem is None:
@@ -603,8 +645,18 @@ class Debug:
         self.breakpoints.add(addr)
 
     def step(self, n=1):
+        self._cur_model = None
         for _ in range(n):
             tracestate = self.pop()
+            if self.verbose:
+                print(
+                    "Continuing execution at:",
+                    hex(tracestate.state.pc[0]),
+                    "trace_id",
+                    tracestate.trace_id,
+                    "num insns",
+                    len(tracestate.trace),
+                )
             new_tracestates, new_vcs = execute_spec_and_insn(
                 tracestate, self.spec, self.ctx
             )
@@ -617,6 +669,27 @@ class Debug:
                 break
             self.step()
 
+    def run_vc(self):
+        n = len(self.vcs)
+        while len(self.vcs) == n:
+            self.step()
+
+    def pop_run(self):
+        """
+        Run until the current trace state is completely done.
+        """
+        n = len(self.tracestates)
+        while len(self.tracestates) >= n:
+            self.step()
+
+    def pop_verify(self, **kwargs):
+        vc = self.vcs.pop()
+        vc.verify(self.ctx, **kwargs)
+
+    def pop_lemma(self) -> kd.tactics.ProofState:
+        vc = self.vcs.pop()
+        return kd.Lemma(vc.vc(self.ctx))
+
     def pop(self):
         return self.tracestates.pop()
 
@@ -627,12 +700,15 @@ class Debug:
         return self.tracestates[-1].ghost_env[name]
 
     def reg(self, name):
-        reg = self.ctx._subst_decls[name]
+        reg = self.ctx.state_vars[name]
         return smt.simplify(
             self.ctx.substitute(self.tracestates[-1].state.memstate, reg)
         )
 
     def ram(self, addr, size=None):
+        """
+        Get the expression held at at ram location addr
+        """
         if size is None:
             size = self.ctx.bits // 8
         return smt.simplify(
@@ -642,7 +718,23 @@ class Debug:
     def insn(self):
         return self.ctx.disassemble(self.addr())
 
-    def model(self): ...  # TODO.
+    def model(self):
+        s = smt.Solver()
+        s.add(self.tracestates[-1].state.path_cond)
+        assert s.check() == smt.sat
+        self._cur_model = s.model()
+
+    def eval(self, expr: smt.ExprRef) -> smt.ExprRef:
+        if self._cur_model is None:
+            self.model()
+        tracestate = self.tracestates[-1]
+        return smt.simplify(
+            self._cur_model.eval(
+                substitute(
+                    expr, self.ctx, tracestate.state.memstate, tracestate.ghost_env
+                )
+            )
+        )
 
 
 @dataclass

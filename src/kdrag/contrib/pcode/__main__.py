@@ -90,9 +90,6 @@ def asmc(
             print("")
         except Exception as e:
             failures += 1
-            countermodel = e.args[2]
-            if not isinstance(countermodel, smt.ModelRef):
-                raise e
             print("")
             print("---------------------------------------------")
             print(f"[❌] {vc.assertion}")
@@ -102,7 +99,7 @@ def asmc(
             print(vc.assertion)
             print("")
             print("Countermodel:")
-            pprint.pp(vc.countermodel(ctx, countermodel))
+            pprint.pp(e.args[2])
             print("---------------------------------------------")
             print("")
     if failures > 0:
