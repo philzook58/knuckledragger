@@ -6,6 +6,19 @@ You may prefer using theories.seq which offers more builtin support for things l
 
 import kdrag as kd
 import kdrag.smt as smt
+import functools
+
+
+@functools.cache
+def ListSort(Elt: smt.SortRef) -> smt.DatatypeSortRef:
+    """
+    >>> ListSort(smt.IntSort())
+    List_Int...
+    """
+    T = kd.Inductive("List_" + Elt.name())
+    T.declare("Nil")
+    T.declare("Cons", ("head", Elt), ("tail", T))
+    return T.create()
 
 
 class List:
@@ -18,15 +31,12 @@ class List:
         >>> _ = List(smt.IntSort())
         """
         self.Elt = Elt
-        T = kd.Inductive("List_" + Elt.name())
-        T.declare("Nil")
-        T.declare("Cons", ("head", Elt), ("tail", T))
-        T = T.create()
+        T = ListSort(Elt)
         self.T = T
         self.Cons = T.Cons
         self.Nil = T.Nil
-        x, y, z = kd.FreshVars("x y z", Elt)
-        l, l1, l2 = kd.FreshVars("l l1 l2", T)
+        x, y, z = smt.Consts("x y z", Elt)
+        l, l1, l2 = smt.Consts("l l1 l2", T)
         assert isinstance(l, smt.DatatypeRef) and isinstance(
             l1, smt.DatatypeRef
         )  # type checking

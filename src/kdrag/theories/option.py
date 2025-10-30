@@ -9,10 +9,10 @@ import kdrag as kd
 
 
 @functools.cache
-def Option(T: smt.SortRef) -> smt.DatatypeSortRef:
+def OptionSort(T: smt.SortRef) -> smt.DatatypeSortRef:
     """
     Define an Option type for a given type T
-    >>> OInt = Option(smt.IntSort())
+    >>> OInt = OptionSort(smt.IntSort())
     >>> OInt.Some(1)
     Some(1)
     >>> OInt.None_
@@ -23,8 +23,7 @@ def Option(T: smt.SortRef) -> smt.DatatypeSortRef:
     Option = kd.Inductive("Option_" + T.name())
     Option.declare("None_")
     Option.declare("Some", ("val", T))
-    Option = Option.create()
-    return Option
+    return Option.create()
 
 
 def is_option(x: smt.DatatypeRef) -> bool:
@@ -65,7 +64,7 @@ def Some(x: smt.ExprRef) -> smt.DatatypeRef:
     Option_Int
     """
     x = smt._py2expr(x)
-    return Option(x.sort()).Some(x)
+    return OptionSort(x.sort()).Some(x)
 
 
 def None_(T: smt.SortRef) -> smt.DatatypeRef:
@@ -74,4 +73,4 @@ def None_(T: smt.SortRef) -> smt.DatatypeRef:
     >>> None_(smt.IntSort())
     None_
     """
-    return Option(T).None_
+    return OptionSort(T).None_
