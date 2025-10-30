@@ -486,7 +486,7 @@ def propagate(maybes: list[smt.BoolRef], known: smt.BoolRef) -> list[smt.BoolRef
         s.add(smt.Not(smt.And(maybes)))
 
 
-def propagate_eqs(terms: list[smt.ExprRef], known: smt.ExprRef) -> list[smt.BoolRef]:
+def propagate_eqs(terms: list[smt.ExprRef], known: smt.BoolRef) -> list[smt.BoolRef]:
     """
     Given a list of terms, propagate equalities among them that are implied by known.
     >>> x,y,z = smt.Ints("x y z")

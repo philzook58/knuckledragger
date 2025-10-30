@@ -1,7 +1,6 @@
 import click
 from kdrag.contrib.pcode.asmspec import assemble_and_gen_vcs, pretty_trace, kd_macro
 import sys
-import kdrag.smt as smt
 import pprint
 
 

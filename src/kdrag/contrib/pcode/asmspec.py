@@ -8,7 +8,6 @@ from collections import defaultdict
 import json
 import subprocess
 from typing import NamedTuple, Optional
-import pprint
 
 kd_macro = r"""
 # For injection of SMT commands, e.g., declare-const
@@ -727,6 +726,7 @@ class Debug:
     def eval(self, expr: smt.ExprRef) -> smt.ExprRef:
         if self._cur_model is None:
             self.model()
+        assert self._cur_model is not None
         tracestate = self.tracestates[-1]
         return smt.simplify(
             self._cur_model.eval(

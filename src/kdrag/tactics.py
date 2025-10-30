@@ -12,6 +12,8 @@ from typing import NamedTuple, Optional, Sequence, Callable
 import pprint
 import time
 from dataclasses import dataclass
+import kdrag.parsers.microlean as microlean
+import kdrag.reflect as reflect
 
 
 def FreshVar(name: str, sort: smt.SortRef, assume=None) -> smt.ExprRef:
@@ -1564,7 +1566,7 @@ _TRUE = kd.kernel.prove(smt.BoolVal(True))
 
 
 def Theorem(
-    goal: smt.BoolRef,
+    goal: smt.BoolRef | str,
 ) -> Callable[[Callable[[ProofState], None]], kd.kernel.Proof]:
     """
     A decorator to create a theorem from a function that takes a `ProofState` as argument.
@@ -1578,10 +1580,26 @@ def Theorem(
     |= x + 1 > x
     >>> mytheorem.__doc__
     'An example theorem'
+    >>> @Theorem("forall (x : Int), x + 1 > x")
+    ... def mytheorem2(l: ProofState):
+    ...     l.auto()
+    >>> mytheorem2
+    |= ForAll(x, x + 1 > x)
+    >>> @Theorem("x + 1 > x") # Getting globals from scope
+    ... def mytheorem3(l: ProofState):
+    ...     l.auto()
+    >>> mytheorem3
+    |= x + 1 > x
     """
+    if isinstance(goal, str):
+        l, g = reflect._calling_globals_locals()
+        goal1 = microlean.parse(goal, g)
+    else:
+        goal1 = goal
+    assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
-        l = kd.Lemma(goal)
+        l = kd.Lemma(goal1)
         f(l)
         pf = l.qed()
         # To override metadata of the returned proof
@@ -1597,24 +1615,27 @@ def Theorem(
 
 
 def PTheorem(
-    goal: smt.BoolRef,
+    goal: smt.BoolRef | str,
 ):
     """
     A decorator to create a theorem from a function that takes a `ProofState` as argument.
 
     >>> x = smt.Int("x")
-    >>> @Theorem(x + 1 > x)
+    >>> @PTheorem(x + 1 > x)
     ... def mytheorem(l: ProofState):
     ...     "An example theorem"
     ...     l.auto()
-    >>> mytheorem
-    |= x + 1 > x
-    >>> mytheorem.__doc__
-    'An example theorem'
+    Lemma Complete! Change PTheorem to Theorem
     """
+    if isinstance(goal, str):
+        l, g = reflect._calling_globals_locals()
+        goal1 = microlean.parse(goal, g)
+    else:
+        goal1 = goal
+    assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> None:
-        l = kd.Lemma(goal)
+        l = kd.Lemma(goal1)
         f(l)
         if len(l.goals) == 0:
             l.qed()
