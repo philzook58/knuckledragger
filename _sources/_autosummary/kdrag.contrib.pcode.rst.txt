@@ -1,0 +1,68 @@
+kdrag.contrib.pcode
+===================
+
+.. automodule:: kdrag.contrib.pcode
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      MemSorts
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      executeBinary
+      executeCBranch
+      executeLoad
+      executePopcount
+      executeSignExtend
+      executeStore
+      executeSubpiece
+      executeUnary
+      executeZeroExtend
+      pc_of_addr
+      pretty_insn
+      pretty_op
+      test_pcode
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BinaryContext
+      MemState
+      SimState
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   asmspec
+
+
+
+.. literalinclude:: ../../kdrag/contrib/pcode.py
+   :language: python

@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.execute\_spec\_and\_insn
+====================================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: execute_spec_and_insn

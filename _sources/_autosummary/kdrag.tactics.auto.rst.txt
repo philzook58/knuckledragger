@@ -1,0 +1,6 @@
+kdrag.tactics.auto
+==================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: auto

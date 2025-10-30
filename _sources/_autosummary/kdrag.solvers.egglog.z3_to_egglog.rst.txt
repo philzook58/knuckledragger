@@ -1,0 +1,6 @@
+kdrag.solvers.egglog.z3\_to\_egglog
+===================================
+
+.. currentmodule:: kdrag.solvers.egglog
+
+.. autofunction:: z3_to_egglog

@@ -1,0 +1,6 @@
+kdrag.contrib.expr.Function
+===========================
+
+.. currentmodule:: kdrag.contrib.expr
+
+.. autofunction:: Function

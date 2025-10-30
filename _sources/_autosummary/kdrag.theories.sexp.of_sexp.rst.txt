@@ -1,0 +1,6 @@
+kdrag.theories.sexp.of\_sexp
+============================
+
+.. currentmodule:: kdrag.theories.sexp
+
+.. autofunction:: of_sexp

@@ -1,0 +1,34 @@
+kdrag.parsers.microlean
+=======================
+
+.. automodule:: kdrag.parsers.microlean
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      parse
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/parsers/microlean.py
+   :language: python

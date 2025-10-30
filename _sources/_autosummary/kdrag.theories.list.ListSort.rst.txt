@@ -1,0 +1,6 @@
+kdrag.theories.list.ListSort
+============================
+
+.. currentmodule:: kdrag.theories.list
+
+.. autofunction:: ListSort

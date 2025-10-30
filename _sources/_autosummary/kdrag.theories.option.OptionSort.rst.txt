@@ -1,0 +1,6 @@
+kdrag.theories.option.OptionSort
+================================
+
+.. currentmodule:: kdrag.theories.option
+
+.. autofunction:: OptionSort
