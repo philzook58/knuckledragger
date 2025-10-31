@@ -432,7 +432,72 @@ smt.DatatypeRef.rel = lambda *args: rel(*args)
 # smt.DatatypeRef.rel = lambda self, *args: self.rel(*args)
 
 
-def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
+class _InductiveRelDatatype(kd.kernel._InductiveDatatype):
+    """
+    Subclass of _InductiveDatatype for inductive relations.
+    This replaces the previous approach of monkey-patching declare and create methods.
+    """
+
+    def __init__(self, name: str, *params: smt.ExprRef):
+        """Initialize an inductive relation datatype."""
+        super().__init__(name)
+        self._params = params
+        self._relname = name.lower()
+        self._preds = []  # Store predicates for each constructor
+
+    def declare(self, name, *args, pred=None):
+        """Override declare to also store predicates."""
+        super().declare(name, *args)
+        self._preds.append(pred)
+
+    def _create_relation(self, dt):
+        """Create the relation definition for this inductive type."""
+        ev = smt.FreshConst(dt, prefix=self._relname)
+        rel = smt.Function(
+            self._relname, dt, *[x.sort() for x in self._params], smt.BoolSort()
+        )
+        cases = []
+        for i in range(dt.num_constructors()):
+            precond = dt.recognizer(i)(ev)  # recognize case of the evidence
+            pred = self._preds[i]  # In this case, this predicate should be true
+            if pred is None:
+                res = smt.BoolVal(True)
+            elif isinstance(pred, smt.ExprRef):
+                res = pred
+            else:
+                args = [
+                    dt.accessor(i, j)(ev) for j in range(dt.constructor(i).arity())
+                ]
+                res = pred(*args)
+            cases.append((precond, res))
+        rel = kd.define(
+            self._relname, list(self._params), smt.Lambda([ev], kd.cond(*cases))
+        )
+        return rel
+
+    def create(self):
+        """Override create to also set up the relation."""
+        dt = super().create()
+        if any(p is not None for p in self._preds):
+            dtrel = smt.Function(
+                self._relname,
+                *[x.sort() for x in self._params],
+                smt.ArraySort(dt, smt.BoolSort()),
+            )
+            kd.notation.call.register(dt, lambda self, *args: dtrel(*args)[self])
+            rel.register(
+                dt, lambda self, *args: dtrel(*args)[self]
+            )  # doing this here let's us tie the knot inside of lambdas and refer to the predicate.
+            dtrel = self._create_relation(dt)
+            dt.rel = dtrel
+            call_dict[dt] = dtrel
+
+            if len(self._params) == 0:
+                kd.notation.wf.register(dt, lambda x: x.rel())
+        return dt
+
+
+def InductiveRel(name: str, *params: smt.ExprRef) -> _InductiveRelDatatype:
     """Define an inductive type of evidence and a relation the recurses on that evidence
 
     >>> x = smt.Int("x")
@@ -448,65 +513,7 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
     >>> Even(4)
     even(4)
     """
-
-    dt = Inductive(name)
-
-    relname = name.lower()
-    olddeclare = dt.declare
-    preds = []  # tuck away extra predicate
-
-    def declare(
-        name, *args, pred=None
-    ):  # TODO: would it ever make sense to not have a pred?
-        olddeclare(name, *args)
-        preds.append(pred)
-
-    dt.declare = declare
-
-    oldcreate = dt.create
-
-    def create_relation(dt):
-        """
-        When inductive is done being defined, call this function
-        """
-        ev = smt.FreshConst(dt, prefix=name.lower())
-        rel = smt.Function(relname, dt, *[x.sort() for x in params], smt.BoolSort())
-        cases = []
-        for i in range(dt.num_constructors()):
-            precond = dt.recognizer(i)(ev)  # recognize case of the evidence
-            pred = preds[i]  # In this case, this predicate should be true
-            if pred is None:
-                res = smt.BoolVal(True)
-            elif isinstance(pred, smt.ExprRef):
-                res = pred
-            else:
-                args = [dt.accessor(i, j)(ev) for j in range(dt.constructor(i).arity())]
-                res = pred(*args)
-            cases.append((precond, res))
-        rel = kd.define(relname, list(params), smt.Lambda([ev], kd.cond(*cases)))
-        return rel
-
-    def create():
-        dt = oldcreate()
-        if any(p is not None for p in preds):
-            dtrel = smt.Function(
-                relname, *[x.sort() for x in params], smt.ArraySort(dt, smt.BoolSort())
-            )
-            kd.notation.call.register(dt, lambda self, *args: dtrel(*args)[self])
-            rel.register(
-                dt, lambda self, *args: dtrel(*args)[self]
-            )  # doing this here let's us tie the knot inside of lambdas and refer to the predicate.
-            dtrel = create_relation(dt)
-            dt.rel = dtrel
-            # ev = smt.FreshConst(dt, prefix=name.lower())
-            call_dict[dt] = dtrel  # lambda *args: smt.Lambda([ev], ev.rel(*args))
-
-            if len(params) == 0:
-                kd.notation.wf.register(dt, lambda x: x.rel())
-        return dt
-
-    dt.create = create
-    return dt
+    return _InductiveRelDatatype(name, *params)
 
 
 def inj_lemmas(dt: smt.DatatypeSortRef) -> list[kd.kernel.Proof]:

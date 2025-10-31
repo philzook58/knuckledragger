@@ -543,29 +543,26 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
     return axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 
 
-def Inductive(name: str) -> smt.Datatype:
+class _InductiveDatatype(smt.Datatype):
     """
-    Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
-
-    >>> Nat = Inductive("Nat")
-    >>> Nat.declare("zero")
-    >>> Nat.declare("succ", ("pred", Nat))
-    >>> Nat = Nat.create()
-    >>> Nat.succ(Nat.zero)
-    succ(zero)
+    Subclass of z3.Datatype that auto-generates induction principles.
+    This replaces the previous approach of monkey-patching the create method.
     """
-    counter = 0
-    n = name
-    while n in _datatypes:
-        counter += 1
-        n = name + "!" + str(counter)
-    name = n
-    assert name not in _datatypes
-    dt = smt.Datatype(name)
-    oldcreate = dt.create
 
-    def create():
-        dt = oldcreate()
+    def __init__(self, name: str):
+        """Initialize an inductive datatype with a unique name."""
+        counter = 0
+        n = name
+        while n in _datatypes:
+            counter += 1
+            n = name + "!" + str(counter)
+        self._unique_name = n
+        assert self._unique_name not in _datatypes
+        super().__init__(self._unique_name)
+
+    def create(self):
+        """Create the datatype with additional validation and registration."""
+        dt = super().create()
         # Sanity check no duplicate names. Causes confusion.
         names = set()
         for i in range(dt.num_constructors()):
@@ -580,12 +577,23 @@ def Inductive(name: str) -> smt.Datatype:
                     raise Exception("Duplicate field name", n)
                 names.add(n)
         kd.notation.induct.register(dt, induct_inductive)
-        _datatypes[name] = dt
+        _datatypes[self._unique_name] = dt
         smt.sort_registry[dt.get_id()] = dt
         return dt
 
-    dt.create = create
-    return dt
+
+def Inductive(name: str) -> _InductiveDatatype:
+    """
+    Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
+
+    >>> Nat = Inductive("Nat")
+    >>> Nat.declare("zero")
+    >>> Nat.declare("succ", ("pred", Nat))
+    >>> Nat = Nat.create()
+    >>> Nat.succ(Nat.zero)
+    succ(zero)
+    """
+    return _InductiveDatatype(name)
 
 
 _overapproximate_fresh_ids = set()
