@@ -305,6 +305,26 @@ induct = SortDispatch(name="induct")
 smt.ExprRef.induct = lambda x, P: induct(x, P)  # type: ignore
 
 
+def induct_int(x, P):
+    n = smt.FreshConst(smt.IntSort(), prefix="n")
+    # P = smt.FreshConst(smt.ArraySort(Z, smt.BoolSort()), prefix="P")
+    return kd.kernel.axiom(
+        smt.Implies(
+            smt.And(
+                smt.ForAll([n], n <= 0, P[n], P[n - 1]),
+                P(0),
+                smt.ForAll([n], n >= 0, P[n], P[n + 1]),
+            ),
+            # ---------------------------------------------------
+            P(x),
+        ),
+        by="integer_induction",
+    )
+
+
+induct.register(smt.IntSort(), induct_int)
+
+
 to_int = SortDispatch(name="to_int")
 """Sort based dispatch for `to_int`"""
 smt.ExprRef.to_int = lambda x: to_int(x)  # type: ignore

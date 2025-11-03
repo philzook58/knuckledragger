@@ -49,24 +49,8 @@ def induct_nat_strong(x, P):
     )
 
 
-def induct(x, P):
-    n = smt.FreshConst(Z, prefix="n")
-    # P = smt.FreshConst(smt.ArraySort(Z, smt.BoolSort()), prefix="P")
-    return kd.axiom(
-        smt.Implies(
-            smt.And(
-                kd.QForAll([n], n <= 0, P[n], P[n - 1]),
-                P(0),
-                kd.QForAll([n], n >= 0, P[n], P[n + 1]),
-            ),
-            # ---------------------------------------------------
-            P(x),
-        ),
-        by="integer_induction",
-    )
+induct = kd.notation.induct_int
 
-
-kd.notation.induct.register(Z, induct)
 
 x, y, z = smt.Ints("x y z")
 even = kd.define("even", [x], smt.Exists([y], x == 2 * y))
