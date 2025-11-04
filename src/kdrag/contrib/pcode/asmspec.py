@@ -315,7 +315,7 @@ class VerificationCondition(NamedTuple):
     # pf : Optional[kd.Proof] = None
 
     def __repr__(self):
-        return f"VC({self.start}, {[hex(addr) for addr in self.trace]}, {self.assertion}, {self.ghost_env})"
+        return f"VC({self.start},\n{[hex(addr) for addr in self.trace]},\n{self.assertion})"
 
     def vc(self, ctx: pcode.BinaryContext) -> smt.BoolRef:
         """
@@ -366,6 +366,9 @@ class VerificationCondition(NamedTuple):
             todo = [self.assertion.expr]
             while todo:
                 t = todo.pop()
+                if isinstance(t, smt.BoolRef):  # all boolean atoms
+                    if t.decl().name() not in ["and", "or", "=>", "not"]:
+                        interesting.add(t)
                 if smt.is_select(t):
                     interesting.add(t)
                 elif smt.is_app(t):
@@ -510,18 +513,21 @@ def init_trace_states(
         for n, stmt in enumerate(specstmts):
             if isinstance(stmt, Cut) or isinstance(stmt, Entry):
                 init_trace_id += 1
-                precond = ctx.substitute(mem, stmt.expr)  # No ghost? Use substitute?
+                mem1 = mem.set_register(
+                    ctx.pc[0], smt.BitVecVal(addr, ctx.pc[1] * 8)
+                )  # set pc to start addr before entering code
+                precond = ctx.substitute(mem1, stmt.expr)  # No ghost? Use substitute?
                 ghost_env = {
-                    "write": smt.K(smt.BitVecSort(mem.bits), smt.BoolVal(False))
+                    "write": smt.K(smt.BitVecSort(mem1.bits), smt.BoolVal(False))
                     if isinstance(stmt, Entry)
-                    else smt.Array("write", smt.BitVecSort(mem.bits), smt.BoolSort())
+                    else smt.Array("write", smt.BitVecSort(mem1.bits), smt.BoolSort())
                 }
                 assert isinstance(precond, smt.BoolRef)
                 tracestate = TraceState(
                     start=stmt,
                     trace=[],
                     trace_id=[init_trace_id],
-                    state=pcode.SimState(mem, (addr, 0), [precond]),
+                    state=pcode.SimState(mem1, (addr, 0), [precond]),
                     ghost_env=ghost_env,
                 )
                 tracestate, new_vcs = execute_spec_stmts(
@@ -684,6 +690,15 @@ class Debug:
     def pop_verify(self, **kwargs):
         vc = self.vcs.pop()
         vc.verify(self.ctx, **kwargs)
+
+    def verify(self, **kwargs):
+        if not self.vcs:
+            raise Exception("No verification conditions to verify")
+        if self.tracestates:
+            raise Exception("There are still trace states to execute")
+        while self.vcs:
+            vc = self.vcs.pop(0)
+            vc.verify(self.ctx)
 
     def pop_lemma(self) -> kd.tactics.ProofState:
         vc = self.vcs.pop()

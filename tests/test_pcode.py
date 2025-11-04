@@ -2,6 +2,7 @@
 from kdrag.all import *
 from kdrag.contrib.pcode.asmspec import assemble_and_check_str, AsmSpec, run_all_paths, kd_macro, Debug
 import kdrag.contrib.pcode as pcode
+import kdrag.contrib.pcode.asmspec as asmspec
 
 import pytest
 import subprocess
@@ -262,6 +263,45 @@ def test_debugger():
 
 
     
+def test_s2n_simple():
+    # https://github.com/awslabs/s2n-bignum/blob/main/x86/tutorial/simple.ml
+    code = r"""
+    _start:
+    add    %rax,%rbx
+    sub    %rax,%rbx
+    done:
+    """
+
+    with open("/tmp/simple.s", "w") as f:
+        f.write(code)
+        f.flush()
+    res = subprocess.run("as /tmp/simple.s -o /tmp/simple.o", shell=True, check=True, capture_output=True, text=True)
+    ctx = pcode.BinaryContext("/tmp/simple.o")
+
+    dbg = asmspec.Debug(ctx)
+    pc,a,b = smt.BitVecs("pc a b", 64)
+    rax = ctx.state_vars[r"%rax"]
+    rbx = ctx.state_vars[r"%rbx"]
+    rip = ctx.state_vars[r"%rip"]
+    dbg.add_entry("_start", 
+    #smt.ForAll([a, b],
+    smt.And(
+        rax == a,
+        rbx == b,
+        rip == pc
+    )
+    #)
+    )
+
+    # Yeaaa, I'm not sure it's worth adding in set rip
+    dbg.add_exit("done",
+    smt.And(
+    rbx == b,
+    rip == pc+6
+    ))
+    dbg.start()
+    dbg.run()
+    dbg.verify()
 
 
 

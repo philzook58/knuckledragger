@@ -140,6 +140,19 @@ class MemState:
             ),
         )
 
+    def set_register(self, offset: int, value: smt.BitVecRef):
+        # This is mainly for the purpose of manually setting PC in evaluator loop
+        return dataclasses.replace(
+            self,
+            mem=self.mem._replace(
+                register=bv.StoreConcat(
+                    self.mem.register,
+                    smt.BitVecVal(offset, self.bits),
+                    value,
+                )
+            ),
+        )
+
     def getvalue_ram(self, offset: smt.BitVecRef | int, size: int) -> smt.BitVecRef:
         # TODO: update read?
         return bv.SelectConcat(self.mem.ram, offset, size)
@@ -285,7 +298,11 @@ class BinaryContext:
         self.loader = None
         self.bin_hash = hash((filename, langid))
         ainfo = archinfo.ArchPcode(langid)
+        self.pc: tuple[int, int] = ainfo.registers[
+            "pc"
+        ]  # TODO: handle different archs? Or will "pc" always work?
         self.bits = ainfo.bits
+        assert self.bits == self.pc[1] * 8
         self.memory_endness = ainfo.memory_endness  # TODO
         self.register_endness = ainfo.register_endness  # TODO
         self.ctx = pypcode.Context(langid)  # TODO: derive from cle
@@ -532,20 +549,32 @@ class BinaryContext:
                     )  # outlaw this model for next example
                     addr, pcode_pc = vaddr.as_long(), vpcode_pc.as_long()
                     assert isinstance(addr, int) and isinstance(pcode_pc, int)
-                    max_insns1 = max_insns - 1 if pcode_pc == 0 else max_insns
+                    if pcode_pc == 0:
+                        max_insns1 = max_insns - 1
+                        # pcode does not have explicit PC updates, but we want them
+                        memstate2 = memstate1.set_register(
+                            self.pc[0], smt.BitVecVal(addr, self.pc[1] * 8)
+                        )
+                    else:
+                        max_insns1 = max_insns
+                        memstate2 = memstate1
                     next_pc = (addr, pcode_pc)
                     path_cond1 = path_cond + [pc1[0] == vaddr, pc1[1] == vpcode_pc]
                     if addr in breakpoints:
-                        res.append(SimState(memstate1, next_pc, path_cond1))
+                        res.append(SimState(memstate2, next_pc, path_cond1))
                     elif max_insns1 <= 0:
-                        res.append(SimState(memstate1, next_pc, path_cond1))
+                        res.append(SimState(memstate2, next_pc, path_cond1))
                     else:
-                        todo.append((memstate1, next_pc, max_insns1, path_cond1))
+                        todo.append((memstate2, next_pc, max_insns1, path_cond1))
             else:  # PC is concrete
                 if (
                     pc1[1] == 0
                 ):  # pcode_pc == 0 means we are at the start of an instruction. Kind of. There are some edge cases, TODO
                     max_insns -= 1
+                    # pcode does not have explicit PC updates, but we want them
+                    memstate1 = memstate1.set_register(
+                        self.pc[0], smt.BitVecVal(pc1[0], self.pc[1] * 8)
+                    )
                 if pc1[0] in breakpoints:
                     res.append(SimState(memstate1, pc1, path_cond))
                 elif max_insns <= 0:
