@@ -36,15 +36,15 @@ ffibuilder.compile(verbose=True)
 sys.path.insert(1, tmpdir)
 os.chdir(dir0)
 
-from _fast.lib import *  # noqa: E402, F403
+from _fast.lib import *  # noqa: E402, F403  # type: ignore
 
 
 def ctxptr(ctx: z3.Context):
-    return ffibuilder.cast("void *", ctx.ctx.value)
+    return ffibuilder.cast("void *", ctx.ctx.value)  # type: ignore
 
 
 def astptr(ast: z3.AstRef):
-    return ffibuilder.cast("void *", ast.as_ast().value)
+    return ffibuilder.cast("void *", ast.as_ast().value)  # type: ignore
 
 
 def intify(ptr):

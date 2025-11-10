@@ -1,3 +1,13 @@
+"""
+A parser for a simple logical expression language using Lark. The syntax is inspired by Lean's
+
+Unicode symbols are not required, but if you like them, adding the Unicode LaTeX extension for VSCode
+https://marketplace.visualstudio.com/items?itemName=oijaz.unicode-latex
+Goto the `File > Preferences > Settings` of the plugin and add `python` to the enabled extensions.
+Reloading your window will enable access via backslash autocomplete commands.
+For example \\alpha will tab autocomplete to α.
+"""
+
 import lark
 import kdrag.smt as smt
 from lark import Tree
@@ -5,19 +15,20 @@ from lark import Tree
 grammar = r"""
 start: expr
 
-?expr: quantifier
+?expr: ite
+?ite: quantifier | "if" expr "then" expr "else" expr -> if
 ?quantifier: implication  | ("forall" | "∀") binders "," expr  -> forall_ | \
-    ("exists" | "∃") binders "," expr -> exists_ | ("fun" | "λ") binders "=>" expr -> fun_
+    ("exists" | "∃") binders "," expr -> exists_ | ("fun" | "λ") binders ("=>" | "↦") expr -> fun_ | set
 ?implication: disjunction | disjunction ("->" | "→") implication  -> implies
-?disjunction: conjunction | disjunction ("\\/" | "∨" | "||") conjunction  -> or_
-?conjunction: comparison  | conjunction ("/\\" | "∧" | "&&") comparison  -> and_
+?disjunction: conjunction | disjunction ("\\/" | "∨" | "||" | "∪" ) conjunction  -> or_
+?conjunction: comparison  | conjunction ("/\\" | "∧" | "&&" | "∩") comparison  -> and_
 ?comparison: additive
     | comparison ("=" | "==") additive   -> eq  
     | comparison "!=" additive  -> neq
-    | comparison "<" additive   -> lt  
-    | comparison ">" additive   -> gt
-    | comparison "<=" additive  -> le  
-    | comparison ">=" additive  -> ge
+    | comparison ("<" | "⊂") additive   -> lt  
+    | comparison (">" | "⊃") additive   -> gt
+    | comparison ("<=" | "≤" | "⊆") additive  -> le  
+    | comparison (">=" | "≥" | "⊇") additive  -> ge
 ?additive: multiplicative
     | additive "+" multiplicative  -> add | additive "-" multiplicative  -> sub
 ?multiplicative: application
@@ -25,16 +36,18 @@ start: expr
 ?application: atom atom* -> app
 ?atom: const | num | bool_ | "(" expr ")" | seq
 
-binders: binder+
+binders: binder+ | NAME ":" sort -> sing_binder
 ?binder: "(" NAME+ ":" sort ")" -> annot_binder | NAME -> infer_binder
 ?sort: arrow
 ?arrow: sortatom | sortatom "->" arrow -> array
 ?sortatom : NAME -> sortlit | "BitVec" NUMBER -> bitvecsort | "(" sort ")" | "'" NAME -> typevar
 
-const: NAME
+const: NAME ("." NAME)*
 num: NUMBER
 bool_: "true" -> true | "false" -> false
 seq  : "[" expr ("," expr)* "]"
+
+set : "{" binders "|" expr "}"
 
 NAME: /[a-zA-Z_][a-zA-Z0-9_']*/
 NUMBER: /-?\d+/
@@ -79,6 +92,13 @@ def parse(s: str, globals=None) -> smt.ExprRef:
     True
     >>> parse("[true, false]")
     Concat(Unit(True), Unit(False))
+    >>> q = smt.Const("x", smt.TupleSort("pair", [smt.IntSort(), smt.BoolSort()])[0])
+    >>> parse("q.project1", {"q": q})
+    project1(x)
+    >>> parse("{x : Int | x > 0}")
+    Lambda(x, x > 0)
+    >>> parse("if true && false then 1 + 1 else 0")
+    If(And(True, False), 2, 0)
     """
     env = {}
 
@@ -139,10 +159,14 @@ def parse(s: str, globals=None) -> smt.ExprRef:
         match tree:
             case Tree("binders", bs):
                 return [v for b in bs for v in binder(b)]
+            case Tree("sing_binder", [name, sort_tree]):
+                s = sort(sort_tree)
+                return [smt.Const(str(name), s)]
             case _:
                 raise ValueError("Unknown binders tree", tree)
 
     def quant(vs, body_tree, q) -> smt.QuantifierRef:
+        # TODO: doofy. Should make a env stack
         nonlocal env
         old_env = env.copy()
         vs = binders(vs)
@@ -157,8 +181,10 @@ def parse(s: str, globals=None) -> smt.ExprRef:
             # TODO: obviously this is not well typed.
             case Tree("num", [n]):
                 return int(n)  # type: ignore
-            case Tree("const", [name]):
+            case Tree("const", [name, *attrs]):
                 res = lookup(name)  # type: ignore
+                for attr in attrs:
+                    res = getattr(res, str(attr))  # type: ignore
                 return res  # type: ignore
             case Tree("true", []):
                 return smt.BoolVal(True)
@@ -213,6 +239,13 @@ def parse(s: str, globals=None) -> smt.ExprRef:
                 return quant(vs, body, smt.Exists)
             case Tree("fun_", [vs, body]):
                 return quant(vs, body, smt.Lambda)
+            case Tree("set", [vs, body]):
+                t = quant(vs, body, smt.Lambda)
+                if t.sort().range() != smt.BoolSort():
+                    raise ValueError("Set comprehension must return Bool", t)
+                return t
+            case Tree("if", [cond, then_, else_]):
+                return smt.If(expr(cond), expr(then_), expr(else_))
             case Tree("implies", [left, right]):
                 return smt.Implies(expr(left), expr(right))
             case _:

@@ -24,7 +24,7 @@ a, b, c, d, p = kd.FreshVars("a b c d p", ZFSet)
 Class = ZFSet >> smt.BoolSort()
 P, Q = smt.Consts("P Q", Class)
 
-elem = smt.Function("elem", ZFSet, ZFSet, smt.BoolSort())
+elem = smt.Function("∈", ZFSet, ZFSet, smt.BoolSort())
 elts = kd.define("elts", [A], smt.Lambda([x], elem(x, A)))
 
 zf_db = []
@@ -57,7 +57,7 @@ ext_ax = kd.axiom(
 
 le = kd.notation.le.define([A, B], kd.QForAll([x], elem(x, A), elem(x, B)))
 
-emp = smt.Const("emp", ZFSet)
+emp = smt.Const("∅", ZFSet)
 elem_emp = kd.axiom(smt.ForAll([x], elem(x, emp) == smt.BoolVal(False)))
 
 
@@ -237,7 +237,7 @@ zf_db.extend([elem_emp, elem_upair, ext_ax, elem_sep])
 
 # bigunion
 
-bigunion = smt.Function("bigunion", ZFSet, ZFSet)
+bigunion = smt.Function("bigunion", ZFSet, ZFSet)  # ⋃
 bigunion_ax = kd.axiom(
     kd.QForAll(
         [A, x], smt.Eq(elem(x, bigunion(A)), kd.QExists([B], elem(B, A), elem(x, B)))

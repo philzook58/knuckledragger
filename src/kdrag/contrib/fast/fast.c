@@ -35,6 +35,7 @@ Z3_ast_vector KDRAG_get_consts(Z3_context ctx, Z3_ast t) {
   Z3_ast_vector_inc_ref(ctx, res);
   Z3_ast_vector todo = Z3_mk_ast_vector(ctx);
   Z3_ast_vector_inc_ref(ctx, todo);
+  // todo: seen set
   // Z3_ast_map seen = Z3_mk_ast_map(ctx);
   // Z3_ast_map_inc_ref(ctx, seen);
 

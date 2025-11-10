@@ -145,7 +145,7 @@ class MemState:
         return dataclasses.replace(
             self,
             mem=self.mem._replace(  # type: ignore
-                register=bv.StoreConcat(
+                register=bv.StoreConcat(  # type: ignore
                     self.mem.register,  # type: ignore
                     smt.BitVecVal(offset, self.bits),
                     value,
