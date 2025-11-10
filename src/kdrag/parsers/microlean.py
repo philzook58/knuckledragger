@@ -6,10 +6,11 @@ grammar = r"""
 start: expr
 
 ?expr: quantifier
-?quantifier: implication  | "forall" binders "," expr  -> forall_ | "exists" binders "," expr -> exists_ | "fun" binders "=>" expr -> fun_
-?implication: disjunction | disjunction "->" implication  -> implies
-?disjunction: conjunction | disjunction ("\\/" | "||") conjunction  -> or_
-?conjunction: comparison  | conjunction ("/\\" | "&&") comparison  -> and_
+?quantifier: implication  | ("forall" | "∀") binders "," expr  -> forall_ | \
+    ("exists" | "∃") binders "," expr -> exists_ | ("fun" | "λ") binders "=>" expr -> fun_
+?implication: disjunction | disjunction ("->" | "→") implication  -> implies
+?disjunction: conjunction | disjunction ("\\/" | "∨" | "||") conjunction  -> or_
+?conjunction: comparison  | conjunction ("/\\" | "∧" | "&&") comparison  -> and_
 ?comparison: additive
     | comparison ("=" | "==") additive   -> eq  
     | comparison "!=" additive  -> neq
@@ -22,17 +23,18 @@ start: expr
 ?multiplicative: application
     | multiplicative "*" application  -> mul | multiplicative "/" application  -> div
 ?application: atom atom* -> app
-?atom: const | num | bool_ | "(" expr ")"
+?atom: const | num | bool_ | "(" expr ")" | seq
 
 binders: binder+
-binder: "(" NAME+ ":" sort ")"
+?binder: "(" NAME+ ":" sort ")" -> annot_binder | NAME -> infer_binder
 ?sort: arrow
 ?arrow: sortatom | sortatom "->" arrow -> array
-?sortatom : NAME -> sortlit | "BitVec" NUMBER -> bitvecsort | "(" sort ")"
+?sortatom : NAME -> sortlit | "BitVec" NUMBER -> bitvecsort | "(" sort ")" | "'" NAME -> typevar
 
 const: NAME
 num: NUMBER
-bool_: "true" | "false"
+bool_: "true" -> true | "false" -> false
+seq  : "[" expr ("," expr)* "]"
 
 NAME: /[a-zA-Z_][a-zA-Z0-9_']*/
 NUMBER: /-?\d+/
@@ -69,6 +71,14 @@ def parse(s: str, globals=None) -> smt.ExprRef:
     ForAll(x, Implies(And(x >= 0, x < 10), x < 20))
     >>> parse(r"exists (x : (BitVec 32) -> BitVec 8), x 8 = 5")
     Exists(x, x[8] == 5)
+    >>> parse("fun x y (z : Int) => x + y + z", {"x": smt.Int("x"), "y": smt.Int("y")})
+    Lambda([x, y, z], x + y + z)
+    >>> parse("fun (x : 'a) => x").sort()
+    Array(a, a)
+    >>> parse("true")
+    True
+    >>> parse("[true, false]")
+    Concat(Unit(True), Unit(False))
     """
     env = {}
 
@@ -103,15 +113,25 @@ def parse(s: str, globals=None) -> smt.ExprRef:
                         return s
                     else:
                         raise ValueError("Name is not a sort", name, s)
+            case Tree("typevar", [name]):
+                return smt.DeclareTypeVar(str(name))
             case _:
                 raise ValueError("Unknown sort tree", tree)
 
     def binder(tree) -> list[smt.ExprRef]:
         match tree:
-            case Tree("binder", names_sort):
+            case Tree("annot_binder", names_sort):
                 names = names_sort[:-1]
                 s = sort(names_sort[-1])
                 return [smt.Const(str(name), s) for name in names]
+            case Tree(
+                "infer_binder", [name]
+            ):  # TODO: This is a bit goofy, but does match how z3py works.
+                v = lookup(name)
+                if isinstance(v, smt.ExprRef) and smt.is_const(v):
+                    return [v]
+                else:
+                    raise ValueError("Inferred binder is not a constant", name, v)
             case _:
                 raise ValueError("Unknown binder tree", tree)
 
@@ -140,6 +160,12 @@ def parse(s: str, globals=None) -> smt.ExprRef:
             case Tree("const", [name]):
                 res = lookup(name)  # type: ignore
                 return res  # type: ignore
+            case Tree("true", []):
+                return smt.BoolVal(True)
+            case Tree("false", []):
+                return smt.BoolVal(False)
+            case Tree("seq", items):
+                return smt.Concat(*[smt.Unit(expr(item)) for item in items])
             case Tree("and_", [left, right]):
                 return smt.And(expr(left), expr(right))
             case Tree("or_", [left, right]):

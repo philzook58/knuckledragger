@@ -144,7 +144,7 @@ class MemState:
         # This is mainly for the purpose of manually setting PC in evaluator loop
         return dataclasses.replace(
             self,
-            mem=self.mem._replace(
+            mem=self.mem._replace(  # type: ignore
                 register=bv.StoreConcat(
                     self.mem.register,  # type: ignore
                     smt.BitVecVal(offset, self.bits),
@@ -673,6 +673,9 @@ class BinaryContext:
                 )
 
         return smt.substitute(expr, *substs)
+
+    # def state_lam(self, expr : smt.ExprRef) -> smt.QuantifierRef:
+    #    mem =
 
     def unfold(self, expr: smt.ExprRef) -> smt.ExprRef:
         """
