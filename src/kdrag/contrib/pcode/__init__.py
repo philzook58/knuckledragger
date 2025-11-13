@@ -17,7 +17,7 @@ import kdrag.theories.bitvec as bv
 import operator
 from dataclasses import dataclass
 import dataclasses
-from typing import Optional
+from typing import Optional, NamedTuple
 
 TRUE = smt.BitVecVal(1, 8)
 FALSE = smt.BitVecVal(0, 8)
@@ -88,8 +88,7 @@ class _TestVarnode:
     size: int
 
 
-@dataclass(frozen=True)
-class MemState:
+class MemState(NamedTuple):
     """
     MemState is a wrapper that offers getvalue and setvalue methods
 
@@ -99,7 +98,9 @@ class MemState:
 
     """
 
-    mem: smt.DatatypeRef
+    ram: smt.ArrayRef
+    register: smt.ArrayRef
+    unique: smt.ArrayRef
     bits: int  # bitwidth of addresses
     read: smt.ArrayRef
     # write: smt.ArrayRef
@@ -107,64 +108,74 @@ class MemState:
 
     @classmethod
     def Const(cls, name: str, bits: int = 64) -> "MemState":
+        mem = smt.Const(name, MemStateSort[bits])
         return MemState(
-            smt.Const(name, MemStateSort[bits]),
+            ram=mem.ram,
+            register=mem.register,
+            unique=mem.unique,
             bits=bits,
             read=smt.Array(name + "_read", BV[bits], smt.BoolSort()),
             write=[],  # smt.Array(name + "_write", BV[bits], smt.BoolSort()),
+        )
+
+    def to_expr(self) -> smt.DatatypeRef:
+        return MemStateSort[self.bits].mk(
+            ram=self.ram, register=self.register, unique=self.unique
         )
 
     def getvalue(self, vnode: pypcode.Varnode) -> smt.BitVecRef | int:
         if vnode.space.name == "const":
             return smt.BitVecVal(vnode.offset, vnode.size * 8)
         else:
-            mem = getattr(self.mem, vnode.space.name)
-            if mem is None:
+            if vnode.space.name == "ram":
+                mem = self.ram
+            elif vnode.space.name == "register":
+                mem = self.register
+            elif vnode.space.name == "unique":
+                mem = self.unique
+            else:
                 raise ValueError(f"Unknown memory space: {vnode.space.name}")
             return bv.SelectConcat(
                 mem, smt.BitVecVal(vnode.offset, self.bits), vnode.size
             )
 
     def setvalue(self, vnode: pypcode.Varnode, value: smt.BitVecRef):
-        assert vnode.space.name != "const"
-        return dataclasses.replace(
-            self,
-            mem=self.mem._replace(
-                **{
-                    vnode.space.name: bv.StoreConcat(
-                        getattr(self.mem, vnode.space.name),
-                        smt.BitVecVal(vnode.offset, self.bits),
-                        value,
-                    )
-                }
-            ),
-        )
+        offset = smt.BitVecVal(vnode.offset, self.bits)
+        space = vnode.space.name
+        if space == "ram":
+            return self.setvalue_ram(offset, value)
+        elif space == "register":
+            return self.set_register(vnode.offset, value)
+        elif space == "unique":
+            return self._replace(unique=bv.StoreConcat(self.unique, offset, value))
+        else:
+            raise ValueError(f"Unknown memory space: {space}")
 
-    def set_register(self, offset: int, value: smt.BitVecRef):
+    def set_register(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
         # This is mainly for the purpose of manually setting PC in evaluator loop
-        return dataclasses.replace(
-            self,
-            mem=self.mem._replace(  # type: ignore
-                register=bv.StoreConcat(  # type: ignore
-                    self.mem.register,  # type: ignore
-                    smt.BitVecVal(offset, self.bits),
-                    value,
-                )
-            ),
+        if not isinstance(offset, smt.BitVecRef):
+            offset1 = smt.BitVecVal(offset, self.bits)
+        else:
+            offset1 = offset
+        return self._replace(
+            register=bv.StoreConcat(
+                self.register,
+                smt.BitVecVal(offset1, self.bits),
+                value,
+            )
         )
 
     def getvalue_ram(self, offset: smt.BitVecRef | int, size: int) -> smt.BitVecRef:
         # TODO: update read?
-        return bv.SelectConcat(self.mem.ram, offset, size)
+        return bv.SelectConcat(self.ram, offset, size)
 
     def setvalue_ram(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
         if not isinstance(offset, smt.BitVecRef):
             offset1 = smt.BitVecVal(offset, self.bits)
         else:
             offset1 = offset
-        return dataclasses.replace(
-            self,
-            mem=self.mem._replace(ram=bv.StoreConcat(self.mem.ram, offset1, value)),  # type: ignore
+        return self._replace(
+            ram=bv.StoreConcat(self.ram, offset1, value),
             write=self.write + [(offset1, value.size())],  # fun.MultiStore(
             #     self.write, offset1, *([smt.BoolVal(True)] * value.size())
             # ),
@@ -471,7 +482,7 @@ class BinaryContext:
         )
         mem = MemState.Const("mem")
         mem1, pc1 = self.execute1(mem, pc)
-        mem, mem1 = mem.mem, mem1.mem
+        mem, mem1 = mem.to_expr(), mem1.to_expr()
         execute_ax = kd.axiom(
             smt.ForAll(
                 [mem],
@@ -646,7 +657,7 @@ class BinaryContext:
         # Much faster typically to pull only those constants that are used in the expression
         # Hmm. This seems be quite slow again
         consts = {t.decl().name(): t for t in kd.utils.consts(expr)}
-        substs = [
+        substs: list[tuple[smt.ExprRef, smt.ExprRef]] = [
             (t, self.get_reg(memstate, regname))
             for regname, t in consts.items()
             if regname in self.ctx.registers
@@ -660,7 +671,7 @@ class BinaryContext:
             ]
         )
         if "ram" in consts:
-            substs.append((smt.Array("ram", BV[self.bits], BV[8]), memstate.mem.ram))
+            substs.append((smt.Array("ram", BV[self.bits], BV[8]), memstate.ram))
         for n in _possible_bits:
             ramn = f"ram{n}"
             if ramn in consts:
