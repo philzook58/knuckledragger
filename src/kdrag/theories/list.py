@@ -6,19 +6,9 @@ You may prefer using theories.seq which offers more builtin support for things l
 
 import kdrag as kd
 import kdrag.smt as smt
-import functools
 
 
-@functools.cache
-def ListSort(Elt: smt.SortRef) -> smt.DatatypeSortRef:
-    """
-    >>> ListSort(smt.IntSort())
-    List_Int...
-    """
-    T = kd.Inductive("List_" + Elt.name())
-    T.declare("Nil")
-    T.declare("Cons", ("head", Elt), ("tail", T))
-    return T.create()
+ListSort = kd.ListSort
 
 
 class List:

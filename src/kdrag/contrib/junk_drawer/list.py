@@ -5,37 +5,7 @@ You may prefer using theories.seq which offers more builtin support for things l
 """
 
 import kdrag as kd
-import functools
 import kdrag.smt as smt
-
-
-@functools.cache
-def List(sort: smt.SortRef) -> smt.DatatypeSortRef:
-    """
-    Build List sort
-    >>> IntList = List(smt.IntSort())
-    >>> IntList.Cons(1, IntList.Nil)
-    Cons(1, Nil)
-    """
-    dt = kd.Inductive("List_" + sort.name())
-    dt.declare("Nil")
-    dt.declare("Cons", ("head", sort), ("tail", dt))
-    return dt.create()
-
-
-def list(*args: smt.ExprRef) -> smt.DatatypeRef:
-    """
-    Helper to construct List values
-    >>> list(1, 2, 3)
-    Cons(1, Cons(2, Cons(3, Nil)))
-    """
-    if len(args) == 0:
-        raise ValueError("list() requires at least one argument")
-    LT = List(smt._py2expr(args[0]).sort())
-    acc = LT.Nil
-    for a in reversed(args):
-        acc = LT.Cons(a, acc)
-    return acc
 
 
 def Cons(x: smt.ExprRef, xs: smt.DatatypeRef) -> smt.DatatypeRef:
@@ -44,7 +14,7 @@ def Cons(x: smt.ExprRef, xs: smt.DatatypeRef) -> smt.DatatypeRef:
     >>> Cons(1, Nil(smt.IntSort()))
     Cons(1, Nil)
     """
-    LT = List(smt._py2expr(x).sort())
+    LT = kd.ListSort(smt._py2expr(x).sort())
     return LT.Cons(x, xs)
 
 
@@ -54,7 +24,7 @@ def Nil(sort: smt.SortRef) -> smt.DatatypeRef:
     >>> Nil(smt.IntSort())
     Nil
     """
-    return List(sort).Nil
+    return kd.ListSort(sort).Nil
 
 
 def Unit(x: smt.ExprRef) -> smt.DatatypeRef:
@@ -66,5 +36,5 @@ def Unit(x: smt.ExprRef) -> smt.DatatypeRef:
     List_Int
     """
     x = smt._py2expr(x)
-    LT = List(x.sort())
+    LT = kd.ListSort(x.sort())
     return LT.Cons(x, LT.Nil)

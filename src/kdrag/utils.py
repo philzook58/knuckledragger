@@ -267,6 +267,63 @@ def unify_db(
     return subst
 
 
+def eunify(
+    vs: list[smt.ExprRef], goal: smt.BoolRef, term_gen_heuristic=None
+) -> Optional[tuple[dict[smt.ExprRef, smt.ExprRef], Optional[smt.BoolRef]]]:
+    """
+    Bottom up E-unification.
+    Returns a substitution and remaining constraint. It is possible it makes no progress.
+
+    https://www.philipzucker.com/smt_unify/
+    >>> x,y,z = smt.Ints("x y z")
+    >>> eunify([x,y], smt.And(x + 1 == y, y + 1 == 3))
+    ({x: 1, y: 2}, None)
+    >>> eunify([x,y,z], smt.And(x + y == z + 3*x, z + 1 + y == 3))
+    ({z: -2*x + y}, -2*x + 2*y == 2)
+    """
+    # check that the goal is even solvable at all
+    s = smt.Solver()
+    s.add(goal)
+    res = s.check()
+    if res == smt.unsat:
+        return None
+    elif res == smt.unknown:
+        raise Exception("eunify: SMT solver returned unknown")
+    assert res == smt.sat
+    # solve for ground constants first
+    m = s.model()
+    guesses = [smt.Eq(v, m.eval(v)) for v in vs if not v.eq(m.eval(v))]
+    eqs = kd.utils.propagate(guesses, goal)
+    subst = {eq.arg(0): eq.arg(1) for eq in eqs}
+    goal = smt.substitute(goal, list(subst.items()))
+    # Now guess seed expressions from the goal
+    guess_ts = set(kd.utils.subterms(goal))
+    # simplify can sometimes generate new subterms (reassociation etc). Questionably useful
+    guess_ts.update(kd.utils.subterms(smt.simplify(goal)))
+    # Could perhaps call some z3.Tactics here to generate more terms
+    if term_gen_heuristic is not None:
+        guess_ts.update(term_gen_heuristic(vs, goal))
+    guesses = [
+        smt.Eq(v, t)
+        for t in guess_ts
+        for v in vs
+        if t.sort() == v.sort() and kd.utils.free_in([v], t)
+    ]
+    eqs = kd.utils.propagate(guesses, goal)
+    while eqs:
+        eq = eqs.pop()
+        v, t = eq.children()
+        if v not in subst and kd.utils.free_in(
+            [v], t
+        ):  # is it possible for free_in to fail? But it to eventually not fail?
+            subst[v] = t
+            eqs = [smt.substitute(m, (v, t)) for m in eqs if not m.arg(0).eq(v)]
+    remainder_constraint = smt.simplify(smt.substitute(goal, *subst.items()))
+    return subst, remainder_constraint if not smt.is_true(
+        remainder_constraint
+    ) else None
+
+
 def free_in(vs: list[smt.ExprRef], t: smt.ExprRef) -> bool:
     """
     Returns True if none of the variables in vs exist unbound in t.
@@ -473,6 +530,7 @@ def propagate(maybes: list[smt.BoolRef], known: smt.BoolRef) -> list[smt.BoolRef
     >>> propagate([p, q, r, smt.And(p,q)], p & q)
     [p, q, And(p, q)]
     """
+    # keyword param to also infer which are false?
     s = smt.Solver()
     s.add(known)
     maybes = list(maybes)

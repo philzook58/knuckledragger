@@ -6,10 +6,7 @@ import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.int as int_  # int is more primitive. We import it's induction principle here.
 
-Nat = kd.Inductive("Nat")
-Nat.declare("Z")
-Nat.declare("S", ("pred", Nat))
-Nat = Nat.create()
+Nat = kd.Nat
 
 
 S = Nat.S

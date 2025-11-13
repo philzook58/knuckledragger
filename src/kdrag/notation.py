@@ -300,7 +300,45 @@ exists = SortDispatch(name="exists")
 """Sort based dispatch for `Exists` quantifier."""
 # smt.ExprRef.exists = lambda vs, body: exists(vs, body)
 
-induct = SortDispatch(name="induct")
+
+def induct_seq(a: smt.SeqRef, P) -> kd.kernel.Proof:
+    """
+    >>> x = smt.Const("x", smt.SeqSort(smt.IntSort()))
+    >>> induct(x, lambda s: smt.Length(s) >= 0)
+    |= Implies(And(Length(Empty(Seq(Int))) >= 0,
+                ForAll(z!..., Length(Unit(z!...)) >= 0),
+                ForAll([x!..., y!...],
+                       Implies(And(Length(x!...) >= 0,
+                                   Length(y!...) >= 0),
+                               Length(Concat(x!..., y!...)) >= 0))),
+            Length(x) >= 0)
+    """
+    assert isinstance(a, smt.SeqRef)
+    sort = a.sort()
+    T = sort.basis()
+    z = smt.FreshConst(T, prefix="z")
+    x, y = smt.FreshConst(sort, prefix="x"), smt.FreshConst(sort, prefix="y")
+    return kd.axiom(
+        smt.Implies(
+            smt.And(
+                P(smt.Empty(sort)),
+                QForAll([z], P(smt.Unit(z))),
+                QForAll([x, y], P(x), P(y), P(smt.Concat(x, y))),
+            ),
+            # -------------------------------------------------
+            P(a),
+        )
+    )
+
+
+def induct_default(x, P):
+    if isinstance(x, smt.SeqRef):
+        return induct_seq(x, P)
+    else:
+        raise NotImplementedError("No default induct implementation for sort", x.sort())
+
+
+induct = SortDispatch(name="induct", default=induct_default)
 """Sort based dispatch for induction principles. Should instantiate an induction scheme for variable x and predicate P"""
 smt.ExprRef.induct = lambda x, P: induct(x, P)  # type: ignore
 

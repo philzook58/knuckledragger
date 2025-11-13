@@ -564,7 +564,7 @@ def Inductive(name: str) -> smt.Datatype:
     dt = smt.Datatype(name)
     oldcreate = dt.create
 
-    def create():
+    def create() -> smt.DatatypeSortRef:
         dt = oldcreate()
         # Sanity check no duplicate names. Causes confusion.
         names = set()

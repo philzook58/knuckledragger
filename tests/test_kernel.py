@@ -96,7 +96,7 @@ def test_record():
 
 
 def test_seq():
-    seq.induct(smt.IntSort(), lambda x: x == x)
+    seq.induct(smt.Const("z", smt.SeqSort(smt.IntSort())), lambda x: x == x)
     seq.Seq(smt.IntSort())
 
 

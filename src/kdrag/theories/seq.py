@@ -38,6 +38,7 @@ def induct_list(x: smt.SeqRef, P):
     )
 
 
+"""
 def induct(T: smt.SortRef, P) -> kd.kernel.Proof:
     z = smt.FreshConst(T, prefix="z")
     sort = smt.SeqSort(T)
@@ -50,24 +51,11 @@ def induct(T: smt.SortRef, P) -> kd.kernel.Proof:
         )  # -------------------------------------------------
         == kd.QForAll([x], P(x))
     )
+"""
 
+induct = kd.notation.induct_seq
 
-def seq(*args):
-    """
-    Helper to construct sequences.
-    >>> seq(1, 2, 3)
-    Concat(Unit(1), Concat(Unit(2), Unit(3)))
-    >>> seq(1)
-    Unit(1)
-    """
-    if len(args) == 0:
-        raise ValueError(
-            "seq() requires at least one argument. use smt.Empty(sort) instead."
-        )
-    elif len(args) == 1:
-        return smt.Unit(smt._py2expr(args[0]))
-    else:
-        return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
+seq = kd.seq
 
 
 def Cons(x: smt.ExprRef, tl: smt.SeqSortRef):
