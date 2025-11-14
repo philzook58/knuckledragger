@@ -16,7 +16,6 @@ import kdrag.smt as smt
 import kdrag.theories.bitvec as bv
 import operator
 from dataclasses import dataclass
-import dataclasses
 from typing import Optional, NamedTuple
 
 TRUE = smt.BitVecVal(1, 8)
