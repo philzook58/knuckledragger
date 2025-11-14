@@ -15,9 +15,9 @@ cd ..
 
 
 # https://github.com/vprover/vampire/releases
-echo "Installing Vampire"
-wget -nc https://github.com/vprover/vampire/releases/download/v4.9casc2024/vampire
-chmod +x ./vampire
+#echo "Installing Vampire"
+#wget -nc https://github.com/vprover/vampire/releases/download/v4.9casc2024/vampire
+#chmod +x ./vampire
 
 wget -nc https://github.com/vprover/vampire/releases/download/v4.8HO4Sledgahammer/vampire_rel_static_forIsabelle_6878.zip -O vampire-ho.zip
 unzip vampire-ho.zip

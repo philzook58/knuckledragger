@@ -26,12 +26,35 @@ import urllib.request
 import stat
 import kdrag.printers.lean as lean
 import json
+import hashlib
+import urllib
+import zipfile
 
 logger = logging.getLogger("knuckledragger")
 
 
 def binpath(cmd):
     return os.path.join(os.path.dirname(__file__), cmd)
+
+
+def download(url, filename, checksum) -> bool:
+    path = binpath(filename)
+
+    def checkhash():
+        with open(path, "rb") as f:
+            digest = hashlib.file_digest(f, "sha256")
+            return digest.hexdigest() == checksum
+
+    if os.path.exists(path) and checkhash():
+        return False
+    print("Downloading", url, "to", path)
+    urllib.request.urlretrieve(
+        url,
+        path,
+    )
+    if not checkhash():
+        raise Exception("Checksum mismatch for downloaded file", filename)
+    return True
 
 
 def install_solvers2():
@@ -366,8 +389,12 @@ class BaseSolver:
         self.res: Optional[subprocess.CompletedProcess] = None
 
     def add(self, thm: smt.BoolRef):
-        assert isinstance(thm, smt.BoolRef)
-        self.adds.append(thm)
+        if isinstance(thm, list):
+            self.adds.extend(thm)
+            return
+        else:
+            assert isinstance(thm, smt.BoolRef)
+            self.adds.append(thm)
 
     def assert_and_track(self, thm: smt.BoolRef, name: str):
         assert isinstance(thm, smt.BoolRef)
@@ -533,14 +560,27 @@ def tptp2smt(tptp_filename):
 
 class VampireSolver(BaseSolver):
     def __init__(self):
+        """
+        >>> s = VampireSolver()
+        >>> s.add(smt.BoolVal(True))
+        >>> s.check()
+        sat
+        """
         super().__init__()
+        new = download(
+            "https://github.com/vprover/vampire/releases/download/v5.0.0/vampire-Linux-X64.zip",
+            "vampire.zip",
+            "46154f788996c1f1881c5c7120abf3dbb569b42f6bfed3c7d5331b1be3e97b18",
+        )
+        if new or not os.path.exists(binpath("vampire")):
+            with zipfile.ZipFile(binpath("vampire.zip"), "r") as zipf:
+                zipf.extract("vampire", path=os.path.dirname(__file__))
 
     def check(self):
         with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
             self.write_smt(fp)
             fp.write("(check-sat)\n")
             fp.flush()
-            # print(fp.readlines())
             cmd = [
                 binpath("vampire"),
                 fp.name,
@@ -562,11 +602,7 @@ class VampireSolver(BaseSolver):
             self.res = subprocess.run(
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
-        with open("/tmp/vampire.smt2", "r") as fp:
-            print("\n".join(fp.readlines()))
         res = self.res.stdout
-        print(self.res.stdout)
-        print(self.res.stderr)
         if b"unsat\n" in res or b"% SZS status Unsatisfiable" in res:
             self.status = smt.unsat
             return smt.unsat
@@ -585,7 +621,6 @@ class VampireSolver(BaseSolver):
             fp.write(f"(assert-not {expr_to_smtlib(q)})")
             fp.write("(check-sat)\n")
             fp.flush()
-            # print(fp.readlines())
             cmd = [
                 binpath("vampire"),
                 fp.name,
