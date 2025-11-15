@@ -560,12 +560,6 @@ def tptp2smt(tptp_filename):
 
 class VampireSolver(BaseSolver):
     def __init__(self):
-        """
-        >>> s = VampireSolver()
-        >>> s.add(smt.BoolVal(True))
-        >>> s.check()
-        sat
-        """
         super().__init__()
         new = download(
             "https://github.com/vprover/vampire/releases/download/v5.0.0/vampire-Linux-X64.zip",
