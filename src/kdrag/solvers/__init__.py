@@ -575,6 +575,7 @@ class VampireSolver(BaseSolver):
         if new or not os.path.exists(binpath("vampire")):
             with zipfile.ZipFile(binpath("vampire.zip"), "r") as zipf:
                 zipf.extract("vampire", path=os.path.dirname(__file__))
+            os.chmod(binpath("vampire"), 0o755)
 
     def check(self):
         with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()

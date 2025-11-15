@@ -488,6 +488,7 @@ def test_smt2tptp():
     """
     open("/tmp/example.smt2", "w").write(example)
     solvers.smt2tptp("/tmp/example.smt2", "/tmp/example.p", "tff")
+    solvers.VampireSolver() # download vampire
     solvers.run("vampire", ["/tmp/example.p"], check=True)
 
 
