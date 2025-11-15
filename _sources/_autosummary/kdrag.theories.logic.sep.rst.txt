@@ -1,0 +1,40 @@
+kdrag.theories.logic.sep
+========================
+
+.. automodule:: kdrag.theories.logic.sep
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      make_sep
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Sep
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/sep.py
+   :language: python

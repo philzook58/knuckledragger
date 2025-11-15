@@ -1,0 +1,6 @@
+kdrag.theories.seq.Tail
+=======================
+
+.. currentmodule:: kdrag.theories.seq
+
+.. autofunction:: Tail

@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.pretty\_trace
+=========================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: pretty_trace

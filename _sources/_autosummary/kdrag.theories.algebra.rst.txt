@@ -1,0 +1,61 @@
+kdrag.theories.algebra
+======================
+
+.. automodule:: kdrag.theories.algebra
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      check_semigroup
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      AddSemigroup
+      CommAddSemigroup
+      CommSemigroup
+      Group
+      Monoid
+      SemiGroup
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   category
+   filter
+   group
+   kleene
+   lattice
+   ordering
+   sqmatrix
+   topology
+   vector
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra.py
+   :language: python
