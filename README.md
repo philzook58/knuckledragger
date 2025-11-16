@@ -24,7 +24,7 @@ python3 -m pip install -e .
 
 ## Getting Started
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/philzook58/knuckledragger/blob/master/examples/short_talk.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/philzook58/knuckledragger/blob/master/examples/short_talk.ipynb) [youtube](https://youtu.be/ENwKBC8dN4M)
 
 ```python
 import kdrag as kd
