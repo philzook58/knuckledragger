@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -921,8 +921,8 @@ wheels = [
 
 [[package]]
 name = "knuckledragger"
-version = "0.1.2"
-source = { virtual = "." }
+version = "0.1.3a2"
+source = { editable = "." }
 dependencies = [
     { name = "lark" },
     { name = "z3-solver" },
