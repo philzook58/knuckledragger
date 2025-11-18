@@ -106,7 +106,7 @@ def mangle_decl(d: smt.FuncDeclRef, env=[]):
         # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
 
 
-def expr_to_cnf(expr: smt.ExprRef):
+def expr_to_cnf(expr: smt.BoolRef) -> str:
     """
     Print in CNF format.
     Will recognize a single ForAll(, Or(Not(...))) layer.
@@ -131,20 +131,22 @@ def expr_to_cnf(expr: smt.ExprRef):
     else:
         lits = [body]
 
-    def term(e):
+    def term(e: smt.ExprRef) -> str:
         if smt.is_const(e):
             return str(e)
         elif smt.is_app(e):
             args = [term(c) for c in e.children()]
             return f"{e.decl().name()}({', '.join(args)})"
+        else:
+            raise Exception("Unexpected term in CNF", e)
 
-    def eq(e):
+    def eq(e: smt.BoolRef) -> str:
         if smt.is_eq(e):
             return f"({term(e.arg(0))} = {term(e.arg(1))})"
         else:
             return term(e)
 
-    def neg(e):
+    def neg(e: smt.BoolRef) -> str:
         if smt.is_not(e):
             return f"~{eq(e.arg(0))}"
         else:
@@ -155,7 +157,7 @@ def expr_to_cnf(expr: smt.ExprRef):
 
 def expr_to_tptp(
     expr: smt.ExprRef, env=None, format="thf", theories=True, no_mangle=None
-):
+) -> str:
     """Pretty print expr as TPTP"""
     if env is None:
         env = []
@@ -669,6 +671,8 @@ class VampireSolver(BaseSolver):
                 "--input_syntax",
                 "tptp",
             ]
+        else:
+            raise Exception("Unsupported format for Vampire", self.options["format"])
         if "timeout" in self.options:
             cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
         if len(self.assert_tracks) > 0:
