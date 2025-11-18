@@ -472,6 +472,42 @@ def alpha_norm(expr: smt.ExprRef) -> smt.ExprRef:
         raise NotImplementedError("Unknown expression type in alpha_norm", expr)
 
 
+def lambda_lift(expr: smt.ExprRef) -> tuple[smt.ExprRef, list[smt.BoolRef]]:
+    """
+    Traverses expression and lifts out lambdas to fresh top level functions.
+    https://en.wikipedia.org/wiki/Lambda_lifting
+
+    >>> x,y,z = smt.Ints("x y z")
+    >>> lambda_lift(smt.ForAll([x,y], smt.Exists([z], x + y + 1 == smt.Lambda([z], x)[z])))
+    (ForAll([x, y], Exists(z, x + y + 1 == f!...(x, y)[z])), [ForAll([x, y, z], f!...(x, y)[z] == x)])
+    """
+    lift_defs = []
+
+    def worker(expr, env):
+        if isinstance(expr, smt.QuantifierRef):
+            vs, body = kd.utils.open_binder_unhygienic(expr)
+            env = [v for v in env if v not in vs]  # shadowing
+            env1 = env + vs
+            if expr.is_lambda():
+                f = smt.FreshFunction(*[v.sort() for v in env], expr.sort())
+                lift_defs.append(smt.ForAll(env1, f(*env)(*vs) == worker(body, env1)))
+                return f(*env)
+            elif expr.is_forall():
+                return smt.ForAll(vs, worker(body, env1))
+            elif expr.is_exists():
+                return smt.Exists(vs, worker(body, env1))
+        elif smt.is_const(expr):
+            return expr
+        if smt.is_app(expr):
+            args = [worker(arg, env) for arg in expr.children()]
+            return expr.decl()(*args)
+        else:
+            return expr
+
+    env = []
+    return worker(expr, env), lift_defs
+
+
 def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]:
     """
     A generator of values for a sort. Repeatedly calls z3 to get a new value.

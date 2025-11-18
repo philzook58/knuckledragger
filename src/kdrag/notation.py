@@ -24,6 +24,21 @@ smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type:
 smt.ArrayRef.__call__ = lambda self, *arg: self[arg]
 
 
+def compose(f: smt.FuncDeclRef, g: smt.FuncDeclRef) -> smt.FuncDeclRef:
+    """
+    >>> f = smt.Function("f", smt.IntSort(), smt.RealSort())
+    >>> g = smt.Function("g", smt.BoolSort(), smt.IntSort())
+    >>> f @ g
+    Lambda(x, f(g(x)))
+    """
+    A = g.domain(0)
+    x = smt.Const("x", A)
+    return smt.Lambda([x], f(g(x)))
+
+
+smt.FuncDeclRef.__matmul__ = lambda f, g: compose(f, g)  # type: ignore
+
+
 def quantifier_call(self, *args):
     """
     Instantiate a quantifier. This does substitution

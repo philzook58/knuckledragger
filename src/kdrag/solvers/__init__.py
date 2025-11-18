@@ -29,6 +29,7 @@ import json
 import hashlib
 import urllib
 import zipfile
+from collections import Counter
 
 logger = logging.getLogger("knuckledragger")
 
@@ -47,7 +48,7 @@ def download(url, filename, checksum) -> bool:
 
     if os.path.exists(path) and checkhash():
         return False
-    print("Downloading", url, "to", path)
+    print("Downloading", url, "to", path, "This may take a few minutes...")
     urllib.request.urlretrieve(
         url,
         path,
@@ -105,18 +106,73 @@ def mangle_decl(d: smt.FuncDeclRef, env=[]):
         # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
 
 
-def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
+def expr_to_cnf(expr: smt.ExprRef):
+    """
+    Print in CNF format.
+    Will recognize a single ForAll(, Or(Not(...))) layer.
+
+    >>> x = smt.Int("x")
+    >>> y = smt.Int("y")
+    >>> expr_to_cnf(smt.ForAll([x, y], smt.Or(x == y, x + 1 <= y)))
+    '(X = Y) | <=(+(X, 1), Y)'
+    """
+    if isinstance(expr, smt.QuantifierRef):
+        if not expr.is_forall():
+            raise Exception("CNF conversion only supports universal quantification")
+        vs, body = kd.utils.open_binder_unhygienic(expr)
+        body = smt.substitute(
+            body, *[(v, smt.Const(v.decl().name().upper(), v.sort())) for v in vs]
+        )
+    else:
+        vs = []
+        body = expr
+    if smt.is_or(body):
+        lits = body.children()
+    else:
+        lits = [body]
+
+    def term(e):
+        if smt.is_const(e):
+            return str(e)
+        elif smt.is_app(e):
+            args = [term(c) for c in e.children()]
+            return f"{e.decl().name()}({', '.join(args)})"
+
+    def eq(e):
+        if smt.is_eq(e):
+            return f"({term(e.arg(0))} = {term(e.arg(1))})"
+        else:
+            return term(e)
+
+    def neg(e):
+        if smt.is_not(e):
+            return f"~{eq(e.arg(0))}"
+        else:
+            return eq(e)
+
+    return " | ".join([neg(l) for l in lits])
+
+
+def expr_to_tptp(
+    expr: smt.ExprRef, env=None, format="thf", theories=True, no_mangle=None
+):
     """Pretty print expr as TPTP"""
     if env is None:
         env = []
+    if no_mangle is None:
+        no_mangle = set()
     if isinstance(expr, smt.IntNumRef):
         return str(expr.as_string())
     elif isinstance(expr, smt.QuantifierRef):
         vars, body = kd.utils.open_binder(expr)
-        env = env + [v.decl() for v in vars]
-        body = expr_to_tptp(body, env=env, format=format, theories=theories)
+        vdecls = [v.decl() for v in vars]
+        env = env + vdecls
+        no_mangle.update(vdecls)
+        body = expr_to_tptp(
+            body, env=env, format=format, theories=theories, no_mangle=no_mangle
+        )
         if format == "fof":
-            vs = ", ".join([mangle_decl(v.decl(), env) for v in vars])
+            vs = ", ".join([v.decl().name().replace("!", "__") for v in vars])
             # type_preds = " & ".join(
             #    [
             #        f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl(), env)}))"
@@ -126,7 +182,7 @@ def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
         else:
             vs = ", ".join(
                 [
-                    mangle_decl(v.decl(), env) + ":" + sort_to_tptp(v.sort())
+                    v.decl().name().replace("!", "__") + ":" + sort_to_tptp(v.sort())
                     for v in vars
                 ]
             )
@@ -149,10 +205,11 @@ def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
             return f"(^[{vs}] : {body})"
     assert smt.is_app(expr)
     children = [
-        expr_to_tptp(c, env=env, format=format, theories=theories)
+        expr_to_tptp(c, env=env, format=format, theories=theories, no_mangle=no_mangle)
         for c in expr.children()
     ]
-    head = expr.decl().name()
+    decl = expr.decl()
+    head = decl.name()
     if head == "true":
         return "$true"
     elif head == "false":
@@ -205,7 +262,11 @@ def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True):
         #        *children
         #    )  # This is not a built in tptp function though
     # default assume regular term
-    head = mangle_decl(expr.decl(), env)
+
+    if decl in no_mangle:
+        head = decl.name().replace("!", "__")
+    else:
+        head = mangle_decl(decl, env)
     if len(children) == 0:
         return head
     if format == "thf":
@@ -422,12 +483,22 @@ class BaseSolver:
 
             # Gather up all datatypes and function symbols
             predefined = set()
-
-            if format != "fof":
+            declset = collect_decls(
+                self.adds + [thm for thm, name in self.assert_tracks]
+            )
+            declcount = Counter(decl.name() for decl in declset)
+            no_mangle = {decl for decl in declset if declcount[decl.name()] == 1}
+            sortset = collect_sorts(
+                self.adds + [thm for thm, name in self.assert_tracks]
+            )
+            if format == "fof":
+                if len(sortset) != 2:
+                    raise Exception(
+                        "fof format only supports Bool and a single other sort", sortset
+                    )
+            else:
                 # Write sorts in TPTP THF format
-                for sort in collect_sorts(
-                    self.adds + [thm for thm, name in self.assert_tracks]
-                ):
+                for sort in sortset:
                     # Write sort declarations (only for user-defined sorts)
                     name = sort.name()
                     if name not in self.predefined_sorts:
@@ -445,13 +516,11 @@ class BaseSolver:
 
                 # Declare all function symbols in TPTP THF format
                 fp.write("% Declarations\n")
-                for f in collect_decls(
-                    self.adds + [thm for thm, name in self.assert_tracks]
-                ):
+                for f in declset:
                     if f not in predefined and f.name() not in predefined_names:
                         if f.arity() == 0:
                             fp.write(
-                                f"{format}({f.name()}_type, type, {mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
+                                f"{format}({f.name()}_type, type, {f.name() if f in no_mangle else mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
                             )
                         else:
                             joiner = " > " if format == "thf" else " * "
@@ -459,18 +528,18 @@ class BaseSolver:
                                 [sort_to_tptp(f.domain(i)) for i in range(f.arity())]
                             )
                             fp.write(
-                                f"{format}({f.name()}_decl, type, {mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
+                                f"{format}({f.name()}_decl, type, {f.name() if f in no_mangle else mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
                             )
 
             # Write axioms and assertions in TPTP THF format
             fp.write("% Axioms and assertions\n")
             for i, e in enumerate(self.adds):
                 fp.write(
-                    f"{format}(ax_{i}, axiom, {expr_to_tptp(e, format=format)}).\n"
+                    f"{format}(ax_{i}, axiom, {expr_to_tptp(e, format=format, no_mangle=no_mangle)}).\n"
                 )
             for thm, name in self.assert_tracks:
                 fp.write(
-                    f"{format}({name}, axiom, {expr_to_tptp(thm, format=format)}).\n"
+                    f"{format}({name}, axiom, {expr_to_tptp(thm, format=format, no_mangle=no_mangle)}).\n"
                 )
             # fp.write("tff(goal, conjecture, $false).\n")
 
@@ -521,7 +590,7 @@ class BaseSolver:
             fp.write("(assert (! " + expr_to_smtlib(thm) + " :named " + name + "))\n")
 
 
-def collect_sorts(exprs):
+def collect_sorts(exprs) -> set[smt.SortRef]:
     sorts = set()
     for thm in exprs:
         todo = list(kd.utils.sorts(thm))
@@ -536,7 +605,7 @@ def collect_sorts(exprs):
     return sorts
 
 
-def collect_decls(exprs):
+def collect_decls(exprs) -> set[smt.FuncDeclRef]:
     decls = set()
     for thm in exprs:
         decls.update(kd.utils.decls(thm))
@@ -570,33 +639,44 @@ class VampireSolver(BaseSolver):
             with zipfile.ZipFile(binpath("vampire.zip"), "r") as zipf:
                 zipf.extract("vampire", path=os.path.dirname(__file__))
             os.chmod(binpath("vampire"), 0o755)
+        self.set("format", "smtlib2")
+        self.set("timeout", 1000)
 
     def check(self):
-        with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
-            self.write_smt(fp)
-            fp.write("(check-sat)\n")
-            fp.flush()
+        if self.options["format"] == "smtlib2":
+            with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
+                self.write_smt(fp)
+                fp.write("(check-sat)\n")
+                fp.flush()
             cmd = [
                 binpath("vampire"),
                 fp.name,
                 "--mode",
-                "smtcomp",
+                "casc",
                 "--input_syntax",
                 "smtlib2",
                 # "--ignore_unrecognized_logic", "on",
                 # "--proof_extra" "fast" / "full"
                 # "--latex_output" "/tmp/vampire.tex"
             ]
-            if "timeout" in self.options:
-                cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
-            if len(self.assert_tracks) > 0:
-                cmd.extend(["--output_mode", "ucore"])
-            else:
-                cmd.extend(["--output_mode", "smtcomp"])
+        elif self.options["format"] in ["fof", "tff", "thf"]:
+            self.write_tptp("/tmp/vampire.p", format=self.options["format"])
+            cmd = [
+                binpath("vampire"),
+                "/tmp/vampire.p",
+                "--mode",
+                "casc",
+                "--input_syntax",
+                "tptp",
+            ]
+        if "timeout" in self.options:
+            cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
+        if len(self.assert_tracks) > 0:
+            cmd.extend(["--output_mode", "ucore"])
+        else:
+            cmd.extend(["--output_mode", "smtcomp"])
 
-            self.res = subprocess.run(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
+        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         res = self.res.stdout
         if b"unsat\n" in res or b"% SZS status Unsatisfiable" in res:
             self.status = smt.unsat

@@ -164,6 +164,121 @@ def Some(x: smt.ExprRef) -> smt.DatatypeRef:
     return OptionSort(x.sort()).Some(x)
 
 
+def Assoc(f) -> smt.BoolRef:
+    """
+    >>> Assoc(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()))
+    ForAll([x, y, z], f(f(x, y), z) == f(x, f(y, z)))
+    """
+    T = f.range()
+    x, y, z = smt.Consts("x y z", T)
+    return smt.ForAll([x, y, z], f(f(x, y), z) == f(x, f(y, z)))
+
+
+def Comm(f) -> smt.BoolRef:
+    """
+    >>> Comm(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()))
+    ForAll([x, y], f(x, y) == f(y, x))
+    """
+    T = f.range()
+    x, y = smt.Consts("x y", T)
+    return smt.ForAll([x, y], f(x, y) == f(y, x))
+
+
+def Idem(f) -> smt.BoolRef:
+    """
+    >>> Idem(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()))
+    ForAll(x, f(x, x) == x)
+    """
+    T = f.range()
+    x = smt.Const("x", T)
+    return smt.ForAll([x], f(x, x) == x)
+
+
+def LeftIdentity(f, e: smt.ExprRef) -> smt.BoolRef:
+    """
+    >>> LeftIdentity(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()), smt.IntVal(0))
+    ForAll(x, f(0, x) == x)
+    """
+    T = f.range()
+    x = smt.Const("x", T)
+    return smt.ForAll([x], f(e, x) == x)
+
+
+def RightIdentity(f, e: smt.ExprRef) -> smt.BoolRef:
+    """
+    >>> RightIdentity(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()), smt.IntVal(0))
+    ForAll(x, f(x, 0) == x)
+    """
+    T = f.range()
+    x = smt.Const("x", T)
+    return smt.ForAll([x], f(x, e) == x)
+
+
+def SemiGroup(f) -> smt.BoolRef:
+    return Assoc(f)
+
+
+def AbelSemiGroup(f) -> smt.BoolRef:
+    return smt.And(SemiGroup(f), Comm(f))
+
+
+def Monoid(f, e: smt.ExprRef) -> smt.BoolRef:
+    return smt.And(SemiGroup(f), LeftIdentity(f, e), RightIdentity(f, e))
+
+
+def CommMonoid(f, e: smt.ExprRef) -> smt.BoolRef:
+    return smt.And(AbelSemiGroup(f), LeftIdentity(f, e))
+
+
+def SemiRing(add, mul, zero, one) -> smt.BoolRef:
+    T = zero.sort()
+    x, y, z = smt.Consts("x y z", T)
+    return smt.And(
+        CommMonoid(add, zero),
+        Monoid(mul, one),
+        smt.ForAll([x], mul(x, zero) == zero),
+        smt.ForAll([x], mul(zero, x) == zero),
+        smt.ForAll([x, y, z], mul(x, add(y, z)) == add(mul(x, y), mul(x, z))),
+        smt.ForAll([x, y, z], mul(add(x, y), z) == add(mul(x, z), mul(y, z))),
+    )
+
+
+def CommSemiRing(add, mul, zero, one) -> smt.BoolRef:
+    return smt.And(
+        SemiRing(add, mul, zero, one),
+        Comm(mul),
+    )
+
+
+def Refl(rel) -> smt.BoolRef:
+    """
+    >>> Refl(smt.Function("rel", smt.IntSort(), smt.IntSort(), smt.BoolSort()))
+    ForAll(x, rel(x, x))
+    """
+    T = rel.domain(0)
+    x = smt.Const("x", T)
+    return smt.ForAll([x], rel(x, x))
+
+
+def Antisymm(rel) -> smt.BoolRef:
+    """
+    >>> Antisymm(smt.Function("rel", smt.IntSort(), smt.IntSort(), smt.BoolSort()))
+    ForAll([x, y], Implies(And(rel(x, y), rel(y, x)), x == y))
+    """
+    T = rel.domain(0)
+    x, y = smt.Consts("x y", T)
+    return smt.ForAll([x, y], smt.Implies(smt.And(rel(x, y), rel(y, x)), x == y))
+
+
+def Id(T: smt.SortRef) -> smt.QuantifierRef:
+    """
+    >>> Id(smt.IntSort())
+    Lambda(x, x)
+    """
+    x = smt.Const("x", T)
+    return smt.Lambda([x], x)
+
+
 __all__ = [
     "prove",
     "axiom",
