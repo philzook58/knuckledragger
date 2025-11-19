@@ -6,7 +6,7 @@ def mangle_decl(d: smt.FuncDeclRef, env=[]):
     """Mangle a declaration to a tptp name. SMTLib supports type based overloading, TPTP does not."""
     # single quoted (for operators) + underscore + hex id
     id_, name = d.get_id(), d.name()
-    name = name.replace("!", "bang")
+    name = name.replace("!", "__")
     # TODO: mangling of operators is busted
     # name = name.replace("*", "star")
     assert id_ >= 0x80000000
@@ -70,7 +70,12 @@ def expr_to_cnf(expr: smt.BoolRef) -> str:
 def expr_to_tptp(
     expr: smt.ExprRef, env=None, format="thf", theories=True, no_mangle=None
 ) -> str:
-    """Pretty print expr as TPTP"""
+    """Pretty print expr as TPTP
+
+    >>> x,y = smt.Ints("x y")
+    >>> expr_to_tptp(smt.ForAll([x,y], smt.Implies(x < y, x + 1 <= y)))
+    '(![X...:$int, Y...:$int] : ($less(X...,Y...) => $lesseq($sum(X...,1),Y...))'
+    """
     if env is None:
         env = []
     if no_mangle is None:
@@ -190,7 +195,13 @@ def expr_to_tptp(
 
 
 def sort_to_tptp(sort: smt.SortRef):
-    """Pretty print sort as tptp"""
+    """Pretty print sort as tptp
+
+    >>> sort_to_tptp(smt.IntSort())
+    '$int'
+    >>> sort_to_tptp(smt.ArraySort(smt.IntSort(), smt.BoolSort()))
+    '($int > $o)'
+    """
     name = sort.name()
     if name == "Int":
         return "$int"

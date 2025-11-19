@@ -29,6 +29,22 @@ axiom = kernel.axiom
 
 define = kernel.define
 
+
+def define_const(name: str, body: smt.ExprRef) -> smt.ExprRef:
+    """
+    Define a constant.
+
+    >>> x = define_const("define_const_example", smt.IntVal(42))
+    >>> x
+    define_const_example
+    >>> rewrite.unfold(x)
+    42
+    """
+    # TODO: Remove this type ignore and rename all uses of define to define_const where no constants expected
+    # arguably define is define_fun
+    return kernel.define(name, [], body)  # type: ignore
+
+
 FreshVar = kernel.FreshVar
 
 FreshVars = tactics.FreshVars

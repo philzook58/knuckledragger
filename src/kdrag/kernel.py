@@ -268,7 +268,7 @@ def define(
         print("WARNING: Redefining function", f, "from", defns[f].ax, "to", def_ax.thm)
         defns[f] = defn
     if len(args) == 0:
-        return f()  # Convenience
+        return f()  # Convenience. TODO: Remove
     else:
         return f
 

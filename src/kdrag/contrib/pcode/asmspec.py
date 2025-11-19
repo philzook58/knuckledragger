@@ -513,8 +513,8 @@ def init_trace_states(
         for n, stmt in enumerate(specstmts):
             if isinstance(stmt, Cut) or isinstance(stmt, Entry):
                 init_trace_id += 1
-                mem1 = mem.set_register(
-                    ctx.pc[0], smt.BitVecVal(addr, ctx.pc[1] * 8)
+                mem1 = mem.setvalue(
+                    ctx.pc, smt.BitVecVal(addr, ctx.pc.size * 8)
                 )  # set pc to start addr before entering code
                 precond = ctx.substitute(mem1, stmt.expr)  # No ghost? Use substitute?
                 ghost_env = {
@@ -715,7 +715,7 @@ class Debug:
 
     def reg(self, name):
         reg = self.ctx.state_vars[name]
-        return smt.simplify(
+        return self.ctx.simplify(
             self.ctx.substitute(self.tracestates[-1].state.memstate, reg)
         )
 
@@ -725,7 +725,7 @@ class Debug:
         """
         if size is None:
             size = self.ctx.bits // 8
-        return smt.simplify(
+        return self.ctx.simplify(
             self.tracestates[-1].state.memstate.getvalue_ram(addr, size)
         )
 

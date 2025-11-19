@@ -236,6 +236,32 @@ def SelectConcat(
         return smt.Concat([a[addr + i] for i in range(n)])
 
 
+@functools.cache
+def select_concats(bits, size, le=True):
+    _a = smt.Array("a", smt.BitVecSort(bits), smt.BitVecSort(8))
+    _addr = smt.BitVec("addr", bits)
+    return kd.define(
+        f"select{size}{'le' if le else 'be'}",
+        [_a, _addr],
+        SelectConcat(_a, _addr, size // 8, le=le),
+    )
+
+
+def select_concat(
+    a: smt.ArrayRef, addr: smt.BitVecRef | int, n: int, le=True
+) -> smt.BitVecRef:
+    """
+    >>> mem = smt.Array("mem", smt.BitVecSort(64), BV8)
+    >>> select_concat(mem, 0, 2)
+    select16le(mem, 0)
+    """
+    if n == 1:
+        return a[addr]
+    else:
+        return select_concats(a.domain().size(), n * 8, le=le)(a, addr)
+        # return select_concats[a.domain().size()][le][n * 8](a, addr)
+
+
 def StoreConcat(
     a: smt.ArrayRef, addr: smt.BitVecRef | int, data: smt.BitVecRef, le=True
 ) -> smt.ArrayRef:
@@ -247,6 +273,8 @@ def StoreConcat(
     Store(Store(a, 0, 2), 1, 1)
     >>> smt.simplify(SelectConcat(StoreConcat(a, 6, smt.BitVecVal(258, 16)), 6, 2))
     258
+    >>> smt.simplify(SelectConcat(StoreConcat(a, 6, smt.BitVecVal(258, 16), le=False), 6, 2, le=False))
+    258
     """
     n = data.size()
     assert n % 8 == 0
@@ -257,60 +285,33 @@ def StoreConcat(
             )
         else:
             a = smt.Store(
-                a, addr + offset, smt.Extract(8 * offset, 8 * offset + 7, data)
+                a,
+                addr + n // 8 - offset - 1,
+                smt.Extract(8 * offset + 7, 8 * offset, data),
             )
     return a
 
 
-# @functools.cache
-# def select64(outsize: int) -> smt.FuncDeclRef:
-#     addr = smt.BitVec("addr", 64)
-#     a = smt.Array("a", smt.BitVecSort(64), smt.BitVecSort(8))
-#     return kd.define("select64", [a, addr], SelectConcat(a, addr, outsize))
-_addr = smt.BitVec("addr", 64)
-_a = smt.Array("a", smt.BitVecSort(64), smt.BitVecSort(8))
-bitsizes = [16, 32, 64]
-select64_le = {
-    size: kd.define(
-        f"select_{size}_le", [_a, _addr], SelectConcat(_a, _addr, size // 8, le=True)
+@functools.cache
+def store_concats(bits, size, le=True):
+    _a = smt.Array("a", smt.BitVecSort(bits), smt.BitVecSort(8))
+    _addr = smt.BitVec("addr", bits)
+    data = smt.BitVec("data", size)
+    return kd.define(
+        f"store{size}{'le' if le else 'be'}",
+        [_a, _addr, data],
+        StoreConcat(_a, _addr, data, le=le),
     )
-    for size in bitsizes
-}
-select64_be = {
-    size: kd.define(
-        f"select_{size}_be", [_a, _addr], SelectConcat(_a, _addr, size // 8, le=False)
-    )
-    for size in bitsizes
-}
-_addr = smt.BitVec("addr", 32)
-_a = smt.Array("a", smt.BitVecSort(32), smt.BitVecSort(8))
-select32_le = {
-    size: kd.define(
-        f"select_{size}_le", [_a, _addr], SelectConcat(_a, _addr, size // 8, le=True)
-    )
-    for size in bitsizes
-}
-select32_be = {
-    size: kd.define(
-        f"select_{size}_be", [_a, _addr], SelectConcat(_a, _addr, size // 8, le=False)
-    )
-    for size in bitsizes
-}
-select_concats = {
-    32: {True: select32_le, False: select32_be},
-    64: {True: select64_le, False: select64_be},
-}
 
 
-def select_concat(
-    a: smt.ArrayRef, addr: smt.BitVecRef | int, n: int, le=True
-) -> smt.BitVecRef:
-    """
-    >>> mem = smt.Array("mem", smt.BitVecSort(64), BV8)
-    >>> smt.simplify(select_concat(mem, 0, 2))
-    select_16_le(mem, 0)
-    """
-    return select_concats[a.domain().size()][le][n * 8](a, addr)
+def store_concat(
+    a: smt.ArrayRef, addr: smt.BitVecRef | int, data: smt.BitVecRef, le=True
+) -> smt.ArrayRef:
+    n = data.size()
+    if n == 8:
+        return smt.Store(a, addr, data)
+    else:
+        return store_concats(a.domain().size(), n, le=le)(a, addr, data)
 
 
 def PopCount(x: smt.BitVecRef) -> smt.ArithRef:
@@ -318,7 +319,22 @@ def PopCount(x: smt.BitVecRef) -> smt.ArithRef:
     >>> smt.simplify(PopCount(smt.BitVecVal(6, 3)))
     2
     """
-    return smt.Sum([smt.BV2Int(smt.Extract(i, i, x)) for i in range(x.size())])
+    size = x.size()
+    out = smt.BitVecVal(0, size)
+    for i in range(size):
+        out += (x >> i) & 1
+    return out
+    # return smt.Sum([smt.BV2Int(smt.Extract(i, i, x)) for i in range(x.size())])
+
+
+@functools.cache
+def popcounts(size: int) -> smt.FuncDeclRef:
+    x = smt.BitVec("x", size)
+    return kd.define("popcount", [x], PopCount(x))
+
+
+def popcount(x: smt.BitVecRef):
+    return popcounts(x.size())(x)
 
 
 def UnConcat(x: smt.BitVecRef, lane_num: int) -> list[smt.BitVecRef]:

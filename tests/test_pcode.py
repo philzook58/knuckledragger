@@ -254,6 +254,7 @@ def test_debugger():
     d.start()
     print(d.insn())
     print(d.addr())
+    print(d.reg("t0"))
     assert d.reg("t0").eq(smt.BitVecVal(42,32))
     assert not d.reg("t1").eq(smt.BitVecVal(1000,32))
     d.step()

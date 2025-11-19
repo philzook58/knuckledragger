@@ -129,12 +129,16 @@ class MemState(NamedTuple):
             if vnode.space.name == "ram":
                 mem = self.ram
             elif vnode.space.name == "register":
-                mem = self.register
+                return bv.select_concat(
+                    self.register,
+                    smt.BitVec("&" + vnode.getRegisterName(), self.bits),
+                    vnode.size,
+                )
             elif vnode.space.name == "unique":
                 mem = self.unique
             else:
                 raise ValueError(f"Unknown memory space: {vnode.space.name}")
-            return bv.SelectConcat(
+            return bv.select_concat(
                 mem, smt.BitVecVal(vnode.offset, self.bits), vnode.size
             )
 
@@ -144,29 +148,21 @@ class MemState(NamedTuple):
         if space == "ram":
             return self.setvalue_ram(offset, value)
         elif space == "register":
-            return self.set_register(vnode.offset, value)
+            return self._replace(
+                register=bv.store_concat(
+                    self.register,
+                    smt.BitVec("&" + vnode.getRegisterName(), self.bits),
+                    value,
+                )
+            )
         elif space == "unique":
-            return self._replace(unique=bv.StoreConcat(self.unique, offset, value))
+            return self._replace(unique=bv.store_concat(self.unique, offset, value))
         else:
             raise ValueError(f"Unknown memory space: {space}")
 
-    def set_register(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
-        # This is mainly for the purpose of manually setting PC in evaluator loop
-        if not isinstance(offset, smt.BitVecRef):
-            offset1 = smt.BitVecVal(offset, self.bits)
-        else:
-            offset1 = offset
-        return self._replace(
-            register=bv.StoreConcat(
-                self.register,
-                smt.BitVecVal(offset1, self.bits),
-                value,
-            )
-        )
-
     def getvalue_ram(self, offset: smt.BitVecRef | int, size: int) -> smt.BitVecRef:
         # TODO: update read?
-        return bv.SelectConcat(self.ram, offset, size)
+        return bv.select_concat(self.ram, offset, size)
 
     def setvalue_ram(self, offset: smt.BitVecRef | int, value: smt.BitVecRef):
         if not isinstance(offset, smt.BitVecRef):
@@ -174,11 +170,21 @@ class MemState(NamedTuple):
         else:
             offset1 = offset
         return self._replace(
-            ram=bv.StoreConcat(self.ram, offset1, value),
+            ram=bv.store_concat(self.ram, offset1, value),
             write=self.write + [(offset1, value.size())],  # fun.MultiStore(
             #     self.write, offset1, *([smt.BoolVal(True)] * value.size())
             # ),
         )
+
+    def __str__(self):
+        # use sexpr form which uses `let` for shared expressions.
+        # Using sexpr on And expression returns both memory and ram with shared expressions lifted
+        cur_ram = smt.Const("CUR_RAM", self.ram.sort())
+        cur_register = smt.Const("CUR_REGFILE", self.register.sort())
+        return f"MemState({smt.And(cur_ram == self.ram, cur_register == self.register).sexpr()})"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 # Pure Operations
@@ -226,9 +232,8 @@ def executeSubpiece(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
 def executePopcount(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
-    out = smt.BitVecVal(0, op.inputs[0].size * 8)
-    for i in range(op.inputs[0].size * 8):
-        out += (in1 >> i) & 1
+    assert isinstance(in1, smt.BitVecRef)
+    out = bv.popcount(in1)
     outsize = op.output.size * 8
     insize = op.inputs[0].size * 8
     if outsize > insize:
@@ -307,21 +312,40 @@ class BinaryContext:
         self.filename = None
         self.loader = None
         self.bin_hash = hash((filename, langid))
+        self.ctx = pypcode.Context(langid)  # TODO: derive from cle
         ainfo = archinfo.ArchPcode(langid)
-        self.pc: tuple[int, int] = ainfo.registers[
+        pc: tuple[int, int] = ainfo.registers[
             "pc"
         ]  # TODO: handle different archs? Or will "pc" always work?
+        for name, vnode in self.ctx.registers.items():
+            if vnode.offset == pc[0] and vnode.size == pc[1]:
+                self.pc = vnode
+                break
+        else:
+            raise ValueError("Could not find PC register", pc)
+
         self.bits = ainfo.bits
-        assert self.bits == self.pc[1] * 8
+        assert self.bits == self.pc.size * 8
         self.memory_endness = ainfo.memory_endness  # TODO
         self.register_endness = ainfo.register_endness  # TODO
-        self.ctx = pypcode.Context(langid)  # TODO: derive from cle
 
         # Defintions that are used but may need to be unfolded
-        self.definitions: list[smt.FuncDeclRef] = list(bv.select64_le.values())
-        self.definitions.extend(bv.select64_be.values())
-        self.definitions.extend(bv.select32_le.values())
-        self.definitions.extend(bv.select32_be.values())
+        # &reg is also added in load
+        self.definitions = [
+            bv.select_concats(bits, size, le=le)
+            for le in [True, False]
+            for bits in [32, 64]
+            for size in [16, 32, 64]
+        ]
+        self.definitions.extend([bv.popcounts(size) for size in [8, 16, 32, 64]])
+        self.definitions.extend(
+            [
+                bv.store_concats(bits, size, le=le)
+                for le in [True, False]
+                for bits in [32, 64]
+                for size in [16, 32, 64]
+            ]
+        )
         if filename is not None:
             self.load(filename)
 
@@ -339,6 +363,11 @@ class BinaryContext:
             name: smt.BitVec(name, vnode.size * 8)
             for name, vnode in self.ctx.registers.items()
         }
+        # Make offsets available as definitions. &regname is offset in regfile
+        self.definitions.extend(
+            kd.define_const("&" + name, smt.BitVecVal(vnode.offset, self.bits)).decl()
+            for name, vnode in self.ctx.registers.items()
+        )
         # support %reg names
         decls.update(
             {
@@ -562,8 +591,8 @@ class BinaryContext:
                     if pcode_pc == 0:
                         max_insns1 = max_insns - 1
                         # pcode does not have explicit PC updates, but we want them
-                        memstate2 = memstate1.set_register(
-                            self.pc[0], smt.BitVecVal(addr, self.pc[1] * 8)
+                        memstate2 = memstate1.setvalue(
+                            self.pc, smt.BitVecVal(addr, self.pc.size * 8)
                         )
                     else:
                         max_insns1 = max_insns
@@ -582,8 +611,8 @@ class BinaryContext:
                 ):  # pcode_pc == 0 means we are at the start of an instruction. Kind of. There are some edge cases, TODO
                     max_insns -= 1
                     # pcode does not have explicit PC updates, but we want them
-                    memstate1 = memstate1.set_register(
-                        self.pc[0], smt.BitVecVal(pc1[0], self.pc[1] * 8)
+                    memstate1 = memstate1.setvalue(
+                        self.pc, smt.BitVecVal(pc1[0], self.pc.size * 8)
                     )
                 if pc1[0] in breakpoints:
                     res.append(SimState(memstate1, pc1, path_cond))
@@ -600,7 +629,7 @@ class BinaryContext:
         >>> ctx = BinaryContext()
         >>> memstate = MemState.Const("test_mem")
         >>> memstate = ctx.set_reg(memstate, "RAX", smt.BitVec("RAX", 64))
-        >>> ctx.get_reg(memstate, "RAX")
+        >>> ctx.simplify(ctx.get_reg(memstate, "RAX"))
         RAX
         """
         vnode = self.ctx.registers[regname]
@@ -622,9 +651,12 @@ class BinaryContext:
         >>> ctx = BinaryContext()
         >>> memstate = ctx.init_mem()
         >>> ctx.get_reg(memstate, "RAX")
-        RAX!...
+        select64le(register(state0), &RAX)
         """
-        memstate = MemState.Const("mem0", bits=self.bits)
+        memstate = MemState.Const("state0", bits=self.bits)
+        return memstate
+        # Old code to initialize memory with dummy regnames. Maybe still useful?
+        """
         free_offset = 0
         for name, vnode in self.ctx.registers.items():
             # interestingness heuristic on length of name
@@ -637,6 +669,7 @@ class BinaryContext:
                 )
                 free_offset = vnode.offset + vnode.size
         return memstate
+    """
 
     def get_regs(self, memstate: MemState) -> dict[str, smt.BitVecRef]:
         """
@@ -698,10 +731,21 @@ class BinaryContext:
         x
         >>> import kdrag.theories.bitvec as bv
         >>> ram = smt.Array("ram", BV[64], BV[8])
-        >>> smt.simplify(ctx.unfold(bv.select64_le[16](ram, x)))
+        >>> smt.simplify(ctx.unfold(bv.select_concat(ram, x, 2)))
         Concat(ram[1 + x], ram[x])
         """
         return kd.kernel.unfold(expr, self.definitions)[0]
+
+    def simplify(self, expr: smt.ExprRef) -> smt.ExprRef:
+        """
+        Call simplify and unfold if unfolding makes expression smaller.
+        """
+        e1 = smt.simplify(expr)
+        e2 = smt.simplify(self.unfold(expr))
+        if len(e2.sexpr()) < len(e1.sexpr()):
+            return e2
+        else:
+            return e1
 
     def model_registers(
         self,
@@ -724,3 +768,16 @@ def test_pcode():
     tx = ctx.translate(b"\xf7\xd8")  # neg %eax
     for op in tx.ops:
         pass
+
+
+class StateExpr(NamedTuple):
+    ctx: BinaryContext
+    expr: smt.ExprRef
+
+    def to_lambda(self) -> smt.QuantifierRef:
+        mem = smt.Const("mem", MemStateSort[self.ctx.bits])
+        memstate = MemState.Const("mem", bits=self.ctx.bits)
+        return smt.Lambda([mem], self(memstate))
+
+    def __call__(self, memstate: MemState) -> smt.ExprRef:
+        return self.ctx.substitute(memstate, self.expr)
