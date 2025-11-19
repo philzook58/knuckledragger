@@ -16,6 +16,13 @@ or from project root run
 
 import kdrag as kd
 import kdrag.smt as smt
+from kdrag.printers.tptp import expr_to_tptp, sort_to_tptp, mangle_decl
+from kdrag.printers.smtlib import (
+    expr_to_smtlib,
+    funcdecl_smtlib,
+    smtlib_datatypes,
+    predefined_names,
+)
 import subprocess
 import os
 import logging
@@ -30,6 +37,7 @@ import hashlib
 import urllib
 import zipfile
 from collections import Counter
+import sys
 
 logger = logging.getLogger("knuckledragger")
 
@@ -88,336 +96,6 @@ def install_solvers():
 def run(cmd, args, **kwargs):
     cmd = [binpath(cmd)] + args
     return subprocess.run(cmd, **kwargs)
-
-
-def mangle_decl(d: smt.FuncDeclRef, env=[]):
-    """Mangle a declaration to a tptp name. SMTLib supports type based overloading, TPTP does not."""
-    # single quoted (for operators) + underscore + hex id
-    id_, name = d.get_id(), d.name()
-    name = name.replace("!", "bang")
-    # TODO: mangling of operators is busted
-    # name = name.replace("*", "star")
-    assert id_ >= 0x80000000
-    if d in env:
-        return name + "_" + format(id_ - 0x80000000, "x")
-    else:
-        return name + "_" + format(id_ - 0x80000000, "x")
-        # TODO: single quote is not working.
-        # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
-
-
-def expr_to_cnf(expr: smt.BoolRef) -> str:
-    """
-    Print in CNF format.
-    Will recognize a single ForAll(, Or(Not(...))) layer.
-
-    >>> x = smt.Int("x")
-    >>> y = smt.Int("y")
-    >>> expr_to_cnf(smt.ForAll([x, y], smt.Or(x == y, x + 1 <= y)))
-    '(X = Y) | <=(+(X, 1), Y)'
-    """
-    if isinstance(expr, smt.QuantifierRef):
-        if not expr.is_forall():
-            raise Exception("CNF conversion only supports universal quantification")
-        vs, body = kd.utils.open_binder_unhygienic(expr)
-        body = smt.substitute(
-            body, *[(v, smt.Const(v.decl().name().upper(), v.sort())) for v in vs]
-        )
-    else:
-        vs = []
-        body = expr
-    if smt.is_or(body):
-        lits = body.children()
-    else:
-        lits = [body]
-
-    def term(e: smt.ExprRef) -> str:
-        if smt.is_const(e):
-            return str(e)
-        elif smt.is_app(e):
-            args = [term(c) for c in e.children()]
-            return f"{e.decl().name()}({', '.join(args)})"
-        else:
-            raise Exception("Unexpected term in CNF", e)
-
-    def eq(e: smt.BoolRef) -> str:
-        if smt.is_eq(e):
-            return f"({term(e.arg(0))} = {term(e.arg(1))})"
-        else:
-            return term(e)
-
-    def neg(e: smt.BoolRef) -> str:
-        if smt.is_not(e):
-            return f"~{eq(e.arg(0))}"
-        else:
-            return eq(e)
-
-    return " | ".join([neg(l) for l in lits])
-
-
-def expr_to_tptp(
-    expr: smt.ExprRef, env=None, format="thf", theories=True, no_mangle=None
-) -> str:
-    """Pretty print expr as TPTP"""
-    if env is None:
-        env = []
-    if no_mangle is None:
-        no_mangle = set()
-    if isinstance(expr, smt.IntNumRef):
-        return str(expr.as_string())
-    elif isinstance(expr, smt.QuantifierRef):
-        vars, body = kd.utils.open_binder(expr)
-        vdecls = [v.decl() for v in vars]
-        env = env + vdecls
-        no_mangle.update(vdecls)
-        body = expr_to_tptp(
-            body, env=env, format=format, theories=theories, no_mangle=no_mangle
-        )
-        if format == "fof":
-            vs = ", ".join([v.decl().name().replace("!", "__") for v in vars])
-            # type_preds = " & ".join(
-            #    [
-            #        f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl(), env)}))"
-            #        for v in vars
-            #    ]
-            # )
-        else:
-            vs = ", ".join(
-                [
-                    v.decl().name().replace("!", "__") + ":" + sort_to_tptp(v.sort())
-                    for v in vars
-                ]
-            )
-        if expr.is_forall():
-            if format == "fof":
-                # TODO: is adding type predicates necessary?
-                # return f"(![{vs}] : ({type_preds}) => {body})"
-                return f"(![{vs}] : {body})"
-            return f"(![{vs}] : {body})"
-        elif expr.is_exists():
-            if format == "fof":
-                # return f"(?[{vs}] : ({type_preds}) & {body})"
-                return f"(?[{vs}] : {body})"
-            return f"(?[{vs}] : {body})"
-        elif expr.is_lambda():
-            if format != "thf":
-                raise Exception(
-                    "Lambda not supported in tff tptp format. Try a thf solver", expr
-                )
-            return f"(^[{vs}] : {body})"
-    assert smt.is_app(expr)
-    children = [
-        expr_to_tptp(c, env=env, format=format, theories=theories, no_mangle=no_mangle)
-        for c in expr.children()
-    ]
-    decl = expr.decl()
-    head = decl.name()
-    if head == "true":
-        return "$true"
-    elif head == "false":
-        return "$false"
-    elif head == "and":
-        return "({})".format(" & ".join(children))
-    elif head == "or":
-        return "({})".format(" | ".join(children))
-    elif head == "=":
-        return "({} = {})".format(children[0], children[1])
-    elif head == "=>":
-        return "({} => {})".format(children[0], children[1])
-    elif head == "not":
-        return "~({})".format(children[0])
-    elif head == "if":
-        # if thf:
-        #    return "($ite @ {} @ {} @ {})".format(*children)
-        # else:
-        return "$ite({}, {}, {})".format(*children)
-    elif head == "select":
-        assert format == "thf"
-        return "({} @ {})".format(*children)
-    elif head == "distinct":
-        if len(children) == 2:
-            return "({} != {})".format(*children)
-        return "$distinct({})".format(", ".join(children))
-
-    if theories:
-        if head == "<":
-            return "$less({},{})".format(*children)
-        elif head == "<=":
-            return "$lesseq({},{})".format(*children)
-        elif head == ">":
-            return "$greater({},{})".format(*children)
-        elif head == ">=":
-            return "$greatereq({},{})".format(*children)
-        elif head == "+":
-            return "$sum({},{})".format(*children)
-        elif head == "-":
-            if len(children) == 1:
-                return "$difference(0,{})".format(children[0])
-            else:
-                return "$difference({},{})".format(*children)
-        elif head == "*":
-            return "$product({},{})".format(*children)
-        elif head == "/":
-            return "$quotient({},{})".format(*children)
-        # elif head == "^":
-        #    return "$power({},{})".format(
-        #        *children
-        #    )  # This is not a built in tptp function though
-    # default assume regular term
-
-    if decl in no_mangle:
-        head = decl.name().replace("!", "__")
-    else:
-        head = mangle_decl(decl, env)
-    if len(children) == 0:
-        return head
-    if format == "thf":
-        return f"({head} @ {' @ '.join(children)})"
-    else:
-        return f"{head}({', '.join(children)})"
-
-
-def sort_to_tptp(sort: smt.SortRef):
-    """Pretty print sort as tptp"""
-    name = sort.name()
-    if name == "Int":
-        return "$int"
-    elif name == "Bool":
-        return "$o"
-    elif name == "Real":
-        return "$real"
-    elif isinstance(sort, smt.ArraySortRef):
-        return "({} > {})".format(
-            sort_to_tptp(sort.domain()), sort_to_tptp(sort.range())
-        )
-    else:
-        return name.lower()
-
-
-# Some are polymorphic so decl doesn't work
-# predefined theory symbols don't need function declarations
-predefined_names = [
-    "=",
-    "if",
-    "and",
-    "or",
-    "not",
-    "=>",
-    "select",
-    "store",
-    "=>",
-    ">",
-    "<",
-    ">=",
-    "<=",
-    "+",
-    "-",
-    "*",
-    "/",
-    # "^",
-    "is",
-    "Int",
-    "Real",
-    "abs",
-    "distinct",
-    "true",
-    "false",
-    "bvor",
-    "bvand",
-    "bvxor",
-    "bvnot",
-    "bvadd",
-    "bvsub",
-    "bvmul",
-    "bvudiv",
-    "bvurem",
-    "bvshl",
-    "bvlshr",
-    "bvashr",
-    "bvult",
-    "bvule",
-    "bvugt",
-    "bvuge",
-]
-
-
-def mangle_decl_smtlib(d: smt.FuncDeclRef):
-    """Mangle a declaration to remove overloading"""
-    id_, name = d.get_id(), d.name()
-    assert id_ >= 0x80000000
-    return name + "_" + format(id_ - 0x80000000, "x")
-
-
-def expr_to_smtlib(expr: smt.ExprRef):
-    if isinstance(expr, smt.QuantifierRef):
-        quantifier = (
-            "forall" if expr.is_forall() else "exists" if expr.is_exists() else "lambda"
-        )
-        vs, body = kd.utils.open_binder(expr)
-        vs = " ".join(
-            [f"({mangle_decl_smtlib(v.decl())} {v.sort().sexpr()})" for v in vs]
-        )
-        # vs = " ".join(
-        #    [f"({expr.var_name(i)} {expr.var_sort(i)})" for i in range(expr.num_vars())]
-        # )
-
-        return f"({quantifier} ({vs}) {expr_to_smtlib(body)})"
-    elif kd.utils.is_value(expr):
-        return expr.sexpr()
-    elif smt.is_const(expr):
-        decl = expr.decl()
-        name = decl.name()
-        if name in predefined_names:
-            if name == "and":  # 0-arity applications
-                return "true"
-            elif name == "or":
-                return "false"
-            else:
-                return expr.decl().name()
-        return mangle_decl_smtlib(expr.decl())
-    elif smt.is_app(expr):
-        decl = expr.decl()
-        name = decl.name()
-        children = " ".join([expr_to_smtlib(c) for c in expr.children()])
-        if name in predefined_names:
-            if name == "if":
-                name = "ite"
-            elif name == "is":
-                dt = decl.domain(0)
-                assert isinstance(dt, smt.DatatypeSortRef)
-                # find out which
-                for i in range(dt.num_constructors()):
-                    if decl == dt.recognizer(i):
-                        name = f"(_ is {mangle_decl_smtlib(dt.constructor(i))})"
-                        break
-            return f"({name} {children})"
-        else:
-            return f"({mangle_decl_smtlib(decl)} {children})"
-    elif smt.is_var(expr):
-        assert False
-    else:
-        return expr.sexpr()
-
-
-def funcdecl_smtlib(decl: smt.FuncDeclRef):
-    dom = " ".join([(decl.domain(i).sexpr()) for i in range(decl.arity())])
-    return f"(declare-fun {mangle_decl_smtlib(decl)} ({dom}) {decl.range().sexpr()})"
-
-
-# TODO. We need to mangle the declarations
-def smtlib_datatypes(dts: list[smt.DatatypeSortRef]) -> str:
-    res = []
-    for dt in dts:
-        res.append(f"(declare-datatypes (({dt.name()} 0)) ((")
-        for i in range(dt.num_constructors()):
-            c = dt.constructor(i)
-            res.append(f" ({mangle_decl_smtlib(c)}")
-            for j in range(c.arity()):
-                acc = dt.accessor(i, j)
-                res.append(f" ({mangle_decl_smtlib(acc)} {acc.range()})")
-            res.append(")")
-        res.append(")))\n")
-    return "".join(res)
 
 
 # (declare-datatypes ((EPosReal 0)) (((real (val Real)) (inf))))
@@ -632,15 +310,21 @@ def tptp2smt(tptp_filename):
 class VampireSolver(BaseSolver):
     def __init__(self):
         super().__init__()
-        new = download(
-            "https://github.com/vprover/vampire/releases/download/v5.0.0/vampire-Linux-X64.zip",
-            "vampire.zip",
-            "46154f788996c1f1881c5c7120abf3dbb569b42f6bfed3c7d5331b1be3e97b18",
-        )
-        if new or not os.path.exists(binpath("vampire")):
-            with zipfile.ZipFile(binpath("vampire.zip"), "r") as zipf:
-                zipf.extract("vampire", path=os.path.dirname(__file__))
-            os.chmod(binpath("vampire"), 0o755)
+        if sys.platform == "linux":
+            new = download(
+                "https://github.com/vprover/vampire/releases/download/v5.0.0/vampire-Linux-X64.zip",
+                "vampire.zip",
+                "46154f788996c1f1881c5c7120abf3dbb569b42f6bfed3c7d5331b1be3e97b18",
+            )
+            if new or not os.path.exists(binpath("vampire")):
+                with zipfile.ZipFile(binpath("vampire.zip"), "r") as zipf:
+                    zipf.extract("vampire", path=os.path.dirname(__file__))
+                os.chmod(binpath("vampire"), 0o755)
+            self.set("solver_path", binpath("vampire"))
+        else:
+            print("Warning: VampireSolver only supports Linux currently")
+            self.set("solver_path", "vampire")  # attempt to use system vampire
+
         self.set("format", "smtlib2")
         self.set("timeout", 1000)
 
@@ -651,7 +335,7 @@ class VampireSolver(BaseSolver):
                 fp.write("(check-sat)\n")
                 fp.flush()
             cmd = [
-                binpath("vampire"),
+                self.options["solver_path"],
                 fp.name,
                 "--mode",
                 "casc",
@@ -664,7 +348,7 @@ class VampireSolver(BaseSolver):
         elif self.options["format"] in ["fof", "tff", "thf"]:
             self.write_tptp("/tmp/vampire.p", format=self.options["format"])
             cmd = [
-                binpath("vampire"),
+                self.options["solver_path"],
                 "/tmp/vampire.p",
                 "--mode",
                 "casc",
@@ -701,7 +385,7 @@ class VampireSolver(BaseSolver):
             fp.write("(check-sat)\n")
             fp.flush()
             cmd = [
-                binpath("vampire"),
+                self.options["solver_path"],
                 fp.name,
                 "--mode",
                 "casc",
