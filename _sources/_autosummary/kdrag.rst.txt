@@ -1,0 +1,81 @@
+﻿kdrag
+=====
+
+.. automodule:: kdrag
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      AbelSemiGroup
+      Antisymm
+      Assoc
+      Comm
+      CommMonoid
+      CommSemiRing
+      Id
+      Idem
+      LeftIdentity
+      ListSort
+      Monoid
+      NatSort
+      OptionSort
+      Refl
+      RightIdentity
+      SemiGroup
+      SemiRing
+      Some
+      UnitSort
+      define_const
+      list
+      seq
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   all
+   config
+   contrib
+   datatype
+   hypothesis
+   kernel
+   modal
+   notation
+   parsers
+   printers
+   property
+   reflect
+   rewrite
+   smt
+   solvers
+   tactics
+   tele
+   theories
+   utils
+
+
+
+.. literalinclude:: ../../kdrag.py
+   :language: python

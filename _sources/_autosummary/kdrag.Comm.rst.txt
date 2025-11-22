@@ -1,0 +1,6 @@
+kdrag.Comm
+==========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Comm

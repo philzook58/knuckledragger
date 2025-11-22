@@ -1,0 +1,6 @@
+kdrag.Monoid
+============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Monoid

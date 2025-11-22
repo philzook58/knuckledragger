@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.exists\_cong
+========================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: exists_cong

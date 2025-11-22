@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.update\_write
+=========================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: update_write

@@ -1,0 +1,59 @@
+kdrag.datatype
+==============
+
+.. automodule:: kdrag.datatype
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      call_dict
+      rel
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Enum
+      InductiveRel
+      NewType
+      Struct
+      accessor_lemmas
+      accessor_num
+      constructor_num
+      datatype_call
+      datatype_iter
+      datatype_len
+      datatype_match_
+      datatype_replace
+      define_fun
+      define_primrec
+      distinct_lemmas
+      inj_lemmas
+      multipattern_match
+      pattern_match
+      recognizer_lemmas
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/datatype.py
+   :language: python
