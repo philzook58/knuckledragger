@@ -87,6 +87,48 @@ class _TestVarnode:
     size: int
 
 
+class CachedArray(NamedTuple):
+    """
+    CachedArray keeps some writes unapplied to the array.
+    TODO: currently, writes is only a debugging clue
+    """
+
+    data: smt.ArrayRef
+    cache: dict[pypcode.Varnode, smt.BitVecRef]
+    owner: dict[int, pypcode.Varnode]
+    bits: int
+    register: int = False
+
+    def store(self, vnode: pypcode.Varnode, value: smt.BitVecRef) -> "CachedArray":
+        if self.register:
+            offset = smt.BitVec("&" + vnode.getRegisterName(), self.bits)
+        else:
+            offset = vnode.offset
+        data = bv.store_concat(self.data, offset, value)
+        offset0 = vnode.offset
+        cache = self.cache.copy()
+        owner = self.owner.copy()
+        for i in range(vnode.size):
+            offset = offset0 + 1
+            vnode1 = owner.get(offset)
+            if vnode1 is not None and vnode1 in cache:
+                del cache[vnode1]
+            owner[offset] = vnode
+        return self._replace(data=data, cache={**self.cache, vnode: value}, owner=owner)
+
+    def read(self, vnode: pypcode.Varnode) -> smt.BitVecRef:
+        if vnode in self.cache:
+            return self.cache[vnode]
+        if self.register:
+            offset = smt.BitVec("&" + vnode.getRegisterName(), self.bits)
+        else:
+            offset = vnode.offset
+        return bv.select_concat(self.data, offset, vnode.size)
+
+    def to_expr(self):
+        return self.data
+
+
 class MemState(NamedTuple):
     """
     MemState is a wrapper that offers getvalue and setvalue methods
@@ -98,8 +140,8 @@ class MemState(NamedTuple):
     """
 
     ram: smt.ArrayRef
-    register: smt.ArrayRef
-    unique: smt.ArrayRef
+    register: CachedArray
+    unique: CachedArray
     bits: int  # bitwidth of addresses
     read: smt.ArrayRef
     # write: smt.ArrayRef
@@ -110,8 +152,8 @@ class MemState(NamedTuple):
         mem = smt.Const(name, MemStateSort[bits])
         return MemState(
             ram=mem.ram,
-            register=mem.register,
-            unique=mem.unique,
+            register=CachedArray(mem.register, {}, bits=bits, register=True, owner={}),
+            unique=CachedArray(mem.unique, {}, bits=bits, register=False, owner={}),
             bits=bits,
             read=smt.Array(name + "_read", BV[bits], smt.BoolSort()),
             write=[],  # smt.Array(name + "_write", BV[bits], smt.BoolSort()),
@@ -119,7 +161,7 @@ class MemState(NamedTuple):
 
     def to_expr(self) -> smt.DatatypeRef:
         return MemStateSort[self.bits].mk(
-            ram=self.ram, register=self.register, unique=self.unique
+            ram=self.ram, register=self.register, unique=self.unique.to_expr()
         )
 
     def getvalue(self, vnode: pypcode.Varnode) -> smt.BitVecRef | int:
@@ -127,20 +169,15 @@ class MemState(NamedTuple):
             return smt.BitVecVal(vnode.offset, vnode.size * 8)
         else:
             if vnode.space.name == "ram":
-                mem = self.ram
-            elif vnode.space.name == "register":
                 return bv.select_concat(
-                    self.register,
-                    smt.BitVec("&" + vnode.getRegisterName(), self.bits),
-                    vnode.size,
+                    self.ram, smt.BitVecVal(vnode.offset, self.bits), vnode.size
                 )
+            elif vnode.space.name == "register":
+                return self.register.read(vnode)
             elif vnode.space.name == "unique":
-                mem = self.unique
+                return self.unique.read(vnode)
             else:
                 raise ValueError(f"Unknown memory space: {vnode.space.name}")
-            return bv.select_concat(
-                mem, smt.BitVecVal(vnode.offset, self.bits), vnode.size
-            )
 
     def setvalue(self, vnode: pypcode.Varnode, value: smt.BitVecRef):
         offset = smt.BitVecVal(vnode.offset, self.bits)
@@ -148,15 +185,10 @@ class MemState(NamedTuple):
         if space == "ram":
             return self.setvalue_ram(offset, value)
         elif space == "register":
-            return self._replace(
-                register=bv.store_concat(
-                    self.register,
-                    smt.BitVec("&" + vnode.getRegisterName(), self.bits),
-                    value,
-                )
-            )
+            return self._replace(register=self.register.store(vnode, value))
         elif space == "unique":
-            return self._replace(unique=bv.store_concat(self.unique, offset, value))
+            return self._replace(unique=self.unique.store(vnode, value))
+
         else:
             raise ValueError(f"Unknown memory space: {space}")
 
@@ -180,8 +212,9 @@ class MemState(NamedTuple):
         # use sexpr form which uses `let` for shared expressions.
         # Using sexpr on And expression returns both memory and ram with shared expressions lifted
         cur_ram = smt.Const("CUR_RAM", self.ram.sort())
-        cur_register = smt.Const("CUR_REGFILE", self.register.sort())
-        return f"MemState({smt.And(cur_ram == self.ram, cur_register == self.register).sexpr()})"
+        register = self.register.to_expr()
+        cur_register = smt.Const("CUR_REGFILE", register.sort())
+        return f"MemState({smt.And(cur_ram == self.ram, cur_register == register).sexpr()})"
 
     def __repr__(self):
         return self.__str__()
@@ -331,20 +364,14 @@ class BinaryContext:
 
         # Defintions that are used but may need to be unfolded
         # &reg is also added in load
+        assert self.memory_endness in ["Iend_LE", "Iend_BE"]
+        le = self.memory_endness == "Iend_LE"
         self.definitions = [
-            bv.select_concats(bits, size, le=le)
-            for le in [True, False]
-            for bits in [32, 64]
-            for size in [16, 32, 64]
+            bv.select_concats(self.bits, size, le=le) for size in [16, 32, 64]
         ]
         self.definitions.extend([bv.popcounts(size) for size in [8, 16, 32, 64]])
         self.definitions.extend(
-            [
-                bv.store_concats(bits, size, le=le)
-                for le in [True, False]
-                for bits in [32, 64]
-                for size in [16, 32, 64]
-            ]
+            [bv.store_concats(self.bits, size, le=le) for size in [16, 32, 64]]
         )
         if filename is not None:
             self.load(filename)

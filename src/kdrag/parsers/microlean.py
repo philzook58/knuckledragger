@@ -11,6 +11,7 @@ For example \\alpha will tab autocomplete to α.
 import lark
 import kdrag.smt as smt
 from lark import Tree
+import kdrag as kd
 
 grammar = r"""
 start: expr
@@ -39,7 +40,7 @@ start: expr
 binders: binder+ | NAME ":" sort -> sing_binder
 ?binder: "(" NAME+ ":" sort ")" -> annot_binder | NAME -> infer_binder
 ?sort: arrow
-?arrow: sortatom | sortatom "->" arrow -> array
+?arrow: sortatom | sortatom ("->" | "→") arrow -> array
 ?sortatom : NAME -> sortlit | "BitVec" NUMBER -> bitvecsort | "(" sort ")" | "'" NAME -> typevar
 
 const: NAME ("." NAME)*
@@ -48,6 +49,11 @@ bool_: "true" -> true | "false" -> false
 seq  : "[" expr ("," expr)* "]"
 
 set : "{" binders "|" expr "}"
+
+
+inductive: "inductive" NAME "where" ("|" constructor)+
+constructor: NAME ":" (sort ("->" | "→"))? NAME
+
 
 NAME: /[a-zA-Z_][a-zA-Z0-9_']*/
 NUMBER: /-?\d+/
@@ -60,46 +66,7 @@ COMMENT: "--" /[^\n]*/
 parser = lark.Lark(grammar, start="start", parser="lalr")
 
 
-def parse(s: str, globals=None) -> smt.ExprRef:
-    """
-    Parse a logical expression into an SMT expression.
-
-    >>> parse("x + 1", {"x": smt.Int("x")})
-    x + 1
-    >>> x, y = smt.Ints("x y")
-    >>> assert parse("forall (x y : Int), x + 1 = 0 -> x = -1").eq( smt.ForAll([x, y], x + 1 == 0, x == -1))
-    >>> a = smt.Real("a")
-    >>> assert parse("exists (a : Real), a * a = 2").eq(smt.Exists([a], a * a == 2))
-    >>> parse("fun (x : Int -> Int) => x 1 = 2")
-    Lambda(x, x[1] == 2)
-    >>> parse("fun (x : Int -> Int -> Int) => x 1 3 = 2")
-    Lambda(x, x[1][3] == 2)
-    >>> parse("f 3 2", {"f": smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort())})
-    f(3, 2)
-    >>> parse("fun (x : Int) (y : Real) => x + y > 0")
-    Lambda([x, y], ToReal(x) + y > 0)
-    >>> parse(r"forall (x : Int), x >= 0 /\\ x < 10")
-    ForAll(x, And(x >= 0, x < 10))
-    >>> parse(r"forall (x : Int), x >= 0 && x < 10 -> x < 20")
-    ForAll(x, Implies(And(x >= 0, x < 10), x < 20))
-    >>> parse(r"exists (x : (BitVec 32) -> BitVec 8), x 8 = 5")
-    Exists(x, x[8] == 5)
-    >>> parse("fun x y (z : Int) => x + y + z", {"x": smt.Int("x"), "y": smt.Int("y")})
-    Lambda([x, y, z], x + y + z)
-    >>> parse("fun (x : 'a) => x").sort()
-    Array(a, a)
-    >>> parse("true")
-    True
-    >>> parse("[true, false]")
-    Concat(Unit(True), Unit(False))
-    >>> q = smt.Const("x", smt.TupleSort("pair", [smt.IntSort(), smt.BoolSort()])[0])
-    >>> parse("q.project1", {"q": q})
-    project1(x)
-    >>> parse("{x : Int | x > 0}")
-    Lambda(x, x > 0)
-    >>> parse("if true && false then 1 + 1 else 0")
-    If(And(True, False), 2, 0)
-    """
+def of_tree(tree: lark.Tree, globals=None) -> smt.ExprRef:
     env = {}
 
     def lookup(name) -> smt.AstRef:
@@ -251,11 +218,90 @@ def parse(s: str, globals=None) -> smt.ExprRef:
             case _:
                 raise ValueError("Unknown parse tree", tree)
 
-    tree = parser.parse(s)
     match tree:
         case Tree("start", [e]):
             res = expr(e)
-            assert isinstance(res, smt.ExprRef)
+            assert res is not None
             return res
         case _:
             raise ValueError("Invalid parse tree", tree)
+
+
+def parse(s: str, globals=None) -> smt.ExprRef:
+    """
+    Parse a logical expression into an SMT expression.
+
+    >>> parse("x + 1", {"x": smt.Int("x")})
+    x + 1
+    >>> x, y = smt.Ints("x y")
+    >>> assert parse("forall (x y : Int), x + 1 = 0 -> x = -1").eq( smt.ForAll([x, y], x + 1 == 0, x == -1))
+    >>> a = smt.Real("a")
+    >>> assert parse("exists (a : Real), a * a = 2").eq(smt.Exists([a], a * a == 2))
+    >>> parse("fun (x : Int -> Int) => x 1 = 2")
+    Lambda(x, x[1] == 2)
+    >>> parse("fun (x : Int -> Int -> Int) => x 1 3 = 2")
+    Lambda(x, x[1][3] == 2)
+    >>> parse("f 3 2", {"f": smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort())})
+    f(3, 2)
+    >>> parse("fun (x : Int) (y : Real) => x + y > 0")
+    Lambda([x, y], ToReal(x) + y > 0)
+    >>> parse(r"forall (x : Int), x >= 0 /\\ x < 10")
+    ForAll(x, And(x >= 0, x < 10))
+    >>> parse(r"forall (x : Int), x >= 0 && x < 10 -> x < 20")
+    ForAll(x, Implies(And(x >= 0, x < 10), x < 20))
+    >>> parse(r"exists (x : (BitVec 32) -> BitVec 8), x 8 = 5")
+    Exists(x, x[8] == 5)
+    >>> parse("fun x y (z : Int) => x + y + z", {"x": smt.Int("x"), "y": smt.Int("y")})
+    Lambda([x, y, z], x + y + z)
+    >>> parse("fun (x : 'a) => x").sort()
+    Array(a, a)
+    >>> parse("true")
+    True
+    >>> parse("[true, false]")
+    Concat(Unit(True), Unit(False))
+    >>> q = smt.Const("x", smt.TupleSort("pair", [smt.IntSort(), smt.BoolSort()])[0])
+    >>> parse("q.project1", {"q": q})
+    project1(x)
+    >>> parse("{x : Int | x > 0}")
+    Lambda(x, x > 0)
+    >>> parse("if true && false then 1 + 1 else 0")
+    If(And(True, False), 2, 0)
+    """
+    return of_tree(parser.parse(s), globals)
+
+
+inductive_parser = lark.Lark(grammar, start="inductive", parser="lalr")
+
+
+def inductive(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
+    """
+    Parse an inductive datatype definition.
+
+    >>> tree = inductive_parser.parse("inductive nat where | zero : nat")
+    >>> inductive(tree).constructor(0)
+    zero
+    """
+    match tree:
+        case Tree("inductive", [name, *constructors]):
+            dt = kd.Inductive(str(name))
+            for cons in constructors:
+                match cons:
+                    case Tree("constructor", [cons_name, *rest, self_name]):
+                        if str(self_name) != str(name):
+                            raise ValueError(
+                                "Inductive constructor return type does not match",
+                                self_name,
+                                name,
+                            )
+                        if rest:
+                            assert False  # TODO
+                        else:
+                            dt.declare(str(cons_name))
+                    case _:
+                        raise ValueError("Unknown constructor tree", cons)
+            return dt.create()
+        case _:
+            raise ValueError("Unexpected lark.Tree in inductive", tree)
+
+
+# Todo define

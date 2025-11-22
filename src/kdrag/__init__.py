@@ -16,6 +16,7 @@ from . import datatype
 from . import rewrite
 from . import tactics
 import functools
+from .parsers import microlean
 
 
 Proof = kernel.Proof
@@ -84,6 +85,8 @@ PTheorem = tactics.PTheorem
 simp = rewrite.simp
 
 search = utils.search
+
+expr = microlean.parse
 
 # TODO: Remove this
 R = smt.RealSort()

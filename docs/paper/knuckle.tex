@@ -40,7 +40,7 @@
 
 \maketitle
 \begin{abstract}
-Knuckledragger is a Python-based interactive proof assistant designed for accessibility, ease of installation, and integration with existing Python tools. It enables interactive theorem proving for software engineers, mathematicians, and scientists already using Python for modeling, computation, and verification. This talk introduces interactive theorem proving, demonstrates Knuckledragger in action, and explores the challenges and opportunities in this space.
+Knuckledragger is a Python-based interactive proof assistant designed to directly leverage Satisfiability Modulo Thoeires (SMT) solvers, for accessibility, ease of installation, and integration with existing Python tools. It enables interactive theorem proving for software engineers, mathematicians, and scientists already using Python for modeling, computation, and verification. This talk introduces interactive theorem proving, demonstrates Knuckledragger in action, and explores the challenges and opportunities in this space.
 \end{abstract}
 
 
@@ -49,7 +49,7 @@ Knuckledragger is a Python-based interactive proof assistant designed for access
 Many automated verification systems boil down to a sequence of SMT
 queries with hand waving in between. Knuckledragger is an LCF-style
 interactive theorem prover designed as a minimal Python library on top
-of Z3 \cite{z3solver}. Knuckledragger can systematically link SMT queries in a Hilbert
+of Z3 \cite{z3solver}. Knuckledragger systematically links SMT queries in a Hilbert
 style proof system. All of the Z3 Python bindings are directly exposed
 and available because the terms, sorts, and formulas of Knuckledragger
 are literally Z3 Python objects. The Proof objects of Knuckledragger
@@ -174,6 +174,17 @@ Quantifiers are an extremely useful modelling feature. Proofs using them require
 
 
 \section{Related Work}
+
+HOLPy \cite{holpy} is an interactive proof assitant in Python. It is foundationally similar to Knuckledragger in that it is based in higher order logic.It differs in that it supports polymorphic type variables, is not fundamentally based on the preexisting system of Z3, has a database based design for proofs, has it's own custom UI, and chose to not implement itself as a library importable into other systems.
+
+OpenTheory
+
+A number of systems exist to try and bridge python into preexisting interactive theorem provers, for the purposes of accessing machine learning infrastructure and communities. PyPantograph, py
+
+Isabelle
+
+Lean
+
 
 \section{Acknowledgements}
 Thanks to Cody Roux, Graham Leach-Krouse, Greg Sullivan, Sam Lasser, 
