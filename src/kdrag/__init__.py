@@ -94,6 +94,9 @@ Z = smt.IntSort()
 RSeq = Z >> R
 RFun = R >> R
 
+Int = smt.FullSet(smt.IntSort())
+Bool = smt.FullSet(smt.BoolSort())
+
 
 def seq(*args):
     """
@@ -111,6 +114,17 @@ def seq(*args):
         return smt.Unit(smt._py2expr(args[0]))
     else:
         return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
+
+
+Unit = Inductive("Unit")
+Unit.declare("tt")
+Unit = Unit.create()
+
+
+def UnitSort() -> smt.DatatypeSortRef:
+    global Unit
+    assert isinstance(Unit, smt.DatatypeSortRef)
+    return Unit
 
 
 Nat = Inductive("Nat")

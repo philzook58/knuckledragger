@@ -543,6 +543,7 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
     return axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 
 
+# TODO. Make this a subclass
 def Inductive(name: str) -> smt.Datatype:
     """
     Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
@@ -584,7 +585,19 @@ def Inductive(name: str) -> smt.Datatype:
         smt.sort_registry[dt.get_id()] = dt
         return dt
 
+    old_declare = dt.declare
+
+    def declare(name, *args):
+        old_declare(
+            name,
+            *[
+                a if isinstance(a, tuple) else (name + str(n), a)
+                for n, a in enumerate(args)
+            ],
+        )
+
     dt.create = create
+    dt.declare = declare
     return dt
 
 

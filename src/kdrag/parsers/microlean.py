@@ -12,6 +12,7 @@ import lark
 import kdrag.smt as smt
 from lark import Tree
 import kdrag as kd
+from typing import NamedTuple
 
 grammar = r"""
 start: expr
@@ -45,15 +46,20 @@ binders: binder+ | NAME ":" sort -> sing_binder
 
 const: NAME ("." NAME)*
 num: NUMBER
-bool_: "true" -> true | "false" -> false
+bool_: ("true" | "True") -> true | ("false" | "False") -> false
 seq  : "[" expr ("," expr)* "]"
 
 set : "{" binders "|" expr "}"
 
 
 inductive: "inductive" NAME "where" ("|" constructor)+
-constructor: NAME ":" (sort ("->" | "→"))? NAME
+constructor: NAME ":" (sortatom ("->" | "→"))* NAME
 
+define: "def" NAME binders ":" sort ":=" expr
+
+axiom : "axiom" NAME ":" expr
+
+theorem : "theorem" NAME ":" expr ":=" "grind"
 
 NAME: /[a-zA-Z_][a-zA-Z0-9_']*/
 NUMBER: /-?\d+/
@@ -66,161 +72,177 @@ COMMENT: "--" /[^\n]*/
 parser = lark.Lark(grammar, start="start", parser="lalr")
 
 
-def of_tree(tree: lark.Tree, globals=None) -> smt.ExprRef:
-    env = {}
+class Env(NamedTuple):
+    locals: dict
+    globals: dict
 
-    def lookup(name) -> smt.AstRef:
-        if name in env:
-            res = env[name]
-        elif globals is not None and name in globals:
-            res = globals[name]
+    def __getitem__(self, key):
+        if key in self.locals:
+            return self.locals[key]
+        elif key in self.globals:
+            return self.globals[key]
         else:
-            raise ValueError("Unknown name", name)
-        assert isinstance(res, smt.AstRef)
-        return res
+            raise KeyError(key)
 
-    def sort(tree) -> smt.SortRef:
-        match tree:
-            case Tree("array", [left, right]):
-                return smt.ArraySort(sort(left), sort(right))
-                # return smt.ArraySort(*(sort(s) for s in left.children), sort(right))
-            case Tree("bitvecsort", [n]):
-                n1 = int(n)  # type: ignore
-                return smt.BitVecSort(n1)
-            case Tree("sortlit", [name]):
-                if name == "Int":
-                    return smt.IntSort()
-                elif name == "Real":
-                    return smt.RealSort()
-                elif name == "Bool":
-                    return smt.BoolSort()
+    def __setitem__(self, key, value):
+        self.locals[key] = value
+
+    def copy(self):
+        return Env(self.locals.copy(), self.globals)
+
+
+def sort(tree: Tree, env: Env) -> smt.SortRef:
+    match tree:
+        case Tree("array", [left, right]):
+            return smt.ArraySort(sort(left, env), sort(right, env))
+            # return smt.ArraySort(*(sort(s) for s in left.children), sort(right,env))
+        case Tree("bitvecsort", [n]):
+            n1 = int(n)  # type: ignore
+            return smt.BitVecSort(n1)
+        case Tree("sortlit", [name]):
+            if name == "Int":
+                return smt.IntSort()
+            elif name == "Real":
+                return smt.RealSort()
+            elif name == "Bool":
+                return smt.BoolSort()
+            elif name == "Prop":  # bad idea?
+                return smt.BoolSort()
+            elif name == "String":
+                return smt.StringSort()
+            elif name == "Unit":
+                return kd.UnitSort()
+            else:
+                s = env[name]
+                if isinstance(s, smt.SortRef):
+                    return s
                 else:
-                    s = lookup(name)
-                    if isinstance(s, smt.SortRef):
-                        return s
-                    else:
-                        raise ValueError("Name is not a sort", name, s)
-            case Tree("typevar", [name]):
-                return smt.DeclareTypeVar(str(name))
-            case _:
-                raise ValueError("Unknown sort tree", tree)
+                    raise ValueError("Name is not a sort", name, s)
+        case Tree("typevar", [name]):
+            return smt.DeclareTypeVar(str(name))
+        case _:
+            raise ValueError("Unknown sort tree", tree)
 
-    def binder(tree) -> list[smt.ExprRef]:
-        match tree:
-            case Tree("annot_binder", names_sort):
-                names = names_sort[:-1]
-                s = sort(names_sort[-1])
-                return [smt.Const(str(name), s) for name in names]
-            case Tree(
-                "infer_binder", [name]
-            ):  # TODO: This is a bit goofy, but does match how z3py works.
-                v = lookup(name)
-                if isinstance(v, smt.ExprRef) and smt.is_const(v):
-                    return [v]
-                else:
-                    raise ValueError("Inferred binder is not a constant", name, v)
-            case _:
-                raise ValueError("Unknown binder tree", tree)
 
-    def binders(tree) -> list[smt.ExprRef]:
-        match tree:
-            case Tree("binders", bs):
-                return [v for b in bs for v in binder(b)]
-            case Tree("sing_binder", [name, sort_tree]):
-                s = sort(sort_tree)
-                return [smt.Const(str(name), s)]
-            case _:
-                raise ValueError("Unknown binders tree", tree)
+def binder(tree, env) -> list[smt.ExprRef]:
+    match tree:
+        case Tree("annot_binder", names_sort):
+            names = names_sort[:-1]
+            s = sort(names_sort[-1], env)
+            return [smt.Const(str(name), s) for name in names]
+        case Tree(
+            "infer_binder", [name]
+        ):  # TODO: This is a bit goofy, but does match how z3py works.
+            v = env[name]
+            if isinstance(v, smt.ExprRef) and smt.is_const(v):
+                return [v]
+            else:
+                raise ValueError("Inferred binder is not a constant", name, v)
+        case _:
+            raise ValueError("Unknown binder tree", tree)
 
-    def quant(vs, body_tree, q) -> smt.QuantifierRef:
-        # TODO: doofy. Should make a env stack
-        nonlocal env
-        old_env = env.copy()
-        vs = binders(vs)
-        for v in vs:
-            env[str(v)] = v
-        res = q(vs, expr(body_tree))
-        env = old_env
-        return res
 
-    def expr(tree) -> smt.ExprRef:
-        match tree:
-            # TODO: obviously this is not well typed.
-            case Tree("num", [n]):
-                return int(n)  # type: ignore
-            case Tree("const", [name, *attrs]):
-                res = lookup(name)  # type: ignore
-                for attr in attrs:
-                    res = getattr(res, str(attr))  # type: ignore
-                return res  # type: ignore
-            case Tree("true", []):
-                return smt.BoolVal(True)
-            case Tree("false", []):
-                return smt.BoolVal(False)
-            case Tree("seq", items):
-                return smt.Concat(*[smt.Unit(expr(item)) for item in items])
-            case Tree("and_", [left, right]):
-                return smt.And(expr(left), expr(right))
-            case Tree("or_", [left, right]):
-                return smt.Or(expr(left), expr(right))
-            case Tree("add", [left, right]):
-                return expr(left) + expr(right)
-            case Tree("sub", [left, right]):
-                return expr(left) - expr(right)
-            case Tree("mul", [left, right]):
-                return expr(left) * expr(right)
-            case Tree("div", [left, right]):
-                return expr(left) / expr(right)
-            case Tree("eq", [left, right]):
-                return smt.Eq(expr(left), expr(right))
-            case Tree("le", [left, right]):
-                return expr(left) <= expr(right)
-            case Tree("lt", [left, right]):
-                return expr(left) < expr(right)
-            case Tree("ge", [left, right]):
-                return expr(left) >= expr(right)
-            case Tree("gt", [left, right]):
-                return expr(left) > expr(right)
-            case Tree("app", [func]):  # constant
-                return expr(func)
-            case Tree("app", [func, *args]):
-                # auto curry
-                args = [expr(arg) for arg in args]
-                func = expr(func)
-                if isinstance(func, smt.FuncDeclRef):
-                    return func(*args)
-                elif smt.is_func(func):
-                    while args:
-                        assert isinstance(func, smt.QuantifierRef) or isinstance(
-                            func, smt.ArrayRef
-                        )
-                        doms = smt.domains(func)
-                        func = func[*args[: len(doms)]]
-                        args = args[len(doms) :]
-                    return func
-                else:
-                    raise ValueError("Cannot apply non-function", func)
-            case Tree("forall_", [vs, body]):
-                return quant(vs, body, smt.ForAll)
-            case Tree("exists_", [vs, body]):
-                return quant(vs, body, smt.Exists)
-            case Tree("fun_", [vs, body]):
-                return quant(vs, body, smt.Lambda)
-            case Tree("set", [vs, body]):
-                t = quant(vs, body, smt.Lambda)
-                if t.sort().range() != smt.BoolSort():
-                    raise ValueError("Set comprehension must return Bool", t)
-                return t
-            case Tree("if", [cond, then_, else_]):
-                return smt.If(expr(cond), expr(then_), expr(else_))
-            case Tree("implies", [left, right]):
-                return smt.Implies(expr(left), expr(right))
-            case _:
-                raise ValueError("Unknown parse tree", tree)
+def binders(tree, env) -> list[smt.ExprRef]:
+    match tree:
+        case Tree("binders", bs):
+            return [v for b in bs for v in binder(b, env)]
+        case Tree("sing_binder", [name, sort_tree]):
+            s = sort(sort_tree, env)
+            return [smt.Const(str(name), s)]
+        case _:
+            raise ValueError("Unknown binders tree", tree)
 
+
+def quant(vs, body_tree, q, env) -> smt.QuantifierRef:
+    env = env.copy()
+    vs = binders(vs, env)
+    for v in vs:
+        env[str(v)] = v
+    res = q(vs, expr(body_tree, env))
+    return res
+
+
+def expr(tree, env: Env) -> smt.ExprRef:
+    match tree:
+        # TODO: obviously this is not well typed.
+        case Tree("num", [n]):
+            return int(n)  # type: ignore
+        case Tree("const", [name, *attrs]):
+            res = env[name]  # type: ignore
+            for attr in attrs:
+                res = getattr(res, str(attr))  # type: ignore
+            return res  # type: ignore
+        case Tree("true", []):
+            return smt.BoolVal(True)
+        case Tree("false", []):
+            return smt.BoolVal(False)
+        case Tree("seq", items):
+            return smt.Concat(*[smt.Unit(expr(item, env)) for item in items])
+        case Tree("and_", [left, right]):
+            return smt.And(expr(left, env), expr(right, env))
+        case Tree("or_", [left, right]):
+            return smt.Or(expr(left, env), expr(right, env))
+        case Tree("add", [left, right]):
+            return expr(left, env) + expr(right, env)
+        case Tree("sub", [left, right]):
+            return expr(left, env) - expr(right, env)
+        case Tree("mul", [left, right]):
+            return expr(left, env) * expr(right, env)
+        case Tree("div", [left, right]):
+            return expr(left, env) / expr(right, env)
+        case Tree("eq", [left, right]):
+            return smt.Eq(expr(left, env), expr(right, env))
+        case Tree("le", [left, right]):
+            return expr(left, env) <= expr(right, env)
+        case Tree("lt", [left, right]):
+            return expr(left, env) < expr(right, env)
+        case Tree("ge", [left, right]):
+            return expr(left, env) >= expr(right, env)
+        case Tree("gt", [left, right]):
+            return expr(left, env) > expr(right, env)
+        case Tree("app", [func]):  # constant
+            return expr(func, env)
+        case Tree("app", [func, *args]):
+            # auto curry
+            args = [expr(arg, env) for arg in args]
+            func = expr(func, env)
+            if isinstance(func, smt.FuncDeclRef):
+                return func(*args)
+            elif smt.is_func(func):
+                while args:
+                    assert isinstance(func, smt.QuantifierRef) or isinstance(
+                        func, smt.ArrayRef
+                    )
+                    doms = smt.domains(func)
+                    func = func[*args[: len(doms)]]
+                    args = args[len(doms) :]
+                return func
+            else:
+                raise ValueError("Cannot apply non-function", func)
+        case Tree("forall_", [vs, body]):
+            return quant(vs, body, smt.ForAll, env)
+        case Tree("exists_", [vs, body]):
+            return quant(vs, body, smt.Exists, env)
+        case Tree("fun_", [vs, body]):
+            return quant(vs, body, smt.Lambda, env)
+        case Tree("set", [vs, body]):
+            t = quant(vs, body, smt.Lambda, env)
+            if t.sort().range() != smt.BoolSort():
+                raise ValueError("Set comprehension must return Bool", t)
+            return t
+        case Tree("if", [cond, then_, else_]):
+            return smt.If(expr(cond, env), expr(then_, env), expr(else_, env))
+        case Tree("implies", [left, right]):
+            return smt.Implies(expr(left, env), expr(right, env))
+        case _:
+            raise ValueError("Unknown parse tree", tree)
+
+
+def start(tree: lark.Tree, globals) -> smt.ExprRef:
+    env = Env(locals={}, globals=globals)
     match tree:
         case Tree("start", [e]):
-            res = expr(e)
+            res = expr(e, env)
             assert res is not None
             return res
         case _:
@@ -267,7 +289,7 @@ def parse(s: str, globals=None) -> smt.ExprRef:
     >>> parse("if true && false then 1 + 1 else 0")
     If(And(True, False), 2, 0)
     """
-    return of_tree(parser.parse(s), globals)
+    return start(parser.parse(s), globals)
 
 
 inductive_parser = lark.Lark(grammar, start="inductive", parser="lalr")
@@ -277,26 +299,26 @@ def inductive(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
     """
     Parse an inductive datatype definition.
 
-    >>> tree = inductive_parser.parse("inductive nat where | zero : nat")
-    >>> inductive(tree).constructor(0)
-    zero
+    >>> tree = inductive_parser.parse("inductive nat where | zero : nat | succ : nat -> nat | fiz : Int -> Bool -> (Bool -> nat) -> nat")
+    >>> inductive(tree).constructor(1)
+    succ
+    >>> inductive(tree).accessor(1,0)
+    succ0
     """
     match tree:
         case Tree("inductive", [name, *constructors]):
             dt = kd.Inductive(str(name))
+            env = Env(locals={str(name): smt.DatatypeSort(name)}, globals=globals or {})
             for cons in constructors:
                 match cons:
-                    case Tree("constructor", [cons_name, *rest, self_name]):
+                    case Tree("constructor", [cons_name, *sorts, self_name]):
                         if str(self_name) != str(name):
                             raise ValueError(
                                 "Inductive constructor return type does not match",
                                 self_name,
                                 name,
                             )
-                        if rest:
-                            assert False  # TODO
-                        else:
-                            dt.declare(str(cons_name))
+                        dt.declare(str(cons_name), *[sort(t, env) for t in sorts])
                     case _:
                         raise ValueError("Unknown constructor tree", cons)
             return dt.create()
@@ -304,4 +326,58 @@ def inductive(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
             raise ValueError("Unexpected lark.Tree in inductive", tree)
 
 
-# Todo define
+def define(tree: lark.Tree, env: Env) -> smt.FuncDeclRef:
+    """
+    Parse a definition.
+
+    >>> tree = lark.Lark(grammar, start="define", parser="lalr").parse("def add1 (x : Int) : Int := x + 1")
+    >>> define(tree, Env(locals={}, globals={})).defn
+    |= ForAll(x, add1(x) == x + 1)
+    """
+    match tree:
+        case Tree("define", [name, binds, sort_tree, body]):
+            env = env.copy()
+            vs = binders(binds, env)
+            for v in vs:
+                env[str(v)] = v
+            s = sort(sort_tree, env)
+            f = smt.Function(str(name), *[v.sort() for v in vs], s)
+            env[str(name)] = f
+            body = expr(body, env)
+            return kd.define(str(name), vs, body)
+        case _:
+            raise ValueError("Unexpected lark.Tree in define", tree)
+
+
+def axiom(tree: lark.Tree, env: Env) -> kd.kernel.Proof:
+    """
+    Parse an axiom.
+
+    >>> tree = lark.Lark(grammar, start="axiom", parser="lalr").parse("axiom add1_nonneg : forall x : Int, x >= x - 1")
+    >>> axiom(tree, Env(locals={}, globals={}))
+    |= ForAll(x, x >= x - 1)
+    """
+    match tree:
+        case Tree("axiom", [name, body]):
+            body = expr(body, env)
+            assert isinstance(body, smt.BoolRef)
+            return kd.axiom(body, by=[str(name)])
+        case _:
+            raise ValueError("Unexpected lark.Tree in axiom", tree)
+
+
+def theorem(tree: lark.Tree, env: Env) -> kd.kernel.Proof:
+    """
+    Parse a theorem.
+
+    >>> tree = lark.Lark(grammar, start="theorem", parser="lalr").parse("theorem add1_nonneg : forall x : Int, x >= x - 1 := grind")
+    >>> theorem(tree, Env(locals={}, globals={}))
+    |= ForAll(x, x >= x - 1)
+    """
+    match tree:
+        case Tree("theorem", [_name, body]):
+            body = expr(body, env)
+            assert isinstance(body, smt.BoolRef)
+            return kd.Lemma(body).qed()
+        case _:
+            raise ValueError("Unexpected lark.Tree in theorem", tree)
