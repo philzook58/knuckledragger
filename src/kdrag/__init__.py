@@ -83,6 +83,7 @@ Theorem = tactics.Theorem
 PTheorem = tactics.PTheorem
 
 simp = rewrite.simp
+full_simp = rewrite.full_simp
 
 search = utils.search
 
@@ -114,6 +115,29 @@ def seq(*args):
         return smt.Unit(smt._py2expr(args[0]))
     else:
         return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
+
+
+def Tail(s: smt.SeqSortRef):
+    """
+    >>> x = smt.Const("x", smt.SeqSort(smt.BoolSort()))
+    >>> Tail(x)
+    seq.extract(x, 1, Length(x) - 1)
+    """
+    return smt.SubSeq(s, 1, smt.Length(s) - 1)
+
+
+def Head(s: smt.SeqRef):
+    """
+    >>> x = smt.Const("x", smt.SeqSort(smt.BoolSort()))
+    >>> Head(x)
+    Nth(x, 0)
+    >>> prove(smt.Implies(smt.Length(x) > 0, smt.Concat([smt.Unit(Head(x)), Tail(x)]) == x))
+    |= Implies(Length(x) > 0,
+        Concat(Unit(Nth(x, 0)),
+                seq.extract(x, 1, Length(x) - 1)) ==
+        x)
+    """
+    return s[0]
 
 
 Unit = Inductive("Unit")

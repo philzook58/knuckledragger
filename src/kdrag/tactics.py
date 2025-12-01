@@ -1136,7 +1136,7 @@ class ProofState:
             )
         return self.top_goal()
 
-    def unfold(self, *decls: smt.FuncDeclRef, at=None) -> "ProofState":
+    def unfold(self, *decls: smt.FuncDeclRef, at=None, keep=False) -> "ProofState":
         """
         Unfold all definitions once. If declarations are given, only those are unfolded.
 
@@ -1159,7 +1159,14 @@ class ProofState:
             for lem in trace:
                 self.add_lemma(lem)
             self.pop_goal()
-            self.goals.append(goalctx._replace(goal=e2))
+            if keep:
+                self.goals.append(
+                    goalctx._replace(
+                        goal=e2, ctx=goalctx.ctx + [pf.thm for pf in trace]
+                    )
+                )
+            else:
+                self.goals.append(goalctx._replace(goal=e2))
         else:
             e = goalctx.ctx[at]
             trace = []

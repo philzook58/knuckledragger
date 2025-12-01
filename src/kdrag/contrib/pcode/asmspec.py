@@ -1,6 +1,7 @@
 import re
 import kdrag.smt as smt
 import kdrag as kd
+import kdrag.tactics
 import dataclasses
 from dataclasses import dataclass
 import kdrag.contrib.pcode as pcode
@@ -70,7 +71,7 @@ kd_boolstmt "kd_cut" \label, \smt_bool
 class BoolStmt:
     label: str
     addr: int
-    expr: smt.BoolRef
+    expr: pcode.StateProp
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.label}, {hex(self.addr)}, {self.expr})"
@@ -96,12 +97,12 @@ class Assign:
     label: str
     addr: int
     name: str
-    expr: smt.ExprRef
+    expr: pcode.StateExpr
 
 
 @dataclass
 class Always:
-    expr: smt.BoolRef
+    expr: pcode.StateProp
 
 
 @dataclass
@@ -132,22 +133,22 @@ class AsmSpec:
         default_factory=lambda: defaultdict(list)
     )
 
-    def add_entry(self, label: str, addr: int, expr: smt.BoolRef):
+    def add_entry(self, label: str, addr: int, expr: pcode.StateProp):
         self.addrmap[addr].append(Entry(label, addr, expr))
 
-    def add_assert(self, label: str, addr: int, expr: smt.BoolRef):
+    def add_assert(self, label: str, addr: int, expr: pcode.StateProp):
         self.addrmap[addr].append(Assert(label, addr, expr))
 
-    def add_assume(self, label: str, addr: int, expr: smt.BoolRef):
+    def add_assume(self, label: str, addr: int, expr: pcode.StateProp):
         self.addrmap[addr].append(Assume(label, addr, expr))
 
-    def add_exit(self, label: str, addr: int, expr: smt.BoolRef):
+    def add_exit(self, label: str, addr: int, expr: pcode.StateProp):
         self.addrmap[addr].append(Exit(label, addr, expr))
 
-    def add_cut(self, label: str, addr: int, expr: smt.BoolRef):
+    def add_cut(self, label: str, addr: int, expr: pcode.StateProp):
         self.addrmap[addr].append(Cut(label, addr, expr))
 
-    def add_assign(self, label: str, addr: int, name: str, expr: smt.ExprRef):
+    def add_assign(self, label: str, addr: int, name: str, expr: pcode.StateExpr):
         self.addrmap[addr].append(Assign(label, addr, name, expr))
 
     @classmethod
@@ -282,14 +283,15 @@ def substitute_ghost(e: smt.ExprRef, ghost_env: dict[str, smt.ExprRef]) -> smt.E
     )
 
 
-def substitute(
+def substitute_state(
     e: smt.ExprRef,
     ctx: pcode.BinaryContext,
     memstate: pcode.MemState,
     ghost_env: dict[str, smt.ExprRef],
 ) -> smt.ExprRef:
     """
-    Subsititute both ghost state and context (ram / registers). Usually you want this
+    Substitute both ghost state and context state (ram / registers).
+    Converts an expression in state variables to one that one that extracts those values from the given memstate and ghost_env.
     """
     return smt.simplify(
         ctx.substitute(memstate, smt.simplify(substitute_ghost(e, ghost_env)))
@@ -325,7 +327,7 @@ class VerificationCondition(NamedTuple):
             return smt.BoolVal(False)
         return smt.Implies(
             smt.And(*self.path_cond),
-            substitute(self.assertion.expr, ctx, self.memstate, self.ghost_env),
+            substitute_state(self.assertion.expr, ctx, self.memstate, self.ghost_env),
         )
 
     def verify(self, ctx: pcode.BinaryContext, **kwargs) -> kd.Proof:
@@ -375,7 +377,9 @@ class VerificationCondition(NamedTuple):
                     todo.extend(t.children())
 
         return {
-            c: m.eval(substitute(c, ctx, self.memstate, self.ghost_env))
+            c: m.eval(
+                ctx.unfold(substitute_state(c, ctx, self.memstate, self.ghost_env))
+            )
             for c in interesting
         }
 
@@ -421,7 +425,9 @@ def execute_spec_stmts(
         elif isinstance(stmt, Assign):
             # Assign a value to a variable in the ghost environment
             ghost_env = ghost_env.copy()
-            ghost_env[stmt.name] = substitute(stmt.expr, ctx, state.memstate, ghost_env)
+            ghost_env[stmt.name] = substitute_state(
+                stmt.expr, ctx, state.memstate, ghost_env
+            )
         else:
             raise Exception(
                 f"Unexpected statement type {type(stmt)} in execute_specstmts"
@@ -435,16 +441,13 @@ def execute_spec_stmts(
     ), vcs
 
 
-def update_write(state, ghost_env):
+def update_write_and_num_insn(state, ghost_env):
     write = ghost_env["write"]
     for offset, size in state.memstate.write:
         for i in range(size // 8):
             write = smt.Store(write, smt.simplify(offset + i), True)
     state.memstate.write.clear()  #  TODO: This is really dirty
-    res = {
-        **ghost_env,
-        "write": write,
-    }
+    res = {**ghost_env, "write": write, "num_insn": ghost_env["num_insn"] + 1}
     return res
 
 
@@ -474,7 +477,7 @@ def execute_insn(
             trace_id=tracestate.trace_id
             if len(new_tracestates) == 1
             else tracestate.trace_id + [i],
-            ghost_env=update_write(state, tracestate.ghost_env),
+            ghost_env=update_write_and_num_insn(state, tracestate.ghost_env),
         )
         for i, state in enumerate(new_tracestates)
     ]
@@ -516,18 +519,29 @@ def init_trace_states(
                 mem1 = mem.setvalue(
                     ctx.pc, smt.BitVecVal(addr, ctx.pc.size * 8)
                 )  # set pc to start addr before entering code
-                precond = ctx.substitute(mem1, stmt.expr)  # No ghost? Use substitute?
-                ghost_env = {
-                    "write": smt.K(smt.BitVecSort(mem1.bits), smt.BoolVal(False))
-                    if isinstance(stmt, Entry)
-                    else smt.Array("write", smt.BitVecSort(mem1.bits), smt.BoolSort())
-                }
+                precond = smt.simplify(
+                    ctx.substitute(mem1, stmt.expr)
+                )  # TODO: No ghost? Use substitute?
+                if isinstance(stmt, Entry):
+                    ghost_env = {
+                        "write": smt.K(smt.BitVecSort(mem1.bits), smt.BoolVal(False)),
+                        "num_insn": smt.IntVal(0),
+                    }
+                else:
+                    ghost_env = {
+                        "write": smt.Array(
+                            "write", smt.BitVecSort(mem1.bits), smt.BoolSort()
+                        ),
+                        "num_insn": smt.Int("num_insn"),
+                    }
                 assert isinstance(precond, smt.BoolRef)
                 tracestate = TraceState(
                     start=stmt,
                     trace=[],
                     trace_id=[init_trace_id],
-                    state=pcode.SimState(mem1, (addr, 0), [precond]),
+                    state=pcode.SimState(
+                        memstate=mem1, pc=(addr, 0), path_cond=[precond]
+                    ),
                     ghost_env=ghost_env,
                 )
                 tracestate, new_vcs = execute_spec_stmts(
@@ -588,6 +602,26 @@ def run_all_paths(
         #    todo.extend(execute_insn(tracestate, ctx, verbose=verbose))
 
     return vcs
+
+
+class VCProofState(kd.tactics.ProofState):
+    def __init__(self, vc: VerificationCondition, ctx: pcode.BinaryContext):
+        self.vc = vc
+        self.binctx = ctx
+        super().__init__(kd.tactics.Goal(sig=[], ctx=[], goal=vc.vc(ctx)))
+
+    def auto(self, **kwargs):
+        try:
+            return super().auto(**kwargs)
+        except Exception as e:
+            countermodel = e.args[2]
+            if not isinstance(countermodel, smt.ModelRef):
+                raise e
+            raise Exception(
+                "Verification failed for",
+                self.vc.assertion,
+                self.vc.countermodel(self.binctx, countermodel),
+            )
 
 
 class Debug:
@@ -698,11 +732,11 @@ class Debug:
             raise Exception("There are still trace states to execute")
         while self.vcs:
             vc = self.vcs.pop(0)
-            vc.verify(self.ctx)
+            vc.verify(self.ctx, **kwargs)
 
     def pop_lemma(self) -> kd.tactics.ProofState:
         vc = self.vcs.pop()
-        return kd.Lemma(vc.vc(self.ctx))
+        return VCProofState(vc, self.ctx)  # kd.Lemma(vc.vc(self.ctx))
 
     def pop(self):
         return self.tracestates.pop()
@@ -745,8 +779,10 @@ class Debug:
         tracestate = self.tracestates[-1]
         return smt.simplify(
             self._cur_model.eval(
-                substitute(
-                    expr, self.ctx, tracestate.state.memstate, tracestate.ghost_env
+                self.ctx.unfold(
+                    substitute_state(
+                        expr, self.ctx, tracestate.state.memstate, tracestate.ghost_env
+                    )
                 )
             )
         )

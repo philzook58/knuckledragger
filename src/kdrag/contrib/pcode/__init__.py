@@ -79,18 +79,54 @@ MemStateSort = {
     for bits, MemSort in MemSorts.items()
 }
 
+type StateExpr = smt.ExprRef  # NewType("StateExpr", smt.ExprRef)
+type StateProp = smt.BoolRef  # NewType("StateProp", smt.BoolRef)
+"""
+class StateExpr(NamedTuple):
+    ctx: BinaryContext
+    expr: smt.ExprRef
 
-@dataclass
+    def to_lambda(self) -> smt.QuantifierRef:
+        mem = smt.Const("mem", MemStateSort[self.ctx.bits])
+        memstate = MemState.Const("mem", bits=self.ctx.bits)
+        return smt.Lambda([mem], self(memstate))
+
+    def __call__(self, memstate: MemState) -> smt.ExprRef:
+        return self.ctx.substitute(memstate, self.expr)
+"""
+
+
+@dataclass(frozen=True)
 class _TestVarnode:
     space: str
     offset: int
     size: int
 
+    def getRegisterName(self) -> str:
+        return f"Roff{self.offset:X}_size{self.size}"
+
 
 class CachedArray(NamedTuple):
     """
     CachedArray keeps some writes unapplied to the array.
-    TODO: currently, writes is only a debugging clue
+
+    The invariant is that anything in the cache owns that data.
+    You may replace something in the cache
+
+    >>> r1 = _TestVarnode("register", 0, 2)
+    >>> e1 = _TestVarnode("register", 0, 1)
+    >>> mem = CachedArray(smt.Array("mem", BV[64], BV[8]), {}, {}, 64, register=True)
+    >>> mem1 = mem.store(r1, smt.BitVecVal(2, 16))
+    >>> mem2 = mem1.store(e1, smt.BitVecVal(1,8))
+    >>> mem2.read(e1)
+    1
+    >>> mem2.read(r1)
+    select16le(Store(store16le(mem, &Roff0_size2, 2),
+                    &Roff0_size1,
+                    1),
+            &Roff0_size2)
+    >>> mem2.store(r1, smt.BitVecVal(3,16)).read(r1)
+    3
     """
 
     data: smt.ArrayRef
@@ -98,35 +134,91 @@ class CachedArray(NamedTuple):
     owner: dict[int, pypcode.Varnode]
     bits: int
     register: int = False
+    le: bool = True
 
     def store(self, vnode: pypcode.Varnode, value: smt.BitVecRef) -> "CachedArray":
-        if self.register:
-            offset = smt.BitVec("&" + vnode.getRegisterName(), self.bits)
+        if vnode in self.cache:
+            return self._replace(cache={**self.cache, vnode: value})
         else:
-            offset = vnode.offset
-        data = bv.store_concat(self.data, offset, value)
+            data = self.data
+            offset0 = vnode.offset
+            cache = self.cache.copy()
+            cache[vnode] = value
+            owner = self.owner.copy()
+            # flush out all overlapping vnodes to data
+            for i in range(vnode.size):
+                vnode1 = owner.get(offset0 + i)
+                if vnode1 is not None and vnode1 in cache:
+                    assert vnode1 != vnode
+                    for j in range(vnode1.size):
+                        del owner[vnode1.offset + j]
+                    if self.register:
+                        offset = smt.BitVec("&" + vnode1.getRegisterName(), self.bits)
+                    else:
+                        offset = vnode1.offset
+                    data = bv.store_concat(self.data, offset, cache[vnode1], le=self.le)
+                    del cache[vnode1]
+            for i in range(vnode.size):
+                owner[offset0 + i] = vnode
+            assert all(own in cache for own in owner.values())
+            return self._replace(data=data, cache=cache, owner=owner)
+
+    """
+    def flush(self, vnode) -> smt.ArrayRef:
         offset0 = vnode.offset
-        cache = self.cache.copy()
-        owner = self.owner.copy()
+        data = self.data
+        owner = self.owner
+        cache = self.cache
+        flushed = {}
         for i in range(vnode.size):
             offset = offset0 + 1
             vnode1 = owner.get(offset)
-            if vnode1 is not None and vnode1 in cache:
-                del cache[vnode1]
-            owner[offset] = vnode
-        return self._replace(data=data, cache={**self.cache, vnode: value}, owner=owner)
+            if vnode1 is not None and vnode1 not in flushed:
+                data = bv.store_concat(data, vnode1.offset, cache[vnode1])
+                flushed.add(vnode1)
+        return data
+
+    def flush_all(self) -> smt.ArrayRef:  # to_expr
+        data = self.data
+        for vnode, value in self.cache.items():
+            data = bv.store_concat(data, vnode.offset, value)
+        return data
+    """
 
     def read(self, vnode: pypcode.Varnode) -> smt.BitVecRef:
         if vnode in self.cache:
             return self.cache[vnode]
-        if self.register:
-            offset = smt.BitVec("&" + vnode.getRegisterName(), self.bits)
         else:
-            offset = vnode.offset
-        return bv.select_concat(self.data, offset, vnode.size)
+            # flush out any cached variables that may overlap to data
+            offset0 = vnode.offset
+            data = self.data
+            owner = self.owner
+            cache = self.cache
+            flushed = set()
+            for i in range(vnode.size):
+                vnode1 = owner.get(offset0 + i)
+                if vnode1 is not None and vnode1 not in flushed:
+                    if self.register:
+                        offset = smt.BitVec("&" + vnode1.getRegisterName(), self.bits)
+                    else:
+                        offset = vnode1.offset
+                    data = bv.store_concat(data, offset, cache[vnode1], le=self.le)
+                    flushed.add(vnode1)
+            if self.register:
+                offset = smt.BitVec("&" + vnode.getRegisterName(), self.bits)
+            else:
+                offset = vnode.offset
+            return bv.select_concat(data, offset, vnode.size, le=self.le)
 
     def to_expr(self):
-        return self.data
+        data = self.data
+        for vnode, value in self.cache.items():
+            if self.register:
+                offset = smt.BitVec("&" + vnode.getRegisterName(), self.bits)
+            else:
+                offset = vnode.offset
+            data = bv.store_concat(data, offset, value, le=self.le)
+        return data
 
 
 class MemState(NamedTuple):
@@ -601,17 +693,19 @@ class BinaryContext:
                 pc1[0], smt.ExprRef
             ):  # PC has become symbolic, requiring branching
                 assert isinstance(pc1[1], smt.ExprRef)
+                fresh_pc = (
+                    smt.FreshConst(pc1[0].sort()),
+                    smt.FreshConst(pc1[1].sort()),
+                )
                 s = smt.Solver()
-                s.add(path_cond)
-                s.add(
-                    pc1[0] == smt.FreshConst(pc1[0].sort())
-                )  # To seed them in the model
-                s.add(pc1[1] == smt.FreshConst(pc1[1].sort()))
+                s.add([self.unfold(c) for c in path_cond])
+                s.add(self.unfold(pc1[0] == fresh_pc[0]))  # To seed them in the model
+                s.add(self.unfold(pc1[1] == fresh_pc[1]))
                 while s.check() != smt.unsat:
                     m = s.model()  # smt.unknown should crash
-                    vaddr, vpcode_pc = m.eval(pc1[0]), m.eval(pc1[1])
+                    vaddr, vpcode_pc = m.eval(fresh_pc[0]), m.eval(fresh_pc[1])
                     s.add(
-                        smt.Not(smt.And(pc1[0] == vaddr, pc1[1] == vpcode_pc))
+                        smt.Not(smt.And(fresh_pc[0] == vaddr, fresh_pc[1] == vpcode_pc))
                     )  # outlaw this model for next example
                     addr, pcode_pc = vaddr.as_long(), vpcode_pc.as_long()
                     assert isinstance(addr, int) and isinstance(pcode_pc, int)
@@ -707,7 +801,7 @@ class BinaryContext:
             for regname in self.ctx.registers.keys()
         }
 
-    def substitute(self, memstate: MemState, expr: smt.ExprRef) -> smt.ExprRef:
+    def substitute(self, memstate: MemState, expr: StateExpr) -> smt.BoolRef:
         """
         Substitute the values in memstate into the expression `expr`.
         `expr` uses the short register names and `ram`
@@ -795,16 +889,3 @@ def test_pcode():
     tx = ctx.translate(b"\xf7\xd8")  # neg %eax
     for op in tx.ops:
         pass
-
-
-class StateExpr(NamedTuple):
-    ctx: BinaryContext
-    expr: smt.ExprRef
-
-    def to_lambda(self) -> smt.QuantifierRef:
-        mem = smt.Const("mem", MemStateSort[self.ctx.bits])
-        memstate = MemState.Const("mem", bits=self.ctx.bits)
-        return smt.Lambda([mem], self(memstate))
-
-    def __call__(self, memstate: MemState) -> smt.ExprRef:
-        return self.ctx.substitute(memstate, self.expr)

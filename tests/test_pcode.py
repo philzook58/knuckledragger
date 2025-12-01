@@ -294,11 +294,13 @@ def test_s2n_simple():
     #)
     )
 
+    num_insn = smt.Int("num_insn")
     # Yeaaa, I'm not sure it's worth adding in set rip
     dbg.add_exit("done",
     smt.And(
     rbx == b,
-    rip == pc+6
+    rip == pc+6,
+    num_insn == 2
     ))
     dbg.start()
     dbg.run()
