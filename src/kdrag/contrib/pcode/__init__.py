@@ -106,6 +106,23 @@ class _TestVarnode:
         return f"Roff{self.offset:X}_size{self.size}"
 
 
+# Varnode by default has pointer identity. This makes dictionaries not work correctly.
+
+pypcode.Varnode.__hash__ = lambda self: hash((self.space.name, self.offset, self.size))
+
+
+def varnode_eq(self: pypcode.Varnode, other) -> bool:
+    return (
+        isinstance(other, pypcode.Varnode)
+        and self.space.name == other.space.name
+        and self.offset == other.offset
+        and self.size == other.size
+    )
+
+
+pypcode.Varnode.__eq__ = varnode_eq
+
+
 class CachedArray(NamedTuple):
     """
     CachedArray keeps some writes unapplied to the array.
@@ -162,28 +179,6 @@ class CachedArray(NamedTuple):
                 owner[offset0 + i] = vnode
             assert all(own in cache for own in owner.values())
             return self._replace(data=data, cache=cache, owner=owner)
-
-    """
-    def flush(self, vnode) -> smt.ArrayRef:
-        offset0 = vnode.offset
-        data = self.data
-        owner = self.owner
-        cache = self.cache
-        flushed = {}
-        for i in range(vnode.size):
-            offset = offset0 + 1
-            vnode1 = owner.get(offset)
-            if vnode1 is not None and vnode1 not in flushed:
-                data = bv.store_concat(data, vnode1.offset, cache[vnode1])
-                flushed.add(vnode1)
-        return data
-
-    def flush_all(self) -> smt.ArrayRef:  # to_expr
-        data = self.data
-        for vnode, value in self.cache.items():
-            data = bv.store_concat(data, vnode.offset, value)
-        return data
-    """
 
     def read(self, vnode: pypcode.Varnode) -> smt.BitVecRef:
         if vnode in self.cache:

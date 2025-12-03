@@ -357,10 +357,13 @@ class Goal(NamedTuple):
             return "Nothing to do!"
         ctxrepr = pprint.pformat(self.ctx)
         goalrepr = repr(self.goal)
-        if len(ctxrepr) + len(goalrepr) <= 75:
+        totlen = len(ctxrepr) + len(goalrepr)
+        if totlen <= 75:
             goalctx = ctxrepr + " ?|= " + repr(self.goal)
-        else:
+        elif totlen <= 1000:
             goalctx = ctxrepr + "\n?|= " + repr(self.goal)
+        else:
+            return "?|= " + self.to_expr().sexpr()
         if len(self.sig) == 0:
             return goalctx
         else:

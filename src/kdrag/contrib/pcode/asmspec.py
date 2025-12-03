@@ -326,7 +326,7 @@ class VerificationCondition(NamedTuple):
         if isinstance(self.assertion, OutOfGas):
             return smt.BoolVal(False)
         return smt.Implies(
-            smt.And(*self.path_cond),
+            smt.simplify(smt.And(*self.path_cond)),
             substitute_state(self.assertion.expr, ctx, self.memstate, self.ghost_env),
         )
 

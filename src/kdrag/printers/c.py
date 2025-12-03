@@ -9,13 +9,30 @@ import cffi
 
 
 def ctype_of_sort(s: smt.SortRef):
+    """
+    >>> ctype_of_sort(smt.ArraySort(smt.BitVecSort(8), smt.BitVecSort(32), smt.BitVecSort(16)))
+    'uint16_t**'
+    """
     if s == smt.BoolSort():
         return "bool"
-    if isinstance(s, smt.BitVecSortRef):
+    elif isinstance(s, smt.BitVecSortRef):
         if s.size() in [8, 16, 32, 64]:
             return f"uint{s.size()}_t"
         else:
             raise NotImplementedError("No support for arbitrary C int sizes", s.size())
+    elif isinstance(s, smt.ArraySortRef):
+        doms = smt.domains(s)
+        assert all(
+            isinstance(d, smt.BitVecSortRef) and d.size() in [8, 16, 32, 64]
+            for d in doms
+        )
+        range_ = ctype_of_sort(s.range())
+        return range_ + "*" * len(doms)
+    # datatypes and enums
+    # elif isinstance(s, smt.DatatypeSortRef):
+    #    if s.num_constructors() != 1:
+    #        raise NotImplementedError("No support for multi-constructor datatypes", s)
+
     else:
         raise NotImplementedError(f"Cannot convert {s} to C type")
 
@@ -100,6 +117,12 @@ comp = {
 def c_of_expr(
     ctx: list[smt.ExprRef], sig: list[smt.FuncDeclRef], e: smt.ExprRef
 ) -> str:
+    """
+    >>> x,y = smt.BitVecs("x y", 32)
+    >>> mem = smt.Array("mem", smt.BitVecSort(32), smt.BitVecSort(8))
+    >>> c_of_expr([x,y,mem], [], mem[x + y])
+    '(mem[(x + y)])'
+    """
     ctype_of_sort(e.sort())  # check sort is supported
     if any(e.eq(c) for c in ctx):
         assert is_valid_c_identifier_strict(e.decl().name())
@@ -115,6 +138,11 @@ def c_of_expr(
             return f"""{e.decl().name()}({", ".join(children)})"""
         elif smt.is_if(e):
             return f"({children[0]} ? {children[1]} : {children[2]})"
+        elif smt.is_select(e):
+            assert nargs == 2
+            return f"({children[0]}[{children[1]}])"
+        elif smt.is_store(e):
+            raise NotImplementedError("Store expressions not supported in C codegen", e)
         elif isinstance(e, smt.BoolRef):
             if smt.is_true(e):
                 return "true"
@@ -175,7 +203,7 @@ def cstring(name, args, body):
     return f"""\
 #include <stdint.h>
 #include <stdbool.h>
-{ctype_of_sort(body.sort())} {name}({', '.join([f"{ctype_of_sort(arg.sort())} {arg.decl().name()}" for arg in args])}){{
+{ctype_of_sort(body.sort())} {name}({", ".join([f"{ctype_of_sort(arg.sort())} {arg.decl().name()}" for arg in args])}){{
     return {c_of_expr(args, [decl], body)};
 }}
 """
@@ -225,7 +253,7 @@ def compile_c(c_code, opts=[]):
 def link(name, args, body, filename):
     ffi = cffi.FFI()
     ffi.cdef(f"""\
-    {ctype_of_sort(body.sort())} {name}({', '.join([f"{ctype_of_sort(arg.sort())}" for arg in args])});
+    {ctype_of_sort(body.sort())} {name}({", ".join([f"{ctype_of_sort(arg.sort())}" for arg in args])});
     """)
     lib = ffi.dlopen(filename)
     return lib
