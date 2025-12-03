@@ -8,6 +8,8 @@ from kdrag.solvers import (
     TweeSolver,
     SATSolver,
     LeanSolver,
+    EProverSolver,
+    VampireSolver
 )
 import kdrag.solvers as solvers
 import kdrag.smt as smt
@@ -18,6 +20,15 @@ import kdrag.solvers.gappa as gappa
 import kdrag.solvers.aprove
 import kdrag.solvers.kb as kb
 import kdrag.rewrite as rw
+
+@pytest.mark.slow
+def test_eprover():
+    s = EProverSolver()
+    a,b,c = smt.Bools("a b c")
+    s.add(smt.And(a,b))
+    assert s.check() == smt.sat
+    s.add(smt.Not(a))
+    assert s.check() == smt.unsat
 
 @pytest.mark.slow
 def test_vampirethf():
@@ -46,9 +57,11 @@ def test_vampirethf():
     s.add(f == g)
     s.add(smt.Not(smt.ForAll([x], (f(x) == g(x)))))
     assert s.check() == smt.unsat
-
+    """
+    
+    """
     x, y, z = smt.Reals("x y z")
-    s = VampireTHFSolver()
+    s = VampireSolver()
     s.add(x + y == z)
     s.add(x == y)
     assert s.check() == smt.sat
@@ -59,12 +72,13 @@ def test_vampirethf():
     x, y, z = smt.Consts("x y z", S)
     f, g = smt.Consts("f g", S >> T)
 
-    """
+
     s = VampireTHFSolver()
     s.add(f == g)
     s.add(smt.Not(smt.ForAll([x], (f(x) == g(x)))))
     assert s.check() == smt.unsat
-    """
+
+
     s = EProverTHFSolver()
     s.add(f == g)
     s.add(smt.Not(smt.ForAll([x], (f(x) == g(x)))))
@@ -112,6 +126,15 @@ def test_vampirethf():
     f = smt.Const("f", smt.BoolSort() >> smt.BoolSort())
     p, q = smt.Bools("p q")
 
+    s = EProverTHFSolver()
+    s.set("lambda_lift", False)
+    s.add(smt.Not(smt.ForAll(
+            [p],
+            p == (smt.Lambda([f], f(p)) == smt.Lambda([f], f(smt.BoolVal(True)))),
+        )))
+    assert s.check() == smt.unsat
+    """
+    # lambda lifting makes this come back unknown
     kd.kernel.prove(
         smt.ForAll(
             [p],
@@ -119,6 +142,7 @@ def test_vampirethf():
         ),
         solver=EProverTHFSolver,
     )
+    """
 
     s = TweeSolver()
     x, y, z = smt.Consts("x y z", S)

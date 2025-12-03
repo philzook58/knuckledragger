@@ -481,12 +481,12 @@ def lambda_lift(expr: smt.ExprRef) -> tuple[smt.ExprRef, list[smt.BoolRef]]:
     >>> lambda_lift(smt.ForAll([x,y], smt.Exists([z], x + y + 1 == smt.Lambda([z], x)[z])))
     (ForAll([x, y], Exists(z, x + y + 1 == f!...(x, y)[z])), [ForAll([x, y, z], f!...(x, y)[z] == x)])
     """
-    lift_defs = []
+    lift_defs: list[smt.BoolRef] = []
 
     def worker(expr, env):
         if isinstance(expr, smt.QuantifierRef):
             vs, body = kd.utils.open_binder_unhygienic(expr)
-            env = [v for v in env if v not in vs]  # shadowing
+            env = [v for v in env if not any(v.eq(v1) for v1 in vs)]  # shadowing
             env1 = env + vs
             if expr.is_lambda():
                 f = smt.FreshFunction(*[v.sort() for v in env], expr.sort())
@@ -496,16 +496,69 @@ def lambda_lift(expr: smt.ExprRef) -> tuple[smt.ExprRef, list[smt.BoolRef]]:
                 return smt.ForAll(vs, worker(body, env1))
             elif expr.is_exists():
                 return smt.Exists(vs, worker(body, env1))
+            else:
+                raise NotImplementedError("Unknown quantifier type", expr)
         elif smt.is_const(expr):
             return expr
-        if smt.is_app(expr):
+        elif smt.is_app(expr):
             args = [worker(arg, env) for arg in expr.children()]
             return expr.decl()(*args)
         else:
-            return expr
+            raise Exception("Unexpected term in lambda_lift", expr)
 
     env = []
     return worker(expr, env), lift_defs
+
+
+def curry_arrays(e: smt.ExprRef) -> smt.ExprRef:
+    """
+    Curry all selects and lambdas into single argument versions.
+    >>> f = smt.Array("f", smt.IntSort(), smt.RealSort(), smt.BoolSort())
+    >>> curry_arrays(smt.Select(f, smt.IntVal(3), smt.RealVal(2.0)))
+    f[3][2]
+    >>> x,y,z = smt.Ints("x y z")
+    >>> curry_arrays(smt.Lambda([x,y], x + y)[2,3])
+    Lambda(x, Lambda(y, x + y))[2][3]
+    """
+    # TODO  Possibility of clashing names here.
+    # If you have the same name for the curried version you're nuts though.
+    if isinstance(e, smt.QuantifierRef):
+        vs, body = open_binder_unhygienic(e)
+        body = curry_arrays(body)
+        if e.is_lambda():
+            for v in reversed(vs):
+                body = smt.Lambda([v], body)
+            return body
+        elif e.is_forall():
+            return smt.ForAll(vs, body)
+        elif e.is_exists():
+            return smt.Exists(vs, body)
+        else:
+            raise NotImplementedError("Unknown quantifier type", e)
+    elif smt.is_const(e):
+        if isinstance(e, smt.ArrayRef):
+            doms = smt.domains(e)
+            if len(doms) == 1:
+                return e
+            else:
+                sort = e.range()
+                for d in reversed(doms):
+                    sort = smt.ArraySort(d, sort)
+                return smt.Const(e.decl().name(), sort)
+        else:
+            return e
+    elif smt.is_app(e):
+        f, children = e.decl(), e.children()
+        children = [curry_arrays(c) for c in children]
+        if smt.is_select(e):
+            arr = children[0]
+            for index in children[1:]:
+                arr = smt.Select(arr, index)
+            return arr
+        else:
+            return f(*children)
+    else:
+        raise Exception("Unexpected term in curry_arrays", e)
 
 
 def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]:

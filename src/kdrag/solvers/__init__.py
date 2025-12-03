@@ -126,15 +126,21 @@ class BaseSolver:
     def __init__(self):
         self.adds = []
         self.assert_tracks = []
-        self.options = {}
+        self.options: dict = {"lambda_lift": True}
         self.res: Optional[subprocess.CompletedProcess] = None
 
     def add(self, thm: smt.BoolRef):
         if isinstance(thm, list):
-            self.adds.extend(thm)
-            return
+            for t in thm:
+                self.add(t)
         else:
             assert isinstance(thm, smt.BoolRef)
+            if self.options["lambda_lift"]:
+                thm1 = kd.utils.curry_arrays(thm)
+                thm1, extra = kd.utils.lambda_lift(thm1)
+                assert isinstance(thm1, smt.BoolRef)
+                thm = thm1
+                self.adds.extend(extra)
             self.adds.append(thm)
 
     def assert_and_track(self, thm: smt.BoolRef, name: str):
@@ -200,7 +206,7 @@ class BaseSolver:
                     if f not in predefined and f.name() not in predefined_names:
                         if f.arity() == 0:
                             fp.write(
-                                f"{format}({f.name()}_type, type, {f.name() if f in no_mangle else mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
+                                f"{format}({f.name().replace('!', '__')}_type, type, {f.name().replace('!', '__') if f in no_mangle else mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
                             )
                         else:
                             joiner = " > " if format == "thf" else " * "
@@ -208,7 +214,7 @@ class BaseSolver:
                                 [sort_to_tptp(f.domain(i)) for i in range(f.arity())]
                             )
                             fp.write(
-                                f"{format}({f.name()}_decl, type, {f.name() if f in no_mangle else mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
+                                f"{format}({f.name().replace('!', '__')}_decl, type, {f.name().replace('!', '__') if f in no_mangle else mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
                             )
 
             # Write axioms and assertions in TPTP THF format
@@ -240,11 +246,10 @@ class BaseSolver:
 
     def write_smt(self, fp):
         fp.write("(set-logic ALL)\n")
+        thms = self.adds + [thm for thm, name in self.assert_tracks]
         # Gather up all datatypes referenced
         predefined = set()
-        for sort in collect_sorts(
-            self.adds + [thm for thm, name in self.assert_tracks]
-        ):
+        for sort in collect_sorts(thms):
             if isinstance(sort, smt.DatatypeSortRef):
                 fp.write(smtlib_datatypes([sort]))
                 for i in range(sort.num_constructors()):
@@ -258,16 +263,17 @@ class BaseSolver:
                 fp.write(f"(declare-sort {sort.name()} 0)\n")
         # Declare all function symbols
         fp.write(";;declarations\n")
-        for f in collect_decls(self.adds + [thm for thm, name in self.assert_tracks]):
+        for f in collect_decls(thms):
             if f not in predefined and f.name() not in predefined_names:
                 fp.write(funcdecl_smtlib(f))
                 fp.write("\n")
         fp.write(";;axioms\n")
-        for e in self.adds:
+        # TODO: Add back assert tracking
+        for e in thms:  # self.adds:
             # We can't use e.sexpr() because we need to mangle overloaded names
             fp.write("(assert " + expr_to_smtlib(e) + ")\n")
-        for thm, name in self.assert_tracks:
-            fp.write("(assert (! " + expr_to_smtlib(thm) + " :named " + name + "))\n")
+        # for thm, name in self.assert_tracks:
+        #    fp.write("(assert (! " + expr_to_smtlib(thm) + " :named " + name + "))\n")
 
 
 def collect_sorts(exprs) -> set[smt.SortRef]:
@@ -454,13 +460,12 @@ class VampireTHFSolver(BaseSolver):
         return self.check_tptp_status(self.res.stdout)
 
 
-"""
 class EProverSolver(BaseSolver):
     def __init__(self):
-        new = download(
+        download(
             "https://github.com/philzook58/eprover/releases/download/E.3.2.5-ho/eprover-ho",
             "eprover-ho",
-            "56a1dd51be0ba3194851cfb6f4ecc563c82cd5e2f5009dd1a7268af91150c9cd",
+            "840170d1cb80cc3796b0f209e5879d23d1a19577fd922d84029c30783687b2c6",
         )
         super().__init__()
         self.options["format"] = "tff"
@@ -479,7 +484,6 @@ class EProverSolver(BaseSolver):
         if len(self.res.stderr) > 0:
             raise Exception("Eprover error", self.res.stderr)
         return self.check_tptp_status(self.res.stdout)
-"""
 
 
 class EProverTHFSolver(BaseSolver):
