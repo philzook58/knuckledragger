@@ -486,21 +486,10 @@ class EProverSolver(BaseSolver):
         return self.check_tptp_status(self.res.stdout)
 
 
-class EProverTHFSolver(BaseSolver):
-    def check(self):
-        filename = "/tmp/eprover.p"
-        self.write_tptp(filename)
-        cmd = [
-            binpath("eprover-ho"),
-            "--auto-schedule=8",
-            filename,
-        ]
-        if "timeout" in self.options:
-            cmd.extend(["--cpu-limit=" + str(self.options["timeout"] // 1000 + 1)])
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if len(self.res.stderr) > 0:
-            raise Exception("Eprover error", self.res.stderr)
-        return self.check_tptp_status(self.res.stdout)
+class EProverTHFSolver(EProverSolver):
+    def __init__(self):
+        super().__init__()
+        self.options["format"] = "thf"
 
 
 class ZipperpositionSolver(BaseSolver):
