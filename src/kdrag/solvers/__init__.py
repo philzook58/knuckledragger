@@ -462,11 +462,13 @@ class VampireTHFSolver(BaseSolver):
 
 class EProverSolver(BaseSolver):
     def __init__(self):
-        download(
+        new = download(
             "https://github.com/philzook58/eprover/releases/download/E.3.2.5-ho/eprover-ho",
             "eprover-ho",
             "840170d1cb80cc3796b0f209e5879d23d1a19577fd922d84029c30783687b2c6",
         )
+        if new:
+            os.chmod(binpath("eprover-ho"), 0o755)
         super().__init__()
         self.options["format"] = "tff"
 

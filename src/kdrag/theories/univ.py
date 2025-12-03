@@ -11,10 +11,68 @@ _x = smt.Const("x", Type0)
 
 Type0Set = smt.FullSet(Type0)
 Int0 = smt.Lambda([_x], _x.is_Int)
+Nat0 = smt.Lambda([_x], smt.And(Int0(_x), _x.int >= 0))
 Bool0 = smt.Lambda([_x], _x.is_Bool)
 Real0 = smt.Lambda([_x], _x.is_Real)
+Unit0 = smt.Lambda([_x], smt.And(_x.is_Bool, _x.bool == smt.BoolVal(True)))
+
+# Polymorphic definitions
+neg = kd.notation.neg.define(
+    [_x],
+    kd.cond(
+        (_x.is_Bool, Type0.Bool(_x.bool)),
+        (_x.is_Int, Type0.Int(-_x.int)),
+        (_x.is_Real, Type0.Real(-_x.real)),
+    ),
+)
 
 """
+
+def from_dt(dt : smt.DatatypeSortRef) -> smt.ExprRef:
+    # encode x to tagged sequences
+    kd.cond(
+      *[dt.recognizer(i), smt.Concat(smt.Unit(Type0.IntVal(i)), smt.Unit(dt.accessor(i,0)(x))) for i in range(dt.num_constructors())])
+      )
+def to_set(dt : smt.DatatypeSortRef) -> smt.ExprRef:
+    # set corresponding to encoding
+    # smt.Exists([z], from_dt(dt)(z) == x)
+    # but there is a more computational version.
+kd.prove(forall([x], to_set(dt)(from_dt(dt))) # encoding is in encoding.
+def to_dt(dt : smt.DatatypeSortRef) -> smt.ExprRef:
+    # decode tagged sequences to x
+
+class OpenFuncDecl:
+    name : str
+    domains : tuple[smt.SortRef]
+    range : smt.SortRef
+    head : smt.FuncDeclRef
+    last : smt.FuncDeclRef
+    defns : list[smt.FuncDeclRef] = []
+    undef : smt.FuncDeclRef
+    def __init__(self, name : str, *sorts : smt.SortRef):
+        self.name = name
+        self.defns = []
+        self.undef = kd.FuncDecl(name, sorts, sorts[-1])
+    def define(self, vs, cond, body) -> smt.FuncDeclRef:
+        assert [v.sort() ==  s for v,s in zip(vs, self.sorts]
+        assert body.sort() == self.range
+        newundef = smt.FreshFunction(*[v.sort() for v in vs], self.range)
+        self.defns.append(kd.define(self.last.name(), vs, smt.If(cond, body, newundef(*vs)))
+        self.undef = newundef
+        
+
+def Seq(T : smt.FuncRef) -> smt.QuantifierRef:
+    x = smt.FreshConst("x", T.domain())
+    return smt.Lambda([x], smt.And(x.is_Seq, smt.SeqFoldLeftsmt.True, T, (x.seq)
+def Vec(n, T : smt.FuncRef) -> smt.QuantifierRef:
+    x = smt.FreshConst("x", T.domain())
+    return smt.Lambda([x], smt.And(Seq(T)(x), smt.Length(x.seq) == n))
+def Id(T, x, y) -> smt.QuantifierRef:
+    p = smt.FreshConst("p", T.domain())
+    return smt.Lambda([p], smt.And(Unit(p) , x == y))
+
+
+
 Type1 = kd.Inductive("Type1")
 Type1.declare("Type0", ("type0", Type0))
 Type1.declare("Seq", ("seq", Type1))
@@ -25,6 +83,12 @@ Type1Sort = smt.DatatypeSort("Type1")
 # )
 Type1.declare("Array", ("array", smt.ArraySort(Type0, Type1Sort)))
 Type1 = Type1.create()
+
+def Int(x : smt.ExprRef) -> smt.BoolRef:
+
+
+def level(x : smt.ExprRef) -> smt.IntRef:
+    x.sort().name()
 """
 
 
