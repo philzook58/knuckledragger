@@ -29,6 +29,7 @@ solvers = [
     "sympy",
     "cffi>=2.0.0",
     "graphviz>=0.20.3",
+    "ziglang>=0.15.1",
 ]
 
 [build-system]
