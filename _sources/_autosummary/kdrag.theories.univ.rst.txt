@@ -1,0 +1,41 @@
+kdrag.theories.univ
+===================
+
+.. automodule:: kdrag.theories.univ
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      neg
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Int
+      Type
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/univ.py
+   :language: python

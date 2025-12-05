@@ -1,0 +1,6 @@
+kdrag.theories.univ.Type
+========================
+
+.. currentmodule:: kdrag.theories.univ
+
+.. autofunction:: Type

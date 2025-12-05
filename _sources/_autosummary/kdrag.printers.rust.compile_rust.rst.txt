@@ -1,0 +1,6 @@
+kdrag.printers.rust.compile\_rust
+=================================
+
+.. currentmodule:: kdrag.printers.rust
+
+.. autofunction:: compile_rust

@@ -1,0 +1,6 @@
+kdrag.theories.logic.zf.FinSet
+==============================
+
+.. currentmodule:: kdrag.theories.logic.zf
+
+.. autofunction:: FinSet

@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.Ints
+==================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: Ints

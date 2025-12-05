@@ -1,0 +1,27 @@
+kdrag.theories.algebra.kleene
+=============================
+
+.. automodule:: kdrag.theories.algebra.kleene
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/kleene.py
+   :language: python

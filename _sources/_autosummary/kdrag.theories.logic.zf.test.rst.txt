@@ -1,0 +1,6 @@
+kdrag.theories.logic.zf.test
+============================
+
+.. currentmodule:: kdrag.theories.logic.zf
+
+.. autofunction:: test

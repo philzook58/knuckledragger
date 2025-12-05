@@ -1,0 +1,6 @@
+kdrag.Idem
+==========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Idem

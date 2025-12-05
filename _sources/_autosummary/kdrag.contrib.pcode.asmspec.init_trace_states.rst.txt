@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.init\_trace\_states
+===============================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: init_trace_states
