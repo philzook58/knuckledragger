@@ -11,7 +11,7 @@ import z3
 # s.environ.get('LD_LIBRARY_PATH', '') + ':' + 
 #os.environ['LD_LIBRARY_PATH'] = os.path.join(os.path.dirname(z3.__file__), 'lib')
 #os.environ["Z3_LIBRARY_PATH_OVERRIDE"] = so_path = os.path.join(os.path.dirname(z3.__file__), "lib")
-
+import kdrag.contrib.rust
 import kdragrs
 """
 print(open("/proc/self/maps").read())

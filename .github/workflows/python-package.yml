@@ -49,11 +49,11 @@ jobs:
         run: |
           uv sync --locked --all-extras --dev
           uv pip install -e .[dev,yosys,pypcode,rust,solvers]
-      - name: Build kdragrs
-        run: |
-          cd rust/kdragrs
-          maturin develop
-          cd ../..
+      #- name: Build kdragrs
+      #  run: |
+      #    cd rust/kdragrs
+      #    maturin develop
+      #    cd ../..
       - name: Lint with Ruff
         run: |
           uv run ruff check --output-format=github .
