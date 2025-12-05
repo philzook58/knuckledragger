@@ -605,10 +605,16 @@ def run_all_paths(
 
 
 class VCProofState(kd.tactics.ProofState):
-    def __init__(self, vc: VerificationCondition, ctx: pcode.BinaryContext):
+    def __init__(
+        self, vc: VerificationCondition, ctx: pcode.BinaryContext, _parent=None
+    ):
         self.vc = vc
         self.binctx = ctx
-        super().__init__(kd.tactics.Goal(sig=[], ctx=[], goal=vc.vc(ctx)))
+        super().__init__(
+            kd.tactics.Goal(sig=[], ctx=[], goal=vc.vc(ctx)), _parent=_parent
+        )
+        # self.intros()
+        # self.split(at=0)
 
     def auto(self, **kwargs):
         try:
@@ -623,21 +629,61 @@ class VCProofState(kd.tactics.ProofState):
                 self.vc.countermodel(self.binctx, countermodel),
             )
 
+    def __repr__(self):
+        return super().__repr__() + f"\n\nfrom VC: {self.vc}"
+
+
+class AsmProofState:
+    def __init__(self, ctx: pcode.BinaryContext, spec: AsmSpec):
+        self.ctx = ctx
+        self.spec = spec
+        # self._spec = spec.copy() # TODO copy
+        mem = self.ctx.init_mem()
+        tracestates, vcs = init_trace_states(self.ctx, mem, self.spec)
+        while tracestates:
+            tracestate = tracestates.pop()
+            new_tracestates, new_vcs = execute_spec_and_insn(
+                tracestate, self.spec, self.ctx
+            )
+            vcs.extend(new_vcs)
+            tracestates.extend(new_tracestates)
+        self.vcs = tuple(vcs)
+        self.pfs = []
+
+    def auto(self, n, **kwargs):
+        vc = self.vcs[n]
+        self.pfs.append(vc.verify(self.ctx, **kwargs))
+
+    def lemma(self, n) -> VCProofState:
+        return VCProofState(self.vcs[n], self.ctx, _parent=self)
+
+    def exact(self, pf: kd.Proof):
+        # it's goofy, but this is the current ProofState api
+        self.pfs.append(pf)
+
+    def qed(self):
+        assert len(self.vcs) == len(self.pfs)
+        assert all(
+            isinstance(pf, kd.Proof) and pf.thm.eq(vc.vc(self.ctx))
+            for vc, pf in zip(self.vcs, self.pfs)
+        )
+
 
 class Debug:
     def __init__(
-        self, ctx: pcode.BinaryContext, spec: Optional[AsmSpec] = None, verbose=True
+        self,
+        ctx: pcode.BinaryContext,
+        spec: AsmSpec = AsmSpec(),
+        verbose=True,
     ):
         self.ctx = ctx
-        if spec is None:
-            self.spec = AsmSpec()
-        else:
-            self.spec: AsmSpec = spec
+        self.spec: AsmSpec = spec
         self.tracestates: list[TraceState] = []
         self.vcs: list[VerificationCondition] = []
         self.breakpoints = set()
         self.verbose = verbose
         self._cur_model = None
+        self.pfs = []
 
     def spec_file(self, filename: str):
         self.spec = AsmSpec.of_file(filename, self.ctx)
@@ -723,7 +769,7 @@ class Debug:
 
     def pop_verify(self, **kwargs):
         vc = self.vcs.pop()
-        vc.verify(self.ctx, **kwargs)
+        self.pfs.append((vc, vc.verify(self.ctx, **kwargs)))
 
     def verify(self, **kwargs):
         if not self.vcs:
@@ -731,8 +777,7 @@ class Debug:
         if self.tracestates:
             raise Exception("There are still trace states to execute")
         while self.vcs:
-            vc = self.vcs.pop(0)
-            vc.verify(self.ctx, **kwargs)
+            self.pop_verify(**kwargs)
 
     def pop_lemma(self) -> kd.tactics.ProofState:
         vc = self.vcs.pop()

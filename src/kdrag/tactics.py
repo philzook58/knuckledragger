@@ -14,6 +14,7 @@ import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.reflect as reflect
+import kdrag.solvers.egraph as egraph
 
 
 def FreshVar(name: str, sort: smt.SortRef, assume=None) -> smt.ExprRef:
@@ -716,6 +717,35 @@ class ProofState:
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
         return self
+
+    def emt(self):
+        """
+        Use egraph based equality modulo theories to simplify the goal.
+        >>> x, y, z, w = smt.Ints("x y z w")
+        >>> l = Lemma(smt.Implies(x + y + 1 == z, x + y + 1 == w))
+        >>> l.intros()
+        [x + y + 1 == z] ?|= x + y + 1 == w
+        >>> l.emt()
+        [x + y + 1 == z] ?|= z == w
+
+        """
+        goalctx = self.top_goal()
+        ctx, goal = goalctx.ctx, goalctx.goal
+        E = egraph.EGraph()
+        E.solver.add(ctx)
+        E.add_term(goal)
+        for c in ctx:
+            E.add_term(c)
+        E.rebuild()
+        newgoal = E.extract(goal)
+        if newgoal.eq(goal):
+            raise ValueError("EMT failed. Goal is already in simplest form.", goal)
+        else:
+            self.add_lemma(
+                kd.kernel.prove(smt.Implies(smt.And(ctx), smt.Eq(goal, newgoal)))
+            )
+            self.goals[-1] = goalctx._replace(goal=newgoal)
+            return self
 
     def cases(self, t):
         """

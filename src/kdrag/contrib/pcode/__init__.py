@@ -460,6 +460,13 @@ class BinaryContext:
         self.definitions.extend(
             [bv.store_concats(self.bits, size, le=le) for size in [16, 32, 64]]
         )
+        # Helpers
+        self.select16 = bv.select_concats(self.bits, 16, le=le)
+        self.select32 = bv.select_concats(self.bits, 32, le=le)
+        self.select64 = bv.select_concats(self.bits, 64, le=le)
+        self.store16 = bv.store_concats(self.bits, 16, le=le)
+        self.store32 = bv.store_concats(self.bits, 32, le=le)
+        self.store64 = bv.store_concats(self.bits, 64, le=le)
         if filename is not None:
             self.load(filename)
 

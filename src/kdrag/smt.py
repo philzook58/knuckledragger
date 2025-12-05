@@ -468,7 +468,10 @@ def DeclareSort(name):
         return sort_registry[tid]
 
 
+# Implicit tags for properties
 ExprRef.assumes = None
+ExprRef.prop = None
+FuncDeclRef.prop = None
 
 
 type FuncRef = ArrayRef | QuantifierRef

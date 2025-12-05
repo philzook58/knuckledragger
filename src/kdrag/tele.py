@@ -1,8 +1,16 @@
+"""
+Refinement subtyping
+
+- https://www.philipzucker.com/refinement_kdrag1/ Semantic Refinement/Dependent Typing for Knuckledragger/SMTLIB Pt 1
+- https://belle.sourceforge.net/doc/subtypes.pdf Predicate Subtyping with Predicate Sets - Joe Hurd
+
+"""
+
 import kdrag.smt as smt
 import kdrag as kd
 import functools
 
-type SubSort = smt.QuantifierRef | smt.ArrayRef
+type SubSort = smt.FuncRef
 type Type = SubSort
 # User telescope
 """
