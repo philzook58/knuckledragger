@@ -9,10 +9,9 @@ if cargo_path is None:
     )
 
 print("Building kdrag Rust extensions. This may take a while...")
-print(__path__[0])
 # Not necessary it seems
 # subprocess.call(["cargo", "build", "--release"], cwd=os.path.join(__path__[0], "rust"))
 subprocess.call(
     ["maturin", "develop", "--release"],
-    cwd=os.path.join(__path__[0], "rust", "kdragrs"),
+    cwd=os.path.join(list(__path__)[0], "rust", "kdragrs"),
 )
