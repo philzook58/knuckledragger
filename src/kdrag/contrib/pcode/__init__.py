@@ -79,8 +79,6 @@ MemStateSort = {
     for bits, MemSort in MemSorts.items()
 }
 
-type StateExpr = smt.ExprRef  # NewType("StateExpr", smt.ExprRef)
-type StateProp = smt.BoolRef  # NewType("StateProp", smt.BoolRef)
 """
 class StateExpr(NamedTuple):
     ctx: BinaryContext
@@ -94,6 +92,9 @@ class StateExpr(NamedTuple):
     def __call__(self, memstate: MemState) -> smt.ExprRef:
         return self.ctx.substitute(memstate, self.expr)
 """
+
+type StateExpr = smt.ExprRef  # NewType("StateExpr", smt.ExprRef)
+type StateProp = smt.BoolRef  # NewType("StateProp", smt.BoolRef)
 
 
 @dataclass(frozen=True)

@@ -129,6 +129,7 @@ class AsmSpec:
 
     """
 
+    ctx: pcode.BinaryContext
     addrmap: defaultdict[int, list[SpecStmt]] = dataclasses.field(
         default_factory=lambda: defaultdict(list)
     )
@@ -150,6 +151,15 @@ class AsmSpec:
 
     def add_assign(self, label: str, addr: int, name: str, expr: pcode.StateExpr):
         self.addrmap[addr].append(Assign(label, addr, name, expr))
+
+    def find_label(self, label: str) -> int:
+        assert self.ctx.loader is not None, (
+            "BinaryContext must be loaded before disassembling"
+        )
+        sym = self.ctx.loader.find_symbol(label)
+        if sym is None:
+            raise Exception(f"Symbol {label} not found in binary {self.ctx.filename}")
+        return sym.rebased_addr
 
     @classmethod
     def of_file(cls, filename: str, ctx: pcode.BinaryContext):
@@ -173,16 +183,7 @@ class AsmSpec:
         decls["read"] = smt.Array(
             "read", smt.BitVecSort(ctx.bits), smt.BoolSort()
         ).decl()
-        spec = cls()
-
-        def find_label(label: str) -> int:
-            assert ctx.loader is not None, (
-                "BinaryContext must be loaded before disassembling"
-            )
-            sym = ctx.loader.find_symbol(label)
-            if sym is None:
-                raise Exception(f"Symbol {label} not found in binary {ctx.filename}")
-            return sym.rebased_addr
+        spec = cls(ctx)
 
         def parse_smt(smt_bool: str, linemo: int, line: str) -> smt.BoolRef:
             # parse with slightly nicer error throwing, saying which line in asm responsible
@@ -210,7 +211,7 @@ class AsmSpec:
                 ):  # A little bit of sanity checking that we don't miss any "kd_" line
                     if match := boolstmt_pattern.match(line):
                         cmd, label, expr = match.groups()
-                        addr = find_label(label)
+                        addr = spec.find_label(label)
                         smt_string = "\n".join(preludes + ["(assert ", expr, ")"])
                         expr = parse_smt(smt_string, lineno, line)
                         if cmd == "kd_entry":
@@ -226,7 +227,7 @@ class AsmSpec:
                     elif match := assign_pattern.match(line):
                         label, name, expr = match.groups()
                         # Turn expression `expr` into dummy assertion `expr == expr` for parsing
-                        addr = find_label(label)
+                        addr = spec.find_label(label)
                         smt_string = "\n".join(
                             preludes + ["(assert (=", expr, expr, "))"]
                         )
@@ -242,10 +243,8 @@ class AsmSpec:
 
         return spec
 
-    def __repr__(self):
-        return json.dumps(
-            dataclasses.asdict(self), indent=2, default=lambda b: b.sexpr()
-        )
+    def json(self):
+        return json.dumps(self.addrmap, indent=2, default=lambda b: b.sexpr())
 
 
 type Trace = list[int]  # TODO | SpecStmt
@@ -633,9 +632,18 @@ class VCProofState(kd.tactics.ProofState):
         return super().__repr__() + f"\n\nfrom VC: {self.vc}"
 
 
+@dataclass(frozen=True)
+class AsmProof:
+    spec: AsmSpec
+    pfs: tuple[kd.Proof]
+
+    def __repr__(self):
+        return f"AsmProof(spec={self.spec})"
+
+
 class AsmProofState:
-    def __init__(self, ctx: pcode.BinaryContext, spec: AsmSpec):
-        self.ctx = ctx
+    def __init__(self, spec: AsmSpec):
+        self.ctx = spec.ctx
         self.spec = spec
         # self._spec = spec.copy() # TODO copy
         mem = self.ctx.init_mem()
@@ -662,22 +670,23 @@ class AsmProofState:
         self.pfs.append(pf)
 
     def qed(self):
-        assert len(self.vcs) == len(self.pfs)
-        assert all(
-            isinstance(pf, kd.Proof) and pf.thm.eq(vc.vc(self.ctx))
-            for vc, pf in zip(self.vcs, self.pfs)
-        )
+        assert all(isinstance(pf, kd.Proof) for pf in self.pfs)
+        for vc in self.vcs:
+            assert any(pf.thm.eq(vc.vc(self.ctx)) for pf in self.pfs), (
+                f"VC not proved: {vc}"
+            )
+        return AsmProof(self.spec, tuple(self.pfs))  # Todo: More in here?
 
 
 class Debug:
     def __init__(
         self,
         ctx: pcode.BinaryContext,
-        spec: AsmSpec = AsmSpec(),
+        spec: Optional[AsmSpec] = None,
         verbose=True,
     ):
         self.ctx = ctx
-        self.spec: AsmSpec = spec
+        self.spec: AsmSpec = spec if spec is not None else AsmSpec(ctx)
         self.tracestates: list[TraceState] = []
         self.vcs: list[VerificationCondition] = []
         self.breakpoints = set()

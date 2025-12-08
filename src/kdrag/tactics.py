@@ -1588,15 +1588,16 @@ class ProofState:
         thm = self.thm.to_expr()
         pf0 = self.lemmas[-1].get(thm.get_id())
         if pf0 is not None:
-            return pf0
-        if "by" in kwargs:
-            kwargs["by"].extend(self.lemmas[-1].values())
+            pf = pf0
         else:
-            kwargs["by"] = list(self.lemmas[-1].values())
-        pf = kd.kernel.prove(thm, **kwargs)
-        kdrag.config.perf_event(
-            "ProofState", self.thm, time.perf_counter() - self.start_time
-        )
+            if "by" in kwargs:
+                kwargs["by"].extend(self.lemmas[-1].values())
+            else:
+                kwargs["by"] = list(self.lemmas[-1].values())
+            pf = kd.kernel.prove(thm, **kwargs)
+            kdrag.config.perf_event(
+                "ProofState", self.thm, time.perf_counter() - self.start_time
+            )
         if self._parent is not None:
             self._parent.exact(pf)
         return pf
