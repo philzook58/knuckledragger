@@ -1,0 +1,6 @@
+kdrag.SemiRing
+==============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: SemiRing

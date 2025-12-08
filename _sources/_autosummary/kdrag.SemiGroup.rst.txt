@@ -1,0 +1,6 @@
+kdrag.SemiGroup
+===============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: SemiGroup

@@ -1,0 +1,6 @@
+kdrag.theories.set.Choose
+=========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: Choose

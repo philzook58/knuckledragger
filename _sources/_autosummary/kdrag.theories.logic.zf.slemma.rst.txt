@@ -1,0 +1,6 @@
+kdrag.theories.logic.zf.slemma
+==============================
+
+.. currentmodule:: kdrag.theories.logic.zf
+
+.. autofunction:: slemma

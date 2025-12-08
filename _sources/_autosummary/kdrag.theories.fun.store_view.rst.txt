@@ -1,0 +1,6 @@
+kdrag.theories.fun.store\_view
+==============================
+
+.. currentmodule:: kdrag.theories.fun
+
+.. autofunction:: store_view

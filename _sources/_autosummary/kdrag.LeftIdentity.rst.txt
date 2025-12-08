@@ -1,0 +1,6 @@
+kdrag.LeftIdentity
+==================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: LeftIdentity

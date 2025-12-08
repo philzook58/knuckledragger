@@ -1,0 +1,6 @@
+kdrag.tele.Program
+==================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: Program

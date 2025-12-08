@@ -1,0 +1,6 @@
+kdrag.contrib.yosys.read\_yosys\_relational
+===========================================
+
+.. currentmodule:: kdrag.contrib.yosys
+
+.. autofunction:: read_yosys_relational

@@ -1,0 +1,6 @@
+kdrag.CommSemiRing
+==================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: CommSemiRing

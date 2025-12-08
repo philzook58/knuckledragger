@@ -1,0 +1,33 @@
+kdrag.theories.logic.computable
+===============================
+
+.. automodule:: kdrag.theories.logic.computable
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      mu
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/computable.py
+   :language: python

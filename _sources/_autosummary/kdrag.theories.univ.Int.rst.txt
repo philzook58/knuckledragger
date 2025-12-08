@@ -1,0 +1,6 @@
+kdrag.theories.univ.Int
+=======================
+
+.. currentmodule:: kdrag.theories.univ
+
+.. autofunction:: Int

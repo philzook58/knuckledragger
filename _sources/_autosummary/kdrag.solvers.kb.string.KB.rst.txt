@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.KB
+==========================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: KB

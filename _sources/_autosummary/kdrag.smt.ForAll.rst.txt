@@ -1,0 +1,6 @@
+kdrag.smt.ForAll
+================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: ForAll
