@@ -14,6 +14,13 @@ help:
 
 .PHONY: help Makefile
 
+# Custom html target that includes post-processing for Proof objects
+html:
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo "Post-processing RST files to add Proof objects..."
+	@python3 add_proofs_to_rst.py || true
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
