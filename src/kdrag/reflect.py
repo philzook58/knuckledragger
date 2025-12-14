@@ -528,15 +528,6 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
     return rec(expr)
 
 
-def _calling_globals_locals():
-    stack = inspect.stack()
-    if len(stack) > 2:
-        caller_frame = stack[2]
-        frame = caller_frame.frame
-        return frame.f_locals, frame.f_globals
-    raise ValueError("No calling site found")
-
-
 def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
     """
     Turn a string of a python expression into a z3 expressions.
@@ -551,7 +542,7 @@ def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
 
     """
     if globals is None:
-        globals, _ = _calling_globals_locals()
+        globals, _ = kd.utils.calling_globals_locals()
     return _reflect_expr(
         ast.parse(expr, mode="eval").body, globals=globals, locals=locals
     )
@@ -668,7 +659,7 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     assert len(fun.args.posonlyargs) == 0 and len(fun.args.kwonlyargs) == 0
     locals = {}
     if globals is None:
-        globals, _ = _calling_globals_locals()
+        globals, _ = kd.utils.calling_globals_locals()
     # infer arguments from type annotations.
     args = []
     # We add arguments to locals in order to support dependent types.

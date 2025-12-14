@@ -1192,6 +1192,18 @@ def pmatch_rec_ctx(
             raise ValueError("Unexpected term in pmatch_rec_ctx", t)
 
 
+def calling_globals_locals():
+    """
+    A fiendish function for getting the globals and locals of the calling site.
+    """
+    stack = inspect.stack()
+    if len(stack) > 2:
+        caller_frame = stack[2]
+        frame = caller_frame.frame
+        return frame.f_locals, frame.f_globals
+    raise ValueError("No calling site found")
+
+
 def lemma_db() -> dict[str, kd.kernel.Proof]:
     """Scan all modules for Proof objects and return a dictionary of them."""
     db: dict[str, kd.kernel.Proof] = {}

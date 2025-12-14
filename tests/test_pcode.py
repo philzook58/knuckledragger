@@ -3,7 +3,7 @@ from kdrag.all import *
 from kdrag.contrib.pcode.asmspec import assemble_and_check_str, AsmSpec, run_all_paths, kd_macro, Debug
 import kdrag.contrib.pcode as pcode
 import kdrag.contrib.pcode.asmspec as asmspec
-
+import kdrag.theories.bitvec as bv
 import pytest
 import subprocess
 
@@ -306,5 +306,68 @@ def test_s2n_simple():
     dbg.run()
     dbg.verify()
 
+@pytest.mark.slow
+def test_sumi32():
+    # https://www.philipzucker.com/asm_verify4/
+    code = """
+    .text
+    .globl sum_i32
+    .align 2
+# int32_t sum_i32(const int32_t* arr, uint32_t n)
+sum_i32:
+    mv      t0, a0          # t0 = arr (cursor)
+    mv      t1, a1          # t1 = n   (remaining)
+    li      a0, 0           # a0 = sum (return value)
 
+    beqz    t1, .done       # if n == 0 -> return 0
 
+.loop:
+    lw      t2, 0(t0)       # t2 = *arr
+    add     a0, a0, t2      # sum += *arr
+    addi    t0, t0, 4       # arr++
+    addi    t1, t1, -1      # n--
+    bnez    t1, .loop       # keep going while n != 0
+
+.done:
+    ret
+    """
+    with open("/tmp/sum32.s", "w") as f:
+        f.write(code)
+        f.flush()
+    res = subprocess.run("""nix-shell -p pkgsCross.riscv32-embedded.buildPackages.gcc \
+        --run "riscv32-none-elf-as /tmp/sum32.s -o /tmp/sum32.o" """, shell=True, check=True, capture_output=True, text=True)
+
+    BV32 = smt.BitVecSort(32)
+    BV8 = smt.BitVecSort(8)
+    sum_i32 = smt.Function('sum_i32', smt.ArraySort(BV32, BV8), BV32, BV32, BV32, BV32)
+    mem = smt.Array('mem', BV32, smt.BitVecSort(8))
+    n,addr,acc,res = smt.BitVecs('n addr acc res', 32)
+
+    sum_i32 = kd.define("sum_i32", [mem, acc, addr, n],
+        smt.If(n == 0,
+            acc,
+            sum_i32(mem, acc + bv.select_concat(mem, addr, 4, le=True), addr + 4, n - 1)
+        )
+    )
+    ctx = pcode.BinaryContext("/tmp/sum32.o", langid="RISCV:LE:32:default")
+    t1 = ctx.state_vars["t1"]
+    t0 = ctx.state_vars["t0"]
+    a0 = ctx.state_vars["a0"]
+    a1 = ctx.state_vars["a1"]
+    ram = ctx.state_vars["ram"]
+    spec = asmspec.AsmSpec(ctx)
+    N = smt.BitVec("N", 32) #2
+
+    spec.add_entry('sum_i32', spec.find_label("sum_i32"), smt.And(a1 == N, addr == a0, res == sum_i32(ram, 0, addr, N), N >= 0, N <= 2))
+    end_addr = 4*N + addr
+    spec.add_cut(".loop", spec.find_label(".loop"), smt.And(res == sum_i32(ram, a0, t0, t1), 4*N + addr == 4*t1 + t0, t1 > 0, t1 <= N))
+
+    spec.add_exit(".done", spec.find_label(".done"), a0 == res)
+
+    pf = asmspec.AsmProofState(spec)
+    for i in range(4):
+        l = pf.lemma(i)
+        l.auto(by=sum_i32.defn)
+        l.qed()
+        #pf.auto(i, by=[sum_i32.defn])
+    pf.qed()

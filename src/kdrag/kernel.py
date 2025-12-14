@@ -227,9 +227,7 @@ def fresh_const(q: smt.QuantifierRef, prefixes=None) -> list[smt.ExprRef]:
         ]
 
 
-def define(
-    name: str, args: list[smt.ExprRef], body: smt.ExprRef, lift_lambda=False
-) -> smt.FuncDeclRef:
+def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDeclRef:
     """
     Define a non recursive definition. Useful for shorthand and abstraction. Does not currently defend against ill formed definitions.
     TODO: Check for bad circularity, record dependencies
@@ -544,7 +542,7 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
 
 
 # TODO. Make this a subclass
-def Inductive(name: str) -> smt.Datatype:
+def Inductive(name: str, ctx=None) -> smt.Datatype:
     """
     Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
 
@@ -562,7 +560,7 @@ def Inductive(name: str) -> smt.Datatype:
         n = name + "!" + str(counter)
     name = n
     assert name not in _datatypes
-    dt = smt.Datatype(name)
+    dt = smt.Datatype(name, ctx=ctx)
     oldcreate = dt.create
 
     def create() -> smt.DatatypeSortRef:

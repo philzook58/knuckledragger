@@ -660,7 +660,9 @@ class AsmProofState:
 
     def auto(self, n, **kwargs):
         vc = self.vcs[n]
-        self.pfs.append(vc.verify(self.ctx, **kwargs))
+        self.pfs.append(
+            vc.verify(self.ctx, **kwargs)
+        )  # TODO: This makes an ctx.definitions unfolded proof, which isn't what is expected?
 
     def lemma(self, n) -> VCProofState:
         return VCProofState(self.vcs[n], self.ctx, _parent=self)

@@ -535,6 +535,28 @@ def codomain(f: FuncRef | ArraySortRef) -> SortRef:
         raise TypeError(f"Expected ArrayRef or Lambda, got {f}")
 
 
+well_formed: dict[SortRef, Callable[[ExprRef], BoolRef]] = {}
+
+
+def register_well_formed(sort: SortRef, predicate: Callable[[ExprRef], BoolRef]):
+    """
+    Register a well-formedness predicate for a sort.
+
+    >>> register_well_formed(IntSort(), lambda x: x >= 0)
+    >>> Const("x", IntSort()).assumes
+    x >= 0
+    >>> del well_formed[IntSort()]
+    """
+    well_formed[sort] = predicate
+
+
+def is_wf(e: ExprRef) -> BoolRef:
+    wf = well_formed.get(e.sort())
+    if wf is None:
+        raise ValueError(f"No well formedness predicate for sort {e.sort()}")
+    return wf(e)
+
+
 RawConst = Const
 
 
@@ -551,7 +573,11 @@ def Const(name: str, sort: SortRef | FuncRef) -> ExprRef:
     x >= 0
     """
     if isinstance(sort, SortRef):
-        return RawConst(name, sort)
+        x = RawConst(name, sort)
+        wf = well_formed.get(sort)
+        if wf is not None:
+            x.assumes = well_formed[sort](x)
+        return x
     else:
         doms = domains(sort)
         assert len(doms) == 1 and codomain(sort) == BoolSort()
@@ -571,7 +597,12 @@ def Consts(names: str, sort: SortRef | FuncRef) -> list[ExprRef]:
     [x >= 0, y >= 0, z >= 0]
     """
     if isinstance(sort, SortRef):
-        return RawConsts(names, sort)
+        xs = RawConsts(names, sort)
+        wf = well_formed.get(sort)
+        if wf is not None:
+            for x in xs:
+                x.assumes = wf(x)
+        return xs
     else:
         doms = domains(sort)
         assert len(doms) == 1 and codomain(sort) == BoolSort()

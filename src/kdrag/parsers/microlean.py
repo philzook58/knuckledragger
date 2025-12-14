@@ -292,19 +292,34 @@ def parse(s: str, globals=None) -> smt.ExprRef:
     return start(parser.parse(s), globals)
 
 
+def lean(s: str, globals=None) -> smt.ExprRef:
+    """
+    Alias for parse to match Lean users' expectations.
+
+    >>> foo = smt.Int("foo1")
+    >>> lean("foo + 2")
+    foo1 + 2
+    """
+    if globals is None:
+        _, globals = kd.utils.calling_globals_locals()
+    return parse(s, globals)
+
+
 inductive_parser = lark.Lark(grammar, start="inductive", parser="lalr")
 
 
-def inductive(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
+def inductive_of_tree(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
     """
     Parse an inductive datatype definition.
 
     >>> tree = inductive_parser.parse("inductive nat where | zero : nat | succ : nat -> nat | fiz : Int -> Bool -> (Bool -> nat) -> nat")
-    >>> inductive(tree).constructor(1)
+    >>> inductive_of_tree(tree).constructor(1)
     succ
-    >>> inductive(tree).accessor(1,0)
+    >>> inductive_of_tree(tree).accessor(1,0)
     succ0
     """
+    if globals is None:
+        _, globals = kd.utils.calling_globals_locals()
     match tree:
         case Tree("inductive", [name, *constructors]):
             dt = kd.Inductive(str(name))
@@ -324,6 +339,23 @@ def inductive(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
             return dt.create()
         case _:
             raise ValueError("Unexpected lark.Tree in inductive", tree)
+
+
+# todo: allow dot const in sorts.
+def inductive(s: str, globals=None) -> smt.DatatypeSortRef:
+    """
+    Parse an inductive datatype definition.
+
+    >>> inductive("inductive boollist where | nil : boollist | cons : Bool -> boollist -> boollist").constructor(0)
+    nil
+    >>> Nat = kd.Nat
+    >>> inductive("inductive foo where | mkfoo : Nat -> foo")
+    foo
+    """
+    if globals is None:
+        _, globals = kd.utils.calling_globals_locals()
+    tree = inductive_parser.parse(s)
+    return inductive_of_tree(tree, globals)
 
 
 def define(tree: lark.Tree, env: Env) -> smt.FuncDeclRef:

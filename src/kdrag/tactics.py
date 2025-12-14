@@ -13,7 +13,6 @@ import pprint
 import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
-import kdrag.reflect as reflect
 import kdrag.solvers.egraph as egraph
 
 
@@ -1633,7 +1632,7 @@ def Theorem(
     |= x + 1 > x
     """
     if isinstance(goal, str):
-        l, g = reflect._calling_globals_locals()
+        l, g = kd.utils.calling_globals_locals()
         goal1 = microlean.parse(goal, g)
     else:
         goal1 = goal
@@ -1669,8 +1668,8 @@ def PTheorem(
     Lemma Complete! Change PTheorem to Theorem
     """
     if isinstance(goal, str):
-        l, g = reflect._calling_globals_locals()
-        goal1 = microlean.parse(goal, g)
+        l, g = kd.utils.calling_globals_locals()
+        goal1 = microlean.lean(goal, g)
     else:
         goal1 = goal
     assert isinstance(goal1, smt.BoolRef)

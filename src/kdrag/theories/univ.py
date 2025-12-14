@@ -126,3 +126,41 @@ def Type(l: int) -> smt.DatatypeSortRef:
         TypeN.declare("Seq", ("seq", smt.SeqSort(TypeNSort)))
         TypeN.declare("Array", ("array", smt.ArraySort(Type(l - 1), TypeNSort)))
         return TypeN.create()
+
+
+"""
+A different style using an open datatype instead
+
+https://link.springer.com/chapter/10.1007/978-3-642-12002-2_26  A Polymorphic Intermediate Verification Language: Design and Logical Encoding
+"""
+Poly = smt.DeclareSort("Poly")
+
+
+@functools.cache
+def _box(s: smt.SortRef) -> smt.FuncDeclRef:
+    return smt.Function("box", s, Poly)
+
+
+def box(term: smt.ExprRef) -> smt.ExprRef:
+    return _box(term.sort())(term)
+
+
+@functools.cache
+def _cast(s: smt.SortRef) -> smt.FuncDeclRef:
+    return smt.Function(f"cast_{s}", Poly, s)
+
+
+def cast(s: smt.SortRef, term: smt.ExprRef) -> smt.ExprRef:  # proj
+    return _cast(s)(term)
+
+
+@functools.cache
+def poly_ax(s: smt.SortRef) -> kd.Proof:
+    """
+    >>> kd.prove(cast(smt.IntSort(), box(smt.IntVal(42))) == 42, by=[poly_ax(smt.IntSort())])
+    |= cast_Int(box(42)) == 42
+    """
+    # TODO: is this unsound? It does seem likely this is subject to some kind of vicious circularity
+    # assert positive_poly(s)
+    x = smt.Const("x", s)
+    return kd.axiom(smt.ForAll([x], cast(s, box(x)) == x, patterns=[cast(s, box(x))]))

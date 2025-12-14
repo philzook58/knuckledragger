@@ -87,16 +87,19 @@ full_simp = rewrite.full_simp
 
 search = utils.search
 
-expr = microlean.parse
+lean = microlean.lean
+inductive = microlean.inductive
 
 # TODO: Remove this
 R = smt.RealSort()
 Z = smt.IntSort()
-RSeq = Z >> R
-RFun = R >> R
+RSeq = smt.ArraySort(Z, R)
+RFun = smt.ArraySort(R, R)
+ZSeq = smt.ArraySort(Z, Z)
 
-Int = smt.FullSet(smt.IntSort())
-Bool = smt.FullSet(smt.BoolSort())
+
+IntSet = smt.FullSet(smt.IntSort())
+BoolSet = smt.FullSet(smt.BoolSort())
 
 
 def seq(*args):
@@ -221,52 +224,57 @@ def Some(x: smt.ExprRef) -> smt.DatatypeRef:
     return OptionSort(x.sort()).Some(x)
 
 
-def Assoc(f) -> smt.BoolRef:
+def Assoc(f, T=None) -> smt.BoolRef:
     """
     >>> Assoc(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()))
     ForAll([x, y, z], f(f(x, y), z) == f(x, f(y, z)))
     """
-    T = f.range()
+    if T is None:
+        T = f.range()
     x, y, z = smt.Consts("x y z", T)
     return smt.ForAll([x, y, z], f(f(x, y), z) == f(x, f(y, z)))
 
 
-def Comm(f) -> smt.BoolRef:
+def Comm(f, T=None) -> smt.BoolRef:
     """
     >>> Comm(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()))
     ForAll([x, y], f(x, y) == f(y, x))
     """
-    T = f.range()
+    if T is None:
+        T = f.range()
     x, y = smt.Consts("x y", T)
     return smt.ForAll([x, y], f(x, y) == f(y, x))
 
 
-def Idem(f) -> smt.BoolRef:
+def Idem(f, T=None) -> smt.BoolRef:
     """
     >>> Idem(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()))
     ForAll(x, f(x, x) == x)
     """
-    T = f.range()
+    if T is None:
+        T = f.range()
     x = smt.Const("x", T)
     return smt.ForAll([x], f(x, x) == x)
 
 
-def LeftIdentity(f, e: smt.ExprRef) -> smt.BoolRef:
+def LeftIdentity(f, e: smt.ExprRef, T=None) -> smt.BoolRef:
     """
     >>> LeftIdentity(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()), smt.IntVal(0))
     ForAll(x, f(0, x) == x)
     """
-    T = f.range()
+    if T is None:
+        T = f.range()
     x = smt.Const("x", T)
     return smt.ForAll([x], f(e, x) == x)
 
 
-def RightIdentity(f, e: smt.ExprRef) -> smt.BoolRef:
+def RightIdentity(f, e: smt.ExprRef, T=None) -> smt.BoolRef:
     """
     >>> RightIdentity(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()), smt.IntVal(0))
     ForAll(x, f(x, 0) == x)
     """
-    T = f.range()
+    if T is None:
+        T = f.range()
     x = smt.Const("x", T)
     return smt.ForAll([x], f(x, e) == x)
 
@@ -300,11 +308,28 @@ def SemiRing(add, mul, zero, one) -> smt.BoolRef:
     )
 
 
+def StarSemiring(add, mul, zero, one, star):
+    T = zero.sort()
+    x, y = smt.Consts("x y", T)
+    return smt.And(
+        SemiRing(add, mul, zero, one),
+        smt.ForAll([x], add(one, mul(x, star(x))) == star(x)),
+        smt.ForAll([x], add(one, mul(star(x), x)) == star(x)),
+    )
+
+
 def CommSemiRing(add, mul, zero, one) -> smt.BoolRef:
     return smt.And(
         SemiRing(add, mul, zero, one),
         Comm(mul),
     )
+
+
+def SemiLattice(join) -> smt.BoolRef:
+    """
+    >>> _ = SemiLattice(smt.Function("join", smt.IntSort(), smt.IntSort(), smt.IntSort()))
+    """
+    return smt.And(Assoc(join), Comm(join), Idem(join))
 
 
 def Refl(rel) -> smt.BoolRef:
@@ -324,7 +349,25 @@ def Antisymm(rel) -> smt.BoolRef:
     """
     T = rel.domain(0)
     x, y = smt.Consts("x y", T)
-    return smt.ForAll([x, y], smt.Implies(smt.And(rel(x, y), rel(y, x)), x == y))
+    return smt.ForAll([x, y], rel(x, y), rel(y, x), x == y)
+
+
+def Trans(rel) -> smt.BoolRef:
+    """
+    >>> Trans(smt.Function("rel", smt.IntSort(), smt.IntSort(), smt.BoolSort()))
+    ForAll([x, y, z], Implies(And(rel(x, y), rel(y, z)), rel(x, z)))
+    """
+    T = rel.domain(0)
+    x, y, z = smt.Consts("x y z", T)
+    return smt.ForAll([x, y, z], rel(x, y), rel(y, z), rel(x, z))
+
+
+def PreOrder(rel) -> smt.BoolRef:
+    return smt.And(Refl(rel), Trans(rel))
+
+
+def PartialOrder(rel) -> smt.BoolRef:
+    return smt.And(PreOrder(rel), Antisymm(rel))
 
 
 def Id(T: smt.SortRef) -> smt.QuantifierRef:

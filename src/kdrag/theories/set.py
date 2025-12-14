@@ -395,3 +395,15 @@ def Choose(A: smt.FuncRef, auto=False) -> tuple[list[smt.ExprRef], kd.Proof]:
     # TODO: maybe discharge the existential too?
     xs = [smt.FreshConst(sort) for sort in smt.domains(A)]
     return kd.kernel.obtain(smt.Exists(xs, A(*xs)))
+
+
+def Closed(S: smt.ArrayRef, f: smt.FuncDeclRef) -> smt.BoolRef:
+    """
+    A set S is closed under function f if for all x1,...,xn in S, f(x1,...,xn) is also in S.
+    >>> x = smt.Int("x")
+    >>> kd.prove(Closed(smt.Lambda([x], x >= 0), (x + x).decl()))
+    |= ForAll([x0!..., x1!...],
+              Implies(And(x0!... >= 0, x1!... >= 0), x0!... + x1!... >= 0))
+    """
+    xs = [smt.FreshConst(f.domain(i), prefix="x" + str(i)) for i in range(f.arity())]
+    return kd.QForAll(xs, *[S(x) for x in xs], S(f(*xs)))
