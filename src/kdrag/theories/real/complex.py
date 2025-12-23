@@ -2,25 +2,12 @@ import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.real as real
 
-C = kd.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
-
+C = kd.ComplexSort()
 z, w, u, z1, z2 = smt.Consts("z w u z1 z2", C)
-add = kd.define("add", [z1, z2], C.C(z1.re + z2.re, z1.im + z2.im))
-kd.notation.add.register(C, add)
-mul = kd.define(
-    "mul", [z1, z2], C.C(z1.re * z2.re - z1.im * z2.im, z1.re * z2.im + z1.im * z2.re)
-)
-kd.notation.mul.register(C, mul)
+add = kd.complex_add
+mul = kd.complex_mul
+div = kd.complex_div
 conj = kd.define("conj", [z], C.C(z.re, -z.im))
-
-
-div = kd.notation.div.define(
-    [z1, z2],
-    C.C(
-        (z1.re * z2.re + z1.im * z2.im) / (z2.re**2 + z2.im**2),
-        (z1.im * z2.re - z1.re * z2.im) / (z2.re**2 + z2.im**2),
-    ),
-)
 
 C0 = C.C(0, 0)
 C1 = C.C(1, 0)

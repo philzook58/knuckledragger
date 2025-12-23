@@ -192,6 +192,8 @@ def expr(tree, env: Env) -> smt.ExprRef:
             return expr(left, env) / expr(right, env)
         case Tree("eq", [left, right]):
             return smt.Eq(expr(left, env), expr(right, env))
+        case Tree("neq", [left, right]):
+            return expr(left, env) != expr(right, env)  # type: ignore
         case Tree("le", [left, right]):
             return expr(left, env) <= expr(right, env)
         case Tree("lt", [left, right]):

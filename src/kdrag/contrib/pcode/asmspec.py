@@ -661,8 +661,18 @@ class AsmProofState:
     def auto(self, n, **kwargs):
         vc = self.vcs[n]
         self.pfs.append(
-            vc.verify(self.ctx, **kwargs)
+            kd.kernel.prove(
+                vc.vc(self.ctx),
+                by=(
+                    [vc.verify(self.ctx, **kwargs)]
+                    + [f.defn for f in self.ctx.definitions]
+                ),
+            )
         )  # TODO: This makes an ctx.definitions unfolded proof, which isn't what is expected?
+        return self
+
+    def __repr__(self):
+        return f"AsmProofState(num_vcs={len(self.vcs)}, num_pfs={len(self.pfs)})"
 
     def lemma(self, n) -> VCProofState:
         return VCProofState(self.vcs[n], self.ctx, _parent=self)

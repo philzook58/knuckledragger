@@ -224,6 +224,38 @@ def Some(x: smt.ExprRef) -> smt.DatatypeRef:
     return OptionSort(x.sort()).Some(x)
 
 
+Complex = datatype.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
+
+z, w, u, z1, z2 = smt.Consts("z w u z1 z2", Complex)
+complex_add = notation.add.define([z1, z2], Complex.C(z1.re + z2.re, z1.im + z2.im))
+complex_mul = notation.mul.define(
+    [z1, z2], Complex.C(z1.re * z2.re - z1.im * z2.im, z1.re * z2.im + z1.im * z2.re)
+)
+complex_div = notation.div.define(
+    [z1, z2],
+    Complex.C(
+        (z1.re * z2.re + z1.im * z2.im) / (z2.re**2 + z2.im**2),
+        (z1.im * z2.re - z1.re * z2.im) / (z2.re**2 + z2.im**2),
+    ),
+)
+J = Complex.C(0, 1)
+complex_one = Complex.C(1, 0)
+
+
+def ComplexSort() -> smt.DatatypeSortRef:
+    """
+    >>> C = ComplexSort()
+    >>> z, w = smt.Consts("z w", C)
+    >>> full_simp(J + J)
+    C(0, 2)
+    >>> full_simp(J * J)
+    C(-1, 0)
+    >>> full_simp(J / J)
+    C(1, 0)
+    """
+    return Complex
+
+
 def Assoc(f, T=None) -> smt.BoolRef:
     """
     >>> Assoc(smt.Function("f", smt.IntSort(), smt.IntSort(), smt.IntSort()))
