@@ -140,6 +140,10 @@ abs_neg = kd.prove(ForAll([x], abs(-x) == abs(x)), by=[abs.defn])
 abs_pos = kd.prove(ForAll([x], abs(x) >= 0), by=[abs.defn])
 abs_add = kd.prove(ForAll([x, y], abs(x + y) <= abs(x) + abs(y)), by=[abs.defn])
 abs_mul = kd.prove(ForAll([x, y], abs(x * y) == abs(x) * abs(y)), by=[abs.defn])
+abs_div = kd.prove(
+    ForAll([x, y], smt.Implies(y != 0, abs(x / y) == abs(x) / abs(y))),
+    by=[abs.defn],
+)
 abs_triangle = kd.prove(
     ForAll([x, y, z], abs(x - y) <= abs(x - z) + abs(z - y)), by=[abs.defn]
 )

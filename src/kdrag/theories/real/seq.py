@@ -61,6 +61,8 @@ mul = kd.notation.mul.define([a, b], smt.Lambda([i], a[i] * b[i]))
 div = kd.notation.div.define([a, b], smt.Lambda([i], a[i] / b[i]))
 neg = kd.notation.neg.define([a], smt.Lambda([i], -a[i]))
 
+smul = kd.define("smul", [x, a], smt.Lambda([n], x * a[n]))
+
 
 rev_rev = kd.prove(rev(rev(A)) == A, by=[rev.defn]).forall([A])
 shift_shit = kd.prove(
