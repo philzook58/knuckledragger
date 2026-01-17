@@ -2,6 +2,8 @@ import kdrag.parsers as parsers
 import kdrag.solvers.prolog as prolog
 import kdrag.parsers.tptp as tptp
 import kdrag.parsers.smtlib as smtlib
+import kdrag.parsers.microlean as microlean
+import kdrag.theories.real.seq as seq
 import lark
 import kdrag.smt as smt
 
@@ -33,3 +35,18 @@ def test_smtlib():
     (get-model)
     """
     t = smtlib.parser.parse(ex1)
+
+
+def test_microlean_did_you_mean():
+    ex1 = "has_lim (fun (n : Int) => n) 0"
+    try:
+        microlean.parse(ex1, {"seq": seq})
+    except NameError as exc:
+        assert "seq.has_lim" in str(exc)
+    else:
+        raise AssertionError("Expected NameError with suggestion")
+
+
+def test_microlean_decimal_is_real():
+    t = microlean.parse("1.0", {})
+    assert t.eq(smt.RealVal("1.0"))

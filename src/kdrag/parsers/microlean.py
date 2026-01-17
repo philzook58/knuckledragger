@@ -8,6 +8,7 @@ Reloading your window will enable access via backslash autocomplete commands.
 For example \\alpha will tab autocomplete to α.
 """
 
+import difflib
 import lark
 import kdrag.smt as smt
 from lark import Tree
@@ -62,7 +63,7 @@ axiom : "axiom" NAME ":" expr
 theorem : "theorem" NAME ":" expr ":=" "grind"
 
 NAME: /[a-zA-Z_][a-zA-Z0-9_']*/
-NUMBER: /-?\d+/
+NUMBER: /-?\d+(\.\d+)?/
 %import common.WS
 %ignore WS
 COMMENT: "--" /[^\n]*/
@@ -82,7 +83,25 @@ class Env(NamedTuple):
         elif key in self.globals:
             return self.globals[key]
         else:
-            raise KeyError(key)
+            # Suggest a close name in error
+            names = list(self.locals) + list(self.globals)
+            dotted = []
+            for name, value in self.globals.items():
+                if name.startswith("_"):
+                    continue
+                try:
+                    attrs = dir(value)
+                except Exception:
+                    continue
+                for attr in attrs:
+                    if attr.startswith("_"):
+                        continue
+                    dotted.append(f"{name}.{attr}")
+            hints = difflib.get_close_matches(str(key), names + dotted, n=3, cutoff=0.6)
+            msg = f"Unknown name {key!s}"
+            if hints:
+                msg += f". Did you mean: {', '.join(hints)}?"
+            raise NameError(msg)
 
     def __setitem__(self, key, value):
         self.locals[key] = value
@@ -166,7 +185,10 @@ def expr(tree, env: Env) -> smt.ExprRef:
     match tree:
         # TODO: obviously this is not well typed.
         case Tree("num", [n]):
-            return int(n)  # type: ignore
+            text = str(n)
+            if "." in text:
+                return smt.RealVal(text)
+            return int(text)
         case Tree("const", [name, *attrs]):
             res = env[name]  # type: ignore
             for attr in attrs:
