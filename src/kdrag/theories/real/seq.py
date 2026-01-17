@@ -11,7 +11,7 @@ R = real.R
 a, b, c = smt.Consts("a b c", RSeq)
 A, B, C = kd.FreshVars("A B C", RSeq)
 i, j, k, n, m, N = smt.Ints("i j k n m N")
-x, y, z, eps, delta = smt.Reals("x y z eps delta")
+x, y, z, eps, delta, M = smt.Reals("x y z eps delta M")
 
 zero = kd.define("zero", [], smt.K(smt.IntSort(), smt.RealVal(0)))
 const = kd.define("const", [x], smt.Lambda([i], x))
@@ -105,6 +105,14 @@ finsum = kd.define("finsum", [a, n], cumsum(a)[n])
 sin = kd.define("sin", [a], smt.Map(real.sin, a))
 cos = kd.define("cos", [a], smt.Map(real.cos, a))
 
+abs = kd.define("abs", [a], smt.Map(real.abs, a))
+
+
+has_bound = kd.define("has_bound", [a, M], kd.QForAll([n], real.abs(a[n]) <= M))
+is_bounded = kd.define("is_bounded", [a], smt.Exists([M], has_bound(a, M)))
+
+is_monotone = kd.define("is_monotone", [a], kd.QForAll([n, m], n <= m, a[n] <= a[m]))
+is_nonneg = kd.define("is_nonneg", [a], kd.QForAll([n], a[n] >= 0))
 
 # https://en.wikipedia.org/wiki/Cauchy_sequence
 
