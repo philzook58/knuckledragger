@@ -70,9 +70,9 @@ def forallI(
     >>> forallI(smt.ForAll([x], x > x - 1), lambda goal, x1: kd.prove(goal))
     |= ForAll(x, x > x - 1)
     """
-    assert isinstance(e, smt.QuantifierRef) and e.is_forall(), (
-        "forallI only works on forall quantifiers"
-    )
+    assert (
+        isinstance(e, smt.QuantifierRef) and e.is_forall()
+    ), "forallI only works on forall quantifiers"
     vs, ab = kd.kernel.herb(e)
     a = cb(ab.thm.arg(0), *vs)
     return kd.kernel.modus(ab, a)
@@ -796,13 +796,32 @@ class ProofState:
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
         return self
 
-    def obtain(self, n) -> smt.ExprRef | list[smt.ExprRef]:
+    def obtain(self, n: int | smt.QuantifierRef) -> smt.ExprRef | list[smt.ExprRef]:
         """
         obtain opens an exists quantifier in context and returns the fresh eigenvariable.
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
+
+        >>> x,y = smt.Ints("x y")
+        >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
+        >>> l.intros()
+        [Exists(x, x*x == y)] ?|= y >= 0
+        >>> _x = l.obtain(0)
+        >>> l
+        [x!...] ; [x!...*x!... == y] ?|= y >= 0
+        >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
+        >>> _ = l.intros()
+        >>> _x = l.obtain(smt.Exists([x], x * x == y))
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
+        if isinstance(n, smt.QuantifierRef):
+            for i, f in enumerate(ctx):
+                if f.eq(n):
+                    n = i
+                    break
+            else:
+                raise ValueError("obtain failed. Formula not in context", n)
+        assert isinstance(n, int)
         if n < 0:
             n = len(ctx) + n
         formula = ctx[n]
@@ -822,9 +841,16 @@ class ProofState:
             else:
                 return fs
         else:
-            raise ValueError("obtain failed. Not an exists")
+            exists_f = {
+                n: formula
+                for n, formula in enumerate(ctx)
+                if isinstance(formula, smt.QuantifierRef) and formula.is_exists()
+            }
+            raise ValueError(
+                "obtain failed. Not an exists", formula, "Available exists:", exists_f
+            )
 
-    def specialize(self, n, *ts):
+    def specialize(self, n: int | smt.QuantifierRef, *ts):
         """
         Instantiate a universal quantifier in the context.
 
@@ -836,6 +862,13 @@ class ProofState:
         [ForAll(x, x == y), 42 == y] ?|= True
         """
         goalctx = self.top_goal()
+        if isinstance(n, smt.QuantifierRef):
+            for i, f in enumerate(goalctx.ctx):
+                if f.eq(n):
+                    n = i
+                    break
+            else:
+                raise ValueError("Specialize failed. Formula not in context", n)
         thm = goalctx.ctx[n]
         if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
             l = kd.kernel.specialize(ts, thm)
@@ -843,7 +876,14 @@ class ProofState:
             self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [l.thm.arg(1)])
             return self
         else:
-            raise ValueError("Specialize failed. Not a forall", thm)
+            foralls = {
+                n: formula
+                for n, formula in enumerate(goalctx.ctx)
+                if isinstance(formula, smt.QuantifierRef) and formula.is_forall()
+            }
+            raise ValueError(
+                "Specialize failed. Not a forall", thm, "Available foralls:", foralls
+            )
 
     def ext(self, at=None):
         """
@@ -1203,7 +1243,9 @@ class ProofState:
             e = goalctx.ctx[at]
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls, trace=trace)
-            self.add_lemma(kd.prove(e == e2, by=trace))
+            for lem in trace:
+                self.add_lemma(lem)
+            # self.add_lemma(kd.prove(e == e2, by=trace))
             self.pop_goal()
             if at == -1:
                 at = len(goalctx.ctx) - 1

@@ -188,7 +188,7 @@ def expr(tree, env: Env) -> smt.ExprRef:
             text = str(n)
             if "." in text:
                 return smt.RealVal(text)
-            return int(text)
+            return int(text)  # type: ignore
         case Tree("const", [name, *attrs]):
             res = env[name]  # type: ignore
             for attr in attrs:
