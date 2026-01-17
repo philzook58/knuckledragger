@@ -304,8 +304,8 @@ def lim_unique_lean(l):
     l.specialize(hy, eps)
     l.have(real.abs(x - y) > 0, by=[real.abs_pos_iff])
     l.have(eps > 0, by=[])
-    n1 = smt.Int("N1")
-    n2 = smt.Int("N2")
+    n1 = smt.Int("N")  # "N1" is problem for alpha rename
+    n2 = smt.Int("N")  # "N2" is problem for alpha rename
     n = smt.Int("n")
     exists_x = kd.QExists(
         [n1],
@@ -315,7 +315,7 @@ def lim_unique_lean(l):
         [n2],
         kd.QForAll([n], n > n2, real.abs(a[n] - y) < eps),
     )
-    l.have(exists_x, by=[])
+    l.have(exists_x, by=[])  # unstable due to alpha rename?
     N1 = l.obtain(exists_x)
     l.have(exists_y, by=[])
     N2 = l.obtain(exists_y)
