@@ -143,6 +143,15 @@ abs_mul = kd.prove(ForAll([x, y], abs(x * y) == abs(x) * abs(y)), by=[abs.defn])
 abs_triangle = kd.prove(
     ForAll([x, y, z], abs(x - y) <= abs(x - z) + abs(z - y)), by=[abs.defn]
 )
+abs_eq_zero = kd.prove(
+    kd.QForAll([x], (abs(x) == 0) == (x == 0)),
+    by=[abs.defn],
+)
+
+abs_pos_iff = kd.prove(
+    kd.QForAll([x], (abs(x) > 0) == (x != 0)),
+    by=[abs_eq_zero, abs_pos],
+)
 
 
 nonneg = kd.define("nonneg", [x], abs(x) == x)

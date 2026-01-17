@@ -652,7 +652,7 @@ class ProofState:
                 )
             return self.top_goal()
         else:
-            raise ValueError("Intros failed.")
+            raise ValueError("Intros failed on goal", goal)
 
     def assumes(self, hyp: smt.BoolRef):
         """
@@ -791,7 +791,11 @@ class ProofState:
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
-        self.add_lemma(kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs))
+        try:
+            pf = kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs)
+        except Exception as _e:
+            raise ValueError("auto failed on goal", goalctx)
+        self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
         return self

@@ -97,6 +97,107 @@ cumsum = kd.define(
     ),
 )
 
+max = smt.Function("max", RSeq, RSeq)
+max = kd.define(
+    "max",
+    [a],
+    smt.Lambda(
+        [i],
+        smt.If(
+            i == 0,
+            a[0],
+            smt.If(
+                i > 0,
+                real.max(max(a)[i - 1], a[i]),
+                real.max(max(a)[i + 1], a[i]),
+            ),
+        ),
+    ),
+)
+
+
+@kd.Theorem(smt.ForAll([a, i], max(a)[i] >= a[i]))
+def max_ge_self(l):
+    a, i = l.fixes()
+    l.unfold(max)
+    l.auto(by=[real.max_ge_2])
+
+
+@kd.Theorem(
+    kd.QForAll(
+        [a, n],
+        n >= 0,
+        kd.QForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]),
+    )
+)
+def max_prefix_bound(l):
+    a, n = l.fixes()
+    # l.intros()
+    l.induct(n)  # Some weird stuff happened here
+    l.auto()  # n < 0
+    l.auto(by=[max.defn])  # n == 0. Kind of weird that we lose the equality...
+    n = l.fix()
+    l.intros()
+    l.split(at=0)
+    l.simp(at=-1)
+    i = smt.Int("i")
+    l.have(smt.ForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]), by=[])
+    l.beta()
+    l.intros()
+    i = l.fix()
+    l.intros()
+    l.specialize(2, i)
+    l.unfold(max)
+    l.simp()
+    l.unfold(real.max)
+    l.auto()
+
+
+max_bound = kd.prove(
+    kd.QForAll([a, n, i], n >= 0, i >= 0, i <= n, a[i] <= max(a)[n]),
+    by=[max_prefix_bound],
+)
+
+
+@kd.Theorem(
+    kd.QForAll(
+        [a, n],
+        n <= 0,
+        kd.QForAll([i], n <= i, i <= 0, a[i] <= max(a)[n]),
+    )
+)
+def max_suffix_bound(l):
+    a, n = l.fixes()
+    l.induct(n)
+    # step: n <= 0 -> n - 1
+    n = l.fix()
+    l.intros()
+    l.beta()
+    l.intros()
+    i = l.fix()
+    l.intros()
+    l.split(at=0)
+    l.cases(i == n - 1)
+    l.have(i == n - 1, by=[])
+    l.unfold(max)
+    l.simp()
+    l.unfold(real.max)
+    l.auto(by=[real.max_ge_2])
+    l.have(i != n - 1, by=[])
+    l.have(n <= i, by=[])
+    j = smt.Int("j")
+    l.have(kd.QForAll([j], n <= j, j <= 0, a[j] <= max(a)[n]), by=[])
+    l.specialize(-1, i)
+    l.have(a[i] <= max(a)[n], by=[])
+    l.unfold(max)
+    l.simp()
+    l.unfold(real.max)
+    l.auto(by=[real.max_ge])
+    # base: n == 0
+    l.auto(by=[max.defn])
+    # step: n >= 0 -> n + 1
+    l.auto()
+
 
 Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
 finsum = kd.define("finsum", [a, n], cumsum(a)[n])
@@ -185,6 +286,59 @@ def has_lim_inv(l):
     n = l.fix()
     l.assumes(n > smt.ToInt(1 / eps) + 1)
     l.unfold(real.abs)
+    l.auto()
+
+
+@kd.Theorem("forall (a : RSeq) (x y : Real), has_lim a x -> has_lim a y -> x = y")
+def lim_unique_lean(l):
+    a, x, y = l.fixes()
+    l.intros()
+    l.intros()
+    l.contra()
+    eps = real.abs(x - y) / 2
+    l.unfold(has_lim, at=0)
+    l.unfold(has_lim, at=1)
+    hx = l.top_goal().ctx[0]
+    hy = l.top_goal().ctx[1]
+    l.specialize(hx, eps)
+    l.specialize(hy, eps)
+    l.have(real.abs(x - y) > 0, by=[real.abs_pos_iff])
+    l.have(eps > 0, by=[])
+    n1 = smt.Int("N1")
+    n2 = smt.Int("N2")
+    n = smt.Int("n")
+    exists_x = kd.QExists(
+        [n1],
+        kd.QForAll([n], n > n1, real.abs(a[n] - x) < eps),
+    )
+    exists_y = kd.QExists(
+        [n2],
+        kd.QForAll([n], n > n2, real.abs(a[n] - y) < eps),
+    )
+    l.have(exists_x, by=[])
+    N1 = l.obtain(exists_x)
+    l.have(exists_y, by=[])
+    N2 = l.obtain(exists_y)
+    N = smt.If(N1 > N2, N1, N2) + 1
+    forall_x = kd.QForAll([n], n > N1, real.abs(a[n] - x) < eps)
+    forall_y = kd.QForAll([n], n > N2, real.abs(a[n] - y) < eps)
+    l.specialize(forall_x, N)
+    l.specialize(forall_y, N)
+    l.have(N > N1, by=[])
+    l.have(N > N2, by=[])
+    l.have(real.abs(a[N] - x) < eps, by=[])
+    l.have(real.abs(a[N] - y) < eps, by=[])
+    l.have(real.abs(x - a[N]) < eps, by=[real.abs_neg])
+    l.have(
+        real.abs(x - y) <= real.abs(x - a[N]) + real.abs(a[N] - y),
+        by=[real.abs_triangle(x, y, a[N])],
+    )
+    l.have(
+        real.abs(x - y) < eps + eps,
+        by=[real.abs_triangle(x, y, a[N])],
+    )
+    l.have(eps + eps == real.abs(x - y), by=[])
+    l.have(real.abs(x - y) < real.abs(x - y), by=[])
     l.auto()
 
 
