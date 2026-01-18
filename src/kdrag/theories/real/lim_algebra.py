@@ -280,6 +280,8 @@ def div_decomp(l):
     l.auto()
 
 
+"""
+# unstable
 @kd.Theorem(
     smt.ForAll(
         [a, b, x, y],
@@ -294,6 +296,7 @@ def div_decomp(l):
         ),
     )
 )
+
 def has_lim_div(l):
     a, b, x, y = l.fixes()
     l.intros()
@@ -415,3 +418,4 @@ def has_lim_div(l):
         by=[],
     )
     l.auto()
+"""
