@@ -657,6 +657,137 @@ def elem_pair(l):
     l.auto()
 
 
+# Cartesian product
+prod = kd.define(
+    "prod",
+    [A, B],
+    sep(
+        pow(pow(A | B)),
+        smt.Lambda(
+            [p],
+            kd.QExists([x, y], smt.And(elem(x, A), elem(y, B)), p == pair(x, y)),
+        ),
+    ),
+)
+
+kd.notation.mul.register(Set, prod)
+
+
+@kd.Theorem(
+    smt.ForAll(
+        [A, B, p],
+        elem(p, prod(A, B))
+        == smt.And(
+            kd.QExists([x, y], smt.And(elem(x, A), elem(y, B)), p == pair(x, y)),
+            elem(p, pow(pow(A | B))),
+        ),
+    )
+)
+def elem_prod_def(l):
+    _A, _B, _p = l.fixes()
+    l.unfold(prod)
+    l.rw(elem_sep)
+    l.auto()
+
+
+@kd.Theorem(
+    smt.ForAll(
+        [A, B, p],
+        elem(p, prod(A, B))
+        == smt.And(
+            elem(fst(p), A),
+            elem(snd(p), B),
+            p == pair(fst(p), snd(p)),
+        ),
+    )
+)
+def elem_prod(l):
+    A, B, p = l.fixes()
+    l.split()
+
+    # -> direction: extract witnesses from the product definition.
+    l.intros()
+    l.rw(elem_prod_def, at=0)
+    l.split(at=0)
+    x1, y1 = l.obtain(0)
+    l.split(at=0)
+    l.split()
+    l.rw(1)
+    l.rw(fst_pair)
+    l.auto()
+    l.rw(1)
+    l.rw(snd_pair)
+    l.auto()
+    l.rw(1)
+    l.rw(fst_pair)
+    l.rw(snd_pair)
+    l.auto()
+
+    # <- direction: use fst/snd as witnesses and show the pair lives in pow(pow(A | B)).
+    l.intros()
+    l.split(at=0)
+    l.rw(elem_prod_def)
+    l.split()
+    l.exists(fst(p), snd(p))
+    l.auto()
+    l.rw(elem_pow)
+    l.rw(-1)
+    l.unfold(le)
+    z = l.fix()
+    l.intros()
+    l.rw(elem_pair, at=-1)
+    l.split(at=-1)
+
+    # z = {fst(p), snd(p)} -> {fst(p), snd(p)} ⊆ A | B.
+    l.rw(-1)
+    l.rw(elem_pow)
+    l.unfold(le)
+    w = l.fix()
+    l.intros()
+    l.rw(elem_upair, at=-1)
+    l.split(at=-1)
+    l.rw(-1)
+    l.rw(elem_union)
+    l.auto()
+    l.rw(-1)
+    l.rw(elem_union)
+    l.auto()
+
+    # z = {fst(p)} -> {fst(p)} ⊆ A | B.
+    l.rw(-1)
+    l.rw(elem_pow)
+    l.unfold(le)
+    w = l.fix()
+    l.intros()
+    l.rw(elem_sing, at=-1)
+    l.rw(elem_union)
+    l.rw(-1)
+    l.auto()
+
+
+R = smt.Const("R", ZFSet)
+# Relations
+is_rel = kd.define("is_rel", [R], smt.ForAll([p], smt.Implies(elem(p, R), is_pair(p))))
+
+dom = kd.define(
+    "dom",
+    [R],
+    sep(
+        bigunion(bigunion(R)),
+        smt.Lambda([x], kd.QExists([y], elem(pair(x, y), R))),
+    ),
+)
+
+ran = kd.define(
+    "ran",
+    [R],
+    sep(
+        bigunion(bigunion(R)),
+        smt.Lambda([y], kd.QExists([x], elem(pair(x, y), R))),
+    ),
+)
+
+
 def test():
     """
     >>> True

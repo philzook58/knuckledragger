@@ -986,7 +986,7 @@ class ProofState:
                     )
                 )
             else:
-                raise ValueError("Split failed")
+                raise ValueError("Split failed on", ctx[at], "in context", ctx)
             return self
 
     def left(self, n=0):
@@ -1012,7 +1012,7 @@ class ProofState:
             )
             return self.top_goal()
         else:
-            raise ValueError("Left failed. Not an or")
+            raise ValueError("Left failed. Not an or", goal)
 
     def right(self):
         """
@@ -1033,7 +1033,7 @@ class ProofState:
             )
             return self.top_goal()
         else:
-            raise ValueError("Right failed. Not an or")
+            raise ValueError("Right failed. Not an or", goal)
 
     def exists(self, *ts) -> "ProofState":
         """
@@ -1513,7 +1513,7 @@ class ProofState:
         else:
             raise ValueError("Assumption tactic failed", goal, ctx)
 
-    def have(self, conc: smt.BoolRef, **kwargs) -> "ProofState":
+    def have(self, conc0: smt.BoolRef | str, **kwargs) -> "ProofState":
         """
         Prove the given formula and add it to the current context
 
@@ -1525,7 +1525,14 @@ class ProofState:
         [x > 0, x > -1] ?|= x > -2
         >>> l.have(x > 42)
         [x > 0, x > -1] ?|= x > 42
+        >>> l.have("x > 42")
+        [x > 0, x > -1] ?|= x > 42
         """
+        if isinstance(conc0, str):
+            l, g = kd.utils.calling_globals_locals()
+            conc = microlean.parse(conc0, g)
+        else:
+            conc = conc0
         assert isinstance(conc, smt.BoolRef)
         goalctx = self.pop_goal()
         self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))

@@ -223,7 +223,7 @@ def has_lim_mul(l):
     # Control |b[n]| using the triangle inequality.
     l.have(
         real.abs(b[n]) <= real.abs(b[n] - y) + real.abs(y),
-        by=[real.abs_triangle(b[n], 0, y)],
+        by=[real.abs_triangle(b[n], smt.RealVal(0), y)],
     )
     l.have(real.abs(b[n]) < real.abs(y) + 1, by=[])
     l.have(real.abs(b[n]) <= real.abs(y) + 1, by=[])
