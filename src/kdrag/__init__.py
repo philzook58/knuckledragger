@@ -224,6 +224,40 @@ def Some(x: smt.ExprRef) -> smt.DatatypeRef:
     return OptionSort(x.sort()).Some(x)
 
 
+@functools.cache
+def TupleSort(*elts: smt.SortRef) -> smt.DatatypeSortRef:
+    """
+    Define a Tuple type for given element types
+    >>> T = TupleSort(smt.IntSort(), smt.BoolSort())
+    >>> t = T(42, True)
+    >>> t
+    Tuple_Int_Bool(42, True)
+    >>> t._0
+    _0(Tuple_Int_Bool(42, True))
+    >>> t._1
+    _1(Tuple_Int_Bool(42, True))
+    """
+    name = "Tuple_" + "_".join(e.name() for e in elts)
+    Tuple = Inductive(name)
+    Tuple.declare(name, *[(f"_{i}", elt) for i, elt in enumerate(elts)])
+    return Tuple.create()
+
+
+def tuple_(*args: smt.ExprRef) -> smt.DatatypeRef:
+    """
+    Helper to create Tuple values
+    >>> t = tuple_(42, True)
+    >>> t
+    Tuple_Int_Bool(42, True)
+    >>> t.sort()
+    Tuple_Int_Bool
+    """
+    # debatably this should take in a iterator like built in python `tuple`
+    args1 = [smt._py2expr(a) for a in args]
+    T = TupleSort(*(a.sort() for a in args1))
+    return T(*args1)
+
+
 Complex = datatype.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
 
 z, w, u, z1, z2 = smt.Consts("z w u z1 z2", Complex)
