@@ -9,6 +9,7 @@ from collections import defaultdict
 import json
 import subprocess
 from typing import NamedTuple, Optional
+import kdrag.contrib.ir as ir
 
 kd_macro = r"""
 # For injection of SMT commands, e.g., declare-const
@@ -153,9 +154,9 @@ class AsmSpec:
         self.addrmap[addr].append(Assign(label, addr, name, expr))
 
     def find_label(self, label: str) -> int:
-        assert self.ctx.loader is not None, (
-            "BinaryContext must be loaded before disassembling"
-        )
+        assert (
+            self.ctx.loader is not None
+        ), "BinaryContext must be loaded before disassembling"
         sym = self.ctx.loader.find_symbol(label)
         if sym is None:
             raise Exception(f"Symbol {label} not found in binary {self.ctx.filename}")
@@ -629,7 +630,9 @@ class VCProofState(kd.tactics.ProofState):
             )
 
     def __repr__(self):
-        return super().__repr__() + f"\n\nfrom VC: {self.vc}"
+        goalctx = self.top_goal()
+        return repr(ir.Block.of_expr(goalctx.to_expr())) + f"\n\nfrom VC: {self.vc}"
+        # return super().__repr__() + f"\n\nfrom VC: {self.vc}"
 
 
 @dataclass(frozen=True)
@@ -684,9 +687,9 @@ class AsmProofState:
     def qed(self):
         assert all(isinstance(pf, kd.Proof) for pf in self.pfs)
         for vc in self.vcs:
-            assert any(pf.thm.eq(vc.vc(self.ctx)) for pf in self.pfs), (
-                f"VC not proved: {vc}"
-            )
+            assert any(
+                pf.thm.eq(vc.vc(self.ctx)) for pf in self.pfs
+            ), f"VC not proved: {vc}"
         return AsmProof(self.spec, tuple(self.pfs))  # Todo: More in here?
 
 
@@ -710,9 +713,9 @@ class Debug:
         self.spec = AsmSpec.of_file(filename, self.ctx)
 
     def label(self, label: str | int) -> int:
-        assert self.ctx.loader is not None, (
-            "BinaryContext must be loaded before disassembling"
-        )
+        assert (
+            self.ctx.loader is not None
+        ), "BinaryContext must be loaded before disassembling"
         if isinstance(label, str):
             sym = self.ctx.loader.find_symbol(label)
             if sym is None:

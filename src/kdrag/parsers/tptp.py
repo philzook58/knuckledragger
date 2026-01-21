@@ -85,7 +85,7 @@ ALPHA_NUMERIC        : (LOWER_ALPHA | UPPER_ALPHA | NUMERIC | "_")
 %ignore WS
 """
 
-term_parser = lark.Lark(term_grammar, start="term", parser="lalr")
+term_parser = lark.Lark(term_grammar, start="term", parser="lalr", cache=True)
 
 
 def test():

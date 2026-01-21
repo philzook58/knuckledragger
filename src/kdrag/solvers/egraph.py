@@ -2,7 +2,6 @@ import kdrag.smt as smt
 from dataclasses import dataclass
 from collections import defaultdict
 import itertools
-import copy
 import graphviz
 # TODO: prune on models
 
@@ -47,7 +46,8 @@ class EGraph:
         new.uf = self.uf.copy()
         self.reasons = self.reasons.copy()
         self.proof = self.proof
-        new.solver = copy.copy(self.solver)
+        new.solver.add(self.solver.assertions())
+        # new.solver = copy.copy(self.solver) # very slow
         return new
 
     def _find(self, eid: int) -> int:

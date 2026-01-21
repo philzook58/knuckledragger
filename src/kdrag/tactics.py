@@ -521,11 +521,13 @@ class ProofState:
         >>> import kdrag.theories.nat as nat
         >>> n = smt.Const("n", nat.Nat)
         >>> l = Lemma(smt.ForAll([n], nat.Z + n == n))
-        >>> ("kdrag.theories.nat.add_Z", nat.add_Z) in l.search().keys()
+        >>> db = kd.utils.lemma_db()
+        >>> res = l.search()
+        >>> ("kdrag.theories.nat.add_Z", nat.add_Z) in res
         True
-        >>> ("kdrag.theories.nat.add_S", nat.add_S) in l.search().keys()
+        >>> ("kdrag.theories.nat.add_S", nat.add_S) in res
         False
-        >>> ("kdrag.theories.nat.add_S", nat.add_S) in l.search(nat.add).keys()
+        >>> ("kdrag.theories.nat.add_S", nat.add_S) in l.search(nat.add,db=db)
         True
         """
         if at is not None:
@@ -653,6 +655,19 @@ class ProofState:
             return self.top_goal()
         else:
             raise ValueError("Intros failed on goal", goal)
+
+    def splintro(self):
+        """
+        Split and intro on a conjunction in the goal.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(smt.And(p, q), p))
+        >>> l.splintro()
+        [p, q] ?|= p
+        """
+        self.intros()
+        self.split(at=-1)
+        return self
 
     def assumes(self, hyp: smt.BoolRef):
         """

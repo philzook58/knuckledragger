@@ -11,8 +11,7 @@ import z3
 # s.environ.get('LD_LIBRARY_PATH', '') + ':' + 
 #os.environ['LD_LIBRARY_PATH'] = os.path.join(os.path.dirname(z3.__file__), 'lib')
 #os.environ["Z3_LIBRARY_PATH_OVERRIDE"] = so_path = os.path.join(os.path.dirname(z3.__file__), "lib")
-import kdrag.contrib.rust
-import kdragrs
+
 """
 print(open("/proc/self/maps").read())
 print(os.path.join(os.path.dirname(z3.__file__), "lib"))
@@ -23,7 +22,11 @@ print(os.path.join(os.path.dirname(z3.__file__), "lib"))
 #def test_version():
 #    assert kdragrs.full_version() == z3.get_version_string()
 
+@pytest.mark.slow
 def test_id():
+    from kdrag.contrib.rust import initialize
+    initialize()
+    import kdragrs
     x = z3.Int('x')
     #serial = x.serialize()
     x1 = kdragrs.my_id(x + 1)
@@ -31,6 +34,10 @@ def test_id():
 
 @pytest.mark.slow
 def test_rust():
+    from kdrag.contrib.rust import initialize
+    initialize()
+
+    import kdragrs
     try:
         shutil.rmtree("/tmp/kdrag_rust")
     except FileNotFoundError:

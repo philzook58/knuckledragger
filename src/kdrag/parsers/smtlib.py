@@ -27,7 +27,7 @@ NUMBER : /\d+/
 %ignore WS
 """
 
-parser = lark.Lark(grammar, start="start", parser="lalr")
+parser = lark.Lark(grammar, start="start", parser="lalr", cache=True)
 
 
 sexp_grammar = r"""

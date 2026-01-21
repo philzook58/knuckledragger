@@ -26,7 +26,7 @@ def rlemma(thm, by=[], **kwargs):
     return kd.prove(thm, by + real_db + real_simp, **kwargs)
 
 
-x, y, z = smt.Reals("x y z")
+x, y, z, eps = smt.Reals("x y z eps")
 
 f, g = smt.Consts("f g", RFun)
 fadd = kd.notation.add.define([f, g], smt.Lambda([x], f[x] + g[x]))
@@ -155,6 +155,25 @@ abs_eq_zero = kd.prove(
 abs_pos_iff = kd.prove(
     kd.QForAll([x], (abs(x) > 0) == (x != 0)),
     by=[abs_eq_zero, abs_pos],
+)
+
+
+aeq = kd.define("aeq", [x, y, eps], smt.Abs(x - y) <= eps)
+aeq_pos = kd.prove(kd.QForAll([x, y, eps], aeq(x, y, eps), eps >= 0), by=[aeq.defn])
+aeq_refl = kd.prove(kd.QForAll([x], aeq(x, x, 0)), by=[aeq.defn])
+aeq_symm = kd.prove(
+    kd.QForAll([x, y, eps], aeq(x, y, eps) == aeq(y, x, eps)), by=[aeq.defn]
+)
+eps1, eps2 = smt.Reals("eps1 eps2")
+aeq_trans = kd.prove(
+    kd.QForAll(
+        [x, y, z, eps], aeq(x, y, eps1), aeq(y, z, eps2), aeq(x, z, eps1 + eps2)
+    ),
+    by=[aeq.defn],
+)
+aeq_weak = kd.prove(
+    kd.QForAll([x, y, eps1, eps2], eps1 <= eps2, aeq(x, y, eps1), aeq(x, y, eps2)),
+    by=[aeq.defn],
 )
 
 

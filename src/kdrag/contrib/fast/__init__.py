@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 import z3
 
+# import time
+# start = time.time()
 ffibuilder = FFI()
 
 ffibuilder.cdef("""
@@ -37,6 +39,8 @@ sys.path.insert(1, tmpdir)
 os.chdir(dir0)
 
 from _fast.lib import *  # noqa: E402, F403  # type: ignore
+
+# assert False, time.time() - start # 0.25s
 
 
 def ctxptr(ctx: z3.Context):

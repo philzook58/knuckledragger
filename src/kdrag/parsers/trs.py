@@ -36,7 +36,7 @@ example = """
 
 """
 
-parser = lark.Lark(grammar, start="start", parser="lalr")
+parser = lark.Lark(grammar, start="start", parser="lalr", cache=True)
 
 
 def test():

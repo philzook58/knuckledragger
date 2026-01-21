@@ -70,7 +70,9 @@ COMMENT: "--" /[^\n]*/
 %ignore COMMENT
 """
 
-parser = lark.Lark(grammar, start="start", parser="lalr")
+parser = lark.Lark(
+    grammar, start="start", parser="lalr", cache=True, cache_grammar=True
+)
 
 
 class Env(NamedTuple):
@@ -329,7 +331,7 @@ def lean(s: str, globals=None) -> smt.ExprRef:
     return parse(s, globals)
 
 
-inductive_parser = lark.Lark(grammar, start="inductive", parser="lalr")
+inductive_parser = lark.Lark(grammar, start="inductive", parser="lalr", cache=True)
 
 
 def inductive_of_tree(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
@@ -386,7 +388,7 @@ def define(tree: lark.Tree, env: Env) -> smt.FuncDeclRef:
     """
     Parse a definition.
 
-    >>> tree = lark.Lark(grammar, start="define", parser="lalr").parse("def add1 (x : Int) : Int := x + 1")
+    >>> tree = lark.Lark(grammar, start="define", parser="lalr", cache=True).parse("def add1 (x : Int) : Int := x + 1")
     >>> define(tree, Env(locals={}, globals={})).defn
     |= ForAll(x, add1(x) == x + 1)
     """
@@ -409,7 +411,7 @@ def axiom(tree: lark.Tree, env: Env) -> kd.kernel.Proof:
     """
     Parse an axiom.
 
-    >>> tree = lark.Lark(grammar, start="axiom", parser="lalr").parse("axiom add1_nonneg : forall x : Int, x >= x - 1")
+    >>> tree = lark.Lark(grammar, start="axiom", parser="lalr", cache=True).parse("axiom add1_nonneg : forall x : Int, x >= x - 1")
     >>> axiom(tree, Env(locals={}, globals={}))
     |= ForAll(x, x >= x - 1)
     """
@@ -426,7 +428,7 @@ def theorem(tree: lark.Tree, env: Env) -> kd.kernel.Proof:
     """
     Parse a theorem.
 
-    >>> tree = lark.Lark(grammar, start="theorem", parser="lalr").parse("theorem add1_nonneg : forall x : Int, x >= x - 1 := grind")
+    >>> tree = lark.Lark(grammar, start="theorem", parser="lalr", cache=True).parse("theorem add1_nonneg : forall x : Int, x >= x - 1 := grind")
     >>> theorem(tree, Env(locals={}, globals={}))
     |= ForAll(x, x >= x - 1)
     """

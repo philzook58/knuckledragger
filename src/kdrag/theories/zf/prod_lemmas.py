@@ -72,6 +72,8 @@ def elem_prod_fst_snd_eq(l):
     A, B, p = l.fixes()
     l.rw(zf.elem_prod)
     l.auto()
+
+
 @kd.Theorem(
     smt.ForAll(
         [R],
@@ -158,6 +160,7 @@ def rel_le_prod(l):
     l.rw(zf.snd_pair)
     l.auto()
 
+
 @kd.Theorem(
     smt.ForAll(
         [A, B, X],
@@ -167,7 +170,7 @@ def rel_le_prod(l):
 def prod_union_left(l):
     A, B, X = l.fixes()
     l.rw(zf.ext_ax)
-    p = l.fix()
+    _p = l.fix()
     l.rw(zf.elem_union)
     l.split()
 
@@ -254,6 +257,7 @@ def prod_inter_ge(l):
     l.auto()
     l.auto()
 
+
 @kd.Theorem(
     smt.ForAll(
         [A, B, X, Y],
@@ -263,7 +267,7 @@ def prod_inter_ge(l):
 def prod_inter_dist(l):
     A, B, X, Y = l.fixes()
     l.rw(zf.ext_ax)
-    p = l.fix()
+    _p = l.fix()
     l.split()
 
     # left -> right
@@ -301,7 +305,6 @@ def prod_inter_dist(l):
     l.auto()
 
 
-
 @kd.Theorem(
     smt.ForAll(
         [A, B, X],
@@ -311,7 +314,7 @@ def prod_inter_dist(l):
 def prod_union_right(l):
     A, B, X = l.fixes()
     l.rw(zf.ext_ax)
-    p = l.fix()
+    _p = l.fix()
     l.rw(zf.elem_union)
     l.split()
 
