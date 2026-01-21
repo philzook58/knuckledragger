@@ -60,7 +60,17 @@ jobs:
         #continue-on-error: true
       - name: Test with pytest
         run: |
-          uv run python -m pytest
+          uv run python -m pytest -v --tb=short
           #KNUCKLE_SOLVER=cvc5 pytest
+      - name: Generate timing report
+        if: always()
+        run: |
+          uv run python tools/timing_report.py --format=github >> $GITHUB_STEP_SUMMARY
+      - name: Upload timing report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: timing-report
+          path: .pytest_timing_report.json
       - name: Run pyright
         uses: jakebailey/pyright-action@v2
