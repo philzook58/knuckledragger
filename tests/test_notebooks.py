@@ -1,6 +1,5 @@
 import pytest
-import nbformat
-from nbclient import NotebookClient
+
 import subprocess
 import tempfile
 
@@ -23,6 +22,9 @@ notebooks = [
     ["tutorial.ipynb"] + notebooks,
 )
 def test_notebook_execution(notebook_path):
+    # These imports were making collection time very slow even for "not slow". Very strange
+    import nbformat
+    from nbclient import NotebookClient
     with open(notebook_path, "r", encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
     nb["cells"] = [

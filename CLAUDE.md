@@ -7,6 +7,13 @@
 - Recommend new features that this system is missing that Lean/Rocq/Isabelle/ACL2/Mizar might have
 - Record new learnings in this file to avoid repeating failures
 - I am worried about proof instability and solve time. So try to keep track of those.
+- Actually run the file using `time python` to make sure proofs go through. A file should not take longer than 0.5s
+- Do not just fill up on junk theorems with little content. Make theorems if useful, but sheer bulk of content is bad since I need to manually review it.
+- Some problems are things that should be improved. Do not always just silently find a workaround. Parser errors in valid lean syntax should be improved.
+- You may sometimes need new axioms (rarely), but ask me before you add them.
+- Add comments into proofs to explain the rough lines of what you are doing
+- Try to simplify proofs by factoring any common moves like `unfold` or `rw` above the branches of cases or splits.
+- Big jumps for the solver are slow, but so is too many little steps. There is a balance.
 - DO NOT try to be sneaky to get a proof though (mutating stuff, using python craziness). Knuckledragger relies on proper usage to remain sound.
 
 ## Library Usage
@@ -19,6 +26,8 @@ Knuckledragger is a python library for interactive theorem proving backed by Z3.
 - `smt.BoolRef` - Z3 boolean formula (theorems/propositions)
 - `smt.ExprRef` - Z3 expression (terms)
 - `smt.SortRef` - Z3 sorts/types (e.g., `smt.IntSort()`, `smt.RealSort()`)
+
+Many proof and tactic functions can also take a string in simple Lean-like syntax. This can improve readability and reduce verbosity
 
 ### Z3 Basics (from `kdrag.smt`)
 
