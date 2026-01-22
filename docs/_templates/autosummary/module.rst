@@ -1,17 +1,39 @@
 {{ fullname | escape | underline}}
 
+.. currentmodule:: {{ fullname }}
+
 .. automodule:: {{ fullname }}
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :member-order: bysource
+   :imported-members:
 
    {% block attributes %}
    {% if attributes %}
    .. rubric:: {{ _('Module Attributes') }}
 
-   .. autosummary::
    {% for item in attributes %}
-      {{ item }}
-   {%- endfor %}
+   .. autodata:: {{ item }}
+      :annotation:
+
+   {% endfor %}
    {% endif %}
    {% endblock %}
+
+.. rubric:: Proof Objects
+
+{# Dynamically generate autodata directives for Proof objects #}
+{% set modobj = modules[fullname] if fullname in modules else None %}
+{% if modobj %}
+{%- for name, obj in modobj.__dict__.items() if not name.startswith('_') %}
+{%- if obj.__class__.__name__ == 'Proof' %}
+
+.. autodata:: {{ name }}
+   :no-value:
+{% endif %}
+{%- endfor %}
+{% endif %}
 
    {% block functions %}
    {% if functions %}
