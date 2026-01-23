@@ -81,7 +81,7 @@ def has_lim_smul(l):
         seq.has_lim(a, x),
         seq.has_lim(b, y),
         seq.has_lim(a + b, x + y),
-    )
+    ),
 )
 def has_lim_add(l):
     a, b, x, y = l.fixes()
@@ -146,7 +146,7 @@ def has_lim_add(l):
         seq.has_lim(a, x),
         seq.has_lim(b, y),
         seq.has_lim(a * b, x * y),
-    )
+    ),
 )
 def has_lim_mul(l):
     a, b, x, y = l.fixes()

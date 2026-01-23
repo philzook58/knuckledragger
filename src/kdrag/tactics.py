@@ -1853,6 +1853,7 @@ def Theorem(
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
+        start = time.perf_counter()
         if timing:
             print("Starting theorem", f.__name__)
             l = ProofStateProxy(
@@ -1866,6 +1867,9 @@ def Theorem(
             l = kd.Lemma(goal1)
         f(l)
         pf = l.qed()
+        if timing:
+            end = time.perf_counter()
+            print(f"Theorem {f.__name__} took {end - start:.4f} seconds")
         # To override metadata of the returned proof
         # Proof is frozen, so this is a bit fishy
         # @functools.update_wrapper had assumptions about return type being a function
