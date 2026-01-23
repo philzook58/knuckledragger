@@ -6,6 +6,7 @@ import kdrag as kd
 import kdrag.smt as smt
 import kdrag.config
 import kdrag.rewrite
+import kdrag.solvers as solvers
 from enum import IntEnum
 import operator as op
 from typing import NamedTuple, Optional, Sequence, Callable
@@ -818,6 +819,54 @@ class ProofState:
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
         return self
+
+    def vampire(self, by=[], admit=False):
+        """
+        Call vampire to see if the current goal is solvable.
+        Currently a sanity check only.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, p))
+        >>> l.vampire()
+        Vampire proved the goal
+        [] ?|= Implies(p, p)
+        """
+        solver = solvers.VampireSolver()
+        solver.add(by)
+        solver.add(smt.Not(self.top_goal().to_expr()))
+        res = solver.check()
+        if res == smt.sat:
+            raise ValueError("Vampire failed to prove the goal", self.top_goal())
+        elif res == smt.unsat:
+            print("Vampire proved the goal")
+            if admit:
+                self.pop_goal()
+                self.add_lemma(kd.kernel.prove(self.top_goal().to_expr(), admit=True))
+            return self
+
+    def cvc5(self, by=[], admit=False):
+        """
+        Call cvc5 to see if the current goal is solvable.
+        Currently a sanity check only.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, p))
+        >>> l.cvc5()
+        cvc5 proved the goal
+        [] ?|= Implies(p, p)
+        """
+        solver = solvers.CVC5Solver()
+        solver.add(by)
+        solver.add(smt.Not(self.top_goal().to_expr()))
+        res = solver.check()
+        if res == smt.sat:
+            raise ValueError("cvc5 failed to prove the goal", self.top_goal())
+        elif res == smt.unsat:
+            print("cvc5 proved the goal")
+            if admit:
+                self.pop_goal()
+                self.add_lemma(kd.kernel.prove(self.top_goal().to_expr(), admit=True))
+            return self
 
     def obtain(self, n: int | smt.QuantifierRef) -> smt.ExprRef | list[smt.ExprRef]:
         """

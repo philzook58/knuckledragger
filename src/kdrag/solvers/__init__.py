@@ -436,6 +436,49 @@ class VampireSolver(BaseSolver):
         return res
 
 
+class CVC5Solver(BaseSolver):
+    """
+
+    >>> solver = CVC5Solver()
+    >>> x, y = smt.Reals("x y")
+    >>> solver.add(x > x - 1)
+    >>> solver.check()
+    sat
+    >>> solver.add(x > x + 1)
+    >>> solver.check()
+    unsat
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def check(self):
+        with open("/tmp/cvc5.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
+            self.write_smt(fp)
+            fp.write("(check-sat)\n")
+            fp.flush()
+        cmd = [
+            "cvc5",
+            "--lang",
+            "smt2.6",
+            fp.name,
+        ]
+        if "timeout" in self.options:
+            cmd.extend(
+                ["--tlimit", str(self.options["timeout"])]
+            )  # cvc5 uses milliseconds
+
+        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = self.res.stdout
+        if b"unsat" in res:
+            self.status = smt.unsat
+            return smt.unsat
+        elif b"sat" in res:
+            return smt.sat
+        else:
+            return smt.unknown
+
+
 class VampireTHFSolver(BaseSolver):
     def __init__(self):
         super().__init__()
