@@ -537,6 +537,10 @@ class ProofState:
         else:
             return kd.utils.search(*args, db=db)
 
+    @property
+    def ctx(self):
+        return self.top_goal().ctx
+
     def fixes(self, prefixes=None) -> list[smt.ExprRef]:
         """fixes opens a forall quantifier. ?|= forall x, p(x) becomes x ?|= p(x)
 
@@ -1673,8 +1677,18 @@ class ProofState:
 _TRUE = kd.kernel.prove(smt.BoolVal(True))
 
 
+class ProofStateProxy(ProofState):
+    def auto(self, **kwargs):
+        start = time.perf_counter()
+        goal = self.top_goal()
+        res = super().auto(**kwargs)
+        end = time.perf_counter()
+        print(f"Auto tactic on {goal} took {end - start:.4f} seconds")
+        return res
+
+
 def Theorem(
-    goal: smt.BoolRef | str,
+    goal: smt.BoolRef | str, timing=False
 ) -> Callable[[Callable[[ProofState], None]], kd.kernel.Proof]:
     """
     A decorator to create a theorem from a function that takes a `ProofState` as argument.
@@ -1707,7 +1721,17 @@ def Theorem(
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
-        l = kd.Lemma(goal1)
+        if timing:
+            print("Starting theorem", f.__name__)
+            l = ProofStateProxy(
+                Goal(
+                    sig=[],
+                    ctx=[],
+                    goal=goal,
+                )
+            )
+        else:
+            l = kd.Lemma(goal1)
         f(l)
         pf = l.qed()
         # To override metadata of the returned proof
