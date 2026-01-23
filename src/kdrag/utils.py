@@ -1227,7 +1227,7 @@ def lemma_db() -> dict[str, kd.kernel.Proof]:
 
 
 def search_expr(
-    e: smt.ExprRef, pfs: dict[object, kd.kernel.Proof]
+    e: smt.ExprRef, pfs: dict[str, kd.kernel.Proof]
 ) -> dict[tuple[str, kd.kernel.Proof], Any]:
     """
     Search for expressions in the proof database that match `e` using pattern matching.
@@ -1265,7 +1265,7 @@ def search_expr(
 
 
 def search_decl(
-    f: smt.FuncDeclRef, db: dict[object, kd.kernel.Proof]
+    f: smt.FuncDeclRef, db: dict[str, kd.kernel.Proof]
 ) -> dict[tuple[str, kd.kernel.Proof], Any]:
     """
     Search for declarations in the proof database that contain function declaration f
@@ -1278,7 +1278,7 @@ def search_decl(
 
 
 def search(
-    *es: smt.FuncDeclRef | smt.ExprRef, db: dict[Any, kd.kernel.Proof] = {}
+    *es: smt.FuncDeclRef | smt.ExprRef, db: dict[str, kd.kernel.Proof] = {}
 ) -> dict[tuple[str, kd.kernel.Proof], Any]:
     """
     Search for function declarations or expressions.

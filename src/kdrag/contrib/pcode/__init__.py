@@ -509,9 +509,9 @@ class BinaryContext:
     def disassemble(self, addr):
         if addr in self.insn_cache:
             return self.insn_cache[addr]
-        assert self.loader is not None, (
-            "BinaryContext must be loaded before disassembling"
-        )
+        assert (
+            self.loader is not None
+        ), "BinaryContext must be loaded before disassembling"
         memory = self.loader.memory.load(addr, 0x128)  # 128 bytes? good enough?
         insns = self.ctx.disassemble(memory, addr, 0).instructions
         assert len(insns) > 0
@@ -523,9 +523,9 @@ class BinaryContext:
         if addr in self.pcode_cache:
             return self.pcode_cache[addr]
         insn = self.disassemble(addr)
-        assert self.loader is not None, (
-            "BinaryContext must be loaded before disassembling"
-        )
+        assert (
+            self.loader is not None
+        ), "BinaryContext must be loaded before disassembling"
         memory = self.loader.memory.load(addr, insn.length)
         ops = self.ctx.translate(memory, base_address=addr, offset=0).ops
         assert len(ops) > 0
@@ -702,8 +702,10 @@ class BinaryContext:
                 )
                 s = smt.Solver()
                 s.add([self.unfold(c) for c in path_cond])
-                s.add(self.unfold(pc1[0] == fresh_pc[0]))  # To seed them in the model
-                s.add(self.unfold(pc1[1] == fresh_pc[1]))
+                s.add(
+                    self.unfold(smt.Eq(pc1[0], fresh_pc[0]))
+                )  # To seed them in the model
+                s.add(self.unfold(smt.Eq(pc1[1], fresh_pc[1])))
                 while s.check() != smt.unsat:
                     m = s.model()  # smt.unknown should crash
                     vaddr, vpcode_pc = m.eval(fresh_pc[0]), m.eval(fresh_pc[1])

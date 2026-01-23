@@ -37,32 +37,36 @@ class EgglogSolver(solvers.BaseSolver):
         commands = self.egraph.parse_program(cmd)
         return self.egraph.run_program(*commands)
 
-    def add(self, thm: smt.ExprRef):
-        rule = thm
-        for sort in solvers.collect_sorts([rule]):
+    def add(self, thm: smt.BoolRef | list[smt.BoolRef]):
+        if isinstance(thm, list):
+            rules = thm
+        else:
+            rules = [thm]
+        for sort in solvers.collect_sorts(rules):
             if sort not in self.sorts:
                 self.run_cmd(f"(sort {sort.name()})")
                 self.sorts.add(sort)
-        for decl in solvers.collect_decls([rule]):
+        for decl in solvers.collect_decls(rules):
             if decl not in self.decls and decl.name() not in self.predefined_names:
                 dom = " ".join([decl.domain(i).name() for i in range(decl.arity())])
                 cmd = f"(constructor {decl.name()} ({dom}) {decl.range().name()})"
                 self.run_cmd(cmd)
                 self.decls.add(decl)
-        if isinstance(rule, smt.QuantifierRef):
-            assert rule.is_forall()
-            vs, r = kd.utils.open_binder(rule)
-            if r.decl().name() != "=":
-                raise ValueError("Only equality rules are supported", rule)
-            lhs, rhs = r.children()
-            cmd = f"(rewrite {z3_to_egglog(lhs,vars=vs)} {z3_to_egglog(rhs, vars=vs)})"
-            self.run_cmd(cmd)
-        else:
-            if rule.decl().name() != "=":
-                raise ValueError("Only equality rules are supported", rule)
-            lhs, rhs = rule.children()
-            cmd = f"(union {z3_to_egglog(lhs)} {z3_to_egglog(rhs)})"
-            self.run_cmd(cmd)
+        for rule in rules:
+            if isinstance(rule, smt.QuantifierRef):
+                assert rule.is_forall()
+                vs, r = kd.utils.open_binder(rule)
+                if r.decl().name() != "=":
+                    raise ValueError("Only equality rules are supported", rule)
+                lhs, rhs = r.children()
+                cmd = f"(rewrite {z3_to_egglog(lhs,vars=vs)} {z3_to_egglog(rhs, vars=vs)})"
+                self.run_cmd(cmd)
+            else:
+                if rule.decl().name() != "=":
+                    raise ValueError("Only equality rules are supported", rule)
+                lhs, rhs = rule.children()
+                cmd = f"(union {z3_to_egglog(lhs)} {z3_to_egglog(rhs)})"
+                self.run_cmd(cmd)
 
     def run(self, n):
         return self.run_cmd(f"(run {n})")

@@ -63,6 +63,7 @@ def normalize(xs: Telescope) -> _Tele:
     for v in xs:
         if isinstance(v, tuple):
             (v, T) = v
+            assert isinstance(v, smt.ExprRef) and smt.is_const(v)
             if T.sort() == smt.BoolSort():
                 assert isinstance(T, smt.BoolRef)
                 res.append((v, T))

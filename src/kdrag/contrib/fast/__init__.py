@@ -20,6 +20,7 @@ Z3_ast my_mk_true(Z3_context ctx);
 Z3_ast my_mk_and(Z3_context ctx, Z3_ast a, Z3_ast b);
 Z3_ast_vector KDRAG_get_consts(Z3_context ctx, Z3_ast t);
 """)
+assert z3.__file__ is not None
 z3lib = Path(z3.__file__).parent.absolute() / "lib"
 z3_include = Path(z3.__file__).parent.absolute() / "include"
 ffibuilder.set_source(

@@ -129,7 +129,7 @@ class BaseSolver:
         self.options: dict = {"lambda_lift": True}
         self.res: Optional[subprocess.CompletedProcess] = None
 
-    def add(self, thm: smt.BoolRef):
+    def add(self, thm: smt.BoolRef | list[smt.BoolRef]):
         if isinstance(thm, list):
             for t in thm:
                 self.add(t)

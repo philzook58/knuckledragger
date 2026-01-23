@@ -733,7 +733,7 @@ class ProofState:
             new = kd.utils.pathmap(smt.simplify, old, path)
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
-            self.add_lemma(kd.kernel.prove(old == new))
+            self.add_lemma(kd.kernel.prove(smt.Eq(old, new)))
             self.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )

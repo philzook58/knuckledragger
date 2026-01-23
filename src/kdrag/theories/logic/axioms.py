@@ -253,7 +253,7 @@ def rename_vars(
         raise Exception("Unknown quantifier type", t)
     if not t2.body().eq(t_body):
         raise ValueError("Cannot rename vars to ones that already occur in term", vs, t)
-    return t2, kd.axiom(t == t2, by=["rename", t, vs])
+    return t2, kd.axiom(smt.Eq(t, t2), by=["rename", t, vs])
 
 
 """
