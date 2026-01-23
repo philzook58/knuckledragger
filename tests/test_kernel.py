@@ -357,9 +357,9 @@ def test_no_mix_keyword():
 
 def test_smart_prove():
     x = smt.Int("x")
-    f = kd.define("f", [x], x + 1)
-    g = kd.define("g", [x], x + 1)
-    d = kd.define("d", [x], f(x))
+    f = kd.define("mysilly_f20", [x], x + 1)
+    g = kd.define("mysilly_g20", [x], x + 1)
+    d = kd.define("mysilly_d20", [x], f(x))
     kd.prove(smt.ForAll([x], f(x) == x + 1), unfold=1)
     kd.prove(
         smt.ForAll([x], f(x) == x + 1),

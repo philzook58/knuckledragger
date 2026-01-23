@@ -91,7 +91,8 @@ Inductive day : Type :=
   | saturday
   | sunday.
 """
-#from kdrag.all import *
+
+# from kdrag.all import *
 import kdrag as kd
 from kdrag import smt
 
@@ -118,15 +119,19 @@ Definition next_weekday (d:day) : day :=
   end.
 """
 d = smt.Const("d", day)
-next_weekday = kd.define("next_weekday", [d], kd.cond(
-    (d.is_monday, day.tuesday),
-    (d.is_tuesday, day.wednesday),
-    (d.is_wednesday, day.thursday),
-    (d.is_thursday, day.friday),
-    (d.is_friday, day.monday),
-    (d.is_saturday, day.monday),
-    (d.is_sunday, day.monday),
-))
+next_weekday = kd.define(
+    "next_weekday",
+    [d],
+    kd.cond(
+        (d.is_monday, day.tuesday),
+        (d.is_tuesday, day.wednesday),
+        (d.is_wednesday, day.thursday),
+        (d.is_thursday, day.friday),
+        (d.is_friday, day.monday),
+        (d.is_saturday, day.monday),
+        (d.is_sunday, day.monday),
+    ),
+)
 
 
 # %% [markdown]
@@ -155,7 +160,7 @@ kd.simp(next_weekday(next_weekday(day.saturday)))
 # interpreter under your favorite IDE (see the [Preface] for
 # installation instructions) and try it for yourself.  Load this
 # file, [Basics.v], from the book's Coq sources, find the above
-# example, submit it to Coq, and observe the result.) 
+# example, submit it to Coq, and observe the result.)
 #
 # Second, we can record what we _expect_ the result to be in the
 # form of a Coq example:
@@ -175,7 +180,7 @@ Having made the assertion, we can also ask Coq to verify it like
 this:
 """
 """Proof. simpl. reflexivity.  Qed."""
-#l.unfold(next_weekday, next_weekday)
+# l.unfold(next_weekday, next_weekday)
 l.auto(by=next_weekday.defn)
 l.qed()
 
@@ -201,7 +206,7 @@ l.qed()
 # We'll come back to this topic in later chapters.
 
 # %% [markdown]
-# ###  Homework Submission Guidelines 
+# ###  Homework Submission Guidelines
 #
 # (** If you are using _Software Foundations_ in a course, your
 #     instructor may use automatic scripts to help grade your homework
@@ -257,13 +262,13 @@ l.qed()
 #     that the grading scripts can use it for internal purposes. *)
 
 # %%
-#From Coq Require Export String.
+# From Coq Require Export String.
 
 # %% [markdown]
 # ### Booleans
 # Following the pattern of the days of the week above, we can
 # define the standard type [bool] of booleans, with members [true]
-# and [false]. 
+# and [false].
 
 # %%
 """Inductive bool : Type :=
@@ -274,7 +279,7 @@ bool = kd.Enum("bool", "true false")
 
 # %% [markdown]
 #  Functions over booleans can be defined in the same way as
-#     above: 
+#     above:
 
 # %%
 """
@@ -298,28 +303,42 @@ Definition orb (b1:bool) (b2:bool) : bool :=
 """
 
 
-
 b, b1, b2 = smt.Consts("b b1 b2", bool)
 
 
-negb = kd.define("negb", [b], kd.cond(
-    (b.is_true, bool.false),
-    (b.is_false, bool.true),
-))
-andb = kd.define("andb", [b1, b2], kd.cond(
-    (b1.is_true, b2),
-    (b1.is_false, bool.false),
-))
-orb = kd.define("orb", [b1, b2], kd.cond(
-    (b1.is_true, bool.true),
-    (b1.is_false, b2),
-))
+negb = kd.define(
+    "negb",
+    [b],
+    kd.cond(
+        (b.is_true, bool.false),
+        (b.is_false, bool.true),
+    ),
+)
+andb = kd.define(
+    "andb",
+    [b1, b2],
+    kd.cond(
+        (b1.is_true, b2),
+        (b1.is_false, bool.false),
+    ),
+)
+orb = kd.define(
+    "orb",
+    [b1, b2],
+    kd.cond(
+        (b1.is_true, bool.true),
+        (b1.is_false, b2),
+    ),
+)
 
-negb1 = kd.define("negb1", [b], 
-b.match_(
-  (bool.true, bool.false),
-  (bool.false, bool.true),
-))
+negb1 = kd.define(
+    "negb1",
+    [b],
+    b.match_(
+        (bool.true, bool.false),
+        (bool.false, bool.true),
+    ),
+)
 
 kd.prove(smt.ForAll([b], negb(b) == negb1(b)), by=[negb1.defn, negb.defn])
 
@@ -357,7 +376,7 @@ kd.prove(orb(bool.true, bool.true) == bool.true, by=orb.defn)
 # %% [markdown]
 # We can also introduce some familiar infix syntax for the
 # boolean operations we have just defined. The [Notation] command
-# defines a new symbolic notation for an existing definition. 
+# defines a new symbolic notation for an existing definition.
 #
 
 # %%
@@ -402,9 +421,9 @@ Definition orb' (b1:bool) (b2:bool) : bool :=
   if b1 then true
   else b2.
 """
-negb1 = kd.define("negb1", [b], smt.If(b1.is_true, bool.false, bool.true))
-andb1 = kd.define("andb1", [b1, b2], smt.If(b1.is_true, b2, bool.false))
-orb1 = kd.define("orb1", [b1, b2], smt.If(b1.is_true, bool.true, b2))
+negb2 = kd.define("negb2", [b], smt.If(b1.is_true, bool.false, bool.true))
+andb2 = kd.define("andb2", [b1, b2], smt.If(b1.is_true, b2, bool.false))
+orb2 = kd.define("orb2", [b1, b2], smt.If(b1.is_true, bool.true, b2))
 
 
 # %% [markdown]
@@ -630,19 +649,19 @@ color = color.create()
 # %%
 c = smt.Const("c", color)
 p = smt.Const("p", rgb)
-monochome = kd.define("monochrome", [c],
-                      c.match_(
-                          (color.black, bool.true),
-                          (color.white, bool.true),
-                          (color.primary(p), bool.false)
-                        )
-                      )
+monochome = kd.define(
+    "monochrome",
+    [c],
+    c.match_(
+        (color.black, bool.true),
+        (color.white, bool.true),
+        (color.primary(p), bool.false),
+    ),
+)
 
-isred = kd.define("isred", [c],
-                      c.match_(
-                          (color.primary(rgb.red), bool.true),
-                        default=bool.false)
-                      )
+isred = kd.define(
+    "isred", [c], c.match_((color.primary(rgb.red), bool.true), default=bool.false)
+)
 isred.defn
 
 # %% [markdown]
@@ -719,18 +738,13 @@ isred.defn
 bit = kd.Enum("bit", "B1 B0")
 nybble = kd.Struct("nybble", ("b0", bit), ("b1", bit), ("b2", bit), ("b3", bit))
 
-nybble(
-    b0=bit.B0,
-    b1=bit.B1,
-    b2=bit.B0,
-    b3=bit.B1
-)
+nybble(b0=bit.B0, b1=bit.B1, b2=bit.B0, b3=bit.B1)
 
 # %% [markdown]
 #
 #
 # (* ================================================================= *)
-# ## Numbers 
+# ## Numbers
 #
 # (** We put this section in a module so that our own definition of
 #     natural numbers does not interfere with the one from the
@@ -852,10 +866,7 @@ otherNat = otherNat.create()
 
 # %%
 n = smt.Const("n", Nat)
-pred = kd.define("pred", [n], n.match_(  
-    (Nat.O, Nat.O),
-    (Nat.S(n), n)
-))
+pred = kd.define("pred", [n], n.match_((Nat.O, Nat.O), (Nat.S(n), n)))
 pred.defn
 
 # %% [markdown]

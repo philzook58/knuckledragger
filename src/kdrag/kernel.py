@@ -263,6 +263,15 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     if f not in defns or defns[f].ax.thm.eq(def_ax.thm):
         defns[f] = defn
     else:
+        if config.strict_define:
+            raise ValueError(
+                "Redefining function",
+                f,
+                "from",
+                defns[f].ax,
+                "to",
+                def_ax.thm,
+            )
         print("WARNING: Redefining function", f, "from", defns[f].ax, "to", def_ax.thm)
         defns[f] = defn
     if len(args) == 0:

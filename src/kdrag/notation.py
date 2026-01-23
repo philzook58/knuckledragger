@@ -149,8 +149,9 @@ class SortDispatch:
         Shorthand to define a new function for this dispatch. Calls kdrag.define.
         """
         assert isinstance(self.name, str)
-        defn = kd.define(self.name, args, body)
-        self.register(args[0].sort(), defn)
+        sort = args[0].sort()
+        defn = kd.define(sort.name() + "." + self.name, args, body)
+        self.register(sort, defn)
         return defn
 
 

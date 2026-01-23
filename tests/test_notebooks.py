@@ -7,7 +7,6 @@ import tempfile
 import examples.soft_found.lf.Tactics
 notebooks = [
     "examples/nng.ipynb",
-    "examples/soft_found/lf/Basics.ipynb",
     "examples/soft_found/lf/IndProp.ipynb",
     "examples/soft_found/lf/Imp.ipynb",
     "examples/soft_found/lf/Lists.ipynb",

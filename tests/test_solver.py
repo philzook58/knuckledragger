@@ -224,7 +224,7 @@ def test_tao():
     T = smt.DeclareSort("T")
     x, y, z = smt.Consts("x y z", T)
     mul = smt.Function("mul", T, T, T)
-    kd.notation.mul.define([x, y], mul(x, y))
+    kd.notation.mul.register(T, mul)
 
     def check(s):
         s.add(smt.ForAll([x, y], (x * x) * y == y * x))

@@ -56,7 +56,7 @@ def Vec0(N: int) -> smt.DatatypeSortRef:
     >>> u[1]
     val(u)[X1]
     >>> dot(u, v)
-    dot(u, v)
+    Vec0_2.dot(u, v)
     """
     Fin = FinSort(N)
     S = kd.NewType("Vec0_" + str(N), smt.ArraySort(Fin, kd.R))
@@ -116,7 +116,7 @@ Vec3 = Vec(3)  # kd.Struct("Vec3", ("x", kd.R), ("y", kd.R), ("z", kd.R))
 u, v = kd.smt.Consts("u v", Vec3)
 # kd.notation.add.define([u, v], Vec3(u.x0 + v.x0, u.x1 + v.x1, u.x2 + v.x2))
 # kd.notation.sub.define([u, v], Vec3(u.x0 - v.x0, u.x1 - v.x1, u.x2 - v.x2))
-norm2.define([u], u.x0 * u.x0 + u.x1 * u.x1 + u.x2 * u.x2)
+# norm2.define([u], u.x0 * u.x0 + u.x1 * u.x1 + u.x2 * u.x2)
 
 cross = kd.define(
     "cross",

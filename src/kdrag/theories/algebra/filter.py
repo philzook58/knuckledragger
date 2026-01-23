@@ -32,7 +32,7 @@ class FilterMod:
     A module encapsulating filter theory over sets of type T.
 
     >>> FilterMod(smt.RealSort()).filter_full
-    |= ForAll(F, Implies(wf(F), sets(F)[K(Real, True)]))
+    |= ForAll(F, Implies(Filter_Real.wf(F), sets(F)[K(Real, True)]))
     """
 
     def __init__(self, T: smt.SortRef):
