@@ -76,6 +76,17 @@ sympy_env = {
 }
 
 
+def sympy_const(e: smt.ExprRef) -> sympy.Expr:
+    """
+    >>> x = smt.FreshReal("x")
+    >>> sympy_const(x)
+    x!...
+    """
+    assert e.sort() == smt.RealSort() and smt.is_const(e)
+    name = e.decl().name()
+    return sympy.Symbol(name, real=True)
+
+
 def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:  # type: ignore
     """
     Convert a z3 expression into a sympy expression.
@@ -98,7 +109,9 @@ def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:  # type: ignore
         vs, body = kdrag.utils.open_binder(res.lam)
         vs1 = []
         for v in vs:
-            v1 = sympy.Symbol(v.decl().name().replace("!", "__"), real=True)
+            v1 = sympy.Symbol(
+                v.decl().name().replace("!", "__"), real=True
+            )  # was this necessary?
             vs1.append(v1)
             locals[v.decl().name()] = v1
         return sympy.Lambda(
