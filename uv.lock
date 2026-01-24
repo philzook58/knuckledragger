@@ -403,6 +403,31 @@ wheels = [
 ]
 
 [[package]]
+name = "cvc5"
+version = "1.3.2"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/21/93218c54f176a8a7364b30eee06635816d6c8a70dfac25d1d19f6269d9a1/cvc5-1.3.2-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:d208c9eda9f0279cc31e36f5af2b7c057749b267f1766bd4a1f1c4aefe646218", size = 11249551, upload-time = "2025-12-12T19:31:34.89Z" },
+    { url = "https://files.pythonhosted.org/packages/32/95/4f0fbca600f3ab1f9703c2f059126a9578dc7b5adc144b54b8ca475315b3/cvc5-1.3.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:31ca0e5ba1592c85459f40e8559bc07dea1fcf7d59074a2abd07e3f2abf0ddf5", size = 9874483, upload-time = "2025-12-12T19:22:00.807Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/ee/0f6afc196b54606e3869628ae9c32e5236a466b7890b60e34ad5a6f740ee/cvc5-1.3.2-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:40938b5a7551ec0850d3945ed54a3249cb9d00fba7a4eec360e81e2a1f5cc1e5", size = 12937173, upload-time = "2025-12-12T19:21:46.071Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/60/6ac741e3a41505939de17c690fc13d2c1c668179bdd325d05b04afb5840e/cvc5-1.3.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:29d4c28e3399244b8df7c9e5154f3f8c47fcf9720dbd2dd38b2c59abc8b40e51", size = 13553046, upload-time = "2025-12-12T19:22:43.516Z" },
+    { url = "https://files.pythonhosted.org/packages/05/89/6a613db6a3d7787da6f59c75d365771c16e4b5b9c49c7d5f0608b5a0b950/cvc5-1.3.2-cp312-cp312-win_amd64.whl", hash = "sha256:62144306406721ef1b0d1d060ecb1b31624e98d1eeb2ed886b2f1673d04d6fc4", size = 11378562, upload-time = "2025-12-12T19:25:40.754Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/c0/b52f743fa7898ca5d2f02a94741390735fa327a2498f77666d06c80dc289/cvc5-1.3.2-cp312-cp312-win_arm64.whl", hash = "sha256:f1f0209a641723c33c94c4998cd56fc085a0ae136932680cd8e1995e94430d48", size = 10397031, upload-time = "2025-12-12T19:18:35.725Z" },
+    { url = "https://files.pythonhosted.org/packages/6d/6d/317b12e945d6a25eb883ea6cd69c7a9026766d392c0f3fbea5bc104f3a3f/cvc5-1.3.2-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:1d8bd54142131346a127ec9eebda155c961c05489909d6f16a5c29f1b38d6030", size = 11251574, upload-time = "2025-12-12T19:31:38.329Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/05/7dea9c68d0202e57d80d8dee2746093ff5bc56e2352628893300f917c76c/cvc5-1.3.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:f1ffd51587c2de76242e1857bc27dc482da8801391cd968f00d106de60473297", size = 9873729, upload-time = "2025-12-12T19:22:04.362Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/0e/737bbf2d9a7fa751990c5bced190502d289b5d7bd52a3cf2b3ef4d7a44e6/cvc5-1.3.2-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:fb4146591032ff9e542f126ed51def92bc88aa1315ce400b16c0d56e773d5a7a", size = 12909850, upload-time = "2025-12-12T19:21:49.161Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/f6/ee4b9e63265df90abe1bf889e40b553ac94c0a1565552c7dfaf7c584ef24/cvc5-1.3.2-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:f2671232073e45c84c1f0c807b9c398b1e321b695d031a4a61f2c4ae4664c797", size = 13540346, upload-time = "2025-12-12T19:22:45.953Z" },
+    { url = "https://files.pythonhosted.org/packages/07/e6/5f9d1a5ea894a186616d0bc7cb9e28284b225df2b73c8ea2a834b9e4d1c8/cvc5-1.3.2-cp313-cp313-win_amd64.whl", hash = "sha256:30565c03228b4eed78d21fbc86130f0b9c7b4454eec4364b0bc62f1a01f2266b", size = 11382654, upload-time = "2025-12-12T19:25:45.02Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/42/1a4e7a5548fcd7f8a5233bf871291f433b030fe44b970b73c29ea21a2b45/cvc5-1.3.2-cp313-cp313-win_arm64.whl", hash = "sha256:9b962b21635f83b46bd9a82d4f33f5e7d960b40b8b2eabad43f82172bcaaa659", size = 10399569, upload-time = "2025-12-12T19:18:39.687Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/29/5c0ad90f4cfba607314c05e75299a29131679581075be958cb11314bef71/cvc5-1.3.2-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:3baef0cef04cd4c956e91aab2c6937b0930f7c4d98454b11dc8a33f13a25e7b3", size = 11250529, upload-time = "2025-12-12T19:31:41.844Z" },
+    { url = "https://files.pythonhosted.org/packages/22/9a/c5df9c5a95c2033549766b7c324f6d7b0077ad0cb30a206aa7a12d4739e0/cvc5-1.3.2-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:1b1cee4e49db78d8053a509109cede9e768fb3353c3662f72cd28b3a2fb73762", size = 9875689, upload-time = "2025-12-12T19:22:07.541Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/c9/79b0b13939fd9bfaab2718942c631fed52dfe3afc81f8af98958571bd4c0/cvc5-1.3.2-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:2ab5ce33c38229c7c02d7190f9da4d99bf016a5d066be6d5b71d99747c334bd4", size = 12921324, upload-time = "2025-12-12T19:21:52.171Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/f7/9c4b3c299b83ebc0cbf2553b6abcf2c97155f69343898ae9e953eea505f8/cvc5-1.3.2-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:25bcf19294cb166fc4a4f4b5c77379707706f9fc215ecf581328050ada4865fc", size = 13543545, upload-time = "2025-12-12T19:22:49.016Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/0d/4527014526a3acdb4fdfb13ffaa84cd24964ad8e50eca8edb1582486e2e4/cvc5-1.3.2-cp314-cp314-win_amd64.whl", hash = "sha256:298ac4ab00d54aadde83cfd21fe886177446523bc0d4ace4bb3eb9b300f8611d", size = 11689458, upload-time = "2025-12-12T19:25:48.637Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/ac/8de00eb4f3392b667eb5fef2251e55b8bf427380e7d091af8b875f6d8e68/cvc5-1.3.2-cp314-cp314-win_arm64.whl", hash = "sha256:7e2a39dc267caacfa0f1fb23844c6cc58ddeeef9b1417d7e5e3ca1f51ac68e5f", size = 10869830, upload-time = "2025-12-12T19:18:43.784Z" },
+]
+
+[[package]]
 name = "debugpy"
 version = "1.8.12"
 source = { registry = "https://pypi.org/simple" }
@@ -955,6 +980,7 @@ rust = [
 solvers = [
     { name = "cffi" },
     { name = "cloudpickle" },
+    { name = "cvc5" },
     { name = "egglog" },
     { name = "graphviz" },
     { name = "python-flint" },
@@ -984,6 +1010,7 @@ requires-dist = [
     { name = "cle", marker = "extra == 'pypcode'", specifier = ">=9.2.148" },
     { name = "click", marker = "extra == 'pypcode'", specifier = ">=8.1.8" },
     { name = "cloudpickle", marker = "extra == 'solvers'", specifier = ">=3.1.2" },
+    { name = "cvc5", marker = "extra == 'solvers'", specifier = ">=1.3.2" },
     { name = "egglog", marker = "extra == 'solvers'", specifier = ">=9.0.0" },
     { name = "graphviz", marker = "extra == 'solvers'", specifier = ">=0.20.3" },
     { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.124.1" },

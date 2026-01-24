@@ -830,6 +830,7 @@ class ProofState:
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p, p))
         >>> l.vampire()
+        ...
         Vampire proved the goal
         [] ?|= Implies(p, p)
         """
