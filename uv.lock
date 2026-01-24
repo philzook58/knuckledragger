@@ -373,6 +373,15 @@ wheels = [
 ]
 
 [[package]]
+name = "cloudpickle"
+version = "3.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/fb/576f067976d320f5f0114a8d9fa1215425441bb35627b1993e5afd8111e5/cloudpickle-3.1.2.tar.gz", hash = "sha256:7fda9eb655c9c230dab534f1983763de5835249750e85fbcef43aaa30a9a2414", size = 22330, upload-time = "2025-11-03T09:25:26.604Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/88/39/799be3f2f0f38cc727ee3b4f1445fe6d5e4133064ec2e4115069418a5bb6/cloudpickle-3.1.2-py3-none-any.whl", hash = "sha256:9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a", size = 22228, upload-time = "2025-11-03T09:25:25.534Z" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -945,6 +954,7 @@ rust = [
 ]
 solvers = [
     { name = "cffi" },
+    { name = "cloudpickle" },
     { name = "egglog" },
     { name = "graphviz" },
     { name = "python-flint" },
@@ -958,6 +968,7 @@ yosys = [
 [package.dev-dependencies]
 dev = [
     { name = "jupyter" },
+    { name = "line-profiler" },
     { name = "nbclient" },
     { name = "pyright" },
     { name = "pytest" },
@@ -972,6 +983,7 @@ requires-dist = [
     { name = "cffi", marker = "extra == 'solvers'", specifier = ">=2.0.0" },
     { name = "cle", marker = "extra == 'pypcode'", specifier = ">=9.2.148" },
     { name = "click", marker = "extra == 'pypcode'", specifier = ">=8.1.8" },
+    { name = "cloudpickle", marker = "extra == 'solvers'", specifier = ">=3.1.2" },
     { name = "egglog", marker = "extra == 'solvers'", specifier = ">=9.0.0" },
     { name = "graphviz", marker = "extra == 'solvers'", specifier = ">=0.20.3" },
     { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.124.1" },
@@ -992,6 +1004,7 @@ provides-extras = ["dev", "yosys", "pypcode", "rust", "solvers"]
 [package.metadata.requires-dev]
 dev = [
     { name = "jupyter", specifier = ">=1.1.1" },
+    { name = "line-profiler", specifier = ">=5.0.0" },
     { name = "nbclient", specifier = ">=0.10.2" },
     { name = "pyright", specifier = ">=1.1.392.post0" },
     { name = "pytest", specifier = ">=8.3.4" },
@@ -1006,6 +1019,29 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/da/34/28fff3ab31ccff1fd4f6c7c7b0ceb2b6968d8ea4950663eadcb5720591a0/lark-1.3.1.tar.gz", hash = "sha256:b426a7a6d6d53189d318f2b6236ab5d6429eaf09259f1ca33eb716eed10d2905", size = 382732, upload-time = "2025-10-27T18:25:56.653Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/82/3d/14ce75ef66813643812f3093ab17e46d3a206942ce7376d31ec2d36229e7/lark-1.3.1-py3-none-any.whl", hash = "sha256:c629b661023a014c37da873b4ff58a817398d12635d3bbb2c5a03be7fe5d1e12", size = 113151, upload-time = "2025-10-27T18:25:54.882Z" },
+]
+
+[[package]]
+name = "line-profiler"
+version = "5.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ea/5c/bbe9042ef5cf4c6cad4bf4d6f7975193430eba9191b7278ea114a3993fbb/line_profiler-5.0.0.tar.gz", hash = "sha256:a80f0afb05ba0d275d9dddc5ff97eab637471167ff3e66dcc7d135755059398c", size = 376919, upload-time = "2025-07-23T20:15:41.819Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/73/d8/383c37c36f888c4ca82a28ffea27c589988463fc3f0edd6abae221c35275/line_profiler-5.0.0-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:729b18c0ac66b3368ade61203459219c202609f76b34190cbb2508b8e13998c8", size = 628109, upload-time = "2025-07-23T20:14:51.71Z" },
+    { url = "https://files.pythonhosted.org/packages/54/a3/75a27b1f3e14ae63a2e99f3c7014dbc1e3a37f56c91b63a2fc171e72990d/line_profiler-5.0.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:438ed24278c428119473b61a473c8fe468ace7c97c94b005cb001137bc624547", size = 489142, upload-time = "2025-07-23T20:14:52.993Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/85/f65cdbfe8537da6fab97c42958109858df846563546b9c234a902a98c313/line_profiler-5.0.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:920b0076dca726caadbf29f0bfcce0cbcb4d9ff034cd9445a7308f9d556b4b3a", size = 475838, upload-time = "2025-07-23T20:14:54.637Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/ea/cfa53c8ede0ef539cfe767a390d7ccfc015f89c39cc2a8c34e77753fd023/line_profiler-5.0.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:53326eaad2d807487dcd45d2e385feaaed81aaf72b9ecd4f53c1a225d658006f", size = 1402290, upload-time = "2025-07-23T20:14:56.775Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/2c/3467cd5051afbc0eb277ee426e8dffdbd1fcdd82f1bc95a0cd8945b6c106/line_profiler-5.0.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0e3995a989cdea022f0ede5db19a6ab527f818c59ffcebf4e5f7a8be4eb8e880", size = 1457827, upload-time = "2025-07-23T20:14:58.158Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/87/d5039608979b37ce3dadfa3eed7bf8bfec53b645acd30ca12c8088cf738d/line_profiler-5.0.0-cp312-cp312-musllinux_1_2_i686.whl", hash = "sha256:8bf57892a1d3a42273652506746ba9f620c505773ada804367c42e5b4146d6b6", size = 2497423, upload-time = "2025-07-23T20:15:01.015Z" },
+    { url = "https://files.pythonhosted.org/packages/59/3e/e5e09699e2841b4f41c16d01ff2adfd20fde6cb73cfa512262f0421e15e0/line_profiler-5.0.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:43672085f149f5fbf3f08bba072ad7014dd485282e8665827b26941ea97d2d76", size = 2439733, upload-time = "2025-07-23T20:15:02.582Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/cf/18d8fefabd8a56fb963f944149cadb69be67a479ce6723275cae2c943af5/line_profiler-5.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:446bd4f04e4bd9e979d68fdd916103df89a9d419e25bfb92b31af13c33808ee0", size = 460852, upload-time = "2025-07-23T20:15:03.827Z" },
+    { url = "https://files.pythonhosted.org/packages/7d/eb/bc4420cf68661406c98d590656d72eed6f7d76e45accf568802dc83615ef/line_profiler-5.0.0-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:9873fabbae1587778a551176758a70a5f6c89d8d070a1aca7a689677d41a1348", size = 624828, upload-time = "2025-07-23T20:15:05.315Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/6e/6e0a4c1009975d27810027427d601acbad75b45947040d0fd80cec5b3e94/line_profiler-5.0.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:2cd6cdb5a4d3b4ced607104dbed73ec820a69018decd1a90904854380536ed32", size = 487651, upload-time = "2025-07-23T20:15:06.961Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/2c/e60e61f24faa0e6eca375bdac9c4b4b37c3267488d7cb1a8c5bd74cf5cdc/line_profiler-5.0.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:34d6172a3bd14167b3ea2e629d71b08683b17b3bc6eb6a4936d74e3669f875b6", size = 474071, upload-time = "2025-07-23T20:15:08.607Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/d5/6f178e74746f84cc17381f607d191c54772207770d585fda773b868bfe28/line_profiler-5.0.0-cp313-cp313-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:e5edd859be322aa8252253e940ac1c60cca4c385760d90a402072f8f35e4b967", size = 1405434, upload-time = "2025-07-23T20:15:09.862Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/32/ce67bbf81e5c78cc8d606afe6a192fbef30395021b2aaffe15681e186e3f/line_profiler-5.0.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5d4f97b223105eed6e525994f5653061bd981e04838ee5d14e01d17c26185094", size = 1467553, upload-time = "2025-07-23T20:15:11.195Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/c1/431ffb89a351aaa63f8358442e0b9456a3bb745cebdf9c0d7aa4d47affca/line_profiler-5.0.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:4758007e491bee3be40ebcca460596e0e28e7f39b735264694a9cafec729dfa9", size = 2442489, upload-time = "2025-07-23T20:15:12.602Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/9d/e34cc99c8abca3a27911d3542a87361e9c292fa1258d182e4a0a5c442850/line_profiler-5.0.0-cp313-cp313-win_amd64.whl", hash = "sha256:213b19c4b65942db5d477e603c18c76126e3811a39d8bab251d930d8ce82ffba", size = 461377, upload-time = "2025-07-23T20:15:13.871Z" },
 ]
 
 [[package]]
