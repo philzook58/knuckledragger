@@ -15,6 +15,9 @@ from lark import Tree
 import kdrag as kd
 from typing import NamedTuple
 
+
+# TODO: let syntax
+# TODO: match syntax using datatype.datatype_match_
 grammar = r"""
 start: expr
 
@@ -34,8 +37,9 @@ start: expr
     | comparison (">=" | "≥" | "⊇") additive  -> ge
 ?additive: multiplicative
     | additive "+" multiplicative  -> add | additive "-" multiplicative  -> sub
-?multiplicative: application
-    | multiplicative "*" application  -> mul | multiplicative "/" application  -> div
+?multiplicative: unary
+    | multiplicative "*" unary  -> mul | multiplicative "/" unary  -> div
+?unary : application | "-" unary  -> neg
 ?application: atom atom* -> app
 ?atom: const | num | bool_ | "(" expr ")" | seq
 
@@ -214,6 +218,8 @@ def expr(tree, env: Env) -> smt.ExprRef:
             return expr(left, env) * expr(right, env)
         case Tree("div", [left, right]):
             return expr(left, env) / expr(right, env)
+        case Tree("neg", [e]):
+            return -expr(e, env)
         case Tree("eq", [left, right]):
             return smt.Eq(expr(left, env), expr(right, env))
         case Tree("neq", [left, right]):
@@ -334,22 +340,14 @@ def lean(s: str, globals=None) -> smt.ExprRef:
 inductive_parser = lark.Lark(grammar, start="inductive", parser="lalr", cache=True)
 
 
-def inductive_of_tree(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
+def _inductive_of_tree(tree: lark.Tree, globals) -> smt.DatatypeSortRef:
     """
     Parse an inductive datatype definition.
-
-    >>> tree = inductive_parser.parse("inductive nat where | zero : nat | succ : nat -> nat | fiz : Int -> Bool -> (Bool -> nat) -> nat")
-    >>> inductive_of_tree(tree).constructor(1)
-    succ
-    >>> inductive_of_tree(tree).accessor(1,0)
-    succ0
     """
-    if globals is None:
-        _, globals = kd.utils.calling_globals_locals()
     match tree:
         case Tree("inductive", [name, *constructors]):
             dt = kd.Inductive(str(name))
-            env = Env(locals={str(name): smt.DatatypeSort(name)}, globals=globals or {})
+            env = Env(locals={str(name): smt.DatatypeSort(name)}, globals=globals)
             for cons in constructors:
                 match cons:
                     case Tree("constructor", [cons_name, *sorts, self_name]):
@@ -367,7 +365,8 @@ def inductive_of_tree(tree: lark.Tree, globals=None) -> smt.DatatypeSortRef:
             raise ValueError("Unexpected lark.Tree in inductive", tree)
 
 
-# todo: allow dot const in sorts.
+# TODO: allow dot const in sorts.
+# TODO: support inductive relations
 def inductive(s: str, globals=None) -> smt.DatatypeSortRef:
     """
     Parse an inductive datatype definition.
@@ -377,19 +376,27 @@ def inductive(s: str, globals=None) -> smt.DatatypeSortRef:
     >>> Nat = kd.Nat
     >>> inductive("inductive foo where | mkfoo : Nat -> foo")
     foo
+    >>> nat = inductive("inductive nat where | zero : nat | succ : nat -> nat | fiz : Int -> Bool -> (Bool -> nat) -> nat")
+    >>> nat.constructor(1)
+    succ
+    >>> nat.accessor(1,0)
+    succ0
     """
     if globals is None:
         _, globals = kd.utils.calling_globals_locals()
     tree = inductive_parser.parse(s)
-    return inductive_of_tree(tree, globals)
+    return _inductive_of_tree(tree, globals)
 
 
-def define(tree: lark.Tree, env: Env) -> smt.FuncDeclRef:
+define_parser = lark.Lark(grammar, start="define", parser="lalr", cache=True)
+
+
+def _define_of_tree(tree: lark.Tree, env: Env) -> smt.FuncDeclRef:
     """
     Parse a definition.
 
-    >>> tree = lark.Lark(grammar, start="define", parser="lalr", cache=True).parse("def add1 (x : Int) : Int := x + 1")
-    >>> define(tree, Env(locals={}, globals={})).defn
+    >>> tree = define_parser.parse("def add1 (x : Int) : Int := x + 1")
+    >>> define_of_tree(tree, Env(locals={}, globals={})).defn
     |= ForAll(x, add1(x) == x + 1)
     """
     match tree:
@@ -405,6 +412,21 @@ def define(tree: lark.Tree, env: Env) -> smt.FuncDeclRef:
             return kd.define(str(name), vs, body)
         case _:
             raise ValueError("Unexpected lark.Tree in define", tree)
+
+
+def define(s: str, globals=None) -> smt.FuncDeclRef:
+    """
+    Parse a definition.
+
+    >>> define("def add1 (x : Int) : Int := x + 1").defn
+    |= ForAll(x, add1(x) == x + 1)
+    """
+    if globals is None:
+        locals, globals = kd.utils.calling_globals_locals()
+    else:
+        locals = {}
+    tree = define_parser.parse(s)
+    return _define_of_tree(tree, Env(locals=locals, globals=globals or {}))
 
 
 def axiom(tree: lark.Tree, env: Env) -> kd.kernel.Proof:

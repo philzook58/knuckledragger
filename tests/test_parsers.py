@@ -6,7 +6,7 @@ import kdrag.parsers.microlean as microlean
 import kdrag.theories.real.seq as seq
 import lark
 import kdrag.smt as smt
-
+import kdrag as kd
 
 def test_prolog():
     ex1 = """add(z,Y,Y).
@@ -49,6 +49,14 @@ def test_microlean_did_you_mean():
 def test_microlean_decimal_is_real():
     t = microlean.parse("1.0", {})
     assert t.eq(smt.RealVal("1.0"))
+
+def test_ldefine():
+    kd.ldefine("def foo192 (x : Int) : Int := x + 1")
+    y = smt.Bool("y")
+    assert microlean.define("def bar192 (x : Int) : Int := if y then x else -x") == smt.Function(
+        "bar192", smt.IntSort(), smt.IntSort())
+    assert kd.ldefine("def bar192 (x : Int) : Int := if y then x else -x") == smt.Function(
+        "bar192", smt.IntSort(), smt.IntSort())
 
 # https://tptp.org/UserDocs/TPTPWorldTutorial/LogicFOF.html
 fof_example = """

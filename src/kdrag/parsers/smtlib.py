@@ -1,3 +1,9 @@
+"""
+SMT-LIB is a format for Satisfiability Modulo Theories (SMT) solvers.
+Read more about it at https://smt-lib.org/
+
+"""
+
 import lark
 
 # WIP

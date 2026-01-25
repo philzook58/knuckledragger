@@ -89,6 +89,7 @@ search = utils.search
 
 lean = microlean.lean
 inductive = microlean.inductive
+ldefine = microlean.define
 
 # TODO: Remove this
 R = smt.RealSort()

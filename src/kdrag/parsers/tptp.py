@@ -1,3 +1,8 @@
+"""
+TPTP is a format for automated theorem provers.
+Read more about it at https://www.tptp.org/
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
