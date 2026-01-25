@@ -13,7 +13,7 @@ import lark
 import kdrag.smt as smt
 from lark import Tree
 import kdrag as kd
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 
 # TODO: let syntax
@@ -26,8 +26,9 @@ start: expr
 ?match: "match" expr "with" match_case+ -> match_
 match_case: "|" pattern ("=>" | "↦") expr -> match_case
 ?ite: quantifier | "if" expr "then" expr "else" expr -> if
-?quantifier: implication  | ("forall" | "∀") binders "," expr  -> forall_ | \
+?quantifier: iff  | ("forall" | "∀") binders "," expr  -> forall_ | \
     ("exists" | "∃") binders "," expr -> exists_ | ("fun" | "λ") binders ("=>" | "↦") expr -> fun_ | set
+?iff: implication | implication ("<->" | "↔") iff -> iff_
 ?implication: disjunction | disjunction ("->" | "→") implication  -> implies
 ?disjunction: conjunction | disjunction ("\\/" | "∨" | "||" | "∪" ) conjunction  -> or_
 ?conjunction: comparison  | conjunction ("/\\" | "∧" | "&&" | "∩") comparison  -> and_
@@ -42,7 +43,7 @@ match_case: "|" pattern ("=>" | "↦") expr -> match_case
     | additive "+" multiplicative  -> add | additive "-" multiplicative  -> sub
 ?multiplicative: unary
     | multiplicative "*" unary  -> mul | multiplicative "/" unary  -> div
-?unary : application | "-" unary  -> neg
+?unary : application | "-" unary  -> neg | "!" unary  -> not_ | "~~~" unary  -> bvnot
 ?application: atom atom* -> app
 ?atom: const | num | bool_ | "(" expr ")" | seq | char | string
 
@@ -254,7 +255,7 @@ def pattern(tree, env: Env, expected_sort: smt.SortRef | None) -> smt.ExprRef:
             raise ValueError("Unknown pattern tree", tree)
 
 
-def expr(tree, env: Env) -> smt.ExprRef:
+def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.ExprRef:
     match tree:
         # TODO: obviously this is not well typed.
         case Tree("num", [n]):
@@ -289,6 +290,10 @@ def expr(tree, env: Env) -> smt.ExprRef:
             return smt.And(expr(left, env), expr(right, env))
         case Tree("or_", [left, right]):
             return smt.Or(expr(left, env), expr(right, env))
+        case Tree("iff_", [left, right]):
+            l = expr(left, env)
+            r = expr(right, env)
+            return smt.Eq(l, r)
         case Tree("add", [left, right]):
             return expr(left, env) + expr(right, env)
         case Tree("sub", [left, right]):
@@ -299,6 +304,8 @@ def expr(tree, env: Env) -> smt.ExprRef:
             return expr(left, env) / expr(right, env)
         case Tree("neg", [e]):
             return -expr(e, env)
+        case Tree("not_", [e]):
+            return smt.Not(expr(e, env))
         case Tree("eq", [left, right]):
             return smt.Eq(expr(left, env), expr(right, env))
         case Tree("neq", [left, right]):
@@ -416,10 +423,10 @@ def parse(s: str, locals=None, globals=None) -> smt.ExprRef:
     Lambda(x, x > 0)
     >>> parse("if true && false then 1 + 1 else 0")
     If(And(True, False), 2, 0)
-    >>> parse("'a'").eq(smt.CharVal('a'))
-    True
-    >>> parse("\\"hello world\\"").eq(smt.StringVal("hello world"))
-    True
+    >>> assert parse("'a'").eq(smt.CharVal('a'))
+    >>> assert parse("\\"hello world\\"").eq(smt.StringVal("hello world"))
+    >>> assert parse("!true").eq(smt.Not(smt.BoolVal(True)))
+    >>> assert parse("true <-> false").eq(smt.Eq(smt.BoolVal(True), smt.BoolVal(False)))
     """
     env = Env(locals=locals or {}, globals=globals or {})
     return start(parser.parse(s), env)

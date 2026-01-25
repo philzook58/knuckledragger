@@ -1192,6 +1192,7 @@ class ProofState:
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         assert isinstance(goal, smt.QuantifierRef) and goal.is_exists()
+        # ts = []
         lemma = kd.kernel.forget(ts, goal)
         self.add_lemma(lemma)
         self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
@@ -1848,7 +1849,7 @@ def Theorem(
     """
     if isinstance(goal, str):
         l, g = kd.utils.calling_globals_locals()
-        goal1 = microlean.parse(goal, g)
+        goal1 = microlean.parse(goal, l, g)
     else:
         goal1 = goal
     assert isinstance(goal1, smt.BoolRef)
