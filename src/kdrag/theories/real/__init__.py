@@ -8,7 +8,6 @@ import kdrag.smt as smt
 import kdrag.theories.set as set_
 from kdrag.smt import ForAll
 import kdrag as kd
-import kdrag.property as prop
 
 T = smt.RealSort()
 
@@ -64,10 +63,6 @@ class Add:
     right_id = kd.prove(ForAll([x], add(x, 0) == x), by=[add.defn])
 
 
-AddComm: type[prop.Comm] = Add
-AddAssoc: type[prop.Assoc] = Add
-AddId: type[prop.Identity] = Add
-
 sub = kd.define("sub", [x, y], x - y)
 sub_0 = kd.prove(ForAll([x], sub(x, 0) == x), by=[sub.defn])
 sub_add = kd.prove(
@@ -98,8 +93,6 @@ class Mul:
     left_id = kd.prove(ForAll([x], mul(1, x) == x), by=[mul.defn])
     right_id = kd.prove(ForAll([x], mul(x, 1) == x), by=[mul.defn])
 
-
-MulAssoc: type[prop.Assoc] = Mul
 
 mul_distrib = kd.prove(
     ForAll([x, y, z], mul(x, add(y, z)) == add(mul(x, y), mul(x, z))),

@@ -1,3 +1,7 @@
+"""
+Printers for C, Rust, verilog, smtlib2, tptp, lean, etc
+"""
+
 import kdrag.smt as smt
 
 

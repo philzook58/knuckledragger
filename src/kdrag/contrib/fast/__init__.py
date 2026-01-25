@@ -1,3 +1,7 @@
+"""
+Experiments in C FFI
+"""
+
 from cffi import FFI
 import tempfile
 import os

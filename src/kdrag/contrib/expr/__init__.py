@@ -1,3 +1,7 @@
+"""
+A pure python implementation of an AST for expressions.
+"""
+
 from dataclasses import dataclass, field
 from typing import NamedTuple
 import enum

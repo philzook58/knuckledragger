@@ -1,10 +1,12 @@
-# Ghidra emulator
+"""
+Assembly verification via symbolic Ghidra emulator
 
-# https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Decompiler/src/decompile/cpp/emulate.cc
-# https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Decompiler/src/decompile/cpp/opbehavior.cc#L126
+https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Decompiler/src/decompile/cpp/emulate.cc
+https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Decompiler/src/decompile/cpp/opbehavior.cc#L126
 
-# https://htmlpreview.github.io/?https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_11.3.1_build/GhidraDocs/languages/html/sleigh.html
-# https://htmlpreview.github.io/?https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_11.3.1_build/GhidraDocs/languages/html/pcoderef.html
+https://htmlpreview.github.io/?https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_11.3.1_build/GhidraDocs/languages/html/sleigh.html
+https://htmlpreview.github.io/?https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_11.3.1_build/GhidraDocs/languages/html/pcoderef.html
+"""
 
 import pypcode
 from pypcode import OpCode

@@ -1,3 +1,7 @@
+"""
+Importing verilog to SMT via Yosys
+"""
+
 import kdrag.smt as smt
 import subprocess
 import json
