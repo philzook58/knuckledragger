@@ -215,7 +215,7 @@ def even_plus4(pf):
 
 @kd.Theorem("forall (n : Nat), exists (ev : Le), le_wf ev n n")
 def le_refl(pf):
-    n = pf.fix()
+    _n = pf.fix()
     pf.exists(Le.le_n)
     pf.auto(by=[le_wf.defn])
 
