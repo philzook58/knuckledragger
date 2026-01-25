@@ -41,6 +41,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y default-jre libcurl4-openssl-dev
+          sudo apt install -y cvc5
           #python -m pip install --upgrade pip
           #python -m pip install ruff pytest cvc5
           #python -m pip install -e .[dev,yosys,pypcode,rust]
