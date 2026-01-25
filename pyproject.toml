@@ -99,6 +99,7 @@ norecursedirs = [
     "solvers/gappa*",
     "solvers/Prover9",
     "examples/converted_notebooks",
+    "examples/soft_found",
 ]
 addopts = "--doctest-modules"
 doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
