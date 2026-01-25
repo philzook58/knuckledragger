@@ -17,7 +17,8 @@ from typing import NamedTuple
 
 
 # TODO: let syntax
-# TODO: match syntax using datatype.datatype_match_
+# TODO: sequence patterns [a,b,c,*args] or a :: b :: cs ?
+# TODO: string patterns
 grammar = r"""
 start: expr
 
@@ -43,7 +44,7 @@ match_case: "|" pattern ("=>" | "↦") expr -> match_case
     | multiplicative "*" unary  -> mul | multiplicative "/" unary  -> div
 ?unary : application | "-" unary  -> neg
 ?application: atom atom* -> app
-?atom: const | num | bool_ | "(" expr ")" | seq
+?atom: const | num | bool_ | "(" expr ")" | seq | char | string
 
 binders: binder+ | NAME ":" sort -> sing_binder
 ?binder: "(" NAME+ ":" sort ")" -> annot_binder | NAME -> infer_binder
@@ -55,6 +56,8 @@ const: NAME ("." NAME)*
 num: NUMBER
 bool_: ("true" | "True") -> true | ("false" | "False") -> false
 seq  : "[" expr ("," expr)* "]"
+char : "'" /./ "'"
+string : ESCAPED_STRING
 
 ?pattern: pat_app
 ?pat_app: pat_atom pat_atom* -> pat_app
@@ -76,6 +79,7 @@ NAME: /[a-zA-Z_][a-zA-Z0-9_']*/
 NUMBER: /-?\d+(\.\d+)?/
 %import common.WS
 %ignore WS
+%import common.ESCAPED_STRING
 COMMENT: "--" /[^\n]*/
 %ignore COMMENT
 """
@@ -220,8 +224,6 @@ def pattern(tree, env: Env, expected_sort: smt.SortRef | None) -> smt.ExprRef:
         case Tree("const", [name, *attrs]):
             if name in env.locals or name in env.globals:
                 res = env[name]  # type: ignore
-            elif attrs:
-                res = env[name]  # type: ignore
             else:
                 if expected_sort is None:
                     raise ValueError("Cannot infer sort for pattern variable", name)
@@ -240,7 +242,7 @@ def pattern(tree, env: Env, expected_sort: smt.SortRef | None) -> smt.ExprRef:
             return pattern(func, env, expected_sort)
         case Tree("pat_app", [func, *args]):
             func_val = _pattern_head(func, env)
-            if not isinstance(func_val, smt.FuncDeclRef):
+            if not isinstance(func_val, smt.FuncDeclRef):  # smt.is_constructor?
                 raise ValueError("Pattern head is not a constructor", func_val)
             if func_val.arity() != len(args):
                 raise ValueError("Constructor arity mismatch", func_val, len(args))
@@ -269,8 +271,20 @@ def expr(tree, env: Env) -> smt.ExprRef:
             return smt.BoolVal(True)
         case Tree("false", []):
             return smt.BoolVal(False)
+        case Tree("seq", []):
+            raise ValueError(
+                "Empty sequence is not currently allowed. Need to implement inference"
+            )
+        case Tree("seq", [item]):
+            return smt.Unit(smt._py2expr(expr(item, env)))
         case Tree("seq", items):
-            return smt.Concat(*[smt.Unit(expr(item, env)) for item in items])
+            return smt.Concat(
+                *[smt.Unit(smt._py2expr(expr(item, env))) for item in items]
+            )
+        case Tree("char", [c]):
+            return smt.CharVal(str(c))
+        case Tree("string", [s]):
+            return smt.StringVal(str(s)[1:-1])
         case Tree("and_", [left, right]):
             return smt.And(expr(left, env), expr(right, env))
         case Tree("or_", [left, right]):
@@ -315,6 +329,7 @@ def expr(tree, env: Env) -> smt.ExprRef:
                     args = args[len(doms) :]
                 return func
             else:
+                # It would be convenient to just try calls here, but that is kind of eval capabilities.
                 raise ValueError("Cannot apply non-function", func)
         case Tree("forall_", [vs, body]):
             return quant(vs, body, smt.ForAll, env)
@@ -390,6 +405,10 @@ def parse(s: str, locals=None, globals=None) -> smt.ExprRef:
     True
     >>> parse("[true, false]")
     Concat(Unit(True), Unit(False))
+    >>> parse("[1]")
+    Unit(1)
+    >>> parse("[1, 2]")
+    Concat(Unit(1), Unit(2))
     >>> q = smt.Const("x", smt.TupleSort("pair", [smt.IntSort(), smt.BoolSort()])[0])
     >>> parse("q.project1", {"q": q})
     project1(x)
@@ -397,6 +416,10 @@ def parse(s: str, locals=None, globals=None) -> smt.ExprRef:
     Lambda(x, x > 0)
     >>> parse("if true && false then 1 + 1 else 0")
     If(And(True, False), 2, 0)
+    >>> parse("'a'").eq(smt.CharVal('a'))
+    True
+    >>> parse("\\"hello world\\"").eq(smt.StringVal("hello world"))
+    True
     """
     env = Env(locals=locals or {}, globals=globals or {})
     return start(parser.parse(s), env)
