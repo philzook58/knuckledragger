@@ -4,6 +4,7 @@ import kdrag.parsers.tptp as tptp
 import kdrag.parsers.smtlib as smtlib
 import kdrag.parsers.microlean as microlean
 import kdrag.theories.real.seq as seq
+import kdrag.theories.nat as nat
 import lark
 import kdrag.smt as smt
 import kdrag as kd
@@ -39,7 +40,7 @@ def test_smtlib():
 def test_microlean_did_you_mean():
     ex1 = "has_lim (fun (n : Int) => n) 0"
     try:
-        microlean.parse(ex1, {"seq": seq})
+        microlean.parse(ex1, {}, {"seq": seq})
     except NameError as exc:
         assert "seq.has_lim" in str(exc)
     else:
@@ -49,6 +50,20 @@ def test_microlean_did_you_mean():
 def test_microlean_decimal_is_real():
     t = microlean.parse("1.0", {})
     assert t.eq(smt.RealVal("1.0"))
+
+def test_microlean_match_datatype():
+    n = smt.Const("n", nat.Nat)
+    m = smt.Const("m", nat.Nat)
+    parsed = microlean.lean(
+        "match n with | nat.Nat.S m => m | nat.Nat.Z => nat.Nat.Z"
+    )
+    default = parsed
+    while smt.is_if(default):
+        default = default.arg(2)
+    expected = kd.datatype.datatype_match_(
+        n, (nat.Nat.S(m), m), (nat.Nat.Z, nat.Nat.Z), default=default
+    )
+    assert parsed.eq(expected)
 
 def test_ldefine():
     kd.ldefine("def foo192 (x : Int) : Int := x + 1")

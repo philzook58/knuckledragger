@@ -21,7 +21,9 @@ from typing import NamedTuple
 grammar = r"""
 start: expr
 
-?expr: ite
+?expr: match | ite
+?match: "match" expr "with" match_case+ -> match_
+match_case: "|" pattern ("=>" | "↦") expr -> match_case
 ?ite: quantifier | "if" expr "then" expr "else" expr -> if
 ?quantifier: implication  | ("forall" | "∀") binders "," expr  -> forall_ | \
     ("exists" | "∃") binders "," expr -> exists_ | ("fun" | "λ") binders ("=>" | "↦") expr -> fun_ | set
@@ -53,6 +55,10 @@ const: NAME ("." NAME)*
 num: NUMBER
 bool_: ("true" | "True") -> true | ("false" | "False") -> false
 seq  : "[" expr ("," expr)* "]"
+
+?pattern: pat_app
+?pat_app: pat_atom pat_atom* -> pat_app
+?pat_atom: const | num | bool_ | "_" -> pat_wild | "(" pattern ")"
 
 set : "{" binders "|" expr "}"
 
@@ -187,6 +193,65 @@ def quant(vs, body_tree, q, env) -> smt.QuantifierRef:
     return res
 
 
+def _pattern_head(tree, env: Env) -> smt.ExprRef:
+    match tree:
+        case Tree("const", [name, *attrs]):
+            res = env[name]  # type: ignore
+            for attr in attrs:
+                res = getattr(res, str(attr))  # type: ignore
+            return res  # type: ignore
+        case Tree("pat_app", [inner]):
+            return _pattern_head(inner, env)
+        case _:
+            raise ValueError("Invalid pattern head", tree)
+
+
+def pattern(tree, env: Env, expected_sort: smt.SortRef | None) -> smt.ExprRef:
+    match tree:
+        case Tree("pat_wild", []):
+            if expected_sort is None:
+                raise ValueError("Cannot infer sort for wildcard pattern")
+            return smt.FreshConst(expected_sort)
+        case Tree("num", [n]):
+            text = str(n)
+            if "." in text:
+                return smt.RealVal(text)
+            return int(text)  # type: ignore
+        case Tree("const", [name, *attrs]):
+            if name in env.locals or name in env.globals:
+                res = env[name]  # type: ignore
+            elif attrs:
+                res = env[name]  # type: ignore
+            else:
+                if expected_sort is None:
+                    raise ValueError("Cannot infer sort for pattern variable", name)
+                res = smt.Const(str(name), expected_sort)
+                env[str(name)] = res
+            for attr in attrs:
+                res = getattr(res, str(attr))  # type: ignore
+            if isinstance(res, smt.FuncDeclRef) and res.arity() == 0:
+                return res()
+            return res  # type: ignore
+        case Tree("true", []):
+            return smt.BoolVal(True)
+        case Tree("false", []):
+            return smt.BoolVal(False)
+        case Tree("pat_app", [func]):
+            return pattern(func, env, expected_sort)
+        case Tree("pat_app", [func, *args]):
+            func_val = _pattern_head(func, env)
+            if not isinstance(func_val, smt.FuncDeclRef):
+                raise ValueError("Pattern head is not a constructor", func_val)
+            if func_val.arity() != len(args):
+                raise ValueError("Constructor arity mismatch", func_val, len(args))
+            pat_args = [
+                pattern(arg, env, func_val.domain(i)) for i, arg in enumerate(args)
+            ]
+            return func_val(*pat_args)
+        case _:
+            raise ValueError("Unknown pattern tree", tree)
+
+
 def expr(tree, env: Env) -> smt.ExprRef:
     match tree:
         # TODO: obviously this is not well typed.
@@ -264,14 +329,26 @@ def expr(tree, env: Env) -> smt.ExprRef:
             return t
         case Tree("if", [cond, then_, else_]):
             return smt.If(expr(cond, env), expr(then_, env), expr(else_, env))
+        case Tree("match_", [scrutinee, *cases]):
+            scrutinee_expr = expr(scrutinee, env)
+            newcases = []
+            for case in cases:
+                match case:
+                    case Tree("match_case", [pat_tree, body_tree]):
+                        case_env = env.copy()
+                        pat = pattern(pat_tree, case_env, scrutinee_expr.sort())
+                        body = expr(body_tree, case_env)
+                        newcases.append((pat, body))
+                    case _:
+                        raise ValueError("Unknown match case", case)
+            return kd.datatype.datatype_match_(scrutinee_expr, *newcases)
         case Tree("implies", [left, right]):
             return smt.Implies(expr(left, env), expr(right, env))
         case _:
             raise ValueError("Unknown parse tree", tree)
 
 
-def start(tree: lark.Tree, globals) -> smt.ExprRef:
-    env = Env(locals={}, globals=globals)
+def start(tree: lark.Tree, env: Env) -> smt.ExprRef:
     match tree:
         case Tree("start", [e]):
             res = expr(e, env)
@@ -281,7 +358,7 @@ def start(tree: lark.Tree, globals) -> smt.ExprRef:
             raise ValueError("Invalid parse tree", tree)
 
 
-def parse(s: str, globals=None) -> smt.ExprRef:
+def parse(s: str, locals=None, globals=None) -> smt.ExprRef:
     """
     Parse a logical expression into an SMT expression.
 
@@ -321,7 +398,8 @@ def parse(s: str, globals=None) -> smt.ExprRef:
     >>> parse("if true && false then 1 + 1 else 0")
     If(And(True, False), 2, 0)
     """
-    return start(parser.parse(s), globals)
+    env = Env(locals=locals or {}, globals=globals or {})
+    return start(parser.parse(s), env)
 
 
 def lean(s: str, globals=None) -> smt.ExprRef:
@@ -333,8 +411,10 @@ def lean(s: str, globals=None) -> smt.ExprRef:
     foo1 + 2
     """
     if globals is None:
-        _, globals = kd.utils.calling_globals_locals()
-    return parse(s, globals)
+        locals, globals = kd.utils.calling_globals_locals()
+    else:
+        locals = {}
+    return parse(s, locals, globals)
 
 
 inductive_parser = lark.Lark(grammar, start="inductive", parser="lalr", cache=True)
