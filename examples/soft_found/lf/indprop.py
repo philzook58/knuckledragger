@@ -47,7 +47,7 @@ collatz_holds_for_wf = kd.ldefine(
     "| Collatz_holds_for.chf_odd sub => (even n = false) /\\ collatz_holds_for_wf sub ((3 * n) + 1)"
 )
 
-print(collatz_holds_for_wf.defn)
+# print(collatz_holds_for_wf.defn)
 
 
 @kd.Theorem("exists (ev : Collatz_holds_for), collatz_holds_for_wf ev 1")
@@ -57,6 +57,7 @@ def collatz_1(pf):
     pf.auto(by=[collatz_holds_for_wf.defn])
 
 
+"""
 try:
     # We cannot yet finish this without better evaluation of recursive defines.
     @kd.Theorem("exists (ev : Collatz_holds_for), collatz_holds_for_wf ev 12")
@@ -69,7 +70,7 @@ try:
         pf.auto(by=[collatz_holds_for_wf.defn, div2.defn])
 except Exception as err:
     print("Expected failure (needs better Collatz evaluation):", err)
-
+"""
 
 # --------------------------------------------------------------------
 # A binary relation for <= on Nat.

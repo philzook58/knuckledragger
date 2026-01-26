@@ -115,14 +115,14 @@ BOOLTYPE             : "$o"
 """
 
 
-term_parser = lark.Lark(fof_grammar, start="term", parser="lalr", cache=True)
+term_parser = lark.Lark(fof_grammar, start="term", parser="lalr", cache=False)
 fof_parser = lark.Lark(fof_grammar, start="start", parser="lalr", cache=True)
 
 
 def test():
     """
     >>> term_parser.parse("f(Xy1,g(y23))")
-    Tree('fun_app', [Token('NAME', 'f'), Tree('arguments', [Tree('var', [Token('UPPER_WORD', 'Xy1')]), Tree('fun_app', [Token('NAME', 'g'), Tree('arguments', [Tree('const', [Token('NAME', 'y23')])])])])])
+    Tree('fun_app', [Token('NAME', 'f'), Tree(Token('RULE', 'arguments'), [Tree('var', [Token('UPPER_WORD', 'Xy1')]), Tree('fun_app', [Token('NAME', 'g'), Tree(Token('RULE', 'arguments'), [Tree('const', [Token('NAME', 'y23')])])])])])
     """
 
 
