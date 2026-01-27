@@ -804,25 +804,43 @@ def bysect(
     return by1
 
 
-def subterms(t: smt.ExprRef, into_binder=False):
+def subterms(t: smt.ExprRef, into_binder=False) -> list[smt.ExprRef]:
     """Generate all subterms of a term
 
     >>> x,y = smt.Ints("x y")
     >>> list(subterms(x + y == y))
-    [x + y == y, y, x + y, y, x]
+    [x + y == y, x + y, y, x]
     >>> list(subterms(smt.ForAll([x], x + y == y)))
     [ForAll(x, x + y == y)]
     >>> list(subterms(smt.ForAll([x], x + y == y), into_binder=True))
-    [ForAll(x, x + y == y), Var(0) + y == y, y, Var(0) + y, y, Var(0)]
+    [ForAll(x, x + y == y), Var(0) + y == y, Var(0) + y, y, Var(0)]
     """
     todo = [t]
+    seen = {t.get_id()}
+    res = [t]
     while len(todo) > 0:
         x = todo.pop()
-        yield x
         if smt.is_app(x):
-            todo.extend(x.children())
-        elif isinstance(x, smt.QuantifierRef) and into_binder:
-            todo.append(x.body())
+            children = x.children()
+            new = [c for c in children if c.get_id() not in seen]
+            todo.extend(new)
+            res.extend(new)
+            seen.update(c.get_id() for c in new)
+        elif isinstance(x, smt.QuantifierRef):
+            if into_binder:
+                body = x.body()
+                idx = body.get_id()
+                if idx not in seen:
+                    seen.add(idx)
+                    todo.append(body)
+                    res.append(body)
+            else:
+                continue
+        elif smt.is_var(x):
+            continue
+        else:
+            raise Exception("Unexpected term in subterms", x)
+    return res
 
 
 def sorts(t: smt.ExprRef):
@@ -833,29 +851,15 @@ def sorts(t: smt.ExprRef):
         yield t.sort()
 
 
-def consts(t: smt.ExprRef) -> set[smt.ExprRef]:
+def consts(t: smt.ExprRef) -> list[smt.ExprRef]:
     """
     Return all constants in a term.
 
     >>> x,y = smt.Ints("x y")
-    >>> consts(x + (y * y) + 1) == {smt.IntVal(1), x, y}
+    >>> set(consts(x + (y * y) + 1)) == {smt.IntVal(1), x, y}
     True
     """
-    ts = set()
-    todo = [t]
-    while todo:
-        t = todo.pop()
-        if smt.is_const(t):
-            ts.add(t)
-        elif smt.is_app(t):
-            todo.extend(t.children())
-        elif isinstance(t, smt.QuantifierRef):
-            todo.append(t.body())
-        elif smt.is_var(t):
-            continue
-        else:
-            raise Exception("Unexpected term in consts", t)
-    return ts
+    return [e for e in subterms(t, into_binder=True) if smt.is_const(e)]
 
 
 def decls(t: smt.ExprRef) -> set[smt.FuncDeclRef]:
