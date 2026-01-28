@@ -1,0 +1,6 @@
+kdrag.contract.prove
+====================
+
+.. currentmodule:: kdrag.contract
+
+.. autofunction:: prove

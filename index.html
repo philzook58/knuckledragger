@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to knuckledragger’s documentation! &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="kdrag" href="_autosummary/kdrag.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/kdrag.html">kdrag</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Welcome to knuckledragger’s documentation!</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="welcome-to-knuckledragger-s-documentation">
+<h1>Welcome to knuckledragger’s documentation!<a class="headerlink" href="#welcome-to-knuckledragger-s-documentation" title="Link to this heading"></a></h1>
+<section id="knuckledragger">
+<h2>Knuckledragger<a class="headerlink" href="#knuckledragger" title="Link to this heading"></a></h2>
+<img src="https://raw.githubusercontent.com/philzook58/knuckledragger/main/docs/logo.webp" alt="drawing" width="200" align="left"/>
+<p>Knuckledragger (<a class="reference external" href="https://github.com/philzook58/knuckledragger">git repo</a>) is an attempt at creating a down to earth, highly automated interactive proof assistant in python. The goal is to support applications like software/hardware verification, calculus, equational reasoning, and numerical bounds.</p>
+<br clear="left"/>
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
+<p>To install run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/philzook58/knuckledragger.git
+</pre></div>
+</div>
+<p>Or to install locally</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/philzook58/knuckledragger.git
+<span class="nb">cd</span><span class="w"> </span>knuckledragger
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="getting-started">
+<h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://colab.research.google.com/github/philzook58/knuckledragger/blob/master/examples/short_talk.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a> <a class="reference external" href="https://youtu.be/ENwKBC8dN4M">youtube</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">kdrag</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.smt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smt</span> <span class="c1"># smt is literally a reexporting of z3</span>
+
+<span class="c1"># Anything Z3 can do on it&#39;s own, we can &quot;prove&quot; with no extra work</span>
+<span class="n">p</span><span class="p">,</span><span class="n">q</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Bools</span><span class="p">(</span><span class="s2">&quot;p q&quot;</span><span class="p">)</span>
+<span class="n">simple_taut</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)))</span>
+
+<span class="c1"># The returned objects are `Proof`, not smt.ExprRef` formulas</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">simple_taut</span><span class="p">,</span> <span class="n">kd</span><span class="o">.</span><span class="n">Proof</span><span class="p">)</span>
+<span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">simple_taut</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">ExprRef</span><span class="p">)</span>
+
+<span class="c1"># kd.prove will throw an error if the theorem is not provable</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">false_lemma</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This will not be reached&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">kd</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">LemmaError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Z3 also supports things like Reals, Ints, BitVectors and strings</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Real</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">real_trich</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">x</span><span class="p">)))</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">BitVec</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="n">or_idem</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+
+<span class="c1">###################################################################</span>
+<span class="c1">###################################################################</span>
+
+<span class="c1"># But the point of Knuckledragger is really for the things Z3 can&#39;t do in one shot</span>
+
+<span class="c1"># Knuckledragger support algebraic datatypes and induction</span>
+<span class="n">Nat</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Inductive</span><span class="p">(</span><span class="s2">&quot;MyNat&quot;</span><span class="p">)</span>
+<span class="n">Zero</span> <span class="o">=</span> <span class="n">Nat</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s2">&quot;Zero&quot;</span><span class="p">)</span>
+<span class="n">Succ</span> <span class="o">=</span> <span class="n">Nat</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s2">&quot;Succ&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;pred&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">))</span>
+<span class="n">Nat</span> <span class="o">=</span> <span class="n">Nat</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+<span class="c1"># We can define an addition function by cases</span>
+<span class="n">n</span><span class="p">,</span><span class="n">m</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;n m&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)</span>
+<span class="n">add</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">,</span> <span class="n">Nat</span><span class="p">,</span> <span class="n">Nat</span><span class="p">)</span>
+<span class="n">add</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">],</span> 
+    <span class="n">kd</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">is_Zero</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">is_Succ</span><span class="p">,</span> <span class="n">Nat</span><span class="o">.</span><span class="n">Succ</span><span class="p">(</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pred</span><span class="p">,</span> <span class="n">m</span><span class="p">)))</span>
+<span class="p">))</span>
+
+<span class="c1"># There is a notation overloading mechanism modelled after python&#39;s singledispatch</span>
+<span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Nat</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+
+<span class="c1"># The definitional lemma is not available to the solver unless you give it</span>
+<span class="n">add_zero_x</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">n</span><span class="p">],</span> <span class="n">Nat</span><span class="o">.</span><span class="n">Zero</span> <span class="o">+</span> <span class="n">n</span> <span class="o">==</span> <span class="n">n</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="n">add_succ_x</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">],</span> <span class="n">Nat</span><span class="o">.</span><span class="n">Succ</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span> <span class="o">==</span> <span class="n">Nat</span><span class="o">.</span><span class="n">Succ</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="n">m</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+
+<span class="c1"># More involved proofs can be more easily done in an interactive tactic</span>
+<span class="c1"># Under the hood, this boils down to calls to kd.prove</span>
+<span class="c1"># These proofs are best understood by seeing the interactive output in a Jupyter notebook</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Lemma</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">n</span><span class="p">],</span> <span class="n">n</span> <span class="o">+</span> <span class="n">Nat</span><span class="o">.</span><span class="n">Zero</span> <span class="o">==</span> <span class="n">n</span><span class="p">))</span>
+<span class="c1"># Output: [] ?|= ForAll(n, add(n, Zero) == n)</span>
+
+<span class="n">_n</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">fix</span><span class="p">()</span>            
+<span class="c1"># Output: [] ?|= add(n!0, Zero) == n!2213</span>
+
+<span class="n">l</span><span class="o">.</span><span class="n">induct</span><span class="p">(</span><span class="n">_n</span><span class="p">)</span>              
+<span class="c1"># Output: [] ?|= add(Zero, Zero) == Zero</span>
+
+<span class="c1"># Base case</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="c1"># Output: [] ?|= ForAll(a!0, Implies(add(a!0, Zero) == a!0, add(Succ(a!0), Zero) == Succ(a!0)))</span>
+
+<span class="c1"># Inductive case</span>
+<span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">add</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="c1"># Output: Nothing to do!</span>
+
+<span class="c1"># Finally the actual Proof is built</span>
+<span class="n">add_x_zero</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+
+<span class="c1">###################################################################</span>
+<span class="c1">###################################################################</span>
+
+<span class="c1"># But we can also build our own sorts and axiomatic theories.</span>
+<span class="c1"># https://en.wikipedia.org/wiki/Group_(mathematics)</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">DeclareSort</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">)</span>
+<span class="n">mul</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;mul&quot;</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span>
+<span class="n">inv</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="s2">&quot;inv&quot;</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span>
+
+<span class="n">kd</span><span class="o">.</span><span class="n">notation</span><span class="o">.</span><span class="n">mul</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">mul</span><span class="p">)</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Consts</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span>
+<span class="n">mul_assoc</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span><span class="p">))</span>
+<span class="n">id_left</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">e</span> <span class="o">*</span> <span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="p">))</span>
+<span class="n">inv_left</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">==</span> <span class="n">e</span><span class="p">))</span>
+
+<span class="c1"># The Calc tactic can allow one to write explicit equational proofs</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">Calc</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">*</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">id_left</span><span class="p">])</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">((</span><span class="n">inv</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">*</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">inv_left</span><span class="p">])</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">*</span> <span class="p">((</span><span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">mul_assoc</span><span class="p">])</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">inv_left</span><span class="p">])</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">*</span> <span class="n">inv</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">id_left</span><span class="p">])</span>
+<span class="n">c</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">inv_left</span><span class="p">])</span>
+<span class="n">inv_right</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">qed</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For more on using z3py</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://ericpony.github.io/z3py-tutorial/guide-examples.htm">https://ericpony.github.io/z3py-tutorial/guide-examples.htm</a></p></li>
+<li><p>The z3 guide <a class="reference external" href="https://microsoft.github.io/z3guide/">https://microsoft.github.io/z3guide/</a></p></li>
+<li><p>The z3py <a class="reference external" href="https://z3prover.github.io/api/html/namespacez3py.html">documentation</a></p></li>
+<li><p><a class="reference external" href="https://github.com/philzook58/z3_tutorial">https://github.com/philzook58/z3_tutorial</a> (<a class="reference external" href="https://www.youtube.com/watch?v=56IIrBZy9Rc&amp;amp;feature=youtu.be&amp;amp;ab_channel=BroadInstitute">video</a>)</p></li>
+</ul>
+<p>For more on interactive theorem proving (This is a lot to take in)</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://softwarefoundations.cis.upenn.edu/">Software Foundations</a> - Coq</p></li>
+<li><p><a class="reference external" href="https://lean-lang.org/theorem_proving_in_lean4/title_page.html">Theorem Proving in Lean 4</a></p></li>
+<li><p><a class="reference external" href="https://leanprover-community.github.io/mathematics_in_lean/">Mathematics in Lean</a></p></li>
+<li><p><a class="reference external" href="https://isabelle.in.tum.de/documentation.html">Isabelle Tutorial</a></p></li>
+<li><p><a class="reference external" href="https://hol-light.github.io/tutorial.pdf">HOL Light Tutorial</a></p></li>
+</ul>
+<p>A recent summary talk of Knuckledragger was presented at NEPLS 2025</p>
+<p><a class="reference external" href="https://youtu.be/ENwKBC8dN4M"><img alt="Watch the video" src="https://img.youtube.com/vi/ENwKBC8dN4M/default.jpg" /></a></p>
+</section>
+<section id="blog-posts">
+<h3>Blog Posts<a class="headerlink" href="#blog-posts" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.philipzucker.com/zf_knuckle1/">ZF style set theory in Knuckledragger I</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckle_primes/">Proving the Infinitude of Primes in Knuckledragger</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/kdrag_proof_rules/">Proof Rules for MetaSMT</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/asm_verify3/">A Python CLI for Verifying Assembly</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckle_analysis1/">Knuckledragger Analysis Etudes</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/refinement_kdrag1/">Semantic Refinement/Dependent Typing for Knuckledragger/SMTLIB Pt 1</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/asm_verify2/">Verified Assembly 2: Memory, RISC-V, Cuts for Invariants, and Ghost Code</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/assembly_verify/">Semi-Automated Assembly Verification in Python using pypcode Semantics</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/nepls_2025/">NEPLS 2025 and a Short Talk on Knuckledragger</a> <a class="reference external" href="https://www.youtube.com/watch?v=ENwKBC8dN4M&amp;amp;ab_channel=PhilipZucker">video</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckle_C_pcode/">“Verified” “Compilation” of “Python” with Knuckledragger, GCC, and Ghidra</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuck_prolog/">A Small Prolog on the Z3 AST</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/shallow_logic_knuckle/">Shallow Embedding Logics in Z3 pt. I</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuth_bendix_knuck/">Knuth Bendix Solver on Z3 AST</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckle_typeclass/">Generics and Typeclasses in Knuckledragger</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckle_update_nbe/">More Knuckledragger: Simp, Inductive Relations, Sympy NbE, and Software Foundations</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/cody_sheffer/">Translating Cody’s Lean Sheffer Stroke Proof to Knuckledragger with ChatGPT</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckle_lemma/">‘Lean-style’ Tactics in Knuckledragger</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/state_o_knuck/">State of Knuckledragger, a Semi-Automated Python Proof Assistant</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/analysis_knuckle/">Proving Sum n = n*(n-1)/2 and that 1/n tends to 0</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/sqrt2_2/">Peano Nats in Interactive SMT</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/sqrt2/">Experiments in the Irrationality of Sqrt 2 with SMT</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/knuckledrag2/">Knuckledragger Update: ATP for Python Interactive Theorem Proving</a></p></li>
+<li><p><a class="reference external" href="https://www.philipzucker.com/python-itp/">Knuckledragger: Experimenting with a Python Proof Assistant</a></p></li>
+</ul>
+</section>
+<section id="comparison-to-other-systems">
+<h3>Comparison to Other Systems<a class="headerlink" href="#comparison-to-other-systems" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Z3Prover/z3">Z3</a>: Knuckledragger has a superset of the capabilities of Z3 since it is built on top of it. Enables rigorous chaining of Z3 calls. Better facilities for higher order and quantifier reasoning.</p></li>
+<li><p><a class="reference external" href="https://www.sympy.org/">sympy</a> and sage: More manual manipulation is to be expected, but also more logically sound. Everything is integrated in a cohesive fabric of first order logic.</p></li>
+<li><p>Lean and Coq: No dependent types, larger trusted code base, a higher baseline of automation.</p></li>
+<li><p><a class="reference external" href="https://isabelle.in.tum.de/">Isabelle</a> and <a class="reference external" href="https://gitee.com/bhzhan/holpy">HOLpy</a>: Knuckledragger is similar in many respects to the systems. It has a lack of parametric types and weaker higher order reasoning. Knuckledragger is a library, not a framework. Heavy reuse of already existing python things is preferred whenever possible (Jupyter, z3py, sympy, python idioms). It is seamlessly integrated with z3py.</p></li>
+</ul>
+</section>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading"></a></h3>
+<p>It is not desirable or within my capabilities to build a giant universe in which to live. The goal is to take a subtle blade and bolt together things that already exist.</p>
+<p>Using widespread and commonly supported languages gives a huge leg up in terms of tooling and audience. Python is the modern lingua franca of computing. It has a first class interactive experience and extensive bindings to projects in other languages.</p>
+<p>Core functionality comes from <a class="reference external" href="https://github.com/Z3Prover/z3">Z3</a>. The Z3 python api is a de facto standard. The term and formula data structures of knuckledragger are literally z3 python terms and formula. To some degree, Knuckledragger is a metalayer to guide smt through proofs it could perhaps do on its own, but it would get lost.</p>
+<p>A hope is to be able to use easy access to <a class="reference external" href="https://jupyter.org/">Jupyter</a>, <a class="reference external" href="https://copilot.microsoft.com/">copilot</a>, ML ecosystems, <a class="reference external" href="https://www.sympy.org/">sympy</a>, <a class="reference external" href="https://www.cvxpy.org/">cvxpy</a>, <a class="reference external" href="https://numpy.org/">numpy</a>, <a class="reference external" href="https://scipy.org/">scipy</a>, <a class="reference external" href="https://egglog-python.readthedocs.io/latest/">egglog</a>, <a class="reference external" href="https://github.com/JuliaPy/PythonCall.jl">Julia</a>, <a class="reference external" href="https://www.swi-prolog.org/pldoc/man?section=janus-call-prolog">Prolog</a>, <a class="reference external" href="https://fadoss.github.io/maude-bindings/">Maude</a>, <a class="reference external" href="https://fredrikj.net/calcium/">calcium</a>, <a class="reference external" href="https://fredrikj.net/python-flint/">flint</a>, <a class="reference external" href="https://reference.wolfram.com/language/WolframClientForPython/">Mathematica</a>, and <a class="reference external" href="https://www.sagemath.org/">sage</a> will make metaprogramming in this system very powerful. I maintain the option to just trust these results but hopefully they can be translated into arguments the kernel can understand.</p>
+<p>The core logic is more or less multi-sorted first order logic aka <a class="reference external" href="https://smt-lib.org/">SMT-LIB2</a>.</p>
+<p>Big features that ATPs do not often support are induction, definitions, and other axiom schema. Knuckledragger supports these.</p>
+<p>Other theorem provers of interest: <a class="reference external" href="https://cvc5.github.io/">cvc5</a>, <a class="reference external" href="https://vprover.github.io/">Vampire</a>, <a class="reference external" href="https://wwwlehre.dhbw-stuttgart.de/~sschulz/E/E.html">eprover</a>, <a class="reference external" href="https://nick8325.github.io/twee/">Twee</a>, <a class="reference external" href="https://leancop.de/nanocop/">nanoCoP</a>.</p>
+<p>The de Bruijn criterion is going to be bent or broken in certain senses. Attention is paid to what is kernel and what is not. Proof objects are basically trees recording chains of lemmas discharged by Automated Theorem Prover (ATP) calls. Soundness will be attempted, accidental misuse will be made difficult but not impossible.</p>
+<p>Isabelle and ACL2 are the strongest influences. If you want dependent type theory, you are at a level of investment and sophistication that it behooves you to be in another system. Should there be a strong automated DTT solver someday, I will reconsider.</p>
+</section>
+<section id="faq">
+<h3>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Is this for proving about properties about python programs?</p>
+<ul>
+<li><p>Not directly. Proving properties of general python programs in a highly assured manner is extremely difficult due to its extreme dynamic nature. There are a couple caveats to this answer.</p>
+<ol class="arabic simple">
+<li><p>Knuckledragger does enable you to model your algorithms and extract/interpret them to python.</p></li>
+<li><p>A subset of purely-function, strongly-typed python can be reflected directly into the Knuckledragger logic.</p></li>
+<li><p>Domain specific modelling of important python ecosystem libraries is a WIP.</p></li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>Is Knuckledragger python specific?</p>
+<ul>
+<li><p>Python is a useful and important platform, but the core of the design can be ported to many languages. The design is based around the chaining of calls to z3 which gets you a lot of distance for free.</p>
+<ul>
+<li><p><a class="reference external" href="https://hackage.haskell.org/package/sbv-11.0/docs/Data-SBV-Tools-KnuckleDragger.html">SBV</a> - Haskell</p></li>
+<li><p>Yours here!</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="license-citation">
+<h3>License &amp; Citation<a class="headerlink" href="#license-citation" title="Link to this heading"></a></h3>
+<p>MIT licensed. See LICENSE for more information.</p>
+<p>Citing this repository is highly appreciated but not required by the license.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@software</span><span class="p">{</span><span class="n">knuckledragger2025</span><span class="p">,</span>
+  <span class="n">author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Philip</span> <span class="n">Zucker</span><span class="p">},</span>
+  <span class="n">title</span> <span class="o">=</span> <span class="p">{{</span><span class="n">Knuckledragger</span><span class="p">:</span> <span class="n">A</span> <span class="n">Low</span> <span class="n">Barrier</span> <span class="n">Proof</span> <span class="n">Assistant</span><span class="p">}},</span>
+  <span class="n">url</span> <span class="o">=</span> <span class="p">{</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">philzook58</span><span class="o">/</span><span class="n">knuckledragger</span><span class="p">},</span>
+  <span class="n">month</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">},</span>
+  <span class="n">year</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2025</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<div class="toctree-wrapper compound">
+</div>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/kdrag.html#module-kdrag" title="kdrag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kdrag</span></code></a></p></td>
+<td><p>Knuckledragger is an attempt at creating a down to earth, highly automated interactive proof assistant in python.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="_autosummary/kdrag.html" class="btn btn-neutral float-right" title="kdrag" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

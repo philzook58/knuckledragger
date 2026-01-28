@@ -1,0 +1,6 @@
+kdrag.Id
+========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Id

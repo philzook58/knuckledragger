@@ -1,0 +1,44 @@
+kdrag.contrib
+=============
+
+.. automodule:: kdrag.contrib
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   absint
+   cpp
+   data_modulo
+   expr
+   fast
+   hoare
+   ir
+   pcode
+   rust
+   yosys
+
+
+
+.. literalinclude:: ../../kdrag/contrib.py
+   :language: python

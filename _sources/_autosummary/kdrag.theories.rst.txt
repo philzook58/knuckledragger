@@ -1,0 +1,52 @@
+kdrag.theories
+==============
+
+.. automodule:: kdrag.theories
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   algebra
+   bitvec
+   bool
+   fixed
+   float
+   fun
+   int
+   list
+   logic
+   nat
+   option
+   real
+   regex
+   seq
+   set
+   sexp
+   univ
+   zf
+
+
+
+.. literalinclude:: ../../kdrag/theories.py
+   :language: python

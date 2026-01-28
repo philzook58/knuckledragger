@@ -1,0 +1,64 @@
+kdrag.theories.real
+===================
+
+.. automodule:: kdrag.theories.real
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      abstract_arith
+      rlemma
+      sin_lower
+      sqrt_bnd
+      sqrt_lower
+      sqrt_upper
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Add
+      Mul
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   analysis
+   arb
+   complex
+   extended
+   geometry
+   interval
+   lim_algebra
+   ndarray
+   rset
+   seq
+   vec
+
+
+
+.. literalinclude:: ../../kdrag/theories/real.py
+   :language: python

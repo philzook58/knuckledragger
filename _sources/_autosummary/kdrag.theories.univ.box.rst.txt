@@ -1,0 +1,6 @@
+kdrag.theories.univ.box
+=======================
+
+.. currentmodule:: kdrag.theories.univ
+
+.. autofunction:: box

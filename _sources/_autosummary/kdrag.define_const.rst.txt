@@ -1,0 +1,6 @@
+kdrag.define\_const
+===================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: define_const

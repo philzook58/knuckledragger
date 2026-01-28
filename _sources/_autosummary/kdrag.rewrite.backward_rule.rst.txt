@@ -1,0 +1,6 @@
+kdrag.rewrite.backward\_rule
+============================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: backward_rule

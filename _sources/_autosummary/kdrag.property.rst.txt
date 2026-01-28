@@ -1,0 +1,51 @@
+kdrag.property
+==============
+
+.. automodule:: kdrag.property
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      AbelSemiGroup
+      Antisymm
+      Assoc
+      Comm
+      CommMonoid
+      CommSemiRing
+      Idem
+      LeftIdentity
+      Monoid
+      PartialOrder
+      PreOrder
+      Refl
+      RightIdentity
+      SemiGroup
+      SemiLattice
+      SemiRing
+      StarSemiring
+      Trans
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/property.py
+   :language: python

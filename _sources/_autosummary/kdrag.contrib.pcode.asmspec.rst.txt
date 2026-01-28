@@ -1,0 +1,67 @@
+kdrag.contrib.pcode.asmspec
+===========================
+
+.. automodule:: kdrag.contrib.pcode.asmspec
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      assemble_and_check
+      assemble_and_check_str
+      assemble_and_gen_vcs
+      execute_insn
+      execute_spec_and_insn
+      execute_spec_stmts
+      init_trace_states
+      pretty_trace
+      run_all_paths
+      substitute_ghost
+      substitute_state
+      update_write_and_num_insn
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Always
+      AsmProof
+      AsmProofState
+      AsmSpec
+      Assert
+      Assign
+      Assume
+      BoolStmt
+      Cut
+      Debug
+      Entry
+      Exit
+      OutOfGas
+      Results
+      TraceState
+      VCProofState
+      VerificationCondition
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/pcode/asmspec.py
+   :language: python

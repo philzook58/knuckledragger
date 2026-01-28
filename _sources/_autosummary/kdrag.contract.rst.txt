@@ -1,0 +1,48 @@
+kdrag.contract
+==============
+
+.. automodule:: kdrag.contract
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      contracts
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      contract
+      lemmas
+      prove
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Contract
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contract.py
+   :language: python

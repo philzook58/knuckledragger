@@ -1,0 +1,6 @@
+kdrag.theories.set.EClass
+=========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: EClass

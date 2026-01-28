@@ -1,0 +1,34 @@
+kdrag.contrib.rust
+==================
+
+.. automodule:: kdrag.contrib.rust
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      initialize
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/rust.py
+   :language: python

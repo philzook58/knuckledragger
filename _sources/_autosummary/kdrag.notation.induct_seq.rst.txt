@@ -1,0 +1,6 @@
+kdrag.notation.induct\_seq
+==========================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: induct_seq

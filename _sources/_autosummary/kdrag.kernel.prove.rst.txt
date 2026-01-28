@@ -1,0 +1,6 @@
+kdrag.kernel.prove
+==================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: prove

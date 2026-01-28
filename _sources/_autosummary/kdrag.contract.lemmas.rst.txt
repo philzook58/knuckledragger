@@ -1,0 +1,6 @@
+kdrag.contract.lemmas
+=====================
+
+.. currentmodule:: kdrag.contract
+
+.. autofunction:: lemmas

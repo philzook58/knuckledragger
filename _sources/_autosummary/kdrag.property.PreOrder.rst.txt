@@ -1,0 +1,6 @@
+kdrag.property.PreOrder
+=======================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: PreOrder

@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.test\_pcode
+===============================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: test_pcode

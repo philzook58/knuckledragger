@@ -1,0 +1,6 @@
+kdrag.ComplexSort
+=================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: ComplexSort

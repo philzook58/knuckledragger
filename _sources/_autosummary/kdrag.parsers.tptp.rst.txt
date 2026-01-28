@@ -1,0 +1,43 @@
+kdrag.parsers.tptp
+==================
+
+.. automodule:: kdrag.parsers.tptp
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      test
+      to_z3
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      FormulaRole
+      TPTPFormulaEntry
+      TPTPTransformer
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/parsers/tptp.py
+   :language: python

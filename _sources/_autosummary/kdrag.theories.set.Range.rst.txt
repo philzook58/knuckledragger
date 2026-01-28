@@ -1,0 +1,6 @@
+kdrag.theories.set.Range
+========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: Range
