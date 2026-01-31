@@ -103,7 +103,7 @@ cumsum = kd.define(
 
 # TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
 @kd.Theorem(
-    "forall (a : RSeq) (x : Real) (n : Int), (cumsum (smul x a)) n = (smul x (cumsum a)) n"
+    "forall (a : RSeq) (x : Real) (n : Int), cumsum (smul x a) n = smul x (cumsum a) n"
 )
 def cumsul_smul(l):
     a, x, n = l.fixes()
@@ -132,7 +132,7 @@ def cumsul_smul(l):
 
 
 @kd.Theorem(
-    "forall (a b : RSeq) (m : Int), (forall (n : Int), n >= 0 -> a n <= b n) -> m >= 0 -> (cumsum a) m <= (cumsum b) m"
+    "forall (a b : RSeq) (m : Int), (forall (n : Int), n >= 0 -> a n <= b n) -> m >= 0 -> cumsum a m <= cumsum b m"
 )
 def cumsul_mono(l):
     a, b, m = l.fixes()
@@ -153,9 +153,7 @@ def cumsul_mono(l):
     l.auto(by=[cumsum.defn])
 
 
-@kd.Theorem(
-    "forall (a b : RSeq) (n : Int), (cumsum (a + b)) n = (cumsum a) n + (cumsum b) n"
-)
+@kd.Theorem("forall (a b : RSeq) (n : Int), cumsum (a + b) n = cumsum a n + cumsum b n")
 def cumsul_add(l):
     a, x, n = l.fixes()
     l.induct(n)

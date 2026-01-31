@@ -287,9 +287,15 @@ def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.Exp
         case Tree("string", [s]):
             return smt.StringVal(str(s)[1:-1])
         case Tree("and_", [left, right]):
-            return smt.And(expr(left, env), expr(right, env))
+            left, right = expr(left, env), expr(right, env)
+            if not isinstance(left, smt.BoolRef) or not isinstance(right, smt.BoolRef):
+                raise ValueError("And operands must be Bool", left, right)
+            return smt.And(left, right)
         case Tree("or_", [left, right]):
-            return smt.Or(expr(left, env), expr(right, env))
+            left, right = expr(left, env), expr(right, env)
+            if not isinstance(left, smt.BoolRef) or not isinstance(right, smt.BoolRef):
+                raise ValueError("Or operands must be Bool", left, right)
+            return smt.Or(left, right)
         case Tree("iff_", [left, right]):
             l = expr(left, env)
             r = expr(right, env)
@@ -324,20 +330,23 @@ def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.Exp
             # auto curry
             args = [expr(arg, env) for arg in args]
             func = expr(func, env)
-            if isinstance(func, smt.FuncDeclRef):
-                return func(*args)
-            elif smt.is_func(func):
-                while args:
+            while args:
+                if isinstance(func, smt.FuncDeclRef):
+                    arity = func.arity()
+                    func = func(*args[:arity])
+                    args = args[arity:]
+                elif smt.is_func(func):
                     assert isinstance(func, smt.QuantifierRef) or isinstance(
                         func, smt.ArrayRef
                     )
                     doms = smt.domains(func)
                     func = func[*args[: len(doms)]]
                     args = args[len(doms) :]
-                return func
-            else:
-                # It would be convenient to just try calls here, but that is kind of eval capabilities.
-                raise ValueError("Cannot apply non-function", func)
+                else:
+                    # It would be convenient to just try calls here, but that is kind of eval capabilities.
+                    raise ValueError("Cannot apply non-function", func)
+            return func
+
         case Tree("forall_", [vs, body]):
             return quant(vs, body, smt.ForAll, env)
         case Tree("exists_", [vs, body]):
@@ -350,7 +359,13 @@ def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.Exp
                 raise ValueError("Set comprehension must return Bool", t)
             return t
         case Tree("if", [cond, then_, else_]):
-            return smt.If(expr(cond, env), expr(then_, env), expr(else_, env))
+            cond = expr(cond, env, expected_sort=smt.BoolSort())
+            if not isinstance(cond, smt.BoolRef):
+                raise ValueError("If condition must be Bool", cond)
+            then_, else_ = expr(then_, env), expr(else_, env)
+            # if then_.sort() != else_.sort(): # int makes fail.
+            #    raise ValueError("If branches must have the same sort", then_, else_)
+            return smt.If(cond, then_, else_)
         case Tree("match_", [scrutinee, *cases]):
             scrutinee_expr = expr(scrutinee, env)
             newcases = []
@@ -365,7 +380,10 @@ def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.Exp
                         raise ValueError("Unknown match case", case)
             return kd.datatype.datatype_match_(scrutinee_expr, *newcases)
         case Tree("implies", [left, right]):
-            return smt.Implies(expr(left, env), expr(right, env))
+            left, right = expr(left, env), expr(right, env)
+            if not isinstance(left, smt.BoolRef) or not isinstance(right, smt.BoolRef):
+                raise ValueError("Implication operands must be Bool", left, right)
+            return smt.Implies(left, right)
         case _:
             raise ValueError("Unknown parse tree", tree)
 

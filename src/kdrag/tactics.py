@@ -618,6 +618,38 @@ class ProofState:
         self.intros()
         return vs
 
+    def intro(self) -> smt.BoolRef:
+        """
+        intro opens an implication. ?|= p -> q becomes p ?|= q
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, q))
+        >>> l.intro()
+        p
+        >>> l
+        [p] ?|= q
+        >>> l = Lemma(smt.Not(q))
+        >>> l.intro()
+        q
+        >>> l
+        [q] ?|= False
+        """
+        goalctx = self.top_goal()
+        goal = goalctx.goal
+        ctx = goalctx.ctx
+        if smt.is_implies(goal):
+            hyp = goal.arg(0)
+            self.goals.append(goalctx._replace(ctx=ctx + [hyp], goal=goal.arg(1)))
+            return hyp
+        elif smt.is_not(goal):
+            hyp = goal.arg(0)
+            self.goals.append(
+                goalctx._replace(ctx=ctx + [hyp], goal=smt.BoolVal(False))
+            )
+            return hyp
+        else:
+            raise ValueError("Intro failed on goal. Not an implication", goal)
+
     def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
         """
         intros opens an implication. ?|= p -> q becomes p ?|= q
@@ -641,7 +673,7 @@ class ProofState:
             self.goals.append(
                 goalctx._replace(ctx=ctx + [goal.arg(0)], goal=goal.arg(1))
             )
-            return self.top_goal()
+            return self.top_goal()  # TODO: should return hyp
         elif smt.is_not(goal):
             self.goals.append(
                 goalctx._replace(ctx=ctx + [goal.arg(0)], goal=smt.BoolVal(False))
