@@ -777,6 +777,54 @@ class ProofState:
             )
         return self
 
+    def boolsimp(self) -> "ProofState":
+        """
+        Simplify boolean expressions to true or false is possible. More for exploration that for leaving in a finished proof.
+
+        >>> p,q,r = smt.Bools("p q r")
+        >>> l = Lemma(smt.Implies(smt.And(p, smt.Not(q)), smt.And(q, p, r)))
+        >>> l.intros()
+        And(p, Not(q))
+        >>> l.boolsimp()
+        [And(p, Not(q)), p == True, And(q, p, r) == False, q == False] ?|= False
+        >>> l = Lemma(smt.Implies(p, smt.If(smt.Not(p), p, q) == r))
+        >>> l.intros()
+        p
+        >>> l.boolsimp()
+        [p, p == True, Not(p) == False] ?|= If(False, True, q) == r
+        """
+        goalctx = self.top_goal()
+        bools = [
+            e for e in kd.utils.subterms(goalctx.goal) if isinstance(e, smt.BoolRef)
+        ]
+        trues = []
+        falses = []
+        ctx = smt.And(goalctx.ctx)
+        for b in bools:
+            try:
+                kd.prove(smt.Implies(ctx, b), timeout=50)
+                trues.append(b)
+            except kd.kernel.LemmaError:
+                try:
+                    kd.prove(smt.Implies(ctx, smt.Not(b)))
+                    falses.append(b)
+                except kd.kernel.LemmaError:
+                    pass
+        if len(trues) == 0 and len(falses) == 0:
+            raise ValueError("No boolean simplifications found")
+        newctx = (
+            goalctx.ctx
+            + [b == smt.BoolVal(True) for b in trues]
+            + [b == smt.BoolVal(False) for b in falses]
+        )
+        newgoal = smt.substitute(
+            goalctx.goal,
+            *zip(trues, [smt.BoolVal(True)] * len(trues)),
+            *zip(falses, [smt.BoolVal(False)] * len(falses)),
+        )
+        self.goals[-1] = goalctx._replace(ctx=newctx, goal=newgoal)
+        return self
+
     def emt(self):
         """
         Use egraph based equality modulo theories to simplify the goal.
@@ -862,7 +910,7 @@ class ProofState:
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
         return self
 
-    def vampire(self, by=[], admit=False):
+    def vampire(self, **kwargs) -> "ProofState":
         """
         Call vampire to see if the current goal is solvable.
         Currently a sanity check only.
@@ -870,22 +918,9 @@ class ProofState:
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p, p))
         >>> l.vampire()
-        ...
-        Vampire proved the goal
-        [] ?|= Implies(p, p)
+        Nothing to do. Hooray!
         """
-        solver = solvers.VampireSolver()
-        solver.add(by)
-        solver.add(smt.Not(self.top_goal().to_expr()))
-        res = solver.check()
-        if res == smt.sat:
-            raise ValueError("Vampire failed to prove the goal", self.top_goal())
-        elif res == smt.unsat:
-            print("Vampire proved the goal")
-            if admit:
-                self.pop_goal()
-                self.add_lemma(kd.kernel.prove(self.top_goal().to_expr(), admit=True))
-            return self
+        return self.auto(solver=solvers.VampireSolver, **kwargs)
 
     def cvc5(self, by=[], admit=False):
         """
