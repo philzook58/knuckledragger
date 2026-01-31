@@ -1,3 +1,15 @@
+"""
+
+Contracts are a database of lemmas associated with a function symbol.
+They are usually used to specify intended pre and postconditions for functions as an abstraction over their definition.
+This can also be though of as a subtyping refinement.
+
+There is a registry which can be queried.
+
+This registry is not trusted code.
+
+"""
+
 from dataclasses import dataclass
 import kdrag.smt as smt
 import kdrag as kd
@@ -9,21 +21,17 @@ class Contract:
     args: list[smt.ExprRef]
     pre: smt.BoolRef
     post: smt.BoolRef
-    proof: kd.Proof
+    proof: kd.kernel.Proof
 
 
 contracts: dict[smt.FuncDeclRef, Contract] = {}
 
-"""
-def add_contract(f: smt.FuncDeclRef, proof: kd.Proof):
-    assert f not in contracts
-    contracts[f] = proof
-"""
 
-
-def lemmas(e: smt.ExprRef) -> list[kd.Proof]:
+def lemmas(e: smt.ExprRef, into_binders=True) -> list[kd.kernel.Proof]:
     """
-    Instantiate all contract lemmas found in
+    Instantiate all contract lemmas found in a pexression.
+    This sweeps the expression and instantiates the contract lemma with the arguments to the function.
+    Once it goes under binders, this becomes more difficult, so it returns the quantified form of the lemmas
     """
     res = []
     seen: set[int] = set([e.get_id()])
@@ -44,7 +52,8 @@ def lemmas(e: smt.ExprRef) -> list[kd.Proof]:
                     todo.append(c)
         elif isinstance(e, smt.QuantifierRef):
             # There may be variables inside here. Fallback to just giving z3
-            decls.update(kd.utils.decls(e.body()))
+            if into_binders:
+                decls.update(kd.utils.decls(e.body()))
         else:
             raise ValueError(f"Unexpected term type: {e}")
     res.extend(contracts[decl].proof for decl in decls if decl in contracts)
@@ -53,7 +62,7 @@ def lemmas(e: smt.ExprRef) -> list[kd.Proof]:
 
 def contract(
     f: smt.FuncDeclRef, args: list[smt.ExprRef], pre, post, by=None, **kwargs
-) -> kd.Proof:
+) -> kd.kernel.Proof:
     """
     Register the contract for function f: for all args, pre => post.
 
@@ -64,28 +73,21 @@ def contract(
     |= ForAll(x, Implies(x > 0, foo4392(x) > 0))
     >>> c.thm.pattern(0)
     foo4392(Var(0))
-    >>> prove(foo(5) > 0)
+    >>> kd.prove(foo(5) > 0, contracts=True)
     |= foo4392(5) > 0
-    >>> prove(foo(5) > 5)
+    >>> kd.prove(foo(5) > 5, contracts=True)
     Traceback (most recent call last):
         ...
     LemmaError: ...
     """
     assert f not in contracts
     if by is None:
-        by = lemmas(pre) + lemmas(post)
-    else:
-        by = by + lemmas(pre) + lemmas(post)
-    pf = kd.prove(smt.ForAll(args, pre, post, patterns=[f(*args)]), by=by, **kwargs)
+        by = []
+    thm = smt.ForAll(args, smt.Implies(pre, post), patterns=[f(*args)])
+    by = by + lemmas(thm)
+    pf = kd.kernel.prove(thm, by=by, **kwargs)  # Do we want kd.tactics.prove here?
     contracts[f] = Contract(f, args, pre, post, pf)
     return pf
 
 
-# def define(name, args, body, pre=None, post=None): ...
-
-
-def prove(thm: smt.BoolRef, by=[], **kwargs) -> kd.Proof:
-    by = by + [
-        contracts[decl].proof for decl in kd.utils.decls(thm) if decl in contracts
-    ]
-    return kd.prove(thm, by=by, **kwargs)
+# Special define?

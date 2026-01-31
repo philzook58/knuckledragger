@@ -229,6 +229,7 @@ def prove(
     timeout=1000,
     dump=False,
     solver=None,
+    contracts=None,
     # defns=True,
     # induct=False,
     # simps=simps,
@@ -265,6 +266,10 @@ def prove(
     |= succ2(x) == x + 2
     >>> prove(succ(x) == x + 1, unfold=[succ])
     |= succ(x) == x + 1
+    >>> kd.contract(succ, [x], x >= 0 , succ(x) >= 0, by=[succ.defn])
+    |= ForAll(x, Implies(x >= 0, succ(x) >= 0))
+    >>> kd.prove(smt.Implies(x >=0, succ(x) >= 0), contracts=True)
+    |= Implies(x >= 0, succ(x) >= 0)
     """
     start_time = time.perf_counter()
 
@@ -277,6 +282,18 @@ def prove(
         by = [by]
     elif not isinstance(by, list):
         by = list(by)
+
+    if contracts is None:
+        pass
+    elif contracts is True:
+        by = by + kd.contracts.lemmas(thm)
+    elif isinstance(contracts, list):
+        by = list(by)
+        for decl in contracts:
+            if decl in kd.contracts.contracts:
+                by.append(kd.contracts.contracts[decl].proof)
+            else:
+                raise KeyError(f"No contract found for {decl}")
 
     if unfold is None:
         pass
@@ -1075,6 +1092,34 @@ class ProofState:
             raise ValueError(
                 "obtain failed. Not an exists", formula, "Available exists:", exists_f
             )
+
+    def contract(self) -> "ProofState":
+        """
+        Add contract lemmas to the context
+
+        >>> x = smt.Int("x")
+        >>> succ = kd.define("mysucc72", [x], x + 1)
+        >>> kd.contract(succ, [x], x >= 0, succ(x) >= 0, by=[succ.defn])
+        |= ForAll(x, Implies(x >= 0, mysucc72(x) >= 0))
+        >>> l = Lemma(smt.Implies(smt.And(x >= 0, succ(x) >= 0), succ(succ(x)) >= 0))
+        >>> _ = l.intros()
+        >>> l.contract()
+        [And(x >= 0, mysucc72(x) >= 0),
+        Implies(mysucc72(x) >= 0, mysucc72(mysucc72(x)) >= 0),
+        Implies(x >= 0, mysucc72(x) >= 0)]
+        ?|= mysucc72(mysucc72(x)) >= 0
+
+        """
+        self.goalctx = self.top_goal()
+        ctx, goal = self.goalctx.ctx, self.goalctx.goal
+        clemmas = kd.contracts.lemmas(goal)
+        if not clemmas:
+            raise ValueError("No contract lemmas available for goal", goal)
+        for l in clemmas:
+            self.add_lemma(l)
+        newctx = ctx + [l.thm for l in clemmas]
+        self.goals[-1] = self.goalctx._replace(ctx=newctx)
+        return self
 
     def specialize(self, n: int | smt.QuantifierRef, *ts):
         """

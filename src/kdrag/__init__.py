@@ -14,6 +14,7 @@ from . import notation
 from . import utils
 from . import datatype
 from . import rewrite
+from . import contracts
 from . import tactics
 import functools
 from .parsers import microlean
@@ -45,6 +46,8 @@ def define_const(name: str, body: smt.ExprRef) -> smt.ExprRef:
     # arguably define is define_fun
     return kernel.define(name, [], body)  # type: ignore
 
+
+contract = contracts.contract
 
 FreshVar = kernel.FreshVar
 
