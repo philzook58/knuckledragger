@@ -365,9 +365,9 @@ def induct_int(x, P):
     return kd.kernel.axiom(
         smt.Implies(
             smt.And(
-                smt.ForAll([n], n <= 0, P[n], P[n - 1]),
+                smt.ForAll([n], n <= 0, P(n), P(n - 1)),
                 P(0),
-                smt.ForAll([n], n >= 0, P[n], P[n + 1]),
+                smt.ForAll([n], n >= 0, P(n), P(n + 1)),
             ),
             # ---------------------------------------------------
             P(x),

@@ -225,7 +225,6 @@ def max_prefix_bound(l):
     l.simp(at=-1)
     i = smt.Int("i")
     l.have(smt.ForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]), by=[])
-    l.beta()
     l.intros()
     i = l.fix()
     l.intros()
@@ -255,7 +254,6 @@ def max_suffix_bound(l):
     # step: n <= 0 -> n - 1
     n = l.fix()
     l.intros()
-    l.beta()
     l.intros()
     i = l.fix()
     l.intros()
