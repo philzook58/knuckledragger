@@ -2,6 +2,7 @@
 import kdrag as kd
 import kdrag.smt as smt
 
+import kdrag.theories.int as int_
 import kdrag.theories.real as real
 
 
@@ -209,6 +210,72 @@ sin = kd.define("sin", [a], smt.Map(real.sin, a))
 cos = kd.define("cos", [a], smt.Map(real.cos, a))
 
 abs = kd.define("abs", [a], smt.Map(real.abs, a))
+abs_ext = kd.prove(smt.ForAll([a, n], abs(a)[n] == real.abs(a[n])), by=[abs.defn])
+abs_ge_0 = kd.prove(
+    kd.QForAll([a, n], abs(a)[n] >= 0),
+    by=[abs_ext, real.abs_pos],
+)
+
+
+@kd.Theorem(
+    kd.QForAll(
+        [a, N],
+        N >= 0,
+        kd.QForAll([n], n >= 0, n <= N, abs(a)[n] <= finsum(abs(a), N)),
+    )
+)
+def abs_le_finsum_abs(l):
+    a, N = l.fixes()
+
+    l.induct(N, using=int_.induct_nat)
+    # base case: N = 0
+    l.intros()
+    n = l.fix()
+    l.intros()
+    l.split(at=-1)
+    l.have(n == 0, by=[])
+    l.rw(-1)
+    l.unfold(finsum)
+    l.unfold(cumsum)
+    l.simp()
+    l.auto()
+
+    # step: N >= 0, IH -> N + 1
+    N = l.fix()
+    l.intros()
+    l.intros()
+
+    n = l.fix()
+    l.intros()
+    l.split(at=0)
+
+    # Case split: n <= N or n = N + 1
+    l.cases(n <= N)
+
+    # n <= N: use IH and monotonicity of finsum
+    l.have(abs(a)[n] <= finsum(abs(a), N), by=[])
+    l.have(N + 1 > 0, by=[])
+    l.have(
+        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N + 1],
+        by=[finsum.defn, cumsum.defn],
+    )
+    l.have(abs(a)[N + 1] >= 0, by=[abs_ge_0])
+    l.have(finsum(abs(a), N) <= finsum(abs(a), N + 1), by=[])
+    l.auto()
+
+    # n > N: then n = N + 1
+    l.have(n == N + 1, by=[])
+    l.rw(-1)
+    l.have(N + 1 > 0, by=[])
+    l.have(
+        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N + 1],
+        by=[finsum.defn, cumsum.defn],
+    )
+    l.have(abs(a)[N + 1] >= 0, by=[abs_ge_0])
+    l.have(abs(a)[0] <= finsum(abs(a), N), by=[])
+    l.have(abs(a)[0] >= 0, by=[abs_ge_0])
+    l.have(finsum(abs(a), N + 1) >= abs(a)[N + 1], by=[])
+    l.auto()
 
 
 has_bound = kd.define("has_bound", [a, M], kd.QForAll([n], real.abs(a[n]) <= M))

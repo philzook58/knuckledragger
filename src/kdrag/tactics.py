@@ -324,6 +324,17 @@ def prove(
         raise e
 
 
+def vprove(thm: smt.BoolRef, **kwargs) -> kd.kernel.Proof:
+    """
+    Prove a theorem using an egraph-based solver.
+
+    >>> x = smt.Int("x")
+    >>> vprove(x + 1 > x)
+    |= x + 1 > x
+    """
+    return prove(thm, solver=solvers.VampireSolver, **kwargs)
+
+
 def simp(t: smt.ExprRef, by: list[kd.kernel.Proof] = [], **kwargs) -> kd.kernel.Proof:
     rules = [kd.rewrite.rewrite_of_expr(lem.thm) for lem in by]
     t1 = kd.rewrite.rewrite_once(t, rules)

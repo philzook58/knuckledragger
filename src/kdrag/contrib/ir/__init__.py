@@ -18,6 +18,7 @@ Jumps are calls to the other function blocks
 from dataclasses import dataclass, field
 import kdrag as kd
 import kdrag.smt as smt
+from collections import defaultdict
 
 
 def pp_sort(s: smt.SortRef) -> str:
@@ -100,13 +101,44 @@ class Block:
             res.append(f"%{i} = {rhs}")
         return "\n".join(res)
 
+    def succ_calls(self) -> list[smt.ExprRef]:
+        jmp = self.insns[-1]
+        if smt.is_if(jmp):
+            return jmp.children()
+        else:
+            return [jmp]
+
+
+type Label = str
+
 
 @dataclass
 class Function:
     """ """
 
-    entry: str  # smt.FuncDeclRef?
-    blocks: dict[str, Block]  # 0th block is entry. Or "entry" is entry? Naw. 0th.
+    entry: Label  # smt.FuncDeclRef?
+    blocks: dict[Label, Block]  # 0th block is entry. Or "entry" is entry? Naw. 0th.
+
+    def calls_of(self) -> dict[str, list[tuple[Label, smt.ExprRef]]]:
+        """
+        Returns a mapping from labels to a list of calls to that label
+        """
+        p = defaultdict(list)
+        for label, blk in self.blocks.items():
+            for call in blk.succ_calls():
+                p[call.decl().name()].append((label, call))
+        return p
+
+    def phis(self):
+        """
+        Return the analog a mapping from labels to phi nodes in that block
+        """
+
+        preds = self.calls_of()
+        phis = {}
+        for label, blk in self.blocks.items():
+            phis[label] = zip(*[call.children() for _, call in preds[label]])
+        return phis
 
 
 @dataclass

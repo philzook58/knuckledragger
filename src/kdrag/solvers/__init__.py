@@ -343,8 +343,8 @@ class VampireSolver(BaseSolver):
             cmd = [
                 self.options["solver_path"],
                 fp.name,
-                "--mode",
-                "casc",
+                # "--mode", # This adds portfolio mode, but it was slower. Maybe more useful for hard questions?
+                # "casc",
                 "--input_syntax",
                 "smtlib2",
                 # "--ignore_unrecognized_logic", "on",

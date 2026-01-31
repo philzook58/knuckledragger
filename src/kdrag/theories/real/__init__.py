@@ -137,6 +137,9 @@ abs_div = kd.prove(
     ForAll([x, y], smt.Implies(y != 0, abs(x / y) == abs(x) / abs(y))),
     by=[abs.defn],
 )
+abs_Lipschitz = kd.prove(
+    ForAll([x, y], abs(abs(x) - abs(y)) <= abs(x - y)), by=[abs.defn]
+)
 abs_triangle = kd.prove(
     ForAll([x, y, z], abs(x - y) <= abs(x - z) + abs(z - y)), by=[abs.defn]
 )
@@ -220,6 +223,10 @@ floor_idem = kd.prove(ForAll([x], floor(floor(x)) == floor(x)), by=[floor.defn, 
 floor_le = kd.prove(ForAll([x], floor(x) <= x), by=[floor.defn])
 floor_gt = kd.prove(ForAll([x], x < floor(x) + 1), by=[floor.defn])
 
+
+ceil = kd.define("ceil", [x], -floor(-x))
+ceil_le = kd.prove(ForAll([x], x <= ceil(x)), by=[ceil.defn, floor_le])
+ceil_gt = kd.prove(ForAll([x], ceil(x) - 1 < x), by=[ceil.defn, floor_gt])
 # c = kd.Calc([n, x], smt.ToReal(n) <= x)
 # c.eq(n <= smt.ToInt(x))
 # c.eq(smt.ToReal(n) <= floor(x), by=[floor.defn])
@@ -236,6 +243,23 @@ pow_three = kd.prove(kd.QForAll([x], pow(x, 3) == x * x * x), by=[pow.defn])
 # pow_zero = kd.kernel.prove(kd.QForAll([x], x > 0, pow(x, 0) == 1), by=[pow.defn])
 kd.kernel.prove(smt.Implies(x > 0, x**0 == 1))
 # pow_pos = kd.prove(kd.QForAll([x, y], x > 0, pow(x, y) > 0), by=[pow.defn])
+
+pownat = smt.Function("pownat", smt.RealSort(), smt.IntSort(), smt.RealSort())
+pownat = kd.define(
+    "pownat",
+    [x, n],
+    kd.cond((n == 0, 1), (n > 0, x * pownat(x, n - 1)), default=pownat(x, n + 1) / x),
+)
+
+# Basic lemmas for pownat.
+pownat_zero = kd.prove(
+    smt.ForAll([x], pownat(x, 0) == 1),
+    by=[pownat.defn],
+)
+pownat_succ = kd.prove(
+    kd.QForAll([x, n], n >= 0, pownat(x, n + 1) == x * pownat(x, n)),
+    by=[pownat.defn],
+)
 
 sqr = kd.define("sqr", [x], x * x)
 
@@ -383,6 +407,29 @@ cont_at = kd.define(
         ),
     ),
 )
+
+
+# x, y = smt.Reals("x y")
+N = smt.Int("N")
+
+
+@kd.Theorem(
+    smt.ForAll(
+        [x, y],
+        smt.Implies(
+            smt.And(x > 0, y > 0),
+            smt.Exists([N], y < x * N),
+        ),
+    )
+)
+def archimedes(l):
+    # https://en.wikipedia.org/wiki/Archimedean_property
+    x, y = l.fixes()
+    l.intros()
+
+    # Choose N = floor(y/x) + 1.
+    l.exists(smt.ToInt(y / x) + 1)
+    l.auto()
 
 
 # smt.Function("cont_at", RFun, R, smt.BoolSort())
