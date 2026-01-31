@@ -100,6 +100,88 @@ cumsum = kd.define(
     ),
 )
 
+
+# TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
+@kd.Theorem(
+    "forall (a : RSeq) (x : Real) (n : Int), (cumsum (smul x a)) n = (smul x (cumsum a)) n"
+)
+def cumsul_smul(l):
+    a, x, n = l.fixes()
+    l.induct(n)
+
+    # n < 0
+    # TODO: These induction cases look disgusting with too many lambdas.
+    l.fix()
+    l.simp()
+    l.intros()
+    l.unfold(cumsum, smul)
+    l.simp()
+    l.auto(by=[smul.defn, cumsum.defn])
+
+    # n == 0
+    l.auto(by=[smul.defn, cumsum.defn])
+
+    # n > 0
+    l.fix()
+    l.simp()
+    l.unfold(cumsum, smul)
+    l.simp()
+    l.unfold(cumsum, smul)
+    l.simp()
+    l.auto(by=[smul.defn, cumsum.defn])
+
+
+@kd.Theorem(
+    "forall (a b : RSeq) (m : Int), (forall (n : Int), n >= 0 -> a n <= b n) -> m >= 0 -> (cumsum a) m <= (cumsum b) m"
+)
+def cumsul_mono(l):
+    a, b, m = l.fixes()
+    l.intros()
+    l.induct(m)
+    _n = l.fix()
+    l.auto()
+
+    # n == 0
+    l.auto(by=[cumsum.defn])
+
+    # n > 0
+    _n = l.fix()
+    l.intros()
+    l.simp()
+    l.intros()
+    l.unfold(cumsum)
+    l.auto(by=[cumsum.defn])
+
+
+@kd.Theorem(
+    "forall (a b : RSeq) (n : Int), (cumsum (a + b)) n = (cumsum a) n + (cumsum b) n"
+)
+def cumsul_add(l):
+    a, x, n = l.fixes()
+    l.induct(n)
+
+    # n < 0
+    # TODO: These induction cases look disgusting with too many lambdas.
+    l.fix()
+    l.simp()
+    l.intros()
+    l.unfold(cumsum, add)
+    l.simp()
+    l.auto(by=[add.defn, cumsum.defn])
+
+    # n == 0
+    l.auto(by=[add.defn, cumsum.defn])
+
+    # n > 0
+    l.fix()
+    l.simp()
+    l.unfold(cumsum, add)
+    l.simp()
+    l.unfold(cumsum, add)
+    l.simp()
+    l.auto(by=[add.defn, cumsum.defn])
+
+
 max = smt.Function("max", RSeq, RSeq)
 max = kd.define(
     "max",
