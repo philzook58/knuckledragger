@@ -117,7 +117,7 @@ def test_sheffer():
     simp += [bound1, bound2, absorb1, absorb2, idemp2]
 
     l = kd.Lemma(kd.QForAll([a, b], sup(a, b) == top, inf(a, b) == bot, b == ~a))
-    _a, _b = l.intros()
+    _a, _b = l.fixes()
     l.intros()
     l.symm()
     l.eq(inf(_b, top), by=[ident2])
@@ -134,14 +134,14 @@ def test_sheffer():
     inv = l.qed()
 
     l = kd.Lemma(kd.QForAll([a], ~~a == a))
-    _a = l.intros()
+    _a = l.fix()
     l.symm()
     l.apply(inv)
     l.auto(by=[inf_comm, sup_comm, compl1, compl2])
     dne = l.qed()
 
     l = kd.Lemma(kd.QForAll([a, b], ~a == ~b, a == b))
-    _a, _b = l.intros()
+    _a, _b = l.fixes()
     l.intros()
     l.have(~~_a == ~~_b, by=[])
     l.rw(dne, at=-1)
@@ -149,7 +149,7 @@ def test_sheffer():
     inv_elim = l.qed()
 
     l = kd.Lemma(kd.QForAll([a, b], sup(a, ~b) == top, inf(a, ~b) == bot, a == b))
-    _a, _b = l.intros()
+    _a, _b = l.fixes()
     l.intros()
     l.have(~_b == ~_a, by=[inv])
     l.apply(inv_elim)
@@ -186,7 +186,7 @@ def test_sheffer():
     simp += [A1, A2]
 
     c = kd.Lemma(smt.ForAll([a, b], ~sup(a, b) == inf(~a, ~b)))
-    _a, _b = c.intros()
+    _a, _b = c.fixes()
     c.symm()
     c.apply(cancel)  # Hmm. apply should already apply split?
     c.split()
@@ -205,7 +205,7 @@ def test_sheffer():
     dm1 = c.qed()
 
     l = kd.Lemma(smt.ForAll([a, b], ~inf(a, b) == sup(~a, ~b)))
-    _a, _b = l.intros()
+    _a, _b = l.fixes()
     l.symm()
     l.apply(cancel)
     l.split()
@@ -287,7 +287,7 @@ def test_sheffer():
     )
 
     l = kd.Lemma(smt.ForAll([a, b, c], sup(a, sup(b, c)) == sup(sup(a, b), c)))
-    _a, _b, _c = l.intros()
+    _a, _b, _c = l.fixes()
     l.apply(cancel)
     l.split()
 

@@ -154,7 +154,7 @@ def test_Lemma():
     l.qed()
 
     l = kd.tactics.Lemma(kd.QForAll([p, q], p, q, p))
-    p1, q1 = l.intros()
+    p1, q1 = l.fixes()
     l.intros()
     l.cases(p1)
     l.auto()
@@ -171,7 +171,7 @@ def test_Lemma():
     P = smt.Function("P", smt.IntSort(), smt.BoolSort())
     myax = kd.axiom(smt.ForAll([z], P(z)))
     l = kd.tactics.Lemma(kd.QForAll([x], P(x)))
-    x1 = l.intros()
+    x1 = l.fix()
     l.apply(myax)
     l.qed()
 
@@ -196,13 +196,13 @@ def test_Lemma():
     x = smt.Int("x")
     sqr = kd.define("sqr", [x], x * x)
     l = kd.Lemma(smt.ForAll([x], sqr(x) == x * x))
-    l.intros()
+    l.fix()
     l.unfold(sqr)
     print(l)
     l.auto()
     l.qed()
     l = kd.Lemma(smt.ForAll([x], sqr(sqr(x)) == x * x * x * x))
-    l.intros()
+    l.fix()
     l.unfold(sqr)
     l.unfold(sqr)
     l.auto()
@@ -216,7 +216,7 @@ def test_Lemma():
         smt.ForAll([x], even(x) == smt.Exists([y], x == 2 * y)), by=[even.defn]
     )
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
-    x1 = l.intros()
+    x1 = l.fix()
     l.intros()
     l.rw(even.defn)
     l.rw(even.defn, at=0)
@@ -230,7 +230,7 @@ def test_Lemma():
 
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
     [
-        x1 := l.intros(),
+        x1 := l.fix(),
         l.intros(),
         l.rw(even.defn),
         l.rw(even.defn, at=0),

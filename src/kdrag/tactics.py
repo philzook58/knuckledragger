@@ -650,7 +650,7 @@ class ProofState:
         else:
             raise ValueError("Intro failed on goal. Not an implication", goal)
 
-    def intros(self) -> smt.ExprRef | list[smt.ExprRef] | Goal:
+    def intros(self) -> smt.ExprRef | Goal:
         """
         intros opens an implication. ?|= p -> q becomes p ?|= q
 
@@ -665,9 +665,6 @@ class ProofState:
         goalctx = self.top_goal()
         goal = goalctx.goal
         ctx = goalctx.ctx
-        # TODO: Let's remove this
-        if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
-            return self.fixes()
         self.pop_goal()
         if smt.is_implies(goal):
             self.goals.append(
@@ -703,6 +700,10 @@ class ProofState:
                     )
                 )
             return self.top_goal()
+        elif isinstance(goal, smt.QuantifierRef) and goal.is_forall():
+            raise ValueError(
+                "Intros failed on goal. Use fixes/fix to open forall quantifier", goal
+            )
         else:
             raise ValueError("Intros failed on goal", goal)
 
