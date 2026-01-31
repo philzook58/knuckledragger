@@ -701,23 +701,23 @@ def XtimesYinZ_spec(pf):
 
 
 @kd.Theorem(
-    'forall (st st\' : State) (n : Int) (ev : Ceval), '
+    "forall (st st' : State) (n : Int) (ev : Ceval), "
     'lookup st "X" = n -> '
-    'ceval_wf ev plus2 st st\' -> '
+    "ceval_wf ev plus2 st st' -> "
     'lookup st\' "X" = n + 2'
 )
 def plus2_spec(pf):
-    pf.intros()
+    pf.fixes()
     pf.auto(by=BY_CEVAL)
 
 
 @kd.Theorem(
-    'forall (st st\' : State) (x y : Int) (ev : Ceval), '
+    "forall (st st' : State) (x y : Int) (ev : Ceval), "
     'lookup st "X" = x -> '
     'lookup st "Y" = y -> '
-    'ceval_wf ev XtimesYinZ st st\' -> '
+    "ceval_wf ev XtimesYinZ st st' -> "
     'lookup st\' "Z" = x * y'
 )
 def XtimesYinZ_spec(pf):
-    pf.intros()
+    pf.fixes()
     pf.auto(by=BY_CEVAL)
