@@ -194,7 +194,6 @@ class Defn(Judgement):
         return self.decl(*args)
 
 
-_datatypes = {}
 defns: dict[smt.FuncDeclRef, Defn] = {}
 """
 defn holds definitional axioms for function symbols.
@@ -550,12 +549,16 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
     return axiom(smt.Implies(smt.And(hyps), conc), by="induction_axiom_schema")
 
 
+_datatypes: dict[str, smt.DatatypeSortRef] = {}
+"""Registry of existing Inductives. Disallows duplicates"""
+
+
 # TODO. Make this a subclass
-def Inductive(name: str, ctx=None) -> smt.Datatype:
+def Inductive(name: str, ctx=None, auto_fresh=False) -> smt.Datatype:
     """
     Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
 
-    >>> Nat = Inductive("Nat")
+    >>> Nat = Inductive("Nat909")
     >>> Nat.declare("zero")
     >>> Nat.declare("succ", ("pred", Nat))
     >>> Nat = Nat.create()
@@ -564,6 +567,8 @@ def Inductive(name: str, ctx=None) -> smt.Datatype:
     """
     counter = 0
     n = name
+    if not auto_fresh and n in _datatypes:
+        raise ValueError("Duplicate Inductive name", name)
     while n in _datatypes:
         counter += 1
         n = name + "!" + str(counter)

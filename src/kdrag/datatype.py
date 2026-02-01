@@ -74,11 +74,11 @@ def datatype_call(
     """
     Enable "call" syntax for constructors of smt datatypes
 
-    >>> Point = kd.Struct("Point", ("x", smt.IntSort()), ("y", smt.IntSort()))
+    >>> Point = kd.Struct("Point324", ("x", smt.IntSort()), ("y", smt.IntSort()))
     >>> Point(1,2)
-    Point(1, 2)
+    Point324(1, 2)
     >>> Point(y=2, x=1)
-    Point(1, 2)
+    Point324(1, 2)
     """
     f = call_dict.get(self, None)
     if f is not None:
@@ -108,15 +108,15 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
     """
     Like NamedTuple, you can replace fields of a record datatype.
 
-    >>> Point = kd.Struct("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
+    >>> Point = kd.Struct("Point894", ("x", smt.RealSort()), ("y", smt.RealSort()))
     >>> Point(0,1)._replace(x=3, y=10)
-    Point(3, 10)
+    Point894(3, 10)
     >>> p = smt.Const("p", Point)
     >>> q = p._replace(y=10)
     >>> q
-    Point(x(p), 10)
+    Point894(x(p), 10)
     >>> q._replace(x=1)
-    Point(1, 10)
+    Point894(1, 10)
     """
     sort = self.sort()
 
@@ -403,7 +403,7 @@ def Struct(
 def NewType(name: str, sort: smt.SortRef, pred=None) -> smt.DatatypeSortRef:
     """Minimal wrapper around a sort for sort based overloading
 
-    >>> NatI = NewType("NatI", smt.IntSort(), pred = lambda x: x.val >= 0)
+    >>> NatI = NewType("NatI654", smt.IntSort(), pred = lambda x: x.val >= 0)
     >>> x = smt.Const("x", NatI)
     >>> kd.QForAll([x], x.val >= -7)
     ForAll(x, Implies(val(x) >= 0, val(x) >= -7))

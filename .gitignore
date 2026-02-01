@@ -9,3 +9,4 @@ _build/
 .mypy_cache
 test.sh
 .hypothesis/
+py311/

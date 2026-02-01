@@ -33,14 +33,19 @@ def Concat(a, b):
     )
 
 
+@functools.cache
+def KnownBitsSort(W):
+    return kd.Struct(
+        f"KnownBits_{W}",
+        ("ones", smt.BitVecSort(W)),
+        ("unknowns", smt.BitVecSort(W)),
+    )
+
+
 class KnownBits:
     def __init__(self, W):
         self.W = W
-        KnownBits = kd.Struct(
-            f"KnownBits_{W}",
-            ("ones", smt.BitVecSort(W)),
-            ("unknowns", smt.BitVecSort(W)),
-        )
+        KnownBits = KnownBitsSort(W)
         self.T = KnownBits
         x, y, z = smt.Consts("x y z", KnownBits)
         a, b, c = smt.Consts("a b c", smt.BitVecSort(W))

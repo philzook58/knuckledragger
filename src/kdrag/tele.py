@@ -358,9 +358,7 @@ def ann(x: smt.ExprRef, T: SubSort) -> smt.ExprRef:
 
 
 # For Proof objects
-Unit = kd.Inductive("Unit")
-Unit.declare("tt")
-Unit = Unit.create()
+Unit = kd.Unit
 
 _n = smt.Int("n")
 Nat = smt.Lambda([_n], _n >= 0)

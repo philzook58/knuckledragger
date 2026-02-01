@@ -76,7 +76,7 @@ MemSorts = {
 
 MemStateSort = {
     bits: kd.Struct(
-        "MemState", ("ram", MemSort), ("register", MemSort), ("unique", MemSort)
+        f"MemState{bits}", ("ram", MemSort), ("register", MemSort), ("unique", MemSort)
     )
     for bits, MemSort in MemSorts.items()
 }

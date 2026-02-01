@@ -144,8 +144,9 @@ def ancestor_of_ex(pf):
 
 # --------------------------------------------------------------------
 # Evenness as an inductive proposition on Nat (explicit spine + wf).
-
-Even = kd.inductive("inductive Even where | EvenZ : Even | EvenSS : Even -> Even")
+# Named Even0 to avoid clash with Even defined in standard library during tests
+# Note that later "Even" are referring to the python name, not the internal z3 name. This is somewhat confusing
+Even = kd.inductive("inductive Even0 where | EvenZ : Even0 | EvenSS : Even0 -> Even0")
 
 EvenZ = Even.EvenZ
 EvenSS = Even.EvenSS

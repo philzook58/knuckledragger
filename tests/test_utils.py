@@ -125,7 +125,7 @@ def test_subterms():
 def test_generate():
     assert len(list(kd.utils.generate(smt.BitVecSort(2)))) == 4
     Foo = kd.NewType(
-        "Foo", smt.IntSort(), pred=lambda x: smt.And(x.val >= 0, x.val < 10)
+        "Foo754", smt.IntSort(), pred=lambda x: smt.And(x.val >= 0, x.val < 10)
     )
     assert len(list(kd.utils.generate(Foo))) == 10
 

@@ -333,8 +333,20 @@ def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.Exp
             while args:
                 if isinstance(func, smt.FuncDeclRef):
                     arity = func.arity()
-                    func = func(*args[:arity])
-                    args = args[arity:]
+                    try:
+                        func = func(*args[:arity])
+                        args = args[arity:]
+                    except Exception as e:
+                        raise ValueError(
+                            "Function application failed",
+                            func,
+                            "with inputs sorts",
+                            [func.domain(i) for i in range(arity)],
+                            "on arguments",
+                            args,
+                            "of sort",
+                            [arg.sort() for arg in args],
+                        ) from e
                 elif smt.is_func(func):
                     assert isinstance(func, smt.QuantifierRef) or isinstance(
                         func, smt.ArrayRef
