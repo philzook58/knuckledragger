@@ -7,7 +7,7 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 
 import os
 from . import config
-
+from typing import TypeAlias
 
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
@@ -474,7 +474,7 @@ ExprRef.prop = None
 FuncDeclRef.prop = None
 
 
-type FuncRef = ArrayRef | QuantifierRef
+FuncRef: TypeAlias = ArrayRef | QuantifierRef
 
 
 def is_func(f: ExprRef) -> bool:

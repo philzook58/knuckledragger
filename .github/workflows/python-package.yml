@@ -46,11 +46,15 @@ jobs:
           #python -m pip install ruff pytest cvc5
           #python -m pip install -e .[dev,yosys,pypcode,rust]
           bash ./src/kdrag/solvers/install.sh
+      - name: Install the project and make sure imports without extras
+        run: |
+          uv sync --locked
+          uv pip install -e .
+          uv run python3 -c "from kdrag.solvers import VampireSolver;print(VampireSolver().check())" # run to install vampire
       - name: Install the project
         run: |
           uv sync --locked --all-extras --dev
           uv pip install -e .[dev,yosys,pypcode,rust,solvers]
-          uv run python3 -c "from kdrag.solvers import VampireSolver;print(VampireSolver().check())" # run to install vampire
       #- name: Build kdragrs
       #  run: |
       #    cd rust/kdragrs

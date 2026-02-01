@@ -6,7 +6,7 @@ from kdrag.kernel import is_proof
 import kdrag.smt as smt
 import sys
 import kdrag as kd
-from typing import Optional, Generator, Any, Callable, Sequence
+from typing import Optional, Generator, Any, Callable, Sequence, TypeAlias
 import os
 import glob
 import inspect
@@ -961,7 +961,7 @@ class DeclHole:
         return len(self._right) > 0
 
 
-type Hole = ForAllHole | ExistsHole | LambdaHole | DeclHole
+Hole: TypeAlias = ForAllHole | ExistsHole | LambdaHole | DeclHole
 
 
 @dataclass

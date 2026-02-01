@@ -958,7 +958,9 @@ name = "knuckledragger"
 version = "0.1.4a1"
 source = { editable = "." }
 dependencies = [
+    { name = "graphviz" },
     { name = "lark" },
+    { name = "sympy" },
     { name = "z3-solver" },
 ]
 
@@ -982,9 +984,7 @@ solvers = [
     { name = "cloudpickle" },
     { name = "cvc5" },
     { name = "egglog" },
-    { name = "graphviz" },
     { name = "python-flint" },
-    { name = "sympy" },
     { name = "ziglang" },
 ]
 yosys = [
@@ -1012,7 +1012,7 @@ requires-dist = [
     { name = "cloudpickle", marker = "extra == 'solvers'", specifier = ">=3.1.2" },
     { name = "cvc5", marker = "extra == 'solvers'", specifier = ">=1.3.2" },
     { name = "egglog", marker = "extra == 'solvers'", specifier = ">=9.0.0" },
-    { name = "graphviz", marker = "extra == 'solvers'", specifier = ">=0.20.3" },
+    { name = "graphviz", specifier = ">=0.20.3" },
     { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.124.1" },
     { name = "jupyter", marker = "extra == 'dev'" },
     { name = "lark", specifier = ">=1.3.1" },
@@ -1021,7 +1021,7 @@ requires-dist = [
     { name = "pypcode", marker = "extra == 'pypcode'", specifier = ">=3.0.3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "python-flint", marker = "extra == 'solvers'" },
-    { name = "sympy", marker = "extra == 'solvers'" },
+    { name = "sympy" },
     { name = "yowasp-yosys", marker = "extra == 'yosys'", specifier = ">=0.50.0.0.post858" },
     { name = "z3-solver", specifier = ">=4.15.4" },
     { name = "ziglang", marker = "extra == 'solvers'", specifier = ">=0.15.1" },
