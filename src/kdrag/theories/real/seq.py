@@ -17,7 +17,17 @@ x, y, z, eps, delta, M = smt.Reals("x y z eps delta M")
 zero = kd.define("zero", [], smt.K(smt.IntSort(), smt.RealVal(0)))
 const = kd.define("const", [x], smt.Lambda([i], x))
 id_ = kd.define("id", [], smt.Lambda([i], smt.ToReal(i)))
-assert isinstance(id_, smt.ExprRef)
+assert isinstance(id_, smt.ExprRef)  # for typechecker
+
+geom = kd.define("geom", [x], smt.Lambda([i], real.pownat(x, i)))
+
+S = smt.Array("S", smt.IntSort(), smt.BoolSort())
+ind = kd.define(
+    "ind", [S], smt.Lambda([i], smt.If(S[i], smt.RealVal(1), smt.RealVal(0)))
+)  # indicator sequence / iverson bracket
+
+F = smt.Array("F", smt.IntSort(), smt.IntSort())
+dommap = kd.define("dommap", [F, a], smt.Lambda([i], a[F[i]]))
 
 # Domain operations
 shift = kd.define("shift", [a, n], smt.Lambda([i], a[i - n]))
@@ -92,20 +102,81 @@ cumsum = kd.define(
     [a],
     smt.Lambda(
         [i],
-        smt.If(
+        smt.If(  # Maybe this is a badly shifted definition
             i == 0,
             a[0],
-            smt.If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i]),
+            smt.If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i + 1]),
         ),
     ),
 )
+
+
+@kd.Theorem("forall (n : Int), cumsum zero n = 0")
+def cumsum_zero(l):
+    n = l.fix()
+    l.unfold(zero)
+    l.induct(n)
+
+    # n < 0
+    l.fix()
+    l.intros()
+    l.unfold(cumsum)
+    l.auto()
+
+    # n == 0
+    l.unfold(cumsum)
+    l.auto()
+
+    # n > 0
+    l.fix()
+    l.intros()
+    l.unfold(cumsum)
+    l.auto()
+
+
+@kd.Theorem(
+    "forall (x : Real) (n : Int), n >= 0 -> cumsum (const x) n = (n + 1) * x"
+)  # TODO: fix for n < 0. Wrong definition?
+def cumsum_const(l):
+    x, n = l.fixes()
+    l.unfold(const)
+    l.induct(n)
+
+    # n < 0
+    # l.fix()
+    # l.intros()
+    # l.unfold(cumsum)
+    # l.simp()
+    l.auto()
+
+    # n == 0
+    l.unfold(cumsum)
+    l.auto()
+
+    # n > 0
+    n = l.fix()
+    l.intros()
+    l.intros()
+    l.unfold(cumsum)
+    # l.boolsimp() # boolsimp is not working well
+    # l.simp()
+    # l.have((n == -1) == False, by=[])
+    # l.rw(-1)
+    # l.have((n <= -1) == False, by=[])
+    # l.rw(-1)
+    l.auto()
+
+
+# TODO: cumsum id_ = n * (n + 1) / 2
+# cumsum pownat = 1 - x^(n + 1) / (1 - x)
+# cumsum_diff - the fundamental theorem of calculus for sequences
 
 
 # TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
 @kd.Theorem(
     "forall (a : RSeq) (x : Real) (n : Int), cumsum (smul x a) n = smul x (cumsum a) n"
 )
-def cumsul_smul(l):
+def cumsum_smul(l):
     a, x, n = l.fixes()
     l.induct(n)
 
@@ -420,8 +491,8 @@ lim_defn = kd.prove(
 
 
 # kd.Lemma(has_lim(zero, 0)).unfold(has_lim).unfold(zero).unfold(real.abs)
-kd.prove(has_lim(zero, 0), by=[has_lim.defn, zero.defn, real.abs.defn])
-kd.prove(has_lim(const(x), x), by=[has_lim.defn, const.defn, real.abs.defn])
+lim_zero = kd.prove(has_lim(zero, 0), by=[has_lim.defn, zero.defn, real.abs.defn])
+lim_const = kd.prove(has_lim(const(x), x), by=[has_lim.defn, const.defn, real.abs.defn])
 
 
 @kd.Theorem(has_lim(smt.Lambda([n], smt.RealVal(1) / n), smt.RealVal(0)))
@@ -437,7 +508,7 @@ def has_lim_inv(l):
 
 
 @kd.Theorem("forall (a : RSeq) (x y : Real), has_lim a x -> has_lim a y -> x = y")
-def lim_unique_lean(l):
+def lim_unique(l):
     a, x, y = l.fixes()
     l.intros()
     l.intros()

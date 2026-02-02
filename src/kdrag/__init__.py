@@ -303,6 +303,23 @@ def Id(T: smt.SortRef) -> smt.QuantifierRef:
     return smt.Lambda([x], x)
 
 
+def Undef(sort: smt.SortRef, *args) -> smt.ExprRef:
+    """
+    Create an "undefined" value possibly dependent on other values.
+    You will not be able to prove anything about this value that is not true of any symbol.
+
+    >>> Undef(smt.IntSort())
+    undef!...
+    >>> x = smt.Const("x", smt.IntSort())
+    >>> Undef(smt.IntSort(), x)
+    f!...(x)
+    """
+    if len(args) == 0:
+        return smt.FreshConst(sort, prefix="undef")
+    else:
+        return smt.FreshFunction(*[arg.sort() for arg in args], sort)(*args)
+
+
 __all__ = [
     "prove",
     "axiom",

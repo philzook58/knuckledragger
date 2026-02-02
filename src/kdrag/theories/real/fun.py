@@ -9,7 +9,7 @@ x, y, c = smt.Consts("x y c", real.R)
 smul = kd.define("smul", [c, f], smt.Lambda([x], real.mul(c, f[x])))
 
 
-# TODO: if I leave these add and mul bare, I have problems. Hmm.
+# TODO: if I leave these add and mul bare, I have problems in the following proofs. Not great. Z3 has bad handling of quantifiers + real operators
 def Linear(f):
     return smt.And(
         smt.ForAll([x, y], f[real.add(x, y)] == real.add(f[x], f[y])),
@@ -47,8 +47,8 @@ def linear_add(l):
 def linear_smul(l):
     f, c = l.fixes()
     l.unfold()
-    _h = l.intros()
-    l.split(at=-1)  # Fix this. giving h doesn't work
+    h = l.intros()
+    l.split(at=h)
     l.split()
 
     _x, _y = l.fixes()

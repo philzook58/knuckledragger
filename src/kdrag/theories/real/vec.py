@@ -146,3 +146,35 @@ khat = Vec3(0, 0, 1)
 # R itself is a vector space
 
 # banach fixed point https://en.wikipedia.org/wiki/Banach_fixed-point_theorem
+
+
+V = smt.DeclareSort("Vec")
+u, v, w = smt.Consts("u v w", V)
+a, b = smt.Reals("a b")
+smul = smt.Function("smul", smt.RealSort(), V, V)
+add = smt.Function("add", V, V, V)
+kd.notation.add.register(V, lambda x, y: add(x, y))
+
+add_comm = kd.axiom(smt.ForAll([u, v], u + v == v + u))
+add_assoc = kd.axiom(smt.ForAll([u, v, w], (u + v) + w == u + (v + w)))
+zero = smt.Const("zero", V)
+add_zero = kd.axiom(smt.ForAll([u], u + zero == u))
+smul_assoc = kd.axiom(
+    smt.ForAll([a, b, u], smul(a, smul(b, u)) == smul(a * b, u))
+)  # trigger left to right?
+smul_add = kd.axiom(smt.ForAll([a, b, u], smul(a + b, u) == smul(a, u) + smul(b, u)))
+smul_vadd = kd.axiom(smt.ForAll([a, u, v], smul(a, u + v) == smul(a, u) + smul(a, v)))
+
+# zero_unique
+# smul_one
+# smul_zero
+#
+
+
+# VSet = smt.ArraySort(V, smt.BoolSort())
+# closed = kd.define("closed", [S], smt.ForAll([u, v, a, b], S[u], S[v], S[smul(a, u) + smul(b, v)])) # is_linear ?
+# is_basis = kd.define("is_basis", [S], smt.ForAll([u], S[u], smt.Exists([a1, a2, a3], u == smul(a1, ihat) + smul(a2, jhat) + smul(a3, khat))))
+# span = kd.define("span", [S], smt.Lambda([v], ))
+
+# f = smt.Array("f", V, V)
+# is_linear = kd.define("is_linear", [f], smt.ForAll([u, v, a, b], f[smul(a, u) + smul(b, v)] == smul(a, f[u]) + smul(b, f[v])))

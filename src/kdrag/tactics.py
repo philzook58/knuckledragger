@@ -812,7 +812,9 @@ class ProofState:
         """
         goalctx = self.top_goal()
         bools = [
-            e for e in kd.utils.subterms(goalctx.goal) if isinstance(e, smt.BoolRef)
+            e
+            for e in kd.utils.subterms(goalctx.goal)
+            if isinstance(e, smt.BoolRef) and not isinstance(e, smt.QuantifierRef)
         ]
         trues = []
         falses = []
@@ -1481,7 +1483,9 @@ class ProofState:
             )
         return self.top_goal()
 
-    def unfold(self, *decls: smt.FuncDeclRef, at=None, keep=False) -> "ProofState":
+    def unfold(
+        self, *decls: smt.FuncDeclRef | smt.ExprRef, at=None, keep=False
+    ) -> "ProofState":
         """
         Unfold all definitions once. If declarations are given, only those are unfolded.
 
@@ -1494,9 +1498,17 @@ class ProofState:
         >>> l.unfold()
         [] ?|= If(is(Z, Z), Z, S(add(pred(Z), Z))) == Z
         """
-        assert all(isinstance(d, smt.FuncDeclRef) for d in decls)
+        if not all(isinstance(d, smt.FuncDeclRef) or smt.is_const(d) for d in decls):
+            raise ValueError(
+                "Unfold tactic only accepts function declarations or defined constants",
+                decls,
+            )
         goalctx = self.top_goal()
-        decls1 = None if len(decls) == 0 else decls
+        decls1 = (
+            None
+            if len(decls) == 0
+            else [d if isinstance(d, smt.FuncDeclRef) else d.decl() for d in decls]
+        )
         if at is None:
             e = goalctx.goal
             trace = []
@@ -1515,7 +1527,7 @@ class ProofState:
         else:
             at, e = goalctx.ctx_find(at)
             trace = []
-            e2 = kd.rewrite.unfold(e, decls=decls, trace=trace)
+            e2 = kd.rewrite.unfold(e, decls=decls1, trace=trace)
             for lem in trace:
                 self.add_lemma(lem)
             # self.add_lemma(kd.prove(e == e2, by=trace))
