@@ -434,23 +434,25 @@ class Goal(NamedTuple):
         else:
             return self.goal
 
-    def ctx_find(self, n: int | smt.BoolRef) -> smt.BoolRef:
+    def ctx_find(self, n: int | smt.BoolRef) -> tuple[int, smt.BoolRef]:
         """
         Find a hypothesis in the context by index or by matching expression.
 
         >>> x = smt.Int("x")
         >>> g = Goal(sig=[], ctx=[x > 0, x < 10], goal=x == 5)
         >>> g.ctx_find(0)
-        x > 0
+        (0, x > 0)
         >>> g.ctx_find(x < 10)
-        x < 10
+        (1, x < 10)
         """
         if isinstance(n, int):
-            return self.ctx[n]
+            if n < 0:
+                n += len(self.ctx)
+            return n, self.ctx[n]
         else:
-            for h in self.ctx:
+            for i, h in enumerate(self.ctx):
                 if h.eq(n):
-                    return h
+                    return i, h
             raise KeyError(f"Hypothesis {n} not found in context")
 
     def proof(self) -> "ProofState":
@@ -782,9 +784,7 @@ class ProofState:
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
-            if at < 0:
-                at = len(oldctx) + at
-            old = oldctx[at]
+            (at, old) = goalctx.ctx_find(at)
             new = kd.utils.pathmap(smt.simplify, old, path)
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
@@ -1239,15 +1239,14 @@ class ProofState:
                 raise ValueError("Unexpected case in goal for split tactic", goal)
             return self
         else:
-            if at < 0:
-                at = len(ctx) + at
-            if smt.is_or(ctx[at]):
+            (at, hyp) = goalctx.ctx_find(at)
+            if smt.is_or(hyp):
                 self.pop_goal()
-                for c in ctx[at].children():
+                for c in hyp.children():
                     self.goals.append(
                         goalctx._replace(ctx=ctx[:at] + [c] + ctx[at + 1 :], goal=goal)
                     )
-            elif smt.is_and(ctx[at]):
+            elif smt.is_and(hyp):
                 self.pop_goal()
                 self.goals.append(
                     goalctx._replace(
@@ -1323,7 +1322,7 @@ class ProofState:
         return self
 
     def rw(
-        self, rule: kd.kernel.Proof | int, at=None, rev=False, **kwargs
+        self, rule: kd.kernel.Proof | int | smt.BoolRef, at=None, rev=False, **kwargs
     ) -> "ProofState":
         """
         `rewrite` allows you to apply rewrite rule (which may either be a Proof or an index into the context) to the goal or to the context.
@@ -1340,8 +1339,10 @@ class ProofState:
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
-        if isinstance(rule, int):
-            rulethm = ctx[rule]
+        if at is not None:
+            (at, hyp) = goalctx.ctx_find(at)
+        if isinstance(rule, int) or isinstance(rule, smt.ExprRef):
+            _, rulethm = goalctx.ctx_find(rule)
         elif kd.kernel.is_proof(rule):
             rulethm = rule.thm
         else:
@@ -1365,12 +1366,8 @@ class ProofState:
             raise ValueError(f"Rewrite tactic failed. Not an equality {rulethm}")
         if at is None:
             target = goal
-        elif isinstance(at, int):
-            target = ctx[at]
         else:
-            raise ValueError(
-                "Rewrite tactic failed. `at` is not an index into the context"
-            )
+            at, target = goalctx.ctx_find(at)
         t_subst = kd.utils.pmatch_rec(vs, lhs, target)
         if t_subst is None:
             raise ValueError(
@@ -1383,13 +1380,11 @@ class ProofState:
             target: smt.BoolRef = smt.substitute(target, (lhs1, rhs1))
             if isinstance(rulethm, smt.QuantifierRef) and rulethm.is_forall():
                 self.add_lemma(kd.kernel.specialize([subst[v] for v in vs], rulethm))
-            if not isinstance(rule, int) and kd.kernel.is_proof(rule):
+            if isinstance(rule, kd.kernel.Proof):
                 self.add_lemma(rule)
             if at is None:
                 self.goals.append(goalctx._replace(ctx=ctx, goal=target))
             else:
-                if at == -1:
-                    at = len(ctx) - 1
                 self.goals.append(
                     goalctx._replace(ctx=ctx[:at] + [target] + ctx[at + 1 :], goal=goal)
                 )
@@ -1474,13 +1469,13 @@ class ProofState:
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
-            old = oldctx[at]
+            at, old = goalctx.ctx_find(at)
             new = kd.rewrite.beta(old)
             if new.eq(old):
                 raise ValueError(
                     "Beta tactic failed. Ctx is already beta reduced.", old
                 )
-            self.add_lemma(kd.kernel.prove(old == new))
+            self.add_lemma(kd.kernel.prove(smt.Eq(old, new)))
             self.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
@@ -1518,7 +1513,7 @@ class ProofState:
             else:
                 self.goals.append(goalctx._replace(goal=e2))
         else:
-            e = goalctx.ctx[at]
+            at, e = goalctx.ctx_find(at)
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls, trace=trace)
             for lem in trace:
@@ -1639,12 +1634,21 @@ class ProofState:
         )
         return self.top_goal()
 
-    def clear(self, n: int):
+    def clear(self, n: int | smt.BoolRef):
         """
         Remove a hypothesis from the context
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, q))
+        >>> h = l.intros()
+        >>> l
+        [p] ?|= q
+        >>> l.clear(h)
+        [] ?|= q
         """
         ctxgoal = self.pop_goal()
         ctx = ctxgoal.ctx.copy()
+        n, _ = ctxgoal.ctx_find(n)
         ctx.pop(n)
         self.goals.append(ctxgoal._replace(ctx=ctx))
         return self.top_goal()
