@@ -32,6 +32,9 @@ axiom = kernel.axiom
 define = kernel.define
 
 
+trigger = kernel.trigger
+
+
 def define_const(name: str, body: smt.ExprRef) -> smt.ExprRef:
     """
     Define a constant.

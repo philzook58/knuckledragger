@@ -716,3 +716,52 @@ def rename_vars2(
             "Cannot rename vars to ones that already occur in term", vs, thm
         )
     return axiom(t2, by=["rename", pf, vs])
+
+
+def trigger(
+    pf: Proof, patterns: list[smt.ExprRef] = [], no_patterns: list[smt.ExprRef] = []
+) -> Proof:
+    """
+    Add e-matching triggers to a quantified proof. Logically speaking, does nothing.
+
+    >>> x,y = smt.Ints("x y")
+    >>> p = kd.prove(smt.ForAll([x,y], y > 0, x + y > x))
+    >>> p.thm.num_patterns()
+    0
+    >>> p2 = trigger(p, patterns=[x + y])
+    >>> p2
+    |= ForAll([x, y], Implies(y > 0, x + y > x))
+    >>> p2.thm.pattern(0)
+    Var(1) + Var(0)
+    """
+    assert isinstance(pf, Proof)
+    thm = pf.thm
+    assert isinstance(thm, smt.QuantifierRef)
+    # unhygienic open_binder. Later assert keeps hygiene
+    vs = [
+        smt.Const(thm.var_name(i), thm.var_sort(i))
+        for i in reversed(range(thm.num_vars()))
+    ]
+    body0 = thm.body()
+    body = smt.substitute_vars(body0, *vs)
+    vs.reverse()
+    if thm.is_forall():
+        t2 = smt.ForAll(
+            vs,
+            body,
+            patterns=patterns,
+            no_patterns=no_patterns,
+        )
+    elif thm.is_exists():
+        t2 = smt.Exists(
+            vs,
+            body,
+            patterns=patterns,
+            no_patterns=no_patterns,
+        )
+    else:
+        raise Exception("Unknown quantifier type", thm)
+    assert t2.body().eq(
+        body0
+    )  # It is possible to accidentally capture variables. This check prevents that.
+    return axiom(t2, by=["trigger", pf, patterns, no_patterns])
