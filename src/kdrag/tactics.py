@@ -844,6 +844,33 @@ class ProofState:
         self.goals[-1] = goalctx._replace(ctx=newctx, goal=newgoal)
         return self
 
+    def forward(self, n: int | smt.BoolRef) -> smt.BoolRef:
+        """
+        Remove the hypothesis of an implication in the context
+
+        >>> p,q,r = smt.Bools("p q r")
+        >>> l = Lemma(smt.Implies(smt.And(p, smt.Implies(p, q)), r))
+        >>> _  = l.intros()
+        >>> l.split(at=0)
+        [p, Implies(p, q)] ?|= r
+        >>> l.forward(1)
+        q
+        >>> l
+        [p, q] ?|= r
+        """
+        # TODO: extra by paramters? Give an exact index to use modus ponens?
+        goalctx = self.top_goal()
+        (at, formula) = goalctx.ctx_find(n)
+        if smt.is_implies(formula):
+            hyp, conc = formula.children()
+            self.have(hyp, by=[])
+            self.goals[-1] = goalctx._replace(
+                ctx=goalctx.ctx[:at] + [conc] + goalctx.ctx[at + 1 :]
+            )
+            return conc
+        else:
+            raise ValueError("forward failed. Not an implication", formula)
+
     def emt(self):
         """
         Use egraph based equality modulo theories to simplify the goal.
@@ -1059,17 +1086,7 @@ class ProofState:
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
-        if isinstance(n, smt.QuantifierRef):
-            for i, f in enumerate(ctx):
-                if f.eq(n):
-                    n = i
-                    break
-            else:
-                raise ValueError("obtain failed. Formula not in context", n)
-        assert isinstance(n, int)
-        if n < 0:
-            n = len(ctx) + n
-        formula = ctx[n]
+        n, formula = goalctx.ctx_find(n)
         if isinstance(formula, smt.QuantifierRef) and formula.is_exists():
             self.pop_goal()
             fs, obtain_lemma = kd.kernel.obtain(formula)
@@ -1123,33 +1140,36 @@ class ProofState:
         self.goals[-1] = self.goalctx._replace(ctx=newctx)
         return self
 
-    def specialize(self, n: int | smt.QuantifierRef, *ts):
+    def specialize(self, n: int | smt.QuantifierRef, *ts, keep=False) -> smt.BoolRef:
         """
         Instantiate a universal quantifier in the context.
 
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))
-        >>> l.intros()
+        >>> hyp = l.intros()
+        >>> hyp
         ForAll(x, x == y)
         >>> l
         [ForAll(x, x == y)] ?|= True
-        >>> l.specialize(0, smt.IntVal(42))
-        [ForAll(x, x == y), 42 == y] ?|= True
+        >>> l.specialize(hyp, smt.IntVal(42))
+        42 == y
+        >>> l
+        [42 == y] ?|= True
         """
         goalctx = self.top_goal()
-        if isinstance(n, smt.QuantifierRef):
-            for i, f in enumerate(goalctx.ctx):
-                if f.eq(n):
-                    n = i
-                    break
-            else:
-                raise ValueError("Specialize failed. Formula not in context", n)
-        thm = goalctx.ctx[n]
+        (n, thm) = goalctx.ctx_find(n)
         if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
             l = kd.kernel.specialize(ts, thm)
             self.add_lemma(l)
-            self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [l.thm.arg(1)])
-            return self
+            # kernel.specialize returns Implies(forall x, P, P[t/x])
+            newformula = l.thm.arg(1)
+            if keep:
+                self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [newformula])
+            else:
+                self.goals[-1] = goalctx._replace(
+                    ctx=goalctx.ctx[:n] + [newformula] + goalctx.ctx[n + 1 :]
+                )
+            return newformula
         else:
             foralls = {
                 n: formula
@@ -1183,6 +1203,28 @@ class ProofState:
                 raise ValueError("Ext failed. Target is not an array equality", target)
         else:
             raise ValueError("Ext failed. Target is not an equality", target)
+
+    def andE(self, n: int | smt.BoolRef) -> list[smt.BoolRef]:
+        """
+        Eliminate an `And` in the context.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(smt.And(p, q), p))
+        >>> _ = l.intros()
+        >>> p,q = l.andE(0)
+        >>> l
+        [p, q] ?|= p
+        """
+        goalctx = self.top_goal()
+        (at, formula) = goalctx.ctx_find(n)
+        if smt.is_and(formula):
+            children = formula.children()
+            self.goals[-1] = goalctx._replace(
+                ctx=goalctx.ctx[:at] + children + goalctx.ctx[at + 1 :]
+            )
+            return children
+        else:
+            raise ValueError("andE failed. Not an and", formula)
 
     def split(self, at=None) -> "ProofState":
         """
@@ -1243,21 +1285,22 @@ class ProofState:
         else:
             (at, hyp) = goalctx.ctx_find(at)
             if smt.is_or(hyp):
+                # Make N new goals for each disjunct
                 self.pop_goal()
                 for c in hyp.children():
                     self.goals.append(
                         goalctx._replace(ctx=ctx[:at] + [c] + ctx[at + 1 :], goal=goal)
                     )
-            elif smt.is_and(hyp):
+            elif smt.is_and(hyp):  # TODO: phase this out in favor of andE.
                 self.pop_goal()
                 self.goals.append(
                     goalctx._replace(
                         ctx=ctx[:at] + ctx[at].children() + ctx[at + 1 :], goal=goal
                     )
                 )
+                return self
             else:
                 raise ValueError("Split failed on", ctx[at], "in context", ctx)
-            return self
 
     def left(self, n=0):
         """

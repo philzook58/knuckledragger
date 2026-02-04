@@ -124,6 +124,7 @@ def abstract_arith(t: smt.ExprRef) -> smt.ExprRef:
 abs = kd.define("absR", [x], smt.If(x >= 0, x, -x))
 sgn = kd.define("sgn", [x], smt.If(x > 0, 1, smt.If(x < 0, -1, 0)))
 
+abs_if_pos = kd.prove(ForAll([x], x >= 0, abs(x) == x), by=[abs.defn])
 sgn_abs = kd.prove(ForAll([x], abs(x) * sgn(x) == x), by=[abs.defn, sgn.defn])
 abs_le = kd.prove(
     ForAll([x, y], (abs(x) <= y) == smt.And(-y <= x, x <= y)), by=[abs.defn]
@@ -262,9 +263,13 @@ pownat_succ = kd.prove(
 )
 
 sqr = kd.define("sqr", [x], x * x)
+sqr_pos = kd.prove(
+    ForAll([x], sqr(x) >= 0),
+    by=[sqr.defn],
+)
+sqr_neg = kd.prove(smt.ForAll([x], sqr(-x) == sqr(x)), by=[sqr.defn])
 
-
-sqrt = kd.define("sqrt", [x], x**0.5)
+sqrt = kd.define("sqrt", [x], x ** "1/2")
 
 _l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(x) >= 0))
 _ = _l.fix()
@@ -274,6 +279,8 @@ sqrt_pos = _l.qed()
 
 sqrt_define = kd.prove(smt.ForAll([x], sqrt(x) == x**0.5), by=[sqrt.defn, pow.defn])
 
+sqrt_one = kd.prove(sqrt(1) == 1, by=[sqrt.defn])
+sqrt_zero = kd.prove(sqrt(0) == 0, by=[sqrt.defn])
 _l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(x) ** 2 == x))
 _ = _l.fix()
 _l.unfold()
@@ -284,11 +291,30 @@ sqr_sqrt = kd.prove(
     kd.QForAll([x], x >= 0, sqr(sqrt(x)) == x), by=[sqrt_square, sqr.defn]
 )
 
+
+sqrt_mul = kd.prove(
+    kd.QForAll([x, y], x >= 0, y >= 0, sqrt(x * y) == sqrt(x) * sqrt(y)),
+    by=[sqrt.defn, mul.defn],
+)
+sqrt_mono = kd.prove(
+    kd.QForAll([x, y], x >= 0, y >= 0, x <= y, sqrt(x) <= sqrt(y)),
+    by=[sqrt.defn],
+)
+
 _l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(sqr(x)) == x))
 _ = _l.fix()
 _l.unfold()
 _l.auto()
 sqrt_sqr = _l.qed()
+
+sqrt_sqr_neg = kd.prove(
+    kd.QForAll([x], x <= 0, sqrt(sqr(x)) == -x), by=[sqrt_sqr, sqr_neg]
+)
+
+sqrt_sqr_abs = kd.prove(
+    kd.QForAll([x], sqrt(sqr(x)) == abs(x)),
+    by=[abs.defn, sqrt_sqr, sqrt_sqr_neg, sqr_pos],
+)
 
 exp = smt.Function("exp", R, R)  # smt.Const("exp", kd.R >> kd.R)
 exp_add = kd.axiom(smt.ForAll([x, y], exp(x + y) == exp(x) * exp(y)))

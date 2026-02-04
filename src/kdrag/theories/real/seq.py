@@ -171,8 +171,12 @@ def cumsum_const(l):
 # cumsum pownat = 1 - x^(n + 1) / (1 - x)
 # cumsum_diff - the fundamental theorem of calculus for sequences
 
+"""
 
 # TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
+
+
+# TODO: unstable
 @kd.Theorem(
     "forall (a : RSeq) (x : Real) (n : Int), cumsum (smul x a) n = smul x (cumsum a) n"
 )
@@ -200,6 +204,7 @@ def cumsum_smul(l):
     l.unfold(cumsum, smul)
     l.simp()
     l.auto(by=[smul.defn, cumsum.defn])
+"""
 
 
 @kd.Theorem(

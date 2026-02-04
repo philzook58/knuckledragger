@@ -62,7 +62,7 @@ def has_lim_smul(l):
     n = l.fix()
     l.assumes(n > N1)
     forall_n = kd.QForAll([n_var], n_var > N1, real.abs(a[n_var] - x) < eps1)
-    l.specialize(forall_n, n)
+    l.specialize(forall_n, n, keep=True)
     l.have(real.abs(a[n] - x) < eps1, by=[])
     l.unfold(seq.smul)
     l.simp()
@@ -167,10 +167,10 @@ def has_lim_mul(l):
     l.unfold(seq.has_lim, at=0)
     l.unfold(seq.has_lim, at=1)
     l.specialize(0, eps1)
-    l.specialize(1, eps2)
+    l.specialize(1, eps2, keep=True)
 
     l.have(smt.RealVal(1) > 0, by=[])
-    l.specialize(1, smt.RealVal(1))
+    l.specialize(1, smt.RealVal(1), keep=True)
 
     N1 = smt.Int("N")
     N2 = smt.Int("N")

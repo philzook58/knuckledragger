@@ -6,34 +6,20 @@ import kdrag.theories.algebra.vector as vector
 import operator
 
 """
-Linear Algebra
+Linear Algebra.
+
+There are a number of modeling choices for N-dimensional vectors.
+- Custom N field records
+- Functions from FinSort(n) to RealSort
+- Int -> Real subsets | forall i, i > N, v[i] = 0
+- SeqSort(RealSort) | Length(v) == N
+
+They all are the same but have greater or less difficulty.
+
 """
 
 norm2 = vector.norm2
 dot = vector.dot
-
-
-Vec2 = kd.Struct("Vec2", ("x", kd.R), ("y", kd.R))
-u, v = kd.smt.Consts("u v", Vec2)
-add = kd.notation.add.define([u, v], Vec2(u.x + v.x, u.y + v.y))
-sub = kd.notation.sub.define([u, v], Vec2(u.x - v.x, u.y - v.y))
-kd.notation.neg.define([u], Vec2(-u.x, -u.y))
-
-
-Vec2.vzero = Vec2(0, 0)  # type: ignore
-Vec2.dot = dot.define([u, v], u.x * v.x + u.y * v.y)  # type: ignore
-Vec2.norm2 = norm2.define([u], dot(u, u))  # type: ignore
-
-
-Vec2.norm_pos = kd.prove(  # type: ignore
-    kd.smt.ForAll([u], norm2(u) >= 0), by=[Vec2.norm2.defn, Vec2.dot.defn]
-)
-Vec2.norm_zero = kd.prove(  # type: ignore
-    kd.smt.ForAll([u], (norm2(u) == 0) == (u == Vec2.vzero)),
-    by=[Vec2.norm2.defn, Vec2.dot.defn],
-)
-
-dist = kd.define("dist", [u, v], R.sqrt(norm2(u - v)))
 
 
 @functools.cache
@@ -45,6 +31,39 @@ def FinSort(N):
     Fin3
     """
     return kd.Enum("Fin" + str(N), " ".join(["X" + str(i) for i in range(N)]))
+
+
+@functools.cache
+def Fin0Sort(N):
+    """
+    A different style of finsort
+
+    >>> Fin0Sort(3)
+    Option_Option_Unit
+
+    """
+    # https://rocq-prover.org/doc/v9.0/stdlib/Stdlib.Vectors.Fin.html
+    if N == 1:
+        return kd.UnitSort()
+    else:
+        return kd.OptionSort(Fin0Sort(N - 1))
+        # dt = kd.Inductive("Fin0_" + str(N))
+        # dt.declare("Done")
+        # dt.declare("Succ", Fin0Sort(N - 1))
+
+
+@functools.cache
+def SeqVec(N: smt.ExprRef | int):
+    l = smt.Const("l", smt.SeqSort(smt.RealSort()))
+    if isinstance(N, smt.ExprRef):
+        assert kd.utils.free_in([l], N)
+    return smt.Lambda([l], smt.Length(l) == N)
+
+
+def FunVec(N: smt.ExprRef | int):
+    v = smt.Array("v", smt.IntSort(), smt.RealSort())
+    i = smt.Int("i")
+    return smt.Lambda([v], smt.ForAll([i], smt.Or(i < 0, i >= N), v[i] == 0))
 
 
 @functools.cache
@@ -98,7 +117,7 @@ def Vec0(N: int) -> smt.DatatypeSortRef:
 # Vec2.triangle = norm2(u - v) <= norm2(u) + norm2(v)
 @functools.cache
 def Vec(N):
-    V = kd.Struct("Vec" + str(N), *[("x" + str(i), kd.R) for i in range(N)])
+    V = kd.Struct("Vec1_" + str(N), *[("x" + str(i), kd.R) for i in range(N)])
     u, v, w = kd.smt.Consts("u v w", V)
     kd.notation.getitem.register(V, lambda x, i: V.accessor(0, i)(x))
     kd.notation.add.define([u, v], V(*[u[i] + v[i] for i in range(N)]))
@@ -110,37 +129,6 @@ def Vec(N):
     V.norm2 = norm2.define([u], sum(u[i] * u[i] for i in range(N)))
     V.dot = dot.define([u, v], sum(u[i] * v[i] for i in range(N)))
     return V
-
-
-Vec3 = Vec(3)  # kd.Struct("Vec3", ("x", kd.R), ("y", kd.R), ("z", kd.R))
-u, v = kd.smt.Consts("u v", Vec3)
-# kd.notation.add.define([u, v], Vec3(u.x0 + v.x0, u.x1 + v.x1, u.x2 + v.x2))
-# kd.notation.sub.define([u, v], Vec3(u.x0 - v.x0, u.x1 - v.x1, u.x2 - v.x2))
-# norm2.define([u], u.x0 * u.x0 + u.x1 * u.x1 + u.x2 * u.x2)
-
-cross = kd.define(
-    "cross",
-    [u, v],
-    Vec3(
-        u.x1 * v.x2 - u.x2 * v.x1, u.x2 * v.x0 - u.x0 * v.x2, u.x0 * v.x1 - u.x1 * v.x0
-    ),
-)
-
-# TODO: instability with respect to the `by` ordering. That's bad
-cross_antisym = kd.prove(
-    kd.smt.ForAll([u, v], cross(u, v) == -cross(v, u)),
-    by=[kd.notation.neg[Vec3].defn, cross.defn],
-)
-
-# https://en.wikipedia.org/wiki/Vector_algebra_relations
-
-# pythag = kd.prove(
-#    kd.smt.ForAll([u, v], norm2(cross(u, v)) + dot(u, v) ** 2 == norm2(u) * norm2(v)),
-#    by=[norm2[Vec3].defn, dot[Vec3].defn, cross.defn],
-# )
-ihat = Vec3(1, 0, 0)
-jhat = Vec3(0, 1, 0)
-khat = Vec3(0, 0, 1)
 
 
 # R itself is a vector space

@@ -49,6 +49,11 @@ def cegis_simple(spec: smt.ExprRef) -> Optional[list[smt.ExprRef]]:
 
 
 """
+cegis with solve definitions exposed to verifier vs
+
+"""
+
+"""
 Top down
 Bottom up / Contextual compression
 Use hypothesis

@@ -10,8 +10,11 @@ div = kd.complex_div
 conj = kd.define("conj", [z], C.C(z.re, -z.im))
 
 C0 = C.C(0, 0)
+zero = C0
 C1 = C.C(1, 0)
+one = C1
 Ci = C.C(0, 1)
+j = Ci
 
 add_zero = kd.prove(smt.ForAll([z], z + C0 == z), by=[add.defn])
 mul_zero = kd.prove(smt.ForAll([z], z * C0 == C0), by=[mul.defn])
@@ -21,6 +24,9 @@ add_assoc = kd.prove(
     smt.ForAll([z, w, u], (z + (w + u)) == ((z + w) + u)), by=[add.defn]
 )
 mul_comm = kd.prove(smt.ForAll([z, w], z * w == w * z), by=[mul.defn])
+mul_assoc = kd.prove(
+    smt.ForAll([z, w, u], (z * (w * u)) == ((z * w) * u)), by=[mul.defn]
+)
 
 # unstable perfoamnce.
 # mul_div = kd.prove(ForAll([z,w], Implies(w != C0, z == z * w / w)), by=[div.defn, mul.defn], timeout=1000)
