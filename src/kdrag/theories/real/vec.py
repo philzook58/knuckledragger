@@ -1,6 +1,6 @@
 import kdrag as kd
 import kdrag.smt as smt
-import kdrag.theories.real as R
+
 import functools
 import kdrag.theories.algebra.vector as vector
 import operator

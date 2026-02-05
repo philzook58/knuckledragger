@@ -597,6 +597,10 @@ class ProofState:
     def ctx(self):
         return self.top_goal().ctx
 
+    @property
+    def goal(self):
+        return self.top_goal().goal
+
     def fixes(self, prefixes=None) -> list[smt.ExprRef]:
         """fixes opens a forall quantifier. ?|= forall x, p(x) becomes x ?|= p(x)
 
@@ -810,6 +814,8 @@ class ProofState:
         >>> l.boolsimp()
         [p, p == True, Not(p) == False] ?|= If(False, True, q) == r
         """
+        # perhaps I should just be using this
+        # https://microsoft.github.io/z3guide/docs/strategies/summary#tactic-ctx-solver-simplify
         goalctx = self.top_goal()
         bools = [
             e
@@ -864,6 +870,7 @@ class ProofState:
         if smt.is_implies(formula):
             hyp, conc = formula.children()
             self.have(hyp, by=[])
+            self.clear(-1)
             self.goals[-1] = goalctx._replace(
                 ctx=goalctx.ctx[:at] + [conc] + goalctx.ctx[at + 1 :]
             )
@@ -1291,6 +1298,7 @@ class ProofState:
                     self.goals.append(
                         goalctx._replace(ctx=ctx[:at] + [c] + ctx[at + 1 :], goal=goal)
                     )
+                return self
             elif smt.is_and(hyp):  # TODO: phase this out in favor of andE.
                 self.pop_goal()
                 self.goals.append(

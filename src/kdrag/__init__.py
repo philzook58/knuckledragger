@@ -99,6 +99,8 @@ ldefine = microlean.define
 
 # TODO: Remove this
 R = smt.RealSort()
+RPosP = smt.Lambda([smt.Real("x")], smt.Real("x") > 0)
+
 Z = smt.IntSort()
 RSeq = smt.ArraySort(Z, R)
 RFun = smt.ArraySort(R, R)
@@ -107,6 +109,8 @@ ZSeq = smt.ArraySort(Z, Z)
 
 IntSet = smt.FullSet(smt.IntSort())
 BoolSet = smt.FullSet(smt.BoolSort())
+IntP = IntSet
+BoolP = BoolSet
 
 
 def seq(*args):
@@ -125,6 +129,17 @@ def seq(*args):
         return smt.Unit(smt._py2expr(args[0]))
     else:
         return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
+
+
+def SeqVecP(n: smt.ArithRef | int, A: smt.SortRef) -> smt.QuantifierRef:
+    l = smt.Const("l", smt.SeqSort(A))
+    if isinstance(A, smt.SortRef):
+        return smt.Lambda([l], smt.Length(l) == n)
+    else:
+        # TODO: If A is a subsort
+        # x = smt.Const("x", A)
+        # return smt.Lambda([l], smt.And(smt.Length(l) == a, smt.ForAll([x], smt.Contains(l,x))))
+        raise TypeError("A must be a SortRef")
 
 
 def Tail(s: smt.SeqSortRef):
@@ -159,6 +174,24 @@ def UnitSort() -> smt.DatatypeSortRef:
     global Unit
     assert isinstance(Unit, smt.DatatypeSortRef)
     return Unit
+
+
+_i = smt.Int("i")
+NatP = smt.Lambda([_i], _i >= 0)
+"""Predicate for natural numbers"""
+
+
+def FinP(n: smt.ExprRef | int) -> smt.QuantifierRef:
+    """
+    Predicate for finite index less than n
+    >>> FinP(3)
+    Lambda(i, And(i >= 0, i < 3))
+    >>> x = smt.Const("x", FinP(3)) # Predicate defined constants have predicate auto inserted in quantifiers
+    >>> prove(smt.ForAll([x], x < 4))
+    |= ForAll(x, Implies(And(x >= 0, x < 3), x < 4))
+    """
+    i = smt.Int("i")
+    return smt.Lambda([i], smt.And(i >= 0, i < n))
 
 
 Nat = Inductive("Nat")
@@ -266,6 +299,7 @@ def tuple_(*args: smt.ExprRef) -> smt.DatatypeRef:
 
 
 Complex = datatype.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
+ComplexP = smt.FullSet(Complex)
 
 z, w, u, z1, z2 = smt.Consts("z w u z1 z2", Complex)
 complex_add = notation.add.define([z1, z2], Complex.C(z1.re + z2.re, z1.im + z2.im))

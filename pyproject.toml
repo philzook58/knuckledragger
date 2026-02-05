@@ -35,6 +35,8 @@ solvers = [
     "ziglang>=0.15.1",
     "cloudpickle>=3.1.2", # for egglog
     "cvc5>=1.3.2",
+    "py-aiger>=8.1.0",
+    "dd>=0.6.0",
 ]
 
 [build-system]
@@ -104,7 +106,7 @@ norecursedirs = [
     "examples/converted_notebooks",
     "examples/soft_found",
 ]
-addopts = "--doctest-modules"
+addopts = "--doctest-modules -m \"not slow\""
 doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
 
 markers = ["slow: Marks tests as long-running."]

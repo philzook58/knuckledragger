@@ -132,6 +132,7 @@ abs_le = kd.prove(
 abs_idem = kd.prove(ForAll([x], abs(abs(x)) == abs(x)), by=[abs.defn])
 abs_neg = kd.prove(ForAll([x], abs(-x) == abs(x)), by=[abs.defn])
 abs_pos = kd.prove(ForAll([x], abs(x) >= 0), by=[abs.defn])
+# TODO: kd.contract(abs, [x], smt.BoolVal(True), abs(x) >= 0, by=[abs_pos])
 abs_add = kd.prove(ForAll([x, y], abs(x + y) <= abs(x) + abs(y)), by=[abs.defn])
 abs_mul = kd.prove(ForAll([x, y], abs(x * y) == abs(x) * abs(y)), by=[abs.defn])
 abs_div = kd.prove(
@@ -153,7 +154,7 @@ abs_pos_iff = kd.prove(
     kd.QForAll([x], (abs(x) > 0) == (x != 0)),
     by=[abs_eq_zero, abs_pos],
 )
-
+# TODO: abs_convex
 
 aeq = kd.define("aeq", [x, y, eps], smt.Abs(x - y) <= eps)
 aeq_pos = kd.prove(kd.QForAll([x, y, eps], aeq(x, y, eps), eps >= 0), by=[aeq.defn])
@@ -267,15 +268,19 @@ sqr_pos = kd.prove(
     ForAll([x], sqr(x) >= 0),
     by=[sqr.defn],
 )
+# kd.contract(sqr, [x], smt.BoolVal(True), sqr(x) >= 0, by=[sqr_pos]) # tests are loading and reloading this file/ That's not great anyway?
 sqr_neg = kd.prove(smt.ForAll([x], sqr(-x) == sqr(x)), by=[sqr.defn])
 
 sqrt = kd.define("sqrt", [x], x ** "1/2")
-
+# sqrt = kd.define("sqrt", [x], smt.If(x >= 0, x ** "1/2", kd.Undef(smt.RealSort(), x)))
+# sqrt
 _l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(x) >= 0))
 _ = _l.fix()
 _l.unfold()
 _l.auto()
 sqrt_pos = _l.qed()
+
+# kd.contract(sqrt, [x], x >= 0, sqrt(x) >= 0, by=[sqrt_pos])
 
 sqrt_define = kd.prove(smt.ForAll([x], sqrt(x) == x**0.5), by=[sqrt.defn, pow.defn])
 
@@ -322,6 +327,9 @@ exp_lower = kd.axiom(
     smt.ForAll([x], exp(x) >= 1 + x)
 )  # tight low approximation at x = 0.
 exp_pos = kd.axiom(smt.ForAll([x], exp(x) > 0))  # maybe we can derive this one?
+exp_range = exp_pos
+# kd.contract(exp, [x], smt.BoolVal(True), exp(x) > 0, by=[exp_pos])
+exp_pos_ge_one = kd.prove(smt.ForAll([x], x >= 0, exp(x) >= 1), by=[exp_lower])
 
 exp_zero = kd.prove(smt.ForAll([x], exp(0) == 1), by=[exp_add, exp_pos])
 
@@ -329,6 +337,18 @@ exp_div = kd.prove(smt.ForAll([x, y], exp(x) * exp(-x) == 1), by=[exp_add, exp_z
 exp_nzero = kd.prove(smt.ForAll([x], exp(x) != 0), by=[exp_div])
 exp_inv = kd.prove(smt.ForAll([x], exp(-x) == 1 / exp(x)), by=[exp_div])
 
+
+@kd.Theorem(smt.ForAll([x, y], x <= y, exp(x) <= exp(y)))
+def exp_mono(l):
+    # exp(x) <= exp(x) * exp(y-x) == exp(y)
+    x, y = l.fixes()
+    _x_ge_y = l.intros()
+    l.have(exp(y) == exp(y - x) * exp(x), by=[exp_add(y - x, x)])
+    l.have(exp(y - x) >= 1, by=[exp_pos_ge_one(y - x)])
+    l.auto(by=[exp_pos])
+
+
+exp_neg_le_1 = kd.prove(smt.ForAll([x], x <= 0, exp(x) <= 1), by=[exp_mono, exp_zero])
 
 ln = smt.Function("ln", kd.R, kd.R)
 ln_exp = kd.axiom(smt.ForAll([x], ln(exp(x)) == x))
@@ -348,8 +368,10 @@ pythag = kd.axiom(smt.ForAll([x], cos(x) ** 2 + sin(x) ** 2 == 1))
 pythag_1 = kd.prove(smt.ForAll([x], 1 - sin(x) ** 2 == cos(x) ** 2), by=[pythag])
 pythag_2 = kd.prove(smt.ForAll([x], 1 - cos(x) ** 2 == sin(x) ** 2), by=[pythag])
 
-cos_abs_le = kd.prove(smt.ForAll([x], abs(cos(x)) <= 1), by=[pythag, abs.defn])
-sin_abs_le = kd.prove(smt.ForAll([x], abs(sin(x)) <= 1), by=[pythag, abs.defn])
+cos_range = kd.prove(smt.ForAll([x], smt.And(cos(x) >= -1, cos(x) <= 1)), by=[pythag])
+sin_range = kd.prove(smt.ForAll([x], smt.And(sin(x) >= -1, sin(x) <= 1)), by=[pythag])
+cos_abs_le = kd.prove(smt.ForAll([x], abs(cos(x)) <= 1), by=[cos_range, abs.defn])
+sin_abs_le = kd.prove(smt.ForAll([x], abs(sin(x)) <= 1), by=[sin_range, abs.defn])
 
 cos_0 = kd.axiom(cos(0) == 1)
 sin_0 = kd.prove(sin(0) == 0, by=[pythag, cos_0])
@@ -380,7 +402,15 @@ tan = kd.define("tan", [x], sin(x) / cos(x))
 atan = smt.Function("atan", R, R)  # smt.Const("atan", kd.R >> kd.R)
 
 acos = smt.Function("acos", R, R)
+acos_cos = kd.axiom(kd.QForAll([x], x >= -1, x <= 1, cos(acos(x)) == x))
+acos_range = kd.axiom(
+    kd.QForAll([x], x >= -1, x <= 1, smt.And(acos(x) >= 0, acos(x) <= pi))
+)
 asin = smt.Function("asin", R, R)
+asin_sin = kd.axiom(kd.QForAll([x], x >= -1, x <= 1, sin(asin(x)) == x))
+asin_range = kd.axiom(
+    kd.QForAll([x], x >= -1, x <= 1, smt.And(asin(x) >= -pi / 2, asin(x) <= pi / 2))
+)
 
 comp = kd.define("comp", [f, g], smt.Lambda([x], f(g(x))))
 kd.notation.matmul.register(RFun, comp)
