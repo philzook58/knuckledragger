@@ -333,6 +333,29 @@ def rewrite_once(t: smt.ExprRef, rules: list[RewriteRule], trace=None) -> smt.Ex
 class RewriteRuleException(Exception): ...
 
 
+def rewrite_of_expr_exact(pf: smt.ExprRef | kd.kernel.Proof) -> Optional[RewriteRule]:
+    """
+    Unpack _exactly_ theorem of form `forall vs, lhs = rhs` into a Rule tuple
+
+    >>> x = smt.Real("x")
+    >>> rewrite_of_expr_exact(smt.ForAll([x], x**2 == x*x))
+    RewriteRule(vs=[X...], lhs=X...**2, rhs=X...*X...)
+    >>> assert rewrite_of_expr_exact(x**2 == x + 1) is None
+    """
+    if isinstance(pf, kd.kernel.Proof):
+        thm = pf.thm
+    else:
+        thm = pf
+    if isinstance(thm, smt.QuantifierRef):
+        if thm.is_forall():
+            vs, body = utils.open_binder(thm)
+            if smt.is_eq(body):
+                lhs, rhs = body.children()
+                return RewriteRule(
+                    vs, lhs, rhs, pf=pf if isinstance(pf, kd.kernel.Proof) else None
+                )
+
+
 def rewrite_of_expr(
     thm: smt.BoolRef | smt.QuantifierRef | kd.kernel.Proof,
 ) -> RewriteRule:
@@ -507,6 +530,29 @@ class Rule(NamedTuple):
             return smt.Implies(self.hyp, self.conc)
         else:
             return smt.ForAll(self.vs, smt.Implies(self.hyp, self.conc))
+
+
+def rule_of_expr_exact(pf: smt.ExprRef | kd.kernel.Proof) -> Optional[Rule]:
+    """
+    Unpack _exactly_ theorem of form `forall vs, body => head` into a Rule tuple
+
+    >>> x = smt.Real("x")
+    >>> rule_of_expr_exact(smt.ForAll([x], smt.Implies(x**2 == x*x, x > 0)))
+    Rule(vs=[X...], hyp=X...**2 == X...*X..., conc=X... > 0, pf=None)
+    >>> assert rule_of_expr_exact(x > 0) is None
+    """
+    if isinstance(pf, kd.kernel.Proof):
+        thm = pf.thm
+    else:
+        thm = pf
+    if isinstance(thm, smt.QuantifierRef):
+        if thm.is_forall():
+            vs, body = utils.open_binder(thm)
+            if smt.is_implies(body):
+                hyp, conc = body.children()
+                return Rule(
+                    vs, hyp, conc, pf=pf if isinstance(pf, kd.kernel.Proof) else None
+                )
 
 
 def rule_of_expr(pf_or_thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
