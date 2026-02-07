@@ -1,0 +1,6 @@
+kdrag.NatSort
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: NatSort

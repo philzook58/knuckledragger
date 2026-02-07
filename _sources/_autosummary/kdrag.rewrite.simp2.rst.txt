@@ -1,0 +1,6 @@
+kdrag.rewrite.simp2
+===================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: simp2

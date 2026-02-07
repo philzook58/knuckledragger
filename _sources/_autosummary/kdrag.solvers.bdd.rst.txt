@@ -1,0 +1,33 @@
+kdrag.solvers.bdd
+=================
+
+.. automodule:: kdrag.solvers.bdd
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BDD
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/bdd.py
+   :language: python

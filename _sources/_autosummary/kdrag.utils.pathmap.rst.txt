@@ -1,0 +1,6 @@
+kdrag.utils.pathmap
+===================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: pathmap

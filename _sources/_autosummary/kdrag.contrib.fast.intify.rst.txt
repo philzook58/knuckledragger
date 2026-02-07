@@ -1,0 +1,6 @@
+kdrag.contrib.fast.intify
+=========================
+
+.. currentmodule:: kdrag.contrib.fast
+
+.. autofunction:: intify

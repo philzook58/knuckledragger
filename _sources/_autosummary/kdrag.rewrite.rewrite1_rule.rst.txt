@@ -1,0 +1,6 @@
+kdrag.rewrite.rewrite1\_rule
+============================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: rewrite1_rule

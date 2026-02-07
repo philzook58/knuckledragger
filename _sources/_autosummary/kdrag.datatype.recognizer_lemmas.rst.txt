@@ -1,0 +1,6 @@
+kdrag.datatype.recognizer\_lemmas
+=================================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: recognizer_lemmas

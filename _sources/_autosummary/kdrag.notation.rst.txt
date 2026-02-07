@@ -1,0 +1,85 @@
+kdrag.notation
+==============
+
+.. automodule:: kdrag.notation
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      call
+      getitem
+      add
+      radd
+      sub
+      mul
+      rmul
+      matmul
+      neg
+      div
+      and_
+      or_
+      invert
+      lt
+      le
+      ge
+      gt
+      eq
+      ne
+      wf
+      measure
+      choose
+      forall
+      exists
+      induct
+      to_int
+      to_real
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      ExistsUnique
+      GenericDispatch
+      QExists
+      QForAll
+      QImplies
+      QLambda
+      compose
+      cond
+      conde
+      induct_default
+      induct_int
+      induct_seq
+      quantifier_call
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cond
+      SortDispatch
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/notation.py
+   :language: python

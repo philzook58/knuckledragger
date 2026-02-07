@@ -1,0 +1,27 @@
+kdrag.theories.real.extended
+============================
+
+.. automodule:: kdrag.theories.real.extended
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/extended.py
+   :language: python

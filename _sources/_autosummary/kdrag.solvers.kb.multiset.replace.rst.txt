@@ -1,0 +1,6 @@
+kdrag.solvers.kb.multiset.replace
+=================================
+
+.. currentmodule:: kdrag.solvers.kb.multiset
+
+.. autofunction:: replace

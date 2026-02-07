@@ -1,0 +1,6 @@
+kdrag.theories.float.IsFinite
+=============================
+
+.. currentmodule:: kdrag.theories.float
+
+.. autofunction:: IsFinite

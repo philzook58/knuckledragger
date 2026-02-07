@@ -1,0 +1,6 @@
+kdrag.rewrite.full\_simp
+========================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: full_simp

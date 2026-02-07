@@ -1,0 +1,41 @@
+kdrag.solvers.egglog
+====================
+
+.. automodule:: kdrag.solvers.egglog
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      mangle_name
+      z3_to_egglog
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      EgglogSolver
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/egglog.py
+   :language: python

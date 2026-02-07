@@ -1,0 +1,6 @@
+kdrag.OptionSort
+================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: OptionSort

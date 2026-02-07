@@ -1,0 +1,6 @@
+kdrag.theories.set.bigunion
+===========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: bigunion

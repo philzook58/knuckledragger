@@ -1,0 +1,6 @@
+kdrag.utils.is\_strict\_subterm
+===============================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: is_strict_subterm

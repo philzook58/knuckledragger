@@ -1,0 +1,55 @@
+kdrag.theories.set
+==================
+
+.. automodule:: kdrag.theories.set
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      BigUnion
+      Choose
+      Closed
+      CountInter
+      EClass
+      FamilyUnion
+      Finite
+      Injective
+      PowerSet
+      Quot
+      Range
+      Set
+      Singleton
+      Surjective
+      bigunion
+      complement
+      diff
+      inter
+      is_set
+      member
+      subset
+      union
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/set.py
+   :language: python

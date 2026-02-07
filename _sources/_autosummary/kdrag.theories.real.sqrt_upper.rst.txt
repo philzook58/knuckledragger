@@ -1,0 +1,6 @@
+kdrag.theories.real.sqrt\_upper
+===============================
+
+.. currentmodule:: kdrag.theories.real
+
+.. autofunction:: sqrt_upper

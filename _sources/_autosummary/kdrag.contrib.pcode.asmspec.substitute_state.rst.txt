@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.substitute\_state
+=============================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: substitute_state

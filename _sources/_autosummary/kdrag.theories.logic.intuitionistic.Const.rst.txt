@@ -1,0 +1,6 @@
+kdrag.theories.logic.intuitionistic.Const
+=========================================
+
+.. currentmodule:: kdrag.theories.logic.intuitionistic
+
+.. autofunction:: Const

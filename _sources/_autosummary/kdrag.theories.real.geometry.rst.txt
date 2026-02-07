@@ -1,0 +1,27 @@
+kdrag.theories.real.geometry
+============================
+
+.. automodule:: kdrag.theories.real.geometry
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/geometry.py
+   :language: python

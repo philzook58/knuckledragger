@@ -1,0 +1,6 @@
+kdrag.theories.algebra.check\_semigroup
+=======================================
+
+.. currentmodule:: kdrag.theories.algebra
+
+.. autofunction:: check_semigroup

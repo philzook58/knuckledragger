@@ -1,0 +1,274 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.solvers.sympy.sympy_const &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.solvers.sympy.translate_tuple_args" href="kdrag.solvers.sympy.translate_tuple_args.html" />
+    <link rel="prev" title="kdrag.solvers.sympy.sympify" href="kdrag.solvers.sympy.sympify.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ComplexSort.html">kdrag.ComplexSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.FinP.html">kdrag.FinP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Head.html">kdrag.Head</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Id.html">kdrag.Id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ListSort.html">kdrag.ListSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.NatSort.html">kdrag.NatSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.OptionSort.html">kdrag.OptionSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.SeqVecP.html">kdrag.SeqVecP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Some.html">kdrag.Some</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Tail.html">kdrag.Tail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.TupleSort.html">kdrag.TupleSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Undef.html">kdrag.Undef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.UnitSort.html">kdrag.UnitSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.define_const.html">kdrag.define_const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.list.html">kdrag.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.seq.html">kdrag.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tuple_.html">kdrag.tuple_</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.PTheorem"><code class="docutils literal notranslate"><span class="pre">PTheorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QImplies"><code class="docutils literal notranslate"><span class="pre">QImplies()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Theorem"><code class="docutils literal notranslate"><span class="pre">Theorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.cast.html">kdrag.cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contracts.html">kdrag.contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.modal.html">kdrag.modal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.binpath.html">kdrag.solvers.binpath</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.collect_decls.html">kdrag.solvers.collect_decls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.collect_sorts.html">kdrag.solvers.collect_sorts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.download.html">kdrag.solvers.download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.install_solvers.html">kdrag.solvers.install_solvers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.install_solvers2.html">kdrag.solvers.install_solvers2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.run.html">kdrag.solvers.run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.smt2tptp.html">kdrag.solvers.smt2tptp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.tptp2smt.html">kdrag.solvers.tptp2smt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.BaseSolver"><code class="docutils literal notranslate"><span class="pre">BaseSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.CVC5Solver"><code class="docutils literal notranslate"><span class="pre">CVC5Solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.EProverSolver"><code class="docutils literal notranslate"><span class="pre">EProverSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.EProverTHFSolver"><code class="docutils literal notranslate"><span class="pre">EProverTHFSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.LeanSolver"><code class="docutils literal notranslate"><span class="pre">LeanSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.LeoIIISolver"><code class="docutils literal notranslate"><span class="pre">LeoIIISolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.MultiSolver"><code class="docutils literal notranslate"><span class="pre">MultiSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.NanoCopISolver"><code class="docutils literal notranslate"><span class="pre">NanoCopISolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.SATSolver"><code class="docutils literal notranslate"><span class="pre">SATSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.TweeSolver"><code class="docutils literal notranslate"><span class="pre">TweeSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.VampireSolver"><code class="docutils literal notranslate"><span class="pre">VampireSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.VampireTHFSolver"><code class="docutils literal notranslate"><span class="pre">VampireTHFSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.ZipperpositionSolver"><code class="docutils literal notranslate"><span class="pre">ZipperpositionSolver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.binpath"><code class="docutils literal notranslate"><span class="pre">binpath()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.collect_decls"><code class="docutils literal notranslate"><span class="pre">collect_decls()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.collect_sorts"><code class="docutils literal notranslate"><span class="pre">collect_sorts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.download"><code class="docutils literal notranslate"><span class="pre">download()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.install_solvers"><code class="docutils literal notranslate"><span class="pre">install_solvers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.install_solvers2"><code class="docutils literal notranslate"><span class="pre">install_solvers2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.smt2tptp"><code class="docutils literal notranslate"><span class="pre">smt2tptp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.html#kdrag.solvers.tptp2smt"><code class="docutils literal notranslate"><span class="pre">tptp2smt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.aprove.html">kdrag.solvers.aprove</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.bdd.html">kdrag.solvers.bdd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.datalog.html">kdrag.solvers.datalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.egglog.html">kdrag.solvers.egglog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.egraph.html">kdrag.solvers.egraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.gappa.html">kdrag.solvers.gappa</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.kb.html">kdrag.solvers.kb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.ljt.html">kdrag.solvers.ljt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.prolog.html">kdrag.solvers.prolog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.sat.html">kdrag.solvers.sat</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="kdrag.solvers.sympy.html">kdrag.solvers.sympy</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.diff.html">kdrag.solvers.sympy.diff</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.diff_shim.html">kdrag.solvers.sympy.diff_shim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.expand.html">kdrag.solvers.sympy.expand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.factor.html">kdrag.solvers.sympy.factor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.fresh_symbol.html">kdrag.solvers.sympy.fresh_symbol</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.integ_shim.html">kdrag.solvers.sympy.integ_shim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.integrate.html">kdrag.solvers.sympy.integrate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.kdify.html">kdrag.solvers.sympy.kdify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.limit.html">kdrag.solvers.sympy.limit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.series.html">kdrag.solvers.sympy.series</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.shim_ho.html">kdrag.solvers.sympy.shim_ho</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.simp.html">kdrag.solvers.sympy.simp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.simplify.html">kdrag.solvers.sympy.simplify</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.solve.html">kdrag.solvers.sympy.solve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.sum_shim.html">kdrag.solvers.sympy.sum_shim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.summation.html">kdrag.solvers.sympy.summation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.sympify.html">kdrag.solvers.sympy.sympify</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">kdrag.solvers.sympy.sympy_const</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.translate_tuple_args.html">kdrag.solvers.sympy.translate_tuple_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.diff"><code class="docutils literal notranslate"><span class="pre">diff()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.diff_shim"><code class="docutils literal notranslate"><span class="pre">diff_shim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.expand"><code class="docutils literal notranslate"><span class="pre">expand()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.factor"><code class="docutils literal notranslate"><span class="pre">factor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.fresh_symbol"><code class="docutils literal notranslate"><span class="pre">fresh_symbol()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.integ_shim"><code class="docutils literal notranslate"><span class="pre">integ_shim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.integrate"><code class="docutils literal notranslate"><span class="pre">integrate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.kdify"><code class="docutils literal notranslate"><span class="pre">kdify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.limit"><code class="docutils literal notranslate"><span class="pre">limit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.series"><code class="docutils literal notranslate"><span class="pre">series()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.shim_ho"><code class="docutils literal notranslate"><span class="pre">shim_ho()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.simplify"><code class="docutils literal notranslate"><span class="pre">simplify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.solve"><code class="docutils literal notranslate"><span class="pre">solve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.sum_shim"><code class="docutils literal notranslate"><span class="pre">sum_shim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.summation"><code class="docutils literal notranslate"><span class="pre">summation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.sympify"><code class="docutils literal notranslate"><span class="pre">sympify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.sympy_const"><code class="docutils literal notranslate"><span class="pre">sympy_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.solvers.sympy.html#kdrag.solvers.sympy.translate_tuple_args"><code class="docutils literal notranslate"><span class="pre">translate_tuple_args()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.symunion.html">kdrag.solvers.symunion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.solvers.synth.html">kdrag.solvers.synth</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tele.html">kdrag.tele</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.solvers.html">kdrag.solvers</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.solvers.sympy.html">kdrag.solvers.sympy</a></li>
+      <li class="breadcrumb-item active">kdrag.solvers.sympy.sympy_const</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.solvers.sympy.sympy_const.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kdrag-solvers-sympy-sympy-const">
+<h1>kdrag.solvers.sympy.sympy_const<a class="headerlink" href="#kdrag-solvers-sympy-sympy-const" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.solvers.sympy.sympy_const">
+<span class="sig-prename descclassname"><span class="pre">kdrag.solvers.sympy.</span></span><span class="sig-name descname"><span class="pre">sympy_const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="headerlink" href="#kdrag.solvers.sympy.sympy_const" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">FreshReal</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sympy_const</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">x!...</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Expr</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.solvers.sympy.sympify.html" class="btn btn-neutral float-left" title="kdrag.solvers.sympy.sympify" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.solvers.sympy.translate_tuple_args.html" class="btn btn-neutral float-right" title="kdrag.solvers.sympy.translate_tuple_args" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

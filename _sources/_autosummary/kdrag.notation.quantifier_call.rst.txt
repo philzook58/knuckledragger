@@ -1,0 +1,6 @@
+kdrag.notation.quantifier\_call
+===============================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: quantifier_call

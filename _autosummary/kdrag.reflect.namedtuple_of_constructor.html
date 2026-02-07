@@ -1,0 +1,215 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.reflect.namedtuple_of_constructor &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.reflect.nbe" href="kdrag.reflect.nbe.html" />
+    <link rel="prev" title="kdrag.reflect.infer_sort" href="kdrag.reflect.infer_sort.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ComplexSort.html">kdrag.ComplexSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.FinP.html">kdrag.FinP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Head.html">kdrag.Head</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Id.html">kdrag.Id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ListSort.html">kdrag.ListSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.NatSort.html">kdrag.NatSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.OptionSort.html">kdrag.OptionSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.SeqVecP.html">kdrag.SeqVecP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Some.html">kdrag.Some</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Tail.html">kdrag.Tail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.TupleSort.html">kdrag.TupleSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Undef.html">kdrag.Undef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.UnitSort.html">kdrag.UnitSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.define_const.html">kdrag.define_const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.list.html">kdrag.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.seq.html">kdrag.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tuple_.html">kdrag.tuple_</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.PTheorem"><code class="docutils literal notranslate"><span class="pre">PTheorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QImplies"><code class="docutils literal notranslate"><span class="pre">QImplies()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Theorem"><code class="docutils literal notranslate"><span class="pre">Theorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.cast.html">kdrag.cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contracts.html">kdrag.contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.modal.html">kdrag.modal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.datatype.html">kdrag.reflect.datatype</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.eval_.html">kdrag.reflect.eval_</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.expr.html">kdrag.reflect.expr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.infer_sort.html">kdrag.reflect.infer_sort</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.reflect.namedtuple_of_constructor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.reflect.namedtuple_of_constructor"><code class="docutils literal notranslate"><span class="pre">namedtuple_of_constructor()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.nbe.html">kdrag.reflect.nbe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.reflect.html">kdrag.reflect.reflect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.reify.html">kdrag.reflect.reify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.sort_of_type.html">kdrag.reflect.sort_of_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.type_of_sort.html">kdrag.reflect.type_of_sort</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.KnuckleClosure"><code class="docutils literal notranslate"><span class="pre">KnuckleClosure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.datatype"><code class="docutils literal notranslate"><span class="pre">datatype()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.eval_"><code class="docutils literal notranslate"><span class="pre">eval_()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.expr"><code class="docutils literal notranslate"><span class="pre">expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.infer_sort"><code class="docutils literal notranslate"><span class="pre">infer_sort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.namedtuple_of_constructor"><code class="docutils literal notranslate"><span class="pre">namedtuple_of_constructor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.nbe"><code class="docutils literal notranslate"><span class="pre">nbe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.reflect"><code class="docutils literal notranslate"><span class="pre">reflect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.reify"><code class="docutils literal notranslate"><span class="pre">reify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.sort_of_type"><code class="docutils literal notranslate"><span class="pre">sort_of_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.reflect.html#kdrag.reflect.type_of_sort"><code class="docutils literal notranslate"><span class="pre">type_of_sort()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tele.html">kdrag.tele</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.reflect.html">kdrag.reflect</a></li>
+      <li class="breadcrumb-item active">kdrag.reflect.namedtuple_of_constructor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.reflect.namedtuple_of_constructor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kdrag-reflect-namedtuple-of-constructor">
+<h1>kdrag.reflect.namedtuple_of_constructor<a class="headerlink" href="#kdrag-reflect-namedtuple-of-constructor" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.reflect.namedtuple_of_constructor">
+<span class="sig-prename descclassname"><span class="pre">kdrag.reflect.</span></span><span class="sig-name descname"><span class="pre">namedtuple_of_constructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatatypeSortRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.reflect.namedtuple_of_constructor" title="Link to this definition"></a></dt>
+<dd><p>Given a datatype sort and an index, return a named tuple with field names and the constructor.
+&gt;&gt;&gt; Nat = smt.Datatype(“Nat”)
+&gt;&gt;&gt; Nat.declare(“Z”)
+&gt;&gt;&gt; Nat.declare(“S”, (“pred”, Nat))
+&gt;&gt;&gt; Nat = Nat.create()
+&gt;&gt;&gt; namedtuple_of_constructor(Nat, 1)(0)
+S(pred=0)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sort</strong> (<em>DatatypeSortRef</em>)</p></li>
+<li><p><strong>idx</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.reflect.infer_sort.html" class="btn btn-neutral float-left" title="kdrag.reflect.infer_sort" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.reflect.nbe.html" class="btn btn-neutral float-right" title="kdrag.reflect.nbe" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

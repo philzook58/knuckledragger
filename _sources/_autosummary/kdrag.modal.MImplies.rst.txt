@@ -1,0 +1,6 @@
+kdrag.modal.MImplies
+====================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: MImplies

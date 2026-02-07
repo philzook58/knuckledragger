@@ -1,0 +1,42 @@
+kdrag.theories.univ
+===================
+
+.. automodule:: kdrag.theories.univ
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      Bool
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      box
+      cast
+      poly_ax
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/univ.py
+   :language: python

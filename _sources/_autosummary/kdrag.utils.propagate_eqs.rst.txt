@@ -1,0 +1,6 @@
+kdrag.utils.propagate\_eqs
+==========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: propagate_eqs

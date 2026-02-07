@@ -1,0 +1,6 @@
+kdrag.smt.decl
+==============
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: decl

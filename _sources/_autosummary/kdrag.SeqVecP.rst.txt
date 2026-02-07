@@ -1,0 +1,6 @@
+kdrag.SeqVecP
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: SeqVecP

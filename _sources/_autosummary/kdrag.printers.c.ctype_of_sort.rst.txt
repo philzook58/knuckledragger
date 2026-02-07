@@ -1,0 +1,6 @@
+kdrag.printers.c.ctype\_of\_sort
+================================
+
+.. currentmodule:: kdrag.printers.c
+
+.. autofunction:: ctype_of_sort

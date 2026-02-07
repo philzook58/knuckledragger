@@ -1,0 +1,6 @@
+kdrag.theories.set.Injective
+============================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: Injective

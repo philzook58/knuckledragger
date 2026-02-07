@@ -1,0 +1,6 @@
+kdrag.utils.free\_vars
+======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: free_vars

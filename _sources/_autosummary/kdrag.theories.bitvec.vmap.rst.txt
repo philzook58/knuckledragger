@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.vmap
+==========================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: vmap

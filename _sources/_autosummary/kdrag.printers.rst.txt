@@ -1,0 +1,48 @@
+kdrag.printers
+==============
+
+.. automodule:: kdrag.printers
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      finsize
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   c
+   lean
+   llvm
+   rust
+   smtlib
+   tptp
+   verilog
+
+
+
+.. literalinclude:: ../../kdrag/printers.py
+   :language: python

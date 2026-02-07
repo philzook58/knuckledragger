@@ -1,0 +1,6 @@
+kdrag.solvers.kb.huet\_smt2\_file
+=================================
+
+.. currentmodule:: kdrag.solvers.kb
+
+.. autofunction:: huet_smt2_file

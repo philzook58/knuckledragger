@@ -1,0 +1,6 @@
+kdrag.kernel.reserve
+====================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: reserve

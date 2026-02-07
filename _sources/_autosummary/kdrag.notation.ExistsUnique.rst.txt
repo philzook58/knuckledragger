@@ -1,0 +1,6 @@
+kdrag.notation.ExistsUnique
+===========================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: ExistsUnique

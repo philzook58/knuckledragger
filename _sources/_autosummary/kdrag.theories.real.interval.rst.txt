@@ -1,0 +1,36 @@
+kdrag.theories.real.interval
+============================
+
+.. automodule:: kdrag.theories.real.interval
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Max
+      Min
+      test
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/interval.py
+   :language: python

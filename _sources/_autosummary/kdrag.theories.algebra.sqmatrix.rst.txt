@@ -1,0 +1,27 @@
+kdrag.theories.algebra.sqmatrix
+===============================
+
+.. automodule:: kdrag.theories.algebra.sqmatrix
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/sqmatrix.py
+   :language: python

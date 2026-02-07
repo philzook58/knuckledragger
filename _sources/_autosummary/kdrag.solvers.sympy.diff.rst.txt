@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.diff
+========================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: diff

@@ -1,0 +1,6 @@
+kdrag.theories.real.sin\_lower
+==============================
+
+.. currentmodule:: kdrag.theories.real
+
+.. autofunction:: sin_lower

@@ -1,0 +1,6 @@
+kdrag.parsers.tptp.to\_z3
+=========================
+
+.. currentmodule:: kdrag.parsers.tptp
+
+.. autofunction:: to_z3

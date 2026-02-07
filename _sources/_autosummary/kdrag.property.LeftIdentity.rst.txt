@@ -1,0 +1,6 @@
+kdrag.property.LeftIdentity
+===========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: LeftIdentity

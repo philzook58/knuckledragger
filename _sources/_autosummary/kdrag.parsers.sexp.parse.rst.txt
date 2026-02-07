@@ -1,0 +1,6 @@
+kdrag.parsers.sexp.parse
+========================
+
+.. currentmodule:: kdrag.parsers.sexp
+
+.. autofunction:: parse

@@ -1,0 +1,6 @@
+kdrag.theories.real.seq.test
+============================
+
+.. currentmodule:: kdrag.theories.real.seq
+
+.. autofunction:: test

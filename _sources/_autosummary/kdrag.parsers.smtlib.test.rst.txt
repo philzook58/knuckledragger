@@ -1,0 +1,6 @@
+kdrag.parsers.smtlib.test
+=========================
+
+.. currentmodule:: kdrag.parsers.smtlib
+
+.. autofunction:: test

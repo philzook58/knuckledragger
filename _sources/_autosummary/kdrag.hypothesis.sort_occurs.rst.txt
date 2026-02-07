@@ -1,0 +1,6 @@
+kdrag.hypothesis.sort\_occurs
+=============================
+
+.. currentmodule:: kdrag.hypothesis
+
+.. autofunction:: sort_occurs

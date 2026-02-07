@@ -1,0 +1,41 @@
+kdrag.solvers.kb.string
+=======================
+
+.. automodule:: kdrag.solvers.kb.string
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      KB
+      deduce
+      overlaps
+      replace
+      rewrite
+      shortlex_swap
+      simplify
+      subseq
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/kb/string.py
+   :language: python

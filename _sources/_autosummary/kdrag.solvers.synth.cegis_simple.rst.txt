@@ -1,0 +1,6 @@
+kdrag.solvers.synth.cegis\_simple
+=================================
+
+.. currentmodule:: kdrag.solvers.synth
+
+.. autofunction:: cegis_simple

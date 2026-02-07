@@ -1,0 +1,6 @@
+kdrag.parsers.sexp.pprint\_sexps
+================================
+
+.. currentmodule:: kdrag.parsers.sexp
+
+.. autofunction:: pprint_sexps

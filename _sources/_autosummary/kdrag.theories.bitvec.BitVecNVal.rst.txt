@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.BitVecNVal
+================================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: BitVecNVal

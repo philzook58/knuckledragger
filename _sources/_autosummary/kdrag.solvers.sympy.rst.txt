@@ -1,0 +1,52 @@
+kdrag.solvers.sympy
+===================
+
+.. automodule:: kdrag.solvers.sympy
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      diff
+      diff_shim
+      expand
+      factor
+      fresh_symbol
+      integ_shim
+      integrate
+      kdify
+      limit
+      series
+      shim_ho
+      simp
+      simplify
+      solve
+      sum_shim
+      summation
+      sympify
+      sympy_const
+      translate_tuple_args
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/sympy.py
+   :language: python

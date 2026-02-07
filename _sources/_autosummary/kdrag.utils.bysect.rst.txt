@@ -1,0 +1,6 @@
+kdrag.utils.bysect
+==================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: bysect

@@ -1,0 +1,6 @@
+kdrag.theories.float.in\_range
+==============================
+
+.. currentmodule:: kdrag.theories.float
+
+.. autofunction:: in_range

@@ -1,0 +1,27 @@
+kdrag.contrib.data\_modulo
+==========================
+
+.. automodule:: kdrag.contrib.data_modulo
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/data_modulo.py
+   :language: python

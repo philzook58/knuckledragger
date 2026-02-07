@@ -1,0 +1,592 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.parsers.tptp &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.parsers.tptp.test" href="kdrag.parsers.tptp.test.html" />
+    <link rel="prev" title="kdrag.parsers.smtlib.test" href="kdrag.parsers.smtlib.test.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ComplexSort.html">kdrag.ComplexSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.FinP.html">kdrag.FinP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Head.html">kdrag.Head</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Id.html">kdrag.Id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ListSort.html">kdrag.ListSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.NatSort.html">kdrag.NatSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.OptionSort.html">kdrag.OptionSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.SeqVecP.html">kdrag.SeqVecP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Some.html">kdrag.Some</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Tail.html">kdrag.Tail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.TupleSort.html">kdrag.TupleSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Undef.html">kdrag.Undef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.UnitSort.html">kdrag.UnitSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.define_const.html">kdrag.define_const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.list.html">kdrag.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.seq.html">kdrag.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tuple_.html">kdrag.tuple_</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.PTheorem"><code class="docutils literal notranslate"><span class="pre">PTheorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QImplies"><code class="docutils literal notranslate"><span class="pre">QImplies()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Theorem"><code class="docutils literal notranslate"><span class="pre">Theorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.cast.html">kdrag.cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contracts.html">kdrag.contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.modal.html">kdrag.modal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.parsers.microlean.html">kdrag.parsers.microlean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.parsers.sexp.html">kdrag.parsers.sexp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.parsers.smtlib.html">kdrag.parsers.smtlib</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.parsers.tptp</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.parsers.tptp.test.html">kdrag.parsers.tptp.test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.parsers.tptp.to_z3.html">kdrag.parsers.tptp.to_z3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.parsers.tptp.FormulaRole"><code class="docutils literal notranslate"><span class="pre">FormulaRole</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.parsers.tptp.TPTPFormulaEntry"><code class="docutils literal notranslate"><span class="pre">TPTPFormulaEntry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.parsers.tptp.TPTPTransformer"><code class="docutils literal notranslate"><span class="pre">TPTPTransformer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.parsers.tptp.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.parsers.tptp.to_z3"><code class="docutils literal notranslate"><span class="pre">to_z3()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.parsers.trs.html">kdrag.parsers.trs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tele.html">kdrag.tele</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.parsers.html">kdrag.parsers</a></li>
+      <li class="breadcrumb-item active">kdrag.parsers.tptp</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.parsers.tptp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.parsers.tptp">
+<span id="kdrag-parsers-tptp"></span><h1>kdrag.parsers.tptp<a class="headerlink" href="#module-kdrag.parsers.tptp" title="Link to this heading"></a></h1>
+<p>TPTP is a format for automated theorem provers.
+Read more about it at <a class="reference external" href="https://www.tptp.org/">https://www.tptp.org/</a></p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.parsers.tptp.test.html#kdrag.parsers.tptp.test" title="kdrag.parsers.tptp.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.parsers.tptp.to_z3.html#kdrag.parsers.tptp.to_z3" title="kdrag.parsers.tptp.to_z3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_z3</span></code></a>(tree[, sort])</p></td>
+<td><p>Transform a TPTP parse tree into Z3 expressions.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.parsers.tptp.FormulaRole" title="kdrag.parsers.tptp.FormulaRole"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FormulaRole</span></code></a>(*values)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.parsers.tptp.TPTPFormulaEntry" title="kdrag.parsers.tptp.TPTPFormulaEntry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TPTPFormulaEntry</span></code></a>(name, role, formula)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.parsers.tptp.TPTPTransformer" title="kdrag.parsers.tptp.TPTPTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TPTPTransformer</span></code></a>([sort, thf_mode])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.FormulaRole">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.parsers.tptp.</span></span><span class="sig-name descname"><span class="pre">FormulaRole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.FormulaRole" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.FormulaRole.AXIOM">
+<span class="sig-name descname"><span class="pre">AXIOM</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'axiom'</span></span><a class="headerlink" href="#kdrag.parsers.tptp.FormulaRole.AXIOM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.FormulaRole.CONJECTURE">
+<span class="sig-name descname"><span class="pre">CONJECTURE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'conjecture'</span></span><a class="headerlink" href="#kdrag.parsers.tptp.FormulaRole.CONJECTURE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.FormulaRole.__contains__">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__contains__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.FormulaRole.__contains__" title="Link to this definition"></a></dt>
+<dd><p>Return True if <cite>value</cite> is in <cite>cls</cite>.</p>
+<p><cite>value</cite> is in <cite>cls</cite> if:
+1) <cite>value</cite> is a member of <cite>cls</cite>, or
+2) <cite>value</cite> is the value of one of the <cite>cls</cite>’s members.
+3) <cite>value</cite> is a pseudo-member (flags)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.FormulaRole.__getitem__">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.FormulaRole.__getitem__" title="Link to this definition"></a></dt>
+<dd><p>Return the member matching <cite>name</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.FormulaRole.__iter__">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.FormulaRole.__iter__" title="Link to this definition"></a></dt>
+<dd><p>Return members in definition order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.FormulaRole.__len__">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.FormulaRole.__len__" title="Link to this definition"></a></dt>
+<dd><p>Return the number of members (no aliases)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPFormulaEntry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.parsers.tptp.</span></span><span class="sig-name descname"><span class="pre">TPTPFormulaEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'FormulaRole'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'smt.BoolRef'</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPFormulaEntry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>role</strong> (<a class="reference internal" href="#kdrag.parsers.tptp.FormulaRole" title="kdrag.parsers.tptp.FormulaRole"><em>FormulaRole</em></a>)</p></li>
+<li><p><strong>formula</strong> (<em>BoolRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPFormulaEntry.formula">
+<span class="sig-name descname"><span class="pre">formula</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPFormulaEntry.formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPFormulaEntry.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPFormulaEntry.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPFormulaEntry.role">
+<span class="sig-name descname"><span class="pre">role</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#kdrag.parsers.tptp.FormulaRole" title="kdrag.parsers.tptp.FormulaRole"><span class="pre">FormulaRole</span></a></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPFormulaEntry.role" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.parsers.tptp.</span></span><span class="sig-name descname"><span class="pre">TPTPTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thf_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Transformer</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sort</strong> (<em>smt.SortRef</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>thf_mode</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.__default__">
+<span class="sig-name descname"><span class="pre">__default__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.__default__" title="Link to this definition"></a></dt>
+<dd><p>Default function that is called if there is no attribute matching <code class="docutils literal notranslate"><span class="pre">data</span></code></p>
+<p>Can be overridden. Defaults to creating a new copy of the tree node (i.e. <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">Tree(data,</span> <span class="pre">children,</span> <span class="pre">meta)</span></code>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.__default_token__">
+<span class="sig-name descname"><span class="pre">__default_token__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.__default_token__" title="Link to this definition"></a></dt>
+<dd><p>Default function that is called if there is no attribute matching <code class="docutils literal notranslate"><span class="pre">token.type</span></code></p>
+<p>Can be overridden. Defaults to returning the token as-is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.__mul__">
+<span class="sig-name descname"><span class="pre">__mul__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Transformer</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TransformerChain</span><span class="p"><span class="pre">[</span></span><span class="pre">_Leaf_U</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">_Return_V</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TransformerChain</span><span class="p"><span class="pre">[</span></span><span class="pre">_Leaf_T</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">_Return_V</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.__mul__" title="Link to this definition"></a></dt>
+<dd><p>Chain two transformers together, returning a new transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>Transformer</em>)</p></li>
+<li><p><strong>other</strong> (<em>Transformer</em><em> | </em><em>TransformerChain</em><em>[</em><em>_Leaf_U</em><em>, </em><em>_Return_V</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>TransformerChain</em>[<em>_Leaf_T</em>, <em>_Return_V</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.arguments">
+<span class="sig-name descname"><span class="pre">arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.arguments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.atomic_formula">
+<span class="sig-name descname"><span class="pre">atomic_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.atomic_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.cnf">
+<span class="sig-name descname"><span class="pre">cnf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.cnf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.cnf_formula">
+<span class="sig-name descname"><span class="pre">cnf_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.cnf_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.const">
+<span class="sig-name descname"><span class="pre">const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.const" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.const_sorts">
+<span class="sig-name descname"><span class="pre">const_sorts</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">SortRef</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.const_sorts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.consts">
+<span class="sig-name descname"><span class="pre">consts</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.consts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.diseq">
+<span class="sig-name descname"><span class="pre">diseq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.diseq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.disjunction">
+<span class="sig-name descname"><span class="pre">disjunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.disjunction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.eq">
+<span class="sig-name descname"><span class="pre">eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.eq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.exists">
+<span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.exists" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.fof">
+<span class="sig-name descname"><span class="pre">fof</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.fof" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.fof_and_formula">
+<span class="sig-name descname"><span class="pre">fof_and_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.fof_and_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.fof_or_formula">
+<span class="sig-name descname"><span class="pre">fof_or_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.fof_or_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.fof_variable_list">
+<span class="sig-name descname"><span class="pre">fof_variable_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.fof_variable_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.forall">
+<span class="sig-name descname"><span class="pre">forall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.forall" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.fun_app">
+<span class="sig-name descname"><span class="pre">fun_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.fun_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.func_sigs">
+<span class="sig-name descname"><span class="pre">func_sigs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">SortRef</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">SortRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.func_sigs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.funcs">
+<span class="sig-name descname"><span class="pre">funcs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FuncDeclRef</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.funcs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.iff">
+<span class="sig-name descname"><span class="pre">iff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.iff" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.implies">
+<span class="sig-name descname"><span class="pre">implies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.implies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.neglit">
+<span class="sig-name descname"><span class="pre">neglit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.neglit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.not_formula">
+<span class="sig-name descname"><span class="pre">not_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.not_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.poslit">
+<span class="sig-name descname"><span class="pre">poslit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.poslit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.predicate">
+<span class="sig-name descname"><span class="pre">predicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.predicate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.preds">
+<span class="sig-name descname"><span class="pre">preds</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FuncDeclRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.preds" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.reverse_implies">
+<span class="sig-name descname"><span class="pre">reverse_implies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.reverse_implies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.sorts">
+<span class="sig-name descname"><span class="pre">sorts</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">SortRef</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.sorts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.start" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.tff">
+<span class="sig-name descname"><span class="pre">tff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.tff" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.tff_type">
+<span class="sig-name descname"><span class="pre">tff_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.tff_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.tff_type_atom">
+<span class="sig-name descname"><span class="pre">tff_type_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.tff_type_atom" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.tff_type_formula">
+<span class="sig-name descname"><span class="pre">tff_type_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.tff_type_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.tff_type_product">
+<span class="sig-name descname"><span class="pre">tff_type_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.tff_type_product" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.tff_typed_variable">
+<span class="sig-name descname"><span class="pre">tff_typed_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.tff_typed_variable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.thf">
+<span class="sig-name descname"><span class="pre">thf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.thf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.thf_and_formula">
+<span class="sig-name descname"><span class="pre">thf_and_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.thf_and_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.thf_app">
+<span class="sig-name descname"><span class="pre">thf_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.thf_app" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.thf_lambda">
+<span class="sig-name descname"><span class="pre">thf_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.thf_lambda" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.thf_or_formula">
+<span class="sig-name descname"><span class="pre">thf_or_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.thf_or_formula" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tree</span><span class="p"><span class="pre">[</span></span><span class="pre">_Leaf_T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">_Return_T</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.transform" title="Link to this definition"></a></dt>
+<dd><p>Transform the given tree, and return the final result</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tree</strong> (<em>Tree</em><em>[</em><em>_Leaf_T</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>_Return_T</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.var">
+<span class="sig-name descname"><span class="pre">var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.var" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.TPTPTransformer.vars">
+<span class="sig-name descname"><span class="pre">vars</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.TPTPTransformer.vars" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.test">
+<span class="sig-prename descclassname"><span class="pre">kdrag.parsers.tptp.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.parsers.tptp.test" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">term_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;f(Xy1,g(y23))&quot;</span><span class="p">)</span>
+<span class="go">Tree(&#39;fun_app&#39;, [Token(&#39;NAME&#39;, &#39;f&#39;), Tree(Token(&#39;RULE&#39;, &#39;arguments&#39;), [Tree(&#39;var&#39;, [Token(&#39;UPPER_WORD&#39;, &#39;Xy1&#39;)]), Tree(&#39;fun_app&#39;, [Token(&#39;NAME&#39;, &#39;g&#39;), Tree(Token(&#39;RULE&#39;, &#39;arguments&#39;), [Tree(&#39;const&#39;, [Token(&#39;NAME&#39;, &#39;y23&#39;)])])])])])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.parsers.tptp.to_z3">
+<span class="sig-prename descclassname"><span class="pre">kdrag.parsers.tptp.</span></span><span class="sig-name descname"><span class="pre">to_z3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kdrag.parsers.tptp.TPTPFormulaEntry" title="kdrag.parsers.tptp.TPTPFormulaEntry"><span class="pre">TPTPFormulaEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.parsers.tptp.to_z3" title="Link to this definition"></a></dt>
+<dd><p>Transform a TPTP parse tree into Z3 expressions.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.parsers.tptp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tptp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">tptp</span><span class="o">.</span><span class="n">fof_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;fof(a,axiom, p(a) ).&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">entries</span> <span class="o">=</span> <span class="n">tptp</span><span class="o">.</span><span class="n">to_z3</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;a&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">role</span>
+<span class="go">&lt;FormulaRole.AXIOM: &#39;axiom&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">formula</span>
+<span class="go">p(a)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tree</strong> (<em>Tree</em>)</p></li>
+<li><p><strong>sort</strong> (<em>SortRef</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#kdrag.parsers.tptp.TPTPFormulaEntry" title="kdrag.parsers.tptp.TPTPFormulaEntry"><em>TPTPFormulaEntry</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.parsers.smtlib.test.html" class="btn btn-neutral float-left" title="kdrag.parsers.smtlib.test" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.parsers.tptp.test.html" class="btn btn-neutral float-right" title="kdrag.parsers.tptp.test" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

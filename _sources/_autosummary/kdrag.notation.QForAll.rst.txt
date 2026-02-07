@@ -1,0 +1,6 @@
+kdrag.notation.QForAll
+======================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: QForAll

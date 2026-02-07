@@ -1,0 +1,6 @@
+kdrag.reflect.reflect
+=====================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: reflect

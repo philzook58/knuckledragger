@@ -1,0 +1,6 @@
+kdrag.utils.lambda\_lift
+========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: lambda_lift

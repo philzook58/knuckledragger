@@ -1,0 +1,6 @@
+kdrag.solvers.collect\_sorts
+============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: collect_sorts

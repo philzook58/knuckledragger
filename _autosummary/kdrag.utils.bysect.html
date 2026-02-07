@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.utils.bysect &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.utils.calling_globals_locals" href="kdrag.utils.calling_globals_locals.html" />
+    <link rel="prev" title="kdrag.utils.ast_size_sexpr" href="kdrag.utils.ast_size_sexpr.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.html">kdrag</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ComplexSort.html">kdrag.ComplexSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.FinP.html">kdrag.FinP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Head.html">kdrag.Head</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Id.html">kdrag.Id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ListSort.html">kdrag.ListSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.NatSort.html">kdrag.NatSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.OptionSort.html">kdrag.OptionSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.SeqVecP.html">kdrag.SeqVecP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Some.html">kdrag.Some</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Tail.html">kdrag.Tail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.TupleSort.html">kdrag.TupleSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Undef.html">kdrag.Undef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.UnitSort.html">kdrag.UnitSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.define_const.html">kdrag.define_const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.list.html">kdrag.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.seq.html">kdrag.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tuple_.html">kdrag.tuple_</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.PTheorem"><code class="docutils literal notranslate"><span class="pre">PTheorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.QImplies"><code class="docutils literal notranslate"><span class="pre">QImplies()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.Theorem"><code class="docutils literal notranslate"><span class="pre">Theorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.html#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.cast.html">kdrag.cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contracts.html">kdrag.contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.modal.html">kdrag.modal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tele.html">kdrag.tele</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.all_values.html">kdrag.utils.all_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.alpha_eq.html">kdrag.utils.alpha_eq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.alpha_norm.html">kdrag.utils.alpha_norm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.antipattern.html">kdrag.utils.antipattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.ast_size_sexpr.html">kdrag.utils.ast_size_sexpr</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.utils.bysect</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.utils.bysect"><code class="docutils literal notranslate"><span class="pre">bysect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.calling_globals_locals.html">kdrag.utils.calling_globals_locals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.consts.html">kdrag.utils.consts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.curry_arrays.html">kdrag.utils.curry_arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.decls.html">kdrag.utils.decls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.defined_decls.html">kdrag.utils.defined_decls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.eunify.html">kdrag.utils.eunify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.find_calls.html">kdrag.utils.find_calls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.free_in.html">kdrag.utils.free_in</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.free_vars.html">kdrag.utils.free_vars</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.generate.html">kdrag.utils.generate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.is_strict_subterm.html">kdrag.utils.is_strict_subterm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.is_subterm.html">kdrag.utils.is_subterm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.is_value.html">kdrag.utils.is_value</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.lambda_lift.html">kdrag.utils.lambda_lift</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.lemma_db.html">kdrag.utils.lemma_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.occurs.html">kdrag.utils.occurs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.open_binder.html">kdrag.utils.open_binder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.open_binder_unhygienic.html">kdrag.utils.open_binder_unhygienic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.pathmap.html">kdrag.utils.pathmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.pmatch.html">kdrag.utils.pmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.pmatch_fo.html">kdrag.utils.pmatch_fo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.pmatch_rec.html">kdrag.utils.pmatch_rec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.pmatch_rec_ctx.html">kdrag.utils.pmatch_rec_ctx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.prompt.html">kdrag.utils.prompt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.propagate.html">kdrag.utils.propagate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.propagate_eqs.html">kdrag.utils.propagate_eqs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.prune.html">kdrag.utils.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.quant_kind_eq.html">kdrag.utils.quant_kind_eq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.sanity_check_consistency.html">kdrag.utils.sanity_check_consistency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.search.html">kdrag.utils.search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.search_decl.html">kdrag.utils.search_decl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.search_expr.html">kdrag.utils.search_expr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.sorts.html">kdrag.utils.sorts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.subterms.html">kdrag.utils.subterms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.unify.html">kdrag.utils.unify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.unify_db.html">kdrag.utils.unify_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.DeclHole"><code class="docutils literal notranslate"><span class="pre">DeclHole</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.ExistsHole"><code class="docutils literal notranslate"><span class="pre">ExistsHole</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.ExprCtx"><code class="docutils literal notranslate"><span class="pre">ExprCtx</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.ForAllHole"><code class="docutils literal notranslate"><span class="pre">ForAllHole</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.LambdaHole"><code class="docutils literal notranslate"><span class="pre">LambdaHole</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.QuantifierHole"><code class="docutils literal notranslate"><span class="pre">QuantifierHole</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.Zipper"><code class="docutils literal notranslate"><span class="pre">Zipper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.all_values"><code class="docutils literal notranslate"><span class="pre">all_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.alpha_eq"><code class="docutils literal notranslate"><span class="pre">alpha_eq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.alpha_norm"><code class="docutils literal notranslate"><span class="pre">alpha_norm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.antipattern"><code class="docutils literal notranslate"><span class="pre">antipattern()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.ast_size_sexpr"><code class="docutils literal notranslate"><span class="pre">ast_size_sexpr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.bysect"><code class="docutils literal notranslate"><span class="pre">bysect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.calling_globals_locals"><code class="docutils literal notranslate"><span class="pre">calling_globals_locals()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.consts"><code class="docutils literal notranslate"><span class="pre">consts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.curry_arrays"><code class="docutils literal notranslate"><span class="pre">curry_arrays()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.decls"><code class="docutils literal notranslate"><span class="pre">decls()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.defined_decls"><code class="docutils literal notranslate"><span class="pre">defined_decls()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.eunify"><code class="docutils literal notranslate"><span class="pre">eunify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.find_calls"><code class="docutils literal notranslate"><span class="pre">find_calls()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.free_in"><code class="docutils literal notranslate"><span class="pre">free_in()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.free_vars"><code class="docutils literal notranslate"><span class="pre">free_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.is_strict_subterm"><code class="docutils literal notranslate"><span class="pre">is_strict_subterm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.is_subterm"><code class="docutils literal notranslate"><span class="pre">is_subterm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.is_value"><code class="docutils literal notranslate"><span class="pre">is_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.lambda_lift"><code class="docutils literal notranslate"><span class="pre">lambda_lift()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.lemma_db"><code class="docutils literal notranslate"><span class="pre">lemma_db()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.occurs"><code class="docutils literal notranslate"><span class="pre">occurs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.open_binder"><code class="docutils literal notranslate"><span class="pre">open_binder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.open_binder_unhygienic"><code class="docutils literal notranslate"><span class="pre">open_binder_unhygienic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.pathmap"><code class="docutils literal notranslate"><span class="pre">pathmap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.pmatch"><code class="docutils literal notranslate"><span class="pre">pmatch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.pmatch_fo"><code class="docutils literal notranslate"><span class="pre">pmatch_fo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.pmatch_rec"><code class="docutils literal notranslate"><span class="pre">pmatch_rec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.pmatch_rec_ctx"><code class="docutils literal notranslate"><span class="pre">pmatch_rec_ctx()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.prompt"><code class="docutils literal notranslate"><span class="pre">prompt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.propagate"><code class="docutils literal notranslate"><span class="pre">propagate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.propagate_eqs"><code class="docutils literal notranslate"><span class="pre">propagate_eqs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.prune"><code class="docutils literal notranslate"><span class="pre">prune()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.quant_kind_eq"><code class="docutils literal notranslate"><span class="pre">quant_kind_eq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.sanity_check_consistency"><code class="docutils literal notranslate"><span class="pre">sanity_check_consistency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.search_decl"><code class="docutils literal notranslate"><span class="pre">search_decl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.search_expr"><code class="docutils literal notranslate"><span class="pre">search_expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.sorts"><code class="docutils literal notranslate"><span class="pre">sorts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.subterms"><code class="docutils literal notranslate"><span class="pre">subterms()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.unify"><code class="docutils literal notranslate"><span class="pre">unify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.utils.html#kdrag.utils.unify_db"><code class="docutils literal notranslate"><span class="pre">unify_db()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.html">kdrag</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.utils.html">kdrag.utils</a></li>
+      <li class="breadcrumb-item active">kdrag.utils.bysect</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.utils.bysect.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kdrag-utils-bysect">
+<h1>kdrag.utils.bysect<a class="headerlink" href="#kdrag-utils-bysect" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.utils.bysect">
+<span class="sig-prename descclassname"><span class="pre">kdrag.utils.</span></span><span class="sig-name descname"><span class="pre">bysect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">object</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">object</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.utils.bysect" title="Link to this definition"></a></dt>
+<dd><p>Bisect the <cite>by</cite> list to find a minimal set of premises that prove <cite>thm</cite>. Presents the same interface as <cite>prove</cite></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y z&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by</span> <span class="o">=</span> <span class="p">[</span><span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">),</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">),</span> <span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">),</span> <span class="n">kd</span><span class="o">.</span><span class="n">axiom</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">z</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bysect</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">z</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">)</span>
+<span class="go">[(1, |= x == y), (3, |= y == z)]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>by</strong> (<em>list</em><em>[</em><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a><em>] </em><em>| </em><em>dict</em><em>[</em><em>object</em><em>, </em><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Sequence</em>[tuple[object, <a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.utils.ast_size_sexpr.html" class="btn btn-neutral float-left" title="kdrag.utils.ast_size_sexpr" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.utils.calling_globals_locals.html" class="btn btn-neutral float-right" title="kdrag.utils.calling_globals_locals" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executeUnary
+================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executeUnary

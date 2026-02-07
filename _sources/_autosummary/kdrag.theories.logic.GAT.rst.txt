@@ -1,0 +1,27 @@
+kdrag.theories.logic.GAT
+========================
+
+.. automodule:: kdrag.theories.logic.GAT
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/GAT.py
+   :language: python

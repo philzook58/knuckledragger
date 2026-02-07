@@ -1,0 +1,6 @@
+kdrag.kernel.define\_fix
+========================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: define_fix

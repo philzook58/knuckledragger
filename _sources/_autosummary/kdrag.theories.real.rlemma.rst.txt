@@ -1,0 +1,6 @@
+kdrag.theories.real.rlemma
+==========================
+
+.. currentmodule:: kdrag.theories.real
+
+.. autofunction:: rlemma

@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.assemble\_and\_check
+================================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: assemble_and_check

@@ -1,0 +1,6 @@
+kdrag.printers.verilog.verilog\_decl
+====================================
+
+.. currentmodule:: kdrag.printers.verilog
+
+.. autofunction:: verilog_decl

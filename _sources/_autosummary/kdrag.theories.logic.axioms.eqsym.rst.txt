@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.eqsym
+=================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: eqsym

@@ -1,0 +1,6 @@
+kdrag.kernel.specialize
+=======================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: specialize

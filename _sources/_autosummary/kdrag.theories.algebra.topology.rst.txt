@@ -1,0 +1,33 @@
+kdrag.theories.algebra.topology
+===============================
+
+.. automodule:: kdrag.theories.algebra.topology
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Topology
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/topology.py
+   :language: python

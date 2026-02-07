@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.store\_concat
+===================================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: store_concat

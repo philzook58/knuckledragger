@@ -1,0 +1,6 @@
+kdrag.solvers.prolog.get\_vars
+==============================
+
+.. currentmodule:: kdrag.solvers.prolog
+
+.. autofunction:: get_vars

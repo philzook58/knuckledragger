@@ -1,0 +1,6 @@
+kdrag.utils.defined\_decls
+==========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: defined_decls

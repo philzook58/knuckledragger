@@ -1,0 +1,6 @@
+kdrag.smt.Const
+===============
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: Const

@@ -1,0 +1,6 @@
+kdrag.datatype.datatype\_replace
+================================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: datatype_replace

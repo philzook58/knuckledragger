@@ -1,0 +1,80 @@
+kdrag.solvers
+=============
+
+.. automodule:: kdrag.solvers
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      binpath
+      collect_decls
+      collect_sorts
+      download
+      install_solvers
+      install_solvers2
+      run
+      smt2tptp
+      tptp2smt
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BaseSolver
+      CVC5Solver
+      EProverSolver
+      EProverTHFSolver
+      LeanSolver
+      LeoIIISolver
+      MultiSolver
+      NanoCopISolver
+      SATSolver
+      TweeSolver
+      VampireSolver
+      VampireTHFSolver
+      ZipperpositionSolver
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   aprove
+   bdd
+   datalog
+   egglog
+   egraph
+   gappa
+   kb
+   ljt
+   prolog
+   sat
+   sympy
+   symunion
+   synth
+
+
+
+.. literalinclude:: ../../kdrag/solvers.py
+   :language: python

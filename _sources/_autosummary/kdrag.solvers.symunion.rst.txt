@@ -1,0 +1,33 @@
+kdrag.solvers.symunion
+======================
+
+.. automodule:: kdrag.solvers.symunion
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SymUnion
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/symunion.py
+   :language: python

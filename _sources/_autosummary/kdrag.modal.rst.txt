@@ -1,0 +1,42 @@
+kdrag.modal
+===========
+
+.. automodule:: kdrag.modal
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Box
+      MImplies
+      PEq
+      PIf
+      PImplies
+      PointEq
+      PointIf
+      Valid
+      coerce
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/modal.py
+   :language: python

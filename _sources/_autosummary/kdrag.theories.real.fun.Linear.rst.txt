@@ -1,0 +1,6 @@
+kdrag.theories.real.fun.Linear
+==============================
+
+.. currentmodule:: kdrag.theories.real.fun
+
+.. autofunction:: Linear

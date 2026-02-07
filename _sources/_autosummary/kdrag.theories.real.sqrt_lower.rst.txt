@@ -1,0 +1,6 @@
+kdrag.theories.real.sqrt\_lower
+===============================
+
+.. currentmodule:: kdrag.theories.real
+
+.. autofunction:: sqrt_lower

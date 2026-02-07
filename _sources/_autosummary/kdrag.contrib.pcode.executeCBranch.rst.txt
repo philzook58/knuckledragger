@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executeCBranch
+==================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executeCBranch

@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.translate\_tuple\_args
+==========================================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: translate_tuple_args

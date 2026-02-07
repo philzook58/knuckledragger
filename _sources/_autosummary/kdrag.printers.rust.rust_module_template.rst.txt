@@ -1,0 +1,6 @@
+kdrag.printers.rust.rust\_module\_template
+==========================================
+
+.. currentmodule:: kdrag.printers.rust
+
+.. autofunction:: rust_module_template

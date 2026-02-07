@@ -1,0 +1,6 @@
+kdrag.modal.PImplies
+====================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: PImplies

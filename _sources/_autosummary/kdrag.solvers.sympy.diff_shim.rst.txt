@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.diff\_shim
+==============================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: diff_shim

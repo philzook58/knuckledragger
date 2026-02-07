@@ -1,0 +1,6 @@
+kdrag.datatype.Enum
+===================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: Enum

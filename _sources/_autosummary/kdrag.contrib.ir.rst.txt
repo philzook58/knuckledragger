@@ -1,0 +1,51 @@
+kdrag.contrib.ir
+================
+
+.. automodule:: kdrag.contrib.ir
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      pp_sort
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Block
+      Function
+      Spec
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   mlir
+   qbe
+
+
+
+.. literalinclude:: ../../kdrag/contrib/ir.py
+   :language: python

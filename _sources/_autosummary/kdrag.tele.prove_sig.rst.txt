@@ -1,0 +1,6 @@
+kdrag.tele.prove\_sig
+=====================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: prove_sig

@@ -1,0 +1,6 @@
+kdrag.rewrite.rule\_of\_expr
+============================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: rule_of_expr

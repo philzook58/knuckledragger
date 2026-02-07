@@ -1,0 +1,6 @@
+kdrag.theories.set.subset
+=========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: subset

@@ -1,0 +1,37 @@
+kdrag.contrib.fast
+==================
+
+.. automodule:: kdrag.contrib.fast
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      astptr
+      ctxptr
+      intify
+      test
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/fast.py
+   :language: python

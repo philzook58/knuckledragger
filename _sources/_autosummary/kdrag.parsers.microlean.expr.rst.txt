@@ -1,0 +1,6 @@
+kdrag.parsers.microlean.expr
+============================
+
+.. currentmodule:: kdrag.parsers.microlean
+
+.. autofunction:: expr

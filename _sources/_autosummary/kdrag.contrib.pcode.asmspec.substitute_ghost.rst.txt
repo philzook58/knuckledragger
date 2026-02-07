@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.substitute\_ghost
+=============================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: substitute_ghost

@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.factor
+==========================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: factor

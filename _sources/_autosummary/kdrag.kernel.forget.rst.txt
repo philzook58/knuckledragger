@@ -1,0 +1,6 @@
+kdrag.kernel.forget
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: forget

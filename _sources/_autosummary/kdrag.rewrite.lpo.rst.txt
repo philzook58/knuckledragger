@@ -1,0 +1,6 @@
+kdrag.rewrite.lpo
+=================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: lpo

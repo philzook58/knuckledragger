@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.pc\_of\_addr
+================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: pc_of_addr

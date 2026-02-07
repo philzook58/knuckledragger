@@ -1,0 +1,34 @@
+kdrag.solvers.synth
+===================
+
+.. automodule:: kdrag.solvers.synth
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      cegis_simple
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/synth.py
+   :language: python

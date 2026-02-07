@@ -1,0 +1,6 @@
+kdrag.smt.IntSort
+=================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: IntSort

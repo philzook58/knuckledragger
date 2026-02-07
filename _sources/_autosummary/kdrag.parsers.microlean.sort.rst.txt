@@ -1,0 +1,6 @@
+kdrag.parsers.microlean.sort
+============================
+
+.. currentmodule:: kdrag.parsers.microlean
+
+.. autofunction:: sort

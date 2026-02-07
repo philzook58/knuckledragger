@@ -1,0 +1,6 @@
+kdrag.printers.tptp.mangle\_decl
+================================
+
+.. currentmodule:: kdrag.printers.tptp
+
+.. autofunction:: mangle_decl

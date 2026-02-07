@@ -1,0 +1,6 @@
+kdrag.smt.sort
+==============
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: sort

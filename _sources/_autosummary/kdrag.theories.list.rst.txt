@@ -1,0 +1,33 @@
+kdrag.theories.list
+===================
+
+.. automodule:: kdrag.theories.list
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      List
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/list.py
+   :language: python

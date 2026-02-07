@@ -1,0 +1,839 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.ComplexSort" href="kdrag.ComplexSort.html" />
+    <link rel="prev" title="Welcome to knuckledragger’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">kdrag</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ComplexSort.html">kdrag.ComplexSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.FinP.html">kdrag.FinP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Head.html">kdrag.Head</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Id.html">kdrag.Id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.ListSort.html">kdrag.ListSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.NatSort.html">kdrag.NatSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.OptionSort.html">kdrag.OptionSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.SeqVecP.html">kdrag.SeqVecP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Some.html">kdrag.Some</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Tail.html">kdrag.Tail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.TupleSort.html">kdrag.TupleSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.Undef.html">kdrag.Undef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.UnitSort.html">kdrag.UnitSort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.define_const.html">kdrag.define_const</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.list.html">kdrag.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.seq.html">kdrag.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tuple_.html">kdrag.tuple_</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.Calc"><code class="docutils literal notranslate"><span class="pre">Calc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Calc.eq"><code class="docutils literal notranslate"><span class="pre">Calc.eq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Calc.ge"><code class="docutils literal notranslate"><span class="pre">Calc.ge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Calc.gt"><code class="docutils literal notranslate"><span class="pre">Calc.gt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Calc.le"><code class="docutils literal notranslate"><span class="pre">Calc.le()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Calc.lt"><code class="docutils literal notranslate"><span class="pre">Calc.lt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Calc.qed"><code class="docutils literal notranslate"><span class="pre">Calc.qed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.FreshVar"><code class="docutils literal notranslate"><span class="pre">FreshVar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.FreshVars"><code class="docutils literal notranslate"><span class="pre">FreshVars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.Inductive"><code class="docutils literal notranslate"><span class="pre">Inductive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.Lemma"><code class="docutils literal notranslate"><span class="pre">Lemma()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.NewType"><code class="docutils literal notranslate"><span class="pre">NewType()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.PTheorem"><code class="docutils literal notranslate"><span class="pre">PTheorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.Proof"><code class="docutils literal notranslate"><span class="pre">Proof</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Proof.__call__"><code class="docutils literal notranslate"><span class="pre">Proof.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Proof.admit"><code class="docutils literal notranslate"><span class="pre">Proof.admit</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Proof.forall"><code class="docutils literal notranslate"><span class="pre">Proof.forall()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Proof.reason"><code class="docutils literal notranslate"><span class="pre">Proof.reason</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.Proof.thm"><code class="docutils literal notranslate"><span class="pre">Proof.thm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.QExists"><code class="docutils literal notranslate"><span class="pre">QExists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.QForAll"><code class="docutils literal notranslate"><span class="pre">QForAll()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.QImplies"><code class="docutils literal notranslate"><span class="pre">QImplies()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.Struct"><code class="docutils literal notranslate"><span class="pre">Struct()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.Theorem"><code class="docutils literal notranslate"><span class="pre">Theorem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.axiom"><code class="docutils literal notranslate"><span class="pre">axiom()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.cond"><code class="docutils literal notranslate"><span class="pre">cond()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.define"><code class="docutils literal notranslate"><span class="pre">define()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.prove"><code class="docutils literal notranslate"><span class="pre">prove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kdrag.simp"><code class="docutils literal notranslate"><span class="pre">simp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.all.html">kdrag.all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.cast.html">kdrag.cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.config.html">kdrag.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contracts.html">kdrag.contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.contrib.html">kdrag.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.datatype.html">kdrag.datatype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.hypothesis.html">kdrag.hypothesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.kernel.html">kdrag.kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.modal.html">kdrag.modal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.notation.html">kdrag.notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.parsers.html">kdrag.parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.printers.html">kdrag.printers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.property.html">kdrag.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.reflect.html">kdrag.reflect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.rewrite.html">kdrag.rewrite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.smt.html">kdrag.smt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.solvers.html">kdrag.solvers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tactics.html">kdrag.tactics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.tele.html">kdrag.tele</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.utils.html">kdrag.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">kdrag</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag">
+<span id="kdrag"></span><h1>kdrag<a class="headerlink" href="#module-kdrag" title="Link to this heading"></a></h1>
+<p>Knuckledragger is an attempt at creating a down to earth,
+highly automated interactive proof assistant in python.
+It is not attempting to be the most interesting, expressive,
+or flexible logic in the world.</p>
+<p>The goal is to support applications like software/hardware verification,
+calculus, equational reasoning, and numerical bounds.</p>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NatP</span></code></p></td>
+<td><p>Predicate for natural numbers</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.ComplexSort.html#kdrag.ComplexSort" title="kdrag.ComplexSort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComplexSort</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.FinP.html#kdrag.FinP" title="kdrag.FinP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FinP</span></code></a>(n)</p></td>
+<td><p>Predicate for finite index less than n &gt;&gt;&gt; FinP(3) Lambda(i, And(i &gt;= 0, i &lt; 3)) &gt;&gt;&gt; x = smt.Const(&quot;x&quot;, FinP(3)) # Predicate defined constants have predicate auto inserted in quantifiers &gt;&gt;&gt; prove(smt.ForAll([x], x &lt; 4)) <a href="#id1"><span class="problematic" id="id2">|</span></a>= ForAll(x, Implies(And(x &gt;= 0, x &lt; 3), x &lt; 4))</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.Head.html#kdrag.Head" title="kdrag.Head"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Head</span></code></a>(s)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.Id.html#kdrag.Id" title="kdrag.Id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Id</span></code></a>(T)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.ListSort.html#kdrag.ListSort" title="kdrag.ListSort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ListSort</span></code></a>(Elt)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.NatSort.html#kdrag.NatSort" title="kdrag.NatSort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NatSort</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.OptionSort.html#kdrag.OptionSort" title="kdrag.OptionSort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OptionSort</span></code></a>(T)</p></td>
+<td><p>Define an Option type for a given type T &gt;&gt;&gt; OInt = OptionSort(smt.IntSort()) &gt;&gt;&gt; OInt.Some(1) Some(1) &gt;&gt;&gt; <a href="#id3"><span class="problematic" id="id4">OInt.None_</span></a> <a href="#id5"><span class="problematic" id="id6">None_</span></a> &gt;&gt;&gt; OInt.Some(1).val val(Some(1))</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.SeqVecP.html#kdrag.SeqVecP" title="kdrag.SeqVecP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeqVecP</span></code></a>(n, A)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.Some.html#kdrag.Some" title="kdrag.Some"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Some</span></code></a>(x)</p></td>
+<td><p>Helper to create Option values &gt;&gt;&gt; Some(42) Some(42) &gt;&gt;&gt; Some(42).sort() Option_Int</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.Tail.html#kdrag.Tail" title="kdrag.Tail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tail</span></code></a>(s)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.TupleSort.html#kdrag.TupleSort" title="kdrag.TupleSort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TupleSort</span></code></a>(*elts)</p></td>
+<td><p>Define a Tuple type for given element types &gt;&gt;&gt; T = TupleSort(smt.IntSort(), smt.BoolSort()) &gt;&gt;&gt; t = T(42, True) &gt;&gt;&gt; t Tuple_Int_Bool(42, True) &gt;&gt;&gt; t._0 _0(Tuple_Int_Bool(42, True)) &gt;&gt;&gt; t._1 _1(Tuple_Int_Bool(42, True))</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.Undef.html#kdrag.Undef" title="kdrag.Undef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Undef</span></code></a>(sort, *args)</p></td>
+<td><p>Create an &quot;undefined&quot; value possibly dependent on other values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.UnitSort.html#kdrag.UnitSort" title="kdrag.UnitSort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnitSort</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.define_const.html#kdrag.define_const" title="kdrag.define_const"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_const</span></code></a>(name, body)</p></td>
+<td><p>Define a constant.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.list.html#kdrag.list" title="kdrag.list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></a>(*args)</p></td>
+<td><p>Helper to construct List values &gt;&gt;&gt; list(1, 2, 3) Cons(1, Cons(2, Cons(3, Nil)))</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.seq.html#kdrag.seq" title="kdrag.seq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seq</span></code></a>(*args)</p></td>
+<td><p>Helper to construct sequences.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tuple_.html#kdrag.tuple_" title="kdrag.tuple_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple_</span></code></a>(*args)</p></td>
+<td><p>Helper to create Tuple values &gt;&gt;&gt; t = tuple_(42, True) &gt;&gt;&gt; t Tuple_Int_Bool(42, True) &gt;&gt;&gt; t.sort() Tuple_Int_Bool</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.Calc">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">Calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Calc" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Calc is for equational reasoning.
+One can write a sequence of formulas interspersed with useful lemmas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vars</strong> (<em>list</em><em>[</em><em>ExprRef</em><em>]</em>)</p></li>
+<li><p><strong>lhs</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Calc.eq">
+<span class="sig-name descname"><span class="pre">eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Calc.eq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Calc.ge">
+<span class="sig-name descname"><span class="pre">ge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Calc.ge" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Calc.gt">
+<span class="sig-name descname"><span class="pre">gt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Calc.gt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Calc.le">
+<span class="sig-name descname"><span class="pre">le</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Calc.le" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Calc.lt">
+<span class="sig-name descname"><span class="pre">lt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Calc.lt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Calc.qed">
+<span class="sig-name descname"><span class="pre">qed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Calc.qed" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.FreshVar">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">FreshVar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.FreshVar" title="Link to this definition"></a></dt>
+<dd><p>Generate a fresh variable. This is distinguished from FreshConst by the fact that it has freshness evidence.
+This is intended to be used for constants that represent arbitrary terms (implicitly universally quantified).
+For example, axioms like <cite>c_fresh = t</cite> should never be asserted about bare FreshVars as they imply a probably inconsistent axiom,
+whereas asserting such an axiom about FreshConst is ok, effectively defining a new rigid constant.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">FreshVar</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">())</span><span class="o">.</span><span class="n">fresh_evidence</span>
+<span class="go">_FreshVarEvidence(v=x!...)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefix</strong> (<em>str</em>)</p></li>
+<li><p><strong>sort</strong> (<em>SortRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.FreshVars">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">FreshVars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.FreshVars" title="Link to this definition"></a></dt>
+<dd><p>Create a list of schema variables with the given names and sort.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> (<em>str</em>)</p></li>
+<li><p><strong>sort</strong> (<em>SortRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<em>ExprRef</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.Inductive">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">Inductive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_fresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Datatype</span></span></span><a class="headerlink" href="#kdrag.Inductive" title="Link to this definition"></a></dt>
+<dd><p>Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span> <span class="o">=</span> <span class="n">Inductive</span><span class="p">(</span><span class="s2">&quot;Nat909&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s2">&quot;zero&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s2">&quot;succ&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;pred&quot;</span><span class="p">,</span> <span class="n">Nat</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span> <span class="o">=</span> <span class="n">Nat</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Nat</span><span class="o">.</span><span class="n">succ</span><span class="p">(</span><span class="n">Nat</span><span class="o">.</span><span class="n">zero</span><span class="p">)</span>
+<span class="go">succ(zero)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Datatype</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.Lemma">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">Lemma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.tactics.html#kdrag.tactics.ProofState" title="kdrag.tactics.ProofState"><span class="pre">ProofState</span></a></span></span><a class="headerlink" href="#kdrag.Lemma" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>goal</strong> (<em>BoolRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.tactics.html#kdrag.tactics.ProofState" title="kdrag.tactics.ProofState"><em>ProofState</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.NewType">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">NewType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SortRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeSortRef</span></span></span><a class="headerlink" href="#kdrag.NewType" title="Link to this definition"></a></dt>
+<dd><p>Minimal wrapper around a sort for sort based overloading</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">NatI</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s2">&quot;NatI654&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">(),</span> <span class="n">pred</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">val</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">NatI</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">val</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">7</span><span class="p">)</span>
+<span class="go">ForAll(x, Implies(val(x) &gt;= 0, val(x) &gt;= -7))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>sort</strong> (<em>SortRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeSortRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.PTheorem">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">PTheorem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.PTheorem" title="Link to this definition"></a></dt>
+<dd><p>A decorator to create a theorem from a function that takes a <cite>ProofState</cite> as argument.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@PTheorem</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">mytheorem</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="n">ProofState</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="s2">&quot;An example theorem&quot;</span>
+<span class="gp">... </span>    <span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="go">Lemma Complete! Change PTheorem to Theorem</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>goal</strong> (<em>BoolRef</em><em> | </em><em>str</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.Proof">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">Proof</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Proof" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Judgement" title="kdrag.kernel.Judgement"><code class="xref py py-class docutils literal notranslate"><span class="pre">Judgement</span></code></a></p>
+<p>It is unlikely that users should be accessing the <cite>Proof</cite> constructor directly.
+This is not ironclad. If you really want the Proof constructor, I can’t stop you.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thm</strong> (<em>BoolRef</em>)</p></li>
+<li><p><strong>reason</strong> (<em>list</em><em>[</em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>admit</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Proof.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.Proof.__call__" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">smt</span><span class="o">.</span><span class="n">ForAll</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">|= ForAll(x, x &gt;= x - 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+<span class="go">|= 7 &gt;= 7 - 1</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Bools</span><span class="p">(</span><span class="s2">&quot;a b c&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ab</span> <span class="o">=</span> <span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">axiom</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ab</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">|= Implies(a, a)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ab</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+<span class="go">|= a</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>ExprRef</em><em> | </em><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.Proof.admit">
+<span class="sig-name descname"><span class="pre">admit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#kdrag.Proof.admit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kdrag.Proof.forall">
+<span class="sig-name descname"><span class="pre">forall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fresh_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.Proof.forall" title="Link to this definition"></a></dt>
+<dd><p>Generalize a proof involved schematic variables generated by FreshVar</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">FreshVar</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">IntSort</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prove</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">forall</span><span class="p">([</span><span class="n">x</span><span class="p">])</span>
+<span class="go">|= ForAll(x!..., x!... + 1 &gt; x!...)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fresh_vars</strong> (<em>list</em><em>[</em><em>ExprRef</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.Proof.reason">
+<span class="sig-name descname"><span class="pre">reason</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#kdrag.Proof.reason" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.Proof.thm">
+<span class="sig-name descname"><span class="pre">thm</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BoolRef</span></span><a class="headerlink" href="#kdrag.Proof.thm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.QExists">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">QExists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">concs0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.QExists" title="Link to this definition"></a></dt>
+<dd><p>Quantified Exists</p>
+<p>Shorthand for <cite>ForAll(vars, And(conc[0], conc[1], …))</cite></p>
+<p>If variables have a property <cite>wf</cite> attached, this is anded into the properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vs</strong> (<em>list</em><em>[</em><em>ExprRef</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.QForAll">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">QForAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">hyp_conc</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.QForAll" title="Link to this definition"></a></dt>
+<dd><p>Quantified ForAll</p>
+<p>Shorthand for <cite>ForAll(vars, Implies(And(hyp[0], hyp[1], …), conc))</cite></p>
+<p>If variables have a property <cite>wf</cite> attached, this is added as a hypothesis.</p>
+<p>There is no downside to always using this compared to <cite>smt.ForAll</cite> and it can avoid some errors.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">QForAll</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">ForAll([x, y], Implies(And(x &gt; 0, y &gt; 0), x + y &gt; 0))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vs</strong> (<em>list</em><em>[</em><em>ExprRef</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.QImplies">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">QImplies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">hyp_conc</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.QImplies" title="Link to this definition"></a></dt>
+<dd><p>Quantified Implies</p>
+<p>Shorthand for <cite>Implies(And(hyp[0], hyp[1], …), conc)</cite></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="s2">&quot;x y&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">QImplies</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">Implies(And(x &gt; 0, y &gt; 0), x + y &gt; 0)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.Struct">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">Struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">SortRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DatatypeSortRef</span></span></span><a class="headerlink" href="#kdrag.Struct" title="Link to this definition"></a></dt>
+<dd><p>Define a record datatype.
+This is the analog in many respects of python’s NamedTuple.
+The optional argument <cite>pred</cite> will add a well-formedness condition to the record
+giving something akin to a refinement type.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Point</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">(</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()),</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">Point(ToReal(1), ToReal(2))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">x</span>
+<span class="go">x(Point(ToReal(1), ToReal(2)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PosPoint</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">(</span><span class="s2">&quot;PosPoint&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()),</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealSort</span><span class="p">()),</span> <span class="n">pred</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">smt</span><span class="o">.</span><span class="n">And</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Const</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">PosPoint</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kd</span><span class="o">.</span><span class="n">QForAll</span><span class="p">([</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">42</span><span class="p">)</span>
+<span class="go">ForAll(p, Implies(And(x(p) &gt; 0, y(p) &gt; 0), x(p) &gt; -42))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>fields</strong> (<em>tuple</em><em>[</em><em>str</em><em>, </em><em>SortRef</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DatatypeSortRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.Theorem">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">Theorem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="kdrag.tactics.html#kdrag.tactics.ProofState" title="kdrag.tactics.ProofState"><span class="pre">ProofState</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.Theorem" title="Link to this definition"></a></dt>
+<dd><p>A decorator to create a theorem from a function that takes a <cite>ProofState</cite> as argument.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@Theorem</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">mytheorem</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="n">ProofState</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="s2">&quot;An example theorem&quot;</span>
+<span class="gp">... </span>    <span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mytheorem</span>
+<span class="go">|= x + 1 &gt; x</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mytheorem</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="go">&#39;An example theorem&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@Theorem</span><span class="p">(</span><span class="s2">&quot;forall (x : Int), x + 1 &gt; x&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">mytheorem2</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="n">ProofState</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mytheorem2</span>
+<span class="go">|= ForAll(x, x + 1 &gt; x)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@Theorem</span><span class="p">(</span><span class="s2">&quot;x + 1 &gt; x&quot;</span><span class="p">)</span> <span class="c1"># Getting globals from scope</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">mytheorem3</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="n">ProofState</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">l</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mytheorem3</span>
+<span class="go">|= x + 1 &gt; x</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>goal</strong> (<em>BoolRef</em><em> | </em><em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Callable</em>[[<em>Callable</em>[[<a class="reference internal" href="kdrag.tactics.html#kdrag.tactics.ProofState" title="kdrag.tactics.ProofState"><em>ProofState</em></a>], None]], <a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.axiom">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">axiom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['axiom']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.axiom" title="Link to this definition"></a></dt>
+<dd><p>Assert an axiom.</p>
+<p>Axioms are necessary and useful. But you must use great care.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thm</strong> (<em>BoolRef</em>) – The axiom to assert.</p></li>
+<li><p><strong>by</strong> – A python object explaining why the axiom should exist. Often a string explaining the axiom.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.cond">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">cond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">cases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.cond" title="Link to this definition"></a></dt>
+<dd><p>Helper for chained ifs defined by cases.
+Each case is a tuple of a bool condition and a term.
+If default is not given, a check is performed for totality.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kd</span><span class="o">.</span><span class="n">cond</span><span class="p">((</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span>
+<span class="go">If(x &lt; 0,</span>
+<span class="go">   2*x,</span>
+<span class="go">   If(x == 0, 3*x, If(x &gt; 0, 5*x, unreachable...)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kd</span><span class="o">.</span><span class="n">cond</span><span class="p">((</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="go">If(x &lt; 0, 2*x, If(x == 0, 3*x, 5*x))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.define">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">define</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FuncDeclRef</span></span></span><a class="headerlink" href="#kdrag.define" title="Link to this definition"></a></dt>
+<dd><p>Define a non recursive definition. Useful for shorthand and abstraction. Does not currently defend against ill formed definitions.
+TODO: Check for bad circularity, record dependencies</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the term to define.</p></li>
+<li><p><strong>args</strong> (<em>list</em><em>[</em><em>ExprRef</em><em>]</em>) – The arguments of the term.</p></li>
+<li><p><strong>defn</strong> – The definition of the term.</p></li>
+<li><p><strong>body</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of the defined term and the proof of the definition.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[smt.FuncDeclRef, <a class="reference internal" href="#kdrag.Proof" title="kdrag.Proof">Proof</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.prove">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">prove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BoolRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assumes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">BoolRef</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contracts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unfold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">FuncDeclRef</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.prove" title="Link to this definition"></a></dt>
+<dd><p>Prove a theorem using a list of previously proved lemmas.</p>
+<p>In essence <cite>prove(Implies(by, thm))</cite>.</p>
+<p>This wraps the kernel version in order to provide better counterexamples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thm</strong> (<em>smt.BoolRef</em>) – The theorem to prove.</p></li>
+<li><p><strong>thm</strong> – The theorem to prove.</p></li>
+<li><p><strong>by</strong> (<em>list</em><em>[</em><a class="reference internal" href="#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a><em>]</em>) – A list of previously proved lemmas.</p></li>
+<li><p><strong>admit</strong> (<em>bool</em>) – If True, admit the theorem without proof.</p></li>
+<li><p><strong>fixes</strong> (<em>list</em><em>[</em><em>ExprRef</em><em>]</em>)</p></li>
+<li><p><strong>assumes</strong> (<em>list</em><em>[</em><em>BoolRef</em><em>]</em>)</p></li>
+<li><p><strong>unfold</strong> (<em>int</em><em> | </em><em>list</em><em>[</em><em>FuncDeclRef</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A proof object of thm</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#kdrag.Proof" title="kdrag.Proof">Proof</a></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">BoolVal</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">|= True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">RealVal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">smt</span><span class="o">.</span><span class="n">RealVal</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="go">|= 1 &gt;= 0</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">succ</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;succ&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prove</span><span class="p">(</span><span class="n">succ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">unfold</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">|= succ(x) == x + 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">succ2</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="s2">&quot;succ2&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">succ</span><span class="p">(</span><span class="n">succ</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prove</span><span class="p">(</span><span class="n">succ2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">unfold</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">|= succ2(x) == x + 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prove</span><span class="p">(</span><span class="n">succ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">unfold</span><span class="o">=</span><span class="p">[</span><span class="n">succ</span><span class="p">])</span>
+<span class="go">|= succ(x) == x + 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kd</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">succ</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">,</span> <span class="n">succ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">succ</span><span class="o">.</span><span class="n">defn</span><span class="p">])</span>
+<span class="go">|= ForAll(x, Implies(x &gt;= 0, succ(x) &gt;= 0))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kd</span><span class="o">.</span><span class="n">prove</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">Implies</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span><span class="mi">0</span><span class="p">,</span> <span class="n">succ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">),</span> <span class="n">contracts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">|= Implies(x &gt;= 0, succ(x) &gt;= 0)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.search">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">es</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncDeclRef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#kdrag.search" title="Link to this definition"></a></dt>
+<dd><p>Search for function declarations or expressions.
+Takes intersection of found results if given multiple arguments.
+Builds a database by scanning loaded modules by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>es</strong> (<em>FuncDeclRef</em><em> | </em><em>ExprRef</em>)</p></li>
+<li><p><strong>db</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[tuple[str, <a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a>], <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.simp">
+<span class="sig-prename descclassname"><span class="pre">kdrag.</span></span><span class="sig-name descname"><span class="pre">simp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.simp" title="Link to this definition"></a></dt>
+<dd><p>Simplify using definitions and built in z3 simplifier until no progress is made.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">kdrag.theories.nat</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simp</span><span class="p">(</span><span class="n">nat</span><span class="o">.</span><span class="n">one</span> <span class="o">+</span> <span class="n">nat</span><span class="o">.</span><span class="n">one</span> <span class="o">+</span> <span class="n">nat</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">nat</span><span class="o">.</span><span class="n">one</span><span class="p">))</span>
+<span class="go">S(S(S(S(Z))))</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">smt</span><span class="o">.</span><span class="n">Bool</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simp</span><span class="p">(</span><span class="n">smt</span><span class="o">.</span><span class="n">If</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">If(p, 42, 3)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Modules</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.all.html#module-kdrag.all" title="kdrag.all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span></code></a></p></td>
+<td><p>A convenience module to import commonly needed other modules as shorthands</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.cast.html#module-kdrag.cast" title="kdrag.cast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cast</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.config.html#module-kdrag.config" title="kdrag.config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">config</span></code></a></p></td>
+<td><p>Global configuration of Knuckledragger</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.contracts.html#module-kdrag.contracts" title="kdrag.contracts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contracts</span></code></a></p></td>
+<td><p>Contracts are a database of lemmas associated with a function symbol.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.contrib.html#module-kdrag.contrib" title="kdrag.contrib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contrib</span></code></a></p></td>
+<td><p>A smorgasbord of things that shouldn't exactly be in stdlib</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.datatype.html#module-kdrag.datatype" title="kdrag.datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datatype</span></code></a></p></td>
+<td><p>Convenience features for datatypes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.hypothesis.html#module-kdrag.hypothesis" title="kdrag.hypothesis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hypothesis</span></code></a></p></td>
+<td><p>Helper functions for the hypothesis property based testing library.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.kernel.html#module-kdrag.kernel" title="kdrag.kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kernel</span></code></a></p></td>
+<td><p>The kernel hold core proof datatypes and core inference rules.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.modal.html#module-kdrag.modal" title="kdrag.modal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal</span></code></a></p></td>
+<td><p>Treating T -&gt; Bool as a kind of truth value</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.notation.html#module-kdrag.notation" title="kdrag.notation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notation</span></code></a></p></td>
+<td><p>SortDispatch system for z3 sort based dispatch akin to <cite>functools.singledispatch</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.parsers.html#module-kdrag.parsers" title="kdrag.parsers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parsers</span></code></a></p></td>
+<td><p>Parsers for microlean, smt, tptp, sexp, etc</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.printers.html#module-kdrag.printers" title="kdrag.printers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">printers</span></code></a></p></td>
+<td><p>Printers for C, Rust, verilog, smtlib2, tptp, lean, etc</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.property.html#module-kdrag.property" title="kdrag.property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">property</span></code></a></p></td>
+<td><p>Generic properties like associativity, commutativity, idempotence, etc.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.reflect.html#module-kdrag.reflect" title="kdrag.reflect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reflect</span></code></a></p></td>
+<td><p>Reflecting and reifying SMT expressions from/into Python values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.rewrite.html#module-kdrag.rewrite" title="kdrag.rewrite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rewrite</span></code></a></p></td>
+<td><p>Utilities for rewriting and simplification including pattern matching and unification.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.smt.html#module-kdrag.smt" title="kdrag.smt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smt</span></code></a></p></td>
+<td><p>Reexported z3 functionality &lt;<a class="reference external" href="https://z3prover.github.io/api/html/namespacez3py.html">https://z3prover.github.io/api/html/namespacez3py.html</a>&gt; This is a shim file to enable the use of cvc5 and vampire as default solvers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.solvers.html#module-kdrag.solvers" title="kdrag.solvers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solvers</span></code></a></p></td>
+<td><p>Facilities for pretty printing and calling external solvers</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.tactics.html#module-kdrag.tactics" title="kdrag.tactics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tactics</span></code></a></p></td>
+<td><p>Tactics are helpers that organize calls to the kernel.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.tele.html#module-kdrag.tele" title="kdrag.tele"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tele</span></code></a></p></td>
+<td><p>Refinement subtyping</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.html#module-kdrag.theories" title="kdrag.theories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theories</span></code></a></p></td>
+<td><p>Library of axioms, theorems, and theory specific tactics</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.utils.html#module-kdrag.utils" title="kdrag.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils</span></code></a></p></td>
+<td><p>Various term manipulation helpers.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to knuckledragger’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.ComplexSort.html" class="btn btn-neutral float-right" title="kdrag.ComplexSort" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

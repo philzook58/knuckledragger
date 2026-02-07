@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.sympy\_const
+================================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: sympy_const

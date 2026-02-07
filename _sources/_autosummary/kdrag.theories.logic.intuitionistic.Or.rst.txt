@@ -1,0 +1,6 @@
+kdrag.theories.logic.intuitionistic.Or
+======================================
+
+.. currentmodule:: kdrag.theories.logic.intuitionistic
+
+.. autofunction:: Or

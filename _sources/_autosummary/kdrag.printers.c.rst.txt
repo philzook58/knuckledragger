@@ -1,0 +1,43 @@
+kdrag.printers.c
+================
+
+.. automodule:: kdrag.printers.c
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      c_of_expr
+      compile_and_link
+      compile_and_link_defn
+      compile_c
+      cstring
+      ctype_of_sort
+      is_valid_c_identifier
+      is_valid_c_identifier_strict
+      link
+      of_defn
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/printers/c.py
+   :language: python

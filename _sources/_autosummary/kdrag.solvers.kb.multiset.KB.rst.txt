@@ -1,0 +1,6 @@
+kdrag.solvers.kb.multiset.KB
+============================
+
+.. currentmodule:: kdrag.solvers.kb.multiset
+
+.. autofunction:: KB

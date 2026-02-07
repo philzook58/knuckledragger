@@ -1,0 +1,6 @@
+kdrag.tele.define
+=================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: define

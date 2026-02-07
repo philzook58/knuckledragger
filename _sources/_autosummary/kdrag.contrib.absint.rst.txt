@@ -1,0 +1,35 @@
+kdrag.contrib.absint
+====================
+
+.. automodule:: kdrag.contrib.absint
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   knownbit
+
+
+
+.. literalinclude:: ../../kdrag/contrib/absint.py
+   :language: python

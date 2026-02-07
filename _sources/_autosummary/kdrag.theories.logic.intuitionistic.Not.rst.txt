@@ -1,0 +1,6 @@
+kdrag.theories.logic.intuitionistic.Not
+=======================================
+
+.. currentmodule:: kdrag.theories.logic.intuitionistic
+
+.. autofunction:: Not

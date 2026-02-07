@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.BVNot
+===========================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: BVNot

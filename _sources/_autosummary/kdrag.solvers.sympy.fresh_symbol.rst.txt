@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.fresh\_symbol
+=================================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: fresh_symbol

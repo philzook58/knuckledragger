@@ -1,0 +1,6 @@
+kdrag.tele.DeclareFunction
+==========================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: DeclareFunction
