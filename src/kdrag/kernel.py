@@ -175,6 +175,41 @@ def axiom(thm: smt.BoolRef, by=["axiom"]) -> Proof:
     return Proof(thm, by)
 
 
+# __predefined_decls # TODO: Actually put list of predefined stuff here.
+
+__reserved_decls: dict[str, smt.FuncDeclRef] = {}
+
+
+def reserve(name: str, *sorts: smt.SortRef) -> smt.FuncDeclRef:  # declare?
+    """
+    Reserve a name. This helps avoid accidental clashing of axioms over the same symbol.
+    It also make serialization possible and easier.
+
+    >>> reserve("reserved_example", smt.IntSort())
+    reserved_example
+    >>> reserve("reserved_example", smt.IntSort())
+    Traceback (most recent call last):
+        ...
+    ValueError: ('Declaration name already reserved: reserved_example', 'with sorts', [], Int)
+    """
+    assert len(sorts) >= 1, "Must provide at least return sort"
+    if name in __reserved_decls:
+        # we don't even want the same name declared twice with the same sorts
+        decl = __reserved_decls[name]
+        suggestions = [sorts[-1].name() + "." + name, name + "1"]
+        suggestions = [s for s in suggestions if s not in __reserved_decls]
+        raise ValueError(
+            "Declaration name already reserved: " + name,
+            "with sorts",
+            [decl.domain(i) for i in range(decl.arity())],
+            decl.range(),
+        )
+    else:
+        decl = smt.Function(name, *sorts)
+        __reserved_decls[name] = decl
+        return decl
+
+
 @dataclass(frozen=True)
 class Defn(Judgement):
     """
@@ -241,6 +276,16 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     """
     sorts = [arg.sort() for arg in args] + [body.sort()]
     f = smt.Function(name, *sorts)
+    if name in __reserved_decls and __reserved_decls[name] != f:
+        raise ValueError(
+            "Declaration name already reserved: " + name,
+            "with sorts",
+            [
+                __reserved_decls[name].domain(i)
+                for i in range(__reserved_decls[name].arity())
+            ],
+            __reserved_decls[name].range(),
+        )
     # TODO: Check body only contain fresh_vars in args
     if len(args) == 0:
         def_ax = axiom(smt.Eq(f(), body), by="definition")

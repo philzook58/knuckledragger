@@ -37,7 +37,9 @@ dilate = kd.define("dilate", [a, n], smt.Lambda([i], a[i / n]))
 decimate = kd.define("decimate", [a, n], smt.Lambda([i], a[i * n]))
 
 f = smt.Array("f", kd.R, kd.R)
-iterate = smt.Function("iterate", smt.ArraySort(kd.R, kd.R), kd.R, kd.R)
+iterate = smt.Function(
+    "iterate", smt.ArraySort(kd.R, kd.R), kd.R, smt.ArraySort(kd.R, kd.R)
+)
 iterate = kd.define(
     "iterate", [f, x], smt.Lambda([i], smt.If(i <= 0, x, f[iterate(f, x)[i - 1]]))
 )

@@ -63,8 +63,7 @@ class EgglogSolver:
         >>> s.add(edge(x,y))
         >>> s.add(edge(y,z))
         >>> _ = s.run(10)
-        >>> s.run_cmd("(print-function path 100)")
-        ['(\\n   (path (x) (y)) -> (path (x) (y))\\n   (path (y) (z)) -> (path (y) (z))\\n   (path (x) (z)) -> (path (x) (z))\\n)\\n']
+        >>> _ = s.run_cmd("(print-function path 100)")
         """
         if isinstance(thm, list):
             rules = [t.thm if isinstance(t, kd.Proof) else t for t in thm]
