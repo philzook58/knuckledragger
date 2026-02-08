@@ -10,20 +10,14 @@ import kdrag.utils as utils
 from collections import defaultdict
 
 
-def simp1(t: smt.ExprRef) -> smt.ExprRef:
-    """simplify a term using z3 built in simplifier"""
-    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
-    G = smt.Goal()
-    for v in kd.kernel.defns.values():
-        G.add(v.ax.thm)
-    G.add(expr == t)
-    G2 = smt.Then(smt.Tactic("demodulator"), smt.Tactic("simplify")).apply(G)[0]
-    # TODO make this extraction more robust
-    return G2[len(G2) - 1].children()[1]
-
-
 def simp2(t: smt.ExprRef) -> smt.ExprRef:
-    """simplify a term using z3 built in simplifier"""
+    """
+    Simplify a term using Z3's elim-predicates tactic with definitions.
+    
+    This is a specialized simplifier that eliminates predicates. Useful for
+    simplifying terms with defined predicates that need to be reduced.
+    For general simplification, use `simp()` or `full_simp()` instead.
+    """
     expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
     G = smt.Goal()
     for v in kd.kernel.defns.values():
@@ -31,18 +25,6 @@ def simp2(t: smt.ExprRef) -> smt.ExprRef:
     G.add(expr == t)
     G2 = smt.Tactic("elim-predicates").apply(G)[0]
     return G2[len(G2) - 1].children()[1]
-
-
-# TODO: Doesn't seem to do anything?
-# def factor(t: smt.ExprRef) -> smt.ExprRef:
-#    """factor a term using z3 built in tactic"""
-#    expr = smt.FreshConst(t.sort(), prefix="knuckle_goal")
-#    G = smt.Goal()
-#    for v in kd.kernel.defns.values():
-#        G.add(v.ax.thm)
-#    G.add(expr == t)
-#    G2 = smt.Tactic("factor").apply(G)[0]
-#    return G2[len(G2) - 1].children()[1]
 
 
 def unfold(
@@ -112,7 +94,15 @@ def beta(e: smt.ExprRef) -> smt.ExprRef:
 
 def full_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
     """
-    Fully simplify using definitions and built in z3 simplifier until no progress is made.
+    Fully simplify using definitions and Z3's built-in simplifier until a fixed point.
+    
+    Repeatedly unfolds definitions and applies Z3's simplifier until no further progress
+    is made. Unlike `simp()`, this does not track term size or limit iterations.
+    Use when you want maximum simplification regardless of term size growth.
+
+    Args:
+        e: The expression to simplify
+        trace: Optional list to append simplification steps to
 
     >>> import kdrag.theories.nat as nat
     >>> full_simp(nat.one + nat.one + nat.S(nat.one))
@@ -133,7 +123,16 @@ def full_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
 
 def simp(e: smt.ExprRef, trace=None, max_iter=3) -> smt.ExprRef:
     """
-    Simplify using definitions and built in z3 simplifier until no progress is made.
+    Simplify using definitions and Z3's simplifier with size-based heuristics.
+    
+    This is the default simplification function. It tracks term size and returns
+    the smallest term found within max_iter iterations. Unlike `full_simp()`,
+    this prevents term size explosion by preferring smaller terms.
+    
+    Args:
+        e: The expression to simplify
+        trace: Optional list to append simplification proofs to
+        max_iter: Maximum number of unfold+simplify iterations (default: 3)
 
     >>> import kdrag.theories.nat as nat
     >>> simp(nat.one + nat.one + nat.S(nat.one))
