@@ -224,9 +224,9 @@ def sum_append(pf):
 
 ## Commands
 
-- **Test**: `pytest -m "not slow"`
+- **Test**: `pytest`
 - **Lint**: `ruff check`
-- **Type Check**: `pyright`
+- **Type Check**: `uvx ty check`
 
 ## Code Style
 
