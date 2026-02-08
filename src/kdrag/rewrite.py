@@ -13,7 +13,7 @@ from collections import defaultdict
 def simp2(t: smt.ExprRef) -> smt.ExprRef:
     """
     Simplify a term using Z3's elim-predicates tactic with definitions.
-    
+
     This is a specialized simplifier that eliminates predicates. Useful for
     simplifying terms with defined predicates that need to be reduced.
     For general simplification, use `simp()` or `full_simp()` instead.
@@ -95,7 +95,7 @@ def beta(e: smt.ExprRef) -> smt.ExprRef:
 def full_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
     """
     Fully simplify using definitions and Z3's built-in simplifier until a fixed point.
-    
+
     Repeatedly unfolds definitions and applies Z3's simplifier until no further progress
     is made. Unlike `simp()`, this does not track term size or limit iterations.
     Use when you want maximum simplification regardless of term size growth.
@@ -124,11 +124,11 @@ def full_simp(e: smt.ExprRef, trace=None) -> smt.ExprRef:
 def simp(e: smt.ExprRef, trace=None, max_iter=3) -> smt.ExprRef:
     """
     Simplify using definitions and Z3's simplifier with size-based heuristics.
-    
+
     This is the default simplification function. It tracks term size and returns
     the smallest term found within max_iter iterations. Unlike `full_simp()`,
     this prevents term size explosion by preferring smaller terms.
-    
+
     Args:
         e: The expression to simplify
         trace: Optional list to append simplification proofs to
