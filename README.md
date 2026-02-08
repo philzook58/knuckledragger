@@ -11,7 +11,7 @@ Knuckledragger ([git repo](https://github.com/philzook58/knuckledragger)) is an 
 To install run
 
 ```bash
-python3 -m pip install git+https://github.com/philzook58/knuckledragger.git
+uv pip install git+https://github.com/philzook58/knuckledragger.git
 ```
 
 Or to install locally
@@ -19,7 +19,13 @@ Or to install locally
 ```bash
 git clone https://github.com/philzook58/knuckledragger.git
 cd knuckledragger
-python3 -m pip install -e .
+uv pip install -e .
+```
+
+A full installation of extra functionality can be achieved by
+
+```bash
+uv pip install -e .[solvers,rust,pypcode,dev]
 ```
 
 ## Getting Started

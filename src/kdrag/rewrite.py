@@ -50,12 +50,12 @@ def unfold(
 ) -> smt.ExprRef:
     """
     >>> x = smt.Int("x")
-    >>> f = kd.define("f", [x], x + 42)
+    >>> f = kd.define("f8903", [x], x + 42)
     >>> trace = []
     >>> unfold(f(1), trace=trace)
     1 + 42
     >>> trace
-    [|= f(1) == 1 + 42]
+    [|= f8903(1) == 1 + 42]
 
     >>> unfold(smt.Lambda([x], f(x)))
     Lambda(x, x + 42)

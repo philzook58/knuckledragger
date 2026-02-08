@@ -298,8 +298,19 @@ def tuple_(*args: smt.ExprRef) -> smt.DatatypeRef:
     return T(*args1)
 
 
+def is_tuple(e: smt.ExprRef) -> bool:
+    return isinstance(e.sort(), smt.DatatypeSortRef) and e.sort().name().startswith(
+        "Tuple_"
+    )
+
+
 Complex = datatype.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
 ComplexP = smt.FullSet(Complex)
+
+
+def is_complex(e: smt.ExprRef) -> bool:
+    return e.sort() == Complex
+
 
 z, w, u, z1, z2 = smt.Consts("z w u z1 z2", Complex)
 complex_add = notation.add.define([z1, z2], Complex.C(z1.re + z2.re, z1.im + z2.im))

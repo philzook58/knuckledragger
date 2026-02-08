@@ -1,5 +1,6 @@
 # Knuckledragger Development Guide
 
+- Use existing .venv python if available, otherwise create a venv and install using `uv pip install -e[solvers,rust,pypcode,dev]`
 - Try to follow the style that already exists in the repo
 - Simple and non verbose is much preferred
 - Recommend changes to improve clarity of error messages
