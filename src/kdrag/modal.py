@@ -209,4 +209,6 @@ def In(x: PExprRef, S: smt.FuncRef, prefix="t") -> PBoolRef:
     """
     doms = smt.domains(S)
     vs = [smt.FreshConst(d, prefix=prefix) for n, d in enumerate(doms)]
-    return smt.Lambda(vs, S[*vs][x(*vs)])
+    S1 = S(*vs)
+    assert isinstance(S1, smt.QuantifierRef) or isinstance(S1, smt.ArrayRef)
+    return smt.Lambda(vs, S1[x(*vs)])

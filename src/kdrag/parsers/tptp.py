@@ -308,7 +308,13 @@ class TPTPTransformer(lark.Transformer):
             cast(str | list[Any] | tuple[str, Any, Any], items[1])
         )
         if isinstance(sort, tuple):
-            sort = self._function_sort_from_sig(sort) if self.thf_mode else self.sort
+            sort = (
+                self._function_sort_from_sig(
+                    cast(tuple[list[smt.SortRef], Optional[smt.SortRef]], sort)
+                )
+                if self.thf_mode
+                else self.sort
+            )
         if sort is None:
             sort = self.sort
         v = smt.Const(name, sort)
@@ -408,7 +414,7 @@ class TPTPTransformer(lark.Transformer):
         if isinstance(type_repr, tuple) and type_repr[0] == "fun":
             sig = self._type_repr_to_sort(type_repr)
             assert isinstance(sig, tuple)
-            doms, rng = sig
+            doms, rng = cast(tuple[list[smt.SortRef], Optional[smt.SortRef]], sig)
             doms = list(doms)
             rng = rng if rng is not None else self.sort
             self.func_sigs[name] = (doms, rng)
@@ -416,7 +422,9 @@ class TPTPTransformer(lark.Transformer):
                 fn = smt.Function(name, *doms, rng)
                 self.funcs[(name, len(doms))] = fn
                 return fn
-            sort = self._function_sort_from_sig((doms, rng))
+            sort = self._function_sort_from_sig(
+                cast(tuple[list[smt.SortRef], Optional[smt.SortRef]], (doms, rng))
+            )
             const = smt.Const(name, sort)
             self.consts[name] = const
             return const
@@ -451,17 +459,14 @@ class TPTPTransformer(lark.Transformer):
             rng_sort = self._type_repr_to_sort(rng)
             if isinstance(rng_sort, tuple):
                 rng_doms, rng_rng = rng_sort
-                dom_sorts.extend(rng_doms)
+                dom_sorts.extend(cast(list[smt.SortRef], rng_doms))  # type: ignore
                 rng_sort = rng_rng
             return (
                 cast(list[smt.SortRef], dom_sorts),
                 cast(Optional[smt.SortRef], rng_sort),
             )
         if isinstance(type_repr, list):
-            return [
-                cast(smt.SortRef, self._type_repr_to_sort(cast(Any, t)))
-                for t in type_repr
-            ]
+            return [cast(smt.SortRef, self._type_repr_to_sort(t)) for t in type_repr]
         if isinstance(type_repr, str):
             if type_repr == "$o":
                 return smt.BoolSort()

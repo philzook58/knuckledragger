@@ -68,5 +68,6 @@ jobs:
         run: |
           uv run python -m pytest -m ""
           #KNUCKLE_SOLVER=cvc5 pytest
-      - name: Run pyright
-        uses: jakebailey/pyright-action@v2
+      - name: Run ty
+        run: |
+          uvx ty check

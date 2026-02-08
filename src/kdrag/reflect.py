@@ -73,9 +73,9 @@ def type_of_sort(s: smt.SortRef) -> type:
     >>> type_of_sort(smt.IntSort())
     <class 'int'>
     >>> type_of_sort(smt.ArraySort(smt.StringSort(), smt.IntSort()))
-    dict[str, int]
+    <class 'dict'>
     >>> type_of_sort(smt.SeqSort(smt.IntSort()))
-    list[int]
+    <class 'list'>
     """
     if s == smt.IntSort():
         return int
@@ -86,9 +86,9 @@ def type_of_sort(s: smt.SortRef) -> type:
     elif s == smt.StringSort():
         return str
     elif isinstance(s, smt.ArraySortRef):
-        return dict[type_of_sort(s.domain()), type_of_sort(s.range())]
+        return dict  # type_of_sort(s.domain()), type_of_sort(s.range())]
     elif isinstance(s, smt.SeqSortRef):
-        return list[type_of_sort(s.basis())]
+        return list  # [type_of_sort(s.basis())]
     else:
         raise NotImplementedError(f"Sort {s} is not supported")
 

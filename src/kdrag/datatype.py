@@ -375,9 +375,10 @@ def Struct(
     >>> kd.QForAll([p], p.x > -42)
     ForAll(p, Implies(And(x(p) > 0, y(p) > 0), x(p) > -42))
     """
-    rec = Inductive(name)
-    rec.declare(name, *fields)
-    rec = rec.create()
+    rec0 = Inductive(name)
+    rec0.declare(name, *fields)
+    rec = rec0.create()
+    assert isinstance(rec, smt.DatatypeSortRef)
     rec.mk = rec.constructor(0)
     wf_cond = [
         n for (n, (_, sort)) in enumerate(fields) if sort in kd.notation.wf.methods
@@ -461,7 +462,7 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
         olddeclare(name, *args)
         preds.append(pred)
 
-    dt.declare = declare
+    dt.declare = declare  # type: ignore[assignment]
 
     oldcreate = dt.create
 
@@ -505,7 +506,7 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
                 kd.notation.wf.register(dt, lambda x: x.rel())
         return dt
 
-    dt.create = create
+    dt.create = create  # type: ignore[assignment]
     return dt
 
 

@@ -2,6 +2,7 @@ import egglog.bindings as eggbnd
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.solvers as solvers
+from typing import cast
 
 # https://www.philipzucker.com/egglog_z3_simp/
 
@@ -71,6 +72,7 @@ class EgglogSolver:
             rules = [thm.thm]
         else:
             rules = [thm]
+        rules = cast(list[smt.BoolRef], rules)
         for sort in solvers.collect_sorts(rules):
             if sort not in self.sorts:
                 self.run_cmd(f"(sort {sort.name()})")

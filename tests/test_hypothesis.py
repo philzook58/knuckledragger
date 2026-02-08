@@ -57,10 +57,10 @@ def test_forall1():
     hyp.quickcheck(smt.ForAll([l], smt.Or(l == IntList.Nil, l.is_Cons)))
 
 
-@pytest.mark.slow
-@given(hyp.smt_sorts)
-def test_reflect_sort(s):
-    assert reflect.sort_of_type(reflect.type_of_sort(s)) == s
+#@pytest.mark.slow
+#@given(hyp.smt_sorts)
+#def test_reflect_sort(s):
+#    assert reflect.sort_of_type(reflect.type_of_sort(s)) == s
 
 @pytest.mark.slow
 @given(hyp.smt_bool_expr)

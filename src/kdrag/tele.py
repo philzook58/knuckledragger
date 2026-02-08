@@ -47,6 +47,12 @@ def subsort_domain(T: SubSort) -> smt.SortRef:
         raise TypeError(f"Unsupported type for subsort: {T}")
 
 
+def _subsort_apply(T: SubSort, t: smt.ExprRef) -> smt.BoolRef:
+    # Both ArrayRef and lambda QuantifierRef support indexing in runtime;
+    # typing doesn't express this well.
+    return T(t)  # type: ignore[index]
+
+
 def normalize(xs: Telescope) -> _Tele:
     """
     Normalize a telescope to a list of (variable, formula) pairs.
@@ -74,9 +80,7 @@ def normalize(xs: Telescope) -> _Tele:
             elif isinstance(T, smt.ArrayRef) or (
                 isinstance(T, smt.QuantifierRef) and T.is_lambda()
             ):
-                P = T(v)
-                assert isinstance(P, smt.BoolRef)
-                res.append((v, P))
+                res.append((v, _subsort_apply(T, v)))
             else:
                 raise TypeError(f"Unsupported type for quantifier: {T}")
         else:
@@ -132,7 +136,7 @@ def TForAll(xs: Telescope, P: smt.BoolRef) -> smt.BoolRef:
             elif isinstance(T, smt.ArrayRef) or (
                 isinstance(T, smt.QuantifierRef) and T.is_lambda()
             ):
-                P = kd.QForAll([v], T(v), P)
+                P = kd.QForAll([v], _subsort_apply(T, v), P)
             else:
                 raise TypeError(f"Unsupported type for quantifier: {T}")
         else:
@@ -166,7 +170,7 @@ def TExists(xs: Telescope, P: smt.BoolRef) -> smt.BoolRef:
             elif isinstance(T, smt.ArrayRef) or (
                 isinstance(T, smt.QuantifierRef) and T.is_lambda()
             ):
-                P = kd.QExists([v], T(v), P)
+                P = kd.QExists([v], _subsort_apply(T, v), P)
             else:
                 raise TypeError(f"Unsupported type for quantifier: {T}")
         else:
@@ -188,8 +192,10 @@ def axiom_sig(f: smt.FuncDeclRef, tele0: Telescope, T: SubSort) -> kd.Proof:
     # T is nonempty when context is possible
     # Otherwise even allowing this declaration is inconsistent
     x = smt.FreshConst(f.range())
-    kd.prove(smt.ForAll(vs, smt.Implies(smt.And(ctx), smt.Exists([x], T[x]))))
-    pf = kd.axiom(smt.ForAll(vs, smt.Implies(smt.And(ctx), T[f(*vs)])))
+    kd.prove(
+        smt.ForAll(vs, smt.Implies(smt.And(ctx), smt.Exists([x], _subsort_apply(T, x))))
+    )
+    pf = kd.axiom(smt.ForAll(vs, smt.Implies(smt.And(ctx), _subsort_apply(T, f(*vs)))))
     if f in _tsig:
         print("Warning: Redefining function signature", f)
     _tsig[f] = pf
@@ -228,11 +234,11 @@ def HasType(ctx: Telescope, t0: smt.ExprRef, T: SubSort) -> smt.BoolRef:
 
     >>> x = smt.Int("x")
     >>> HasType([(x, Nat)], x+1, Pos)
-    Implies(And(x >= 0), Lambda(n, n > 0)[x + 1])
+    Implies(And(x >= 0), x + 1 > 0)
     """
     tele = normalize(ctx)
     pctx = [P for _, P in tele]
-    return smt.Implies(smt.And(pctx), T[t0])
+    return smt.Implies(smt.And(pctx), _subsort_apply(T, t0))
 
 
 def has_type(
@@ -244,7 +250,7 @@ def has_type(
     >>> x = smt.Int("x")
     >>> Nat = smt.Lambda([x], x >= 0)
     >>> has_type([(x, Nat)], x+1, Nat)
-    |= Implies(And(x >= 0), Lambda(x, x >= 0)[x + 1])
+    |= Implies(And(x >= 0), x + 1 >= 0)
     """
     if by is None:
         by = []
@@ -288,8 +294,7 @@ def define(
     >>> inc = define("test_inc", [(n,Nat)], Pos, n + 1)
     >>> inc.pre_post
     |= ForAll(n!...,
-        Implies(And(n!... >= 0),
-            Lambda(n, n > 0)[test_inc(n!...)]))
+           Implies(And(n!... >= 0), test_inc(n!...) > 0))
     >>> pred = define("pred", [(n, Pos)], Nat, n - 1)
     >>> myid = define("myid", [(n, Nat)], Nat, pred(inc(n)))
     """
@@ -391,8 +396,7 @@ def Pi(tele0: Telescope, B: SubSort) -> SubSort:
     >>> x, y = smt.Ints("x y")
     >>> GE = lambda x: smt.Lambda([y], y >= x)
     >>> Pi([(x, Nat)], GE(x))
-    Lambda(f!...,
-        ForAll(x, Implies(x >= 0, Lambda(y, y >= x)[f!...[x]])))
+    Lambda(f!..., ForAll(x, Implies(x >= 0, f!...[x] >= x)))
     >>> smt.simplify(Pi([(x, Nat)], GE(x))[smt.Lambda([x], x)])
     True
     """
@@ -402,7 +406,7 @@ def Pi(tele0: Telescope, B: SubSort) -> SubSort:
     sorts = [v.sort() for (v, _) in tele]
     fsort = smt.ArraySort(*sorts, subsort_domain(B))
     f = smt.FreshConst(fsort, prefix="f")
-    return smt.Lambda([f], TForAll(tele0, B[f(*vs)]))
+    return smt.Lambda([f], TForAll(tele0, _subsort_apply(B, f(*vs))))
 
 
 def Id(x: smt.ExprRef, y: smt.ExprRef) -> SubSort:
@@ -410,9 +414,9 @@ def Id(x: smt.ExprRef, y: smt.ExprRef) -> SubSort:
     >>> x, y = smt.Ints("x y")
     >>> p = smt.Const("p", Unit)
     >>> has_type([x], Unit.tt, Id(x, x))
-    |= Implies(And(True), Lambda(p!..., x == x)[tt])
+    |= Implies(And(True), x == x)
     >>> has_type([x, y, (p, Id(x,y))], Unit.tt, Id(y, x))
-    |= Implies(And(True, True, x == y), Lambda(p!..., y == x)[tt])
+    |= Implies(And(True, True, x == y), y == x)
     """
     p = smt.FreshConst(Unit, prefix="p")
     return smt.Lambda([p], x == y)

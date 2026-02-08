@@ -13,7 +13,8 @@ import lark
 import kdrag.smt as smt
 from lark import Tree
 import kdrag as kd
-from typing import NamedTuple, Optional
+from typing import Optional
+from dataclasses import dataclass
 
 
 # TODO: let syntax
@@ -90,7 +91,8 @@ parser = lark.Lark(
 )
 
 
-class Env(NamedTuple):
+@dataclass
+class Env:
     locals: dict
     globals: dict
 

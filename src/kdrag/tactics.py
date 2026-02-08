@@ -9,7 +9,7 @@ import kdrag.rewrite
 import kdrag.solvers as solvers
 from enum import IntEnum
 import operator as op
-from typing import NamedTuple, Optional, Sequence, Callable
+from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
 import time
 from dataclasses import dataclass
@@ -277,21 +277,21 @@ def prove(
         thm = smt.Implies(smt.And(assumes), thm)
 
     if by is None:
-        by = []
+        by_list: list[kd.kernel.Proof] = []
     elif isinstance(by, kd.Proof):
-        by = [by]
-    elif not isinstance(by, list):
-        by = list(by)
+        by_list = [by]
+    else:
+        by_list = list(by)
 
     if contracts is None:
         pass
     elif contracts is True:
-        by = by + kd.contracts.lemmas(thm)
+        by_list += kd.contracts.lemmas(thm)
     elif isinstance(contracts, list):
-        by = list(by)
+        by_list = list(by_list)
         for decl in contracts:
             if decl in kd.contracts.contracts:
-                by.append(kd.contracts.contracts[decl].proof)
+                by_list.append(kd.contracts.contracts[decl].proof)
             else:
                 raise KeyError(f"No contract found for {decl}")
 
@@ -304,16 +304,16 @@ def prove(
             thm1 = kd.rewrite.unfold(thm1, trace=trace)
         # It is arguable if we're better off dumping trace into by or hiding trace
         if not thm.eq(thm1):
-            by.extend(trace)
+            by_list.extend(cast(list[kd.kernel.Proof], trace))
     elif isinstance(unfold, list):
         trace = []
         thm1 = kd.rewrite.unfold(thm, decls=unfold, trace=trace)
         if not thm.eq(thm1):
-            by.extend(trace)
+            by_list.extend(cast(list[kd.kernel.Proof], trace))
 
     try:
         pf = kd.kernel.prove(
-            thm, by, timeout=timeout, dump=dump, solver=solver, admit=admit
+            thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
         )
         if fixes:
             pf = kd.kernel.generalize(fixes, pf)
@@ -329,7 +329,7 @@ def prove(
                 _, thm = kd.utils.open_binder_unhygienic(thm)  # type: ignore
             # We anticipate this failing with a better countermodel since we can now see the quantified variables
             pf = kd.kernel.prove(
-                thm, by=by, timeout=timeout, dump=dump, solver=solver, admit=admit
+                thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
             )
             # TODO: Maybe we should herbrandize and just let the quantifier free version work for us.
             raise Exception(
@@ -1394,7 +1394,7 @@ class ProofState:
         ctx, goal = goalctx.ctx, goalctx.goal
         if at is not None:
             (at, hyp) = goalctx.ctx_find(at)
-        if isinstance(rule, int) or isinstance(rule, smt.ExprRef):
+        if isinstance(rule, int) or isinstance(rule, smt.BoolRef):
             _, rulethm = goalctx.ctx_find(rule)
         elif kd.kernel.is_proof(rule):
             rulethm = rule.thm
@@ -2066,7 +2066,7 @@ def Theorem(
     def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
         start = time.perf_counter()
         if timing:
-            print("Starting theorem", f.__name__)
+            print("Starting theorem", cast(Any, f).__name__)
             l = ProofStateProxy(
                 Goal(
                     sig=[],
@@ -2080,7 +2080,7 @@ def Theorem(
         pf = l.qed()
         if timing:
             end = time.perf_counter()
-            print(f"Theorem {f.__name__} took {end - start:.4f} seconds")
+            print(f"Theorem {cast(Any, f).__name__} took {end - start:.4f} seconds")
         # To override metadata of the returned proof
         # Proof is frozen, so this is a bit fishy
         # @functools.update_wrapper had assumptions about return type being a function

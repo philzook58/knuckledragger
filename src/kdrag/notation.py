@@ -19,9 +19,9 @@ import kdrag.smt as smt
 import kdrag as kd
 
 
-smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore
+smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[assignment]
 
-smt.ArrayRef.__call__ = lambda self, *arg: self[arg]
+smt.ArrayRef.__call__ = lambda self, *arg: self[arg]  # type: ignore[assignment]
 
 
 def compose(f: smt.FuncDeclRef, g: smt.FuncDeclRef) -> smt.FuncDeclRef:
@@ -57,7 +57,7 @@ def quantifier_call(self, *args):
     )
 
 
-smt.QuantifierRef.__call__ = quantifier_call
+smt.QuantifierRef.__call__ = quantifier_call  # type: ignore[assignment]
 
 
 class SortDispatch:

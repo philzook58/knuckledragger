@@ -3,7 +3,7 @@ import kdrag.theories.set as set_
 import kdrag.smt as smt
 import functools
 
-type PropRef = smt.ArrayRef | smt.QuantifierRef
+type PropRef = smt.FuncRef
 
 
 class Sep:
@@ -110,6 +110,8 @@ class Sep:
 
     def Implies(self, a: PropRef, b: PropRef) -> PropRef:
         h = smt.FreshConst(self.AllocSort, prefix="h")
+        assert isinstance(a, smt.ArrayRef) or isinstance(a, smt.QuantifierRef)
+        assert isinstance(b, smt.ArrayRef) or isinstance(b, smt.QuantifierRef)
         return smt.Lambda([h], smt.Implies(a[h], b[h]))
 
     def Prop(self, name: str):
@@ -126,7 +128,9 @@ class Sep:
         Valid converts a predicate on heaps into the boolean expression stating it is true for
         all heaps (semantically valid).
         """
-        h = smt.FreshConst(self.Alloc, prefix="h")
+        h = smt.FreshConst(self.AllocSort, prefix="h")
+        assert isinstance(h, smt.ArrayRef)
+        assert isinstance(prop, smt.ArrayRef) or isinstance(prop, smt.QuantifierRef)
         return smt.ForAll([h], prop[h])
 
 

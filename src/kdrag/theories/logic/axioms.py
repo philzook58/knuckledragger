@@ -188,7 +188,7 @@ def unfold(e: smt.ExprRef, defn_eqs: Sequence[kd.Proof]):
             subst.append((decl, rhs))
         else:
             raise ValueError("Unfolding only works for definitional equalities", pf)
-    return kd.axiom(e == smt.substitute_funs(e, *subst), by=["unfold", defn_eqs])
+    return kd.axiom(smt.Eq(e, smt.substitute_funs(e, *subst)), by=["unfold", defn_eqs])
 
 
 def beta_conv(lam: smt.QuantifierRef, *args) -> kd.Proof:

@@ -132,6 +132,7 @@ class BaseSolver:
     def add(self, thm: smt.BoolRef | list[smt.BoolRef]):
         if isinstance(thm, list):
             for t in thm:
+                assert isinstance(t, smt.BoolRef)
                 self.add(t)
         else:
             assert isinstance(thm, smt.BoolRef)

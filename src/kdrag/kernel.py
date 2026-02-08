@@ -377,7 +377,7 @@ def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
     assert all(isinstance(eq, kd.Proof) and smt.is_eq(eq.thm) for eq in eqs)
     subst = [(eq.thm.arg(0), eq.thm.arg(1)) for eq in eqs]
     t1 = smt.substitute(t, *subst)
-    return t1, kd.axiom(t == t1, ["subst", t, eqs])
+    return t1, kd.axiom(smt.Eq(t, t1), ["subst", t, eqs])
 
 
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
@@ -653,8 +653,8 @@ def Inductive(name: str, ctx=None, auto_fresh=False) -> smt.Datatype:
             ],
         )
 
-    dt.create = create
-    dt.declare = declare
+    dt.create = create  # type: ignore[assignment]
+    dt.declare = declare  # type: ignore[assignment]
     return dt
 
 

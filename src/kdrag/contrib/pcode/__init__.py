@@ -111,7 +111,7 @@ class _TestVarnode:
 
 # Varnode by default has pointer identity. This makes dictionaries not work correctly.
 
-pypcode.Varnode.__hash__ = lambda self: hash((self.space.name, self.offset, self.size))
+pypcode.Varnode.__hash__ = lambda self: hash((self.space.name, self.offset, self.size))  # type: ignore[assignment]
 
 
 def varnode_eq(self: pypcode.Varnode, other) -> bool:
@@ -123,7 +123,7 @@ def varnode_eq(self: pypcode.Varnode, other) -> bool:
     )
 
 
-pypcode.Varnode.__eq__ = varnode_eq
+pypcode.Varnode.__eq__ = varnode_eq  # type: ignore[assignment]
 
 
 class CachedArray(NamedTuple):
@@ -726,7 +726,10 @@ class BinaryContext:
                         max_insns1 = max_insns
                         memstate2 = memstate1
                     next_pc = (addr, pcode_pc)
-                    path_cond1 = path_cond + [pc1[0] == vaddr, pc1[1] == vpcode_pc]
+                    path_cond1 = path_cond + [
+                        smt.Eq(pc1[0], vaddr),
+                        smt.Eq(pc1[1], vpcode_pc),
+                    ]
                     if addr in breakpoints:
                         res.append(SimState(memstate2, next_pc, path_cond1))
                     elif max_insns1 <= 0:

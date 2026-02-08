@@ -3451,7 +3451,7 @@ class ArraySortRef(SortRef):
 class ArrayRef(ExprRef):
     """Array expressions."""
     def __call__(
-        self, *args
+        self, *args: ExprRef
     ) -> ExprRef: ...  # ArrayRef is monkeypatched to support _call__
     def sort(self):  # -> ArraySortRef:
         """Return the array sort of the array expression `self`.
