@@ -99,7 +99,7 @@ norm = kd.define("norm", [u], real.sqrt(norm2(u)))
 norm_pos = kd.prove(  #
     kd.smt.ForAll([u], norm(u) >= 0), by=[norm2_pos, real.sqrt_pos, norm.defn]
 )
-norm2_zero = kd.prove(  # type: ignore
+norm2_zero = kd.prove(
     smt.ForAll([u], (norm2(u) == 0) == (u == vzero)),
     by=[norm2.defn, dot.defn],
 )

@@ -23,5 +23,5 @@ def FixedSort(bvsize: int, exp: int) -> smt.DatatypeSortRef:
     kd.notation.to_real.define(
         [x], smt.ToReal(smt.BV2Int(x.val, is_signed=True)) * smt.RealVal(2) ** exp
     )
-    S.exp = exp  # type: ignore
+    S.exp = exp
     return S

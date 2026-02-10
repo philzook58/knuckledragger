@@ -750,7 +750,7 @@ class BinaryContext:
                 elif max_insns <= 0:
                     res.append(SimState(memstate1, pc1, path_cond))
                 else:
-                    todo.append((memstate1, pc1, max_insns, path_cond))  # type: ignore
+                    todo.append((memstate1, pc1, max_insns, path_cond))
         return res
 
     def execute_block(self, memstate: MemState, addr: int) -> list[SimState]:

@@ -62,7 +62,7 @@ def sum_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Basic:
     assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
     x = fresh_symbol()
     e.locals[x.name] = x
-    return sympy.summation(e(x), (x, a, b))  # type: ignore
+    return sympy.summation(e(x), (x, a, b))
 
 
 sympy_env = {
@@ -87,7 +87,7 @@ def sympy_const(e: smt.ExprRef) -> sympy.Expr:
     return sympy.Symbol(name, real=True)
 
 
-def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:  # type: ignore
+def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:
     """
     Convert a z3 expression into a sympy expression.
     >>> x = smt.Real("x")
@@ -166,12 +166,12 @@ def kdify(e: sympy.Basic, **kwargs) -> smt.ExprRef:
     x*1/3
     """
     e = _sympy_mangle(e)
-    if isinstance(e, sympy.Basic):  # type: ignore
+    if isinstance(e, sympy.Basic):
         svs = list(e.free_symbols)
     else:
         svs = []
-    vs = [smt.Real(v.name) for v in svs]  # type: ignore
-    return sympy.lambdify(  # type: ignore
+    vs = [smt.Real(v.name) for v in svs if isinstance(v, sympy.Symbol)]
+    return sympy.lambdify(
         svs,
         e,
         modules=[
@@ -213,7 +213,7 @@ def factor(e: smt.ExprRef) -> smt.ExprRef:
     >>> factor(x**2 + 2*x + 1)
     (x + 1)**2
     """
-    return kdify(sympy.factor(sympify(e)))  # type: ignore
+    return kdify(sympy.factor(sympify(e)))
 
 
 def simplify(e: smt.ExprRef) -> smt.ExprRef:
@@ -267,7 +267,7 @@ def diff(e: smt.ExprRef, *args):
     >>> diff(x*y*x, x)
     2*x*y
     """
-    return kdify(sympy.diff(sympify(e), *translate_tuple_args(args)))  # type: ignore
+    return kdify(sympy.diff(sympify(e), *translate_tuple_args(args)))
 
 
 def integrate(e, *args):
@@ -277,7 +277,7 @@ def integrate(e, *args):
     >>> integrate(x**2, x)
     x**3*1/3
     """
-    return kdify(sympy.integrate(sympify(e), translate_tuple_args(args)))  # type: ignore
+    return kdify(sympy.integrate(sympify(e), translate_tuple_args(args)))
 
 
 def summation(e, *args):
@@ -289,7 +289,7 @@ def summation(e, *args):
     >>> summation(x, (x, 0, n))
     n**2*1/2 + n*1/2
     """
-    return kdify(sympy.summation(sympify(e), *translate_tuple_args(args)))  # type: ignore
+    return kdify(sympy.summation(sympify(e), *translate_tuple_args(args)))
 
 
 def series(e, x=None, x0=0, n=6, dir="+"):
@@ -300,7 +300,7 @@ def series(e, x=None, x0=0, n=6, dir="+"):
     x + Order(x**2)
     """
     if x is not None:
-        x = sympy.symbols(x.decl().name())  # type: ignore
+        x = sympy.symbols(x.decl().name())
     return kdify(sympy.series(sympify(e), x, x0, n, dir))
 
 
@@ -313,7 +313,7 @@ def limit(e, x, x0):
     >>> limit(1/x, x, 0) # TODO: What to do about this one?
     inf
     """
-    x = sympy.symbols(x.decl().name())  # type: ignore
+    x = sympy.symbols(x.decl().name())
     return kdify(sympy.limit(sympify(e), x, x0))
 
 

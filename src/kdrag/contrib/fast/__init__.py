@@ -49,11 +49,11 @@ from _fast.lib import *  # noqa: E402, F403  # type: ignore
 
 
 def ctxptr(ctx: z3.Context):
-    return ffibuilder.cast("void *", ctx.ctx.value)  # type: ignore
+    return ffibuilder.cast("void *", ctx.ctx.value)  # type: ignore[possibly-missing-attribute]
 
 
 def astptr(ast: z3.AstRef):
-    return ffibuilder.cast("void *", ast.as_ast().value)  # type: ignore
+    return ffibuilder.cast("void *", ast.as_ast().value)
 
 
 def intify(ptr):

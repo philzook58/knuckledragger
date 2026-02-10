@@ -87,7 +87,7 @@ class Proof(Judgement):
                     a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
                     for a in args[n : n + i]
                 ]
-                acc = instan(subargs, acc)  # type: ignore
+                acc = instan(subargs, acc)
                 n += i
             elif smt.is_implies(self.thm):
                 x = args[n]

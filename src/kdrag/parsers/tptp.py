@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional, cast
 
-import lark  # type: ignore[reportMissingImports]
+import lark
 import kdrag.smt as smt
 
 # https://github.com/inpefess/tptp-lark-parser/blob/master/tptp_lark_parser/resources/TPTP.lark
@@ -459,7 +459,7 @@ class TPTPTransformer(lark.Transformer):
             rng_sort = self._type_repr_to_sort(rng)
             if isinstance(rng_sort, tuple):
                 rng_doms, rng_rng = rng_sort
-                dom_sorts.extend(cast(list[smt.SortRef], rng_doms))  # type: ignore
+                dom_sorts.extend(cast(list[smt.SortRef], rng_doms))
                 rng_sort = rng_rng
             return (
                 cast(list[smt.SortRef], dom_sorts),

@@ -766,9 +766,9 @@ class ProofState:
         >>> l = Lemma(smt.Lambda([x], x + 1)[3] == y)
         >>> l.simp()
         [] ?|= 4 == y
-        >>> l = Lemma(1 + ((2 + smt.IntVal(4)) + 3))
-        >>> l.simp(path=[1,0])
-        [] ?|= 1 + 6 + 3
+        >>> l = Lemma(x == 1 + ((2 + smt.IntVal(4)) + 3))
+        >>> l.simp(path=[1, 1,0])
+        [] ?|= x == 1 + 6 + 3
         """
         goalctx = self.top_goal()
         if at is None:
@@ -785,11 +785,13 @@ class ProofState:
             #    raise ValueError(
             #        "Simplify failed. Goal is already simplified.", oldgoal
             #    )
+            assert isinstance(newgoal, smt.BoolRef)
             self.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
             (at, old) = goalctx.ctx_find(at)
             new = kd.utils.pathmap(smt.simplify, old, path)
+            assert isinstance(new, smt.BoolRef)
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
             self.add_lemma(kd.kernel.prove(smt.Eq(old, new)))
@@ -1514,6 +1516,9 @@ class ProofState:
         if at is None:
             oldgoal = goalctx.goal
             newgoal = kd.rewrite.beta(oldgoal)
+            assert isinstance(
+                newgoal, smt.BoolRef
+            ), "Beta reduction should not change the type of the formula"
             if newgoal.eq(oldgoal):
                 raise ValueError(
                     "Beta tactic failed. Goal is already beta reduced.", oldgoal
@@ -1524,6 +1529,9 @@ class ProofState:
             oldctx = goalctx.ctx
             at, old = goalctx.ctx_find(at)
             new = kd.rewrite.beta(old)
+            assert isinstance(
+                new, smt.BoolRef
+            ), "Beta reduction should not change the type of the formula"
             if new.eq(old):
                 raise ValueError(
                     "Beta tactic failed. Ctx is already beta reduced.", old
@@ -1564,6 +1572,9 @@ class ProofState:
             e = goalctx.goal
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls1, trace=trace)
+            assert isinstance(
+                e2, smt.BoolRef
+            ), "Unfolding should not change the type of the formula"
             for lem in trace:
                 self.add_lemma(lem)
             self.pop_goal()
@@ -1579,12 +1590,13 @@ class ProofState:
             at, e = goalctx.ctx_find(at)
             trace = []
             e2 = kd.rewrite.unfold(e, decls=decls1, trace=trace)
+            assert isinstance(
+                e2, smt.BoolRef
+            ), "Unfolding should not change the type of the formula"
             for lem in trace:
                 self.add_lemma(lem)
             # self.add_lemma(kd.prove(e == e2, by=trace))
             self.pop_goal()
-            if at == -1:
-                at = len(goalctx.ctx) - 1
             self.goals.append(
                 goalctx._replace(ctx=goalctx.ctx[:at] + [e2] + goalctx.ctx[at + 1 :])
             )

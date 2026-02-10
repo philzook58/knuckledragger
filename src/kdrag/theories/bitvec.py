@@ -125,7 +125,7 @@ Fix via Newtype wrapper? I guess I want overloading anyway
 """
 
 BVN = BitVecN
-BVN.empty = BVN(smt.Empty(seq.Seq(BV1)))  # type: ignore
+BVN.empty = BVN(smt.Empty(seq.Seq(BV1)))
 x, y, z = smt.Consts("x y z", BitVecN)
 to_int = smt.Function("BitVecN.to_int", BitVecN, smt.IntSort())
 to_int = kd.notation.to_int.define(

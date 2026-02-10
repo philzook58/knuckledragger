@@ -240,19 +240,19 @@ and_.register(smt.BoolSort(), smt.And)
 
 or_ = SortDispatch(name="or_", pointwise=True)
 """Sort based dispatch for `|` syntax"""
-smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
+smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore[invalid-assignment]
 smt.QuantifierRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
 or_.register(smt.BoolSort(), smt.Or)
 
 invert = SortDispatch(name="invert", pointwise=True)
 """Sort based dispatch for `~` syntax"""
-smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore
+smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore[invalid-assignment]
 smt.QuantifierRef.__invert__ = lambda x: invert(x)  # type: ignore
 invert.register(smt.BoolSort(), smt.Not)
 
 lt = SortDispatch(name="lt", pointwise=True)
 """Sort based dispatch for `<` syntax"""
-smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore
+smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore[invalid-assignment]
 lt.register(smt.IntSort(), lambda x, y: x < y)
 lt.register(smt.RealSort(), lambda x, y: x < y)
 # Conceptually this kind of makes sense, but SubSet is the more natural thing.
@@ -261,51 +261,51 @@ lt.register(smt.RealSort(), lambda x, y: x < y)
 
 le = SortDispatch(name="le", pointwise=True)
 """Sort based dispatch for `<=` syntax"""
-smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore
+smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore[invalid-assignment]
 le.register(smt.IntSort(), lambda x, y: x <= y)
 le.register(smt.RealSort(), lambda x, y: x <= y)
 # le.register(smt.BoolSort(), lambda x, y: smt.Implies(x, y))
 
 ge = SortDispatch(name="ge", pointwise=True)
 """Sort based dispatch for `>=` syntax"""
-smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore
+smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore[invalid-assignment]
 ge.register(smt.IntSort(), lambda x, y: x >= y)
 ge.register(smt.RealSort(), lambda x, y: x >= y)
 # ge.register(smt.BoolSort(), lambda x, y: smt.Implies(y, x))
 
 gt = SortDispatch(name="gt", pointwise=True)
 """Sort based dispatch for `>` syntax"""
-smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore
+smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore[invalid-assignment]
 gt.register(smt.IntSort(), lambda x, y: x > y)
 gt.register(smt.RealSort(), lambda x, y: x > y)
 # gt.register(smt.BoolSort(), lambda x, y: smt.And(x, smt.Not(y)))
 
 # contains cannot work because python demands a concrete bool.
 # contains = SortDispatch(name="contains")
-# smt.ExprRef.__contains__ = lambda x, y: contains(x, y)  # type: ignore
+# smt.ExprRef.__contains__ = lambda x, y: contains(x, y)
 
 eq = SortDispatch(name="eq", default=smt.Eq)
 """Sort based dispatch for `==` syntax"""
-smt.ExprRef.__eq__ = lambda x, y: eq(x, y)  # type: ignore
+smt.ExprRef.__eq__ = lambda x, y: eq(x, y)  # type: ignore[invalid-assignment]
 
 
 ne = SortDispatch(name="ne", default=smt.NEq)
 """Sort based dispatch for `!=` syntax"""
-smt.ExprRef.__ne__ = lambda x, y: ne(x, y)  # type: ignore
+smt.ExprRef.__ne__ = lambda x, y: ne(x, y)  # type: ignore[invalid-assignment]
 
 wf = SortDispatch(name="wf")
 """`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists."""
-smt.ExprRef.wf = lambda x: wf(x)  # type: ignore
+smt.ExprRef.wf = lambda x: wf(x)
 
 measure = SortDispatch(name="measure")
 """`measure is an Int value associated with an ExprRef for use in defining well-founded recursion."""
-# smt.ExprRef.measure = lambda x: measure(x)  # type: ignore
-measure.register(smt.IntSort(), lambda x: smt.Abs(x))  # type: ignore
+# smt.ExprRef.measure = lambda x: measure(x)
+measure.register(smt.IntSort(), lambda x: smt.Abs(x))
 measure.register(smt.BoolSort(), lambda x: smt.If(x, smt.IntVal(1), smt.IntVal(0)))
 
 choose = SortDispatch(name="choose")
 """Sort based dispatch for Hilbert choice operator."""
-# smt.ExprRef.choose = lambda P: choose(P)  # type: ignore
+# smt.ExprRef.choose = lambda P: choose(P)
 
 # These are of questionable utility, but conceptually should be here.
 forall = SortDispatch(name="forall")
@@ -356,7 +356,7 @@ def induct_default(x, P):
 
 induct = SortDispatch(name="induct", default=induct_default)
 """Sort based dispatch for induction principles. Should instantiate an induction scheme for variable x and predicate P"""
-smt.ExprRef.induct = lambda x, P: induct(x, P)  # type: ignore
+smt.ExprRef.induct = lambda x, P: induct(x, P)
 
 
 def induct_int(x, P):

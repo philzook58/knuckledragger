@@ -238,10 +238,10 @@ def val_of_sort(
         return smt_datatype_val(s)
     else:
         # return smt_generic_val(s) # This is really slow. We're better off just throwing an error
-        if slow_generic:
-            return smt_generic_val(s)
-        else:
-            raise NotImplementedError(f"Don't know how to generate values for {s}")
+        # if slow_generic:
+        #    return smt_generic_val(s)
+        # else:
+        raise NotImplementedError(f"Don't know how to generate values for {s}")
 
 
 # def expr_of_sort(s: smt.SortRef):

@@ -135,7 +135,7 @@ def sort(tree: Tree, env: Env) -> smt.SortRef:
             return smt.ArraySort(sort(left, env), sort(right, env))
             # return smt.ArraySort(*(sort(s) for s in left.children), sort(right,env))
         case Tree("bitvecsort", [n]):
-            n1 = int(n)  # type: ignore
+            n1 = int(n)
             return smt.BitVecSort(n1)
         case Tree("sortlit", [name]):
             if name == "Int":
@@ -203,10 +203,10 @@ def quant(vs, body_tree, q, env) -> smt.QuantifierRef:
 def _pattern_head(tree, env: Env) -> smt.ExprRef:
     match tree:
         case Tree("const", [name, *attrs]):
-            res = env[name]  # type: ignore
+            res = env[name]
             for attr in attrs:
-                res = getattr(res, str(attr))  # type: ignore
-            return res  # type: ignore
+                res = getattr(res, str(attr))
+            return res
         case Tree("pat_app", [inner]):
             return _pattern_head(inner, env)
         case _:
@@ -223,20 +223,20 @@ def pattern(tree, env: Env, expected_sort: smt.SortRef | None) -> smt.ExprRef:
             text = str(n)
             if "." in text:
                 return smt.RealVal(text)
-            return int(text)  # type: ignore
+            return int(text)  # type: ignore[invalid-return-type]
         case Tree("const", [name, *attrs]):
             if name in env.locals or name in env.globals:
-                res = env[name]  # type: ignore
+                res = env[name]
             else:
                 if expected_sort is None:
                     raise ValueError("Cannot infer sort for pattern variable", name)
                 res = smt.Const(str(name), expected_sort)
                 env[str(name)] = res
             for attr in attrs:
-                res = getattr(res, str(attr))  # type: ignore
+                res = getattr(res, str(attr))
             if isinstance(res, smt.FuncDeclRef) and res.arity() == 0:
                 return res()
-            return res  # type: ignore
+            return res
         case Tree("true", []):
             return smt.BoolVal(True)
         case Tree("false", []):
@@ -264,12 +264,12 @@ def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.Exp
             text = str(n)
             if "." in text:
                 return smt.RealVal(text)
-            return int(text)  # type: ignore
+            return int(text)  # type: ignore[invalid-return-type]
         case Tree("const", [name, *attrs]):
-            res = env[name]  # type: ignore
+            res = env[name]
             for attr in attrs:
-                res = getattr(res, str(attr))  # type: ignore
-            return res  # type: ignore
+                res = getattr(res, str(attr))
+            return res
         case Tree("true", []):
             return smt.BoolVal(True)
         case Tree("false", []):

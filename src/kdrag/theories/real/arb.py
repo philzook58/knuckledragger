@@ -7,7 +7,7 @@ from typing import TypeAlias
 
 Arb: TypeAlias = object
 
-arb = flint.arb  # type: ignore
+arb = flint.arb
 a, b = smt.Reals("a b")
 flint_decls = {
     real.sqrt: arb.sqrt,
@@ -193,7 +193,7 @@ In principle, larger scale rules can be derived from this.
 """
 
 
-def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:  # type: ignore
+def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:
     """
     Get exact arb as z3 value
 
@@ -213,7 +213,7 @@ def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:  # type: ignore
     return smt.simplify(smt.RealVal(int(man)) * smt.RealVal(2) ** smt.RealVal(int(exp)))
 
 
-def z3_mid_rad_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:  # type: ignore
+def z3_mid_rad_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:
     """
     Get midpoint and radius as z3 values.
 

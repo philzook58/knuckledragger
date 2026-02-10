@@ -449,37 +449,37 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
             # case ast.UnaryOp(ast.UAdd(), operand):
             #    return +rec(operand)
             case ast.UnaryOp(ast.Not(), operand):
-                return ~rec(operand)  # type: ignore
+                return ~rec(operand)
             case ast.UnaryOp(ast.USub(), operand):
-                return -rec(operand)  # type: ignore
+                return -rec(operand)
             case ast.UnaryOp(ast.Invert(), operand):
-                return ~rec(operand)  # type: ignore
+                return ~rec(operand)
             case ast.UnaryOp(_, operand):
                 raise NotImplementedError(f"UnaryOp {expr.op}")
             case ast.BinOp(left=l, op=ast.Add(), right=r):
-                return rec(l) + rec(r)  # type: ignore
+                return rec(l) + rec(r)
             case ast.BinOp(left=l, op=ast.Sub(), right=r):
-                return rec(l) - rec(r)  # type: ignore
+                return rec(l) - rec(r)
             case ast.BinOp(left=l, op=ast.Mult(), right=r):
-                return rec(l) * rec(r)  # type: ignore
+                return rec(l) * rec(r)
             case ast.BinOp(left=l, op=ast.Div(), right=r):
-                return rec(l) / rec(r)  # type: ignore
+                return rec(l) / rec(r)
             case ast.BinOp(left=l, op=ast.Mod(), right=r):
-                return rec(l) % rec(r)  # type: ignore
+                return rec(l) % rec(r)
             case ast.BinOp(left=l, op=ast.Pow(), right=r):
-                return rec(l) ** rec(r)  # type: ignore
+                return rec(l) ** rec(r)
             case ast.BinOp(left=l, op=ast.LShift(), right=r):
-                return rec(l) << rec(r)  # type: ignore
+                return rec(l) << rec(r)
             case ast.BinOp(left=l, op=ast.RShift(), right=r):
-                return rec(l) >> rec(r)  # type: ignore
+                return rec(l) >> rec(r)
             case ast.BinOp(left=l, op=ast.BitOr(), right=r):
-                return rec(l) | rec(r)  # type: ignore
+                return rec(l) | rec(r)
             case ast.BinOp(left=l, op=ast.BitXor(), right=r):
-                return rec(l) ^ rec(r)  # type: ignore
+                return rec(l) ^ rec(r)
             case ast.BinOp(left=l, op=ast.BitAnd(), right=r):
-                return rec(l) & rec(r)  # type: ignore
+                return rec(l) & rec(r)
             case ast.BinOp(left=l, op=ast.FloorDiv(), right=r):
-                return rec(l) // rec(r)  # type: ignore
+                return rec(l) // rec(r)
             case ast.BoolOp(op=ast.And(), values=values):
                 return smt.And(*map(rec, values))
             case ast.BoolOp(op=ast.Or(), values=values):
@@ -495,13 +495,13 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
                         case ast.NotEq():
                             acc.append(left != right)
                         case ast.Lt():
-                            acc.append(left < right)  # type: ignore
+                            acc.append(left < right)
                         case ast.LtE():
-                            acc.append(left <= right)  # type: ignore
+                            acc.append(left <= right)
                         case ast.Gt():
-                            acc.append(left > right)  # type: ignore
+                            acc.append(left > right)
                         case ast.GtE():
-                            acc.append(left >= right)  # type: ignore
+                            acc.append(left >= right)
                         case _:
                             raise NotImplementedError(f"Compare {op}")
                     left = right
@@ -696,7 +696,7 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     assert z3fun.arity() == z3fun1.arity() and all(
         z3fun.domain(i) == z3fun1.domain(i) for i in range(z3fun.arity())
     )
-    return functools.update_wrapper(z3fun1, f)  # type: ignore
+    return functools.update_wrapper(z3fun1, f)  # type: ignore[invalid-return-type]
 
 
 def datatype(s: str, locals=None, globals=None) -> smt.DatatypeSortRef:

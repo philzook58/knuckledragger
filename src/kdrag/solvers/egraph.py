@@ -351,7 +351,7 @@ class EGraph:
         eclasses = self.eclasses()
 
         for eid, funcs in eclasses.items():
-            with dot.subgraph(name=f"cluster_{eid}") as c:  # type: ignore
+            with dot.subgraph(name=f"cluster_{eid}") as c:
                 assert c is not None
                 c.attr(style="dotted,rounded")
                 rep = f"e_rep_{eid}"
