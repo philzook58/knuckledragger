@@ -315,7 +315,9 @@ def Finite(A: smt.ArrayRef) -> smt.BoolRef:
     """
     A set is finite if it has a finite number of elements.
 
-    See https://cvc5.github.io/docs/cvc5-1.1.2/theories/sets-and-relations.html#finite-sets
+    See:
+    - https://cvc5.github.io/docs/cvc5-1.1.2/theories/sets-and-relations.html#finite-sets
+    - https://isabelle.in.tum.de/library/HOL/HOL-Library/FSet.html
 
     >>> IntSet = Set(smt.IntSort())
     >>> kd.prove(Finite(IntSet.empty))
@@ -332,6 +334,29 @@ def Finite(A: smt.ArrayRef) -> smt.BoolRef:
     )
     # Lambda form?
     # return A == smt.Lambda([x], smt.Contains(finwit(A), smt.Unit(x))
+
+
+@functools.cache
+def finite_decl(T: smt.SortRef) -> smt.FuncDeclRef:
+    """
+    Abstracted finite predicate for sets of T.
+    """
+    A = smt.Const("A", smt.SetSort(T))
+    return kd.define(f"{T.name()}.finite", [A], Finite(A))
+
+
+def finite(A):
+    doms = smt.domains(A)
+    assert len(doms) == 1
+    return finite_decl(doms[0])(A)
+
+
+@functools.cache
+def finite_empty(T: smt.SortRef) -> kd.Proof:
+    """
+    Prove that the empty set is finite for sets of T.
+    """
+    return kd.prove(finite(Set(T).empty), unfold=True)
 
 
 RSet = Set(smt.RealSort())

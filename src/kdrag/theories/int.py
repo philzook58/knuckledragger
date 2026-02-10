@@ -6,6 +6,8 @@ import kdrag as kd
 import kdrag.smt as smt
 
 Z = smt.IntSort()
+ZSet = smt.SetSort(Z)
+ISet = ZSet
 
 
 def induct_nat(x, P):
@@ -156,7 +158,7 @@ _l.auto()
 dvd_fact = _l.qed().forall([m, n])
 
 
-P = smt.Array("P", Z, smt.BoolSort())
+P = smt.Const("P", ZSet)  # smt.Array("P", Z, smt.BoolSort())
 search = kd.define("search", [P, n], smt.If(P[n], n, smt.If(P[-n], -n, P[n + 1])))
 choose = kd.notation.choose.define([P], search(P, 0))
 # A choice operator. Also a relative of Kleene Mu
@@ -178,3 +180,16 @@ bchoose = kd.define(
 
 # 0 <= bchoose() <= N
 bexists = kd.define("bexists", [P, N], P[bchoose(P, N)])
+
+
+A = smt.Const("A", ZSet)
+has_ub = kd.define("ZSet.has_ub", [A, y], kd.QForAll([x], A[x], x <= y))
+# closed under union,inter,etc.
+# closed upward has_ub_le
+
+
+is_ub = kd.define("ZSet.is_ub", [A], smt.Exists([x], has_ub(A, x)))
+has_lb = kd.define("ZSet.has_lb", [A, y], kd.QForAll([x], A[x], y <= x))
+is_lb = kd.define("ZSet.is_lb", [A], smt.Exists([x], has_lb(A, x)))
+# has_bounds = kd.define("has_bounds", [A,x,y], smt.And(has_ub(A,x), has_lb(A,y)))
+finite = kd.define("ZSet.finite", [A], smt.And(is_ub(A), is_lb(A)))

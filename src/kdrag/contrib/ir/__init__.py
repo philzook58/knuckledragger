@@ -34,12 +34,29 @@ class Block:
     insns: list[smt.ExprRef]
 
     @classmethod
-    def of_expr(cls, e: smt.ExprRef) -> "Block":
+    def of_defined_fun(cls, f: smt.FuncDeclRef) -> "Block":
+        """
+        >>> x, y = smt.Ints("x y")
+        >>> f = kd.define("f809", [x,y], x + x + y)
+        >>> Block.of_defined_fun(f)
+        ^(Int,Int):
+        %0 = + %var0, %var0
+        %1 = + %0, %var1
+        """
+        defn = kd.kernel.defns.get(f)
+        if defn is None:
+            raise ValueError(f"Function {f} is not defined to knuckledragger")
+        else:
+            body = defn._subst_fun_body
+            return cls.of_expr(body, sig=[f.domain(i) for i in range(f.arity())])
+
+    @classmethod
+    def of_expr(cls, e: smt.ExprRef, sig=[]) -> "Block":
         """
         >>> x,y = smt.BitVecs("x y", 64)
         >>> x,y = smt.Var(1, smt.BitVecSort(64)), smt.Var(0, smt.BitVecSort(64))
         >>> z = smt.BitVec("z", 64)
-        >>> Block.of_expr(smt.If(True, (x + y)*42, x - y + z))
+        >>> Block.of_expr(smt.If(True, (x + y)*42, x - y + z), [smt.BitVecSort(64), smt.BitVecSort(64)])
         ^(bv64,bv64):
         %0 = bvadd %var1, %var0
         %1 = bvmul %0, 42
@@ -47,21 +64,20 @@ class Block:
         %3 = bvadd %2, z
         %4 = if True, %1, %3
         """
-        sig = {}
-        insns = []
-        seen = set()
-        todo = [e]
+        if not smt.is_if(e):
+            insns = []
+            seen = set()
+            todo = [e]
+        else:
+            insns = [e]
+            seen = set(e.children())
+            todo = list(e.children())
         while todo:
             e = todo.pop()
             # if smt.is_const(e) and not kd.utils.is_value(e):
             #    args.append(e)
             if smt.is_var(e):
-                idx = smt.get_var_index(e)
-                sort = sig.get(idx)
-                if sort is None:
-                    sig[idx] = e.sort()
-                else:
-                    assert sig[idx] == e.sort()
+                pass
             elif smt.is_const(e):
                 continue
             else:
@@ -70,7 +86,6 @@ class Block:
                     if arg not in seen:
                         seen.add(arg)
                         todo.append(arg)
-        sig = [sig[idx] for idx in range(len(sig))]
         insns.reverse()
         return cls(sig=sig, insns=insns)
 
@@ -98,7 +113,7 @@ class Block:
                 rhs = str(insn)
             else:
                 rhs = f"{insn.decl().name()} {", ".join(self.vname(arg) for arg in insn.children())}"
-            res.append(f"%{i} = {rhs}")
+            res.append(f"\t%{i} = {rhs}")
         return "\n".join(res)
 
     def succ_calls(self) -> list[smt.ExprRef]:
@@ -118,6 +133,12 @@ class Function:
 
     entry: Label  # smt.FuncDeclRef?
     blocks: dict[Label, Block]  # 0th block is entry. Or "entry" is entry? Naw. 0th.
+
+    @classmethod
+    def of_defined_funs(cls, funs: list[smt.FuncDeclRef]):
+        blocks = {f.name(): Block.of_defined_fun(f) for f in funs}
+        entry = funs[0].name()
+        return cls(entry=entry, blocks=blocks)
 
     def calls_of(self) -> dict[str, list[tuple[Label, smt.ExprRef]]]:
         """
@@ -139,6 +160,14 @@ class Function:
         for label, blk in self.blocks.items():
             phis[label] = zip(*[call.children() for _, call in preds[label]])
         return phis
+
+    def __repr__(self) -> str:
+        res = [f"fn {self.entry} {{"]
+        for label, blk in self.blocks.items():
+            res.append(f"@{label}:")
+            res.append(str(blk))
+        res.append("}")
+        return "\n".join(res)
 
 
 @dataclass

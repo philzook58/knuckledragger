@@ -753,6 +753,18 @@ class BinaryContext:
                     todo.append((memstate1, pc1, max_insns, path_cond))  # type: ignore
         return res
 
+    def execute_block(self, memstate: MemState, addr: int) -> list[SimState]:
+        path_cond = None
+        while True:
+            states = self.sym_execute(memstate, addr, path_cond=path_cond)
+            if len(states) != 1 or states[0].pc[0] < addr:
+                return states
+            else:
+                memstate = states[0].memstate
+                (addr, pc) = states[0].pc
+                assert pc == 0
+                path_cond = states[0].path_cond
+
     def get_reg(self, memstate: MemState, regname: str) -> smt.BitVecRef:
         """
         Get the value of a register from the memstate.
