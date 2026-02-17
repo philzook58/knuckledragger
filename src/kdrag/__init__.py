@@ -18,6 +18,7 @@ from . import contracts
 from . import tactics
 import functools
 from .parsers import microlean
+import typing
 
 
 Proof = kernel.Proof
@@ -366,6 +367,73 @@ def Undef(sort: smt.SortRef, *args) -> smt.ExprRef:
         return smt.FreshConst(sort, prefix="undef")
     else:
         return smt.FreshFunction(*[arg.sort() for arg in args], sort)(*args)
+
+
+def _infer_sort(
+    F: smt.FuncRef, sort: typing.Optional[smt.ArraySortRef]
+) -> smt.ArraySortRef:
+    if sort is not None:
+        return sort
+    elif smt.is_func(F):
+        S = smt.domains(F)[0]
+        assert (
+            isinstance(S, smt.ArraySortRef) and S.range() == smt.BoolSort()
+        ), "sort must be Set(T) for some T"
+        return S
+    else:
+        raise ValueError("sort must be provided for non-function F")
+
+
+def SetMonotone(F, sort=None):
+    """
+    >>> ZSet = smt.SetSort(smt.IntSort())
+    >>> F = smt.Array("F", ZSet, ZSet)
+    >>> SetMonotone(F)
+    ForAll([A!..., B!...], Implies(subset(A!..., B!...), subset(F[A!...], F[B!...])))
+    """
+
+    SetSort = _infer_sort(F, sort)
+    A = smt.FreshConst(SetSort, prefix="A")
+    B = smt.FreshConst(SetSort, prefix="B")
+    return smt.ForAll([A, B], A <= B, F(A) <= F(B))
+
+
+def PreFix(F, A):
+    return F(A) <= A
+
+
+def PostFix(F, A):
+    return A <= F(A)
+
+
+def LFP(F, sort=None):
+    """
+    >>> ZSet = smt.SetSort(smt.IntSort())
+    >>> F = smt.Array("F", ZSet, ZSet)
+    >>> LFP(F)
+    Lambda(x!...,
+        ForAll(A!...,
+                Implies(subset(F[A!...], A!...), A!...[x!...])))
+    """
+    SetSort = _infer_sort(F, sort)
+    x = smt.FreshConst(SetSort.domain(), prefix="x")
+    A = smt.FreshConst(SetSort, prefix="A")
+    return smt.Lambda([x], smt.ForAll([A], PreFix(F, A), A[x]))
+
+
+def GFP(F, sort=None):
+    """
+    >>> ZSet = smt.SetSort(smt.IntSort())
+    >>> F = smt.Array("F", ZSet, ZSet)
+    >>> GFP(F)
+    Lambda(x!...,
+        Exists(A!...,
+                And(subset(A!..., F[A!...]), A!...[x!...])))
+    """
+    SetSort = _infer_sort(F, sort)
+    x = smt.FreshConst(SetSort.domain(), prefix="x")
+    A = smt.FreshConst(SetSort, prefix="A")
+    return smt.Lambda([x], smt.Exists([A], PostFix(F, A), A[x]))
 
 
 __all__ = [

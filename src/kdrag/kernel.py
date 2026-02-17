@@ -160,7 +160,9 @@ def prove(
                 raise LemmaError(thm, "Countermodel", s.model())
             raise LemmaError("prove", thm, res)
         else:
-            return Proof(thm, list(by), False)
+            reason: list[object] = ["prove"]
+            reason.extend(by)
+            return Proof(thm, reason, False)
 
 
 def axiom(thm: smt.BoolRef, by=["axiom"]) -> Proof:

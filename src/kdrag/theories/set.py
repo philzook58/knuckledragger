@@ -38,9 +38,10 @@ def Set(T):
     smt.sort_registry[S.get_id()] = S
     S.empty = smt.EmptySet(T)
     S.full = smt.FullSet(T)
+    kd.notation.sub.register(S, smt.SetDifference)
     kd.notation.and_.register(S, smt.SetIntersect)
     kd.notation.or_.register(S, smt.SetUnion)
-    kd.notation.sub.register(S, smt.SetDifference)
+
     kd.notation.invert.register(S, smt.SetComplement)
     kd.notation.le.register(S, smt.IsSubset)
     kd.notation.lt.register(S, lambda x, y: smt.And(smt.IsSubset(x, y), x != y))
@@ -66,7 +67,7 @@ def Set(T):
     S.diff_full = kd.prove(smt.ForAll([A], A - S.full == S.empty))
     S.diff_self = kd.prove(smt.ForAll([A], A - A == S.empty))
 
-    S.finite = kd.define("finite", [A], Finite(A))
+    S.finite = finite_decl(S)  # kd.define("finite", [A], Finite(A))
 
     S.compl_invol = kd.prove(smt.ForAll([A], ~~A == A))
     S.compl_empty = kd.prove(~S.empty == S.full)
@@ -342,7 +343,7 @@ def finite_decl(T: smt.SortRef) -> smt.FuncDeclRef:
     Abstracted finite predicate for sets of T.
     """
     A = smt.Const("A", smt.SetSort(T))
-    return kd.define(f"{T.name()}.finite", [A], Finite(A))
+    return kd.define(f"{T.sexpr()}.finite", [A], Finite(A))
 
 
 def finite(A):
