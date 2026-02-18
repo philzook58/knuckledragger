@@ -139,13 +139,13 @@ def Vec(N):
 V = smt.DeclareSort("Vec")
 u, v, w = smt.Consts("u v w", V)
 a, b = smt.Reals("a b")
-smul = smt.Function("smul", smt.RealSort(), V, V)
-add = smt.Function("add", V, V, V)
+smul = smt.Function("Vec.smul", smt.RealSort(), V, V)
+add = smt.Function("Vec.add", V, V, V)
 kd.notation.add.register(V, lambda x, y: add(x, y))
 
 add_comm = kd.axiom(smt.ForAll([u, v], u + v == v + u))
 add_assoc = kd.axiom(smt.ForAll([u, v, w], (u + v) + w == u + (v + w)))
-zero = smt.Const("zero", V)
+zero = smt.Const("Vec.zero", V)
 add_zero = kd.axiom(smt.ForAll([u], u + zero == u))
 smul_assoc = kd.axiom(
     smt.ForAll([a, b, u], smul(a, smul(b, u)) == smul(a * b, u))

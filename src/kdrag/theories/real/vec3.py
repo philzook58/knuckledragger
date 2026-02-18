@@ -17,7 +17,7 @@ add_assoc = kd.prove(
 sub = kd.notation.sub.define([u, v], Vec3(u.x - v.x, u.y - v.y, u.z - v.z))
 neg = kd.notation.neg.define([u], Vec3(-u.x, -u.y, -u.z))
 a, b = smt.Reals("a b")
-smul = kd.define("smul", [a, u], Vec3(a * u.x, a * u.y, a * u.z))
+smul = kd.define("Vec3.smul", [a, u], Vec3(a * u.x, a * u.y, a * u.z))
 
 
 smul_assoc = kd.prove(
@@ -53,7 +53,7 @@ e2 = Vec3(0, 1, 0)
 e3 = Vec3(0, 0, 1)
 
 
-dot = kd.define("dot", [u, v], u.x * v.x + u.y * v.y + u.z * v.z)
+dot = kd.define("Vec3.dot", [u, v], u.x * v.x + u.y * v.y + u.z * v.z)
 dot_comm = kd.prove(
     smt.ForAll([u, v], dot(u, v) == dot(v, u)),
     by=[dot.defn],
@@ -78,13 +78,13 @@ dot_self_pos = kd.prove(
     by=[dot.defn],
 )
 
-norm2 = kd.define("norm2", [u], dot(u, u))
+norm2 = kd.define("Vec3.norm2", [u], dot(u, u))
 norm2_pos = kd.prove(smt.ForAll([u], norm2(u) >= 0), by=[norm2.defn, dot_self_pos])
 norm2_add = kd.prove(
     smt.ForAll([u, v], norm2(u + v) == norm2(u) + norm2(v) + 2 * dot(u, v)),
     by=[norm2.defn, dot.defn, add.defn],
 )
-norm = kd.define("norm", [u], real.sqrt(norm2(u)))
+norm = kd.define("Vec3.norm", [u], real.sqrt(norm2(u)))
 
 # unstable
 # cauchy_schwarz2 = kd.prove(
@@ -104,7 +104,7 @@ norm2_zero = kd.prove(
     by=[norm2.defn, dot.defn],
 )
 
-dist = kd.define("dist", [u, v], real.sqrt(norm2(u - v)))
+dist = kd.define("Vec3.dist", [u, v], real.sqrt(norm2(u - v)))
 perp = kd.define("perp", [u, v], dot(u, v) == 0)
 
 cross = kd.define(

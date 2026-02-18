@@ -6,7 +6,7 @@ RFun = smt.ArraySort(real.R, real.R)
 f, g, h = smt.Consts("f g h", RFun)
 x, y, c = smt.Consts("x y c", real.R)
 
-smul = kd.define("smul", [c, f], smt.Lambda([x], real.mul(c, f[x])))
+smul = kd.define("RFun.smul", [c, f], smt.Lambda([x], real.mul(c, f[x])))
 
 
 # TODO: if I leave these add and mul bare, I have problems in the following proofs. Not great. Z3 has bad handling of quantifiers + real operators

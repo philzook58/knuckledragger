@@ -537,9 +537,9 @@ def _define_of_tree(tree: lark.Tree, env: Env) -> smt.FuncDeclRef:
     """
     Parse a definition.
 
-    >>> tree = define_parser.parse("def add1 (x : Int) : Int := x + 1")
+    >>> tree = define_parser.parse("def add142 (x : Int) : Int := x + 1")
     >>> _define_of_tree(tree, Env(locals={}, globals={})).defn
-    |= ForAll(x, add1(x) == x + 1)
+    |= ForAll(x, add142(x) == x + 1)
     """
     match tree:
         case Tree("define", [name, binds, sort_tree, body]):

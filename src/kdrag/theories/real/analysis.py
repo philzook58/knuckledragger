@@ -42,7 +42,7 @@ l.auto(unfold=2)
 is_open_unit_ball = l.qed()
 
 
-dist = kd.define("dist", [x, y], real.abs(x - y))
+dist = kd.define("R.dist", [x, y], real.abs(x - y))
 dist_refl = kd.prove(kd.QForAll([x], dist(x, x) == 0), unfold=2)
 dist_pos = kd.prove(smt.Implies(x != y, dist(x, y) > 0), unfold=2).forall([x, y])
 dist_pos2 = kd.prove(dist(x, y) >= 0, unfold=2).forall([x, y])

@@ -194,7 +194,7 @@ def test_Lemma():
     l.qed()
 
     x = smt.Int("x")
-    sqr = kd.define("sqr", [x], x * x)
+    sqr = kd.define("mysqr90924", [x], x * x)
     l = kd.Lemma(smt.ForAll([x], sqr(x) == x * x))
     l.fix()
     l.unfold(sqr)
@@ -209,8 +209,8 @@ def test_Lemma():
     l.qed()
 
     x, y = smt.Ints("x y")
-    even = kd.define("even", [x], smt.Exists([y], x == 2 * y))
-    odd = kd.define("odd", [x], smt.Exists([y], x == 2 * y + 1))
+    even = kd.define("myeven313", [x], smt.Exists([y], x == 2 * y))
+    odd = kd.define("myodd325", [x], smt.Exists([y], x == 2 * y + 1))
 
     evdef2 = kd.kernel.prove(
         smt.ForAll([x], even(x) == smt.Exists([y], x == 2 * y)), by=[even.defn]

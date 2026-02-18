@@ -174,8 +174,8 @@ def esimp(vs: list[smt.ExprRef], goal: smt.BoolRef, max_iters=7, timeout=50):
     Does not produce generalized solutions like a prolog would.
 
     >>> n,x,y = smt.Ints("n x y")
-    >>> fact = smt.Function("fact", smt.IntSort(), smt.IntSort())
-    >>> fact = kd.define("fact", [n], smt.If(n <= 0, 1, n * fact(n - 1)))
+    >>> fact = smt.Function("fact_124", smt.IntSort(), smt.IntSort())
+    >>> fact = kd.define("fact_124", [n], smt.If(n <= 0, 1, n * fact(n - 1)))
     >>> esimp([x], fact(x) == 6)
     {x: 3}
     """

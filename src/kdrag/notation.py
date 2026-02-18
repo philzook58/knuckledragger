@@ -150,7 +150,7 @@ class SortDispatch:
         """
         assert isinstance(self.name, str)
         sort = args[0].sort()
-        defn = kd.define(sort.name() + "." + self.name, args, body)
+        defn = kd.define(sort.sexpr() + "." + self.name, args, body)
         self.register(sort, defn)
         return defn
 

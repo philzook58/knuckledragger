@@ -55,8 +55,8 @@ to_from_int = l.qed()
 double = smt.Function("double", Nat, Nat)
 double = kd.define("double", [n], smt.If(n.is_Z, Z, S(S(double(n.pred)))))
 
-add = smt.Function("add", Nat, Nat, Nat)
-add = kd.define("add", [x, y], smt.If(x.is_Z, y, Nat.S(add(x.pred, y))))
+add = smt.Function("Nat.add", Nat, Nat, Nat)
+add = kd.define("Nat.add", [x, y], smt.If(x.is_Z, y, Nat.S(add(x.pred, y))))
 kd.notation.add.register(Nat, add)
 
 add_Z = kd.kernel.prove(smt.ForAll([x], add(Nat.Z, x) == x), by=[add.defn])

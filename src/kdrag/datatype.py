@@ -437,17 +437,17 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
     """Define an inductive type of evidence and a relation the recurses on that evidence
 
     >>> x = smt.Int("x")
-    >>> Even = InductiveRel("Even", x)
+    >>> Even = InductiveRel("Even12", x)
     >>> Even.declare("Ev_Z",                           pred = x == 0)
     >>> Even.declare("Ev_SS", ("sub2_evidence", Even), pred = lambda evid: evid.rel(x-2))
     >>> Even = Even.create()
     >>> ev = smt.Const("ev", Even)
     >>> ev.rel(4)
-    even(4)[ev]
+    even12(4)[ev]
     >>> ev(4)
-    even(4)[ev]
+    even12(4)[ev]
     >>> Even(4)
-    even(4)
+    even12(4)
     """
 
     dt = Inductive(name)

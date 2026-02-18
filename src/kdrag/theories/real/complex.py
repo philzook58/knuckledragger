@@ -40,7 +40,7 @@ mul_assoc = kd.prove(
 
 # conjugate
 # polar
-norm2 = kd.define("norm2", [z], z * conj(z))
+norm2 = kd.define("C.norm2", [z], z * conj(z))
 
 t, s = smt.Reals("t s")
 expi = kd.define("expi", [t], C.C(real.cos(t), real.sin(t)))

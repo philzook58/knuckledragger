@@ -23,8 +23,10 @@ def Concat(a, b):
     >>> a = KB1.const(1) # 1
     >>> b = KB1.const(0) # 0
     >>> Concat(a, b)
-    KnownBits_2(Concat(ones(const(1)), ones(const(0))),
-            Concat(unknowns(const(1)), unknowns(const(0))))
+    KnownBits_2(Concat(ones(KnownBits_1.const(1)),
+                       ones(KnownBits_1.const(0))),
+                Concat(unknowns(KnownBits_1.const(1)),
+                       unknowns(KnownBits_1.const(0))))
     """
     sa = a.ones.size()
     sb = b.ones.size()
@@ -42,16 +44,22 @@ def KnownBitsSort(W):
     )
 
 
-class KnownBits:
+@functools.cache
+def KnownBits(W):
+    return KnownBits_(W)
+
+
+class KnownBits_:
     def __init__(self, W):
         self.W = W
         KnownBits = KnownBitsSort(W)
         self.T = KnownBits
+        Tname = KnownBits.sexpr() + "."
         x, y, z = smt.Consts("x y z", KnownBits)
         a, b, c = smt.Consts("a b c", smt.BitVecSort(W))
 
         setof = kd.define(
-            "setof",
+            Tname + "setof",
             [x],
             smt.Lambda([a], (~x.unknowns & a) == x.ones),
         )
@@ -64,9 +72,9 @@ class KnownBits:
 
         self.wf = kd.notation.wf.define([x], (x.ones & x.unknowns) == 0)
 
-        const = kd.define("const", [a], KnownBits.mk(a, 0))
+        const = kd.define(Tname + "const", [a], KnownBits.mk(a, 0))
         self.const = const
-        is_const = kd.define("is_const", [x], x.unknowns == 0)
+        is_const = kd.define(Tname + "is_const", [x], x.unknowns == 0)
         self.is_const = is_const
 
         self.set_const = kd.prove(smt.ForAll([a], const(a)[a]), unfold=1)
@@ -81,7 +89,7 @@ class KnownBits:
         top = KnownBits.mk(0, -1)
         self.set_top = kd.prove(smt.ForAll([a], top[a]), unfold=1)
 
-        zeros = kd.define("zeros", [x], Zeros(x))
+        zeros = kd.define(Tname + "zeros", [x], Zeros(x))
         self.zeros = zeros
 
         invert = kd.notation.invert.define([x], KnownBits.mk(Zeros(x), x.unknowns))

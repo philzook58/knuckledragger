@@ -9,9 +9,9 @@ neg = kd.notation.neg.define([u], Vec2(-u.x, -u.y))
 
 
 vzero = Vec2(0, 0)
-dot = kd.define("dot", [u, v], u.x * v.x + u.y * v.y)
-norm2 = kd.define("norm2", [u], dot(u, u))
-norm = kd.define("norm", [u], real.sqrt(dot(u, u)))
+dot = kd.define("Vec2.dot", [u, v], u.x * v.x + u.y * v.y)
+norm2 = kd.define("Vec2.norm2", [u], dot(u, u))
+norm = kd.define("Vec2.norm", [u], real.sqrt(dot(u, u)))
 
 norm_pos = kd.prove(  #
     kd.smt.ForAll([u], norm2(u) >= 0), by=[norm2.defn, dot.defn]
@@ -21,4 +21,4 @@ Vec2.norm_zero = kd.prove(
     by=[norm2.defn, dot.defn],
 )
 
-dist = kd.define("dist", [u, v], real.sqrt(norm2(u - v)))
+dist = kd.define("Vec2.dist", [u, v], real.sqrt(norm2(u - v)))

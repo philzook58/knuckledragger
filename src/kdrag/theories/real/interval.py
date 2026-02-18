@@ -9,7 +9,7 @@ Interval = kd.Struct("Interval", ("lo", kd.R), ("hi", kd.R))
 x, y, z = smt.Reals("x y z")
 i, j, k, I, J, K = smt.Consts("i j k I J K", Interval)
 
-setof = kd.define("setof", [i], smt.Lambda([x], smt.And(i.lo <= x, x <= i.hi)))
+setof = kd.define("Interval.setof", [i], smt.Lambda([x], smt.And(i.lo <= x, x <= i.hi)))
 
 kd.notation.getitem.register(Interval, lambda a, idx: setof(a)[idx])
 
@@ -73,7 +73,7 @@ def Max(xs):
 x, y, z = smt.Ints("x y z")
 
 mul = kd.define(
-    "mul",
+    "Interval.mul",
     [I, J],
     Interval.mk(
         Min([I.hi * J.hi, I.lo * J.lo, I.hi * J.lo, I.lo * J.hi]),

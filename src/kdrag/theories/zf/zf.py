@@ -25,7 +25,7 @@ Class = ZFSet >> smt.BoolSort()
 P, Q = smt.Consts("P Q", Class)
 
 elem = smt.Function("∈", ZFSet, ZFSet, smt.BoolSort())
-elts = kd.define("elts", [A], smt.Lambda([x], elem(x, A)))
+elts = kd.define("ZF.elts", [A], smt.Lambda([x], elem(x, A)))
 
 zf_db = []
 
@@ -167,7 +167,7 @@ pick_upair = kd.prove(
 )
 
 
-sing = kd.define("sing", [x], upair(x, x))
+sing = kd.define("ZF.sing", [x], upair(x, x))
 
 
 def FinSet(*xs):

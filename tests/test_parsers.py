@@ -68,8 +68,8 @@ def test_microlean_match_datatype():
 def test_ldefine():
     kd.ldefine("def foo192 (x : Int) : Int := x + 1")
     y = smt.Bool("y")
-    assert microlean.define("def bar192 (x : Int) : Int := if y then x else -x") == smt.Function(
-        "bar192", smt.IntSort(), smt.IntSort())
+    assert microlean.define("def bar1923 (x : Int) : Int := if y then x else -x") == smt.Function(
+        "bar1923", smt.IntSort(), smt.IntSort())
     assert kd.ldefine("def bar192 (x : Int) : Int := if y then x else -x") == smt.Function(
         "bar192", smt.IntSort(), smt.IntSort())
 

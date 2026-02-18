@@ -28,6 +28,7 @@ def rlemma(thm, by=[], **kwargs):
 x, y, z, eps = smt.Reals("x y z eps")
 
 f, g = smt.Consts("f g", RFun)
+
 fadd = kd.notation.add.define([f, g], smt.Lambda([x], f[x] + g[x]))
 fsub = kd.notation.sub.define([f, g], smt.Lambda([x], f[x] - g[x]))
 fmul = kd.notation.mul.define([f, g], smt.Lambda([x], f[x] * g[x]))
@@ -42,10 +43,10 @@ kd.axiom(kd.QForAll([f, g], poly(f), poly(g), poly(f * g)))
 
 # NReal = kd.NewType("NReal", R)
 
-zero = kd.define("zero", [], smt.RealVal(0))
+zero = kd.define("R.zero", [], smt.RealVal(0))
 
 
-add = kd.define("add", [x, y], x + y)
+add = kd.define("R.add", [x, y], x + y)
 
 add_0 = kd.prove(ForAll([x], add(x, 0) == x), by=[add.defn])
 add_comm = kd.prove(ForAll([x, y], add(x, y) == add(y, x)), by=[add.defn])
@@ -178,7 +179,7 @@ aeq_weak = kd.prove(
 nonneg = kd.define("nonneg", [x], abs(x) == x)
 nonneg_ge_0 = kd.prove(ForAll([x], nonneg(x) == (x >= 0)), by=[nonneg.defn, abs.defn])
 
-max = kd.define("max", [x, y], smt.If(x >= y, x, y))
+max = kd.define("R.max", [x, y], smt.If(x >= y, x, y))
 max_le = kd.prove(ForAll([x, y], (x <= y) == (max(x, y) == y)), by=[max.defn])
 max_comm = kd.prove(ForAll([x, y], max(x, y) == max(y, x)), by=[max.defn])
 max_assoc = kd.prove(
@@ -263,7 +264,7 @@ pownat_succ = kd.prove(
     by=[pownat.defn],
 )
 
-sqr = kd.define("sqr", [x], x * x)
+sqr = kd.define("R.sqr", [x], x * x)
 sqr_pos = kd.prove(
     ForAll([x], sqr(x) >= 0),
     by=[sqr.defn],
@@ -416,8 +417,8 @@ comp = kd.define("comp", [f, g], smt.Lambda([x], f(g(x))))
 kd.notation.matmul.register(RFun, comp)
 
 
-ident = kd.define("ident", [], smt.Lambda([x], x))
-const = kd.define("const", [x], smt.K(smt.RealSort(), x))
+ident = kd.define("RFun.ident", [], smt.Lambda([x], x))
+const = kd.define("RFun.const", [x], smt.K(smt.RealSort(), x))
 X = ident
 
 

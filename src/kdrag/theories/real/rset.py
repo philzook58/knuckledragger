@@ -15,9 +15,9 @@ has_ub = kd.define(
         x <= M,
     ),
 )
-is_ub = kd.define("is_ub", [A], smt.Exists([M], has_ub(A, M)))
+is_ub = kd.define("RSet.is_ub", [A], smt.Exists([M], has_ub(A, M)))
 
-sup = smt.Function("sup", RSet, smt.RealSort())
+sup = smt.Function("RSet.sup", RSet, smt.RealSort())
 sup_ax = kd.axiom(
     smt.ForAll(
         [A, M],
@@ -62,7 +62,7 @@ shift = kd.define(
 )
 
 sing = kd.define(
-    "sing",
+    "RSet.sing",
     [c],
     smt.Lambda([x], x == c),
 )
@@ -73,7 +73,7 @@ sing_elem = kd.prove(
 
 
 has_lb = kd.define(
-    "has_lb",
+    "RSet.has_lb",
     [A, M],
     kd.QForAll(
         [x],
@@ -82,7 +82,7 @@ has_lb = kd.define(
     ),
 )
 
-inf = kd.define("inf", [A], sup(smt.Lambda([x], has_lb(A, x))))
+inf = kd.define("RSet.inf", [A], sup(smt.Lambda([x], has_lb(A, x))))
 
 
 lb_le_ub = kd.prove(

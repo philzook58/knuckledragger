@@ -338,8 +338,9 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     """
     sorts = [arg.sort() for arg in args] + [body.sort()]
     f = smt.Function(name, *sorts)
-    # f = declare(name, *sorts)
+    # f = declare(name, *sorts) # TODO: enable this
     # TODO: Check body only contain fresh_vars in args
+    # TODO: chave mode that checks body does not contain f
     if len(args) == 0:
         def_ax = axiom(smt.Eq(f(), body), by="definition")
     else:

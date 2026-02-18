@@ -295,7 +295,7 @@ eventually = kd.define("eventually", [p], Eventually(p))
 always = kd.define("always", [p], Always(p))
 bnext = kd.define("next", [p], Next(p))
 beq = kd.define("beq", [p, q], Eq(p, q))
-valid = kd.define("valid", [p], Valid(p))
+valid = kd.define("temp.valid", [p], Valid(p))
 valid_and = kd.prove(
     smt.ForAll([p, q], valid(tand(p, q)) == smt.And(valid(p), valid(q))),
     by=[valid.defn, tand.defn],

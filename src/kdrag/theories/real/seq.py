@@ -14,9 +14,9 @@ A, B, C = kd.FreshVars("A B C", RSeq)
 i, j, k, n, m, N = smt.Ints("i j k n m N")
 x, y, z, eps, delta, M = smt.Reals("x y z eps delta M")
 
-zero = kd.define("zero", [], smt.K(smt.IntSort(), smt.RealVal(0)))
-const = kd.define("const", [x], smt.Lambda([i], x))
-id_ = kd.define("id", [], smt.Lambda([i], smt.ToReal(i)))
+zero = kd.define("RSeq.zero", [], smt.K(smt.IntSort(), smt.RealVal(0)))
+const = kd.define("RSeq.const", [x], smt.Lambda([i], x))
+id_ = kd.define("RSeq.id", [], smt.Lambda([i], smt.ToReal(i)))
 assert isinstance(id_, smt.ExprRef)  # for typechecker
 
 geom = kd.define("geom", [x], smt.Lambda([i], real.pownat(x, i)))
@@ -30,9 +30,9 @@ F = smt.Array("F", smt.IntSort(), smt.IntSort())
 dommap = kd.define("dommap", [F, a], smt.Lambda([i], a[F[i]]))
 
 # Domain operations
-shift = kd.define("shift", [a, n], smt.Lambda([i], a[i - n]))
+shift = kd.define("RSeq.shift", [a, n], smt.Lambda([i], a[i - n]))
 delay = kd.define("delay", [a], shift(a, 1))
-rev = kd.define("rev", [a], smt.Lambda([i], a[-i]))
+rev = kd.define("RSeq.rev", [a], smt.Lambda([i], a[-i]))
 dilate = kd.define("dilate", [a, n], smt.Lambda([i], a[i / n]))
 decimate = kd.define("decimate", [a, n], smt.Lambda([i], a[i * n]))
 
@@ -79,7 +79,7 @@ mul = kd.notation.mul.define([a, b], smt.Lambda([i], a[i] * b[i]))
 div = kd.notation.div.define([a, b], smt.Lambda([i], a[i] / b[i]))
 neg = kd.notation.neg.define([a], smt.Lambda([i], -a[i]))
 
-smul = kd.define("smul", [x, a], smt.Lambda([n], x * a[n]))
+smul = kd.define("RSeq.smul", [x, a], smt.Lambda([n], x * a[n]))
 
 
 rev_rev = kd.prove(rev(rev(A)) == A, by=[rev.defn]).forall([A])

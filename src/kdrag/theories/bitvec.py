@@ -330,7 +330,7 @@ def PopCount(x: smt.BitVecRef) -> smt.ArithRef:
 @functools.cache
 def popcounts(size: int) -> smt.FuncDeclRef:
     x = smt.BitVec("x", size)
-    return kd.define("popcount", [x], PopCount(x))
+    return kd.define("popcount" + str(size), [x], PopCount(x))
 
 
 def popcount(x: smt.BitVecRef):

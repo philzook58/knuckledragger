@@ -204,7 +204,7 @@ def simp_tac(e: smt.ExprRef) -> kd.kernel.Proof:
 
     >>> import kdrag.theories.nat as nat
     >>> simp_tac(nat.Z + nat.S(nat.Z))
-    |= add(Z, S(Z)) == S(Z)
+    |= Nat.add(Z, S(Z)) == S(Z)
     """
     trace = []
     e1 = kd.simp(e, trace=trace)
@@ -1551,11 +1551,11 @@ class ProofState:
         >>> import kdrag.theories.nat as nat
         >>> l = Lemma(nat.Z + nat.Z == nat.Z)
         >>> l
-        [] ?|= add(Z, Z) == Z
+        [] ?|= Nat.add(Z, Z) == Z
         >>> l.unfold(nat.double) # does not unfold add
-        [] ?|= add(Z, Z) == Z
+        [] ?|= Nat.add(Z, Z) == Z
         >>> l.unfold()
-        [] ?|= If(is(Z, Z), Z, S(add(pred(Z), Z))) == Z
+        [] ?|= If(is(Z, Z), Z, S(Nat.add(pred(Z), Z))) == Z
         """
         if not all(isinstance(d, smt.FuncDeclRef) or smt.is_const(d) for d in decls):
             raise ValueError(
