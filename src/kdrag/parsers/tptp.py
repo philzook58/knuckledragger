@@ -459,7 +459,7 @@ class TPTPTransformer(lark.Transformer):
             rng_sort = self._type_repr_to_sort(rng)
             if isinstance(rng_sort, tuple):
                 rng_doms, rng_rng = rng_sort
-                dom_sorts.extend(cast(list[smt.SortRef], rng_doms))
+                dom_sorts.extend(cast(list[smt.SortRef], rng_doms))  # type: ignore[invalid-argument-type]
                 rng_sort = rng_rng
             return (
                 cast(list[smt.SortRef], dom_sorts),

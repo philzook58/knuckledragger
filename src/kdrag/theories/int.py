@@ -44,7 +44,10 @@ def induct_nat_strong(x, P):
     m = smt.FreshConst(Z, prefix="m")
     return kd.axiom(
         smt.Implies(
-            kd.QForAll([n], n >= 0, kd.QForAll([m], m >= 0, m < n, P(m)), P(n), x >= 0),
+            smt.And(
+                kd.QForAll([n], n >= 0, kd.QForAll([m], m >= 0, m < n, P(m)), P(n)),
+                x >= 0,
+            ),
             # ---------------------------------------------------
             P(x),
         )

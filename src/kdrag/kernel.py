@@ -283,6 +283,30 @@ def fresh_const(q: smt.QuantifierRef, prefixes=None) -> list[smt.ExprRef]:
         ]
 
 
+# TODO: deduplicate open_binder vs fresh consts?
+def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
+    """
+    Open a quantifier with fresh variables. This achieves the locally nameless representation
+    https://chargueraud.org/research/2009/ln/main.pdf
+    where it is harder to go wrong.
+
+    The variables are schema variables which when used in a proof may be generalized
+
+    >>> x = smt.Int("x")
+    >>> open_binder(smt.ForAll([x], x > 0))
+    ([x!...], x!... > 0)
+    """
+    assert isinstance(lam, smt.QuantifierRef)
+    vs = [
+        smt.FreshConst(
+            lam.var_sort(i),
+            prefix=lam.var_name(i).split("!")[0],
+        )
+        for i in range(lam.num_vars())
+    ]
+    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+
+
 def make_unfolding(pf: Proof) -> Unfolding:
     """
     Take an axiom of the form |= forall x0 x1 ..., xn, f(x0, x1, ..., xn) = body
@@ -298,7 +322,7 @@ def make_unfolding(pf: Proof) -> Unfolding:
     assert isinstance(pf, Proof)
     thm = pf.thm
     if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-        vs, body = kd.utils.open_binder(thm)
+        vs, body = open_binder(thm)
     else:
         vs = []  # also support constant definitions x = body without forall
         body = thm
@@ -367,6 +391,30 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
         return f()  # Convenience. TODO: Remove
     else:
         return f
+
+
+def decl_occurs(f: smt.FuncDeclRef, body: smt.ExprRef) -> bool:
+    """
+    Check if symbol f appears in body.
+
+    >>> x = smt.Int("x")
+    >>> y = smt.Bool("y")
+    >>> f = smt.Function("f", smt.IntSort(), smt.BoolSort(), smt.IntSort())
+    >>> assert decl_occurs(f, 1 + f(x, y))
+    >>> assert not decl_occurs(f, x + y + 1)
+    """
+    f1 = smt.FreshFunction(*[f.domain(i) for i in range(f.arity())], f.range())
+    t = f1(*[smt.Var(i, f.domain(i)) for i in range(f.arity())])
+    return not smt.substitute_funs(body, (f, t)).eq(body)
+
+
+def define_simple(
+    name: str, args: list[smt.ExprRef], body: smt.ExprRef
+) -> smt.FuncDeclRef:
+    sorts = [arg.sort() for arg in args] + [body.sort()]
+    f = smt.Function(name, *sorts)
+    assert not decl_occurs(f, body)
+    return define(name, args, body)
 
 
 def define_fix(name: str, args: list[smt.ExprRef], retsort, fix_lam) -> smt.FuncDeclRef:
@@ -502,34 +550,49 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
     # TODO: Hmm. Maybe we don't need to have a Proof? Lessen this to thm.
     assert smt.is_quantifier(thm) and thm.is_exists()
 
-    free_vars = set()
-    todo = [thm.body()]
-    # collect free variables in body
-    while todo:
-        t = todo.pop()
-        if smt.is_const(t):
-            if t.get_id() in _overapproximate_fresh_ids:
-                free_vars.add(t)
-        elif smt.is_app(t):
-            todo.extend(t.children())
-        elif isinstance(t, smt.QuantifierRef):
-            todo.append(t.body())
-        elif smt.is_var(t):
-            continue
-        else:
-            raise Exception("Unexpected term in consts", t)
-    if len(free_vars) == 0:
+    fvars = free_vars(thm.body())
+    if len(fvars) == 0:
         skolems = fresh_const(thm)
     else:
-        free_vars = list(free_vars)
-        sorts = [v.sort() for v in free_vars]
+        fvars = list(fvars)
+        sorts = [v.sort() for v in fvars]
         skolems = [
-            smt.FreshFunction(*sorts, thm.var_sort(i))(*free_vars)
+            smt.FreshFunction(*sorts, thm.var_sort(i))(*fvars)
             for i in range(thm.num_vars())
         ]
     return skolems, axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
         ["obtain"],
+    )
+
+
+def choose(pf: Proof) -> tuple[list[smt.FuncDeclRef], Proof]:
+    """
+    Convert a theorem of the form `|= forall xs, exists y0 y1... , P(xs, y0, y1, ...)` to `|= forall xs, P(xs, f0(xs), f1(xs), ...)`.
+
+    >>> x,y,z = smt.Ints("x y z")
+    >>> pf = kd.prove(smt.ForAll([x], smt.Exists([y], y >= x)))
+    >>> choose(pf)
+    ([f!...], |= ForAll(x!..., f!...(x!...) >= x!...))
+    """
+    assert isinstance(pf, Proof)
+    thm = pf.thm
+    assert (
+        isinstance(thm, smt.QuantifierRef) and thm.is_forall()
+    ), "Only support forall exists theorems"
+    avs, body = open_binder(thm)
+    assert (
+        isinstance(body, smt.QuantifierRef) and body.is_exists()
+    ), "Only support forall exists theorems"
+    evs, inner = open_binder(body)
+    assert (
+        len(free_vars(inner)) == 0
+    ), "Only support skolemization of theorems without free variables"
+    skolems = [smt.FreshFunction(*[v.sort() for v in avs], ev.sort()) for ev in evs]
+    ts = [skolem(*avs) for skolem in skolems]
+    return skolems, axiom(
+        smt.ForAll(avs, smt.substitute(inner, *zip(evs, ts))),
+        ["skolemize", skolems, pf],
     )
 
 
@@ -721,6 +784,8 @@ It is an overapproximation because I think it is possible that z3 reuses ids of 
 This overapproximation is nevertheless useful for finding an overapproximation of free schema variables in a term. for skolemization
 """
 
+# TODO: I'm feeling down on the usefulness of the FreshVar concept vs its complexity. Maybe remove.
+
 
 @dataclass(frozen=True)
 class _FreshVarEvidence(Judgement):
@@ -750,6 +815,32 @@ def is_fresh_var(v: smt.ExprRef) -> bool:
     else:
         evidence = getattr(v, "fresh_evidence")
         return isinstance(evidence, _FreshVarEvidence) and evidence.v.eq(v)
+
+
+def free_vars(e: smt.ExprRef) -> set[smt.ExprRef]:
+    """
+    Get an overapproximation of free variables in a term. This is used for skolemization.
+
+    >>> x,y = smt.Ints("x y")
+    >>> z = FreshVar("z", smt.IntSort())
+    >>> assert z in free_vars(x + y + z)
+    """
+    vars = set()
+    todo = [e]
+    while todo:
+        t = todo.pop()
+        if smt.is_const(t):
+            if t.get_id() in _overapproximate_fresh_ids:
+                vars.add(t)
+        elif smt.is_app(t):
+            todo.extend(t.children())
+        elif isinstance(t, smt.QuantifierRef):
+            todo.append(t.body())
+        elif smt.is_var(t):
+            continue
+        else:
+            raise Exception("Unexpected term in consts", t)
+    return vars
 
 
 def FreshVar(prefix: str, sort: smt.SortRef) -> smt.ExprRef:
