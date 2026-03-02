@@ -958,6 +958,45 @@ class ProofState:
             raise ValueError("Cases failed. Not a bool or datatype")
         return self.top_goal()
 
+    def autocases(self):
+        """
+        Find conditions inside if-then-else expression and case split on it, simplifying.
+
+        >>> x = smt.Int("x")
+        >>> l = Lemma(smt.If(x > 0, x, -x) >= 0)
+        >>> l.autocases()
+        [(x > 0) == True] ?|= x >= 0
+        >>> l.auto()
+        [(x > 0) == False] ?|= -x >= 0
+        """
+        # TODO add path parameter? path=None
+        goalctx = self.top_goal()
+
+        res = kd.utils.lift_ite(goalctx.goal)
+        if res is None:
+            raise Exception("No if-then-else found")
+        else:
+            cond, t, e = res
+            assert (
+                isinstance(cond, smt.BoolRef)
+                and isinstance(t, smt.BoolRef)
+                and isinstance(e, smt.BoolRef)
+            )
+            self.pop_goal()
+            self.goals.append(
+                goalctx._replace(
+                    ctx=goalctx.ctx + [smt.Eq(cond, smt.BoolVal(False))], goal=e
+                )
+            )
+            self.goals.append(
+                goalctx._replace(
+                    ctx=goalctx.ctx + [smt.Eq(cond, smt.BoolVal(True))], goal=t
+                )
+            )
+            # Possibly add lemma about this refactoring?
+            # We are kind of if lifting
+            return self
+
     def auto(self, **kwargs) -> "ProofState":
         """
         `auto` discharges a goal using z3. It forwards all parameters to `kd.prove`
@@ -971,6 +1010,18 @@ class ProofState:
         self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
+        return self
+
+    def exfalso(self, **kwargs) -> "ProofState":
+        """
+        Prove False and use it to discharge the goal.
+
+        >>> p = smt.Bool("p")
+        >>> l = Lemma(p)
+        >>> l.exfalso()
+        [] ?|= False
+        """
+        self.goals[-1] = self.top_goal()._replace(goal=smt.BoolVal(False))
         return self
 
     def vampire(self, **kwargs) -> "ProofState":

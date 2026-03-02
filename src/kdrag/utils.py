@@ -561,6 +561,32 @@ def curry_arrays(e: smt.ExprRef) -> smt.ExprRef:
         raise Exception("Unexpected term in curry_arrays", e)
 
 
+def lift_ite(e) -> Optional[tuple[smt.ExprRef, smt.ExprRef, smt.ExprRef]]:
+    """
+    Lift an if-then-else out of an expression.
+
+    >>> x = smt.Int("x")
+    >>> lift_ite(smt.If(x > 0, x, -x) == 17)
+    (x > 0, x == 17, -x == 17)
+    """
+    if smt.is_if(e):
+        return e.arg(0), e.arg(1), e.arg(2)
+    elif smt.is_app(e):
+        children = e.children()
+        for n, arg in enumerate(children):
+            res = lift_ite(arg)
+            if res is not None:
+                decl = e.decl()
+                cond, t, else_ = res
+                t1 = decl(*(children[:n] + [t] + children[n + 1 :]))
+                else1 = decl(*(children[:n] + [else_] + children[n + 1 :]))
+                return cond, t1, else1
+        return None
+    else:
+        # Quantifiers currently unsupported
+        return None
+
+
 def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]:
     """
     A generator of values for a sort. Repeatedly calls z3 to get a new value.

@@ -112,10 +112,10 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
     >>> Point(0,1)._replace(x=3, y=10)
     Point894(3, 10)
     >>> p = smt.Const("p", Point)
-    >>> q = p._replace(y=10)
+    >>> q = p._replace(y=10.0)
     >>> q
     Point894(x(p), 10)
-    >>> q._replace(x=1)
+    >>> q._replace(x=1.0)
     Point894(1, 10)
     """
     sort = self.sort()
@@ -124,17 +124,24 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
         raise TypeError(
             "`_replace` is not supported on datatypes with multiple constructors"
         )
-
     cons = sort.constructor(0)
-    accs = [sort.accessor(0, i) for i in range(cons.arity())]
-    names = {acc.name() for acc in accs}  # Use a set for quick lookup
+    arity = cons.arity()
+    accs = [sort.accessor(0, i) for i in range(arity)]
+    names = {acc.name(): acc for acc in accs}  # Use a set for quick lookup
 
-    invalid_fields = kwargs.keys() - names
+    invalid_fields = kwargs.keys() - names.keys()
     if invalid_fields:
         raise ValueError(
             f"Constructor `{cons.name()}` does not have fields: {', '.join(invalid_fields)}"
         )
-
+    """
+    # TODO: The printing is terrible on this. Not worth doing
+    if len(kwargs) == 1: 
+        ((name, value),) = kwargs.items()
+        assert self.update_field is not None
+        return self.update_field(names[name], smt._py2expr(value))
+    else:
+    """
     defaults = (
         self.children() if smt.is_constructor(self) else [acc(self) for acc in accs]
     )

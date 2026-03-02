@@ -446,7 +446,10 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
     def rec(expr: ast.expr) -> smt.ExprRef:
         match expr:
             case ast.Constant(value, kind=None):
-                return smt._py2expr(value)
+                if isinstance(value, int):
+                    return value  # Sometimes it really should be an int.
+                else:
+                    return smt._py2expr(value)
             # case ast.UnaryOp(ast.UAdd(), operand):
             #    return +rec(operand)
             case ast.UnaryOp(ast.Not(), operand):
@@ -511,22 +514,34 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
                 else:
                     return acc[0]
             case ast.Call(func, args, keywords):
-                assert keywords == []
                 f = rec(func)
                 assert isinstance(f, Callable)
-                return f(*map(rec, args))
+                kwargs = {
+                    kw.arg: rec(kw.value) for kw in keywords if kw.arg is not None
+                }
+                return f(*map(rec, args), **kwargs)
             case ast.IfExp(test, body, orelse):
                 return smt.If(rec(test), rec(body), rec(orelse))
             case ast.Name(id_, _ctx):
                 return _lookup(id_, locals=locals, globals=globals)
             case ast.Attribute(value, attr, _ctx):
                 return getattr(rec(value), attr)
+            case ast.Subscript(value=value, slice=slice, ctx=ast.Load()):
+                assert not isinstance(slice, ast.Slice)
+                v = rec(value)
+                assert hasattr(
+                    v, "__getitem__"
+                ), f"Value {rec(value)} is not subscriptable"
+                return v[rec(slice)]  # type: ignore[not-subscriptable]
             case x:
                 raise ValueError(
                     "Could not interpret expression", ast.unparse(x), ast.dump(x)
                 )
 
-    return rec(expr)
+    try:
+        return rec(expr)
+    except Exception as e:
+        raise ValueError("Error reflecting expression", ast.unparse(expr)) from e
 
 
 def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
@@ -539,14 +554,18 @@ def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
     >>> x = smt.Int("x")
     >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
     >>> expr("f(x) + 1 if 0 < x < 5 < 7 else x * x")
-    If(And(0 < x, 5 > x, 5 < 7), f(x) + 1, x*x)
+    If(And(x > 0, x < 5, True), f(x) + 1, x*x)
 
     """
     if globals is None:
         globals, _ = kd.utils.calling_globals_locals()
-    return _reflect_expr(
+    res = _reflect_expr(
         ast.parse(expr, mode="eval").body, globals=globals, locals=locals
     )
+    if isinstance(res, int):
+        return smt.IntVal(res)
+    else:
+        return res
 
 
 def _reflect_stmts(stmts: list[ast.stmt], globals=None, locals=None) -> smt.ExprRef:
@@ -562,7 +581,7 @@ def _reflect_stmts(stmts: list[ast.stmt], globals=None, locals=None) -> smt.Expr
     It must be a sequence of simple assignments ended by a return or if statement.
     for loops, while loops are not allowed.
     """
-    assert len(stmts) > 0
+    assert len(stmts) > 0, "Must have at least one statement"
     if locals is None:
         locals = {}
     for stmt in stmts[:-1]:
@@ -570,14 +589,22 @@ def _reflect_stmts(stmts: list[ast.stmt], globals=None, locals=None) -> smt.Expr
             case ast.Assign(targets=[ast.Name(id_, _ctx)], value=value):
                 value = _reflect_expr(value, globals=globals, locals=locals)
                 locals = {**locals, id_: value}
+            case ast.Expr(value=ast.Call(func=ast.Name(id="print"))):
+                print(locals)
             case _:
-                raise ValueError(f"Statement {stmt}")
+                raise ValueError(
+                    "Unsupported Statement", ast.unparse(stmt), ast.dump(stmt)
+                )
     match stmts[-1]:
         case ast.Return(value=value):
             if value is None:
                 raise ValueError("Returning None not allowed")
             return _reflect_expr(value, globals, locals)
         case ast.If(test, body, orelse):
+            if len(orelse) == 0:
+                raise ValueError(
+                    "If statement must have an else branch", ast.unparse(stmts[-1])
+                )
             test = _reflect_expr(test, globals, locals)
             body = _reflect_stmts(body, globals, locals)
             orelse = _reflect_stmts(orelse, globals, locals)
@@ -646,7 +673,7 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     >>> bar.defn
     |= ForAll([x, y],
            bar(x, y) ==
-           If(4 < x, x + 3, If(y == "fred", 14, bar(x - 1, y))))
+           If(x > 4, x + 3, If(y == "fred", 14, bar(x - 1, y))))
     >>> @reflect
     ... def inc_7(n: "int") -> "int":
     ...    return n + 1
