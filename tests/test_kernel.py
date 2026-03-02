@@ -385,3 +385,9 @@ def test_assumes():
     kd.QForAll([x], x > 1).eq(smt.ForAll([x], smt.Implies(x >= 0, x > 1)))
 
 
+
+
+def test_smtfile_dump():
+    x,y,z = smt.Ints("x y z")
+    with pytest.raises(kd.kernel.LemmaError):
+        kd.kernel.prove(smt.Not(smt.Exists([x,y,z], x > 0, y > 0, z > 0, x**3 + y**3 == z**3)))

@@ -14,9 +14,9 @@ K = smt.DeclareSort("Kleene")
 zero = smt.Const("_0", K)
 one = smt.Const("_1", K)
 x, y, z, w, e, f = smt.Consts("x y z w e f", K)
-par = smt.Function("par", K, K, K)
-seq = smt.Function("seq", K, K, K)
-star = smt.Function("star", K, K)
+par = smt.Function("Kleene.par", K, K, K)
+seq = smt.Function("Kleene.seq", K, K, K)
+star = smt.Function("Kleene.star", K, K)
 kd.notation.or_.register(K, par)
 kd.notation.add.register(K, par)
 kd.notation.matmul.register(K, seq)
@@ -71,15 +71,19 @@ star_seq_star = kd.tactics.vprove(
     smt.ForAll([x], star(x) * star(x) == star(x)), by=KLEENE
 )
 # z3 takes 0.5 seconds. Vampire is actually faster despite all the overhead
-star_star = kd.tactics.vprove(smt.ForAll([x], star(star(x)) == star(x)), by=KLEENE)
+# This got way slower for some reason?
+# CVC5 seems to annihilate it.
+star_star = kd.tactics.vprove(
+    smt.ForAll([x], star(star(x)) == star(x)), by=KLEENE, timeout=5000
+)
 
 Test = smt.DeclareSort("Test")
-guard = smt.Function("guard", Test, K, K)
-and_ = smt.Function("and", Test, Test, Test)
-or_ = smt.Function("or", Test, Test, Test)
-not_ = smt.Function("not", Test, Test)
-true = smt.Const("true", Test)
-false = smt.Const("false", Test)
+guard = smt.Function("Test.guard", Test, K, K)
+and_ = smt.Function("Test.and", Test, Test, Test)
+or_ = smt.Function("Test.or", Test, Test, Test)
+not_ = smt.Function("Test.not", Test, Test)
+true = smt.Const("Test.true", Test)
+false = smt.Const("Test.false", Test)
 kd.notation.invert.register(Test, not_)
 
 a, b, c, d = smt.Consts("a b c d", Test)

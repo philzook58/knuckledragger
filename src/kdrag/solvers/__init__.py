@@ -148,6 +148,14 @@ class BaseSolver:
         assert isinstance(thm, smt.BoolRef)
         self.assert_tracks.append((thm, name))
 
+    def sexpr(self):
+        s = smt.Solver()
+        for thm in self.adds:
+            s.add(thm)
+        for thm, name in self.assert_tracks:
+            s.assert_and_track(thm, name)
+        return s.sexpr()
+
     def check(self):
         raise NotImplementedError
 
@@ -344,8 +352,10 @@ class VampireSolver(BaseSolver):
             cmd = [
                 self.options["solver_path"],
                 fp.name,
-                # "--mode", # This adds portfolio mode, but it was slower. Maybe more useful for hard questions?
-                # "casc",
+                "--mode",  # This adds portfolio mode, but it was slower. Maybe more useful for hard questions?
+                "casc",
+                "--intent",
+                "unsat",
                 "--input_syntax",
                 "smtlib2",
                 # "--ignore_unrecognized_logic", "on",

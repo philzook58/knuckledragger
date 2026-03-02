@@ -7,6 +7,7 @@ import kdrag.smt as smt
 from dataclasses import dataclass
 from typing import Any, Iterable, Sequence
 from . import config
+import tempfile
 
 
 class Judgement:
@@ -158,7 +159,12 @@ def prove(
         if res != smt.unsat:
             if res == smt.sat:
                 raise LemmaError(thm, "Countermodel", s.model())
-            raise LemmaError("prove", thm, res)
+            else:
+                smtfile = tempfile.NamedTemporaryFile(
+                    delete=False, mode="w", suffix=".smt2"
+                )
+                smtfile.write(s.sexpr())
+            raise LemmaError("prove", thm, res, smtfile.name)
         else:
             reason: list[object] = ["prove"]
             reason.extend(by)
@@ -200,6 +206,7 @@ def declare(name: str, *sorts: smt.SortRef) -> smt.FuncDeclRef:
         decl = __reserved_decls[name]
         suggestions = [sorts[-1].name() + "." + name, name + "1"]
         suggestions = [s for s in suggestions if s not in __reserved_decls]
+        # TODO: it would be really nice to report the site from whence this was previously defined.
         raise ValueError(
             "Declaration name already reserved: " + name,
             "with sorts",
@@ -362,9 +369,9 @@ def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDec
     """
     sorts = [arg.sort() for arg in args] + [body.sort()]
     f = smt.Function(name, *sorts)
-    # f = declare(name, *sorts) # TODO: enable this
+    # TODO: enable this. Currently it causes to many libraries to break
+    # f = declare(name, *sorts)
     # TODO: Check body only contain fresh_vars in args
-    # TODO: chave mode that checks body does not contain f
     if len(args) == 0:
         def_ax = axiom(smt.Eq(f(), body), by="definition")
     else:
@@ -411,9 +418,27 @@ def decl_occurs(f: smt.FuncDeclRef, body: smt.ExprRef) -> bool:
 def define_simple(
     name: str, args: list[smt.ExprRef], body: smt.ExprRef
 ) -> smt.FuncDeclRef:
+    """
+    A simple non recursive definition is a conservative extension
+    https://en.wikipedia.org/wiki/Conservative_extension
+
+    >>> x = smt.Int("x")
+    >>> define_simple("mysucc9034", [x], x + 1)
+    mysucc9034
+    >>> f = smt.Function("f102", smt.IntSort(), smt.IntSort())
+    >>> define_simple("f102", [x], f(x))
+    Traceback (most recent call last):
+        ...
+    ValueError: ('Symbol appears in it's own definition. This is not a simple definition and requires further checks for consistency', f102, f102(x))
+    """
     sorts = [arg.sort() for arg in args] + [body.sort()]
-    f = smt.Function(name, *sorts)
-    assert not decl_occurs(f, body)
+    f = declare(name, *sorts)
+    if decl_occurs(f, body):
+        raise ValueError(
+            "Symbol appears in it's own definition. This is not a simple definition and requires further checks for consistency",
+            f,
+            body,
+        )
     return define(name, args, body)
 
 

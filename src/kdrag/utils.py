@@ -1230,6 +1230,42 @@ def lemma_db() -> dict[str, kd.kernel.Proof]:
     return db
 
 
+def proofstep_to_smt2(pf: kd.kernel.Proof) -> str:
+    """
+    Turn a Proof into an smt2 string that should result in unsat
+    >>> x = smt.Int("x")
+    >>> p1 = kd.axiom(x > 0)
+    >>> proofstep_to_smt2(kd.prove(x > -1, by=[p1]))
+    '(declare-fun x () Int)\\n(assert (not (> x (- 1))))\\n(assert (> x 0))\\n'
+    """
+    thm = pf.thm
+    s = smt.Solver()
+    match pf.reason:
+        case ["prove", *by]:
+            for b in by:
+                if isinstance(b, kd.kernel.Proof):
+                    s.add(b.thm)
+    s.add(smt.Not(thm))
+
+    return s.sexpr()
+
+
+def all_smt2():
+    db = lemma_db()
+    return {k: proofstep_to_smt2(pf) for k, pf in db.items() if pf.reason[0] == "prove"}
+
+
+def write_smt2_files(dir):
+    db = all_smt2()
+    for name, smt2 in db.items():
+        subpath = name.split(".")
+        dirpath = os.path.join(dir, *subpath[:-1])
+        os.makedirs(dirpath, exist_ok=True)
+        filename = os.path.join(dir, *subpath) + ".smt2"
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(smt2)
+
+
 def search_expr(
     e: smt.ExprRef, pfs: dict[str, kd.kernel.Proof]
 ) -> dict[tuple[str, kd.kernel.Proof], Any]:

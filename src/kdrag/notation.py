@@ -90,6 +90,19 @@ class SortDispatch:
     def __contains__(self, sort):
         return sort in self.methods
 
+    def declare(self, *sorts):
+        """
+        Declare a name
+
+        >>> MySort = smt.DeclareSort("MySort124")
+        >>> or_.declare(MySort, MySort, MySort)
+        MySort123.or
+        """
+        T = sorts[0]
+        f = kd.kernel.declare(T.name() + "." + self.name, *sorts)
+        self.register(T, f)
+        return f
+
     def __call__(self, *args, **kwargs):
         """
 

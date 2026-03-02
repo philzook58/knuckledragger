@@ -71,3 +71,14 @@ jobs:
       - name: Run ty
         run: |
           uvx ty check
+      - name: Run perf
+        run: |
+          time uv run python tests/perf.py
+      - name: Upload /tmp/kdrag artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdrag-${{ github.run_id }}-${{ matrix.python-version }}
+          path: /tmp/kdrag
+          if-no-files-found: error
+          retention-days: 30

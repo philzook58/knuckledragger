@@ -19,6 +19,7 @@ import kdrag.theories.bitvec as bv
 import operator
 from dataclasses import dataclass
 from typing import Optional, NamedTuple
+from collections import defaultdict
 
 TRUE = smt.BitVecVal(1, 8)
 FALSE = smt.BitVecVal(0, 8)
@@ -297,6 +298,9 @@ class MemState(NamedTuple):
             #     self.write, offset1, *([smt.BoolVal(True)] * value.size())
             # ),
         )
+
+    def get_reg(self, ctx: "BinaryContext", regname: str) -> smt.BitVecRef:
+        return ctx.get_reg(self, regname)
 
     def __str__(self):
         # use sexpr form which uses `let` for shared expressions.
@@ -753,6 +757,17 @@ class BinaryContext:
                     todo.append((memstate1, pc1, max_insns, path_cond))
         return res
 
+    def execute_simstate(
+        self, simstate: SimState, max_insns=1, breakpoints=[]
+    ) -> list[SimState]:
+        return self.sym_execute(
+            simstate.memstate,
+            simstate.pc[0],
+            path_cond=simstate.path_cond,
+            max_insns=max_insns,
+            breakpoints=breakpoints,
+        )
+
     def execute_block(self, memstate: MemState, addr: int) -> list[SimState]:
         path_cond = None
         while True:
@@ -764,6 +779,51 @@ class BinaryContext:
                 (addr, pc) = states[0].pc
                 assert pc == 0
                 path_cond = states[0].path_cond
+
+    def resolve_addr(self, addr: str | int) -> int:
+        loader = self.loader
+        assert (
+            loader is not None
+        ), "BinaryContext must be loaded before executing trace frags"
+        if isinstance(addr, str):
+            res_addr = loader.find_symbol(addr)
+            if res_addr is None:
+                raise ValueError(f"Could not find symbol: {addr}")
+            else:
+                return res_addr.rebased_addr
+        elif isinstance(addr, int):
+            return addr
+        else:
+            raise ValueError(f"Expected int or string addr: {addr} : {type(addr)}")
+
+    def execute_trace_frags(
+        self,
+        memstate0: MemState,
+        entries: list[str | int] = [],
+        exits: list[str | int] = [],
+        cuts: list[str | int] = [],
+    ) -> dict[tuple[str | int, str | int], list[SimState]]:
+        breakpoints = {self.resolve_addr(addr): addr for addr in exits + cuts}
+        breakpoint_addrs = list(breakpoints.keys())
+        start_addrs = [self.resolve_addr(addr) for addr in entries + cuts]
+        assert len(set(start_addrs)) == len(start_addrs), "Duplicate start addrs"
+        assert len(set(breakpoint_addrs)) == len(
+            breakpoint_addrs
+        ), "Duplicate breakpoints"
+        results = {}
+        for start_addr in entries + cuts:
+            addr = self.resolve_addr(start_addr)
+            for simstate in self.sym_execute(
+                memstate0, addr, max_insns=1
+            ):  # Move single instruction past cut
+                results[start_addr] = self.execute_simstate(
+                    simstate, max_insns=100000000, breakpoints=breakpoint_addrs
+                )
+        results1 = defaultdict(list)
+        for start_addr, simstates in results.items():
+            for simstate in simstates:
+                results1[(start_addr, breakpoints[simstate.pc[0]])].append(simstate)
+        return results1
 
     def get_reg(self, memstate: MemState, regname: str) -> smt.BitVecRef:
         """
@@ -889,6 +949,12 @@ class BinaryContext:
             return e2
         else:
             return e1
+
+    def prove(self, expr: smt.BoolRef, **kwargs) -> kd.Proof:
+        thm = self.unfold(expr)
+        assert isinstance(thm, smt.BoolRef)
+        return kd.prove(thm, **kwargs)
+        # TODO: reinterpret countermodel back to registers?
 
     def model_registers(
         self,

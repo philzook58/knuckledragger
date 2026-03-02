@@ -394,7 +394,15 @@ class Goal(NamedTuple):
         elif totlen <= 1000:
             goalctx = ctxrepr + "\n?|= " + repr(self.goal)
         else:
-            return "?|= " + self.to_expr().sexpr()
+            kdgoal = smt.Function("KDGOAL", smt.BoolSort(), smt.BoolSort())
+            kdctx = smt.Function("KDCTX", smt.BoolSort(), smt.BoolSort())
+            if len(self.ctx) == 0:
+                return "?|= " + kdgoal(self.goal).sexpr()
+            else:
+                return (
+                    "?= "
+                    + smt.Implies(kdctx(smt.And(self.ctx)), kdgoal(self.goal)).sexpr()
+                )
         if len(self.sig) == 0:
             return goalctx
         else:
