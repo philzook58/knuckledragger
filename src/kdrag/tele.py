@@ -131,6 +131,11 @@ def TForAll(xs: Telescope, P: smt.BoolRef) -> smt.BoolRef:
     for v in reversed(xs):
         if isinstance(v, tuple):
             (v, T) = v
+            assert (
+                isinstance(T, smt.ExprRef)
+                and isinstance(v, smt.ExprRef)
+                and smt.is_const(v)
+            )
             if T.sort() == smt.BoolSort():
                 P = kd.QForAll([v], T, P)
             elif isinstance(T, smt.ArrayRef) or (
@@ -165,6 +170,7 @@ def TExists(xs: Telescope, P: smt.BoolRef) -> smt.BoolRef:
     for v in reversed(xs):
         if isinstance(v, tuple):
             (v, T) = v
+            assert isinstance(v, smt.ExprRef) and isinstance(T, smt.ExprRef)
             if T.sort() == smt.BoolSort():
                 P = kd.QExists([v], T, P)
             elif isinstance(T, smt.ArrayRef) or (

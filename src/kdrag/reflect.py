@@ -371,7 +371,8 @@ def reify(s: smt.SortRef, x: object) -> smt.ExprRef:
         # TODO: Probably not right, also not dealing with multi arg lambdas.
         if isinstance(x, Callable):
             v = smt.FreshConst(s.domain())
-            y = x(v)
+            y = x(v)  # type: ignore[call-top-callable]
+            assert isinstance(y, smt.ExprRef), y
             assert y.sort() == s.range()
             return smt.Lambda([v], y)
         else:
