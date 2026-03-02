@@ -1,0 +1,6 @@
+kdrag.theories.sexp.parse
+=========================
+
+.. currentmodule:: kdrag.theories.sexp
+
+.. autofunction:: parse

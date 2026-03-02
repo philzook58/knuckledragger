@@ -1,0 +1,6 @@
+kdrag.contrib.absint.knownbit.KB
+================================
+
+.. currentmodule:: kdrag.contrib.absint.knownbit
+
+.. autofunction:: KB

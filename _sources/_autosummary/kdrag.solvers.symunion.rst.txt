@@ -1,0 +1,49 @@
+kdrag.solvers.symunion
+======================
+
+.. automodule:: kdrag.solvers.symunion
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      expr2py
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      expr2py_default
+      py2expr
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      PartialExpr
+      PartialFuncDecl
+      SymUnion
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/symunion.py
+   :language: python

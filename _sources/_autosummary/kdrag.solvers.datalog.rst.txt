@@ -1,0 +1,33 @@
+kdrag.solvers.datalog
+=====================
+
+.. automodule:: kdrag.solvers.datalog
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Datalog
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/datalog.py
+   :language: python

@@ -1,0 +1,6 @@
+kdrag.parsers.microlean.theorem
+===============================
+
+.. currentmodule:: kdrag.parsers.microlean
+
+.. autofunction:: theorem

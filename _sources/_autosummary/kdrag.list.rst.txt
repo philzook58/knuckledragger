@@ -1,0 +1,6 @@
+kdrag.list
+==========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: list

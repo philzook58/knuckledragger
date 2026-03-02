@@ -1,0 +1,6 @@
+kdrag.solvers.prolog.run\_string
+================================
+
+.. currentmodule:: kdrag.solvers.prolog
+
+.. autofunction:: run_string

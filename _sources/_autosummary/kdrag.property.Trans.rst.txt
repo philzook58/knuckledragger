@@ -1,0 +1,6 @@
+kdrag.property.Trans
+====================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: Trans

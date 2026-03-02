@@ -1,0 +1,6 @@
+kdrag.property.CommMonoid
+=========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: CommMonoid

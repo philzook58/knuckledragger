@@ -1,0 +1,6 @@
+kdrag.tele.normalize
+====================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: normalize
