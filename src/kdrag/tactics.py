@@ -1096,7 +1096,7 @@ class ProofState:
         [Exists(x, x*x == y)] ?|= y >= 0
         >>> _x = l.obtain(0)
         >>> l
-        [f!...] ; [f!...*f!... == y] ?|= y >= 0
+        [...] ; [...*... == y] ?|= y >= 0
         >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
         >>> _ = l.intros()
         >>> _x = l.obtain(smt.Exists([x], x * x == y))

@@ -96,7 +96,7 @@ class SortDispatch:
 
         >>> MySort = smt.DeclareSort("MySort124")
         >>> or_.declare(MySort, MySort, MySort)
-        MySort123.or
+        MySort124.or_
         """
         T = sorts[0]
         f = kd.kernel.declare(T.name() + "." + self.name, *sorts)
