@@ -1,5 +1,5 @@
 import kdrag as kd
-import kdrag.theories.real as R
+import kdrag.theories.real as real
 import kdrag.smt as smt
 
 """
@@ -13,19 +13,19 @@ setof = kd.define("Interval.setof", [i], smt.Lambda([x], smt.And(i.lo <= x, x <=
 
 kd.notation.getitem.register(Interval, lambda a, idx: setof(a)[idx])
 
-meet = kd.define("meet", [i, j], Interval.mk(R.max(i.lo, j.lo), R.min(i.hi, j.hi)))
+meet = kd.define("meet", [i, j], Interval.mk(real.max(i.lo, j.lo), real.min(i.hi, j.hi)))
 meet_intersect = kd.prove(
     smt.ForAll([i, j], smt.SetIntersect(setof(i), setof(j)) == setof(meet(i, j))),
-    by=[setof.defn, meet.defn, R.min.defn, R.max.defn],
+    by=[setof.defn, meet.defn, real.min.defn, real.max.defn],
 )
 kd.notation.and_.register(Interval, meet)
 
-join = kd.define("join", [i, j], Interval.mk(R.min(i.lo, j.lo), R.max(i.hi, j.hi)))
+join = kd.define("join", [i, j], Interval.mk(real.min(i.lo, j.lo), real.max(i.hi, j.hi)))
 join_union = kd.prove(
     smt.ForAll(
         [i, j], smt.IsSubset(smt.SetUnion(setof(i), setof(j)), setof(join(i, j)))
     ),
-    by=[setof.defn, join.defn, R.min.defn, R.max.defn],
+    by=[setof.defn, join.defn, real.min.defn, real.max.defn],
 )
 kd.notation.or_.register(Interval, join)
 
