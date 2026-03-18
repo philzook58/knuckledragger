@@ -832,7 +832,10 @@ class BinaryContext:
         entries=[],
         cuts=[],
         exits=[],
-    ) -> dict[tuple[str | int, str | int], list[smt.BoolRef]]:
+    ) -> dict[
+        tuple[str | int, str | int],
+        list[tuple[smt.BoolRef, smt.ExprRef, smt.ExprRef, smt.ExprRef]],
+    ]:
         memstate0 = self.init_mem()
         obls = {}
         for (start, end), simstates in self.execute_trace_frags(
@@ -865,8 +868,8 @@ class BinaryContext:
     ):
         obls = self.bisim_obligations(high_low, step, entries, cuts, exits)
         for (start, end), obls0 in obls.items():
-            for obl in obls0:
-                obl, init_high, lowstep, highstep = obl
+            for obl_info in obls0:
+                obl, init_high, lowstep, highstep = obl_info
                 try:
                     if isinstance(step, smt.FuncDeclRef):
                         obl = kd.rewrite.unfold(obl, decls=[step])

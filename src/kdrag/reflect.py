@@ -443,12 +443,16 @@ def _lookup(name, globals=None, locals=None):
 
 
 # Is it really worth doing this or should I just use eval?
+# Question: How often should we require the expected result to be an expression?
+# integer is useful, referring to sorts is useful.
+# expected_sort=? parameter? If expected to be a sort, force it.
 def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
     def rec(expr: ast.expr) -> smt.ExprRef:
         match expr:
             case ast.Constant(value, kind=None):
                 if isinstance(value, int):
-                    return value  # Sometimes it really should be an int.
+                    return value  # Sometimes it really should be an int. Like when it is a parameter to BitVecSort or someting
+
                 else:
                     return smt._py2expr(value)
             # case ast.UnaryOp(ast.UAdd(), operand):
@@ -571,7 +575,7 @@ def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
 
 def _reflect_stmts(
     stmts: list[ast.stmt], globals=None, locals=None, path_cond=[]
-) -> smt.ExprRef | dict:
+) -> smt.ExprRef | dict[str, object]:
     """
     Turn a list of python statements into a z3 Expression.
 
@@ -585,7 +589,7 @@ def _reflect_stmts(
     """
     assert len(stmts) > 0, "Must have at least one statement"
     if locals is None:
-        locals = {}
+        locals: dict[str, object] = {}
     for stmt_num, stmt in enumerate(stmts):
         # Todo match.
         # Todo: bounded for and while
@@ -594,8 +598,10 @@ def _reflect_stmts(
                 value = _reflect_expr(value, globals=globals, locals=locals)
                 locals = {**locals, id_: value}
             case ast.Expr(value=ast.Call(func=ast.Name(id="print"))):
+                # For debug printing
                 print(locals)
             case ast.Assert(test, _msg):
+                # For debug sanity assertions
                 test = _reflect_expr(test, globals, locals)
                 s = smt.Solver()
                 s.add(smt.And(path_cond))
@@ -609,8 +615,8 @@ def _reflect_stmts(
                 body = _reflect_stmts(
                     body, globals, locals, path_cond=path_cond + [test]
                 )
-                # Coverage checking.
                 if len(orelse) == 0:
+                    # No else given. Coverage checking.
                     s = smt.Solver()
                     s.add(smt.And(path_cond))
                     s.add(smt.Not(test))
@@ -620,7 +626,7 @@ def _reflect_stmts(
                             ast.unparse(stmt),
                             s.model(),
                         )
-                    if isinstance(body, dict):
+                    if isinstance(body, dict) and not isinstance(body, smt.ExprRef):
                         locals = body
                     else:
                         return body
@@ -629,10 +635,17 @@ def _reflect_stmts(
                         orelse, globals, locals, path_cond=path_cond + [smt.Not(test)]
                     )
 
-                    if isinstance(body, dict) and isinstance(orelse, dict):
+                    if (
+                        isinstance(body, dict)
+                        and isinstance(orelse, dict)
+                        and not isinstance(body, smt.ExprRef)
+                        and not isinstance(orelse, smt.ExprRef)
+                    ):  # type checker seems to need these?
                         # merge the new contexts
                         locals = {}
-                        for k in set(body.keys()) & set(orelse.keys()):
+                        # We drop non shared keys. Better to error? But locals are useful.
+                        shared_keys: set[str] = set(body.keys()) & set(orelse.keys())
+                        for k in shared_keys:
                             v, v1 = body[k], orelse[k]
                             if v is v1:  # unmodified stuff
                                 locals[k] = v
@@ -771,6 +784,10 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     locals[fun.name] = z3fun
     # Actually interpret body.
     body = _reflect_stmts(fun.body, globals=globals, locals=locals)
+    if not isinstance(body, smt.ExprRef):
+        raise ValueError(
+            f"Function {fun.name} must end with a return statement, got {ast.unparse(fun.body[-1])}"
+        )
     z3fun1 = kd.define(fun.name, args, body)
     # Check that types work out.
     if z3fun.range() != z3fun1.range():
