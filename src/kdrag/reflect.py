@@ -792,3 +792,29 @@ def datatype(s: str, locals=None, globals=None) -> smt.DatatypeSortRef:
                     f"Unexpected subexpression: {ast.unparse(type_alias.value)}"
                 )
     return dt.create()
+
+
+def struct(cls) -> smt.DatatypeSortRef:
+    """
+    Use a dataclass to define a struct datatype. Fields are specified by type annotations.
+
+    >>> @struct
+    ... class MyStruct32:
+    ...     x: int
+    ...     y: smt.BoolSort()
+    >>> MyStruct32.x.range()
+    Int
+    >>> MyStruct32.y.range()
+    Bool
+    """
+    if not hasattr(cls, "__annotations__"):
+        raise ValueError(f"Class {cls} must have type annotations")
+    # TODO: possibly allow strings for fields with dependencies
+    # Possible allow for formulas to be taken as well formedness conditions
+    return kd.Struct(
+        cls.__name__,
+        *[
+            (name, sort_of_type(typ) if isinstance(typ, type) else typ)
+            for name, typ in cls.__annotations__.items()
+        ],
+    )

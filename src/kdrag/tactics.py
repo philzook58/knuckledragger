@@ -633,8 +633,12 @@ class ProofState:
             newgoal = herb_lemma.thm.arg(0)
 
             def cb():
-                l = self.get_lemma(smt.Implies(smt.And(ctx), newgoal))
-                self.add_lemma(kd.kernel.compose(l, herb_lemma))
+                if len(ctx) == 0:
+                    l = self.get_lemma(newgoal)
+                    self.add_lemma(kd.kernel.modus(herb_lemma, l))
+                else:
+                    l = self.get_lemma(smt.Implies(smt.And(ctx), newgoal))
+                    self.add_lemma(kd.kernel.compose(l, herb_lemma))
 
             self.goals.append(LemmaCallback(cb, annot=("fixes", goal)))
             self.goals.append(goalctx._replace(sig=goalctx.sig + vs, goal=newgoal))
@@ -1002,9 +1006,8 @@ class ProofState:
         `auto` discharges a goal using z3. It forwards all parameters to `kd.prove`
         """
         goalctx = self.top_goal()
-        ctx, goal = goalctx.ctx, goalctx.goal
         try:
-            pf = kd.prove(smt.Implies(smt.And(ctx), goal), **kwargs)
+            pf = kd.prove(goalctx.to_expr(), **kwargs)
         except Exception as _e:
             raise ValueError("auto failed on goal", goalctx)
         self.add_lemma(pf)
@@ -1012,7 +1015,7 @@ class ProofState:
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
         return self
 
-    def exfalso(self, **kwargs) -> "ProofState":
+    def exfalso(self) -> "ProofState":
         """
         Prove False and use it to discharge the goal.
 
@@ -1023,6 +1026,19 @@ class ProofState:
         """
         self.goals[-1] = self.top_goal()._replace(goal=smt.BoolVal(False))
         return self
+
+    def impossible(self, **kwargs) -> "ProofState":
+        """
+        Prove False to show that the current context is impossible.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(smt.And(p, smt.Not(p)), q))
+        >>> _ = l.intros()
+        >>> l
+        [And(p, Not(p))] ?|= q
+        >>> _ = l.impossible().qed()
+        """
+        return self.exfalso().auto(**kwargs)
 
     def vampire(self, **kwargs) -> "ProofState":
         """

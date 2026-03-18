@@ -25,7 +25,7 @@ Proof = kernel.Proof
 
 
 prove = tactics.prove
-
+vprove = tactics.vprove
 
 axiom = kernel.axiom
 
@@ -369,6 +369,27 @@ def Undef(sort: smt.SortRef, *args) -> smt.ExprRef:
         return smt.FreshFunction(*[arg.sort() for arg in args], sort)(*args)
 
 
+@functools.cache
+def guard(T: smt.SortRef):
+    T.name()
+    cond = smt.Bool("cond")
+    x = smt.Const("x", T)
+    return define(T.name() + ".guard", [cond, x], smt.If(cond, x, Undef(T, x)))
+
+
+def Guard(cond: smt.BoolRef, body: smt.ExprRef) -> smt.ExprRef:
+    """
+    Make a guard over an expression.
+    If the condition is true, this is just the expression.
+    If the condition is false, this is an unconstrained value of the same sort as the expression.
+
+    >>> x = smt.Real("x")
+    >>> Guard(x >= 0, smt.Sqrt(x))
+    Real.guard(x >= 0, x**(1/2))
+    """
+    return guard(body.sort())(cond, body)
+
+
 def _infer_sort(
     F: smt.FuncRef, sort: typing.Optional[smt.ArraySortRef]
 ) -> smt.ArraySortRef:
@@ -434,6 +455,32 @@ def GFP(F, sort=None):
     x = smt.FreshConst(SetSort.domain(), prefix="x")
     A = smt.FreshConst(SetSort, prefix="A")
     return smt.Lambda([x], smt.Exists([A], PostFix(F, A), A[x]))
+
+
+@functools.cache
+def trans(step: smt.FuncDeclRef) -> smt.FuncDeclRef:
+    """
+    The transitive closure of a step function. Takes a function of type `State -> State`
+    and returns a function of type `Int, State -> State` where the first argument is the number of steps to take.
+
+    >>> hr = smt.Int("hr")
+    >>> clk_step = define("clk_step", [hr], smt.If(hr == 12, 1, hr + 1))
+    >>> clk_trans = trans(clk_step)
+    >>> full_simp(clk_trans(4, 1))
+    5
+    >>> full_simp(clk_trans(12, 1))
+    1
+    >>> full_simp(clk_trans(-3, 42)) # stutters on negative steps
+    42
+    """
+    name = "trans_" + step.name()
+    n = smt.Int("n")
+    State = step.range()
+    st = smt.Const("st", State)
+    trans = smt.Function(name, smt.IntSort(), State, State)
+    return define(
+        "trans_" + step.name(), [n, st], smt.If(n <= 0, st, step(trans(n - 1, st)))
+    )
 
 
 __all__ = [

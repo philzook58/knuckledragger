@@ -18,7 +18,7 @@ import kdrag.smt as smt
 import kdrag.theories.bitvec as bv
 import operator
 from dataclasses import dataclass
-from typing import Optional, NamedTuple
+from typing import Optional, NamedTuple, Callable
 from collections import defaultdict
 
 TRUE = smt.BitVecVal(1, 8)
@@ -824,6 +824,144 @@ class BinaryContext:
             for simstate in simstates:
                 results1[(start_addr, breakpoints[simstate.pc[0]])].append(simstate)
         return results1
+
+    def bisim_obligations(
+        self,
+        high_low: Callable[[int, MemState], smt.ExprRef],
+        step: Callable[[smt.ExprRef], smt.ExprRef],
+        entries=[],
+        cuts=[],
+        exits=[],
+    ) -> dict[tuple[str | int, str | int], list[smt.BoolRef]]:
+        memstate0 = self.init_mem()
+        obls = {}
+        for (start, end), simstates in self.execute_trace_frags(
+            memstate0, entries=entries, cuts=cuts, exits=exits
+        ).items():
+            init_high = high_low(self.resolve_addr(start), memstate0)
+            props = []
+            obls[(start, end)] = props
+            for simstate in simstates:
+                lowstep = high_low(self.resolve_addr(end), simstate.memstate)
+                highstep = step(init_high)
+                props.append(
+                    (
+                        smt.Implies(smt.And(simstate.path_cond), lowstep == highstep),
+                        init_high,
+                        lowstep,
+                        highstep,
+                    )
+                )
+        return obls
+
+    def bisim(
+        self,
+        high_low: Callable[[int, MemState], smt.ExprRef],
+        step: Callable[[smt.ExprRef], smt.ExprRef],
+        entries=[],
+        cuts=[],
+        exits=[],
+        **kwargs,
+    ):
+        obls = self.bisim_obligations(high_low, step, entries, cuts, exits)
+        for (start, end), obls0 in obls.items():
+            for obl in obls0:
+                obl, init_high, lowstep, highstep = obl
+                try:
+                    if isinstance(step, smt.FuncDeclRef):
+                        obl = kd.rewrite.unfold(obl, decls=[step])
+                        assert isinstance(obl, smt.BoolRef)
+                    self.prove(obl, **kwargs)
+                except Exception as e:
+                    model = e.args[2]
+                    init_high = self.unfold(init_high)
+                    lowstep = self.unfold(lowstep)
+                    highstep = self.unfold(highstep)
+                    if isinstance(step, smt.FuncDeclRef):
+                        lowstep = kd.rewrite.unfold(lowstep, decls=[step])
+                        highstep = kd.rewrite.unfold(highstep, decls=[step])
+                    print(
+                        "Counterexample found for bisimulation between high and low at \n",
+                        start,
+                        " ---> ",
+                        end,
+                    )
+                    print(
+                        "Initial state:\n",
+                        model.eval(init_high),
+                        "\nsteps to in low\n",
+                        model.eval(lowstep),
+                        "\nsteps to in high\n",
+                        model.eval(highstep),
+                    )
+
+                    raise Exception("bisimulation failed") from None
+        print("Bisimulation proof succeeded  over all paths", list(obls.keys()))
+
+    def model_check(
+        self,
+        memstate0: Optional[MemState] = None,
+        low_asserts: Callable[[int, MemState], Optional[smt.BoolRef]] = (
+            lambda addr, memstate: None
+        ),
+        entries: list[str | int] = [],
+        cuts: list[str | int] = [],
+        exits: list[str | int] = [],
+        insns=25,
+        high_low: Optional[Callable[[int, MemState], smt.ExprRef]] = None,
+        high_asserts=[],
+    ):
+        if memstate0 is None:
+            memstate0 = self.init_mem()
+        init_insns = insns
+        simstates = []
+        exit_addrs = [self.resolve_addr(addr) for addr in exits]
+        for start_addr in entries:
+            addr = self.resolve_addr(start_addr)
+            simstates.append(SimState(memstate0, (addr, 0), []))
+        while True:
+            newsimstates = []
+            while simstates:
+                simstate = simstates.pop()
+                for simstate1 in self.execute_simstate(simstate, max_insns=1):
+                    addr, memstate1 = simstate1.pc[0], simstate1.memstate
+                    prop = low_asserts(addr, memstate1)
+                    if prop is not None:
+                        try:
+                            self.prove(smt.Implies(smt.And(simstate.path_cond), prop))
+                        except Exception as e:
+                            """
+                            # TODO: better countermodels via high_low
+                            if high_low is not None:
+                                model = e.args[2]
+                                init_high = self.unfold(high_low(self.resolve_addr[entries[0]], memstate0))
+                                end_high = self.unfold(high_low(addr, memstate1)
+                                if isinstance(step, smt.FuncDeclRef):
+                                    lowstep = kd.rewrite.unfold(lowstep, decls=[step])
+                                    highstep = kd.rewrite.unfold(highstep, decls=[step])
+                                    print(
+                                        "Initial state:",
+                                        model.eval(init_high),
+                                        "steps to in low",
+                                        model.eval(lowstep),
+                                        "steps to in high",
+                                        model.eval(highstep),
+                                    )
+                            """
+                            print("Counterexample found for property: ", prop)
+                            print("addr", hex(simstate.pc[0]))
+                            raise e
+                    print(hex(simstate1.pc[0]))
+                    if simstate1.pc[0] not in exit_addrs:
+                        newsimstates.append(simstate1)
+            if len(newsimstates) == 0:
+                return True
+            elif insns <= 0:
+                print("Instruction limit hit. No counterexample found in ", init_insns)
+                return True
+            else:
+                insns -= 1
+                simstates = newsimstates
 
     def get_reg(self, memstate: MemState, regname: str) -> smt.BitVecRef:
         """

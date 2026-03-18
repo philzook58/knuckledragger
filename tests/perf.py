@@ -21,16 +21,10 @@ def discover_theory_modules() -> list[str]:
     return sorted(discovered)
 
 
-def parse_skiplist() -> set[str]:
-    raw = os.environ.get("KDRAG_PERF_SKIP", "")
-    return {item.strip() for item in raw.split(",") if item.strip()}
-
-
 if __name__ == "__main__":
     config.timing = True
     module_times: list[tuple[float, str]] = []
     import_failures: list[tuple[str, str]] = []
-    skiplist = parse_skiplist()
 
     def import_and_time(module_name: str, start_time: float) -> float:
         importlib.import_module(module_name)
@@ -42,8 +36,6 @@ if __name__ == "__main__":
 
     start_time = import_and_time("kdrag.all", start_time)
     for module_name in discover_theory_modules():
-        if module_name in skiplist:
-            continue
         try:
             start_time = import_and_time(module_name, start_time)
         except Exception as exc:

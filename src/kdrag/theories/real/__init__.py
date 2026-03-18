@@ -272,7 +272,8 @@ sqr_pos = kd.prove(
 # kd.contract(sqr, [x], smt.BoolVal(True), sqr(x) >= 0, by=[sqr_pos]) # tests are loading and reloading this file/ That's not great anyway?
 sqr_neg = kd.prove(smt.ForAll([x], sqr(-x) == sqr(x)), by=[sqr.defn])
 
-sqrt = kd.define("sqrt", [x], x ** "1/2")
+# Note that guarding under Real prefix prevents clash with cvc5 built-ins. For better and worse
+sqrt = kd.define("Real.sqrt", [x], x ** "1/2")
 # sqrt = kd.define("sqrt", [x], smt.If(x >= 0, x ** "1/2", kd.Undef(smt.RealSort(), x)))
 # sqrt
 _l = kd.Lemma(kd.QForAll([x], x >= 0, sqrt(x) >= 0))
@@ -322,7 +323,7 @@ sqrt_sqr_abs = kd.prove(
     by=[abs.defn, sqrt_sqr, sqrt_sqr_neg, sqr_pos],
 )
 
-exp = smt.Function("exp", R, R)  # smt.Const("exp", kd.R >> kd.R)
+exp = smt.Function("Real.exp", R, R)  # smt.Const("exp", kd.R >> kd.R)
 exp_add = kd.axiom(smt.ForAll([x, y], exp(x + y) == exp(x) * exp(y)))
 exp_lower = kd.axiom(
     smt.ForAll([x], exp(x) >= 1 + x)
@@ -351,7 +352,7 @@ def exp_mono(l):
 
 exp_neg_le_1 = kd.prove(smt.ForAll([x], x <= 0, exp(x) <= 1), by=[exp_mono, exp_zero])
 
-ln = smt.Function("ln", kd.R, kd.R)
+ln = smt.Function("Real.ln", kd.R, kd.R)
 ln_exp = kd.axiom(smt.ForAll([x], ln(exp(x)) == x))
 # TODO. some of these are redundant depending on the range of ln being R.
 ln_mul = kd.axiom(kd.QForAll([x, y], x > 0, y > 0, ln(x * y) == ln(x) + ln(y)))
@@ -360,8 +361,8 @@ ln_one = kd.prove(smt.ForAll([x], ln(1) == 0), by=[ln_exp, exp_zero])
 exp_ln = kd.axiom(kd.QForAll([x], x > 0, exp(ln(x)) == x))
 
 
-cos = smt.Function("cos", R, R)  # smt.Const("cos", kd.R >> kd.R)
-sin = smt.Function("sin", R, R)  # smt.Const("sin", kd.R >> kd.R)
+cos = smt.Function("Real.cos", R, R)  # smt.Const("cos", kd.R >> kd.R)
+sin = smt.Function("Real.sin", R, R)  # smt.Const("sin", kd.R >> kd.R)
 
 # https://en.wikipedia.org/wiki/List_of_trigonometric_identities
 
