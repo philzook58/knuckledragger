@@ -442,6 +442,7 @@ def _lookup(name, globals=None, locals=None):
     raise ValueError(f"Could not find {name} in global or local environment")
 
 
+# Is it really worth doing this or should I just use eval?
 def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
     def rec(expr: ast.expr) -> smt.ExprRef:
         match expr:
@@ -568,52 +569,95 @@ def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
         return res
 
 
-def _reflect_stmts(stmts: list[ast.stmt], globals=None, locals=None) -> smt.ExprRef:
+def _reflect_stmts(
+    stmts: list[ast.stmt], globals=None, locals=None, path_cond=[]
+) -> smt.ExprRef | dict:
     """
     Turn a list of python statements into a z3 Expression.
 
-    This is a "purely functional" subset of python, with assignment treated as a `let`.
+    This is a "purely functional" subset of python, with assignment treated roughly as a `let`.
 
     It is possible to model more of python but that is not what this function is for. It works for a subset of python for which
     the behavior of the mathematical language of Knuckledragger and python coincide.
 
     A very restricted subset of python statements are allowed.
-    It must be a sequence of simple assignments ended by a return or if statement.
     for loops, while loops are not allowed.
     """
     assert len(stmts) > 0, "Must have at least one statement"
     if locals is None:
         locals = {}
-    for stmt in stmts[:-1]:
+    for stmt_num, stmt in enumerate(stmts):
+        # Todo match.
+        # Todo: bounded for and while
         match stmt:
             case ast.Assign(targets=[ast.Name(id_, _ctx)], value=value):
                 value = _reflect_expr(value, globals=globals, locals=locals)
                 locals = {**locals, id_: value}
             case ast.Expr(value=ast.Call(func=ast.Name(id="print"))):
                 print(locals)
+            case ast.Assert(test, _msg):
+                test = _reflect_expr(test, globals, locals)
+                s = smt.Solver()
+                s.add(smt.And(path_cond))
+                s.add(smt.Not(test))
+                if s.check() == smt.sat:
+                    raise AssertionError(
+                        f"Assertion failed: {ast.unparse(stmt)}", s.model()
+                    )
+            case ast.If(test, body, orelse):
+                test = _reflect_expr(test, globals, locals)
+                body = _reflect_stmts(
+                    body, globals, locals, path_cond=path_cond + [test]
+                )
+                # Coverage checking.
+                if len(orelse) == 0:
+                    s = smt.Solver()
+                    s.add(smt.And(path_cond))
+                    s.add(smt.Not(test))
+                    if s.check() == smt.sat:
+                        raise AssertionError(
+                            "If statement condition is not exhaustive: ",
+                            ast.unparse(stmt),
+                            s.model(),
+                        )
+                    if isinstance(body, dict):
+                        locals = body
+                    else:
+                        return body
+                else:
+                    orelse = _reflect_stmts(
+                        orelse, globals, locals, path_cond=path_cond + [smt.Not(test)]
+                    )
+
+                    if isinstance(body, dict) and isinstance(orelse, dict):
+                        # merge the new contexts
+                        locals = {}
+                        for k in set(body.keys()) & set(orelse.keys()):
+                            v, v1 = body[k], orelse[k]
+                            if v is v1:  # unmodified stuff
+                                locals[k] = v
+                            else:
+                                v, v1 = smt._py2expr(v), smt._py2expr(v1)
+                                locals[k] = smt.If(test, v, v1)
+                    else:
+                        body, orelse = smt._py2expr(body), smt._py2expr(orelse)
+                        if stmt_num != len(stmts) - 1:
+                            raise ValueError(
+                                "Return statement must be last statement in block",
+                                ast.unparse(stmt),
+                            )
+                        return smt.If(test, body, orelse)
+            case ast.Return(value=value):
+                if value is None:
+                    raise ValueError("Returning None not allowed")
+                if stmt_num != len(stmts) - 1:
+                    raise ValueError("Return statement must be last statement in block")
+                return _reflect_expr(value, globals, locals)
             case _:
                 raise ValueError(
                     "Unsupported Statement", ast.unparse(stmt), ast.dump(stmt)
                 )
-    match stmts[-1]:
-        case ast.Return(value=value):
-            if value is None:
-                raise ValueError("Returning None not allowed")
-            return _reflect_expr(value, globals, locals)
-        case ast.If(test, body, orelse):
-            if len(orelse) == 0:
-                raise ValueError(
-                    "If statement must have an else branch", ast.unparse(stmts[-1])
-                )
-            test = _reflect_expr(test, globals, locals)
-            body = _reflect_stmts(body, globals, locals)
-            orelse = _reflect_stmts(orelse, globals, locals)
-            return smt.If(test, body, orelse)
-        # Todo match.
-        case _:
-            raise ValueError(
-                f"Statement {ast.dump(stmts[-1])} not supported as last statement. Must be a return or if"
-            )
+    return locals
 
 
 def _sort_of_annotation(ann, globals={}, locals={}):
@@ -679,6 +723,19 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     ...    return n + 1
     >>> inc_7(6)
     inc_7(6)
+    >>> @reflect
+    ... def buzzy(n: int) -> int:
+    ...     if n == 0:
+    ...         assert n == 0
+    ...         x = 1
+    ...         y = x
+    ...     else:
+    ...         y = 2
+    ...     return y
+    >>> @reflect
+    ... def coverage(x : int) -> int:
+    ...     if x + 1 > x:
+    ...         return x
     """
     module = ast.parse(inspect.getsource(f))
     assert isinstance(module, ast.Module) and len(module.body) == 1
