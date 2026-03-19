@@ -607,8 +607,14 @@ def _reflect_stmts(
                 s.add(smt.And(path_cond))
                 s.add(smt.Not(test))
                 if s.check() == smt.sat:
+                    model = s.model()
                     raise AssertionError(
-                        f"Assertion failed: {ast.unparse(stmt)}", s.model()
+                        f"Assertion failed: {ast.unparse(stmt)}",
+                        {
+                            k: model.eval(v) if isinstance(v, smt.ExprRef) else v
+                            for k, v in locals.items()
+                        },
+                        model,
                     )
             case ast.If(test, body, orelse):
                 test = _reflect_expr(test, globals, locals)
@@ -621,10 +627,15 @@ def _reflect_stmts(
                     s.add(smt.And(path_cond))
                     s.add(smt.Not(test))
                     if s.check() == smt.sat:
+                        model = s.model()
                         raise AssertionError(
                             "If statement condition is not exhaustive: ",
                             ast.unparse(stmt),
-                            s.model(),
+                            {
+                                k: model.eval(v) if isinstance(v, smt.ExprRef) else v
+                                for k, v in locals.items()
+                            },
+                            model,
                         )
                     if isinstance(body, dict) and not isinstance(body, smt.ExprRef):
                         locals = body

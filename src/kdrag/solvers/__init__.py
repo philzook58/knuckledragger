@@ -654,7 +654,7 @@ class NanoCopISolver(BaseSolver):
 
 
 class MultiSolver(BaseSolver):
-    solver_classes = [
+    solver_classes: list[type] = [
         VampireTHFSolver,
         EProverTHFSolver,
         LeoIIISolver,
