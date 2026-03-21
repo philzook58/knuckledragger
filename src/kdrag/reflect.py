@@ -538,6 +538,8 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
                     v, "__getitem__"
                 ), f"Value {rec(value)} is not subscriptable"
                 return v[rec(slice)]  # type: ignore[not-subscriptable]
+            case ast.List(elts=elts, ctx=ast.Load()):
+                return [rec(e) for e in elts]
             case x:
                 raise ValueError(
                     "Could not interpret expression", ast.unparse(x), ast.dump(x)
@@ -546,7 +548,9 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
     try:
         return rec(expr)
     except Exception as e:
-        raise ValueError("Error reflecting expression", ast.unparse(expr)) from e
+        raise ValueError(
+            "Error reflecting expression", ast.unparse(expr), ast.dump(expr), locals
+        ) from e
 
 
 def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
@@ -573,6 +577,134 @@ def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
         return res
 
 
+def _reflect_pattern(
+    subject: object,
+    pattern0: ast.pattern,
+    globals: dict[str, object] | None,
+    locals: dict[str, object],
+) -> tuple[list[smt.BoolRef], dict[str, object]]:
+    todo = [(subject, pattern0)]
+    path_cond = []
+    match_env = {}
+    while todo:
+        subject, pattern = todo.pop()
+        match pattern:
+            case ast.MatchClass(
+                cls=ast.Name(id=constr_name),
+                patterns=patterns,
+                kwd_attrs=kwd_attrs,
+                kwd_patterns=kwd_patterns,
+            ):
+                assert (
+                    not kwd_attrs and not kwd_patterns
+                ), "Keyword patterns not supported yet"
+                assert isinstance(
+                    subject, smt.ExprRef
+                ), "Expected an SMT expression as scrutinee"
+                sort = subject.sort()
+                assert isinstance(sort, smt.DatatypeSortRef), "Expected a datatype sort"
+                for nconstr in range(sort.num_constructors()):
+                    constr = sort.constructor(nconstr)
+                    if constr_name == constr.name():
+                        path_cond.append(sort.recognizer(nconstr)(subject))
+                        if len(patterns) != constr.arity():
+                            raise ValueError(
+                                "Constructor arity does not match pattern",
+                                ast.unparse(pattern0),
+                            )
+                        for nfield, pattern in enumerate(patterns):
+                            todo.append(
+                                (sort.accessor(nconstr, nfield)(subject), pattern)
+                            )
+                        break
+                else:
+                    raise ValueError(
+                        f"Constructor {constr_name} not found in sort {sort}"
+                    )
+            case ast.MatchAs(pattern=p, name=v):
+                if p is not None:
+                    todo.append((subject, p))
+                if v is not None:
+                    if v in match_env:
+                        raise ValueError(
+                            f"Duplicate variable name in pattern: {v} {ast.unparse(pattern0)}"
+                        )
+                    else:
+                        match_env[v] = subject
+            case ast.MatchValue(value):
+                assert isinstance(
+                    subject, smt.ExprRef
+                ), "Expected an SMT expression as scrutinee"
+                v = _reflect_expr(value, globals=globals, locals=locals)
+                path_cond.append(smt.Eq(subject, v))
+            case _:
+                # MatchOr
+                # MatchMapping
+                # MatchStar
+                # MatchSingleton
+                # matchSequence
+                raise NotImplementedError(f"Unsupported pattern: {ast.dump(pattern)}")
+    return path_cond, match_env
+
+
+def coverage_check(
+    stmt: ast.stmt,
+    everything: smt.BoolRef,
+    path_cond: list[smt.BoolRef],
+    locals: dict[str, object],
+):
+    s = smt.Solver()
+    s.add(smt.And(path_cond))
+    s.add(smt.Not(everything))
+    if s.check() == smt.sat:
+        model = s.model()
+        raise AssertionError(
+            "Cases of if/match are not exhaustive. Counterexample: ",
+            ast.unparse(stmt),
+            {
+                k: model.eval(v) if isinstance(v, smt.ExprRef) else v
+                for k, v in locals.items()
+            },
+            model,
+        )
+
+
+def merge_branches(test: smt.BoolRef, body, orelse) -> smt.ExprRef | dict[str, object]:
+    if (
+        isinstance(body, dict)
+        and isinstance(orelse, dict)
+        and not isinstance(body, smt.ExprRef)
+        and not isinstance(orelse, smt.ExprRef)
+    ):  # type checker seems to need these?
+        # merge the new contexts
+        locals = {}
+        # We drop non shared keys. Better to error? But locals are useful.
+        shared_keys: set[str] = set(body.keys()) & set(orelse.keys())
+        for k in shared_keys:
+            v, v1 = body[k], orelse[k]
+            if v is v1:  # unmodified stuff
+                locals[k] = v
+            else:
+                v, v1 = smt._py2expr(v), smt._py2expr(v1)
+                locals[k] = smt.If(test, v, v1)
+        return locals
+    elif isinstance(body, dict) or isinstance(orelse, dict):
+        raise ValueError(
+            "One branch returns and the other does not. Cannot merge", test
+        )
+    else:
+        body, orelse = smt._py2expr(body), smt._py2expr(orelse)
+        """
+        if stmt_num != len(stmts) - 1:
+            raise ValueError(
+                "Return statement must be last statement in block",
+                ast.unparse(stmt),
+            )
+        """
+        return smt.If(test, body, orelse)
+
+
+# Returing an smt.ExprRef is a `return` and returning the dict is a fallthrough
 def _reflect_stmts(
     stmts: list[ast.stmt], globals=None, locals=None, path_cond=[]
 ) -> smt.ExprRef | dict[str, object]:
@@ -616,27 +748,18 @@ def _reflect_stmts(
                         },
                         model,
                     )
+                # possibly return an undef here.
             case ast.If(test, body, orelse):
                 test = _reflect_expr(test, globals, locals)
+                assert isinstance(
+                    test, smt.BoolRef
+                ), "If condition must be a boolean expression"
                 body = _reflect_stmts(
                     body, globals, locals, path_cond=path_cond + [test]
                 )
                 if len(orelse) == 0:
                     # No else given. Coverage checking.
-                    s = smt.Solver()
-                    s.add(smt.And(path_cond))
-                    s.add(smt.Not(test))
-                    if s.check() == smt.sat:
-                        model = s.model()
-                        raise AssertionError(
-                            "If statement condition is not exhaustive: ",
-                            ast.unparse(stmt),
-                            {
-                                k: model.eval(v) if isinstance(v, smt.ExprRef) else v
-                                for k, v in locals.items()
-                            },
-                            model,
-                        )
+                    coverage_check(stmt, test, path_cond, locals)
                     if isinstance(body, dict) and not isinstance(body, smt.ExprRef):
                         locals = body
                     else:
@@ -645,32 +768,52 @@ def _reflect_stmts(
                     orelse = _reflect_stmts(
                         orelse, globals, locals, path_cond=path_cond + [smt.Not(test)]
                     )
-
-                    if (
-                        isinstance(body, dict)
-                        and isinstance(orelse, dict)
-                        and not isinstance(body, smt.ExprRef)
-                        and not isinstance(orelse, smt.ExprRef)
-                    ):  # type checker seems to need these?
-                        # merge the new contexts
-                        locals = {}
-                        # We drop non shared keys. Better to error? But locals are useful.
-                        shared_keys: set[str] = set(body.keys()) & set(orelse.keys())
-                        for k in shared_keys:
-                            v, v1 = body[k], orelse[k]
-                            if v is v1:  # unmodified stuff
-                                locals[k] = v
-                            else:
-                                v, v1 = smt._py2expr(v), smt._py2expr(v1)
-                                locals[k] = smt.If(test, v, v1)
+                    res = merge_branches(test, body, orelse)
+                    if isinstance(res, dict) and not isinstance(res, smt.ExprRef):
+                        locals = res
                     else:
-                        body, orelse = smt._py2expr(body), smt._py2expr(orelse)
-                        if stmt_num != len(stmts) - 1:
-                            raise ValueError(
-                                "Return statement must be last statement in block",
-                                ast.unparse(stmt),
-                            )
-                        return smt.If(test, body, orelse)
+                        return res
+            case ast.Match(subject, cases):
+                # TODO: Possibly prune impossible branches
+                subject = _reflect_expr(subject, globals, locals)
+                conds, bodies = [], []
+                prev_case_fails = []  # to accumulate the conditions for previous cases failing
+                for case in cases:
+                    cond, new_locals = _reflect_pattern(
+                        subject, case.pattern, globals, locals
+                    )
+                    body_locals = {**locals, **new_locals}
+                    if case.guard is not None:
+                        g = _reflect_expr(case.guard, globals, body_locals)
+                        assert isinstance(
+                            g, smt.BoolRef
+                        ), "Guard must be a boolean expression"
+                        cond.append(g)
+                    body = _reflect_stmts(
+                        case.body,
+                        globals,
+                        body_locals,
+                        path_cond=path_cond + prev_case_fails + cond,
+                    )
+                    prev_case_fails.append(smt.Not(smt.And(cond)))
+                    if len(cond) == 0:
+                        conds.append(smt.BoolVal(True))
+                    elif len(cond) == 1:
+                        conds.append(cond[0])
+                    else:
+                        conds.append(smt.And(cond))
+                    bodies.append(body)
+                coverage_check(stmt, smt.Or(conds), path_cond, locals)
+                # Build If expression innermost expression first
+                bodies.reverse()
+                conds.reverse()
+                acc = bodies[0]
+                for c, b in zip(conds[1:], bodies[1:]):
+                    acc = merge_branches(c, b, acc)
+                if isinstance(acc, dict) and not isinstance(acc, smt.ExprRef):
+                    locals = acc
+                else:
+                    return acc
             case ast.Return(value=value):
                 if value is None:
                     raise ValueError("Returning None not allowed")
@@ -684,31 +827,20 @@ def _reflect_stmts(
     return locals
 
 
-def _sort_of_annotation(ann, globals={}, locals={}):
+def _sort_of_annotation(ann, globals={}, locals={}) -> smt.SortRef | smt.ExprRef:
     match ann:
-        case ast.Name(id_):
-            s = eval(id_, globals, locals)
-            if isinstance(s, smt.SortRef):
-                return s
-            elif isinstance(s, type):
-                return sort_of_type(s)
-            # if id_ == "int":
-            #    return smt.IntSort()
-            else:
-                raise NotImplementedError(f"Name {id_}")
-        case ast.Constant(value):
+        case ast.Name(id_) if id_ in ["int", "bool", "str", "float"]:
+            return sort_of_type(eval(id_))
+        case ast.Constant(value) if isinstance(value, str):
             assert isinstance(value, str)
-            s = eval(value.replace('"', ""), globals, locals)
-            if isinstance(s, type):
-                return sort_of_type(s)
-            elif smt.is_func(s):
-                raise NotImplementedError("Subsort types not yet supported")
-            elif isinstance(s, smt.SortRef):
+            s = _reflect_expr(ast.parse(value, mode="eval").body, globals, locals)
+            if isinstance(s, smt.SortRef) or smt.is_func(s):
                 return s
             else:
                 raise ValueError(f"Constant {value} is not a supported type or sort")
         case _:
-            raise NotImplementedError(f"Annotation {ast.dump(ann)}")
+            s = _reflect_expr(ann, globals, locals)
+            return s
 
 
 def reflect(f, globals=None) -> smt.FuncDeclRef:
@@ -743,11 +875,6 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
            bar(x, y) ==
            If(x > 4, x + 3, If(y == "fred", 14, bar(x - 1, y))))
     >>> @reflect
-    ... def inc_7(n: "int") -> "int":
-    ...    return n + 1
-    >>> inc_7(6)
-    inc_7(6)
-    >>> @reflect
     ... def buzzy(n: int) -> int:
     ...     if n == 0:
     ...         assert n == 0
@@ -760,6 +887,49 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     ... def coverage(x : int) -> int:
     ...     if x + 1 > x:
     ...         return x
+    >>> z = smt.Int("z")
+    >>> @reflect
+    ... def inc_78(n: int, m : "smt.Lambda([z], smt.And(z > 0, z > n))") -> "smt.Lambda([z], z > n)":
+    ...    return n + m
+    >>> #test_match54.defn
+    >>> @reflect
+    ... def test_add32(x : kd.Nat, y : kd.Nat) -> kd.Nat:
+    ...     match x:
+    ...         case S(n):
+    ...             return kd.Nat.S(test_add32(n, y))
+    ...         case Z():
+    ...             return y
+    >>> test_add32.defn
+    |= ForAll([x, y],
+        test_add32(x, y) ==
+        If(is(S, x), S(test_add32(pred(x), y)), y))
+    >>> @reflect
+    ... def test_match54(x: int, y: int) -> int:
+    ...     match x:
+    ...         case 0:
+    ...             return y
+    ...         case _ if y > 0:
+    ...             return y + 1
+    ...         case _:
+    ...             return y - 1
+    >>> test_match54.defn
+    |= ForAll([x, y],
+        test_match54(x, y) ==
+        If(x == 0, y, If(y > 0, y + 1, y - 1)))
+    >>> @reflect
+    ... def test_false_pre(x: smt.Lambda([z], z != z)) -> int:
+    ...     assert False
+    ...     return 42
+    >>> @reflect
+    ... def test_false_match(x: int)-> int:
+    ...     match x:
+    ...         case 4:
+    ...             return x
+    ...         case 4:
+    ...             assert False
+    ...             return x
+    ...         case _:
+    ...             return x
     """
     module = ast.parse(inspect.getsource(f))
     assert isinstance(module, ast.Module) and len(module.body) == 1
@@ -771,11 +941,17 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
         globals, _ = kd.utils.calling_globals_locals()
     # infer arguments from type annotations.
     args = []
+    path_cond: list[smt.BoolRef] = []
     # We add arguments to locals in order to support dependent types.
     for arg in fun.args.args:
-        v = smt.Const(
-            arg.arg, _sort_of_annotation(arg.annotation, globals=globals, locals=locals)
-        )
+        arg_sort = _sort_of_annotation(arg.annotation, globals=globals, locals=locals)
+        v = smt.Const(arg.arg, arg_sort)
+        if not isinstance(arg_sort, smt.SortRef):
+            cond = arg_sort(v)
+            assert isinstance(
+                cond, smt.BoolRef
+            ), f"Argument annotation {arg.annotation} must evaluate to a sort or a predicate, got {cond}"
+            path_cond.append(cond)
         args.append(v)
         locals[v.decl().name()] = v
 
@@ -786,24 +962,33 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     # ]
     if fun.returns is None:
         raise ValueError(f"Function {fun.name} must have a return type annotation")
+    ret_sort = _sort_of_annotation(fun.returns, globals=globals, locals=locals)
     # insert self name into locals so that recursive calls work.
     z3fun = smt.Function(
         fun.name,
         *[arg.sort() for arg in args],
-        _sort_of_annotation(fun.returns, globals=globals, locals=locals),
+        ret_sort if isinstance(ret_sort, smt.SortRef) else smt.domains(ret_sort)[0],
     )
     locals[fun.name] = z3fun
+    # TODO: check if path cond is feasible?
     # Actually interpret body.
-    body = _reflect_stmts(fun.body, globals=globals, locals=locals)
+    body = _reflect_stmts(fun.body, globals=globals, locals=locals, path_cond=path_cond)
     if not isinstance(body, smt.ExprRef):
-        raise ValueError(
-            f"Function {fun.name} must end with a return statement, got {ast.unparse(fun.body[-1])}"
-        )
-    z3fun1 = kd.define(fun.name, args, body)
+        if isinstance(body, int):
+            body = smt.IntVal(body)
+        else:
+            raise ValueError(
+                f"Function {fun.name} must end with a return statement, got {ast.unparse(fun.body[-1])}"
+            )
     # Check that types work out.
-    if z3fun.range() != z3fun1.range():
+    if z3fun.range() != body.sort():
         raise ValueError(
             f"Function {fun.name} has return type {_sort_of_annotation(fun.returns, globals=globals, locals=locals)} but body evaluates to {body.sort()}"
+        )
+    z3fun1 = kd.define(fun.name, args, body)
+    if not isinstance(ret_sort, smt.SortRef):
+        z3fun1.contract = kd.contracts.contract(
+            z3fun, args, smt.And(path_cond), ret_sort(z3fun1(*args)), by=[z3fun1.defn]
         )
     # This should never fail.
     assert z3fun.arity() == z3fun1.arity() and all(
