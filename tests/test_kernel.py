@@ -386,7 +386,7 @@ def test_assumes():
 
 
 
-
+@pytest.mark.slow
 def test_smtfile_dump():
     x,y,z = smt.Ints("x y z")
     with pytest.raises(kd.kernel.LemmaError):

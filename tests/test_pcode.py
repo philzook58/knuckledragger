@@ -263,7 +263,7 @@ def test_debugger():
     assert d.ram(smt.BitVecVal(1000,32), 4).eq(smt.BitVecVal(42,32))
 
 
-    
+@pytest.mark.slow
 def test_s2n_simple():
     # https://github.com/awslabs/s2n-bignum/blob/main/x86/tutorial/simple.ml
     code = r"""

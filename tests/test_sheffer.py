@@ -1,8 +1,9 @@
 from kdrag.all import *
-
+import pytest
 
 # for line_profiler
 # @profile
+@pytest.mark.slow
 def test_sheffer():
     simp = []
     Stroke = smt.DeclareSort("Stroke")

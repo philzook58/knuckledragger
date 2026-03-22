@@ -57,6 +57,7 @@ KLEENE = [
     unfold,
     least_fix,
 ]
+
 par_monotone = kd.prove(
     smt.ForAll([x, y, z, w], x <= y, z <= w, x + z <= y + w),
     by=[par_assoc, par_comm],
@@ -70,12 +71,15 @@ seq_monotone = kd.prove(
 star_seq_star = kd.tactics.vprove(
     smt.ForAll([x], star(x) * star(x) == star(x)), by=KLEENE
 )
+
+
 # z3 takes 0.5 seconds. Vampire is actually faster despite all the overhead
 # This got way slower for some reason?
 # CVC5 seems to annihilate it.
 star_star = kd.tactics.vprove(
     smt.ForAll([x], star(star(x)) == star(x)), by=KLEENE, timeout=5000
 )
+
 
 Test = smt.DeclareSort("Test")
 guard = smt.Function("Test.guard", Test, K, K)

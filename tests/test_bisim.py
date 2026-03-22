@@ -38,6 +38,7 @@ def step123(st : State) -> State:
 
 trans_step = kd.trans(step123)
 
+@pytest.mark.slow
 def test_bisim():
     asm = """
         .text

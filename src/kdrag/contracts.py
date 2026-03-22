@@ -61,7 +61,12 @@ def lemmas(e: smt.ExprRef, into_binders=True) -> list[kd.kernel.Proof]:
 
 
 def contract(
-    f: smt.FuncDeclRef, args: list[smt.ExprRef], pre, post, by=None, **kwargs
+    f: smt.FuncDeclRef,
+    args: list[smt.ExprRef],
+    pre: smt.BoolRef,
+    post: smt.BoolRef,
+    by=None,
+    **kwargs,
 ) -> kd.kernel.Proof:
     """
     Register the contract for function f: for all args, pre => post.
@@ -80,7 +85,8 @@ def contract(
         ...
     LemmaError: ...
     """
-    assert f not in contracts
+    if f in contracts:
+        print("Warning: overwriting existing contract for function", f, contracts[f])
     if by is None:
         by = []
     thm = smt.ForAll(args, smt.Implies(pre, post), patterns=[f(*args)])

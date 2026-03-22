@@ -13,6 +13,7 @@ import operator
 from dataclasses import dataclass
 import ast
 import inspect
+import textwrap
 
 
 def sort_of_type(t: type) -> smt.SortRef:
@@ -843,7 +844,7 @@ def _sort_of_annotation(ann, globals={}, locals={}) -> smt.SortRef | smt.ExprRef
             return s
 
 
-def reflect(f, globals=None) -> smt.FuncDeclRef:
+def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
     """
     Reflect a function definition by injecting the parameters and recursive self call into the local environment.
     Uses type annotations to do so.
@@ -931,7 +932,7 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     ...         case _:
     ...             return x
     """
-    module = ast.parse(inspect.getsource(f))
+    module = ast.parse(textwrap.dedent(inspect.getsource(f)))
     assert isinstance(module, ast.Module) and len(module.body) == 1
     fun = module.body[0]
     assert isinstance(fun, ast.FunctionDef)
@@ -988,7 +989,11 @@ def reflect(f, globals=None) -> smt.FuncDeclRef:
     z3fun1 = kd.define(fun.name, args, body)
     if not isinstance(ret_sort, smt.SortRef):
         z3fun1.contract = kd.contracts.contract(
-            z3fun, args, smt.And(path_cond), ret_sort(z3fun1(*args)), by=[z3fun1.defn]
+            z3fun,
+            args,
+            smt.BoolVal(True),  # using smt.Const should already auto insert these
+            ret_sort(z3fun1(*args)),
+            by=[z3fun1.defn] + by,
         )
     # This should never fail.
     assert z3fun.arity() == z3fun1.arity() and all(

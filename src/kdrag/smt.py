@@ -7,7 +7,7 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 
 import os
 from . import config
-from typing import TypeAlias
+from typing import TypeAlias, Optional, Sequence
 
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
@@ -475,6 +475,51 @@ FuncDeclRef.prop = None
 
 
 FuncRef: TypeAlias = ArrayRef | QuantifierRef
+
+
+FuncDeclRef.implicits: Optional[Sequence[Optional[str]]] = None
+old_call = FuncDeclRef.__call__
+
+
+def new_call(self, *args, **kwargs):
+    """
+    Implicit arguments are enabled.
+    If you add an field of keyword names to a FuncDeclRef, you can leave them out and they
+    will be filled in by metavariables
+
+    >>> f = Function("f", IntSort(), RealSort(), BoolSort(), IntSort())
+    >>> f.implicits = ["x", None, "y"]
+    >>> f(RealVal(1), y=BoolVal(True))
+    f(?x!..., 1, True)
+    """
+
+    if self.implicits is None or len(args) == self.arity():
+        assert len(kwargs) == 0, "Keyword arguments not supported for this function"
+        return old_call(self, *args, **kwargs)
+    else:
+        argi = 0
+        new_args = []
+        for new_argi, fieldname in enumerate(self.implicits):
+            if fieldname is None:
+                new_args.append(args[argi])
+                argi += 1
+            else:
+                a = kwargs.get(fieldname)
+                if a is None:
+                    # Note that this ? prefix needs to be kept in sync with definitions in kd.MetaVar
+                    new_args.append(
+                        FreshConst(self.domain(new_argi), prefix="?" + fieldname)
+                    )
+                else:
+                    new_args.append(a)
+        assert argi == len(args), "Too many positional arguments"
+        assert (
+            len(new_args) == self.arity()
+        ), "Something has gone wrong with implicit argument filling"
+        return old_call(self, *new_args)
+
+
+FuncDeclRef.__call__ = new_call
 
 
 def is_func(f: ExprRef) -> bool:

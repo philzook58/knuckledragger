@@ -106,6 +106,7 @@ norecursedirs = [
     "examples/converted_notebooks",
     "examples/soft_found",
 ]
+testpaths = ["tests", "src"]
 addopts = "--doctest-modules -m \"not slow\""
 doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
 

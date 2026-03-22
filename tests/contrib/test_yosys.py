@@ -10,7 +10,7 @@ module my_or(input my_in1,
     assign my_out = my_in1 | my_in2;
 endmodule
 """
-
+@pytest.mark.slow
 def test_simple_or():
     with open("/tmp/simple_or.v", "w") as f:
         f.write(simple_or)
@@ -42,7 +42,7 @@ module counter (
 endmodule
 """
 
-
+@pytest.mark.slow
 def test_counter():
     with open("/tmp/counter.v", "w") as f:
         f.write(counter)
@@ -69,7 +69,7 @@ module test(input clk, output reg [3:0] y);
 endmodule
 """
 
-
+@pytest.mark.slow
 def test_yosys_rel():
     # https://yosyshq.readthedocs.io/projects/yosys/en/0.33/cmd/write_smt2.html
     """

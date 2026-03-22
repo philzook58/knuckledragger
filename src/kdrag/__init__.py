@@ -132,7 +132,7 @@ def seq(*args):
         return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
 
 
-def SeqVecP(n: smt.ArithRef | int, A: smt.SortRef) -> smt.QuantifierRef:
+def Vec(n: smt.ArithRef | int, A: smt.SortRef) -> smt.QuantifierRef:
     l = smt.Const("l", smt.SeqSort(A))
     if isinstance(A, smt.SortRef):
         return smt.Lambda([l], smt.Length(l) == n)
@@ -481,6 +481,28 @@ def trans(step: smt.FuncDeclRef) -> smt.FuncDeclRef:
     return define(
         "trans_" + step.name(), [n, st], smt.If(n <= 0, st, step(trans(n - 1, st)))
     )
+
+
+def MetaVar(name: str, sort: smt.SortRef) -> smt.ExprRef:
+    """
+    A metavariable is just a regular smt constant whose names starts with "?".
+    It is not used in the kernel, but certain utility functions may use this property to try
+    and find a replacement for the metavariable.
+
+    >>> foo = MetaVar("foo", smt.IntSort())
+    >>> foo
+    ?foo
+    >>> smt.is_const(foo)
+    True
+    """
+    return smt.Const("?" + name, sort)
+
+
+def is_metavar(c: smt.ExprRef) -> bool:
+    """
+    >>> assert is_metavar(MetaVar("foo", smt.IntSort()))
+    """
+    return smt.is_const(c) and c.decl().name().startswith("?")
 
 
 __all__ = [
