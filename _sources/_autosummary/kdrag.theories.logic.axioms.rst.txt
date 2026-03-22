@@ -1,0 +1,47 @@
+kdrag.theories.logic.axioms
+===========================
+
+.. automodule:: kdrag.theories.logic.axioms
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      beta_conv
+      cong
+      consider
+      eqrefl
+      eqsym
+      eqtrans
+      exists_cong
+      forall_cong
+      lambda_cong
+      neg_ext
+      proj
+      rename_vars
+      substitute_fresh_vars
+      unfold
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/axioms.py
+   :language: python

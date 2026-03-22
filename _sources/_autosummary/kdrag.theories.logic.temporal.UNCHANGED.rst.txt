@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.UNCHANGED
+=======================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: UNCHANGED

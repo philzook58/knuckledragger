@@ -1,0 +1,97 @@
+﻿kdrag
+=====
+
+.. automodule:: kdrag
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      NatP
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      ComplexSort
+      FinP
+      GFP
+      Guard
+      Head
+      Id
+      LFP
+      ListSort
+      MetaVar
+      NatSort
+      OptionSort
+      PostFix
+      PreFix
+      SetMonotone
+      Some
+      Tail
+      TupleSort
+      Undef
+      UnitSort
+      Vec
+      define_const
+      guard
+      is_complex
+      is_metavar
+      is_tuple
+      list
+      seq
+      trans
+      tuple_
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   all
+   cast
+   config
+   contracts
+   contrib
+   datatype
+   hypothesis
+   kernel
+   modal
+   notation
+   parsers
+   printers
+   property
+   refine
+   reflect
+   rewrite
+   smt
+   solvers
+   tactics
+   tele
+   theories
+   utils
+
+
+
+.. literalinclude:: ../../kdrag.py
+   :language: python

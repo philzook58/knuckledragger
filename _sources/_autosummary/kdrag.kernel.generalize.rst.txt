@@ -1,0 +1,6 @@
+kdrag.kernel.generalize
+=======================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: generalize

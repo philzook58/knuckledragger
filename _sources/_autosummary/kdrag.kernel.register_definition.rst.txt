@@ -1,0 +1,6 @@
+kdrag.kernel.register\_definition
+=================================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: register_definition

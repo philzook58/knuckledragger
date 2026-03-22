@@ -1,0 +1,6 @@
+kdrag.utils.calling\_globals\_locals
+====================================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: calling_globals_locals

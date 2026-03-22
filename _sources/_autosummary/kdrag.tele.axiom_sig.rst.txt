@@ -1,0 +1,6 @@
+kdrag.tele.axiom\_sig
+=====================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: axiom_sig

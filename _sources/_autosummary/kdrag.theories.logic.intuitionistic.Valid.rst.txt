@@ -1,0 +1,6 @@
+kdrag.theories.logic.intuitionistic.Valid
+=========================================
+
+.. currentmodule:: kdrag.theories.logic.intuitionistic
+
+.. autofunction:: Valid

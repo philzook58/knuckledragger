@@ -1,0 +1,6 @@
+kdrag.theories.sexp.Truth
+=========================
+
+.. currentmodule:: kdrag.theories.sexp
+
+.. autofunction:: Truth

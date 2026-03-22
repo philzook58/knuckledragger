@@ -1,0 +1,34 @@
+kdrag.contrib.term
+==================
+
+.. automodule:: kdrag.contrib.term
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Term
+      Var
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/term.py
+   :language: python

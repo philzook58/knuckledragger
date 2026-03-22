@@ -1,0 +1,6 @@
+kdrag.solvers.download
+======================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: download

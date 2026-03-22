@@ -1,0 +1,6 @@
+kdrag.property.StarSemiring
+===========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: StarSemiring

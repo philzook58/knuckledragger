@@ -1,0 +1,6 @@
+kdrag.printers.lean.decl\_sig
+=============================
+
+.. currentmodule:: kdrag.printers.lean
+
+.. autofunction:: decl_sig

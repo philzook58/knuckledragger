@@ -1,0 +1,6 @@
+kdrag.kernel.andI
+=================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: andI
