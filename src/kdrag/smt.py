@@ -237,6 +237,7 @@ ExprRef.__sub__ = lambda x, y: None
 
 FuncDeclRef.defn = None
 
+FuncDeclRef.contract = None
 """
 Caching.
 The CFFI interface to z3 is very costly. Caching calls can help some of that pain.

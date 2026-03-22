@@ -443,12 +443,15 @@ def _lookup(name, globals=None, locals=None):
     raise ValueError(f"Could not find {name} in global or local environment")
 
 
+type ExprLike = smt.ExprRef | int | bool | list[ExprLike]
+
+
 # Is it really worth doing this or should I just use eval?
 # Question: How often should we require the expected result to be an expression?
 # integer is useful, referring to sorts is useful.
 # expected_sort=? parameter? If expected to be a sort, force it.
-def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
-    def rec(expr: ast.expr) -> smt.ExprRef:
+def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> ExprLike:
+    def rec(expr: ast.expr) -> ExprLike:
         match expr:
             case ast.Constant(value, kind=None):
                 if isinstance(value, int):
@@ -458,38 +461,46 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
                     return smt._py2expr(value)
             # case ast.UnaryOp(ast.UAdd(), operand):
             #    return +rec(operand)
-            case ast.UnaryOp(ast.Not(), operand):
-                return ~rec(operand)
-            case ast.UnaryOp(ast.USub(), operand):
-                return -rec(operand)
-            case ast.UnaryOp(ast.Invert(), operand):
-                return ~rec(operand)
-            case ast.UnaryOp(_, operand):
-                raise NotImplementedError(f"UnaryOp {expr.op}")
-            case ast.BinOp(left=l, op=ast.Add(), right=r):
-                return rec(l) + rec(r)
-            case ast.BinOp(left=l, op=ast.Sub(), right=r):
-                return rec(l) - rec(r)
-            case ast.BinOp(left=l, op=ast.Mult(), right=r):
-                return rec(l) * rec(r)
-            case ast.BinOp(left=l, op=ast.Div(), right=r):
-                return rec(l) / rec(r)
-            case ast.BinOp(left=l, op=ast.Mod(), right=r):
-                return rec(l) % rec(r)
-            case ast.BinOp(left=l, op=ast.Pow(), right=r):
-                return rec(l) ** rec(r)
-            case ast.BinOp(left=l, op=ast.LShift(), right=r):
-                return rec(l) << rec(r)
-            case ast.BinOp(left=l, op=ast.RShift(), right=r):
-                return rec(l) >> rec(r)
-            case ast.BinOp(left=l, op=ast.BitOr(), right=r):
-                return rec(l) | rec(r)
-            case ast.BinOp(left=l, op=ast.BitXor(), right=r):
-                return rec(l) ^ rec(r)
-            case ast.BinOp(left=l, op=ast.BitAnd(), right=r):
-                return rec(l) & rec(r)
-            case ast.BinOp(left=l, op=ast.FloorDiv(), right=r):
-                return rec(l) // rec(r)
+            case ast.UnaryOp(op, operand):
+                x = rec(operand)
+                match op:
+                    case ast.USub():
+                        assert isinstance(x, (int, smt.ExprRef)), f"Cannot negate {x}"
+                        return -x
+                    case ast.Invert():
+                        assert isinstance(x, (int, smt.ExprRef)), f"Cannot invert {x}"
+                        return ~x
+                    case _:
+                        raise NotImplementedError(f"UnaryOp {op}")
+            case ast.BinOp(left=left, op=op, right=right):
+                l, r = rec(left), rec(right)
+                match op:
+                    case ast.Add():
+                        return l + r  # type: ignore[operator]
+                    case ast.Sub():
+                        return l - r  # type: ignore[operator]
+                    case ast.Mult():
+                        return l * r  # type: ignore[operator]
+                    case ast.Div():
+                        return l / r  # type: ignore[operator]
+                    case ast.Mod():
+                        return l % r  # type: ignore[operator]
+                    case ast.Pow():
+                        return l**r  # type: ignore[operator]
+                    case ast.LShift():
+                        return l << r  # type: ignore[operator]
+                    case ast.RShift():
+                        return l >> r  # type: ignore[operator]
+                    case ast.BitOr():
+                        return l | r  # type: ignore[operator]
+                    case ast.BitXor():
+                        return l ^ r  # type: ignore[operator]
+                    case ast.BitAnd():
+                        return l & r  # type: ignore[operator]
+                    case ast.FloorDiv():
+                        return l // r  # type: ignore[operator]
+                    case _:
+                        raise NotImplementedError(f"Binary operator {op}")
             case ast.BoolOp(op=ast.And(), values=values):
                 return smt.And(*map(rec, values))
             case ast.BoolOp(op=ast.Or(), values=values):
@@ -499,19 +510,20 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> smt.ExprRef:
                 left = rec(left)
                 for op, right in zip(ops, rights):
                     right = rec(right)
+                    left, right = left, right
                     match op:
                         case ast.Eq():
-                            acc.append(smt.Eq(left, right))
+                            acc.append(left == right)
                         case ast.NotEq():
                             acc.append(left != right)
                         case ast.Lt():
-                            acc.append(left < right)
+                            acc.append(left < right)  # type: ignore[operator]
                         case ast.LtE():
-                            acc.append(left <= right)
+                            acc.append(left <= right)  # type: ignore[operator]
                         case ast.Gt():
-                            acc.append(left > right)
+                            acc.append(left > right)  # type: ignore[operator]
                         case ast.GtE():
-                            acc.append(left >= right)
+                            acc.append(left >= right)  # type: ignore[operator]
                         case _:
                             raise NotImplementedError(f"Compare {op}")
                     left = right
@@ -575,7 +587,7 @@ def expr(expr: str, globals=None, locals=None) -> smt.ExprRef:
     if isinstance(res, int):
         return smt.IntVal(res)
     else:
-        return res
+        return smt._py2expr(res)
 
 
 def _reflect_pattern(
@@ -636,7 +648,7 @@ def _reflect_pattern(
                 assert isinstance(
                     subject, smt.ExprRef
                 ), "Expected an SMT expression as scrutinee"
-                v = _reflect_expr(value, globals=globals, locals=locals)
+                v = smt._py2expr(_reflect_expr(value, globals=globals, locals=locals))
                 path_cond.append(smt.Eq(subject, v))
             case _:
                 # MatchOr
@@ -820,7 +832,7 @@ def _reflect_stmts(
                     raise ValueError("Returning None not allowed")
                 if stmt_num != len(stmts) - 1:
                     raise ValueError("Return statement must be last statement in block")
-                return _reflect_expr(value, globals, locals)
+                return smt._py2expr(_reflect_expr(value, globals, locals))
             case _:
                 raise ValueError(
                     "Unsupported Statement", ast.unparse(stmt), ast.dump(stmt)
@@ -828,19 +840,28 @@ def _reflect_stmts(
     return locals
 
 
-def _sort_of_annotation(ann, globals={}, locals={}) -> smt.SortRef | smt.ExprRef:
+def _sort_of_annotation(ann, globals={}, locals={}) -> smt.SortRef | smt.FuncRef:
     match ann:
         case ast.Name(id_) if id_ in ["int", "bool", "str", "float"]:
             return sort_of_type(eval(id_))
         case ast.Constant(value) if isinstance(value, str):
             assert isinstance(value, str)
             s = _reflect_expr(ast.parse(value, mode="eval").body, globals, locals)
-            if isinstance(s, smt.SortRef) or smt.is_func(s):
+            if (
+                isinstance(s, smt.SortRef)
+                or isinstance(s, smt.ArraySortRef)
+                or isinstance(s, smt.QuantifierRef)
+            ):
                 return s
             else:
                 raise ValueError(f"Constant {value} is not a supported type or sort")
         case _:
             s = _reflect_expr(ann, globals, locals)
+            assert (
+                isinstance(s, smt.SortRef)
+                or isinstance(s, smt.ArraySortRef)
+                or isinstance(s, smt.QuantifierRef)
+            )
             return s
 
 
