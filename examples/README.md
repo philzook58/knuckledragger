@@ -1,3 +1,13 @@
+# Examples
+
+## Babylonian Method (`babylonian.py`)
+
+Proves that the Babylonian method (Heron's method) for computing square roots produces a Cauchy sequence. The file establishes key properties:
+- AM-GM inequality
+- Step function preserves positivity and has lower bound
+- Sequence is bounded below and monotonically decreasing
+- Sequence is Cauchy (stated as axiom after proving prerequisites)
+
 Other ideas:
 
 - <http://www.concrete-semantics.org/>
