@@ -1216,7 +1216,6 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
                 post = _reflect_expr(arg, globals=globals, locals=locals)
                 ensures.append(post)
             case _:
-                body = body[n:]
                 break
     else:
         n = len(body)

@@ -104,3 +104,18 @@ def test_reflect_match_value_pattern_from_global():
     x = smt.Int("x")
     expected = smt.ForAll([x], match_global_value(x) == smt.If(x == 4, 1, 0))
     assert match_global_value.defn.thm.body().eq(expected.body())
+
+
+def test_requires_ensures():
+    @reflect
+    def silly_inc(x: int) -> int:
+        requires(x > 0)
+        requires(x < 100)
+        ensures(silly_inc(x) == x + 1)
+        ensures(silly_inc(x) <= 101)
+        return x + 1
+    x = smt.Int("x")
+    print(silly_inc.contract.thm.sexpr())
+    print(smt.All([x], smt.And(x > 0, x < 100), smt.And(silly_inc(x) == x + 1, silly_inc(x) <= 101)).sexpr())
+    # difference is that contract has a trigger on it.
+    assert silly_inc.contract.thm.body().eq(smt.All([x], smt.And(x > 0, x < 100), smt.And(silly_inc(x) == x + 1, silly_inc(x) <= 101)).body())
