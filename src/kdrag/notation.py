@@ -19,9 +19,9 @@ import kdrag.smt as smt
 import kdrag as kd
 
 
-smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[assignment]
+smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[ty:unresolved-attribute]
 
-smt.ArrayRef.__call__ = lambda self, *arg: self[arg]  # type: ignore[assignment]
+smt.ArrayRef.__call__ = lambda self, *arg: self[arg]  # type: ignore[ty:invalid-assignment]
 
 
 def compose(f: smt.FuncDeclRef, g: smt.FuncDeclRef) -> smt.FuncDeclRef:
@@ -57,7 +57,7 @@ def quantifier_call(self, *args):
     )
 
 
-smt.QuantifierRef.__call__ = quantifier_call  # type: ignore[assignment]
+smt.QuantifierRef.__call__ = quantifier_call  # type: ignore[ty:invalid-assignment]
 
 
 class SortDispatch:
@@ -269,19 +269,19 @@ and_.register(smt.BoolSort(), smt.And)
 
 or_ = SortDispatch(name="or_", pointwise=True)
 """Sort based dispatch for `|` syntax"""
-smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore[invalid-assignment]
+smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore[ty:invalid-assignment]
 smt.QuantifierRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
 or_.register(smt.BoolSort(), smt.Or)
 
 invert = SortDispatch(name="invert", pointwise=True)
 """Sort based dispatch for `~` syntax"""
-smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore[invalid-assignment]
+smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore[ty:invalid-assignment]
 smt.QuantifierRef.__invert__ = lambda x: invert(x)  # type: ignore
 invert.register(smt.BoolSort(), smt.Not)
 
 lt = SortDispatch(name="lt", pointwise=True)
 """Sort based dispatch for `<` syntax"""
-smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore[invalid-assignment]
+smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore[ty:invalid-assignment]
 lt.register(smt.IntSort(), lambda x, y: x < y)
 lt.register(smt.RealSort(), lambda x, y: x < y)
 # Conceptually this kind of makes sense, but SubSet is the more natural thing.
@@ -290,21 +290,21 @@ lt.register(smt.RealSort(), lambda x, y: x < y)
 
 le = SortDispatch(name="le", pointwise=True)
 """Sort based dispatch for `<=` syntax"""
-smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore[invalid-assignment]
+smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore[ty:invalid-assignment]
 le.register(smt.IntSort(), lambda x, y: x <= y)
 le.register(smt.RealSort(), lambda x, y: x <= y)
 # le.register(smt.BoolSort(), lambda x, y: smt.Implies(x, y))
 
 ge = SortDispatch(name="ge", pointwise=True)
 """Sort based dispatch for `>=` syntax"""
-smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore[invalid-assignment]
+smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore[ty:invalid-assignment]
 ge.register(smt.IntSort(), lambda x, y: x >= y)
 ge.register(smt.RealSort(), lambda x, y: x >= y)
 # ge.register(smt.BoolSort(), lambda x, y: smt.Implies(y, x))
 
 gt = SortDispatch(name="gt", pointwise=True)
 """Sort based dispatch for `>` syntax"""
-smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore[invalid-assignment]
+smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore[ty:invalid-assignment]
 gt.register(smt.IntSort(), lambda x, y: x > y)
 gt.register(smt.RealSort(), lambda x, y: x > y)
 # gt.register(smt.BoolSort(), lambda x, y: smt.And(x, smt.Not(y)))
@@ -315,12 +315,12 @@ gt.register(smt.RealSort(), lambda x, y: x > y)
 
 eq = SortDispatch(name="eq", default=smt.Eq)
 """Sort based dispatch for `==` syntax"""
-smt.ExprRef.__eq__ = lambda x, y: eq(x, y)  # type: ignore[invalid-assignment]
+smt.ExprRef.__eq__ = lambda x, y: eq(x, y)  # type: ignore[ty:invalid-assignment]
 
 
 ne = SortDispatch(name="ne", default=smt.NEq)
 """Sort based dispatch for `!=` syntax"""
-smt.ExprRef.__ne__ = lambda x, y: ne(x, y)  # type: ignore[invalid-assignment]
+smt.ExprRef.__ne__ = lambda x, y: ne(x, y)  # type: ignore[ty:invalid-assignment]
 
 wf = SortDispatch(name="wf")
 """`wf` is a special predicate for well-formedness. It is auto inserted by QForAll and QExists."""

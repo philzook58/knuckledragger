@@ -50,7 +50,7 @@ def subsort_domain(T: SubSort) -> smt.SortRef:
 def _subsort_apply(T: SubSort, t: smt.ExprRef) -> smt.BoolRef:
     # Both ArrayRef and lambda QuantifierRef support indexing in runtime;
     # typing doesn't express this well.
-    return T(t)  # type: ignore[index]
+    return T(t)  # type: ignore[ty:invalid-return-type]
 
 
 def normalize(xs: Telescope) -> _Tele:

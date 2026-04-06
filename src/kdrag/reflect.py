@@ -380,7 +380,7 @@ def reify(s: smt.SortRef, x: object) -> smt.ExprRef:
         # TODO: Probably not right, also not dealing with multi arg lambdas.
         if isinstance(x, Callable):
             v = smt.FreshConst(s.domain())
-            y = x(v)  # type: ignore[call-top-callable]
+            y = x(v)  # type: ignore[ty:call-top-callable]
             assert isinstance(y, smt.ExprRef), y
             assert y.sort() == s.range()
             return smt.Lambda([v], y)
@@ -478,38 +478,38 @@ def _reflect_expr(expr: ast.expr, globals, locals) -> object:
                 x = rec(operand)
                 match op:
                     case ast.USub():
-                        return -x  # type: ignore[operator]
+                        return -x  # type: ignore[ty:unsupported-operator]
                     case ast.Invert():
-                        return ~x  # type: ignore[operator]
+                        return ~x  # type: ignore[ty:unsupported-operator]
                     case _:
                         raise NotImplementedError(f"UnaryOp {op}")
             case ast.BinOp(left=left, op=op, right=right):
                 l, r = rec(left), rec(right)
                 match op:
                     case ast.Add():
-                        return l + r  # type: ignore[operator]
+                        return l + r  # type: ignore[ty:unsupported-operator]
                     case ast.Sub():
-                        return l - r  # type: ignore[operator]
+                        return l - r  # type: ignore[ty:unsupported-operator]
                     case ast.Mult():
-                        return l * r  # type: ignore[operator]
+                        return l * r  # type: ignore[ty:unsupported-operator]
                     case ast.Div():
-                        return l / r  # type: ignore[operator]
+                        return l / r  # type: ignore[ty:unsupported-operator]
                     case ast.Mod():
-                        return l % r  # type: ignore[operator]
+                        return l % r  # type: ignore[ty:unsupported-operator]
                     case ast.Pow():
-                        return l**r  # type: ignore[operator]
+                        return l**r  # type: ignore[ty:unsupported-operator]
                     case ast.LShift():
-                        return l << r  # type: ignore[operator]
+                        return l << r  # type: ignore[ty:unsupported-operator]
                     case ast.RShift():
-                        return l >> r  # type: ignore[operator]
+                        return l >> r  # type: ignore[ty:unsupported-operator]
                     case ast.BitOr():
-                        return l | r  # type: ignore[operator]
+                        return l | r  # type: ignore[ty:unsupported-operator]
                     case ast.BitXor():
-                        return l ^ r  # type: ignore[operator]
+                        return l ^ r  # type: ignore[ty:unsupported-operator]
                     case ast.BitAnd():
-                        return l & r  # type: ignore[operator]
+                        return l & r  # type: ignore[ty:unsupported-operator]
                     case ast.FloorDiv():
-                        return l // r  # type: ignore[operator]
+                        return l // r  # type: ignore[ty:unsupported-operator]
                     case _:
                         raise NotImplementedError(f"Binary operator {op}")
             case ast.BoolOp(op=ast.And(), values=values):
@@ -528,13 +528,13 @@ def _reflect_expr(expr: ast.expr, globals, locals) -> object:
                         case ast.NotEq():
                             acc.append(left != right)
                         case ast.Lt():
-                            acc.append(left < right)  # type: ignore[operator]
+                            acc.append(left < right)  # type: ignore[ty:unsupported-operator]
                         case ast.LtE():
-                            acc.append(left <= right)  # type: ignore[operator]
+                            acc.append(left <= right)  # type: ignore[ty:unsupported-operator]
                         case ast.Gt():
-                            acc.append(left > right)  # type: ignore[operator]
+                            acc.append(left > right)  # type: ignore[ty:unsupported-operator]
                         case ast.GtE():
-                            acc.append(left >= right)  # type: ignore[operator]
+                            acc.append(left >= right)  # type: ignore[ty:unsupported-operator]
                         case _:
                             raise NotImplementedError(f"Compare {op}")
                     left = right
@@ -552,7 +552,7 @@ def _reflect_expr(expr: ast.expr, globals, locals) -> object:
                 # TODO: emit instantiated proof objects
                 # if hasattr(f, "contract") and f.contract is not None:
                 #    pfs.append(f.contract(*map(rec, args), **kwargs))
-                return f(*args, **kwargs)  # type: ignore[call-top-callable]
+                return f(*args, **kwargs)  # type: ignore[ty:call-top-callable]
             case ast.IfExp(test, body, orelse):
                 return smt.If(rec(test), rec(body), rec(orelse))
             case ast.Name(id_, _ctx):
@@ -569,7 +569,7 @@ def _reflect_expr(expr: ast.expr, globals, locals) -> object:
                 assert hasattr(
                     v, "__getitem__"
                 ), f"Value {rec(value)} is not subscriptable"
-                return v[rec(slice)]  # type: ignore[not-subscriptable]
+                return v[rec(slice)]  # type: ignore[ty:call-non-callable]
             case ast.List(elts=elts, ctx=ast.Load()):
                 return [rec(e) for e in elts]
             case ast.Tuple(elts=elts, ctx=ast.Load()):
@@ -844,7 +844,7 @@ def _reflect_stmts(
                                     ast.unparse(stmt),
                                 )
                         case ast.Tuple(elts=elts):
-                            todo.extend(zip(elts, value))  # type: ignore[invalid-argument-type]
+                            todo.extend(zip(elts, value))  # type: ignore[ty:invalid-argument-type]
                 locals = {**locals, **match_env}
             case ast.Assign(targets=[ast.Name(id_, _ctx)], value=value):
                 value = _reflect_expr(value, globals=globals, locals=locals)
@@ -1255,7 +1255,7 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
     assert z3fun.arity() == decl.arity() and all(
         z3fun.domain(i) == decl.domain(i) for i in range(z3fun.arity())
     )
-    return functools.update_wrapper(z3fun1, f)  # type: ignore[invalid-return-type]
+    return functools.update_wrapper(z3fun1, f)  # type: ignore[ty:invalid-return-type]
 
 
 def datatype(s: str, locals=None, globals=None) -> smt.DatatypeSortRef:

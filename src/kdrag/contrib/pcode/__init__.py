@@ -112,7 +112,7 @@ class _TestVarnode:
 
 # Varnode by default has pointer identity. This makes dictionaries not work correctly.
 
-pypcode.Varnode.__hash__ = lambda self: hash((self.space.name, self.offset, self.size))  # type: ignore[assignment]
+pypcode.Varnode.__hash__ = lambda self: hash((self.space.name, self.offset, self.size))  # type: ignore[ty:invalid-assignment]
 
 
 def varnode_eq(self: pypcode.Varnode, other) -> bool:
@@ -124,7 +124,7 @@ def varnode_eq(self: pypcode.Varnode, other) -> bool:
     )
 
 
-pypcode.Varnode.__eq__ = varnode_eq  # type: ignore[assignment]
+pypcode.Varnode.__eq__ = varnode_eq  # type: ignore[ty:invalid-assignment]
 
 
 class CachedArray(NamedTuple):

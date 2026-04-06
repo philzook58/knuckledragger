@@ -800,8 +800,8 @@ def Inductive(name: str, ctx=None, auto_fresh=False) -> smt.Datatype:
             ],
         )
 
-    dt.create = create  # type: ignore[assignment]
-    dt.declare = declare  # type: ignore[assignment]
+    dt.create = create  # type: ignore[ty:invalid-assignment]
+    dt.declare = declare  # type: ignore[ty:invalid-assignment]
     return dt
 
 

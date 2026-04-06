@@ -223,7 +223,7 @@ def pattern(tree, env: Env, expected_sort: smt.SortRef | None) -> smt.ExprRef:
             text = str(n)
             if "." in text:
                 return smt.RealVal(text)
-            return int(text)  # type: ignore[invalid-return-type]
+            return int(text)  # type: ignore[ty:invalid-return-type]
         case Tree("const", [name, *attrs]):
             if name in env.locals or name in env.globals:
                 res = env[name]
@@ -264,7 +264,7 @@ def expr(tree, env: Env, expected_sort: Optional[smt.SortRef] = None) -> smt.Exp
             text = str(n)
             if "." in text:
                 return smt.RealVal(text)
-            return int(text)  # type: ignore[invalid-return-type]
+            return int(text)  # type: ignore[ty:invalid-return-type]
         case Tree("const", [name, *attrs]):
             res = env[name]
             for attr in attrs:
