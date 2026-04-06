@@ -89,9 +89,13 @@ def contract(
         print("Warning: overwriting existing contract for function", f, contracts[f])
     if by is None:
         by = []
-    thm = smt.ForAll(args, smt.Implies(pre, post), patterns=[f(*args)])
+    if len(args) == 0:
+        # No need to quantify, just prove the implication
+        thm = smt.Implies(pre, post)
+    else:
+        thm = smt.ForAll(args, smt.Implies(pre, post), patterns=[f(*args)])
     by = by + lemmas(thm)
-    pf = kd.kernel.prove(thm, by=by, **kwargs)  # Do we want kd.tactics.prove here?
+    pf = kd.prove(thm, by=by, **kwargs)  # Do we want kd.tactics.prove here?
     contracts[f] = Contract(f, args, pre, post, pf)
     return pf
 

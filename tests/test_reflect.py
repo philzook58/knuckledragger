@@ -5,6 +5,18 @@ import kdrag.contracts
 import kdrag.smt as smt
 from kdrag.reflect import reflect
 
+@reflect
+def vapp1000(n : int, m : int, 
+         xs : "smt.ExprRef # kd.Vec(n, kd.Z)", 
+         ys : "smt.ExprRef # kd.Vec(m, kd.Z)",
+         )->  "smt.ExprRef # kd.Vec(n + m, kd.Z)":
+    return xs + ys
+
+foo = kd.define("foo342442", [], smt.IntVal(42))
+@reflect
+def bar3424(x : "{x for x in int if x > 0}") -> "{y for y in int if y == x + 42}":
+    () = foo.defn
+    return x + 42
 
 @reflect
 def add_nat(x: kd.Nat, y: kd.Nat) -> kd.Nat:

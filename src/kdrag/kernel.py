@@ -97,8 +97,11 @@ class Proof(Judgement):
                 acc = modus(acc, x)
             else:
                 raise TypeError(
-                    "Proofs can only be called with a single argument or a list of arguments for forall quantifiers. "
-                    "Use instan for forall quantifiers or modus for implications."
+                    "Failure to apply",
+                    self,
+                    "to",
+                    args,
+                    "Only implications and forall quantifier Proofs can be called",
                 )
         return acc
 

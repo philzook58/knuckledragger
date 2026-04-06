@@ -187,7 +187,23 @@ call = SortDispatch(name="call")
 """Sort based dispatch for `()` call syntax"""
 smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)  # type: ignore
 
-getitem = SortDispatch(name="getitem")
+
+def default_getitem(self: smt.ExprRef, ind: int) -> smt.ExprRef:
+    """
+    Enable indexing into the fields of a record datatype. Only works for single constructor datatypes.
+    >>> kd.tuple_(smt.IntVal(3), smt.BoolVal(True))[0]
+    _0(Tuple_Int_Bool(3, True))
+    """
+    if isinstance(self, smt.DatatypeRef):
+        sort = self.sort()
+        if sort.num_constructors() != 1:
+            raise TypeError("Cannot index into datatypes with multiple constructors")
+        return sort.accessor(0, ind)(self)
+    else:
+        raise TypeError("No instance of getitem for", self)
+
+
+getitem = SortDispatch(name="getitem", default=default_getitem)
 """Sort based dispatch for `[]` getitem syntax"""
 smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)  # type: ignore
 
@@ -328,6 +344,28 @@ forall = SortDispatch(name="forall")
 exists = SortDispatch(name="exists")
 """Sort based dispatch for `Exists` quantifier."""
 # smt.ExprRef.exists = lambda vs, body: exists(vs, body)
+
+
+def trans_factory(Tstep: smt.ArraySortRef) -> smt.FuncDeclRef:
+    """
+    Transitive closure
+
+    >>> x = smt.Int("x")
+    >>> trans(smt.Lambda([x], x + 1), smt.IntVal(2), smt.IntVal(3))
+    Int.trans(Lambda(x, x + 1), 2, 3)
+    """
+    T = Tstep.range()
+    x0 = smt.Const("x", T)
+    t = smt.Const("t", smt.IntSort())
+    step = smt.Const("step", Tstep)
+    name = T.name() + ".trans"
+    trans = smt.Function(name, Tstep, T, smt.IntSort(), T)
+    return kd.define(
+        name, [step, x0, t], smt.If(t <= 0, x0, step(trans(step, x0, t - 1)))
+    )
+
+
+trans = SortDispatch("trans", default_factory=trans_factory)
 
 
 def induct_seq(a: smt.SeqRef, P) -> kd.kernel.Proof:

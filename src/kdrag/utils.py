@@ -704,12 +704,12 @@ def free_vars(t: smt.ExprRef) -> set[smt.ExprRef]:
     return fvs
 
 
-def find_calls(decl: smt.FuncDeclRef, t: smt.ExprRef) -> list[smt.ExprRef]:
+def all_calls(decl: smt.FuncDeclRef, t: smt.ExprRef) -> list[smt.ExprRef]:
     """
     Find subterms that are calls of decl in t.
 
     >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
-    >>> find_calls(f, f(f(4*f(3)) + 2))
+    >>> all_calls(f, f(f(4*f(3)) + 2))
     [f(f(4*f(3)) + 2), f(4*f(3)), f(3)]
     """
     todo = [t]
@@ -752,6 +752,50 @@ def sanity_check_consistency(thms: list[smt.ExprRef | kd.kernel.Proof], timeout=
         raise ValueError("Theorems are inconsistent", thms)
     else:
         return res
+
+
+def find_constructor(e: smt.ExprRef | smt.FuncDeclRef) -> int:
+    """
+    >>> find_constructor(kd.Nat.Z)
+    0
+    >>> find_constructor(kd.Nat.S(kd.Nat.Z))
+    1
+    """
+    if isinstance(e, smt.ExprRef):
+        assert smt.is_constructor(e), "Expected a constructor term"
+        decl = e.decl()
+    else:
+        decl = e
+    dt = decl.range()
+    assert isinstance(
+        dt, smt.DatatypeSortRef
+    ), "Expected a datatype sort for constructor declaration"
+    for i in range(dt.num_constructors()):
+        if dt.constructor(i) == decl:
+            return i
+    raise ValueError("Not a constructor", decl)
+
+
+def find_accessor(e: smt.ExprRef | smt.FuncDeclRef) -> tuple[int, int]:
+    """
+    >>> find_accessor(kd.Nat.Z.pred)
+    (1, 0)
+    """
+    if isinstance(e, smt.ExprRef):
+        assert smt.is_accessor(e), "Expected a constructor term"
+        decl = e.decl()
+    else:
+        decl = e
+    dt = decl.domain(0)
+    assert isinstance(
+        dt, smt.DatatypeSortRef
+    ), "Expected a datatype sort for accessor declaration"
+    for i in range(dt.num_constructors()):
+        cons = dt.constructor(i)
+        for j in range(cons.arity()):
+            if dt.accessor(i, j) == decl:
+                return i, j
+    raise ValueError("Not an accessor", decl)
 
 
 def prune(

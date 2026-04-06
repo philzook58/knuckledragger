@@ -231,6 +231,14 @@ def Exists(vs: list[ExprRef], *concs, **kwargs) -> QuantifierRef:
         return RawExists(vs, And(concs), **kwargs)
 
 
+# Shorthands
+All = ForAll
+Any = Exists
+A = ForAll
+E = Exists
+Imp = Implies
+
+
 ExprRef.induct = lambda x, P: None
 ExprRef.__add__ = lambda x, y: None
 ExprRef.__sub__ = lambda x, y: None
@@ -477,12 +485,14 @@ FuncDeclRef.prop = None
 
 FuncRef: TypeAlias = ArrayRef | QuantifierRef
 
+FuncDeclRef.subdomain = None
+FuncDeclRef.subrange = None
 
 FuncDeclRef.implicits: Optional[Sequence[Optional[str]]] = None
 old_call = FuncDeclRef.__call__
 
 
-def new_call(self, *args, **kwargs):
+def new_call(self: FuncDeclRef, *args, **kwargs):
     """
     Implicit arguments are enabled.
     If you add an field of keyword names to a FuncDeclRef, you can leave them out and they
@@ -493,10 +503,19 @@ def new_call(self, *args, **kwargs):
     >>> f(RealVal(1), y=BoolVal(True))
     f(?x!..., 1, True)
     """
+    if self.subdomain is not None:
+        required = self.subdomain(*args)
+        supplied = [arg.assumes for arg in args if arg.assumes is not None]
+        s = Solver()
+        s.add(Not(Implies(And(supplied), required)))
+        if s.check() != unsat:
+            raise ValueError(
+                f"Arguments {args} do not satisfy subdomain requirement {required} for {self}"
+            )
 
     if self.implicits is None or len(args) == self.arity():
         assert len(kwargs) == 0, "Keyword arguments not supported for this function"
-        return old_call(self, *args, **kwargs)
+        new_args = args
     else:
         argi = 0
         new_args = []
@@ -517,7 +536,10 @@ def new_call(self, *args, **kwargs):
         assert (
             len(new_args) == self.arity()
         ), "Something has gone wrong with implicit argument filling"
-        return old_call(self, *new_args)
+    res = old_call(self, *new_args)
+    if self.subrange is not None:
+        res.assumes = self.subrange(res)
+    return res
 
 
 FuncDeclRef.__call__ = new_call

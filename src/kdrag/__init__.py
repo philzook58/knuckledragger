@@ -177,6 +177,15 @@ def UnitSort() -> smt.DatatypeSortRef:
     return Unit
 
 
+def Pf(p: smt.BoolRef) -> smt.QuantifierRef:
+    """
+    >>> Pf(smt.Int("x") > 0)
+    Lambda(pf!..., x > 0)
+    """
+    pf = smt.FreshConst(Unit, prefix="pf")
+    return smt.Lambda([pf], p)
+
+
 _i = smt.Int("i")
 NatP = smt.Lambda([_i], _i >= 0)
 """Predicate for natural numbers"""
@@ -299,10 +308,13 @@ def tuple_(*args: smt.ExprRef) -> smt.DatatypeRef:
     return T(*args1)
 
 
+def is_tuple_sort(s: smt.SortRef) -> bool:
+    return isinstance(s, smt.DatatypeSortRef) and s.name().startswith("Tuple_")
+
+
 def is_tuple(e: smt.ExprRef) -> bool:
-    return isinstance(e.sort(), smt.DatatypeSortRef) and e.sort().name().startswith(
-        "Tuple_"
-    )
+    sort = e.sort()
+    return isinstance(sort, smt.DatatypeSortRef) and is_tuple_sort(sort)
 
 
 Complex = datatype.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))

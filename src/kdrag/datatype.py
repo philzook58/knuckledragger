@@ -307,7 +307,7 @@ def define_fun(eqs):
         cases.append((smt.And(constr), smt.substitute(rhs, *subst.items())))
 
         # simple structural termination check
-        rec_calls = list(kd.utils.find_calls(decl, rhs))
+        rec_calls = list(kd.utils.all_calls(decl, rhs))
         for call in rec_calls:
             # TODO: Could do fancier inference or termination criteria
             if not kd.utils.is_subterm(call.arg(0), pats[0]):

@@ -832,6 +832,7 @@ class BinaryContext:
         entries=[],
         cuts=[],
         exits=[],
+        invariant=None,
     ) -> dict[
         tuple[str | int, str | int],
         list[tuple[smt.BoolRef, smt.ExprRef, smt.ExprRef, smt.ExprRef]],
@@ -841,20 +842,41 @@ class BinaryContext:
         for (start, end), simstates in self.execute_trace_frags(
             memstate0, entries=entries, cuts=cuts, exits=exits
         ).items():
-            init_high = high_low(self.resolve_addr(start), memstate0)
+            start_addr = self.resolve_addr(start)
+            init_high = high_low(start_addr, memstate0)
             props = []
             obls[(start, end)] = props
             for simstate in simstates:
-                lowstep = high_low(self.resolve_addr(end), simstate.memstate)
+                end_addr = self.resolve_addr(end)
+                lowstep = high_low(end_addr, simstate.memstate)
                 highstep = step(init_high)
+                if invariant is None:
+                    preconds = smt.And(simstate.path_cond)
+                    property = smt.Implies(preconds, lowstep == highstep)
+                else:
+                    start_inv = invariant(start_addr, memstate0)
+                    end_inv = invariant(end_addr, simstate.memstate)
+                    start_inv = (
+                        start_inv if start_inv is not None else smt.BoolVal(True)
+                    )
+                    end_inv = end_inv if end_inv is not None else smt.BoolVal(True)
+                    # possibly check for nonemptyiness of start_inv?
+                    # start_inv on entry points is really a precondition
+                    # on exit points is a post conditions
+                    # Perhhaps we need to verify that there always exists a low state for every high state.
+                    preconds = smt.And(simstate.path_cond + [start_inv])
+                    property = smt.Implies(
+                        preconds, smt.And(end_inv, lowstep == highstep)
+                    )
                 props.append(
                     (
-                        smt.Implies(smt.And(simstate.path_cond), lowstep == highstep),
+                        property,
                         init_high,
                         lowstep,
                         highstep,
                     )
                 )
+
         return obls
 
     def bisim(
@@ -864,9 +886,12 @@ class BinaryContext:
         entries=[],
         cuts=[],
         exits=[],
+        invariant=None,
         **kwargs,
     ):
-        obls = self.bisim_obligations(high_low, step, entries, cuts, exits)
+        obls = self.bisim_obligations(
+            high_low, step, entries=entries, cuts=cuts, exits=exits, invariant=invariant
+        )
         for (start, end), obls0 in obls.items():
             for obl_info in obls0:
                 obl, init_high, lowstep, highstep = obl_info

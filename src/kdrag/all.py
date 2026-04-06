@@ -5,6 +5,9 @@ A convenience module to import commonly needed other modules as shorthands
 import kdrag as kd
 import kdrag.smt as smt
 
+from kdrag.smt import *  # noqa: F403
+from kdrag import *  # noqa: F403
+
 # import kdrag.theories.real as real
 import kdrag.solvers as solvers
 import kdrag.theories as thy

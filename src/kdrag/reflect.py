@@ -7,16 +7,17 @@ import kdrag as kd
 import typing
 import fractions
 import functools
-from typing import Callable, no_type_check
+from typing import Callable, no_type_check, Iterable
 from collections import namedtuple
 import operator
 from dataclasses import dataclass
 import ast
 import inspect
 import textwrap
+import types
 
 
-def sort_of_type(t: type) -> smt.SortRef:
+def sort_of_type(t: type | types.GenericAlias) -> smt.SortRef:
     """
     Give equivalent SMT sort for a given Python type.
 
@@ -27,7 +28,10 @@ def sort_of_type(t: type) -> smt.SortRef:
     Seq(Int)
     >>> sort_of_type(dict[str, int])
     Array(String, Int)
-
+    >>> sort_of_type(tuple[int, bool])
+    Tuple_Int_Bool
+    >>> sort_of_type(tuple)
+    Unit
     """
     origin = typing.get_origin(t)
 
@@ -42,6 +46,8 @@ def sort_of_type(t: type) -> smt.SortRef:
             return smt.RealSort()  # Floats correspond to reals in SMT
         elif t is str:
             return smt.StringSort()
+        elif t is tuple:
+            return kd.Unit
         # elif is_subclassof(t, NamedTuple):
         #    # Handle NamedTuple fields as a tuple sort
         #    fields = t._field_types  # Get fields and types from the NamedTuple
@@ -61,6 +67,8 @@ def sort_of_type(t: type) -> smt.SortRef:
             if len(args) != 2:
                 raise NotImplementedError("Dict must have exactly two type parameters")
             return smt.ArraySort(sort_of_type(args[0]), sort_of_type(args[1]))
+        elif origin is tuple:
+            return kd.TupleSort(*[sort_of_type(arg) for arg in args])
         # elif origin == Union:
         #    return smt.DatatypeSortRef(*[sort_of_type(arg) for arg in args])
         else:
@@ -435,41 +443,44 @@ def nbe(x: smt.ExprRef) -> smt.ExprRef:
     return reify(x.sort(), eval_(x))
 
 
-def _lookup(name, globals=None, locals=None):
+"""
+def _lookup(name: str, globals=None, locals=None):
+    assert isinstance(name, str)
+    return eval(name, globals, locals)
     if locals is not None and name in locals:
         return locals[name]
     if globals is not None and name in globals:
         return globals[name]
     raise ValueError(f"Could not find {name} in global or local environment")
+"""
 
 
-type ExprLike = smt.ExprRef | int | bool | list[ExprLike]
+class Env:
+    globals: dict[str, object]
+    locals: dict[str, object]
+    path_cond: list[smt.BoolRef]
+
+
+class Return:
+    value: smt.ExprRef
 
 
 # Is it really worth doing this or should I just use eval?
 # Question: How often should we require the expected result to be an expression?
 # integer is useful, referring to sorts is useful.
 # expected_sort=? parameter? If expected to be a sort, force it.
-def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> ExprLike:
-    def rec(expr: ast.expr) -> ExprLike:
+def _reflect_expr(expr: ast.expr, globals, locals) -> object:
+    def rec(expr: ast.expr) -> object:
         match expr:
             case ast.Constant(value, kind=None):
-                if isinstance(value, int):
-                    return value  # Sometimes it really should be an int. Like when it is a parameter to BitVecSort or someting
-
-                else:
-                    return smt._py2expr(value)
-            # case ast.UnaryOp(ast.UAdd(), operand):
-            #    return +rec(operand)
+                return value
             case ast.UnaryOp(op, operand):
                 x = rec(operand)
                 match op:
                     case ast.USub():
-                        assert isinstance(x, (int, smt.ExprRef)), f"Cannot negate {x}"
-                        return -x
+                        return -x  # type: ignore[operator]
                     case ast.Invert():
-                        assert isinstance(x, (int, smt.ExprRef)), f"Cannot invert {x}"
-                        return ~x
+                        return ~x  # type: ignore[operator]
                     case _:
                         raise NotImplementedError(f"UnaryOp {op}")
             case ast.BinOp(left=left, op=op, right=right):
@@ -537,11 +548,19 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> ExprLike:
                 kwargs = {
                     kw.arg: rec(kw.value) for kw in keywords if kw.arg is not None
                 }
-                return f(*map(rec, args), **kwargs)
+                args = [rec(arg) for arg in args]
+                # TODO: emit instantiated proof objects
+                # if hasattr(f, "contract") and f.contract is not None:
+                #    pfs.append(f.contract(*map(rec, args), **kwargs))
+                return f(*args, **kwargs)  # type: ignore[call-top-callable]
             case ast.IfExp(test, body, orelse):
                 return smt.If(rec(test), rec(body), rec(orelse))
             case ast.Name(id_, _ctx):
-                return _lookup(id_, locals=locals, globals=globals)
+                return eval(
+                    id_, globals, locals
+                )  # eval is a little better because it also looks up builtins
+                # should be pre parsed so that injection is impossible?
+                # return _lookup(id_, locals=locals, globals=globals)
             case ast.Attribute(value, attr, _ctx):
                 return getattr(rec(value), attr)
             case ast.Subscript(value=value, slice=slice, ctx=ast.Load()):
@@ -553,6 +572,62 @@ def _reflect_expr(expr: ast.expr, globals=None, locals=None) -> ExprLike:
                 return v[rec(slice)]  # type: ignore[not-subscriptable]
             case ast.List(elts=elts, ctx=ast.Load()):
                 return [rec(e) for e in elts]
+            case ast.Tuple(elts=elts, ctx=ast.Load()):
+                return tuple(rec(e) for e in elts)
+            case ast.SetComp(elt=elt, generators=generators):
+                match elt:
+                    case ast.Name(id=id_, ctx=ast.Load()):
+                        name = id_
+                    case _:
+                        raise NotImplementedError(
+                            "Only simple set comprehensions supported"
+                        )
+                if len(generators) == 1:
+                    comprehension = generators[0]
+                    match comprehension.target:
+                        case ast.Name(id=id_, ctx=ast.Store()):
+                            if id_ != name:
+                                raise NotImplementedError(
+                                    "Comprehension variable must match set variable"
+                                )
+                    s = rec(comprehension.iter)
+                    if isinstance(s, type):
+                        sort = sort_of_type(s)
+                    elif isinstance(s, smt.SortRef):
+                        sort = s
+                    else:
+                        raise ValueError(
+                            "Expected type or SortRef", s, ast.unparse(expr)
+                        )
+                    """
+                    # TODO: Maybe support subsorts in this position?
+                    elif isinstance(s, smt.ArraySortRef) or isinstance(
+                        s, smt.QuantifierRef
+                    ):
+                        doms = smt.domains(s)
+                        assert (
+                            len(doms) == 1
+                        ), "Only single domain arrays and functions supported in set comprehensions"
+                        sort = doms[0]
+                    """
+                    v = smt.FreshConst(sort, prefix=name)
+                    new_locals = {**locals, name: v}
+                    cond = smt.And(
+                        *[
+                            _reflect_expr(if_, globals, new_locals)
+                            for if_ in comprehension.ifs
+                        ]
+                    )
+                    return smt.Lambda([v], cond)
+                else:
+                    raise NotImplementedError(
+                        "Only single generator set comprehensions supported",
+                        ast.unparse(expr),
+                    )
+                # TODO: allow ordinary non sort iterables
+                # res = set()
+                # for x in rec(comprehension.iter):
+                # {rec(expr) for x in rec(generators[0].iter) if generators[0].ifs}
             case x:
                 raise ValueError(
                     "Could not interpret expression", ast.unparse(x), ast.dump(x)
@@ -672,7 +747,7 @@ def coverage_check(
     if s.check() == smt.sat:
         model = s.model()
         raise AssertionError(
-            "Cases of if/match are not exhaustive. Counterexample: ",
+            f"Line {stmt.lineno}: Cases of if/match are not exhaustive. Counterexample: ",
             ast.unparse(stmt),
             {
                 k: model.eval(v) if isinstance(v, smt.ExprRef) else v
@@ -682,7 +757,11 @@ def coverage_check(
         )
 
 
-def merge_branches(test: smt.BoolRef, body, orelse) -> smt.ExprRef | dict[str, object]:
+def merge_branches(
+    test: smt.BoolRef,
+    body: dict[str, object] | smt.ExprRef,
+    orelse: dict[str, object] | smt.ExprRef,
+) -> smt.ExprRef | dict[str, object]:
     if (
         isinstance(body, dict)
         and isinstance(orelse, dict)
@@ -698,6 +777,7 @@ def merge_branches(test: smt.BoolRef, body, orelse) -> smt.ExprRef | dict[str, o
             if v is v1:  # unmodified stuff
                 locals[k] = v
             else:
+                # TODO: perhaps merge by SymUnion here?
                 v, v1 = smt._py2expr(v), smt._py2expr(v1)
                 locals[k] = smt.If(test, v, v1)
         return locals
@@ -719,7 +799,11 @@ def merge_branches(test: smt.BoolRef, body, orelse) -> smt.ExprRef | dict[str, o
 
 # Returing an smt.ExprRef is a `return` and returning the dict is a fallthrough
 def _reflect_stmts(
-    stmts: list[ast.stmt], globals=None, locals=None, path_cond=[]
+    stmts: list[ast.stmt],
+    pfs: list[kd.kernel.Proof],
+    globals=None,
+    locals=None,
+    path_cond=[],
 ) -> smt.ExprRef | dict[str, object]:
     """
     Turn a list of python statements into a z3 Expression.
@@ -736,15 +820,70 @@ def _reflect_stmts(
     if locals is None:
         locals: dict[str, object] = {}
     for stmt_num, stmt in enumerate(stmts):
-        # Todo match.
         # Todo: bounded for and while
         match stmt:
+            case ast.Pass():
+                continue
+            case ast.Assign(targets=[target], value=value):
+                value = _reflect_expr(value, globals=globals, locals=locals)
+                todo = [(target, value)]
+                match_env = {}
+                # a little matching loop
+                while todo:
+                    target, value = todo.pop()
+                    match target:
+                        case ast.Name(id_):
+                            match_env[id_] = value
+                        case ast.Tuple(elts=[]):
+                            if isinstance(value, kd.Proof):
+                                path_cond.append(value.thm)
+                                pfs.append(value)
+                            else:
+                                raise ValueError(
+                                    "Can only assign to empty tuple for proofs",
+                                    ast.unparse(stmt),
+                                )
+                        case ast.Tuple(elts=elts):
+                            todo.extend(zip(elts, value))  # type: ignore[invalid-argument-type]
+                locals = {**locals, **match_env}
             case ast.Assign(targets=[ast.Name(id_, _ctx)], value=value):
                 value = _reflect_expr(value, globals=globals, locals=locals)
                 locals = {**locals, id_: value}
+            case ast.Assign(targets=[ast.Tuple(elts=[])], value=value):
+                # () = proof_expr
+                value = _reflect_expr(value, globals=globals, locals=locals)
+                if isinstance(value, kd.Proof):
+                    path_cond.append(value.thm)
+                    pfs.append(value)
+                else:
+                    raise ValueError(
+                        "Can only assign to empty tuple for proofs", ast.unparse(stmt)
+                    )
             case ast.Expr(value=ast.Call(func=ast.Name(id="print"))):
                 # For debug printing
-                print(locals)
+                print("print at line", stmt.lineno, locals, path_cond)
+            case ast.For(target=ast.Name(id_), iter=iter, body=body, orelse=[]):
+                # Simple completely unrolled as definition time for loops
+                # Could enhance supported targets
+                # A much bigger lift would be to support converting the for to an auxiliary definition
+                it = _reflect_expr(iter, globals=globals, locals=locals)
+                if not isinstance(it, Iterable):
+                    raise ValueError(
+                        f"Line {stmt.lineno}: For loop iter must be an iterable. Got {it} of type {type(it)}, from {ast.unparse(stmt)}"
+                    )
+                for v in it:
+                    locals = {**locals, id_: v}
+                    res = _reflect_stmts(
+                        body,
+                        pfs,
+                        globals=globals,
+                        locals=locals,
+                        path_cond=path_cond,  # Is this right? Should path_cond be changing?
+                    )
+                    assert isinstance(res, dict) and not isinstance(
+                        res, smt.ExprRef
+                    ), "For loop body cannot return"
+                    locals = res
             case ast.Assert(test, _msg):
                 # For debug sanity assertions
                 test = _reflect_expr(test, globals, locals)
@@ -754,7 +893,7 @@ def _reflect_stmts(
                 if s.check() == smt.sat:
                     model = s.model()
                     raise AssertionError(
-                        f"Assertion failed: {ast.unparse(stmt)}",
+                        f"Assertion failed (line no {stmt.lineno}): {ast.unparse(stmt)}",
                         {
                             k: model.eval(v) if isinstance(v, smt.ExprRef) else v
                             for k, v in locals.items()
@@ -764,11 +903,16 @@ def _reflect_stmts(
                 # possibly return an undef here.
             case ast.If(test, body, orelse):
                 test = _reflect_expr(test, globals, locals)
-                assert isinstance(
-                    test, smt.BoolRef
-                ), "If condition must be a boolean expression"
+                if not isinstance(test, smt.BoolRef):
+                    raise ValueError(
+                        f"Line {stmt.lineno} If condition must be a boolean expression. Got {test} of type {type(test)}, from {ast.unparse(stmt)}"
+                    )
                 body = _reflect_stmts(
-                    body, globals, locals, path_cond=path_cond + [test]
+                    body,
+                    pfs,
+                    globals=globals,
+                    locals=locals,
+                    path_cond=path_cond + [test],
                 )
                 if len(orelse) == 0:
                     # No else given. Coverage checking.
@@ -779,7 +923,11 @@ def _reflect_stmts(
                         return body
                 else:
                     orelse = _reflect_stmts(
-                        orelse, globals, locals, path_cond=path_cond + [smt.Not(test)]
+                        orelse,
+                        pfs,
+                        globals=globals,
+                        locals=locals,
+                        path_cond=path_cond + [smt.Not(test)],
                     )
                     res = merge_branches(test, body, orelse)
                     if isinstance(res, dict) and not isinstance(res, smt.ExprRef):
@@ -800,12 +948,13 @@ def _reflect_stmts(
                         g = _reflect_expr(case.guard, globals, body_locals)
                         assert isinstance(
                             g, smt.BoolRef
-                        ), "Guard must be a boolean expression"
+                        ), f"Line {stmt.lineno} Guard must be a boolean expression"
                         cond.append(g)
                     body = _reflect_stmts(
                         case.body,
-                        globals,
-                        body_locals,
+                        pfs,
+                        globals=globals,
+                        locals=body_locals,
                         path_cond=path_cond + prev_case_fails + cond,
                     )
                     prev_case_fails.append(smt.Not(smt.And(cond)))
@@ -829,40 +978,67 @@ def _reflect_stmts(
                     return acc
             case ast.Return(value=value):
                 if value is None:
-                    raise ValueError("Returning None not allowed")
+                    raise ValueError(f"Line {stmt.lineno}: Returning None not allowed")
                 if stmt_num != len(stmts) - 1:
-                    raise ValueError("Return statement must be last statement in block")
-                return smt._py2expr(_reflect_expr(value, globals, locals))
+                    raise ValueError(
+                        f"Line {stmt.lineno} Return statement must be last statement in block"
+                    )
+                ret = _reflect_expr(value, globals, locals)
+                # We know we should be returning an expression. In fact we know which type.
+                if isinstance(ret, tuple):
+                    if len(ret) == 0:
+                        return kd.Unit.tt
+                    else:
+                        # TODO: deep tuple conversion
+                        return kd.tuple_(*[smt._py2expr(r) for r in ret])
+                else:
+                    return smt._py2expr(ret)
             case _:
                 raise ValueError(
-                    "Unsupported Statement", ast.unparse(stmt), ast.dump(stmt)
+                    f"Line {stmt.lineno}: Unsupported Statement",
+                    ast.unparse(stmt),
+                    ast.dump(stmt),
                 )
     return locals
 
 
+def requires(e: smt.BoolRef):
+    raise ValueError("requires should only be called at beginning of function", e)
+
+
+def ensures(e: smt.BoolRef):
+    raise ValueError("ensures should only be called at end of function", e)
+
+
 def _sort_of_annotation(ann, globals={}, locals={}) -> smt.SortRef | smt.FuncRef:
     match ann:
-        case ast.Name(id_) if id_ in ["int", "bool", "str", "float"]:
-            return sort_of_type(eval(id_))
         case ast.Constant(value) if isinstance(value, str):
             assert isinstance(value, str)
-            s = _reflect_expr(ast.parse(value, mode="eval").body, globals, locals)
-            if (
-                isinstance(s, smt.SortRef)
-                or isinstance(s, smt.ArraySortRef)
-                or isinstance(s, smt.QuantifierRef)
-            ):
-                return s
+            # support annotations of the form "smt.ExprRef # kd.Vec"
+            split = value.split("#")
+            if len(split) == 1:
+                new_str = value
+            elif len(split) == 2:
+                # is it ok to just ignore the first piece?
+                new_str = textwrap.dedent(split[1])
             else:
-                raise ValueError(f"Constant {value} is not a supported type or sort")
-        case _:
-            s = _reflect_expr(ann, globals, locals)
-            assert (
-                isinstance(s, smt.SortRef)
-                or isinstance(s, smt.ArraySortRef)
-                or isinstance(s, smt.QuantifierRef)
+                raise ValueError(f"Invalid annotation string wit multiple '#': {value}")
+            return _sort_of_annotation(
+                ast.parse(new_str, mode="eval").body, globals, locals
             )
-            return s
+    s = _reflect_expr(ann, globals, locals)
+    if isinstance(s, (type, types.GenericAlias)):
+        return sort_of_type(s)
+    if (
+        isinstance(s, smt.SortRef)
+        or isinstance(s, smt.ArraySortRef)
+        or (isinstance(s, smt.QuantifierRef) and s.is_lambda())
+    ):
+        return s
+    elif isinstance(s, smt.BoolRef):
+        return kd.Pf(s)
+    else:
+        raise ValueError(f"{ast.unparse(ann)} is not a supported type or sort")
 
 
 def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
@@ -926,7 +1102,7 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
         test_add32(x, y) ==
         If(is(S, x), S(test_add32(pred(x), y)), y))
     >>> @reflect
-    ... def test_match54(x: int, y: int) -> int:
+    ... def test_match54(x: "int", y: int) -> int:
     ...     match x:
     ...         case 0:
     ...             return y
@@ -952,6 +1128,38 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
     ...             return x
     ...         case _:
     ...             return x
+    >>> @reflect
+    ... def test_false_if(x: int, p : "smt.ExprRef # x > 0") -> "x > -1":
+    ...     return ()
+    >>> @reflect
+    ... def test_set_notation(x : "{x for x in int if x > 0}") -> "{y for y in int if y > x and y > 0}":
+    ...     return x + 1
+    >>> test_set_notation.contract
+    |= ForAll(x,
+        Implies(And(x > 0),
+                Implies(And,
+                        And(And(And(test_set_notation(x) > x,
+                                test_set_notation(x) > 0))))))
+    >>> myconst = kd.define("myconst12345", [], smt.IntVal(42))
+    >>> @reflect
+    ... def test_proof_call() -> "{y for y in int if y == myconst}":
+    ...     if myconst != 42:
+    ...         () = myconst.defn
+    ...         assert False
+    ...         return 0
+    ...     else:
+    ...         return 42
+    >>> test_proof_call.contract
+    |= Implies(And, And(And(test_proof_call == myconst12345)))
+    >>> @reflect
+    ... def test_tuple(x : tuple[int, tuple[bool, int]]) -> bool:
+    ...     (_, (b, y)) = x
+    ...     return b
+    >>> @reflect
+    ... def test_forloop(x : int) -> "{y for y in int if y == x + 6}":
+    ...     for i in range(4):
+    ...         x = x + i
+    ...     return x
     """
     module = ast.parse(textwrap.dedent(inspect.getsource(f)))
     assert isinstance(module, ast.Module) and len(module.body) == 1
@@ -994,7 +1202,30 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
     locals[fun.name] = z3fun
     # TODO: check if path cond is feasible?
     # Actually interpret body.
-    body = _reflect_stmts(fun.body, globals=globals, locals=locals, path_cond=path_cond)
+    # TODO: seek requires / ensures annotations
+    body = fun.body
+    requires = []
+    ensures = []
+    for n, stmt in enumerate(body):
+        match stmt:
+            case ast.Expr(value=ast.Call(func=ast.Name(id="requires"), args=[arg])):
+                # maybe check that eval(func) is kd.reflect.requires?
+                pre = _reflect_expr(arg, globals=globals, locals=locals)
+                requires.append(pre)
+            case ast.Expr(value=ast.Call(func=ast.Name(id="ensures"), args=[arg])):
+                post = _reflect_expr(arg, globals=globals, locals=locals)
+                ensures.append(post)
+            case _:
+                body = body[n:]
+                break
+    else:
+        n = len(body)
+    path_cond.extend(requires)
+    body = body[n:]
+    pfs = []  # pfs are accumulated mutationally by `() = myproof` statements`
+    body = _reflect_stmts(
+        body, pfs, globals=globals, locals=locals, path_cond=path_cond
+    )
     if not isinstance(body, smt.ExprRef):
         if isinstance(body, int):
             body = smt.IntVal(body)
@@ -1008,17 +1239,22 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
             f"Function {fun.name} has return type {_sort_of_annotation(fun.returns, globals=globals, locals=locals)} but body evaluates to {body.sort()}"
         )
     z3fun1 = kd.define(fun.name, args, body)
+    decl = z3fun1.decl() if isinstance(z3fun1, smt.ExprRef) else z3fun1
     if not isinstance(ret_sort, smt.SortRef):
+        ensures.append(ret_sort(decl(*args)))
+    if ensures:
         z3fun1.contract = kd.contracts.contract(
-            z3fun,
+            decl,
             args,
-            smt.BoolVal(True),  # using smt.Const should already auto insert these
-            ret_sort(z3fun1(*args)),
-            by=[z3fun1.defn] + by,
+            smt.And(
+                requires
+            ),  # using smt.Const should already auto insert the tagged preconditions
+            smt.And(ensures),
+            by=[z3fun1.defn] + by + pfs,
         )
     # This should never fail.
-    assert z3fun.arity() == z3fun1.arity() and all(
-        z3fun.domain(i) == z3fun1.domain(i) for i in range(z3fun.arity())
+    assert z3fun.arity() == decl.arity() and all(
+        z3fun.domain(i) == decl.domain(i) for i in range(z3fun.arity())
     )
     return functools.update_wrapper(z3fun1, f)  # type: ignore[invalid-return-type]
 
