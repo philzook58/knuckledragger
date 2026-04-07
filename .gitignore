@@ -10,3 +10,4 @@ _build/
 test.sh
 .hypothesis/
 py311/
+.codex

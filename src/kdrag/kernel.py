@@ -344,7 +344,7 @@ def make_unfolding(pf: Proof) -> Unfolding:
     return Unfolding(
         name=f.name(),
         decl=f,
-        args=[],
+        args=vs,
         body=rhs,
         ax=pf,
         _subst_fun_body=smt.substitute(

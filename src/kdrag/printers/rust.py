@@ -5,6 +5,23 @@ import importlib
 import os
 from dataclasses import dataclass, field
 from typing import Iterable
+import shutil
+
+
+def mangle_name(name: str) -> str:
+    """
+    Mangle a name to be a valid Rust identifier
+    >>> mangle_name("my-fun")
+    'my_KDHYPH_fun'
+    >>> mangle_name("my.fun")
+    'my_KDDOT_fun'
+    """
+    return (
+        name.replace("!", "_KDBANG_")
+        .replace(".", "_KDDOT_")
+        .replace("-", "_KDHYPH_")
+        .replace(" ", "_")
+    )
 
 
 def of_sort(s: smt.SortRef) -> str:
@@ -55,22 +72,26 @@ def of_sort(s: smt.SortRef) -> str:
 def datatype_sort(s: smt.DatatypeSortRef) -> str:
     """
     >>> datatype_sort(kd.TupleSort(smt.IntSort(), smt.BoolSort()))
-    'struct Tuple_Int_Bool { _0: int, _1: bool }'
+    'struct Tuple_Int_Bool { _0 : int, _1 : bool }'
+    >>> datatype_sort(kd.ListSort(smt.IntSort()))
+    'enum List_Int { Nil {  }, Cons { head : int, tail : List_Int } }'
     """
+    enums = []
     nconstr = s.num_constructors()
-    if nconstr == 1:
-        constr = s.constructor(0)
-        name = s.name()
+    for i in range(nconstr):
+        constr = s.constructor(i)
         fields = []
-        for i in range(constr.arity()):
-            acc = s.accessor(0, i)
+        for j in range(constr.arity()):
+            acc = s.accessor(i, j)
             field_name = acc.name()
             field_type = of_sort(acc.range())
-            fields.append(f"{field_name}: {field_type}")
+            fields.append(f"{field_name} : {field_type}")
         fields_str = ", ".join(fields)
-        return f"struct {name} {{ {fields_str} }}"
-    else:
-        raise NotImplementedError("Only support single constructor datatypes for now")
+        enums.append(f"{constr.name()} {{ {fields_str} }}")
+    if nconstr == 1:
+        assert s.name() == s.constructor(0).name()
+        return "struct " + enums[0]
+    return f"enum {s.name()} {{ {", ".join(enums)} }}"
 
 
 def of_expr(e: smt.ExprRef) -> str:
@@ -143,20 +164,56 @@ def of_expr(e: smt.ExprRef) -> str:
         res = f"{x} > {y}"
     elif smt.is_select(e):
         arr, idx = args
-        res = f"{arr}[{idx}]"
+        if e.arg(0).sort().range() == smt.BoolSort():
+            res = f"{arr}.contains({idx})"
+        else:
+            res = f"{arr}[{idx}]"
     elif smt.is_store(e):
-        raise NotImplementedError("Store not implemented yet", e)
+        m, k, v = args
+        if e.arg(0).sort().range() == smt.BoolSort():
+            raise NotImplementedError("Set updates not implemented yet", e)
+        else:
+            return f"{m}.insert({k}, {v})"
     elif smt.is_recognizer(e):
         raise NotImplementedError("Recognizers not implemented yet", e)
+    elif smt.is_accessor(e):
+        if e.sort().num_constructors() == 1:
+            return f"{args[0]}.{e.decl().name()}"
+        else:
+            raise NotImplementedError(
+                "Accessors for datatypes with multiple constructors not implemented yet",
+                e,
+            )
     elif smt.is_K(e):
         raise NotImplementedError("Constructor applications not implemented yet", e)
     elif smt.is_map(e):
         raise NotImplementedError("Map updates not implemented yet", e)
+    elif isinstance(e, smt.DatatypeRef) and smt.is_constructor(e):
+        dt = e.sort()
+        decl = e.decl()
+        nconstr = dt.num_constructors()
+        for i in range(nconstr):
+            constr = dt.constructor(i)
+            if decl == constr:
+                assert len(args) == constr.arity()
+                args = [
+                    f"{dt.accessor(i, j).name()} : {arg} " for j, arg in enumerate(args)
+                ]
+                args_str = ", ".join(args)
+                if dt.num_constructors() == 1:
+                    res = f"{dt.name()} {{ {args_str} }}"
+                else:
+                    res = f"{dt.name()}::{constr.name()}{{{args_str}}}"
+                break
+        else:
+            raise NotImplementedError(
+                f"Constructor {e.decl()} not found in datatype {dt}", e
+            )
     else:
         f = e.decl()
         name = f.name()
         if smt.is_const(e):
-            return name
+            return mangle_name(name)
         match name:
             case "bvadd":
                 x, y = args
@@ -211,7 +268,7 @@ def of_expr(e: smt.ExprRef) -> str:
             case "extract":
                 raise NotImplementedError("Extract not implemented yet", e)
             case _:
-                return name + "(" + ", ".join(args) + ")"
+                return mangle_name(name) + "(" + ", ".join(args) + ")"
     return "(" + res + ")"
 
 
@@ -235,7 +292,7 @@ class VerusModule:
             if not all(smt.is_const(arg) for arg in args):
                 raise ValueError("Arguments are not constant", name, args)
             args_str = ", ".join(
-                f"{arg.decl().name()}: {of_sort(arg.sort())}"
+                f"{mangle_name(arg.decl().name())}: {of_sort(arg.sort())}"
                 for i, arg in enumerate(args)
             )
             ret_str = of_sort(body.sort())
@@ -243,7 +300,8 @@ class VerusModule:
             out.append(f"spec fn {name}({args_str}) -> {ret_str} {{ {body} }}")
         for name, (args, body) in self.proof_funs.items():
             args_str = ", ".join(
-                f"{str(arg)}: {of_sort(arg.sort())}" for i, arg in enumerate(args)
+                f"{mangle_name(str(arg))}: {of_sort(arg.sort())}"
+                for i, arg in enumerate(args)
             )
             body = of_expr(body)
             out.append(f"proof fn {name}({args_str}) {{ assert({body}); }}")
@@ -258,7 +316,15 @@ class VerusModule:
         """
         code = self.to_str()
         open(filename, "w").write(code)
-        subprocess.run(["rustfmt", filename], check=True)
+        fmtcmd = shutil.which("verusfmt") or shutil.which("rustfmt")
+        if fmtcmd is not None:
+            subprocess.run([fmtcmd, filename], check=True)
+
+    def add_defn(self, f: smt.FuncDeclRef):
+        defn = kd.kernel.defns.get(f)
+        if defn is None:
+            raise ValueError(f"No definition found for function {f}")
+        self.spec_funs[f.name()] = (defn.args, defn.body)
 
     def check(self, filename, verus_binary="verus"):
         """
