@@ -19,7 +19,7 @@ def proj(p: kd.Proof, n: int) -> kd.Proof:
     |= x > x - 3
     """
     assert isinstance(p, kd.Proof) and smt.is_and(p.thm)
-    return kd.axiom(p.thm.arg(n), ["proj", p, n])
+    return kd.axiom(p.thm.arg(n), by=["proj", p, n])
 
 
 def eqrefl(x: smt.ExprRef) -> kd.Proof:
@@ -31,7 +31,7 @@ def eqrefl(x: smt.ExprRef) -> kd.Proof:
     |= x == x
     """
     assert isinstance(x, smt.ExprRef)
-    return kd.axiom(smt.Eq(x, x), ["eqrefl", x])
+    return kd.axiom(smt.Eq(x, x), by=["eqrefl", x])
 
 
 def eqsym(eq: kd.Proof) -> kd.Proof:
@@ -44,7 +44,7 @@ def eqsym(eq: kd.Proof) -> kd.Proof:
     |= y == x
     """
     assert isinstance(eq, kd.Proof) and smt.is_eq(eq.thm)
-    return kd.axiom(smt.Eq(eq.thm.arg(1), eq.thm.arg(0)), ["eqsym", eq])
+    return kd.axiom(smt.Eq(eq.thm.arg(1), eq.thm.arg(0)), by=["eqsym", eq])
 
 
 def eqtrans(eq1: kd.Proof, eq2: kd.Proof) -> kd.Proof:
@@ -60,7 +60,7 @@ def eqtrans(eq1: kd.Proof, eq2: kd.Proof) -> kd.Proof:
     assert isinstance(eq1, kd.Proof) and isinstance(eq2, kd.Proof)
     assert smt.is_eq(eq1.thm) and smt.is_eq(eq2.thm)
     assert eq1.thm.arg(1).eq(eq2.thm.arg(0))
-    return kd.axiom(smt.Eq(eq1.thm.arg(0), eq2.thm.arg(1)), ["eqtrans", eq1, eq2])
+    return kd.axiom(smt.Eq(eq1.thm.arg(0), eq2.thm.arg(1)), by=["eqtrans", eq1, eq2])
 
 
 def cong(f: smt.FuncDeclRef, *args: kd.Proof) -> kd.Proof:
@@ -85,7 +85,7 @@ def cong(f: smt.FuncDeclRef, *args: kd.Proof) -> kd.Proof:
     )
     lhs = [a.thm.arg(0) for a in args]
     rhs = [a.thm.arg(1) for a in args]
-    return kd.axiom(smt.Eq(f(*lhs), f(*rhs)), ["cong", f, *args])
+    return kd.axiom(smt.Eq(f(*lhs), f(*rhs)), by=["cong", f, *args])
 
 
 def forall_cong(vs: list[smt.ExprRef], pf: kd.Proof) -> kd.Proof:
@@ -155,7 +155,7 @@ def neg_ext(*sorts: smt.SortRef) -> kd.Proof:
     f, g = smt.Consts("f g", T)
     xs = [smt.Const(f"x{n}", sort) for n, sort in enumerate(sorts[:-1])]
     return kd.axiom(
-        smt.ForAll([f, g], smt.Eq(f != g, smt.Exists(xs, f[*xs] != g[*xs]))), ["ext"]
+        smt.ForAll([f, g], smt.Eq(f != g, smt.Exists(xs, f[*xs] != g[*xs]))), by=["ext"]
     )
 
 

@@ -178,7 +178,7 @@ RawForAll = ForAll
 RawExists = Exists
 
 
-def ForAll(vs: list[ExprRef], *hyp_conc, **kwargs) -> QuantifierRef:
+def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     """
     Quantified ForAll
 
@@ -192,6 +192,8 @@ def ForAll(vs: list[ExprRef], *hyp_conc, **kwargs) -> QuantifierRef:
     ForAll(x, Implies(x >= 0, x > 3))
 
     """
+    if isinstance(vs, ExprRef):
+        vs = [vs]
     if any(v.assumes is not None for v in vs):
         # fast path avoids this
         hyp_conc0 = hyp_conc
@@ -207,7 +209,7 @@ def ForAll(vs: list[ExprRef], *hyp_conc, **kwargs) -> QuantifierRef:
         return RawForAll(vs, Implies(And(hyp_conc[:-1]), hyp_conc[-1]), **kwargs)
 
 
-def Exists(vs: list[ExprRef], *concs, **kwargs) -> QuantifierRef:
+def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
     """
     Quantified Exists
 
@@ -220,6 +222,8 @@ def Exists(vs: list[ExprRef], *concs, **kwargs) -> QuantifierRef:
     >>> Exists([x], x > 3)
     Exists(x, And(x >= 0, x > 3))
     """
+    if isinstance(vs, ExprRef):
+        vs = [vs]
     if any(v.assumes is not None for v in vs):
         # fast path avoids this
         concs0 = concs
@@ -237,6 +241,7 @@ Any = Exists
 A = ForAll
 E = Exists
 Imp = Implies
+Lam = Lambda
 
 
 ExprRef.induct = lambda x, P: None

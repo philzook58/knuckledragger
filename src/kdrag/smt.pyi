@@ -1219,6 +1219,15 @@ def Implies(a, b, ctx=...):  # -> BoolRef:
     """
     ...
 
+def Imp(a, b, ctx=...):  # -> BoolRef:
+    """Create a Z3 implies expression.
+
+    >>> p, q = Bools('p q')
+    >>> Implies(p, q)
+    Implies(p, q)
+    """
+    ...
+
 def Xor(a, b, ctx=...):  # -> BoolRef:
     """Create a Z3 Xor expression.
 
@@ -1530,6 +1539,44 @@ def ForAll(
     """
     ...
 
+def All(
+    vs, body, weight=..., qid=..., skid=..., patterns=..., no_patterns=...
+):  # -> BoolRef | QuantifierRef:
+    """Create a Z3 forall formula.
+
+    The parameters `weight`, `qid`, `skid`, `patterns` and `no_patterns` are optional annotations.
+
+    >>> f = Function('f', IntSort(), IntSort(), IntSort())
+    >>> x = Int('x')
+    >>> y = Int('y')
+    >>> ForAll([x, y], f(x, y) >= x)
+    ForAll([x, y], f(x, y) >= x)
+    >>> ForAll([x, y], f(x, y) >= x, patterns=[ f(x, y) ])
+    ForAll([x, y], f(x, y) >= x)
+    >>> ForAll([x, y], f(x, y) >= x, weight=10)
+    ForAll([x, y], f(x, y) >= x)
+    """
+    ...
+
+def A(
+    vs, body, weight=..., qid=..., skid=..., patterns=..., no_patterns=...
+):  # -> BoolRef | QuantifierRef:
+    """Create a Z3 forall formula.
+
+    The parameters `weight`, `qid`, `skid`, `patterns` and `no_patterns` are optional annotations.
+
+    >>> f = Function('f', IntSort(), IntSort(), IntSort())
+    >>> x = Int('x')
+    >>> y = Int('y')
+    >>> ForAll([x, y], f(x, y) >= x)
+    ForAll([x, y], f(x, y) >= x)
+    >>> ForAll([x, y], f(x, y) >= x, patterns=[ f(x, y) ])
+    ForAll([x, y], f(x, y) >= x)
+    >>> ForAll([x, y], f(x, y) >= x, weight=10)
+    ForAll([x, y], f(x, y) >= x)
+    """
+    ...
+
 def Exists(
     vs, body, weight=..., qid=..., skid=..., patterns=..., no_patterns=...
 ):  # -> BoolRef | QuantifierRef:
@@ -1552,7 +1599,41 @@ def Exists(
     """
     ...
 
+def E(
+    vs, body, weight=..., qid=..., skid=..., patterns=..., no_patterns=...
+):  # -> BoolRef | QuantifierRef:
+    """Create a Z3 exists formula.
+
+    The parameters `weight`, `qif`, `skid`, `patterns` and `no_patterns` are optional annotations.
+
+
+    >>> f = Function('f', IntSort(), IntSort(), IntSort())
+    >>> x = Int('x')
+    >>> y = Int('y')
+    >>> q = Exists([x, y], f(x, y) >= x, skid="foo")
+    >>> q
+    Exists([x, y], f(x, y) >= x)
+    >>> is_quantifier(q)
+    True
+    >>> r = Tactic('nnf')(q).as_expr()
+    >>> is_quantifier(r)
+    False
+    """
+    ...
+
 def Lambda(vs, body):  # -> QuantifierRef:
+    """Create a Z3 lambda expression.
+
+    >>> f = Function('f', IntSort(), IntSort(), IntSort())
+    >>> mem0 = Array('mem0', IntSort(), IntSort())
+    >>> lo, hi, e, i = Ints('lo hi e i')
+    >>> mem1 = Lambda([i], If(And(lo <= i, i <= hi), e, mem0[i]))
+    >>> mem1
+    Lambda(i, If(And(lo <= i, i <= hi), e, mem0[i]))
+    """
+    ...
+
+def Lam(vs, body):  # -> QuantifierRef:
     """Create a Z3 lambda expression.
 
     >>> f = Function('f', IntSort(), IntSort(), IntSort())

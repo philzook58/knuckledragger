@@ -31,6 +31,7 @@ class Proof(Judgement):
     This is not ironclad. If you really want the Proof constructor, I can't stop you.
     """
 
+    fvs: frozenset[smt.ExprRef]
     thm: smt.BoolRef
     reason: list[Any]
     admit: bool = False
@@ -121,6 +122,7 @@ def prove(
     timeout=1000,
     dump=False,
     solver=None,
+    fvs=frozenset(),
 ) -> Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
@@ -144,7 +146,7 @@ def prove(
         by = [by]
     if admit:
         print("Admitting lemma {}".format(thm))
-        return Proof(thm, list(by), admit=True)
+        return Proof(fvs, thm, list(by), admit=True)
     else:
         if solver is None:
             s = config.solver()  # type: ignore
@@ -154,6 +156,15 @@ def prove(
         for p in by:
             if not isinstance(p, Proof):
                 raise LemmaError("In by reasons:", p, "is not a Proof object")
+            if p.fvs != fvs:
+                raise LemmaError(
+                    "In by reasons:",
+                    p,
+                    "has free variables",
+                    p.fvs,
+                    "but expected",
+                    fvs,
+                )
             s.add(p.thm)
         s.add(smt.Not(thm))
         if dump:
@@ -171,10 +182,10 @@ def prove(
         else:
             reason: list[object] = ["prove"]
             reason.extend(by)
-            return Proof(thm, reason, False)
+            return Proof(fvs, thm, reason, False)
 
 
-def axiom(thm: smt.BoolRef, by=["axiom"]) -> Proof:
+def axiom(thm: smt.BoolRef, fvs=frozenset(), by=["axiom"]) -> Proof:
     """Assert an axiom.
 
     Axioms are necessary and useful. But you must use great care.
@@ -183,7 +194,8 @@ def axiom(thm: smt.BoolRef, by=["axiom"]) -> Proof:
         thm: The axiom to assert.
         by: A python object explaining why the axiom should exist. Often a string explaining the axiom.
     """
-    return Proof(thm, by)
+    assert isinstance(fvs, frozenset) and all(isinstance(v, smt.ExprRef) for v in fvs)
+    return Proof(fvs, thm, by)
 
 
 # __predefined_decls # TODO: Actually put list of predefined stuff here.
@@ -465,6 +477,14 @@ def define_fix(name: str, args: list[smt.ExprRef], retsort, fix_lam) -> smt.Func
     return defn
 
 
+def weaken(pf: Proof, fvs: Sequence[smt.ExprRef]) -> Proof:
+    if not smt.Lambda(fvs, pf.thm).body().eq(pf.thm):
+        raise ValueError(
+            "Variables appear in proof. Cannot weaken", pf, "with fvs", fvs
+        )
+    return Proof(pf.fvs | frozenset(fvs), pf.thm, ["weaken", pf, fvs])
+
+
 def unfold_defns(
     e: smt.ExprRef, defns: Sequence[Unfolding]
 ) -> tuple[smt.ExprRef, Proof]:
@@ -509,7 +529,7 @@ def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
     assert all(isinstance(eq, kd.Proof) and smt.is_eq(eq.thm) for eq in eqs)
     subst = [(eq.thm.arg(0), eq.thm.arg(1)) for eq in eqs]
     t1 = smt.substitute(t, *subst)
-    return t1, kd.axiom(smt.Eq(t, t1), ["subst", t, eqs])
+    return t1, kd.axiom(smt.Eq(t, t1), by=["subst", t, eqs])
 
 
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
@@ -525,7 +545,7 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
         and len(ts) == pf.thm.num_vars()
     )
 
-    return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), [pf])
+    return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), by=[pf])
 
 
 def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
@@ -542,7 +562,7 @@ def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
 
     return axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
-        ["forall_elim"],
+        by=["forall_elim"],
     )
 
 
@@ -557,7 +577,7 @@ def forget(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
     return axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
-        ["exists_intro"],
+        by=["exists_intro"],
     )
 
 
@@ -590,7 +610,7 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
         ]
     return skolems, axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
-        ["obtain"],
+        by=["obtain"],
     )
 
 
@@ -620,7 +640,7 @@ def choose(pf: Proof) -> tuple[list[smt.FuncDeclRef], Proof]:
     ts = [skolem(*avs) for skolem in skolems]
     return skolems, axiom(
         smt.ForAll(avs, smt.substitute(inner, *zip(evs, ts))),
-        ["skolemize", skolems, pf],
+        by=["skolemize", skolems, pf],
     )
 
 
@@ -640,7 +660,7 @@ def herb(thm: smt.QuantifierRef, prefixes=None) -> tuple[list[smt.ExprRef], Proo
     )  # We could mark these as schema variables? Useful?
     return herbs, axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
-        ["herbrand"],
+        by=["herbrand"],
     )
 
 
@@ -660,7 +680,7 @@ def ext(domain: Sequence[smt.SortRef], range_: smt.SortRef) -> Proof:
     xs = [smt.Const(f"x{n}", sort) for n, sort in enumerate(domain)]
     return kd.axiom(
         smt.RawForAll([f, g], smt.Eq((f == g), smt.RawForAll(xs, f[*xs] == g[*xs]))),
-        ["ext"],
+        by=["ext"],
     )
 
 
@@ -680,7 +700,7 @@ def modus(ab: Proof, a: Proof) -> Proof:
     assert isinstance(ab, Proof) and isinstance(a, Proof)
     assert smt.is_implies(ab.thm) or smt.is_eq(ab.thm)
     assert ab.thm.arg(0).eq(a.thm)
-    return axiom(ab.thm.arg(1), ["modus", ab, a])
+    return axiom(ab.thm.arg(1), by=["modus", ab, a])
 
 
 def andI(pfs: Sequence[Proof]) -> Proof:
@@ -697,7 +717,7 @@ def andI(pfs: Sequence[Proof]) -> Proof:
     ctx = pfs[0].thm.arg(0)
     assert all(smt.is_implies(pf.thm) and pf.thm.arg(0).eq(ctx) for pf in pfs)
     return kd.axiom(
-        smt.Implies(ctx, smt.And([pf.thm.arg(1) for pf in pfs])), ["andI", pfs]
+        smt.Implies(ctx, smt.And([pf.thm.arg(1) for pf in pfs])), by=["andI", pfs]
     )
 
 
@@ -714,7 +734,7 @@ def compose(ab: Proof, bc: Proof) -> Proof:
     assert isinstance(ab, Proof) and isinstance(bc, Proof)
     assert smt.is_implies(ab.thm) and smt.is_implies(bc.thm)
     assert ab.thm.arg(1).eq(bc.thm.arg(0))
-    return axiom(smt.Implies(ab.thm.arg(0), bc.thm.arg(1)), ["compose", ab, bc])
+    return axiom(smt.Implies(ab.thm.arg(0), bc.thm.arg(1)), by=["compose", ab, bc])
 
 
 def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:

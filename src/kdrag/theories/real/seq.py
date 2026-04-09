@@ -49,6 +49,11 @@ where = kd.define("where", [mask, a, b], smt.Lambda([i], smt.If(mask[i], a[i], b
 krondelta = kd.define(
     "krondelta", [n], smt.Lambda([i], smt.If(i == n, smt.RealVal(1), smt.RealVal(0)))
 )
+kron_same = kd.prove(smt.ForAll([n], krondelta(n)(n) == 1), by=[krondelta.defn])
+kron_diff = kd.prove(
+    smt.ForAll([n, m], n != m, krondelta(n)(m) == 0), by=[krondelta.defn]
+)
+
 pos = kd.define("pos", [a], smt.Lambda([i], smt.If(i >= 0, a[i], smt.RealVal(0))))
 # arange = kd.define("arange", [n], smt.Lambda([i], smt.ToReal(i) * smt.ToReal(n >= i)))
 
@@ -72,14 +77,46 @@ add_assoc = kd.prove(
     by=[real.add_assoc],
 ).forall([A, B, C])
 # kd.Lemma(diff(cumsum(A)) == A)
+add_zero = kd.prove(A + zero == A, by=[add.defn, zero.defn]).forall([A])
 
 
 sub = kd.notation.sub.define([a, b], smt.Lambda([i], a[i] - b[i]))
 mul = kd.notation.mul.define([a, b], smt.Lambda([i], a[i] * b[i]))
+
+mul_comm = kd.prove(
+    A * B == B * A, by=[mul.defn(B, A), mul.defn(A, B), real.mul_comm]
+).forall([A, B])
+mul_assoc = kd.prove(
+    (A * B) * C == A * (B * C),
+    unfold=1,
+    by=[real.mul_assoc],
+).forall([A, B, C])
+
+mul_zero = kd.prove(A * zero == zero, by=[mul.defn, zero.defn]).forall([A])
+mul_one = kd.prove(A * const(1) == A, by=[mul.defn, const.defn, real.mul_one]).forall(
+    [A]
+)
+
+add_mul = kd.prove((A + B) * C == A * C + B * C, by=[add.defn, mul.defn]).forall(
+    [A, B, C]
+)
+mul_add = kd.prove(A * (B + C) == A * B + A * C, by=[add.defn, mul.defn]).forall(
+    [A, B, C]
+)
+
 div = kd.notation.div.define([a, b], smt.Lambda([i], a[i] / b[i]))
 neg = kd.notation.neg.define([a], smt.Lambda([i], -a[i]))
 
 smul = kd.define("RSeq.smul", [x, a], smt.Lambda([n], x * a[n]))
+
+
+@kd.Theorem(smt.ForAll([x, a, b], smul(x, a) * b == smul(x, a * b)))
+def smul_mul(l):
+    x, a, b = l.fixes()
+    l.unfold(smul)
+    l.unfold(mul)
+    l.ext()
+    l.auto()
 
 
 rev_rev = kd.prove(rev(rev(A)) == A, by=[rev.defn]).forall([A])
@@ -178,10 +215,12 @@ def cumsum_const(l):
 # cumsum pownat = 1 - x^(n + 1) / (1 - x)
 # cumsum_diff - the fundamental theorem of calculus for sequences
 
+
+cumsum_smul = kd.prove(
+    smt.ForAll([a, x], cumsum(smul(x, a)) == smul(x, cumsum(a))), admit=True
+)
 """
-
 # TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
-
 
 # TODO: unstable
 @kd.Theorem(
@@ -217,7 +256,7 @@ def cumsum_smul(l):
 @kd.Theorem(
     "forall (a b : RSeq) (m : Int), (forall (n : Int), n >= 0 -> a n <= b n) -> m >= 0 -> cumsum a m <= cumsum b m"
 )
-def cumsul_mono(l):
+def cumsum_mono(l):
     a, b, m = l.fixes()
     l.intros()
     l.induct(m)
@@ -237,7 +276,7 @@ def cumsul_mono(l):
 
 
 @kd.Theorem("forall (a b : RSeq) (n : Int), cumsum (a + b) n = cumsum a n + cumsum b n")
-def cumsul_add(l):
+def cumsum_add(l):
     a, x, n = l.fixes()
     l.induct(n)
 
@@ -367,10 +406,83 @@ Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
 finsum = kd.define("finsum", [a, n], cumsum(a)[n])
 
 
-sin = kd.define("sin", [a], smt.Map(real.sin, a))
-cos = kd.define("cos", [a], smt.Map(real.cos, a))
+@kd.Theorem(smt.ForAll([a, x, n], finsum(smul(x, a), n) == x * finsum(a, n)))
+def finsum_smul(l):
+    a, x, n = l.fixes()
+    l.unfold(finsum)
+    l.rw(cumsum_smul)
+    l.unfold(smul)
+    l.auto()
 
-abs = kd.define("abs", [a], smt.Map(real.abs, a))
+
+finsum_add = kd.prove(
+    kd.QForAll([a, b, n], finsum(a + b, n) == finsum(a, n) + finsum(b, n)),
+    by=[finsum.defn, cumsum_add],
+)
+
+finsum_zero = kd.prove(
+    kd.QForAll([n], finsum(zero, n) == 0),
+    by=[finsum.defn, cumsum_zero],
+)
+
+dot = kd.define("rseq.dot", [n, a, b], finsum(a * b, n))
+
+dot_comm = kd.prove(
+    kd.QForAll([a, b, n], dot(n, a, b) == dot(n, b, a)),
+    by=[dot.defn, mul_comm],
+)
+
+dot_smul = kd.prove(
+    kd.QForAll([x, a, b, n], dot(n, smul(x, a), b) == x * dot(n, a, b)),
+    by=[dot.defn, finsum_smul, smul_mul],
+)
+
+
+@kd.Theorem(kd.QForAll([a, b, c, n], dot(n, a + b, c) == dot(n, a, c) + dot(n, b, c)))
+def dot_add(l):
+    a, b, c, n = l.fixes()
+    l.unfold(dot)
+    l.rw(add_mul)
+    l.rw(finsum_add)
+    l.auto()
+
+
+@kd.Theorem(
+    kd.QForAll([a, n], dot(n, zero, a) == 0),
+)
+def dot_zero(l):
+    a, n = l.fixes()
+    l.unfold(dot)
+    l.rw(mul_comm)
+    l.rw(mul_zero)
+    l.rw(finsum_zero)
+    l.auto()
+
+
+# dot(v,v) >= 0
+# dot(v,v) == 0 iff v == 0
+# dot(zero, x) = 0
+
+# norm
+# cauchy schwarz
+# triangle inequality
+
+
+outer = kd.define("rseq.outer", [a, b], smt.Lambda([i, j], a[i] * b[j]))
+eye = kd.define(
+    "eye", [n], smt.Lambda([i, j], smt.If(i == j, smt.RealVal(1), smt.RealVal(0)))
+)
+ehat = krondelta
+
+
+# dot(m, ehat(n), a) == If(m >= n, a[n], 0)
+# matrixsum ehat = id
+
+
+sin = kd.define("rseq.sin", [a], smt.Map(real.sin, a))
+cos = kd.define("rseq.cos", [a], smt.Map(real.cos, a))
+
+abs = kd.define("rseq.abs", [a], smt.Map(real.abs, a))
 abs_ext = kd.prove(smt.ForAll([a, n], abs(a)[n] == real.abs(a[n])), by=[abs.defn])
 abs_ge_0 = kd.prove(
     kd.QForAll([a, n], abs(a)[n] >= 0),

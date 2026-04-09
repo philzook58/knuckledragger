@@ -16,6 +16,7 @@ from . import datatype
 from . import rewrite
 from . import contracts
 from . import tactics
+from . import reflect
 import functools
 from .parsers import microlean
 import typing
@@ -515,6 +516,27 @@ def is_metavar(c: smt.ExprRef) -> bool:
     >>> assert is_metavar(MetaVar("foo", smt.IntSort()))
     """
     return smt.is_const(c) and c.decl().name().startswith("?")
+
+
+symdef = reflect.reflect
+# Shortenings
+Expr = smt.ExprRef
+Sort = smt.SortRef
+Decl = smt.FuncDeclRef
+
+add = notation.add
+sub = notation.sub
+mul = notation.mul
+div = notation.div
+le = notation.le
+lt = notation.lt
+ge = notation.ge
+gt = notation.gt
+eq = notation.eq
+ne = notation.ne
+and_ = notation.and_
+or_ = notation.or_
+invert = notation.invert
 
 
 __all__ = [
