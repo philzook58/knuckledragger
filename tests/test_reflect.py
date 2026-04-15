@@ -119,3 +119,38 @@ def test_requires_ensures():
     print(smt.All([x], smt.And(x > 0, x < 100), smt.And(silly_inc(x) == x + 1, silly_inc(x) <= 101)).sexpr())
     # difference is that contract has a trigger on it.
     assert silly_inc.contract.thm.body().eq(smt.All([x], smt.And(x > 0, x < 100), smt.And(silly_inc(x) == x + 1, silly_inc(x) <= 101)).body())
+
+
+def test_assignattr():
+    @kd.struct
+    class MyStruct42:
+        foo : int 
+    @reflect
+    def f890842(x: MyStruct42) -> MyStruct42:
+        if x.foo > 0:
+            x.foo = 0
+        else:
+            x.foo = 1
+        return x
+    kd.prove(f890842(MyStruct42(5)).foo == 0, by=[f890842.defn])
+    kd.prove(f890842(MyStruct42(-3)).foo == 1, by=[f890842.defn])
+
+
+@reflect
+def f8904(x : list[int]) -> list[int]:
+    requires(smt.Length(x) > 0)
+    #assert smt.Length(x) > 0
+    x[0] = 42
+    return x
+def test_subscript():
+    x = smt.Const("x", smt.SeqSort(smt.IntSort()))
+    kd.prove(f8904(x)[0] == 42, by=[f8904.defn])
+    T = smt.ArraySort(smt.IntSort(), smt.IntSort())
+    @reflect
+    def g8904(x : T) -> T:
+        x[0] = 42
+        x[1] = 43
+        return x
+    y = smt.Const("y", T)
+    kd.prove(g8904(y)[0] == 42, by=[g8904.defn])
+    kd.prove(g8904(y)[1] == 43, by=[g8904.defn])

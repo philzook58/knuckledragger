@@ -824,6 +824,57 @@ def _reflect_stmts(
         match stmt:
             case ast.Pass():
                 continue
+            case ast.Assign(
+                targets=[
+                    ast.Attribute(value=ast.Name(id_), attr=attr, ctx=ast.Store())
+                ],
+                value=value,
+            ):
+                # TODO: nested attributes?
+                value = _reflect_expr(value, globals=globals, locals=locals)
+                assignee = locals[id_]
+                if not isinstance(assignee, smt.DatatypeRef):
+                    # Could possibly try to make a copy?
+                    raise ValueError(
+                        f"Cannot assign to attribute of non-expression {assignee} in {ast.unparse(stmt)}"
+                    )
+                locals = {**locals, id_: assignee._replace(**{attr: value})}
+            case ast.Assign(
+                targets=[
+                    ast.Subscript(value=ast.Name(id_), slice=slice, ctx=ast.Store())
+                ],
+                value=value,
+            ):
+                value = _reflect_expr(value, globals=globals, locals=locals)
+                slice = _reflect_expr(slice, globals=globals, locals=locals)
+                assignee = locals[id_]
+                if isinstance(assignee, smt.ArrayRef):
+                    locals = {**locals, id_: smt.Store(assignee, slice, value)}
+                elif isinstance(assignee, smt.SeqRef):
+                    # Check if access is valid
+                    value = smt._py2expr(value)
+                    slice = smt._py2expr(slice)
+                    s = smt.Solver()
+                    s.add(smt.And(path_cond))
+                    s.add(smt.Not(smt.And(slice >= 0, slice < smt.Length(assignee))))
+                    res = s.check()
+                    if res == smt.sat:
+                        model = s.model()
+                        raise AssertionError(
+                            f"Line {stmt.lineno}: Subscript out of bounds in assignment to sequence. Counterexample: ",
+                            ast.unparse(stmt),
+                            {
+                                k: model.eval(v) if isinstance(v, smt.ExprRef) else v
+                                for k, v in locals.items()
+                            },
+                            model,
+                        )
+                    else:
+                        locals = {**locals, id_: kd.SeqStore(assignee, slice, value)}
+                else:
+                    raise ValueError(
+                        f"Cannot assign to subscript of non-array expression {assignee} in {ast.unparse(stmt)}"
+                    )
             case ast.Assign(targets=[target], value=value):
                 value = _reflect_expr(value, globals=globals, locals=locals)
                 todo = [(target, value)]
@@ -846,19 +897,19 @@ def _reflect_stmts(
                         case ast.Tuple(elts=elts):
                             todo.extend(zip(elts, value))  # type: ignore[ty:invalid-argument-type]
                 locals = {**locals, **match_env}
-            case ast.Assign(targets=[ast.Name(id_, _ctx)], value=value):
-                value = _reflect_expr(value, globals=globals, locals=locals)
-                locals = {**locals, id_: value}
-            case ast.Assign(targets=[ast.Tuple(elts=[])], value=value):
-                # () = proof_expr
-                value = _reflect_expr(value, globals=globals, locals=locals)
-                if isinstance(value, kd.Proof):
-                    path_cond.append(value.thm)
-                    pfs.append(value)
-                else:
-                    raise ValueError(
-                        "Can only assign to empty tuple for proofs", ast.unparse(stmt)
-                    )
+                """
+                case ast.Assign(targets=[ast.Tuple(elts=[])], value=value):
+                    assert False
+                    # () = proof_expr
+                    value = _reflect_expr(value, globals=globals, locals=locals)
+                    if isinstance(value, kd.Proof):
+                        path_cond.append(value.thm)
+                        pfs.append(value)
+                    else:
+                        raise ValueError(
+                            "Can only assign to empty tuple for proofs", ast.unparse(stmt)
+                        )
+                """
             case ast.Expr(value=ast.Call(func=ast.Name(id="print"))):
                 # For debug printing
                 print("print at line", stmt.lineno, locals, path_cond)

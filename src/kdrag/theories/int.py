@@ -4,6 +4,8 @@ Builtin theory of integers
 
 import kdrag as kd
 import kdrag.smt as smt
+from kdrag import prove, axiom, Theorem, define  # noqa: F401
+from kdrag.smt import ForAll, Exists, Implies, And, Or, Not, If, IntVal, BoolVal  # noqa: F401
 
 Z = smt.IntSort()
 ZSet = smt.SetSort(Z)
@@ -196,3 +198,122 @@ has_lb = kd.define("ZSet.has_lb", [A, y], kd.QForAll([x], A[x], y <= x))
 is_lb = kd.define("ZSet.is_lb", [A], smt.Exists([x], has_lb(A, x)))
 # has_bounds = kd.define("has_bounds", [A,x,y], smt.And(has_ub(A,x), has_lb(A,y)))
 finite = kd.define("ZSet.finite", [A], smt.And(is_ub(A), is_lb(A)))
+
+
+# Bijections
+to_nat = define("to_nat", [n], If(n >= 0, n * 2, n * -2 - 1))
+from_nat = define("from_nat", [n], If(n % 2 == 0, n / 2, -(n + 1) / 2))
+
+to_nat_pos = prove(smt.ForAll(n, to_nat(n) >= 0), by=[to_nat.defn])
+from_to_nat = prove(
+    ForAll(n, from_nat(to_nat(n)) == n), by=[to_nat.defn, from_nat.defn]
+)
+to_from_nat = prove(
+    ForAll(n, n >= 0, to_nat(from_nat(n)) == n), by=[to_nat.defn, from_nat.defn]
+)
+
+# cantor pairing
+natpair = kd.define("natpair", [n, m], (n + m) * (n + m + 1) / 2 + m)
+natpair_pos = prove(
+    ForAll([n, m], n >= 0, m >= 0, natpair(n, m) >= 0), by=[natpair.defn]
+)
+
+
+natpair_succ = prove(
+    ForAll([n, m], natpair(n, m) + 1 == natpair(n - 1, m + 1)),
+    by=[natpair.defn],
+)  # natpair(n-1,m) == natpair(n,m)
+# natpair(n+1, m-1) + 1 = natpair(n, m)
+natpair_zero_m = prove(
+    ForAll(m, natpair(0, m) + 1 == natpair(m + 1, 0)), by=[natpair.defn]
+)
+# natpair(0, m-1) + 1 = natpair(m, 0)
+
+natpair_to_tuple = smt.Function("natpair_to_tuple", Z, kd.TupleSort(Z, Z))
+natpair_to_tuple = kd.define(
+    "natpair_to_tuple",
+    [k],
+    If(
+        k < 0,
+        kd.tuple_(IntVal(-1), IntVal(-1)),
+        If(
+            k == 0,
+            kd.tuple_(IntVal(0), IntVal(0)),
+            If(
+                natpair_to_tuple(k - 1)[0] == 0,
+                kd.tuple_(natpair_to_tuple(k - 1)[1] + 1, IntVal(0)),
+                kd.tuple_(
+                    natpair_to_tuple(k - 1)[0] - 1, natpair_to_tuple(k - 1)[1] + 1
+                ),
+            ),
+        ),
+    ),
+)
+
+"""
+@kd.PTheorem(
+    ForAll(
+        [n, m],
+        n >= 0,
+        m >= 0,
+        And(
+            natpair_to_tuple(natpair(n, m))[0] == n,
+            natpair_to_tuple(natpair(n, m))[1] == m,
+        ),
+    )
+)
+def unpair_natpair(l):
+    n, m = l.fixes()
+    l.generalize(n)  # TODO: should remove from context
+    m = l.induct(m)
+    # n = l.fix()
+    # _n = l.induct(n)
+    # l.auto()
+    # l.auto(by=[natpair.defn, natpair_to_tuple.defn])
+
+    # n = l.induct(n)
+    # l.auto(by=[natpair.defn, natpair_to_tuple.defn])
+    # l.auto(by=[natpair.defn, natpair_to_tuple.defn])
+
+    # l.auto(by=[natpair.defn, natpair_to_tuple.defn])
+
+    # l.auto(by=[natpair.defn, natpair_to_tuple.defn])
+"""
+
+
+@kd.Theorem(
+    ForAll([k], k >= 0, natpair(natpair_to_tuple(k)[0], natpair_to_tuple(k)[1]) == k)
+)
+def natpair_unpair(l):
+    k = l.fix()
+    k = l.induct(k)
+    l.auto()  # k < 0
+    l.auto(by=[natpair_to_tuple.defn, natpair.defn])  # k == 0
+
+    k = l.fix()
+    l.intros()
+    l.case(k >= 0)
+    l.unfold(natpair_to_tuple)
+    l.have((k + 1 == 0) == BoolVal(False), by=[])
+    l.rw(-1)
+    l.have((k + 1 < 0) == BoolVal(False), by=[])
+    l.rw(-1)
+    l.simp()
+
+    l.autocases()
+    l.rw(-1)
+    l.simp()
+    l.intros()
+    l.auto(by=[natpair_to_tuple.defn, natpair.defn])
+
+    l.rw(-1)
+    l.simp()
+    l.intros()
+    l.auto(by=[natpair_to_tuple.defn, natpair.defn])
+
+
+# for i in range(9):
+#    print(kd.full_simp(natpair_to_tuple(i)))
+
+# a bijective mapping over all the integers.
+pair = define("pair", [n], from_nat(natpair(to_nat(n), to_nat(m))))

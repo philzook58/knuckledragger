@@ -133,6 +133,21 @@ def seq(*args):
         return smt.Concat(*[smt.Unit(smt._py2expr(a)) for a in args])
 
 
+def SeqStore(s: smt.SeqRef, i: smt.ExprRef, v: smt.ExprRef) -> smt.SeqRef:
+    """
+    >>> _ = prove(SeqStore(seq(1,2,3), 2, 42) == seq(1,2,42))
+    >>> _ = prove(SeqStore(seq(1,2,3), 0, 42) == seq(42,2,3))
+    """
+    i = smt._py2expr(i)
+    v = smt._py2expr(v)
+    # Check if we've gone off the end?
+    return smt.Concat(
+        smt.Extract(s, 0, i),
+        smt.Unit(v),
+        smt.Extract(s, i + 1, smt.Length(s) - (i + 1)),
+    )
+
+
 def Vec(n: smt.ArithRef | int, A: smt.SortRef) -> smt.QuantifierRef:
     l = smt.Const("l", smt.SeqSort(A))
     if isinstance(A, smt.SortRef):
@@ -519,6 +534,7 @@ def is_metavar(c: smt.ExprRef) -> bool:
 
 
 symdef = reflect.reflect
+struct = reflect.struct
 # Shortenings
 Expr = smt.ExprRef
 Sort = smt.SortRef

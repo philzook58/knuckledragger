@@ -351,8 +351,8 @@ def trans_factory(Tstep: smt.ArraySortRef) -> smt.FuncDeclRef:
     Transitive closure
 
     >>> x = smt.Int("x")
-    >>> trans(smt.Lambda([x], x + 1), smt.IntVal(2), smt.IntVal(3))
-    Int.trans(Lambda(x, x + 1), 2, 3)
+    >>> trans(smt.Lambda([x], x + 1))(smt.IntVal(2), smt.IntVal(3))
+    Select(Int.trans(Lambda(x, x + 1)), 2, 3)
     """
     T = Tstep.range()
     x0 = smt.Const("x", T)
@@ -361,7 +361,9 @@ def trans_factory(Tstep: smt.ArraySortRef) -> smt.FuncDeclRef:
     name = T.name() + ".trans"
     trans = smt.Function(name, Tstep, T, smt.IntSort(), T)
     return kd.define(
-        name, [step, x0, t], smt.If(t <= 0, x0, step(trans(step, x0, t - 1)))
+        name,
+        [step],
+        smt.Lambda([x0, t], smt.If(t <= 0, x0, step(trans(step, x0, t - 1)))),
     )
 
 
