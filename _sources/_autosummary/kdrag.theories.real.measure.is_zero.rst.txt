@@ -1,0 +1,6 @@
+kdrag.theories.real.measure.is\_zero
+====================================
+
+.. currentmodule:: kdrag.theories.real.measure
+
+.. autofunction:: is_zero

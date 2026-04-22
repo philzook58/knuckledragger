@@ -1,0 +1,6 @@
+kdrag.SeqStore
+==============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: SeqStore

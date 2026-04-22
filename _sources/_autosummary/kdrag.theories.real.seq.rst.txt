@@ -1,0 +1,47 @@
+kdrag.theories.real.seq
+=======================
+
+.. automodule:: kdrag.theories.real.seq
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      cumsum_smul
+      cauchy_mod
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      test
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Series
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/seq.py
+   :language: python

@@ -1,0 +1,6 @@
+kdrag.contrib.cert.serialize\_proof
+===================================
+
+.. currentmodule:: kdrag.contrib.cert
+
+.. autofunction:: serialize_proof

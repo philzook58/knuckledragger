@@ -1,0 +1,6 @@
+kdrag.tactics.skolem
+====================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: skolem

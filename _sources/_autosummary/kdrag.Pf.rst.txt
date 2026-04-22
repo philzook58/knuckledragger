@@ -1,0 +1,6 @@
+kdrag.Pf
+========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Pf

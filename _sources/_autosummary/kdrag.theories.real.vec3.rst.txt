@@ -1,0 +1,27 @@
+kdrag.theories.real.vec3
+========================
+
+.. automodule:: kdrag.theories.real.vec3
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/vec3.py
+   :language: python

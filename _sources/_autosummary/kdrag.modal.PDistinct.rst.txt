@@ -1,0 +1,6 @@
+kdrag.modal.PDistinct
+=====================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: PDistinct

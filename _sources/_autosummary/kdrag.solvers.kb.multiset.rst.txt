@@ -1,0 +1,43 @@
+kdrag.solvers.kb.multiset
+=========================
+
+.. automodule:: kdrag.solvers.kb.multiset
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      KB
+      add
+      count
+      deduce
+      ms_order
+      overlap
+      replace
+      rewrite
+      shortlex
+      sub
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/kb/multiset.py
+   :language: python

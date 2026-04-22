@@ -1,0 +1,35 @@
+kdrag.contrib.cert
+==================
+
+.. automodule:: kdrag.contrib.cert
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      deserialize_proof
+      serialize_proof
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/cert.py
+   :language: python

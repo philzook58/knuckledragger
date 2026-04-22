@@ -1,0 +1,6 @@
+kdrag.is\_tuple\_sort
+=====================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: is_tuple_sort

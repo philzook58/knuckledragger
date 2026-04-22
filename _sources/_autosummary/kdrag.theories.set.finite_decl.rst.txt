@@ -1,0 +1,6 @@
+kdrag.theories.set.finite\_decl
+===============================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: finite_decl

@@ -1,0 +1,6 @@
+kdrag.UnitSort
+==============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: UnitSort

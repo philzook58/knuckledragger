@@ -1,0 +1,37 @@
+kdrag.termination
+=================
+
+.. automodule:: kdrag.termination
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      default_measure
+      lex_gt
+      opaque_abs_size
+      search_wf
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/termination.py
+   :language: python

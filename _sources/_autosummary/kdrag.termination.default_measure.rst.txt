@@ -1,0 +1,6 @@
+kdrag.termination.default\_measure
+==================================
+
+.. currentmodule:: kdrag.termination
+
+.. autofunction:: default_measure

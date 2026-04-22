@@ -1,0 +1,6 @@
+kdrag.utils.ast\_size\_sexpr
+============================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: ast_size_sexpr

@@ -1,0 +1,6 @@
+kdrag.smt.A
+===========
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: A

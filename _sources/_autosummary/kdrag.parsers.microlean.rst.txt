@@ -1,0 +1,52 @@
+kdrag.parsers.microlean
+=======================
+
+.. automodule:: kdrag.parsers.microlean
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      axiom
+      binder
+      binders
+      define
+      expr
+      inductive
+      lean
+      parse
+      pattern
+      quant
+      sort
+      start
+      theorem
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Env
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/parsers/microlean.py
+   :language: python

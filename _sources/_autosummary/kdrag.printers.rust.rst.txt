@@ -1,0 +1,46 @@
+kdrag.printers.rust
+===================
+
+.. automodule:: kdrag.printers.rust
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      compile_rust
+      datatype_sort
+      init_proj
+      mangle_name
+      of_expr
+      of_sort
+      rust_module_template
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      VerusModule
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/printers/rust.py
+   :language: python

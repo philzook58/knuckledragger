@@ -1,0 +1,34 @@
+kdrag.theories.algebra.kleene
+=============================
+
+.. automodule:: kdrag.theories.algebra.kleene
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      while_
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/kleene.py
+   :language: python

@@ -1,0 +1,6 @@
+kdrag.printers.rust.of\_expr
+============================
+
+.. currentmodule:: kdrag.printers.rust
+
+.. autofunction:: of_expr
