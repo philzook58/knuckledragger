@@ -780,7 +780,12 @@ def Inductive(name: str, ctx=None, auto_fresh=False) -> smt.Datatype:
     counter = 0
     n = name
     if not auto_fresh and n in _datatypes:
-        raise ValueError("Duplicate Inductive name", name)
+        if config.strict_define:
+            raise ValueError("Duplicate Inductive name", name)
+        else:
+            print(
+                "WARNING: Duplicate Inductive name", name, "with auto_fresh", auto_fresh
+            )
     while n in _datatypes:
         counter += 1
         n = name + "!" + str(counter)

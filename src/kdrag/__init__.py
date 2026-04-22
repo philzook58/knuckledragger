@@ -579,4 +579,5 @@ __all__ = [
     "RFun",
     "simp",
     "search",
+    "symdef",
 ]
