@@ -896,6 +896,10 @@ def _reflect_stmts(
                                 )
                         case ast.Tuple(elts=elts):
                             todo.extend(zip(elts, value))  # type: ignore[ty:invalid-argument-type]
+                        case _:
+                            raise NotImplementedError(
+                                "Unsupported assignment target", ast.unparse(target)
+                            )
                 locals = {**locals, **match_env}
                 """
                 case ast.Assign(targets=[ast.Tuple(elts=[])], value=value):
