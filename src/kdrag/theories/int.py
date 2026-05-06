@@ -5,7 +5,7 @@ Builtin theory of integers
 import kdrag as kd
 import kdrag.smt as smt
 from kdrag import prove, axiom, Theorem, define  # noqa: F401
-from kdrag.smt import ForAll, Exists, Implies, And, Or, Not, If, IntVal, BoolVal  # noqa: F401
+from kdrag.smt import ForAll, Exists, Implies, And, Or, Not, If, IntVal, BoolVal, Int  # noqa: F401
 
 Z = smt.IntSort()
 ZSet = smt.SetSort(Z)
@@ -57,6 +57,36 @@ def induct_nat_strong(x, P):
 
 
 induct = kd.notation.induct_int
+
+t = Int("t")
+
+
+@Theorem(
+    ForAll(
+        [P, t],
+        t >= 0,
+        P(0),
+        P(1),
+        ForAll([t], t >= 0, P(t), P(t + 1), P(t + 2)),
+        And(P(t), P(t + 1)),
+    )
+)
+def induct2_pair(l):
+    P, t = l.fixes()
+    l.induct(t)
+    l.auto()
+    l.auto()
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [P, t], t >= 0, P(0), P(1), ForAll([t], t >= 0, P(t), P(t + 1), P(t + 2)), P(t)
+    )
+)
+def induct2(l):
+    P, t = l.fixes()
+    l.auto(by=induct2_pair(P, t))
 
 
 x, y, z = smt.Ints("x y z")

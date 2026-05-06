@@ -520,6 +520,11 @@ class ProofState:
         else:
             return l
 
+    def abort(self):
+        self.thm = Goal.empty()
+        self.lemmas = [{}]
+        self.goals = []
+
     def push_lemmas(self):
         self.lemmas.append({})
 
@@ -1833,6 +1838,17 @@ class ProofState:
             goalctx._replace(ctx=ctx, goal=smt.Implies(hyp, goalctx.goal))
         )
         return self.top_goal()
+
+    def model(self, *exprs) -> dict[smt.ExprRef, smt.ExprRef]:
+        l = self.top_goal()
+        s = smt.Solver()
+        s.add(l.ctx)
+        s.add(smt.Not(l.goal))
+        if s.check() == smt.sat:
+            m = s.model()
+            return {e: m.eval(e) for e in exprs}
+        else:
+            raise ValueError("Goal is not satisfiable, cannot produce model")
 
     def sublemma(self) -> "ProofState":
         """
