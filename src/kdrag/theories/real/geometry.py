@@ -1,9 +1,9 @@
 import kdrag as kd
 import kdrag.smt as smt
-from kdrag.smt import Store, K, Exists, Reals, Lambda, And, Not, ForAll, If
+from kdrag.smt import Store, K, Exists, Reals, Lambda, And, Not, ForAll, If  # noqa: F401
 from kdrag import Theorem, define, PTheorem, prove  # noqa: F401
 
-import kdrag.theories.real as real
+import kdrag.theories.real as real  # noqa: F401
 import kdrag.theories.real.vec2 as vec2
 import kdrag.theories.set as set_
 
