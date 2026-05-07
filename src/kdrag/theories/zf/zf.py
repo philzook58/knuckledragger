@@ -792,6 +792,14 @@ ran = kd.define(
 )
 
 
+false = kd.define("zf.false", [], emp)
+true = kd.define("zf.true", [], sing(emp))
+Bool = upair(true, false)
+
+zero = kd.define("zf.zero", [], emp)
+succ = kd.define("zf.succ", [x], x | sing(x))
+
+
 def test():
     """
     >>> True

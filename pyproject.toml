@@ -1,6 +1,6 @@
 [project]
 name = "knuckledragger"
-version = "0.2.0"
+version = "0.3.0"
 authors = [{ name = "Philip Zucker", email = "philzuckerblog@gmail.com" }]
 description = "Interactive Theorem Prover"
 readme = "README.md"
