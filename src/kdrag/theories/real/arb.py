@@ -193,7 +193,7 @@ In principle, larger scale rules can be derived from this.
 """
 
 
-def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:  # type: ignore[unresolved-attribute]
+def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:  # type: ignore[ty:unresolved-attribute]
     """
     Get exact arb as z3 value
 
@@ -213,7 +213,7 @@ def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:  # type: ignore[unresolved-at
     return smt.simplify(smt.RealVal(int(man)) * smt.RealVal(2) ** smt.RealVal(int(exp)))
 
 
-def z3_mid_rad_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:  # type: ignore[unresolved-attribute]
+def z3_mid_rad_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:  # type: ignore[ty:unresolved-attribute]
     """
     Get midpoint and radius as z3 values.
 

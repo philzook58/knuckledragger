@@ -321,6 +321,7 @@ def executeUnary(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     assert op.output is not None
     in1 = memstate.getvalue(op.inputs[0])
     out = unop[op.opcode](in1)
+    assert isinstance(out, smt.BitVecRef)
     return memstate.setvalue(op.output, out)
 
 
@@ -329,6 +330,7 @@ def executeBinary(op: pypcode.PcodeOp, memstate: MemState) -> MemState:
     in1 = memstate.getvalue(op.inputs[0])
     in2 = memstate.getvalue(op.inputs[1])
     out = binop[op.opcode](in1, in2)
+    assert isinstance(out, smt.BitVecRef)
     return memstate.setvalue(op.output, out)
 
 
