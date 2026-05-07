@@ -1321,7 +1321,11 @@ def proofstep_to_smt2(pf: kd.kernel.Proof) -> str:
 
 def all_smt2():
     db = lemma_db()
-    return {k: proofstep_to_smt2(pf) for k, pf in db.items() if pf.reason[0] == "prove"}
+    return {
+        k: proofstep_to_smt2(pf)
+        for k, pf in db.items()
+        if len(pf.reason) > 0 and pf.reason[0] == "prove"
+    }
 
 
 def write_smt2_files(dir):
