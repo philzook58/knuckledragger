@@ -7,7 +7,7 @@ from typing import TypeAlias
 
 Arb: TypeAlias = object
 
-arb = flint.arb  # type: ignore[unresolved-attribute]
+arb = flint.arb  # type: ignore
 a, b = smt.Reals("a b")
 flint_decls = {
     real.sqrt: arb.sqrt,
