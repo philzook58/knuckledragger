@@ -55,6 +55,9 @@ def expr_to_cnf(expr: smt.BoolRef) -> str:
     def eq(e: smt.BoolRef) -> str:
         if smt.is_eq(e):
             return f"({term(e.arg(0))} = {term(e.arg(1))})"
+        elif smt.is_distinct(e):
+            assert len(e.children()) == 2
+            return f"({term(e.arg(0))} != {term(e.arg(1))})"
         else:
             return term(e)
 
@@ -67,6 +70,27 @@ def expr_to_cnf(expr: smt.BoolRef) -> str:
     return " | ".join([neg(l) for l in lits])
 
 
+def cnf_file(axioms: list[smt.BoolRef], nnf=False) -> str:
+    """
+    Make a file out of a list of axioms in CNF format.
+    Will recognize a single ForAll(, Or(Not(...))) layer.
+    >>> x,y = smt.Ints("x y")
+    >>> f = smt.Function("f", smt.IntSort(), smt.IntSort())
+    >>> cnf_file([smt.ForAll([x, y], smt.Or(x == y, f(x) <= f(y)))])
+    'cnf(0,axiom,(X = Y) | <=(f(X), f(Y))).'
+    """
+    if nnf:
+        g = smt.Goal()
+        g.add(axioms)
+        g = smt.Tactic("nnf")(g)
+        assert len(g) == 1
+        axioms = g[0]
+    res = []
+    for i, axiom in enumerate(axioms):
+        res.append(f"cnf({i},axiom,{expr_to_cnf(axiom)}).")
+    return "\n".join(res)
+
+
 def expr_to_tptp(
     expr: smt.ExprRef, env=None, format="thf", theories=True, no_mangle=None
 ) -> str:
@@ -76,6 +100,15 @@ def expr_to_tptp(
     >>> expr_to_tptp(smt.ForAll([x,y], smt.Implies(x < y, x + 1 <= y)))
     '(![X...:$int, Y...:$int] : ($less(X...,Y...) => $lesseq($sum(X...,1),Y...))'
     """
+    if format == "cnf":
+        assert isinstance(expr, smt.BoolRef)
+        return expr_to_cnf(expr)
+    if format not in ["thf", "tff", "fof"]:
+        raise Exception(
+            "Unsupported TPTP format",
+            format,
+            "Supported formats are cnf, thf, tff, fof",
+        )
     if env is None:
         env = []
     if no_mangle is None:
