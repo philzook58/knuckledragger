@@ -587,6 +587,23 @@ def lift_ite(e) -> Optional[tuple[smt.ExprRef, smt.ExprRef, smt.ExprRef]]:
         return None
 
 
+def ite_to_cases(
+    e: smt.ExprRef,
+) -> tuple[list[tuple[smt.BoolRef, smt.ExprRef]], smt.ExprRef]:
+    """
+    Convert nested if then elses into a list of cases and a default.
+
+    >>> x = smt.Int("x")
+    >>> ite_to_cases(smt.If(x > 0, x, smt.If(x == 0, smt.IntVal(0), -x)))
+    ([(x > 0, x), (x == 0, 0)], -x)
+    """
+    cases = []
+    while smt.is_if(e):
+        cases.append((e.arg(0), e.arg(1)))
+        e = e.arg(2)
+    return cases, e
+
+
 def generate(sort: smt.SortRef, pred=None) -> Generator[smt.ExprRef, None, None]:
     """
     A generator of values for a sort. Repeatedly calls z3 to get a new value.

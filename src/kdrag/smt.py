@@ -683,3 +683,21 @@ def Consts(names: str, sort: SortRef | FuncRef) -> list[ExprRef]:
         for x in xs:
             x.assumes = sort(x)
         return xs
+
+
+def Relation(name: str, *domains: SortRef) -> FuncDeclRef:
+    """
+    Create a relation with the given name and domains.
+    A relation is a function that returns a Bool.
+
+    >>> Relation("R", IntSort(), IntSort())
+    R
+    """
+    return Function(name, *domains, BoolSort())
+
+
+BV1 = BitVecSort(1)
+BV8 = BitVecSort(8)
+BV16 = BitVecSort(16)
+BV32 = BitVecSort(32)
+BV64 = BitVecSort(64)

@@ -37,6 +37,7 @@ is_line = define(
     Exists([p, q], p != q, ForAll([a], line(p, q)[a] == A[a])),
 )
 
+
 _is_line1 = prove(
     ForAll(
         [A],
