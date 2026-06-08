@@ -65,34 +65,34 @@ _NOTATION_PREFIXES = (
 )
 
 _BV_INFIXES = {
-    smt.Z3_OP_BADD: ("+", PREC_ADD),
-    smt.Z3_OP_BSUB: ("-", PREC_ADD),
-    smt.Z3_OP_BMUL: ("*", PREC_MUL),
-    smt.Z3_OP_BAND: ("\\mathbin{\\&}", PREC_BV_AND),
-    smt.Z3_OP_BOR: ("\\mid", PREC_BV_OR),
-    smt.Z3_OP_BXOR: ("\\oplus", PREC_BV_XOR),
-    smt.Z3_OP_BNAND: ("\\barwedge", PREC_BV_AND),
-    smt.Z3_OP_BNOR: ("\\downarrow", PREC_BV_OR),
-    smt.Z3_OP_BXNOR: ("\\odot", PREC_BV_XOR),
-    smt.Z3_OP_BSHL: ("\\ll", PREC_MUL),
-    smt.Z3_OP_BLSHR: ("\\gg_u", PREC_MUL),
-    smt.Z3_OP_BASHR: ("\\gg_s", PREC_MUL),
-    smt.Z3_OP_BUDIV: ("/_u", PREC_MUL),
-    smt.Z3_OP_BSDIV: ("/_s", PREC_MUL),
-    smt.Z3_OP_BUREM: ("\\bmod_u", PREC_MUL),
-    smt.Z3_OP_BSREM: ("\\operatorname{srem}", PREC_MUL),
-    smt.Z3_OP_BSMOD: ("\\bmod_s", PREC_MUL),
+    smt.Z3_OP_BADD: ("+", PREC_ADD),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BSUB: ("-", PREC_ADD),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BMUL: ("*", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BAND: ("\\mathbin{\\&}", PREC_BV_AND),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BOR: ("\\mid", PREC_BV_OR),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BXOR: ("\\oplus", PREC_BV_XOR),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BNAND: ("\\barwedge", PREC_BV_AND),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BNOR: ("\\downarrow", PREC_BV_OR),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BXNOR: ("\\odot", PREC_BV_XOR),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BSHL: ("\\ll", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BLSHR: ("\\gg_u", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BASHR: ("\\gg_s", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BUDIV: ("/_u", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BSDIV: ("/_s", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BUREM: ("\\bmod_u", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BSREM: ("\\operatorname{srem}", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_BSMOD: ("\\bmod_s", PREC_MUL),  # type: ignore[ty:unresolved-attribute]
 }
 
 _BV_CMPS = {
-    smt.Z3_OP_ULT: "<_u",
-    smt.Z3_OP_ULEQ: "\\leq_u",
-    smt.Z3_OP_UGT: ">_u",
-    smt.Z3_OP_UGEQ: "\\geq_u",
-    smt.Z3_OP_SLT: "<_s",
-    smt.Z3_OP_SLEQ: "\\leq_s",
-    smt.Z3_OP_SGT: ">_s",
-    smt.Z3_OP_SGEQ: "\\geq_s",
+    smt.Z3_OP_ULT: "<_u",  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_ULEQ: "\\leq_u",  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_UGT: ">_u",  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_UGEQ: "\\geq_u",  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_SLT: "<_s",  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_SLEQ: "\\leq_s",  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_SGT: ">_s",  # type: ignore[ty:unresolved-attribute]
+    smt.Z3_OP_SGEQ: "\\geq_s",  # type: ignore[ty:unresolved-attribute]
 }
 
 
@@ -207,7 +207,7 @@ def _is_empty_set(expr: smt.ExprRef) -> bool:
 
 
 def _is_seq_unit(expr: smt.ExprRef) -> bool:
-    return smt.is_app(expr) and expr.decl().kind() == smt.Z3_OP_SEQ_UNIT
+    return smt.is_app(expr) and expr.decl().kind() == smt.Z3_OP_SEQ_UNIT  # type: ignore[ty:unresolved-attribute]
 
 
 def _to_latex_ite(expr: smt.ExprRef) -> str:
@@ -479,7 +479,7 @@ def to_latex_expr(expr: smt.ExprRef, prec: int = 0) -> str:
     if smt.is_fprm_value(expr):
         assert isinstance(expr, smt.FPRMRef)
         return _to_latex_fprm_value(expr)
-    if smt.is_app(expr) and expr.decl().kind() == smt.Z3_OP_CHAR_CONST:
+    if smt.is_app(expr) and expr.decl().kind() == smt.Z3_OP_CHAR_CONST:  # type: ignore[ty:unresolved-attribute]
         return f"\\operatorname{{char}}({expr})"
     if _is_empty_set(expr):
         return "\\emptyset"
@@ -506,7 +506,7 @@ def to_latex_expr(expr: smt.ExprRef, prec: int = 0) -> str:
     if smt.is_mul(expr):
         text = " \\cdot ".join(to_latex(child, PREC_MUL) for child in children)
         return _wrap(text, PREC_MUL, prec)
-    if smt.is_div(expr) or expr.decl().kind() in (smt.Z3_OP_DIV, smt.Z3_OP_IDIV):
+    if smt.is_div(expr) or expr.decl().kind() in (smt.Z3_OP_DIV, smt.Z3_OP_IDIV):  # type: ignore[ty:unresolved-attribute]
         lhs, rhs = children
         text = f"{to_latex(lhs, PREC_MUL)} / {to_latex(rhs, PREC_MUL + 1)}"
         return _wrap(text, PREC_MUL, prec)
@@ -522,24 +522,24 @@ def to_latex_expr(expr: smt.ExprRef, prec: int = 0) -> str:
         symbol, op_prec = _BV_INFIXES[kind]
         text = _to_latex_bv_infix(children, symbol, op_prec)
         return _wrap(text, op_prec, prec)
-    if kind == smt.Z3_OP_BNOT:
+    if kind == smt.Z3_OP_BNOT:  # type: ignore[ty:unresolved-attribute]
         text = f"\\sim {to_latex(children[0], PREC_UNARY)}"
         return _wrap(text, PREC_UNARY, prec)
-    if kind == smt.Z3_OP_ZERO_EXT:
+    if kind == smt.Z3_OP_ZERO_EXT:  # type: ignore[ty:unresolved-attribute]
         (amount,) = expr.decl().params()
         text = f"\\operatorname{{zext}}_{{{amount}}}({to_latex(children[0], 0)})"
         return _wrap(text, PREC_ATOM, prec)
-    if kind == smt.Z3_OP_SIGN_EXT:
+    if kind == smt.Z3_OP_SIGN_EXT:  # type: ignore[ty:unresolved-attribute]
         (amount,) = expr.decl().params()
         text = f"\\operatorname{{sext}}_{{{amount}}}({to_latex(children[0], 0)})"
         return _wrap(text, PREC_ATOM, prec)
-    if kind in (smt.Z3_OP_ROTATE_LEFT, smt.Z3_OP_ROTATE_RIGHT):
+    if kind in (smt.Z3_OP_ROTATE_LEFT, smt.Z3_OP_ROTATE_RIGHT):  # type: ignore[ty:unresolved-attribute]
         (amount,) = expr.decl().params()
-        name = "rotl" if kind == smt.Z3_OP_ROTATE_LEFT else "rotr"
+        name = "rotl" if kind == smt.Z3_OP_ROTATE_LEFT else "rotr"  # type: ignore[ty:unresolved-attribute]
         text = f"\\operatorname{{{name}}}({to_latex(children[0], 0)}, {amount})"
         return _wrap(text, PREC_ATOM, prec)
-    if kind in (smt.Z3_OP_EXT_ROTATE_LEFT, smt.Z3_OP_EXT_ROTATE_RIGHT):
-        name = "rotl" if kind == smt.Z3_OP_EXT_ROTATE_LEFT else "rotr"
+    if kind in (smt.Z3_OP_EXT_ROTATE_LEFT, smt.Z3_OP_EXT_ROTATE_RIGHT):  # type: ignore[ty:unresolved-attribute]
+        name = "rotl" if kind == smt.Z3_OP_EXT_ROTATE_LEFT else "rotr"  # type: ignore[ty:unresolved-attribute]
         text = (
             f"\\operatorname{{{name}}}"
             f"({to_latex(children[0], 0)}, {to_latex(children[1], 0)})"
@@ -548,12 +548,12 @@ def to_latex_expr(expr: smt.ExprRef, prec: int = 0) -> str:
     if _is_seq_unit(expr):
         text = f"[{to_latex(children[0], 0)}]"
         return _wrap(text, PREC_ATOM, prec)
-    if kind in (smt.Z3_OP_CONCAT, smt.Z3_OP_SEQ_CONCAT):
+    if kind in (smt.Z3_OP_CONCAT, smt.Z3_OP_SEQ_CONCAT):  # type: ignore[ty:unresolved-attribute]
         text = f" {CONCAT_SYMBOL} ".join(
             to_latex(child, PREC_CONCAT) for child in children
         )
         return _wrap(text, PREC_CONCAT, prec)
-    if expr.decl().kind() == smt.Z3_OP_EXTRACT and smt.is_bv(expr):
+    if expr.decl().kind() == smt.Z3_OP_EXTRACT and smt.is_bv(expr):  # type: ignore[ty:unresolved-attribute]
         high, low = expr.decl().params()
         idx = str(high) if high == low else f"{high}:{low}"
         text = f"{to_latex(children[0], PREC_EXTRACT)}[{idx}]"

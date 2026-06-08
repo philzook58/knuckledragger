@@ -1259,13 +1259,16 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
     # Actually interpret body.
     # TODO: seek requires / ensures annotations
     body = fun.body
-    requires = []
+    requires: list[smt.BoolRef] = []
     ensures = []
     for n, stmt in enumerate(body):
         match stmt:
             case ast.Expr(value=ast.Call(func=ast.Name(id="requires"), args=[arg])):
                 # maybe check that eval(func) is kd.reflect.requires?
                 pre = _reflect_expr(arg, globals=globals, locals=locals)
+                assert isinstance(
+                    pre, smt.BoolRef
+                ), f"Precondition must be a boolean expression, got {pre}"
                 requires.append(pre)
             case ast.Expr(value=ast.Call(func=ast.Name(id="ensures"), args=[arg])):
                 post = _reflect_expr(arg, globals=globals, locals=locals)

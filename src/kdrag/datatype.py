@@ -185,7 +185,7 @@ def pattern_match(
     ([is(S, n), is(S, pred(n))], {m: pred(pred(n))})
     """
     subst = {}
-    constraints = []
+    constraints: list[smt.BoolRef] = []
     todo = [(x, pat)]
     while todo:
         x, pat = todo.pop()
@@ -206,12 +206,12 @@ def pattern_match(
             or smt.is_false(pat)
             or smt.is_rational_value(pat)
         ):  # or smt.is_real_value(pat) or smt.is_true(pat) or smt.is_false(pat):
-            constraints.append(x == pat)
+            constraints.append(smt.Eq(x, pat))
         elif smt.is_const(pat):  # possible variable
             if pat.decl() in kd.kernel.defns:  # actually a defined constant
-                constraints.append(x == pat)
+                constraints.append(smt.Eq(x, pat))
             elif pat in subst:
-                constraints.append(x == subst[pat])  # non-linear patterns
+                constraints.append(smt.Eq(x, subst[pat]))  # non-linear patterns
                 subst[pat] = x
             else:
                 subst[pat] = x

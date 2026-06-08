@@ -858,8 +858,8 @@ class ProofState:
             raise ValueError("No boolean simplifications found")
         newctx = (
             goalctx.ctx
-            + [b == smt.BoolVal(True) for b in trues]
-            + [b == smt.BoolVal(False) for b in falses]
+            + [smt.Eq(b, smt.BoolVal(True)) for b in trues]
+            + [smt.Eq(b, smt.BoolVal(False)) for b in falses]
         )
         newgoal = smt.substitute(
             goalctx.goal,

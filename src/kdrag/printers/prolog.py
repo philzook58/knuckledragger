@@ -18,6 +18,7 @@ def to_prolog(vs: list[smt.ExprRef], expr: smt.ExprRef) -> str:
             "Quantifiers not supported in prolog, use kd.utils.open_binder first", expr
         )
     elif smt.is_int_value(expr):
+        assert isinstance(expr, smt.IntNumRef)
         return str(expr.as_long())
     elif smt.is_const(expr):
         if any(expr.eq(v) for v in vs):

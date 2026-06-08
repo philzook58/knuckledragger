@@ -46,7 +46,7 @@ def verilog_of_expr(expr: smt.ExprRef) -> str:
         name = expr.decl().name()
         if smt.is_select(expr):
             return f"{children[0]}[{children[1]}]"
-        elif name == "ite":
+        elif smt.is_if(expr):
             return f"({children[0]} ? {children[1]} : {children[2]})"
         elif name == "and":
             return "(" + " && ".join(children) + ")"

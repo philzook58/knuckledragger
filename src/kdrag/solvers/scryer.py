@@ -2,6 +2,7 @@ import scryer
 import kdrag.smt as smt
 from kdrag.printers.tptp import expr_to_tptp, expr_to_cnf
 
+
 Term = scryer.Term
 Var = scryer.Term.Var
 Atom = scryer.Term.Atom
@@ -47,7 +48,7 @@ def _from_scryer(
                 return smt.Const(name, sort)
         case Compound("=", [Compound("!", [lhs]), rhs]):
             lhs = _from_scryer(lhs, decls, vars)
-            return lhs != _from_scryer(rhs, decls, vars, sort=lhs.sort())
+            return smt.Distinct(lhs, _from_scryer(rhs, decls, vars, sort=lhs.sort()))
         case Compound("$", [t]):
             match t:
                 case Atom("true"):
@@ -68,6 +69,8 @@ def _from_scryer(
                     for i, arg in enumerate(args)
                 ]
                 return decl(*args)
+            else:
+                raise Exception(f"Untranslatable term: {term}")
         case _:
             raise Exception(f"Unsupported constructor: {term}")
         # case scryer.Term.List(values):
