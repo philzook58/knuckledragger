@@ -333,6 +333,41 @@ def is_tuple(e: smt.ExprRef) -> bool:
     return isinstance(sort, smt.DatatypeSortRef) and is_tuple_sort(sort)
 
 
+@functools.cache
+def _AStruct(key_types: tuple[tuple[str, smt.SortRef], ...]) -> smt.DatatypeSortRef:
+    sort_name = "AStruct_" + "_".join(f"{k}_{v.name()}" for k, v in key_types)
+    return Struct(sort_name, *key_types)
+
+
+def AStruct(**kwargs) -> smt.DatatypeSortRef:
+    """
+    Build an anonymous struct type with the given key types.
+    >>> S = AStruct(a=smt.IntSort(), b=smt.BoolSort())
+    >>> s = S(a=42, b=True)
+    """
+    return _AStruct(tuple(sorted(kwargs.items())))
+
+
+def astruct(**kwargs) -> smt.DatatypeRef:
+    """
+    Build an anonymous struct value with the given key values.
+    >>> s = astruct(a=42, b=True)
+    >>> smt.simplify(s.a)
+    42
+    """
+    key_types = sorted((k, smt._py2expr(v).sort()) for k, v in kwargs.items())
+    return _AStruct(tuple(key_types))(**kwargs)
+
+
+def is_astruct_sort(s: smt.SortRef) -> bool:
+    return isinstance(s, smt.DatatypeSortRef) and s.name().startswith("AStruct_")
+
+
+def is_astruct(e: smt.ExprRef) -> bool:
+    sort = e.sort()
+    return isinstance(sort, smt.DatatypeSortRef) and is_astruct_sort(sort)
+
+
 Complex = datatype.Struct("C", ("re", smt.RealSort()), ("im", smt.RealSort()))
 ComplexP = smt.FullSet(Complex)
 
