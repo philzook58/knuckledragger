@@ -159,7 +159,7 @@ def Vec(n: smt.ArithRef | int, A: smt.SortRef) -> smt.QuantifierRef:
         raise TypeError("A must be a SortRef")
 
 
-def Tail(s: smt.SeqSortRef):
+def Tail(s: smt.SeqRef):
     """
     >>> x = smt.Const("x", smt.SeqSort(smt.BoolSort()))
     >>> Tail(x)
@@ -425,9 +425,9 @@ def _infer_sort(
         return sort
     elif smt.is_func(F):
         S = smt.domains(F)[0]
-        assert (
-            isinstance(S, smt.ArraySortRef) and S.range() == smt.BoolSort()
-        ), "sort must be Set(T) for some T"
+        assert isinstance(S, smt.ArraySortRef) and S.range() == smt.BoolSort(), (
+            "sort must be Set(T) for some T"
+        )
         return S
     else:
         raise ValueError("sort must be provided for non-function F")
