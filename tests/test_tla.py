@@ -81,6 +81,8 @@ E10 == Append(S, "b")
 
 ClockType == (0..23) \X (0..59) \X (0..59)
 
+\* TODO
+
 \* Map
 Squares == {x*x: x \in 1..4}
 
@@ -91,6 +93,9 @@ ToClock(seconds) ==
   LET seconds_per_day == 86400
   IN CHOOSE x \in ClockType: ToSeconds(x) = seconds % seconds_per_day
 
+struct == [a |-> 1, b |-> {}]
+Accounts == {"checking", "savings"}
+BankTransactionType == [acct: Accounts, amnt: 1..10, type: {"deposit", "withdraw"}]
 ==========================
 """
 
@@ -134,6 +139,8 @@ def test_tla_mytest():
     
     #assert mod.operator("Squares", {}).eq(smt.EmptySet(smt.IntSort()))
 
+    assert mod.operator("struct", {}, sort=kd.AStruct(a=smt.IntSort(), b=smt.SetSort(smt.IntSort()))).eq(kd.astruct(a=smt.IntVal(1), b=smt.EmptySet(smt.IntSort())))
+    assert isinstance(mod.operator("BankTransactionType", {"Accounts" : smt.EmptySet(smt.StringSort())}).sort(), smt.ArraySortRef)
 
 pluscal1 = r"""
 ---- MODULE pluscal ----
@@ -249,4 +256,4 @@ def test_duplicates():
         tla.prime(decls["is_unique"]) == decls["is_unique"]
     )
     ))
-    
+

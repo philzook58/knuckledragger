@@ -335,7 +335,7 @@ def is_tuple(e: smt.ExprRef) -> bool:
 
 @functools.cache
 def _AStruct(key_types: tuple[tuple[str, smt.SortRef], ...]) -> smt.DatatypeSortRef:
-    sort_name = "AStruct_" + "_".join(f"{k}_{v.name()}" for k, v in key_types)
+    sort_name = "AStruct_" + "_".join(f"{k}_{v.sexpr()}" for k, v in key_types)
     return Struct(sort_name, *key_types)
 
 

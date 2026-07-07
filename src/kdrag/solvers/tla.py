@@ -71,6 +71,7 @@ def tla_to_xml(filename):
     ).stdout
 
 
+# TODO: Consider maintaining col/line numbers for better errors
 @dataclass
 class App:
     "Untyped Ast for expressions"
@@ -103,9 +104,9 @@ class Module:
     # assumes, constants, extends
 
     def operator(
-        self, name: str, decls: dict[str, smt.FuncDeclRef | smt.ExprRef]
+        self, name: str, decls: dict[str, smt.FuncDeclRef | smt.ExprRef], sort=None
     ) -> smt.ExprRef:
-        return to_smt(self.definitions[name], decls)
+        return to_smt(self.definitions[name], decls, sort)
 
     def action(
         self, actname: str, decls: dict[str, smt.FuncDeclRef | smt.ExprRef]
@@ -247,6 +248,7 @@ def prime(e: smt.ExprRef) -> smt.ExprRef:
     return smt.Const(name + "'", e.sort())
 
 
+# Should to_smt be a method of Module? decls is var types usually. We may want to recursively call other definitions
 def to_smt(e: App, decls: dict[str, smt.FuncDeclRef | smt.ExprRef], sort=None):
     if isinstance(e.f, StringLit) and not e.args:
         assert sort is None or sort == smt.StringSort()
@@ -293,6 +295,7 @@ def to_smt(e: App, decls: dict[str, smt.FuncDeclRef | smt.ExprRef], sort=None):
         lhs = to_smt(e.args[0], decls, sort=rhs.sort())
         return smt.Eq(lhs, rhs)
     elif e.f == "..":
+        # 1..10 range syntax
         assert len(e.args) == 2
         args = [to_smt(arg, decls, sort=smt.IntSort()) for arg in e.args]
         x = smt.FreshConst(smt.IntSort(), prefix="x")
@@ -304,8 +307,9 @@ def to_smt(e: App, decls: dict[str, smt.FuncDeclRef | smt.ExprRef], sort=None):
         if e.f == "\\notin":
             res = smt.Not(res)
         return res
-    elif e.f == "'":
+    elif e.f == "'":  # Prime operator
         assert len(e.args) == 1 and len(e.args[0].args) == 0
+        # TODO: prime can actually be applied to compound expressions?
         x = to_smt(e.args[0], decls, sort=sort)
         return prime(x)
     elif e.f == "UNCHANGED":
@@ -350,11 +354,14 @@ def to_smt(e: App, decls: dict[str, smt.FuncDeclRef | smt.ExprRef], sort=None):
         assert len(e.args) == 1
         return kd.Tail(to_smt(e.args[0], decls, sort=sort))
     elif e.f == "$SetEnumerate":
-        args = [to_smt(arg, decls, sort=sort) for arg in e.args]
+        # concrete set enumeration {1,2,3,4}
+        assert sort is None or isinstance(sort, smt.ArraySortRef)
+        argsort = sort.domain() if sort is not None else None
+        args = [to_smt(arg, decls, sort=argsort) for arg in e.args]
         if len(args) == 0:
-            if sort is None:
+            if argsort is None:
                 raise ValueError(f"Cannot infer sort of empty set {e}")
-            return smt.EmptySet(sort)
+            return smt.EmptySet(argsort)
         else:
             S = smt.EmptySet(args[0].sort())
             for arg in args:
@@ -377,6 +384,37 @@ def to_smt(e: App, decls: dict[str, smt.FuncDeclRef | smt.ExprRef], sort=None):
         assert len(e.args) == 0
         assert sort is None or sort == consts[e.f].sort()
         return consts[e.f]
+    elif e.f == "$RcdConstructor":
+        # Record Construction
+        sorts = {}
+        if sort is not None:
+            assert isinstance(sort, smt.DatatypeSortRef), (
+                f"Expected sort to be a DatatypeSortRef, got {sort}"
+            )
+            assert sort.num_constructors() == 1, (
+                f"Expected sort to have one constructor, got {sort}"
+            )
+            constructor = sort.constructor(0)
+            for i in range(constructor.arity()):
+                acc = sort.accessor(0, i)
+                sorts[acc.name()] = acc.range()
+        fields = {}
+        fields0 = assoc_list(e.args)
+        assert sort is None or set(fields0.keys()) == set(sorts.keys()), (
+            f"fields mismatch: {fields0.keys()} vs {sorts.keys()}"
+        )
+        fields = {k: to_smt(v, decls, sort=sorts.get(k)) for k, v in fields0.items()}
+        return kd.astruct(**fields)
+    elif e.f == "$SetOfRcds":
+        # [acct : 1..3] syntax. Returns the set of records in that cartesian product
+        assert sort is None  # TODO
+        fields0 = assoc_list(e.args)
+        fields = {k: to_smt(v, decls) for k, v in fields0.items()}
+        sort = kd.AStruct(**{k: v.sort().domain() for k, v in fields.items()})
+        x = smt.FreshConst(sort, prefix="x")
+        print(sort, fields, [(v, getattr(x, k)) for k, v in fields.items()])
+        return smt.Lambda([x], smt.And(*[v(getattr(x, k)) for k, v in fields.items()]))
+
     # These appear in spec statements
     # elif e.f == "$SquareAct":
     #    return smt.Const("$SQUAREACT TODO", smt.BoolSort())
@@ -388,4 +426,25 @@ def to_smt(e: App, decls: dict[str, smt.FuncDeclRef | smt.ExprRef], sort=None):
     #    f = smt.Function(e.f, *[arg.sort() for arg in args], sort)
     #    return f(*args)
     else:
-        raise ValueError(f"Cannot convert {e} to smt without sort")
+        raise ValueError(
+            f"Could not convert {e} to smt. Maybe you need to supply a toplevel sort or decl?"
+        )
+
+
+def assoc_list(pairs: list[App]) -> dict[str, App]:
+    """
+    Convert a list of pairs to a dictionary. Each pair is an App with two arguments.
+    """
+    d = {}
+    for pair in pairs:
+        assert pair.f == "$Pair" and len(pair.args) == 2
+        key, value = pair.args
+        assert len(key.args) == 0, "Only string keys are supported in assoc_list"
+        key = key.f
+        assert isinstance(key, StringLit), (
+            "Only string keys are supported in assoc_list"
+        )
+        key = key.value
+        assert key not in d, f"Duplicate key {key} in assoc_list"
+        d[key] = value
+    return d
