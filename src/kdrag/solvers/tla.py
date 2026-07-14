@@ -14,7 +14,7 @@ from typing import Callable
 kdrag.solvers.download(
     "https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar",
     "tla2tools.jar",
-    "237332bdcc79a35c7d26efa7b82c77c85c2744591c5598673a8a45085ff2a4fb",
+    "150b0294c3d407c15f0c971351ccd4ae8c6d885397546dff87871a14be2b4ee4",
 )
 
 """
