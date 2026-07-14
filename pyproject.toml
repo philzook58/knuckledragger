@@ -26,7 +26,7 @@ homepage = "https://github.com/philzook58/knuckledragger"
 [project.optional-dependencies]
 dev = ["pytest>=6.0", "nbclient", "jupyter", "hypothesis>=6.124.1"]
 yosys = ["yowasp-yosys>=0.50.0.0.post858"]
-pypcode = ["cle>=9.2.148", "pypcode>=3.0.3", "click>=8.1.8"]
+pypcode = ["cle>=9.2.148", "pypcode>=4.0.0", "click>=8.1.8"]
 rust = ["maturin[patchelf]>=1.8.6"]
 solvers = [
     "egglog >= 9.0.0",

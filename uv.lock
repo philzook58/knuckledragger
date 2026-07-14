@@ -1089,6 +1089,7 @@ solvers = [
     { name = "cvc5" },
     { name = "dd" },
     { name = "egglog" },
+    { name = "kdrag-scryer" },
     { name = "py-aiger" },
     { name = "python-flint" },
     { name = "ziglang" },
@@ -1108,9 +1109,6 @@ dev = [
 rust = [
     { name = "maturin", extra = ["patchelf"] },
 ]
-solvers = [
-    { name = "kdrag-scryer" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -1124,11 +1122,12 @@ requires-dist = [
     { name = "graphviz", specifier = ">=0.20.3" },
     { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.124.1" },
     { name = "jupyter", marker = "extra == 'dev'" },
+    { name = "kdrag-scryer", marker = "extra == 'solvers'", specifier = ">=0.2.0" },
     { name = "lark", specifier = ">=1.3.1" },
     { name = "maturin", extras = ["patchelf"], marker = "extra == 'rust'", specifier = ">=1.8.6" },
     { name = "nbclient", marker = "extra == 'dev'" },
     { name = "py-aiger", marker = "extra == 'solvers'", specifier = ">=8.1.0" },
-    { name = "pypcode", marker = "extra == 'pypcode'", specifier = ">=3.0.3" },
+    { name = "pypcode", marker = "extra == 'pypcode'", specifier = ">=4.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "python-flint", marker = "extra == 'solvers'" },
     { name = "sympy" },
@@ -1147,7 +1146,6 @@ dev = [
     { name = "ruff", specifier = ">=0.11.13" },
 ]
 rust = [{ name = "maturin", extras = ["patchelf"], specifier = ">=1.8.6" }]
-solvers = [{ name = "kdrag-scryer", specifier = ">=0.2.0" }]
 
 [[package]]
 name = "lark"
@@ -1620,15 +1618,25 @@ wheels = [
 
 [[package]]
 name = "pypcode"
-version = "3.0.3"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/1a/12/02835be3e61d209d30d4e02769035756b7c936d706829f9c2e437d48d148/pypcode-3.0.3.tar.gz", hash = "sha256:6b2a8c0e6b90d59fc43da1d7240cd163fe7307e4fd92f94108cc2eca39d793f0", size = 2069527, upload-time = "2025-02-04T23:28:49.736Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6f/34/c291a25fa611788f4f6e7bf48a4c2c1ca72471e61fa67835d3543f91e840/pypcode-4.0.0.tar.gz", hash = "sha256:1a83fa81769a2c1cfe8024ad627977edb99ed7ecb76dbc12722416fb7a54ec34", size = 2328402, upload-time = "2026-05-16T01:10:02.653Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/2b/3efc445f233a8eed87d5b4bd4e20b2fe9b14e47e3ab3cc353521ac205793/pypcode-3.0.3-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:17ddc8557a92f8fdb56c2048d270c6c2a6c2bedf0ed60467d3d22dbe09400f2b", size = 12813844, upload-time = "2025-02-04T23:28:32.663Z" },
-    { url = "https://files.pythonhosted.org/packages/c1/02/d97995fa55042ab075145e154e973bcdd69bb4a25352a27c9b6dd0f0a958/pypcode-3.0.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:279c54cb32be5ea1b81fd11e21d4bac802aaa4a666e29a359ac0b4d884d9f8c7", size = 12777621, upload-time = "2025-02-04T23:28:35.543Z" },
-    { url = "https://files.pythonhosted.org/packages/b5/20/c859b95945d49c1ccbf053113cd787e7d9d0179ccf9b5cea29567031362b/pypcode-3.0.3-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ef3ab06198bfe57883672951348db5f3f26f8204c87cfa5b4b29b1f8ff9b6537", size = 12888083, upload-time = "2025-02-04T23:28:38.591Z" },
-    { url = "https://files.pythonhosted.org/packages/a8/84/9f35126b31c4e06fbe68c980202457f62d52625817c202b19b5e8ad8821b/pypcode-3.0.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ce9012b13ac045bc37e8e0032c1311cbcf2499229ea12368bff094f3c5ac5b13", size = 12901286, upload-time = "2025-02-04T23:28:42.304Z" },
-    { url = "https://files.pythonhosted.org/packages/8b/38/42b78f48991676698eacbccf30b03d3b92574676e4b5cd938f9a91311b8d/pypcode-3.0.3-cp312-cp312-win_amd64.whl", hash = "sha256:d6900c116d1c80110ec0a4e3cfdfabf1db4331a67564535244901c2a492975bf", size = 12640557, upload-time = "2025-02-04T23:28:47.018Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/fd/84948ade4dd8b6fa6681dc73323e97308fe50d239c49cb31d534a5fbafc1/pypcode-4.0.0-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:3d0302f183a9d4b577d664047ddda39d768c12265a4356ad0a9336e599b5d480", size = 14545711, upload-time = "2026-05-16T01:09:19.593Z" },
+    { url = "https://files.pythonhosted.org/packages/08/b6/a1b33f81da22caaf5a77c7809b31b5f814666b396d305f1104d9a1084e32/pypcode-4.0.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:bb27fe22e5a4f8f9f931faba87100023bf52423a57bf6eb798074261db71f430", size = 14513608, upload-time = "2026-05-16T01:09:23.149Z" },
+    { url = "https://files.pythonhosted.org/packages/8f/02/69835bd082500144276c406a72fcf548bf44fa25e90a37e353579f8ae069/pypcode-4.0.0-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:45918419338244f5d3877cedb2f26443c40f65f7c27e8ca079ca2f5005335b50", size = 14601239, upload-time = "2026-05-16T01:09:25.714Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/88/bb0e611dad34e60a12fe84efe1d5ea87cb301f68dcbd45a131a591b11b54/pypcode-4.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e473230895117f683629f8dd64c630d68d4246b5bfce19e3b49b22d6f44ba266", size = 14636300, upload-time = "2026-05-16T01:09:28.187Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/8c/5408a87bf7d07c7415bcb42e10ccad241e4c4fdfb8b6a892457d86211858/pypcode-4.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:c0afad61c2f47a72e865e4280c6df8ac4e12631d04cf0686f7d2988e88e0d20e", size = 14378712, upload-time = "2026-05-16T01:09:30.944Z" },
+    { url = "https://files.pythonhosted.org/packages/82/b0/a3a27f8eb6f63012d73cbd43d01e38b9831e3eacb9048f7323ff910c4a07/pypcode-4.0.0-cp313-cp313-macosx_10_14_x86_64.whl", hash = "sha256:ba1f0dfc74ed5289be19ade05eb418c9fde56c3b212e073b8c5b4ab52f798a72", size = 14545747, upload-time = "2026-05-16T01:09:33.778Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/62/71358187738ddf420c188fb26fbb0e1476eff4ecce8676754c6fe783d621/pypcode-4.0.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:dd7c79b6e0547e09b5e35d30a3548e8604f829a376dabf0b44c722e57a6acb1f", size = 14513524, upload-time = "2026-05-16T01:09:36.656Z" },
+    { url = "https://files.pythonhosted.org/packages/af/a8/c7c20b205ef24192ea63d5e9856441b49f39f1791d2c517064693177db7c/pypcode-4.0.0-cp313-cp313-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:22ccdf601702daaabf4b81b3d82a28f12a9f1dda348912de50201d3baadc5857", size = 14600798, upload-time = "2026-05-16T01:09:39.746Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/21/abc16dac6c810a3b7e064a238f7d15de807b84a4a222af1f58d5beeca642/pypcode-4.0.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:214aeed946e33293d398b22af57cab92ceff733f684bc2c25d74efac21115e93", size = 14636281, upload-time = "2026-05-16T01:09:42.323Z" },
+    { url = "https://files.pythonhosted.org/packages/77/79/69ce09a6e66f581579025763a2bd0f2c2c9e2c09e97a354de5585fc9c56b/pypcode-4.0.0-cp313-cp313-win_amd64.whl", hash = "sha256:9e5ff5796d5b9c99a0bc93072a3ea22f0ddf52c9d80948e15f4f8ed7d2f3beba", size = 14378643, upload-time = "2026-05-16T01:09:45.26Z" },
+    { url = "https://files.pythonhosted.org/packages/65/cb/2f739552efbc5523e1f4e88449a85b5d026b998b940797a0596e3d72699c/pypcode-4.0.0-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:3fde794da333ac5c6fbb78046490bf5bbe7bb22892a62f74acfb94c97e5f7a59", size = 14545615, upload-time = "2026-05-16T01:09:48.029Z" },
+    { url = "https://files.pythonhosted.org/packages/69/8f/41860c28f5b1e0a26687e735cb5b90098ac78dafd2918efd81a27f6d047e/pypcode-4.0.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:03c455d581a948ff63b8ac8ceef116f23c07aba7220d9af000d263b40711fa00", size = 14513469, upload-time = "2026-05-16T01:09:50.775Z" },
+    { url = "https://files.pythonhosted.org/packages/db/b6/b2a92f006fa1823a1d13e7ca47ffa112590001a22b03476e70a435216dbe/pypcode-4.0.0-cp314-cp314-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:d3283a8af005b0310699a047934959bdfbf0504380333dc7fb41dfbf185572bf", size = 14601338, upload-time = "2026-05-16T01:09:53.758Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/61/47ebdab632efa8f82623b4ea115927caaeb5a91446369cb6d322623f513b/pypcode-4.0.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:939df61883a011136e13b414bdc92584e5ce3a5341a12a0398e2fd4dc8734250", size = 14636311, upload-time = "2026-05-16T01:09:56.648Z" },
+    { url = "https://files.pythonhosted.org/packages/04/11/f64bb7c7e25078622b77e42ec34db6b9a705c02bed4fc5ceab8e746833c9/pypcode-4.0.0-cp314-cp314-win_amd64.whl", hash = "sha256:b9ef032ee56a6fa59753b092463059c56338d3edfc30582c9d44b4dda772f098", size = 14526941, upload-time = "2026-05-16T01:09:59.649Z" },
 ]
 
 [[package]]
