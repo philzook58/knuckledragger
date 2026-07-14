@@ -77,7 +77,11 @@ MemSorts = {
 
 MemStateSort = {
     bits: kd.Struct(
-        f"MemState{bits}", ("ram", MemSort), ("register", MemSort), ("unique", MemSort)
+        f"MemState{bits}",
+        ("ram", MemSort),
+        ("register", MemSort),
+        ("unique", MemSort),
+        ("csreg", MemSort),
     )
     for bits, MemSort in MemSorts.items()
 }
@@ -233,6 +237,7 @@ class MemState(NamedTuple):
     ram: smt.ArrayRef
     register: CachedArray
     unique: CachedArray
+    csreg: CachedArray
     bits: int  # bitwidth of addresses
     read: smt.ArrayRef
     # write: smt.ArrayRef
@@ -245,6 +250,7 @@ class MemState(NamedTuple):
             ram=mem.ram,
             register=CachedArray(mem.register, {}, bits=bits, register=True, owner={}),
             unique=CachedArray(mem.unique, {}, bits=bits, register=False, owner={}),
+            csreg=CachedArray(mem.csreg, {}, bits=bits, register=False, owner={}),
             bits=bits,
             read=smt.Array(name + "_read", BV[bits], smt.BoolSort()),
             write=[],  # smt.Array(name + "_write", BV[bits], smt.BoolSort()),
@@ -252,7 +258,10 @@ class MemState(NamedTuple):
 
     def to_expr(self) -> smt.DatatypeRef:
         return MemStateSort[self.bits].mk(
-            ram=self.ram, register=self.register, unique=self.unique.to_expr()
+            ram=self.ram,
+            register=self.register,
+            unique=self.unique.to_expr(),
+            csreg=self.csreg.to_expr(),
         )
 
     def getvalue(self, vnode: pypcode.Varnode) -> smt.BitVecRef | int:
@@ -267,6 +276,8 @@ class MemState(NamedTuple):
                 return self.register.read(vnode)
             elif vnode.space.name == "unique":
                 return self.unique.read(vnode)
+            elif vnode.space.name == "csreg":
+                return self.csreg.read(vnode)
             else:
                 raise ValueError(f"Unknown memory space: {vnode.space.name}")
 
@@ -279,7 +290,8 @@ class MemState(NamedTuple):
             return self._replace(register=self.register.store(vnode, value))
         elif space == "unique":
             return self._replace(unique=self.unique.store(vnode, value))
-
+        elif space == "csreg":
+            return self._replace(csreg=self.csreg.store(vnode, value))
         else:
             raise ValueError(f"Unknown memory space: {space}")
 
@@ -301,6 +313,20 @@ class MemState(NamedTuple):
 
     def get_reg(self, ctx: "BinaryContext", regname: str) -> smt.BitVecRef:
         return ctx.get_reg(self, regname)
+
+    def get_csr(self, ctx: "BinaryContext", csrname: str) -> smt.BitVecRef:
+        symbol = ctx.ctx.language.pspec.find(f".//symbol[@name='{csrname}']")
+        if symbol is None:
+            raise KeyError(f"Unknown CSR: {csrname}")
+
+        space, address = symbol.attrib["address"].split(":")
+        if space != "csreg":
+            raise ValueError(f"{csrname!r} is in {space!r}, not 'csreg'")
+
+        size = int(symbol.attrib["size"], 0)  # Hack.
+        offset = int(address, 0) * size  # Convert csreg units to byte offset
+
+        return bv.select_concat(self.csreg.to_expr(), offset, size, le=self.csreg.le)
 
     def __str__(self):
         # use sexpr form which uses `let` for shared expressions.
@@ -517,9 +543,9 @@ class BinaryContext:
     def disassemble(self, addr):
         if addr in self.insn_cache:
             return self.insn_cache[addr]
-        assert (
-            self.loader is not None
-        ), "BinaryContext must be loaded before disassembling"
+        assert self.loader is not None, (
+            "BinaryContext must be loaded before disassembling"
+        )
         memory = self.loader.memory.load(addr, 0x128)  # 128 bytes? good enough?
         insns = self.ctx.disassemble(memory, addr, 0).instructions
         assert len(insns) > 0
@@ -531,9 +557,9 @@ class BinaryContext:
         if addr in self.pcode_cache:
             return self.pcode_cache[addr]
         insn = self.disassemble(addr)
-        assert (
-            self.loader is not None
-        ), "BinaryContext must be loaded before disassembling"
+        assert self.loader is not None, (
+            "BinaryContext must be loaded before disassembling"
+        )
         memory = self.loader.memory.load(addr, insn.length)
         ops = self.ctx.translate(memory, base_address=addr, offset=0).ops
         assert len(ops) > 0
@@ -784,9 +810,9 @@ class BinaryContext:
 
     def resolve_addr(self, addr: str | int) -> int:
         loader = self.loader
-        assert (
-            loader is not None
-        ), "BinaryContext must be loaded before executing trace frags"
+        assert loader is not None, (
+            "BinaryContext must be loaded before executing trace frags"
+        )
         if isinstance(addr, str):
             res_addr = loader.find_symbol(addr)
             if res_addr is None:
@@ -809,9 +835,9 @@ class BinaryContext:
         breakpoint_addrs = list(breakpoints.keys())
         start_addrs = [self.resolve_addr(addr) for addr in entries + cuts]
         assert len(set(start_addrs)) == len(start_addrs), "Duplicate start addrs"
-        assert len(set(breakpoint_addrs)) == len(
-            breakpoint_addrs
-        ), "Duplicate breakpoints"
+        assert len(set(breakpoint_addrs)) == len(breakpoint_addrs), (
+            "Duplicate breakpoints"
+        )
         results = {}
         for start_addr in entries + cuts:
             addr = self.resolve_addr(start_addr)
