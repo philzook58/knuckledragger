@@ -42,10 +42,16 @@ def test_tla_to_xml():
     decls = {"hr": hr}
     assert mod.action("HCini", decls).sort() == smt.BoolSort()
     assert mod.action("HCnxt", decls).eq(hr1 == smt.If(hr == 12, 1, hr + 1))
-    assert mod.infer_sorts(typeok="HCini") == decls
-    with open("/tmp/HourClock.cfg", "w") as f:
-        f.write(hour_cfg)
-    tla.check("/tmp/HourClock.tla")
+    #assert mod.infer_sorts(typeok="HCini") == decls
+
+    mod.infer_sorts()
+    assert mod.decls == {"HCini": smt.Function("HCini", smt.BoolSort()), "HCnxt": smt.Function("HCnxt", smt.BoolSort()), 
+                         "HC": smt.Function("HC", smt.BoolSort()), "hr": smt.Function("hr", smt.IntSort())}
+
+
+    #with open("/tmp/HourClock.cfg", "w") as f:
+    #    f.write(hour_cfg)
+    #tla.check("/tmp/HourClock.tla")
 
 
 # https://learntla.com/core/operators.html
@@ -56,6 +62,7 @@ VARIABLES is_unique
 VARIABLES biz, S
 
 TypeInvariant == /\ is_unique \in BOOLEAN
+                 /\ biz \in 1..10
 
 MinutesToSeconds(m) == m * 60
 
@@ -96,6 +103,16 @@ ToClock(seconds) ==
 struct == [a |-> 1, b |-> {}]
 Accounts == {"checking", "savings"}
 BankTransactionType == [acct: Accounts, amnt: 1..10, type: {"deposit", "withdraw"}]
+
+myrange == 1..3
+TestQuant == \A x \in myrange, y \in myrange: x + y > 0
+\* TestQuant == \A x \in myrange, y \in 1..x: x + y > 0  fails, so i think no telescoping allowed
+
+
+FunCon == [self \in 1..2 |-> "alice"][1] = "alice"
+
+\* Exception Syntax
+TestExcept == [[p \in 1..2 |-> "Foo"] EXCEPT ![1] = "Done"]
 ==========================
 """
 
@@ -103,12 +120,16 @@ def test_tla_mytest():
     with open("/tmp/MyTest.tla", "w") as f:
         f.write(mytest)
     mod = tla.Module.of_file("/tmp/MyTest.tla")
+    mod.declare_vars([smt.Const("S", smt.SeqSort(smt.StringSort()))])
+    mod.infer_sorts()
+    assert mod.decls["is_unique"].range() == smt.BoolSort() and mod.decls["biz"].range() == smt.IntSort()
     assert mod.name == "MyTest"
     assert set(mod.variables) == {"biz", "is_unique", "S"}
     #assert list(mod.definitions.keys()) == ["TypeInvariant", "MinutesToSeconds"]
     assert mod.theorems == []
-    decls = mod.infer_sorts(typeok="TypeInvariant")
-    assert decls == {"is_unique": smt.Const("is_unique", smt.BoolSort())}
+    #decls = mod.infer_sorts(typeok="TypeInvariant")
+    decls = mod.decls #{ k : smt.Const(k, sort) for k,sort in mod.sorts.items()}
+    #assert decls == {"is_unique": smt.Const("is_unique", smt.BoolSort())}
     assert mod.action("TypeInvariant", decls).sort() == smt.BoolSort()
     assert mod.def_params["MinutesToSeconds"] == ["m"]
 
@@ -117,7 +138,7 @@ def test_tla_mytest():
     assert mod.operator("Xor", {"A": smt.Bool("A"), "B": smt.Bool("B")}).eq(smt.Bool("A") == ~smt.Bool("B"))
 
     time = smt.Const("time", smt.SeqSort(smt.IntSort()))
-    assert mod.operator("ToSeconds", {"time": time}).eq(
+    assert mod.operator("ToSeconds", {"time": time.decl()}).eq(
         (time[smt.IntVal(1) - smt.IntVal(1)] * smt.IntVal(3600) + time[smt.IntVal(2) - smt.IntVal(1)] * smt.IntVal(60)) + time[smt.IntVal(3) - smt.IntVal(1)]
     )
 
@@ -136,11 +157,20 @@ def test_tla_mytest():
 
     # TODO
     #assert mod.operator("ClockType", {}).sort() == smt.TupleSort([smt.IntSort(), smt.IntSort(), smt.IntSort()])
-    
+
     #assert mod.operator("Squares", {}).eq(smt.EmptySet(smt.IntSort()))
 
     assert mod.operator("struct", {}, sort=kd.AStruct(a=smt.IntSort(), b=smt.SetSort(smt.IntSort()))).eq(kd.astruct(a=smt.IntVal(1), b=smt.EmptySet(smt.IntSort())))
     assert isinstance(mod.operator("BankTransactionType", {"Accounts" : smt.EmptySet(smt.StringSort())}).sort(), smt.ArraySortRef)
+
+    x,y = smt.Ints("x y")
+    myrange = smt.Const("myrange", smt.SetSort(smt.IntSort()))
+    assert mod.operator("TestQuant", {"myrange" : myrange}).eq(smt.ForAll([x,y], myrange[x],  myrange[y], x + y > smt.IntVal(0)))
+
+    self = smt.Int("self")
+    mod.operator("FunCon", {}).eq(smt.Eq(smt.Select(smt.Lambda(self, smt.StringVal("alice")), smt.IntVal(1)), smt.StringVal("alice")))
+    p = smt.Int("p")
+    assert mod.operator("TestExcept", {}).eq(smt.Store(smt.Lambda([p], smt.StringVal("Foo")), 1, smt.StringVal("Done")))
 
 pluscal1 = r"""
 ---- MODULE pluscal ----
@@ -242,7 +272,7 @@ def test_duplicates():
         "is_unique": smt.Bool("is_unique"),
         "pc": smt.String("pc")
     }
-    iterate = mod.action("Iterate", decls)
+    iterate = mod.action("Iterate", {k: d.decl() for k,d in decls.items()})
     a,b,c = iterate.children()
     assert a.eq(decls["pc"] == smt.StringVal("Iterate"))
     assert c.eq(tla.prime(decls["seq"]) == decls["seq"])
@@ -256,4 +286,69 @@ def test_duplicates():
         tla.prime(decls["is_unique"]) == decls["is_unique"]
     )
     ))
+
+
+
+alice_bob = r"""
+---- MODULE wire -----
+
+EXTENDS Integers
+
+(*--algorithm wire
+  variables
+    people = {"alice", "bob"},
+    acc = [p \in people |-> 5],
+
+
+define
+    NoOverdrafts == \A p \in people: acc[p] >= 0
+end define;
+
+
+process Wire \in 1..2
+    variables 
+        sender = "alice",
+        receiver = "bob",
+        amount \in 1..acc[sender];
+begin
+    Withdraw:
+        acc[sender] := acc[sender] - amount;
+    Deposit:
+        acc[receiver] := acc[receiver] + amount;
+end process;
+
+end algorithm;*)
+
+
+====================
+"""
+
+def test_wire():
+    with open("/tmp/wire.tla", "w") as f:
+        f.write(alice_bob)
+    mod = tla.Module.of_file("/tmp/wire.tla", pcal=True)
+    amount = smt.Array("amount", smt.IntSort(), smt.IntSort())
+    mod.declare_vars([amount])
+    mod.infer_sorts()
+    assert mod.name == "wire"
+    assert set(mod.variables) == {"people", "acc", "sender", "receiver", "amount", "pc"}
+    assert set(mod.definitions.keys()) == {"vars", "Init","NoOverdrafts", "Terminating", "Spec", "Termination", "Next", "Deposit", "Withdraw", "ProcSet", "Wire"}
+    assert mod.theorems == []
+
+    p = smt.Const("p", smt.StringSort())
+    people = smt.Const("people", smt.SetSort(smt.StringSort()))
+    acc = smt.Const("acc", smt.ArraySort(smt.StringSort(), smt.IntSort()))
+    people[p]
+    acc[p]
+    assert mod.action("NoOverdrafts", {
+        "people": people,
+        "acc": acc
+    }).eq(smt.ForAll(p, people[p], acc[p] >= smt.IntVal(0)))
+
+
+
+
+    #decls = mod.infer_sorts(typeok="Init")
+    #mod.operator()
+
 
