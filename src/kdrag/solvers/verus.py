@@ -1,11 +1,7 @@
 import kdrag.solvers
 import subprocess
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 import kdrag.smt as smt
-import operator
-import kdrag as kd
-from typing import Callable
 import zipfile
 import os
 

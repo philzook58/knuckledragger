@@ -1,6 +1,6 @@
 import scryer
 import kdrag.smt as smt
-from kdrag.printers.tptp import expr_to_tptp, expr_to_cnf
+from kdrag.printers.tptp import expr_to_cnf
 
 
 Term = scryer.Term
