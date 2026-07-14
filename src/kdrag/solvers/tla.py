@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import kdrag.smt as smt
 import operator
 import kdrag as kd
-from typing import Callable
+from typing import Callable, Mapping
 
 kdrag.solvers.download(
     "https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar",
@@ -414,7 +414,9 @@ class SortInference(Exception):
 
 
 # Should to_smt be a method of Module? decls is var types usually. We may want to recursively call other definitions
-def to_smt(e: App, decls: dict[str, smt.FuncDeclRef], sort=None) -> smt.ExprRef:
+def to_smt(
+    e: App, decls: Mapping[str, smt.FuncDeclRef | smt.ExprRef], sort=None
+) -> smt.ExprRef:
     if isinstance(e.f, StringLit) and not e.args:
         assert sort is None or sort == smt.StringSort()
         return smt.StringVal(e.f.value)
@@ -541,7 +543,11 @@ def to_smt(e: App, decls: dict[str, smt.FuncDeclRef], sort=None) -> smt.ExprRef:
         return smt.Concat(seq, smt.Unit(elmt))
     elif e.f == "Tail":
         assert len(e.args) == 1
-        return kd.Tail(to_smt(e.args[0], decls, sort=sort))
+        e1 = to_smt(e.args[0], decls, sort=sort)
+        assert isinstance(e1, smt.SeqRef), (
+            f"Expected sequence, got {e1} of type {type(e1)}"
+        )
+        return kd.Tail(e1)
     elif e.f == "$SetEnumerate":
         # concrete set enumeration {1,2,3,4}
         assert sort is None or isinstance(sort, smt.ArraySortRef)
@@ -607,6 +613,7 @@ def to_smt(e: App, decls: dict[str, smt.FuncDeclRef], sort=None) -> smt.ExprRef:
         v, dom, body = e.args
         dom_smt = to_smt(dom, decls)
         assert len(v.args) == 0 and isinstance(v.f, str), v
+        assert smt.is_func(dom_smt), f"Expected function for domain, got {dom_smt}"
         vsmt = smt.Const(v.f, smt.domains(dom_smt)[0])
         decls = {**decls, v.f: vsmt}
         body_smt = to_smt(body, decls)

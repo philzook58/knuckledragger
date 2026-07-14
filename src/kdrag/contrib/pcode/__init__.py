@@ -315,6 +315,7 @@ class MemState(NamedTuple):
         return ctx.get_reg(self, regname)
 
     def get_csr(self, ctx: "BinaryContext", csrname: str) -> smt.BitVecRef:
+        assert ctx.ctx.language.pspec is not None
         symbol = ctx.ctx.language.pspec.find(f".//symbol[@name='{csrname}']")
         if symbol is None:
             raise KeyError(f"Unknown CSR: {csrname}")

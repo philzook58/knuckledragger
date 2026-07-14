@@ -7,7 +7,7 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 
 import os
 from . import config
-from typing import TypeAlias, Optional, Sequence
+from typing import TypeAlias, Optional, Sequence, TypeGuard
 
 Z3SOLVER = "z3"
 CVC5SOLVER = "cvc5"
@@ -538,9 +538,9 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
                 else:
                     new_args.append(a)
         assert argi == len(args), "Too many positional arguments"
-        assert (
-            len(new_args) == self.arity()
-        ), "Something has gone wrong with implicit argument filling"
+        assert len(new_args) == self.arity(), (
+            "Something has gone wrong with implicit argument filling"
+        )
     res = old_call(self, *new_args)
     if self.subrange is not None:
         res.assumes = self.subrange(res)
@@ -550,7 +550,7 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
 FuncDeclRef.__call__ = new_call
 
 
-def is_func(f: ExprRef) -> bool:
+def is_func(f: ExprRef) -> TypeGuard[FuncRef]:
     """
     Check if a term is a function or an array.
 
