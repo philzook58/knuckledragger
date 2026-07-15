@@ -116,7 +116,11 @@ class _TestVarnode:
 
 # Varnode by default has pointer identity. This makes dictionaries not work correctly.
 
-pypcode.Varnode.__hash__ = lambda self: hash((self.space.name, self.offset, self.size))  # type: ignore[ty:invalid-assignment]
+def varnode_hash(self: pypcode.Varnode) -> int:
+    return hash((self.space.name, self.offset, self.size))
+
+
+pypcode.Varnode.__hash__ = varnode_hash  # type: ignore[ty:invalid-assignment]
 
 
 def varnode_eq(self: pypcode.Varnode, other) -> bool:

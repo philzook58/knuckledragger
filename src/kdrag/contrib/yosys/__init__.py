@@ -244,6 +244,8 @@ def smt_metadata(filename):
                 curmod = fields[2]
                 modinfo[curmod] = SmtModInfo()
 
+            assert curmod is not None
+
             if fields[1] == "yosys-smt2-cell":
                 modinfo[curmod].cells[fields[3]] = fields[2]
 

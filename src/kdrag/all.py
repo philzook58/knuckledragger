@@ -25,7 +25,7 @@ config.strict_define = False
 
 
 try:
-    # get_ipython()  # type: ignore
+    # get_ipython()
     from IPython.display import display, Math
 
     def pprint(x):

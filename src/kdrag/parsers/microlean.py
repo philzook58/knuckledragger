@@ -135,6 +135,7 @@ def sort(tree: Tree, env: Env) -> smt.SortRef:
             return smt.ArraySort(sort(left, env), sort(right, env))
             # return smt.ArraySort(*(sort(s) for s in left.children), sort(right,env))
         case Tree("bitvecsort", [n]):
+            assert isinstance(n, str)
             n1 = int(n)
             return smt.BitVecSort(n1)
         case Tree("sortlit", [name]):

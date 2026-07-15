@@ -100,7 +100,7 @@ def datatype_call(
             raise TypeError("Cannot mix positional and keyword arguments")
 
 
-smt.DatatypeSortRef.__call__ = datatype_call  # type: ignore
+smt.DatatypeSortRef.__call__ = datatype_call
 """ Call syntax for constructors of smt datatypes """
 
 
@@ -161,7 +161,7 @@ def datatype_iter(self: smt.DatatypeSortRef) -> typing.Iterator[smt.DatatypeRef]
     return (self.constructor(i)() for i in range(self.num_constructors()))
 
 
-smt.DatatypeSortRef.__iter__ = datatype_iter  # type: ignore
+smt.DatatypeSortRef.__iter__ = datatype_iter
 
 
 def datatype_len(self: smt.DatatypeSortRef) -> int:

@@ -21,7 +21,7 @@ import kdrag as kd
 
 smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[ty:unresolved-attribute]
 
-smt.ArrayRef.__call__ = lambda self, *arg: self[arg]  # type: ignore[ty:invalid-assignment]
+smt.ArrayRef.__call__ = lambda self, *arg: self[arg]
 
 
 def compose(f: smt.FuncDeclRef, g: smt.FuncDeclRef) -> smt.FuncDeclRef:
@@ -57,7 +57,7 @@ def quantifier_call(self, *args):
     )
 
 
-smt.QuantifierRef.__call__ = quantifier_call  # type: ignore[ty:invalid-assignment]
+smt.QuantifierRef.__call__ = quantifier_call
 
 
 class SortDispatch:
@@ -185,7 +185,7 @@ def GenericDispatch(default_factory) -> SortDispatch:
 
 call = SortDispatch(name="call")
 """Sort based dispatch for `()` call syntax"""
-smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)  # type: ignore
+smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)
 
 
 def default_getitem(self: smt.ExprRef, ind: int) -> smt.ExprRef:

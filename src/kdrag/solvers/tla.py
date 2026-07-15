@@ -227,11 +227,13 @@ class Module:
                 while todo:
                     e = todo.pop()
                     if e.f == "=" and e.args[0].is_const():
+                        assert isinstance(e.args[0].f, str)
                         eqs.append(
                             (e.args[0].f, e.args[1])
                         )  # But should also be checking for ' variables
                     # Check symmetrically e = v?
                     elif e.f == "\\in" and e.args[0].is_const():
+                        assert isinstance(e.args[0].f, str)
                         ins.append((e.args[0].f, e.args[1]))
                     if not e.is_binder():
                         todo.extend(reversed(e.args))
@@ -326,19 +328,23 @@ class Module:
         )
         variables = []
         for ref in root.findall("OpDeclNodeRef"):
-            node = by_uid.get(ref.findtext("UID"))
+            uid = ref.findtext("UID")
+            node = by_uid.get(uid) if uid is not None else None
             if node is not None and node.findtext("./location/filename") == name:
-                variables.append(node.findtext("uniquename"))
+                var_name = node.findtext("uniquename")
+                if var_name is not None:
+                    variables.append(var_name)
 
-        definitions = {}
-        def_params = {}
-        theorems = []
+        definitions: dict[str, App] = {}
+        def_params: dict[str, list[str]] = {}
+        theorems: list[App] = []
         for node in by_uid.values():
             if node.findtext("./location/filename") != name:
                 continue
             body = node.find("./body/*")
             if node.tag == "UserDefinedOpKind" and body is not None:
                 def_name = node.findtext("uniquename")
+                assert def_name is not None
                 definitions[def_name] = expr(body)
                 def_params[def_name] = [
                     ref_name(ref)
@@ -361,9 +367,15 @@ binops: dict[object, Callable[[smt.ExprRef, smt.ExprRef], smt.ExprRef]] = {
     "\\o": smt.Concat,
 }
 
+
+def _head(x: smt.ExprRef) -> smt.ExprRef:
+    assert isinstance(x, smt.SeqRef)
+    return x[0]
+
+
 unops: dict[object, Callable[[smt.ExprRef], smt.ExprRef]] = {
     "-.": operator.neg,
-    "Head": lambda x: x[0],
+    "Head": _head,
     "Len": smt.Length,
 }
 
