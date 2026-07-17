@@ -3,11 +3,11 @@
 - Use existing .venv python if available, otherwise create a venv and install using `uv pip install -e[solvers,rust,pypcode,dev]`
 - Try to follow the style that already exists in the repo
 - Simple and non verbose is much preferred
+- Solver instability and solve time are ALWAYS a concern. Track them.
 - Recommend changes to improve clarity of error messages
 - Recommend changes to make more consistent with Lean/Rocq/Isabelle/ACL2 conventions
 - Recommend new features that this system is missing that Lean/Rocq/Isabelle/ACL2/Mizar might have
 - Record new learnings in this file to avoid repeating failures
-- I am worried about proof instability and solve time. So try to keep track of those.
 - Actually run the file using `time python` to make sure proofs go through. A file should not take longer than 0.5s
 - Do not just fill up on junk theorems with little content. Make theorems if useful, but sheer bulk of content is bad since I need to manually review it.
 - Some problems are things that should be improved. Do not always just silently find a workaround. Parser errors in valid lean syntax should be improved.

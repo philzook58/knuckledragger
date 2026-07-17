@@ -269,6 +269,27 @@ class Module:
             if v not in self.decls:
                 raise SortInference(f"Could not infer sort for variable {v}")
 
+    def vars(self) -> list[smt.ExprRef]:
+        return [self.decls[v]() for v in self.variables]
+
+    def vars1(self) -> list[smt.ExprRef]:
+        return [prime(v) for v in self.vars()]
+
+    def invariant(self, inv=None, init=None, step=None):
+        assert inv is not None and init is not None and step is not None
+        step = self.action(step)
+        init = self.action(init)
+        vs = self.vars()
+        vs1 = self.vars1()
+        if isinstance(inv, str):
+            inv = self.action(inv)
+        elif isinstance(inv, smt.BoolRef):
+            pass
+        else:
+            raise ValueError("Unexpected inv type", inv, type(inv))
+        inv1 = smt.substitute(inv, *zip(vs, vs1))
+        return smt.And(smt.Implies(init, inv), smt.Implies(smt.And(step, inv), inv1))
+
     @staticmethod
     def of_file(filename, pcal=False) -> "Module":
         if pcal:
