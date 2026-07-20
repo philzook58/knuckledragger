@@ -10,6 +10,8 @@ import kdrag.smt as smt
 import operator
 import kdrag as kd
 from typing import Callable, Mapping
+import zipfile
+import os
 
 kdrag.solvers.download(
     "https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar",
@@ -26,7 +28,7 @@ Plans and TODOs:
 - casting of tuple <-> sequence (when uniformly typed)?
 - col/line numbers. Bad error messages when z3 gets a sort error
 - What is it for?
-- Inlining evaluation. BMC
+- Inlining evaluation. BMC. Spacer
 - Constants and Assumes. Actually check what library modules are imported
 - Connect a chunk of assembly.
 - Design high specs
@@ -35,6 +37,48 @@ Plans and TODOs:
 - More EXCEPT notation. Pattern matching
 - Temporal operators
 """
+
+
+def install_apalache():
+    kdrag.solvers.download(
+        "https://github.com/apalache-mc/apalache/releases/download/v0.58.3/apalache.zip",
+        "apalache.zip",
+        "7bed6fe5ab727c4b6e685dbb4ba249146df8446c5d90538e9aef734d8b54ea98",
+    )
+    with zipfile.ZipFile(kdrag.solvers.binpath("apalache.zip"), "r") as zip_ref:
+        zip_ref.extractall(kdrag.solvers.binpath("apalache"))
+    os.chmod(kdrag.solvers.binpath("apalache/apalache/bin/apalache-mc"), 0o755)
+
+
+def apalache_check(filename: str, init=None, next_=None, inv=None):
+    """
+    Run the model checker on a tla file. Returns the stdout of the model checker.
+    """
+    args = ["check"]
+    if init is not None:
+        args += ["--init=" + init]
+    if next_ is not None:
+        args += ["--next=" + next_]
+    if inv is not None:
+        args += ["--inv=" + inv]
+    args += [filename]
+    return run_apalache(args)
+
+
+def run_apalache(args: list[str]):
+    """
+    Run apalache with the given arguments. Returns the stdout of the process.
+    """
+    res = subprocess.run(
+        [kdrag.solvers.binpath("apalache/apalache/bin/apalache-mc")] + args,
+        capture_output=True,
+    )
+    if res.returncode != 0:
+        raise RuntimeError(
+            f"apalache failed with return code {res.returncode}:\n{res.stdout.decode()}\n{res.stderr.decode()}"
+        )
+    else:
+        return res.stdout
 
 
 def run_tools(args: list[str]):
@@ -457,8 +501,14 @@ def to_smt(
         assert isinstance(e.f, str)
         f = decls[e.f]
         if isinstance(f, smt.FuncDeclRef):
-            assert len(e.args) == f.arity()
-            assert sort is None or sort == f.range()
+            if len(e.args) != f.arity():
+                raise ValueError(
+                    f"Expected {f.arity()} arguments for {e.f} in {e}, got {len(e.args)}"
+                )
+            if sort is not None and sort != f.range():
+                raise ValueError(
+                    f"Expected sort {sort} for {e.f} in {e}, got {f.range()}"
+                )
             args = [
                 to_smt(arg, decls, sort=f.domain(i)) for i, arg in enumerate(e.args)
             ]
@@ -469,7 +519,8 @@ def to_smt(
             return f
         else:
             raise ValueError(f"decls[{e.f}] is not a FuncDeclRef or ExprRef")
-    elif e.f == "$BoundedForall":
+    elif e.is_binder():
+        # TODO: does tla support telescoping?
         assert len(e.args) >= 3 and len(e.args) % 2 == 1
         bound_decls = dict(decls)
         smt_vars = []
@@ -485,9 +536,10 @@ def to_smt(
             smt_vars.append(x)
             domains.append(smt.IsMember(x, domain_smt))
         body = to_smt(e.args[-1], bound_decls, sort=smt.BoolSort())
-        return smt.ForAll(
-            smt_vars, *domains, body
-        )  # TODO: does tla support telescoping?
+        if e.f == "$BoundedExists":
+            return smt.Exists(smt_vars, *domains, body)
+        elif e.f == "$BoundedForall":
+            return smt.ForAll(smt_vars, *domains, body)
     elif isinstance(e.f, int):
         assert not e.args
         assert sort is None or sort == smt.IntSort()

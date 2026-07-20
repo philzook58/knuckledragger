@@ -21,3 +21,4 @@ JJParser/
 tla2tools.jar
 *.zip
 verus
+apalache
