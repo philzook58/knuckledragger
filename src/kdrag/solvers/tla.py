@@ -105,11 +105,21 @@ def run_tools(args: list[str]):
         return res.stdout
 
 
-def check(filename: str):
+def check(filename: str, check_deadlock=True, continue_=False, inv=None, config=None):
     """
     Run the model checker on a tla file. Returns the stdout of the model checker.
     """
-    return run_tools(["tlc2.TLC", filename])
+    args = ["tlc2.TLC"]
+    if not check_deadlock:
+        args.append("-deadlock")
+    if continue_:
+        args.append("-continue")
+    if inv is not None:
+        args += ["-inv", inv]
+    if config is not None:
+        args += ["-config", config]
+    args.append(filename)
+    return run_tools(args)
 
 
 def pluscal_translate(filename: str) -> bytes:
@@ -196,8 +206,107 @@ class StringLit:
         return repr(self.value)
 
 
+binops: dict[object, Callable[[smt.ExprRef, smt.ExprRef], smt.ExprRef]] = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+    "%": operator.mod,
+    "\\union": smt.SetUnion,
+    "\\intersect": smt.SetIntersect,
+    "\\": smt.SetDifference,
+    "\\o": smt.Concat,
+}
+
+
+def _head(x: smt.ExprRef) -> smt.ExprRef:
+    assert isinstance(x, smt.SeqRef)
+    return x[0]
+
+
+unops: dict[object, Callable[[smt.ExprRef], smt.ExprRef]] = {
+    "-.": operator.neg,
+    "Head": _head,
+    "Len": smt.Length,
+}
+
+comp: dict[object, Callable[[smt.ExprRef, smt.ExprRef], smt.ExprRef]] = {
+    "<": operator.lt,
+    "\\leq": operator.le,
+    ">": operator.gt,
+    "\\geq": operator.ge,
+    "\\equiv": smt.Eq,
+    "=>": smt.Implies,
+}
+consts: dict[object, smt.ExprRef] = {
+    "BOOLEAN": smt.FullSet(smt.BoolSort()),
+    "TRUE": smt.BoolVal(True),
+    "FALSE": smt.BoolVal(False),
+}
+
+"""
+But really this should be module
+defined = (
+    {
+        "$IfThenElse",
+        "$BoundedForall",
+        "$BoundedExists",
+        "$SetOfRcds",
+        "$FcnConstructor",
+        "$FcnApply",
+        "$SetEnumerate",
+        "$RcdConstructor",
+    }.union(consts.keys())
+    .union(binops.keys())
+    .union(unops.keys())
+    .union(comp.keys())
+)
+def is_defined(f: App) -> bool:
+    if 
+"""
+
+
+def prime(e: smt.ExprRef) -> smt.ExprRef:
+    assert smt.is_const(e)
+    # TODO: prime should actually be a recursive function that takes in the current variables in scope and traverses a term.
+    name = e.decl().name()
+    assert name[-1] != "'", f"Cannot prime {e} because it is already primed"
+    return smt.Const(name + "'", e.sort())
+
+
+class SortInference(Exception):
+    pass
+
+
+def assoc_list(pairs: list[App]) -> dict[str, App]:
+    """
+    Convert a list of pairs to a dictionary. Each pair is an App with two arguments.
+    """
+    d = {}
+    for pair in pairs:
+        assert pair.f == "$Pair" and len(pair.args) == 2
+        key, value = pair.args
+        assert len(key.args) == 0, "Only string keys are supported in assoc_list"
+        key = key.f
+        assert isinstance(key, StringLit), (
+            "Only string keys are supported in assoc_list"
+        )
+        key = key.value
+        assert key not in d, f"Duplicate key {key} in assoc_list"
+        d[key] = value
+    return d
+
+
 @dataclass
 class Module:
+    """
+    A TLA+ Module.
+    Build it from a file using Module.of_file(filename) or from a string using Module.of_string(string).
+
+    mod.infer_sorts() will automatically try to infer the sorts of all variables.
+    It may be preferable to manually declare them as these sorts are part of the spec.
+
+    """
+
     name: str
     variables: list[str]
     definitions: dict[str, App]
@@ -210,7 +319,7 @@ class Module:
     def operator(
         self, name: str, decls: dict[str, smt.FuncDeclRef | smt.ExprRef] = {}, sort=None
     ) -> smt.ExprRef:
-        return to_smt(self.definitions[name], {**self.decls, **decls}, sort)
+        return self.to_smt(self.definitions[name], decls, sort)
 
     def action(
         self, actname: str, decls: dict[str, smt.FuncDeclRef | smt.ExprRef] = {}
@@ -220,6 +329,17 @@ class Module:
         but do not involve other temporal operators.
         """
         return self.operator(actname, decls, sort=smt.BoolSort())
+
+    def apply(self, name, *args: smt.ExprRef) -> smt.ExprRef:
+        self.definitions[name]
+        params = self.def_params[name]
+        assert len(args) == len(params), (
+            f"Expected {len(params)} arguments for {name}, got {len(args)}"
+        )
+        vs = [smt.Const(name, arg.sort()) for name, arg in zip(params, args)]
+        decls = {**self.decls, **dict(zip(params, vs))}
+        e = self.to_smt(self.definitions[name], decls, sort=None)
+        return smt.substitute(e, *zip(vs, args))  # capture avoiding substitution
 
     def behavior(
         self, name: str, decls: dict[str, smt.FuncDeclRef | smt.ExprRef]
@@ -261,7 +381,8 @@ class Module:
         eqs = []
         ins = []
         for k, v in self.definitions.items():
-            if True:  # self.def_params[k] != []: # TODO: Handle operator arguments. This isn't treating scope correctly
+            # TODO: Handle operator arguments. This isn't treating scope correctly
+            if len(self.def_params[k]) == 0:
                 sort = v.infer_lite()
                 if sort is not None:
                     self.decls[k] = smt.Function(k, sort)
@@ -287,7 +408,7 @@ class Module:
             l = len(self.decls)
             for k, v in ins:
                 try:
-                    e = to_smt(v, self.decls)
+                    e = self.to_smt(v, self.decls)
                     if k in self.decls:
                         assert self.decls[k] == smt.Function(k, domain(e)), (
                             f"sort mismatch for {k}: {self.decls[k]} vs {domain(e)}"
@@ -298,7 +419,7 @@ class Module:
                     pass
             for k, v in eqs:
                 try:
-                    e = to_smt(v, self.decls)
+                    e = self.to_smt(v, self.decls)
                     if k in self.decls:
                         assert self.decls[k] == smt.Function(k, e.sort()), (
                             f"sort mismatch for {k}: {self.decls[k]} vs {e.sort()}"
@@ -420,344 +541,278 @@ class Module:
 
         return Module(name, variables, definitions, def_params, theorems)
 
-
-binops: dict[object, Callable[[smt.ExprRef, smt.ExprRef], smt.ExprRef]] = {
-    "+": operator.add,
-    "-": operator.sub,
-    "*": operator.mul,
-    "%": operator.mod,
-    "\\union": smt.SetUnion,
-    "\\intersect": smt.SetIntersect,
-    "\\": smt.SetDifference,
-    "\\o": smt.Concat,
-}
-
-
-def _head(x: smt.ExprRef) -> smt.ExprRef:
-    assert isinstance(x, smt.SeqRef)
-    return x[0]
-
-
-unops: dict[object, Callable[[smt.ExprRef], smt.ExprRef]] = {
-    "-.": operator.neg,
-    "Head": _head,
-    "Len": smt.Length,
-}
-
-comp: dict[object, Callable[[smt.ExprRef, smt.ExprRef], smt.ExprRef]] = {
-    "<": operator.lt,
-    "\\leq": operator.le,
-    ">": operator.gt,
-    "\\geq": operator.ge,
-}
-consts: dict[object, smt.ExprRef] = {
-    "BOOLEAN": smt.FullSet(smt.BoolSort()),
-    "TRUE": smt.BoolVal(True),
-    "FALSE": smt.BoolVal(False),
-}
-
-"""
-But really this should be module
-defined = (
-    {
-        "$IfThenElse",
-        "$BoundedForall",
-        "$BoundedExists",
-        "$SetOfRcds",
-        "$FcnConstructor",
-        "$FcnApply",
-        "$SetEnumerate",
-        "$RcdConstructor",
-    }.union(consts.keys())
-    .union(binops.keys())
-    .union(unops.keys())
-    .union(comp.keys())
-)
-def is_defined(f: App) -> bool:
-    if 
-"""
-
-
-def prime(e: smt.ExprRef) -> smt.ExprRef:
-    assert smt.is_const(e)
-    # TODO: prime should actually be a recursive function that takes in the current variables in scope and traverses a term.
-    name = e.decl().name()
-    assert name[-1] != "'", f"Cannot prime {e} because it is already primed"
-    return smt.Const(name + "'", e.sort())
-
-
-class SortInference(Exception):
-    pass
-
-
-# Should to_smt be a method of Module? decls is var types usually. We may want to recursively call other definitions
-def to_smt(
-    e: App, decls: Mapping[str, smt.FuncDeclRef | smt.ExprRef], sort=None
-) -> smt.ExprRef:
-    if isinstance(e.f, StringLit) and not e.args:
-        assert sort is None or sort == smt.StringSort()
-        return smt.StringVal(e.f.value)
-    if e.f in decls:
-        assert isinstance(e.f, str)
-        f = decls[e.f]
-        if isinstance(f, smt.FuncDeclRef):
-            if len(e.args) != f.arity():
-                raise ValueError(
-                    f"Expected {f.arity()} arguments for {e.f} in {e}, got {len(e.args)}"
-                )
-            if sort is not None and sort != f.range():
-                raise ValueError(
-                    f"Expected sort {sort} for {e.f} in {e}, got {f.range()}"
-                )
-            args = [
-                to_smt(arg, decls, sort=f.domain(i)) for i, arg in enumerate(e.args)
-            ]
-            return f(*args)
-        elif isinstance(f, smt.ExprRef):
-            assert not e.args
-            assert sort is None or sort == f.sort()
-            return f
-        else:
-            raise ValueError(f"decls[{e.f}] is not a FuncDeclRef or ExprRef")
-    elif e.is_binder():
-        # TODO: does tla support telescoping?
-        assert len(e.args) >= 3 and len(e.args) % 2 == 1
-        bound_decls = dict(decls)
-        smt_vars = []
-        domains = []
-        for var, domain in zip(e.args[:-1:2], e.args[1:-1:2]):
-            assert not var.args and isinstance(var.f, str)
-            domain_smt = to_smt(domain, bound_decls)
-            assert smt.is_func(domain_smt)
-            assert smt.codomain(domain_smt) == smt.BoolSort()
-
-            x = smt.Const(var.f, smt.domains(domain_smt)[0])
-            bound_decls[var.f] = x
-            smt_vars.append(x)
-            domains.append(smt.IsMember(x, domain_smt))
-        body = to_smt(e.args[-1], bound_decls, sort=smt.BoolSort())
-        if e.f == "$BoundedExists":
-            return smt.Exists(smt_vars, *domains, body)
-        elif e.f == "$BoundedForall":
-            return smt.ForAll(smt_vars, *domains, body)
-    elif isinstance(e.f, int):
-        assert not e.args
-        assert sort is None or sort == smt.IntSort()
-        return smt.IntVal(e.f)
-    elif e.f == "\\land" or e.f == "$ConjList":
-        args = [to_smt(arg, decls, sort=smt.BoolSort()) for arg in e.args]
-        if len(args) == 0:
-            return smt.BoolVal(True)
-        elif len(args) == 1:
-            return args[0]
-        else:
-            return smt.And(*args)
-    elif e.f == "\\lor":
-        assert len(e.args) >= 2
-        args = [to_smt(arg, decls, sort=smt.BoolSort()) for arg in e.args]
-        return smt.Or(*args)
-    elif e.f == "\\lnot":
-        assert len(e.args) == 1
-        arg = to_smt(e.args[0], decls, sort=smt.BoolSort())
-        return smt.Not(arg)
-    elif e.f == "=":
-        assert len(e.args) == 2
-        # maybe vice versa for sort propagation?
-        rhs = to_smt(e.args[1], decls)
-        lhs = to_smt(e.args[0], decls, sort=rhs.sort())
-        return smt.Eq(lhs, rhs)
-    elif e.f == "..":
-        # 1..10 range syntax
-        assert len(e.args) == 2
-        args = [to_smt(arg, decls, sort=smt.IntSort()) for arg in e.args]
-        x = smt.FreshConst(smt.IntSort(), prefix="x")
-        return smt.Lambda(x, smt.And(args[0] <= x, x <= args[1]))
-    elif e.f == "\\in" or e.f == "\\notin":
-        x = to_smt(e.args[0], decls)
-        s = to_smt(e.args[1], decls, sort=smt.SetSort(x.sort()))
-        res = smt.IsMember(x, s)
-        if e.f == "\\notin":
-            res = smt.Not(res)
-        return res
-    elif e.f == "'":  # Prime operator
-        assert len(e.args) == 1 and len(e.args[0].args) == 0
-        # TODO: prime can actually be applied to compound expressions?
-        x = to_smt(e.args[0], decls, sort=sort)
-        return prime(x)
-    elif e.f == "UNCHANGED":
-        assert len(e.args) == 1
-        if len(e.args[0].args) == 0:
-            x = to_smt(e.args[0], decls)
-            return smt.Eq(prime(x), x)
-        elif e.args[0].f == "$Tuple":
-            assert len(e.args[0].args) >= 1
-            return smt.And(
-                *[
-                    smt.Eq(prime(to_smt(arg, decls)), to_smt(arg, decls))
-                    for arg in e.args[0].args
+    # Should to_smt be a method of Module? decls is var types usually. We may want to recursively call other definitions
+    def to_smt(
+        self, e: App, decls: Mapping[str, smt.FuncDeclRef | smt.ExprRef], sort=None
+    ) -> smt.ExprRef:
+        if isinstance(e.f, StringLit) and not e.args:
+            assert sort is None or sort == smt.StringSort()
+            return smt.StringVal(e.f.value)
+        elif e.f in self.definitions:
+            return self.apply(e.f, *[self.to_smt(arg, decls) for arg in e.args])
+        if e.f in decls or e.f in self.decls:
+            assert isinstance(e.f, str)
+            f = decls[e.f] if e.f in decls else self.decls[e.f]
+            if isinstance(f, smt.FuncDeclRef):
+                if len(e.args) != f.arity():
+                    raise ValueError(
+                        f"Expected {f.arity()} arguments for {e.f} in {e}, got {len(e.args)}"
+                    )
+                if sort is not None and sort != f.range():
+                    raise ValueError(
+                        f"Expected sort {sort} for {e.f} in {e}, got {f.range()}"
+                    )
+                args = [
+                    self.to_smt(arg, decls, sort=f.domain(i))
+                    for i, arg in enumerate(e.args)
                 ]
-            )
-        else:
-            raise ValueError(f"Cannot handle UNCHANGED {e.args[0]}")
-    elif e.f == "$IfThenElse":
-        assert len(e.args) == 3
-        cond = to_smt(e.args[0], decls, sort=smt.BoolSort())
-        then = to_smt(e.args[1], decls, sort=sort)
-        else_ = to_smt(e.args[2], decls, sort=sort)
-        return smt.If(cond, then, else_)
-    elif e.f == "$Tuple":  # TODO actual tuples?
-        args = [to_smt(arg, decls) for arg in e.args]
-        if all(arg.sort() == args[0].sort() for arg in args):
-            return smt.Concat(*[smt.Unit(arg) for arg in args])
-        else:
-            return kd.tuple_(*args)
-    elif e.f == "$FcnApply":
-        assert len(e.args) == 2
-        f = to_smt(e.args[0], decls)
-        if isinstance(f, smt.SeqRef):
-            arg = to_smt(e.args[1], decls, sort=smt.IntSort())
-            return f[arg - smt.IntVal(1)]
-        elif smt.is_func(f):
-            arg = to_smt(e.args[1], decls, sort=smt.domains(f)[0])
-            return f(arg)
-        else:
-            raise ValueError(f"Cannot apply {f} of type {type(f)}")
-    elif e.f == "Append":
-        elmt = to_smt(e.args[1], decls)
-        seq = to_smt(e.args[0], decls, sort=smt.SeqSort(elmt.sort()))
-        return smt.Concat(seq, smt.Unit(elmt))
-    elif e.f == "Tail":
-        assert len(e.args) == 1
-        e1 = to_smt(e.args[0], decls, sort=sort)
-        assert isinstance(e1, smt.SeqRef), (
-            f"Expected sequence, got {e1} of type {type(e1)}"
-        )
-        return kd.Tail(e1)
-    elif e.f == "$SetEnumerate":
-        # concrete set enumeration {1,2,3,4}
-        assert sort is None or isinstance(sort, smt.ArraySortRef)
-        argsort = sort.domain() if sort is not None else None
-        args = [to_smt(arg, decls, sort=argsort) for arg in e.args]
-        if len(args) == 0:
-            if argsort is None:
-                raise SortInference(f"Cannot infer sort of empty set {e}")
-            return smt.EmptySet(argsort)
-        else:
-            S = smt.EmptySet(args[0].sort())
-            for arg in args:
-                S = smt.SetAdd(S, arg)
-            return S
-    elif e.f in binops:
-        assert len(e.args) == 2
-        args = [to_smt(arg, decls, sort=sort) for arg in e.args]
-        return binops[e.f](args[0], args[1])
-    elif e.f in comp:
-        assert len(e.args) == 2
-        assert sort is None or sort == smt.BoolSort()
-        args = [to_smt(arg, decls) for arg in e.args]
-        return comp[e.f](args[0], args[1])
-    elif e.f in unops:
-        assert len(e.args) == 1
-        args = [to_smt(arg, decls, sort=sort) for arg in e.args]
-        return unops[e.f](args[0])
-    elif e.f in consts:
-        assert len(e.args) == 0
-        assert sort is None or sort == consts[e.f].sort()
-        return consts[e.f]
-    elif e.f == "$RcdConstructor":
-        # Record Construction
-        sorts = {}
-        if sort is not None:
-            assert isinstance(sort, smt.DatatypeSortRef), (
-                f"Expected sort to be a DatatypeSortRef, got {sort}"
-            )
-            assert sort.num_constructors() == 1, (
-                f"Expected sort to have one constructor, got {sort}"
-            )
-            constructor = sort.constructor(0)
-            for i in range(constructor.arity()):
-                acc = sort.accessor(0, i)
-                sorts[acc.name()] = acc.range()
-        fields = {}
-        fields0 = assoc_list(e.args)
-        assert sort is None or set(fields0.keys()) == set(sorts.keys()), (
-            f"fields mismatch: {fields0.keys()} vs {sorts.keys()}"
-        )
-        fields = {k: to_smt(v, decls, sort=sorts.get(k)) for k, v in fields0.items()}
-        return kd.astruct(**fields)
-    elif e.f == "$SetOfRcds":
-        # [acct : 1..3] syntax. Returns the set of records in that cartesian product
-        assert sort is None  # TODO
-        fields0 = assoc_list(e.args)
-        fields = {k: to_smt(v, decls) for k, v in fields0.items()}
-        sort = kd.AStruct(**{k: v.sort().domain() for k, v in fields.items()})
-        x = smt.FreshConst(sort, prefix="x")
-        return smt.Lambda([x], smt.And(*[v(getattr(x, k)) for k, v in fields.items()]))
-    elif e.f == "$FcnConstructor":  # [v \in S |-> e] syntax.
-        assert len(e.args) == 3
-        v, dom, body = e.args
-        dom_smt = to_smt(dom, decls)
-        assert len(v.args) == 0 and isinstance(v.f, str), v
-        assert smt.is_func(dom_smt), f"Expected function for domain, got {dom_smt}"
-        vsmt = smt.Const(v.f, smt.domains(dom_smt)[0])
-        decls = {**decls, v.f: vsmt}
-        body_smt = to_smt(body, decls)
-        return smt.Lambda([vsmt], body_smt)  # We've thrown away domain which is goofy.
-    elif e.f == "$Except":
-        assert len(e.args) >= 2
-        base = to_smt(e.args[0], decls, sort=sort)  # base function
-        if isinstance(base, smt.DatatypeRef):
-            raise NotImplementedError("Except on records not implemented yet")
-        elif smt.is_func(base):
-            res = base
-            cod = smt.codomain(base)
-            dom = smt.domains(base)[0]
-            for kv in e.args[1:]:
-                assert kv.f == "$Pair" and len(kv.args) == 2
-                k, v = kv.args
-                if k.f == "$Seq" and len(k.args) == 1:
-                    k = to_smt(k.args[0], decls, sort=dom)
-                    v = to_smt(v, decls, sort=cod)
-                    res = smt.Store(res, k, v)
-                else:
-                    raise NotImplementedError(f"EXCEPT on {k} not implemented yet")
+                return f(*args)
+            elif isinstance(f, smt.ExprRef):
+                assert not e.args
+                assert sort is None or sort == f.sort()
+                return f
+            else:
+                raise ValueError(f"decls[{e.f}] is not a FuncDeclRef or ExprRef")
+        elif e.is_binder():
+            # TODO: does tla support telescoping?
+            assert len(e.args) >= 3 and len(e.args) % 2 == 1
+            bound_decls = dict(decls)
+            smt_vars = []
+            domains = []
+            for var, domain in zip(e.args[:-1:2], e.args[1:-1:2]):
+                assert not var.args and isinstance(var.f, str)
+                domain_smt = self.to_smt(domain, bound_decls)
+                assert smt.is_func(domain_smt)
+                assert smt.codomain(domain_smt) == smt.BoolSort()
+
+                x = smt.Const(var.f, smt.domains(domain_smt)[0])
+                bound_decls[var.f] = x
+                smt_vars.append(x)
+                domains.append(smt.IsMember(x, domain_smt))
+            body = self.to_smt(e.args[-1], bound_decls, sort=smt.BoolSort())
+            if e.f == "$BoundedExists":
+                return smt.Exists(smt_vars, *domains, body)
+            elif e.f == "$BoundedForall":
+                return smt.ForAll(smt_vars, *domains, body)
+            else:
+                raise ValueError(f"Unknown binder {e.f}")
+        elif isinstance(e.f, int):
+            assert not e.args
+            assert sort is None or sort == smt.IntSort()
+            return smt.IntVal(e.f)
+        elif e.f == "\\land" or e.f == "$ConjList":
+            args = [self.to_smt(arg, decls, sort=smt.BoolSort()) for arg in e.args]
+            if len(args) == 0:
+                return smt.BoolVal(True)
+            elif len(args) == 1:
+                return args[0]
+            else:
+                return smt.And(*args)
+        elif e.f == "\\lor":
+            assert len(e.args) >= 2
+            args = [self.to_smt(arg, decls, sort=smt.BoolSort()) for arg in e.args]
+            return smt.Or(*args)
+        elif e.f == "\\lnot":
+            assert len(e.args) == 1
+            arg = self.to_smt(e.args[0], decls, sort=smt.BoolSort())
+            return smt.Not(arg)
+        elif e.f == "=":
+            assert len(e.args) == 2
+            # maybe vice versa for sort propagation?
+            rhs = self.to_smt(e.args[1], decls)
+            lhs = self.to_smt(e.args[0], decls, sort=rhs.sort())
+            return smt.Eq(lhs, rhs)
+        elif e.f == "..":
+            # 1..10 range syntax
+            assert len(e.args) == 2
+            args = [self.to_smt(arg, decls, sort=smt.IntSort()) for arg in e.args]
+            x = smt.FreshConst(smt.IntSort(), prefix="x")
+            return smt.Lambda(x, smt.And(args[0] <= x, x <= args[1]))
+        elif e.f == "\\in" or e.f == "\\notin":
+            x = self.to_smt(e.args[0], decls)
+            s = self.to_smt(e.args[1], decls, sort=smt.SetSort(x.sort()))
+            res = smt.IsMember(x, s)
+            if e.f == "\\notin":
+                res = smt.Not(res)
             return res
+        elif e.f == "'":  # Prime operator
+            assert len(e.args) == 1 and len(e.args[0].args) == 0
+            # TODO: prime can actually be applied to compound expressions?
+            x = self.to_smt(e.args[0], decls, sort=sort)
+            return prime(x)
+        elif e.f == "UNCHANGED":
+            assert len(e.args) == 1
+            if len(e.args[0].args) == 0:
+                x = self.to_smt(e.args[0], decls)
+                return smt.Eq(prime(x), x)
+            elif e.args[0].f == "$Tuple":
+                assert len(e.args[0].args) >= 1
+                return smt.And(
+                    *[
+                        smt.Eq(prime(self.to_smt(arg, decls)), self.to_smt(arg, decls))
+                        for arg in e.args[0].args
+                    ]
+                )
+            else:
+                raise ValueError(f"Cannot handle UNCHANGED {e.args[0]}")
+        elif e.f == "$IfThenElse":
+            assert len(e.args) == 3
+            cond = self.to_smt(e.args[0], decls, sort=smt.BoolSort())
+            then = self.to_smt(e.args[1], decls, sort=sort)
+            else_ = self.to_smt(e.args[2], decls, sort=sort)
+            return smt.If(cond, then, else_)
+        elif e.f == "$Tuple":  # TODO actual tuples?
+            args = [self.to_smt(arg, decls) for arg in e.args]
+            if all(arg.sort() == args[0].sort() for arg in args):
+                return smt.Concat(*[smt.Unit(arg) for arg in args])
+            else:
+                return kd.tuple_(*args)
+        elif e.f == "$FcnApply":
+            assert len(e.args) == 2
+            f = self.to_smt(e.args[0], decls)
+            if isinstance(f, smt.SeqRef):
+                arg = self.to_smt(e.args[1], decls, sort=smt.IntSort())
+                return f[arg - smt.IntVal(1)]
+            elif smt.is_func(f):
+                arg = self.to_smt(e.args[1], decls, sort=smt.domains(f)[0])
+                return f(arg)
+            else:
+                raise ValueError(f"Cannot apply {f} of type {type(f)}")
+        elif e.f == "Append":
+            elmt = self.to_smt(e.args[1], decls)
+            seq = self.to_smt(e.args[0], decls, sort=smt.SeqSort(elmt.sort()))
+            return smt.Concat(seq, smt.Unit(elmt))
+        elif e.f == "Tail":
+            assert len(e.args) == 1
+            e1 = self.to_smt(e.args[0], decls, sort=sort)
+            assert isinstance(e1, smt.SeqRef), (
+                f"Expected sequence, got {e1} of type {type(e1)}"
+            )
+            return kd.Tail(e1)
+        elif e.f == "$SetEnumerate":
+            # concrete set enumeration {1,2,3,4}
+            assert sort is None or isinstance(sort, smt.ArraySortRef)
+            argsort = sort.domain() if sort is not None else None
+            args = [self.to_smt(arg, decls, sort=argsort) for arg in e.args]
+            if len(args) == 0:
+                if argsort is None:
+                    raise SortInference(f"Cannot infer sort of empty set {e}")
+                return smt.EmptySet(argsort)
+            else:
+                S = smt.EmptySet(args[0].sort())
+                for arg in args:
+                    S = smt.SetAdd(S, arg)
+                return S
+        elif e.f in binops:
+            assert len(e.args) == 2
+            args = [self.to_smt(arg, decls, sort=sort) for arg in e.args]
+            return binops[e.f](args[0], args[1])
+        elif e.f in comp:
+            assert len(e.args) == 2
+            assert sort is None or sort == smt.BoolSort()
+            args = [self.to_smt(arg, decls) for arg in e.args]
+            return comp[e.f](args[0], args[1])
+        elif e.f in unops:
+            assert len(e.args) == 1
+            args = [self.to_smt(arg, decls, sort=sort) for arg in e.args]
+            return unops[e.f](args[0])
+        elif e.f in consts:
+            assert len(e.args) == 0
+            assert sort is None or sort == consts[e.f].sort()
+            return consts[e.f]
+        elif e.f == "$RcdConstructor":
+            # Record Construction
+            sorts = {}
+            if sort is not None:
+                assert isinstance(sort, smt.DatatypeSortRef), (
+                    f"Expected sort to be a DatatypeSortRef, got {sort}"
+                )
+                assert sort.num_constructors() == 1, (
+                    f"Expected sort to have one constructor, got {sort}"
+                )
+                constructor = sort.constructor(0)
+                for i in range(constructor.arity()):
+                    acc = sort.accessor(0, i)
+                    sorts[acc.name()] = acc.range()
+            fields = {}
+            fields0 = assoc_list(e.args)
+            assert sort is None or set(fields0.keys()) == set(sorts.keys()), (
+                f"fields mismatch: {fields0.keys()} vs {sorts.keys()}"
+            )
+            fields = {
+                k: self.to_smt(v, decls, sort=sorts.get(k)) for k, v in fields0.items()
+            }
+            return kd.astruct(**fields)
+        elif e.f == "$SetOfRcds":
+            # [acct : 1..3] syntax. Returns the set of records in that cartesian product
+            assert sort is None  # TODO
+            fields0 = assoc_list(e.args)
+            fields = {k: self.to_smt(v, decls) for k, v in fields0.items()}
+            sort = kd.AStruct(**{k: v.sort().domain() for k, v in fields.items()})
+            x = smt.FreshConst(sort, prefix="x")
+            return smt.Lambda(
+                [x], smt.And(*[v(getattr(x, k)) for k, v in fields.items()])
+            )
+        elif e.f == "$SetOfFcns":
+            assert len(e.args) == 2
+            dom, cod = e.args
+            dom_smt = self.to_smt(dom, decls)
+            cod_smt = self.to_smt(cod, decls)
+            f = smt.FreshConst(
+                smt.ArraySort(dom_smt.domain(), cod_smt.domain()), prefix="f"
+            )
+            x = smt.FreshConst(dom_smt.domain(), prefix="x")
+            return smt.Lambda(
+                [f], smt.ForAll([x], smt.Implies(dom_smt[x], cod_smt[f[x]]))
+            )
+        elif e.f == "$FcnConstructor":  # [v \in S |-> e] syntax.
+            assert len(e.args) == 3
+            v, dom, body = e.args
+            dom_smt = self.to_smt(dom, decls)
+            assert len(v.args) == 0 and isinstance(v.f, str), v
+            assert smt.is_func(dom_smt), f"Expected function for domain, got {dom_smt}"
+            vsmt = smt.Const(v.f, smt.domains(dom_smt)[0])
+            decls = {**decls, v.f: vsmt}
+            body_smt = self.to_smt(body, decls)
+            return smt.Lambda(
+                [vsmt], body_smt
+            )  # We've thrown away domain which is goofy.
+        elif e.f == "$Except":
+            assert len(e.args) >= 2
+            base = self.to_smt(e.args[0], decls, sort=sort)  # base function
+            if isinstance(base, smt.DatatypeRef):
+                raise NotImplementedError("Except on records not implemented yet")
+            elif smt.is_func(base):
+                res = base
+                cod = smt.codomain(base)
+                dom = smt.domains(base)[0]
+                for kv in e.args[1:]:
+                    assert kv.f == "$Pair" and len(kv.args) == 2
+                    k, v = kv.args
+                    if k.f == "$Seq" and len(k.args) == 1:
+                        k = self.to_smt(k.args[0], decls, sort=dom)
+                        v = self.to_smt(v, decls, sort=cod)
+                        res = smt.Store(res, k, v)
+                    else:
+                        raise NotImplementedError(f"EXCEPT on {k} not implemented yet")
+                return res
+            else:
+                raise NotImplementedError(f"EXCEPT on {base} not implemented yet")
+
+        # These appear in spec statements
+        # elif e.f == "$SquareAct":
+        #    return smt.Const("$SQUAREACT TODO", smt.BoolSort())
+        # elif e.f == "[]":
+        #    return smt.Const("[] TODO", smt.BoolSort())
+        # elif sort is not None:
+        #    # fallback to uninterprted function
+        #    args = [self.to_smt(arg, decls) for arg in e.args]
+        #    f = smt.Function(e.f, *[arg.sort() for arg in args], sort)
+        #    return f(*args)
         else:
-            raise NotImplementedError(f"EXCEPT on {base} not implemented yet")
-
-    # These appear in spec statements
-    # elif e.f == "$SquareAct":
-    #    return smt.Const("$SQUAREACT TODO", smt.BoolSort())
-    # elif e.f == "[]":
-    #    return smt.Const("[] TODO", smt.BoolSort())
-    # elif sort is not None:
-    #    # fallback to uninterprted function
-    #    args = [to_smt(arg, decls) for arg in e.args]
-    #    f = smt.Function(e.f, *[arg.sort() for arg in args], sort)
-    #    return f(*args)
-    else:
-        raise SortInference(
-            f"Could not convert {e} to smt. Maybe you need to supply a toplevel sort or decl?"
-        )
-
-
-def assoc_list(pairs: list[App]) -> dict[str, App]:
-    """
-    Convert a list of pairs to a dictionary. Each pair is an App with two arguments.
-    """
-    d = {}
-    for pair in pairs:
-        assert pair.f == "$Pair" and len(pair.args) == 2
-        key, value = pair.args
-        assert len(key.args) == 0, "Only string keys are supported in assoc_list"
-        key = key.f
-        assert isinstance(key, StringLit), (
-            "Only string keys are supported in assoc_list"
-        )
-        key = key.value
-        assert key not in d, f"Duplicate key {key} in assoc_list"
-        d[key] = value
-    return d
+            raise SortInference(
+                f"Could not convert {e} to smt. Maybe you need to supply a toplevel sort or decl?"
+            )
 
 
 """

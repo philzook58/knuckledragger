@@ -61,6 +61,9 @@ EXTENDS Integers, Sequences
 VARIABLES is_unique
 VARIABLES biz, S
 
+VARIABLES flag
+TypeOKFlag == /\ flag \in [{0, 1} -> BOOLEAN]
+
 TypeInvariant == /\ is_unique \in BOOLEAN
                  /\ biz \in 1..10
 
@@ -113,6 +116,13 @@ FunCon == [self \in 1..2 |-> "alice"][1] = "alice"
 
 \* Exception Syntax
 TestExcept == [[p \in 1..2 |-> "Foo"] EXCEPT ![1] = "Done"]
+
+
+SetOfFunc == [p \in {0,1} |-> TRUE] \in [{0, 1} -> BOOLEAN]
+Equiv == TRUE <=> FALSE
+Implies == TRUE => FALSE
+
+
 ==========================
 """
 
@@ -124,7 +134,7 @@ def test_tla_mytest():
     mod.infer_sorts()
     assert mod.decls["is_unique"].range() == smt.BoolSort() and mod.decls["biz"].range() == smt.IntSort()
     assert mod.name == "MyTest"
-    assert set(mod.variables) == {"biz", "is_unique", "S"}
+    assert set(mod.variables) == {"biz", "is_unique", "S", "flag"}
     #assert list(mod.definitions.keys()) == ["TypeInvariant", "MinutesToSeconds"]
     assert mod.theorems == []
     #decls = mod.infer_sorts(typeok="TypeInvariant")
@@ -133,7 +143,6 @@ def test_tla_mytest():
     assert mod.action("TypeInvariant", decls).sort() == smt.BoolSort()
     assert mod.def_params["MinutesToSeconds"] == ["m"]
 
-    print(mod.definitions["Abs"])
     assert mod.operator("Abs", {"x": smt.Int("x")}).eq(smt.If(smt.Int("x") < smt.IntVal(0), -smt.Int("x"), smt.Int("x")))
     assert mod.operator("Xor", {"A": smt.Bool("A"), "B": smt.Bool("B")}).eq(smt.Bool("A") == ~smt.Bool("B"))
 
@@ -165,12 +174,22 @@ def test_tla_mytest():
 
     x,y = smt.Ints("x y")
     myrange = smt.Const("myrange", smt.SetSort(smt.IntSort()))
-    assert mod.operator("TestQuant", {"myrange" : myrange}).eq(smt.ForAll([x,y], myrange[x],  myrange[y], x + y > smt.IntVal(0)))
+
+    #print("TestQuant", mod.operator("TestQuant", {}))
+    assert mod.operator("TestQuant", {"myrange" : myrange}).is_forall()
+
 
     self = smt.Int("self")
     mod.operator("FunCon", {}).eq(smt.Eq(smt.Select(smt.Lambda(self, smt.StringVal("alice")), smt.IntVal(1)), smt.StringVal("alice")))
     p = smt.Int("p")
     assert mod.operator("TestExcept", {}).eq(smt.Store(smt.Lambda([p], smt.StringVal("Foo")), 1, smt.StringVal("Done")))
+
+    assert mod.action("SetOfFunc", {}).arg(1).is_lambda()
+    kd.prove(mod.action("SetOfFunc"))
+
+    assert mod.action("Equiv", {}).eq(smt.Eq(smt.BoolVal(True), smt.BoolVal(False)))
+    assert mod.action("Implies", {}).eq(smt.Implies(smt.BoolVal(True), smt.BoolVal(False)))
+
 
 pluscal1 = r"""
 ---- MODULE pluscal ----
