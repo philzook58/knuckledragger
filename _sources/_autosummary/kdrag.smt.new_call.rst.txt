@@ -1,0 +1,6 @@
+kdrag.smt.new\_call
+===================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: new_call

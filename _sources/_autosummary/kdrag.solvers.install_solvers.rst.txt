@@ -1,0 +1,6 @@
+kdrag.solvers.install\_solvers
+==============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: install_solvers

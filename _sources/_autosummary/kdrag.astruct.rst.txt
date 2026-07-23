@@ -1,0 +1,6 @@
+kdrag.astruct
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: astruct

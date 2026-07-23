@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.Implies
+=====================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: Implies

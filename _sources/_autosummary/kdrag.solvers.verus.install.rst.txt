@@ -1,0 +1,6 @@
+kdrag.solvers.verus.install
+===========================
+
+.. currentmodule:: kdrag.solvers.verus
+
+.. autofunction:: install

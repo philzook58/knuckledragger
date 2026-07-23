@@ -1,0 +1,35 @@
+kdrag.theories.real.geometry
+============================
+
+.. automodule:: kdrag.theories.real.geometry
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      is_point
+      unit
+      unit_defn
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/geometry.py
+   :language: python

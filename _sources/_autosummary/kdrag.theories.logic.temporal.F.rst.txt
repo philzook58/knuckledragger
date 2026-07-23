@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.F
+===============================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: F

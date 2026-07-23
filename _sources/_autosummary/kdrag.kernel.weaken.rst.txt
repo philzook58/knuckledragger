@@ -1,0 +1,6 @@
+kdrag.kernel.weaken
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: weaken

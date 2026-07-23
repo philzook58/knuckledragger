@@ -1,0 +1,6 @@
+kdrag.PreFix
+============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: PreFix

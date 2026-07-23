@@ -1,0 +1,6 @@
+kdrag.contrib.yosys.smt\_metadata
+=================================
+
+.. currentmodule:: kdrag.contrib.yosys
+
+.. autofunction:: smt_metadata

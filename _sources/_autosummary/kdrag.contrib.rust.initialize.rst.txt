@@ -1,0 +1,6 @@
+kdrag.contrib.rust.initialize
+=============================
+
+.. currentmodule:: kdrag.contrib.rust
+
+.. autofunction:: initialize

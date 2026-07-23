@@ -1,0 +1,6 @@
+kdrag.kernel.induct\_inductive
+==============================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: induct_inductive

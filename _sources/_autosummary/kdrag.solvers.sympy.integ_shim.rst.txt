@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.integ\_shim
+===============================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: integ_shim

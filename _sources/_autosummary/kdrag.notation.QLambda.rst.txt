@@ -1,0 +1,6 @@
+kdrag.notation.QLambda
+======================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: QLambda

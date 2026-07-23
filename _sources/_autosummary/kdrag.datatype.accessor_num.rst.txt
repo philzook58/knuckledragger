@@ -1,0 +1,6 @@
+kdrag.datatype.accessor\_num
+============================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: accessor_num

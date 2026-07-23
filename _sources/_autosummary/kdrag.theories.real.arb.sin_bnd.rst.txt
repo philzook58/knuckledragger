@@ -1,0 +1,6 @@
+kdrag.theories.real.arb.sin\_bnd
+================================
+
+.. currentmodule:: kdrag.theories.real.arb
+
+.. autofunction:: sin_bnd

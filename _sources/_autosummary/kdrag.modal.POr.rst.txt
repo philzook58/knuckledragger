@@ -1,0 +1,6 @@
+kdrag.modal.POr
+===============
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: POr

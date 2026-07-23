@@ -1,0 +1,40 @@
+kdrag.theories.algebra.filter
+=============================
+
+.. automodule:: kdrag.theories.algebra.filter
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Filter
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      FilterMod
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/filter.py
+   :language: python

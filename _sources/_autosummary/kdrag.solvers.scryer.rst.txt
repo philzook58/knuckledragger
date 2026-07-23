@@ -1,0 +1,38 @@
+kdrag.solvers.scryer
+====================
+
+.. automodule:: kdrag.solvers.scryer
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      from_scryer
+      in_term
+      subterms
+      to_scryer_str
+      to_term
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/scryer.py
+   :language: python

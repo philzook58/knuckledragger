@@ -1,0 +1,6 @@
+kdrag.theories.real.arb.arb\_over\_of\_mid\_rad
+===============================================
+
+.. currentmodule:: kdrag.theories.real.arb
+
+.. autofunction:: arb_over_of_mid_rad

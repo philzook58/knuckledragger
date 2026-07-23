@@ -1,0 +1,6 @@
+kdrag.datatype.distinct\_lemmas
+===============================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: distinct_lemmas

@@ -1,0 +1,6 @@
+kdrag.parsers.microlean.binder
+==============================
+
+.. currentmodule:: kdrag.parsers.microlean
+
+.. autofunction:: binder

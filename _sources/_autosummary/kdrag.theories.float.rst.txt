@@ -1,0 +1,45 @@
+kdrag.theories.float
+====================
+
+.. automodule:: kdrag.theories.float
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      round_up_neg
+      min_float64
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      IsFinite
+      NoOverflow
+      in_range
+      is_finite
+      no_overflow
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/float.py
+   :language: python

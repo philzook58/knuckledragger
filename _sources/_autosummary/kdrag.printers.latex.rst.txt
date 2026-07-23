@@ -1,0 +1,47 @@
+kdrag.printers.latex
+====================
+
+.. automodule:: kdrag.printers.latex
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      to_latex
+      to_latex_expr
+      to_latex_goal
+      to_latex_proof
+      to_latex_proof_state
+      to_latex_sort
+      update_notation
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Infix
+      Prefix
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/printers/latex.py
+   :language: python

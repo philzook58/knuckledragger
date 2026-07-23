@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executeZeroExtend
+=====================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executeZeroExtend

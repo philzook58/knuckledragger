@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.beta\_conv
+======================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: beta_conv

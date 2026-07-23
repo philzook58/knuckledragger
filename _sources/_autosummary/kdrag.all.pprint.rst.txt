@@ -1,0 +1,6 @@
+kdrag.all.pprint
+================
+
+.. currentmodule:: kdrag.all
+
+.. autofunction:: pprint

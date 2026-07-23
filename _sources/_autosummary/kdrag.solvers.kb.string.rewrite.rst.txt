@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.rewrite
+===============================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: rewrite

@@ -1,0 +1,6 @@
+kdrag.solvers.kb.multiset.shortlex
+==================================
+
+.. currentmodule:: kdrag.solvers.kb.multiset
+
+.. autofunction:: shortlex

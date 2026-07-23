@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executeSignExtend
+=====================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executeSignExtend

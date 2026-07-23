@@ -1,0 +1,6 @@
+kdrag.kernel.compose
+====================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: compose

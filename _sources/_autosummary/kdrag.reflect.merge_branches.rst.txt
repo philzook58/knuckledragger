@@ -1,0 +1,6 @@
+kdrag.reflect.merge\_branches
+=============================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: merge_branches

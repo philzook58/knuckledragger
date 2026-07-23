@@ -1,0 +1,6 @@
+kdrag.printers.smtlib.expr\_to\_smtlib
+======================================
+
+.. currentmodule:: kdrag.printers.smtlib
+
+.. autofunction:: expr_to_smtlib

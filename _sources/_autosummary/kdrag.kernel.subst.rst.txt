@@ -1,0 +1,6 @@
+kdrag.kernel.subst
+==================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: subst

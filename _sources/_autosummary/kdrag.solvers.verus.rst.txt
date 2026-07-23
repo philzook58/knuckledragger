@@ -1,0 +1,41 @@
+kdrag.solvers.verus
+===================
+
+.. automodule:: kdrag.solvers.verus
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      install
+      run_verus
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      TransitionSystem
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/verus.py
+   :language: python

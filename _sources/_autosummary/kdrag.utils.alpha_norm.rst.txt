@@ -1,0 +1,6 @@
+kdrag.utils.alpha\_norm
+=======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: alpha_norm

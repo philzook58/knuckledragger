@@ -1,0 +1,6 @@
+kdrag.theories.logic.nominal.test
+=================================
+
+.. currentmodule:: kdrag.theories.logic.nominal
+
+.. autofunction:: test

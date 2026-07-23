@@ -1,0 +1,33 @@
+kdrag.theories.real.rset
+========================
+
+.. automodule:: kdrag.theories.real.rset
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      lb_le_ub
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/rset.py
+   :language: python

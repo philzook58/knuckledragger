@@ -1,0 +1,6 @@
+kdrag.Head
+==========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Head

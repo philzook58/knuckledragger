@@ -1,0 +1,6 @@
+kdrag.printers.rust.mangle\_name
+================================
+
+.. currentmodule:: kdrag.printers.rust
+
+.. autofunction:: mangle_name

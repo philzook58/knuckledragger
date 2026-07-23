@@ -1,0 +1,6 @@
+kdrag.PostFix
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: PostFix

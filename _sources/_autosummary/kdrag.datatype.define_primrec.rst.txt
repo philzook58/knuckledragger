@@ -1,0 +1,6 @@
+kdrag.datatype.define\_primrec
+==============================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: define_primrec

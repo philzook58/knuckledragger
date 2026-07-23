@@ -1,0 +1,6 @@
+kdrag.solvers.smt2tptp
+======================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: smt2tptp

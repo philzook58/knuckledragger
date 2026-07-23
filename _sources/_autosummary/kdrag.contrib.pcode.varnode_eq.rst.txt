@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.varnode\_eq
+===============================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: varnode_eq

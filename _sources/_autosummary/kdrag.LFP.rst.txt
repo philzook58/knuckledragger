@@ -1,0 +1,6 @@
+kdrag.LFP
+=========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: LFP

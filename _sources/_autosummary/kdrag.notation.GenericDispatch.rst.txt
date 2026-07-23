@@ -1,0 +1,6 @@
+kdrag.notation.GenericDispatch
+==============================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: GenericDispatch

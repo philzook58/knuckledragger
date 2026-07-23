@@ -1,0 +1,6 @@
+kdrag.printers.finsize
+======================
+
+.. currentmodule:: kdrag.printers
+
+.. autofunction:: finsize

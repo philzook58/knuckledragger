@@ -1,0 +1,6 @@
+kdrag.printers.c.compile\_c
+===========================
+
+.. currentmodule:: kdrag.printers.c
+
+.. autofunction:: compile_c

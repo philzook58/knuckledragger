@@ -1,0 +1,6 @@
+kdrag.contracts.contract
+========================
+
+.. currentmodule:: kdrag.contracts
+
+.. autofunction:: contract

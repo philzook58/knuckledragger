@@ -1,0 +1,6 @@
+kdrag.kernel.open\_binder
+=========================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: open_binder

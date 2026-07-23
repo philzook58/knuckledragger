@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.pretty\_insn
+================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: pretty_insn

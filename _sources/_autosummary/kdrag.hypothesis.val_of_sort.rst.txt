@@ -1,0 +1,6 @@
+kdrag.hypothesis.val\_of\_sort
+==============================
+
+.. currentmodule:: kdrag.hypothesis
+
+.. autofunction:: val_of_sort

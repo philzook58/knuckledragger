@@ -1,0 +1,34 @@
+kdrag.parsers.trs
+=================
+
+.. automodule:: kdrag.parsers.trs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      test
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/parsers/trs.py
+   :language: python

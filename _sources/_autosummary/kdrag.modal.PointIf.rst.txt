@@ -1,0 +1,6 @@
+kdrag.modal.PointIf
+===================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: PointIf

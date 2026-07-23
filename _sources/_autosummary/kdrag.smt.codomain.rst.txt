@@ -1,0 +1,6 @@
+kdrag.smt.codomain
+==================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: codomain

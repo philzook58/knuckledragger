@@ -1,0 +1,6 @@
+kdrag.utils.alpha\_eq
+=====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: alpha_eq

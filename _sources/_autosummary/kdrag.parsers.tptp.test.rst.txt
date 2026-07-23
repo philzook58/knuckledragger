@@ -1,0 +1,6 @@
+kdrag.parsers.tptp.test
+=======================
+
+.. currentmodule:: kdrag.parsers.tptp
+
+.. autofunction:: test

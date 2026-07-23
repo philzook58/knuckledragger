@@ -1,0 +1,6 @@
+kdrag.theories.real.arb.z3\_of\_exact\_arb
+==========================================
+
+.. currentmodule:: kdrag.theories.real.arb
+
+.. autofunction:: z3_of_exact_arb

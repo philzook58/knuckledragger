@@ -1,0 +1,6 @@
+kdrag.utils.is\_value
+=====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: is_value

@@ -1,0 +1,6 @@
+kdrag.rewrite.def\_eq
+=====================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: def_eq

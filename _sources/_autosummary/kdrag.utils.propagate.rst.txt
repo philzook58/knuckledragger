@@ -1,0 +1,6 @@
+kdrag.utils.propagate
+=====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: propagate

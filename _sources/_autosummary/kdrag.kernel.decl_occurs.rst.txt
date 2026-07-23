@@ -1,0 +1,6 @@
+kdrag.kernel.decl\_occurs
+=========================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: decl_occurs

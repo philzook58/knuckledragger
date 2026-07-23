@@ -1,0 +1,6 @@
+kdrag.modal.Next
+================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: Next

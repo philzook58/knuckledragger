@@ -1,0 +1,6 @@
+kdrag.smt.Exists
+================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: Exists

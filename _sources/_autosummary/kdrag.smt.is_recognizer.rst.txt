@@ -1,0 +1,6 @@
+kdrag.smt.is\_recognizer
+========================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: is_recognizer

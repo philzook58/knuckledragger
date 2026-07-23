@@ -1,0 +1,6 @@
+kdrag.kernel.obtain
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: obtain

@@ -1,0 +1,35 @@
+kdrag.printers.prolog
+=====================
+
+.. automodule:: kdrag.printers.prolog
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      to_clause
+      to_prolog
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/printers/prolog.py
+   :language: python

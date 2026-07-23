@@ -1,0 +1,27 @@
+kdrag.theories.bool
+===================
+
+.. automodule:: kdrag.theories.bool
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/bool.py
+   :language: python

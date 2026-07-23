@@ -1,0 +1,6 @@
+kdrag.notation.trans\_factory
+=============================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: trans_factory

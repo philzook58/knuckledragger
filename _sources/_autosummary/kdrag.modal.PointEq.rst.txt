@@ -1,0 +1,6 @@
+kdrag.modal.PointEq
+===================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: PointEq

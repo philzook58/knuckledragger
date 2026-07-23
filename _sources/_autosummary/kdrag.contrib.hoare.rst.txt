@@ -1,0 +1,42 @@
+kdrag.contrib.hoare
+===================
+
+.. automodule:: kdrag.contrib.hoare
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      wp
+      wp_str
+      wps
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Hoare
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/hoare.py
+   :language: python

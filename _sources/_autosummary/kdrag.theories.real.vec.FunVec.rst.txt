@@ -1,0 +1,6 @@
+kdrag.theories.real.vec.FunVec
+==============================
+
+.. currentmodule:: kdrag.theories.real.vec
+
+.. autofunction:: FunVec

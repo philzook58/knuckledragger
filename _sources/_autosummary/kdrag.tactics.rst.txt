@@ -1,0 +1,58 @@
+kdrag.tactics
+=============
+
+.. automodule:: kdrag.tactics
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      ForAllI
+      FreshVar
+      FreshVars
+      Lemma
+      PTheorem
+      Theorem
+      auto
+      forallI
+      open_binder
+      prove
+      simp
+      simp_tac
+      skolem
+      subst
+      vprove
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Calc
+      Goal
+      LemmaCallback
+      ProofState
+      ProofStateProxy
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/tactics.py
+   :language: python

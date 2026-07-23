@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.sum\_shim
+=============================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: sum_shim

@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.sympify
+===========================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: sympify

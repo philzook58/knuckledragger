@@ -1,0 +1,6 @@
+kdrag.reflect.type\_of\_sort
+============================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: type_of_sort

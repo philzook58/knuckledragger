@@ -1,0 +1,6 @@
+kdrag.datatype.InductiveRel
+===========================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: InductiveRel

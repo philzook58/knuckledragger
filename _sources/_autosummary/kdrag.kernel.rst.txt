@@ -1,0 +1,89 @@
+kdrag.kernel
+============
+
+.. automodule:: kdrag.kernel
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      defns
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      FreshVar
+      Inductive
+      andI
+      axiom
+      choose
+      compose
+      decl_occurs
+      declare
+      define
+      define_fix
+      define_simple
+      ext
+      forget
+      free_vars
+      fresh_const
+      generalize
+      herb
+      induct_inductive
+      instan
+      is_declared
+      is_defined
+      is_fresh_var
+      is_proof
+      make_unfolding
+      modus
+      obtain
+      open_binder
+      prove
+      register_definition
+      rename_vars2
+      specialize
+      subst
+      trigger
+      unfold
+      unfold_defns
+      weaken
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Judgement
+      Proof
+      Unfolding
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      LemmaError
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/kernel.py
+   :language: python

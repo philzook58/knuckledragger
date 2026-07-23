@@ -1,0 +1,6 @@
+kdrag.modal.PAnd
+================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: PAnd

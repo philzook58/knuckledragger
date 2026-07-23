@@ -1,0 +1,6 @@
+kdrag.property.RightIdentity
+============================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: RightIdentity

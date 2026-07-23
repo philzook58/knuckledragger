@@ -1,0 +1,6 @@
+kdrag.Vec
+=========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Vec

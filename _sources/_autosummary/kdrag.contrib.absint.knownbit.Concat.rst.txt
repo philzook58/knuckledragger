@@ -1,0 +1,6 @@
+kdrag.contrib.absint.knownbit.Concat
+====================================
+
+.. currentmodule:: kdrag.contrib.absint.knownbit
+
+.. autofunction:: Concat

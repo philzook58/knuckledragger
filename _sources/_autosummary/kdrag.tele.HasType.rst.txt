@@ -1,0 +1,6 @@
+kdrag.tele.HasType
+==================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: HasType

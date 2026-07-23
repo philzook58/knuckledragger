@@ -1,0 +1,6 @@
+kdrag.printers.smtlib.smtlib\_datatypes
+=======================================
+
+.. currentmodule:: kdrag.printers.smtlib
+
+.. autofunction:: smtlib_datatypes

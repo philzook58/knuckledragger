@@ -1,0 +1,6 @@
+kdrag.Undef
+===========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Undef

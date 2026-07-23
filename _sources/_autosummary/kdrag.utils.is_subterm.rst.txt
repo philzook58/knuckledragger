@@ -1,0 +1,6 @@
+kdrag.utils.is\_subterm
+=======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: is_subterm

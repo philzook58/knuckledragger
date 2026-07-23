@@ -1,0 +1,6 @@
+kdrag.smt.domains
+=================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: domains

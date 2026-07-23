@@ -1,0 +1,41 @@
+kdrag.theories.int
+==================
+
+.. automodule:: kdrag.theories.int
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      natpair_to_tuple
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      induct_nat
+      induct_nat_strong
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/int.py
+   :language: python

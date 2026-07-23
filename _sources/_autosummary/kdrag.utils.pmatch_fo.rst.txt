@@ -1,0 +1,6 @@
+kdrag.utils.pmatch\_fo
+======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: pmatch_fo

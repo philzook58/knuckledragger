@@ -1,0 +1,6 @@
+kdrag.utils.proofstep\_to\_smt2
+===============================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: proofstep_to_smt2

@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.expand
+==========================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: expand

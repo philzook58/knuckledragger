@@ -1,0 +1,6 @@
+kdrag.utils.prune
+=================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: prune

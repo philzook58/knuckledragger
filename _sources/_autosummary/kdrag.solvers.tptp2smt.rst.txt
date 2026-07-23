@@ -1,0 +1,6 @@
+kdrag.solvers.tptp2smt
+======================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: tptp2smt

@@ -1,0 +1,6 @@
+kdrag.notation.conde
+====================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: conde

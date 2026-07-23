@@ -1,0 +1,6 @@
+kdrag.printers.latex.to\_latex\_goal
+====================================
+
+.. currentmodule:: kdrag.printers.latex
+
+.. autofunction:: to_latex_goal

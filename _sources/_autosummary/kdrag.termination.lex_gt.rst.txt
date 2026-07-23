@@ -1,0 +1,6 @@
+kdrag.termination.lex\_gt
+=========================
+
+.. currentmodule:: kdrag.termination
+
+.. autofunction:: lex_gt

@@ -1,0 +1,6 @@
+kdrag.parsers.microlean.quant
+=============================
+
+.. currentmodule:: kdrag.parsers.microlean
+
+.. autofunction:: quant

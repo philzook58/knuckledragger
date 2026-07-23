@@ -1,0 +1,6 @@
+kdrag.is\_astruct
+=================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: is_astruct

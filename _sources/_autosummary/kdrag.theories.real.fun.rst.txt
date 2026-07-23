@@ -1,0 +1,34 @@
+kdrag.theories.real.fun
+=======================
+
+.. automodule:: kdrag.theories.real.fun
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Linear
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/fun.py
+   :language: python

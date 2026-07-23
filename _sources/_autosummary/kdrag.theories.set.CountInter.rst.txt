@@ -1,0 +1,6 @@
+kdrag.theories.set.CountInter
+=============================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: CountInter

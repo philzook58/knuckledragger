@@ -1,0 +1,36 @@
+kdrag.theories.algebra.group
+============================
+
+.. automodule:: kdrag.theories.algebra.group
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      AbelSemiGroup
+      Group
+      Monoid
+      Semigroup
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/group.py
+   :language: python

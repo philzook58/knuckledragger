@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.SelectConcat
+==================================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: SelectConcat

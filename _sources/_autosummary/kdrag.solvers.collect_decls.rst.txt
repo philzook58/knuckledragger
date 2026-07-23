@@ -1,0 +1,6 @@
+kdrag.solvers.collect\_decls
+============================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: collect_decls

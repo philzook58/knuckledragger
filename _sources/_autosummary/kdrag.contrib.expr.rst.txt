@@ -1,0 +1,46 @@
+kdrag.contrib.expr
+==================
+
+.. automodule:: kdrag.contrib.expr
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      main_ctx
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      AstNode
+      AstRef
+      Context
+      ExprRef
+      FuncDeclRef
+      Kind
+      SortRef
+   
+   
+
+   
+   
+   
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/expr.py
+   :language: python

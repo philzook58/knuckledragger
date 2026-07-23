@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.consider
+====================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: consider

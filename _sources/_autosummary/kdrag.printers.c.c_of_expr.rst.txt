@@ -1,0 +1,6 @@
+kdrag.printers.c.c\_of\_expr
+============================
+
+.. currentmodule:: kdrag.printers.c
+
+.. autofunction:: c_of_expr

@@ -1,0 +1,6 @@
+kdrag.kernel.define
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: define

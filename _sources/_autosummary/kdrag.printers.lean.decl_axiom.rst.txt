@@ -1,0 +1,6 @@
+kdrag.printers.lean.decl\_axiom
+===============================
+
+.. currentmodule:: kdrag.printers.lean
+
+.. autofunction:: decl_axiom

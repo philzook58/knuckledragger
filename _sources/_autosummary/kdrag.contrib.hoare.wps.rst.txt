@@ -1,0 +1,6 @@
+kdrag.contrib.hoare.wps
+=======================
+
+.. currentmodule:: kdrag.contrib.hoare
+
+.. autofunction:: wps

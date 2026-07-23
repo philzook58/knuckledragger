@@ -1,0 +1,6 @@
+kdrag.theories.seq.Cons
+=======================
+
+.. currentmodule:: kdrag.theories.seq
+
+.. autofunction:: Cons

@@ -1,0 +1,6 @@
+kdrag.SetMonotone
+=================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: SetMonotone
