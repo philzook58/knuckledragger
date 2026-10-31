@@ -29,7 +29,9 @@ def main():
     elif command == "vampire-ho":
         run_subprocess(binpath("vampire-ho"), args)
     elif command == "eprover":
-        run_subprocess(binpath("eprover-ho"), args)
+        from eprover import eprover_path
+
+        run_subprocess(eprover_path, args)
     elif command == "twee":
         run_subprocess(binpath("twee"), args)
     elif command == "nanocopi":

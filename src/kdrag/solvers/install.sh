@@ -29,16 +29,7 @@ echo "Installing LEO-III"
 wget -nc https://github.com/leoprover/Leo-III/releases/download/v1.7.15/leo3-v1.7.15.jar -O leo3.jar
 
 
-#echo "Installing Eprover"
-#git -C eprover pull || git clone https://github.com/eprover/eprover.git --depth 1 --branch E-3.2.5
-#cd eprover
-#./configure --enable-ho
-#make rebuild
-#cp ./PROVER/eprover-ho ..
-#cd ..
-
-
-
+# E prover is provided by the kdrag-eprover Python package (solvers extra).
 
 echo "Installing Twee"
 # https://github.com/nick8325/twee/releases

@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 
 [[package]]
@@ -997,6 +997,17 @@ wheels = [
 ]
 
 [[package]]
+name = "kdrag-eprover"
+version = "3.5.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/50/05/36002053face54976825f2fc3d2dbb4ed9d6dc95f193a7f78c67854e8ddb/kdrag_eprover-3.5.1-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:2362bb7984eaa114c6ddea5355292d7eff0060a4b33672cd5cfb79a959af88bf", size = 660457, upload-time = "2026-09-04T00:38:12.745Z" },
+    { url = "https://files.pythonhosted.org/packages/50/2a/2dc1633975c702fec3a0a7f8d08176c3d4a36e0639752181123dc6d91e69/kdrag_eprover-3.5.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:022bf7fd8fb683e67f3d6e425314fb83157f276c5608eb6de691bedb6d68277a", size = 662094, upload-time = "2026-09-04T00:38:14.099Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/97/1c17df4bafbcb749ea4e8f79548b90ae7fa0e6de71ebb526fa4cf06283f3/kdrag_eprover-3.5.1-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:febb5dbda2a240f80d8518945bc6776c147cf97c7941e8016c21d9373730fbab", size = 750637, upload-time = "2026-09-04T00:38:15.187Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/25/55e63228658c972c2ad5fd02549e8019a249fce2d77ef8d5192d493b6643/kdrag_eprover-3.5.1-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:75e8fb2b19eb5fc616c03fbbbd2e22b3b91eb901f31617c3f01f68bffc7c5292", size = 763091, upload-time = "2026-09-04T00:38:16.49Z" },
+]
+
+[[package]]
 name = "kdrag-scryer"
 version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1089,6 +1100,7 @@ solvers = [
     { name = "cvc5" },
     { name = "dd" },
     { name = "egglog" },
+    { name = "kdrag-eprover" },
     { name = "kdrag-scryer" },
     { name = "py-aiger" },
     { name = "python-flint" },
@@ -1122,6 +1134,7 @@ requires-dist = [
     { name = "graphviz", specifier = ">=0.20.3" },
     { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.124.1" },
     { name = "jupyter", marker = "extra == 'dev'" },
+    { name = "kdrag-eprover", marker = "extra == 'solvers'", specifier = ">=3.5.1" },
     { name = "kdrag-scryer", marker = "extra == 'solvers'", specifier = ">=0.2.0" },
     { name = "lark", specifier = ">=1.3.1" },
     { name = "maturin", extras = ["patchelf"], marker = "extra == 'rust'", specifier = ">=1.8.6" },
