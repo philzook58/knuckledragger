@@ -202,8 +202,6 @@ The core logic is more or less multi-sorted first order logic aka [SMT-LIB2](htt
 
 Big features that ATPs do not often support are induction, definitions, and other axiom schema. Knuckledragger supports these.
 
-E prover support (`EProverSolver`, `EProverTHFSolver`, and `python -m kdrag.solvers eprover`) uses [kdrag-eprover](https://pypi.org/project/kdrag-eprover/), installed with `pip install "knuckledragger[solvers]"`. Its wheels bundle E with higher-order support for Linux and macOS; on Windows, use WSL.
-
 Other theorem provers of interest: [cvc5](https://cvc5.github.io/), [Vampire](https://vprover.github.io/), [eprover](https://wwwlehre.dhbw-stuttgart.de/~sschulz/E/E.html), [Twee](https://nick8325.github.io/twee/), [nanoCoP](https://leancop.de/nanocop/).
 
 The de Bruijn criterion is going to be bent or broken in certain senses. Attention is paid to what is kernel and what is not. Proof objects are basically trees recording chains of lemmas discharged by Automated Theorem Prover (ATP) calls. Soundness will be attempted, accidental misuse will be made difficult but not impossible.
