@@ -69,10 +69,6 @@ def download(url, filename, checksum) -> bool:
 def install_solvers2():
     solvers = [
         (
-            "eprover-ho",
-            "https://github.com/philzook58/eprover/releases/download/E.3.2.5-ho/eprover-ho",
-        ),
-        (
             "vampire",
             "https://github.com/vprover/vampire/releases/download/v4.9casc2024/vampire",
         ),
@@ -516,13 +512,9 @@ class VampireTHFSolver(BaseSolver):
 
 class EProverSolver(BaseSolver):
     def __init__(self):
-        new = download(
-            "https://github.com/philzook58/eprover/releases/download/E.3.2.5-ho/eprover-ho",
-            "eprover-ho",
-            "840170d1cb80cc3796b0f209e5879d23d1a19577fd922d84029c30783687b2c6",
-        )
-        if new:
-            os.chmod(binpath("eprover-ho"), 0o755)
+        from eprover import eprover_path
+
+        self.solver_path = eprover_path
         super().__init__()
         self.options["format"] = "tff"
 
@@ -530,7 +522,7 @@ class EProverSolver(BaseSolver):
         filename = "/tmp/eprover.p"
         self.write_tptp(filename, format=self.options["format"])
         cmd = [
-            binpath("eprover-ho"),
+            self.solver_path,
             "--auto-schedule=8",
             filename,
         ]
