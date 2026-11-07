@@ -63,3 +63,24 @@ the historical July CI failures.
   main snapshot and this branch: 13 missing `scryer.Term` attributes, five
   insufficiently narrowed TLA array expressions, three missing `flint.arb`
   attributes, and six unused suppressions. These remain unchanged.
+
+## Z3 upgrade for the pull request
+
+- Raised the minimum Z3 version to 5.3.3 and updated only `z3-solver` in the
+  lockfile, from 4.15.4.0 to [5.3.3.0](https://pypi.org/project/z3-solver/5.3.3.0/),
+  the latest stable PyPI release checked on 2026-11-07.
+- The newer solver exposed timeouts in `real.seq.cumsum_add` and
+  `abs_le_finsum_abs`. The addition proof now unfolds the outer recurrence
+  without expanding its sequence arguments; `finsum_succ` provides a pointwise
+  recurrence shared by both absolute-sum induction cases.
+- The sequence module passed five fresh-process runs with varied solver seeds;
+  its slowest individual proof took 0.020–0.030 seconds.
+- Validation with the upgraded solver: **606 passed, one failed** in 76.91 s.
+  `regex.ReSort` fails while constructing `star_unfold`: the new solver returns
+  `unknown` for the generic identity `1 + r * star(r) = star(r)`. The symmetric
+  identity also returns `unknown` in isolation. This is a separate backend
+  regression from the sequence timeouts, and remains unresolved pending the
+  user's decision about explicit regex axioms.
+- Ruff passes; perf completes with no import failures; ty has the same 21
+  errors and six warnings. The pull request remains a draft while the regex
+  regression is unresolved.
