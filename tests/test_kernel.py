@@ -11,6 +11,7 @@ import kdrag.theories.algebra.group as group
 import kdrag.theories as datatypes
 import kdrag.theories.logic.axioms as axioms
 import re
+import gc
 
 if smt.solver != smt.VAMPIRESOLVER:
     import kdrag.theories.real.interval
@@ -23,6 +24,25 @@ import kdrag.utils as utils
 
 def test_true_infer():
     kd.prove(smt.BoolVal(True))
+
+
+def test_choose_after_fresh_var_collection():
+    x, y = smt.Ints("choose_test_x choose_test_y")
+    pf = kd.prove(smt.ForAll([x], smt.Exists([y], y >= x)))
+    # Z3 can reuse ids from collected schema variables for opened binders.
+    for _ in range(20):
+        kd.FreshVar("unused_choose_schema", smt.IntSort())
+        gc.collect()
+    (witness,), chosen = kd.kernel.choose(pf)
+    kd.prove(smt.ForAll([x], witness(x) >= x), by=[chosen])
+
+
+def test_choose_rejects_free_schema_variable():
+    x, y = smt.Ints("choose_free_x choose_free_y")
+    free = kd.FreshVar("choose_free_schema", smt.IntSort())
+    pf = kd.prove(smt.ForAll([x], smt.Exists([y], y == x + free)))
+    with pytest.raises(AssertionError, match="without free variables"):
+        kd.kernel.choose(pf)
 
 
 def test_false_infer():

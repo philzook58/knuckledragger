@@ -248,17 +248,23 @@ def val_of_sort(
 
 
 @st.composite
-def smt_generic_val(draw: st.DrawFn, sort: smt.SortRef, maxiter=4) -> smt.ExprRef:
+def smt_generic_val(
+    draw: st.DrawFn, sort: smt.SortRef, maxiter=4, timeout=100
+) -> smt.ExprRef:
     """
     A hypothesis search strateegy that uses smt model generation to generate a value of a given SMT sort. It is slower
     and will have worse shrinkage. To be used as a fallback.
+    Each solver call is limited to ``timeout`` milliseconds.
     """
     x, y = smt.Consts("x y", sort)
     s = smt.Solver()
+    s.set("timeout", timeout)
     # s.set("random_seed", draw(st.integers())) # Did not seem to work.
     # According to Z3 docs, Solver is deterministic.
     s.add(x == y)
     res = s.check()
+    if res == smt.unknown:
+        hypothesis.reject()
     assert res == smt.sat
     v = s.model()[x]
     for j in range(draw(st.integers(min_value=0, max_value=maxiter))):
@@ -266,7 +272,8 @@ def smt_generic_val(draw: st.DrawFn, sort: smt.SortRef, maxiter=4) -> smt.ExprRe
             v = s.model()[x]
             s.add(v != x)
             res = s.check()
-        elif res == smt.unsat:
+        else:
+            # On unsat or timeout, keep the last value from a sat model.
             break
     return v
 

@@ -16,7 +16,7 @@ import os
 kdrag.solvers.download(
     "https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar",
     "tla2tools.jar",
-    "150b0294c3d407c15f0c971351ccd4ae8c6d885397546dff87871a14be2b4ee4",
+    "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
 )
 
 """

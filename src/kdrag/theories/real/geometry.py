@@ -38,13 +38,18 @@ is_line = define(
 )
 
 
-_is_line1 = prove(
+@Theorem(
     ForAll(
         [A],
         Exists([p, q], is_line(A) == And(p != q, ForAll([a], line(p, q)[a] == A[a]))),
     ),
-    by=[is_line.defn],
 )
+def _is_line1(l):
+    # Fix the shape before asking the solver to choose its witnesses.
+    A = l.fix()
+    l.auto(by=[is_line.defn(A)])
+
+
 (lp1, lp2), lp_defn = kd.kernel.choose(_is_line1)
 
 is_perp = define("is_perp", [A, B], vec2.dot(lp1(A) - lp2(A), lp1(B) - lp2(B)) == 0)
@@ -114,13 +119,17 @@ dir = define("dir", [p], ray(origin, p))
 is_dir = define(
     "is_dir", [A], Exists([p], p != origin, vec2.norm2(p) == 1, dir(p) == A)
 )
-_is_dir1 = prove(
+@Theorem(
     ForAll(
         [A],
         Exists([p], is_dir(A) == And(p != origin, vec2.norm2(p) == 1, dir(p) == A)),
     ),
-    by=[is_dir.defn],
 )
+def _is_dir1(l):
+    A = l.fix()
+    l.auto(by=[is_dir.defn(A)])
+
+
 (unit,), unit_defn = kd.kernel.choose(_is_dir1)
 
 # is_dir_dir = prove(ForAll([p], p != origin, is_dir(dir(p))), by=[is_dir.defn, dir.defn])

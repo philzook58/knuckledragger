@@ -628,14 +628,16 @@ def choose(pf: Proof) -> tuple[list[smt.FuncDeclRef], Proof]:
     assert (
         isinstance(thm, smt.QuantifierRef) and thm.is_forall()
     ), "Only support forall exists theorems"
+    # Check the theorem before opening binders: recycled Z3 ids can make the
+    # fresh binder constants look like free schema variables.
+    assert (
+        len(free_vars(thm)) == 0
+    ), "Only support skolemization of theorems without free variables"
     avs, body = open_binder(thm)
     assert (
         isinstance(body, smt.QuantifierRef) and body.is_exists()
     ), "Only support forall exists theorems"
     evs, inner = open_binder(body)
-    assert (
-        len(free_vars(inner)) == 0
-    ), "Only support skolemization of theorems without free variables"
     skolems = [smt.FreshFunction(*[v.sort() for v in avs], ev.sort()) for ev in evs]
     ts = [skolem(*avs) for skolem in skolems]
     return skolems, axiom(

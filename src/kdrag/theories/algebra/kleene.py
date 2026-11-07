@@ -68,17 +68,46 @@ seq_monotone = kd.prove(
     by=[rdistrib, ldistrib, par_assoc],
 )
 
-star_seq_star = kd.tactics.vprove(
-    smt.ForAll([x], star(x) * star(x) == star(x)), by=KLEENE
-)
+@kd.Theorem(smt.ForAll([x], x <= star(x)))
+def star_incl(l):
+    x = l.fix()
+    sx = star(x)
+    l.have(one <= sx, by=[unfold(x), par_assoc, par_comm, par_idem])
+    l.have(x * sx <= sx, by=[unfold(x), par_assoc, par_comm, par_idem])
+    l.auto(
+        by=[
+            seq_monotone(x, x, one, sx),
+            seq_one(x),
+            par_idem(x),
+            par_assoc(x, x * sx, sx),
+        ]
+    )
 
 
-# z3 takes 0.5 seconds. Vampire is actually faster despite all the overhead
-# This got way slower for some reason?
-# CVC5 seems to annihilate it.
-star_star = kd.tactics.vprove(
-    smt.ForAll([x], star(star(x)) == star(x)), by=KLEENE, timeout=5000
-)
+@kd.Theorem(smt.ForAll([x], star(x) * star(x) == star(x)))
+def star_seq_star(l):
+    x = l.fix()
+    sx = star(x)
+    l.have(one <= sx, by=[unfold(x), par_assoc, par_comm, par_idem])
+    # Induction bounds the product above; monotonicity bounds it below.
+    l.have(sx + x * sx <= sx, by=[unfold(x), par_assoc, par_comm, par_idem])
+    l.have(sx * sx <= sx, by=[least_fix(sx, x, sx)])
+    l.have(
+        sx <= sx * sx,
+        by=[seq_monotone(sx, sx, one, sx), seq_one(sx), par_idem(sx)],
+    )
+    l.auto(by=[par_comm(sx * sx, sx)])
+
+
+@kd.Theorem(smt.ForAll([x], star(star(x)) == star(x)))
+def star_star(l):
+    x = l.fix()
+    sx = star(x)
+    l.have(one <= sx, by=[unfold(x), par_assoc, par_comm, par_idem])
+    # The product lemma makes sx a pre-fixpoint for another star.
+    l.have(one + sx * sx <= sx, by=[star_seq_star(x), par_idem(sx)])
+    l.have(star(sx) <= sx, by=[least_fix(sx, sx, one), seq_one(star(sx))])
+    l.auto(by=[star_incl(sx), par_comm(star(sx), sx)])
 
 
 Test = smt.DeclareSort("Test")
