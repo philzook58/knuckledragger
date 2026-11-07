@@ -46,7 +46,8 @@ def binpath(cmd):
     return os.path.join(os.path.dirname(__file__), cmd)
 
 
-def download(url, filename, checksum) -> bool:
+def download(url, filename, checksum=None) -> bool:
+    """Download once, validating SHA-256 when a checksum is supplied."""
     path = binpath(filename)
 
     def checkhash():
@@ -54,14 +55,14 @@ def download(url, filename, checksum) -> bool:
             digest = hashlib.file_digest(f, "sha256")
             return digest.hexdigest() == checksum
 
-    if os.path.exists(path) and checkhash():
+    if os.path.exists(path) and (checksum is None or checkhash()):
         return False
     print("Downloading", url, "to", path, "This may take a few minutes...")
     urllib.request.urlretrieve(
         url,
         path,
     )
-    if not checkhash():
+    if checksum is not None and not checkhash():
         raise Exception("Checksum mismatch for downloaded file", filename)
     return True
 

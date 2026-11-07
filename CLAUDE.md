@@ -243,4 +243,3 @@ def sum_append(pf):
 - For quantified witness proofs, fix the outer parameters and instantiate the defining theorem before `auto`.
 - Check free schema variables on the original theorem before opening binders; Z3 may recycle collected schema-variable IDs.
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.
-- See [the main test investigation](docs/main-test-investigation.md) for reproduced failures and remaining CI issues.
