@@ -78,9 +78,12 @@ the historical July CI failures.
 - Validation with the upgraded solver: **606 passed, one failed** in 76.91 s.
   `regex.ReSort` fails while constructing `star_unfold`: the new solver returns
   `unknown` for the generic identity `1 + r * star(r) = star(r)`. The symmetric
-  identity also returns `unknown` in isolation. This is a separate backend
-  regression from the sequence timeouts, and remains unresolved pending the
-  user's decision about explicit regex axioms.
+  identity also returns `unknown` in isolation. The same SMT-LIB inputs return
+  `unsat` with the installed Z3 4.13.3 CLI, confirming a backend regression.
+- With the user's explicit approval, retained these two standard regex
+  star-unfolding identities as axioms. They remain available through
+  `T.star_unfold` and `T.star_unfold2`; their statements are unchanged.
+- Final validation after the approved regex change: **607 passed** in **77.34 s**,
+  including all slow tests and the regex doctest.
 - Ruff passes; perf completes with no import failures; ty has the same 21
-  errors and six warnings. The pull request remains a draft while the regex
-  regression is unresolved.
+  errors and six warnings.
