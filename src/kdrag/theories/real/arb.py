@@ -2,12 +2,11 @@ import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.real as real
 import operator as op
-import flint
+from flint import arb
 from typing import TypeAlias
 
-Arb: TypeAlias = object
+Arb: TypeAlias = arb
 
-arb = flint.arb
 a, b = smt.Reals("a b")
 flint_decls = {
     real.sqrt: arb.sqrt,
@@ -28,7 +27,7 @@ flint_decls = {
 }
 
 
-def interp_flint(e: smt.ArithRef, env) -> flint.types.arb.arb:  # type: ignore
+def interp_flint(e: smt.ArithRef, env) -> Arb:
     """
     Interpret a z3 expression into an arb calculation.
 
@@ -51,7 +50,7 @@ def interp_flint(e: smt.ArithRef, env) -> flint.types.arb.arb:  # type: ignore
     assert False, f"Can't interpret {e} into flint"
 
 
-def arb_over_of_mid_rad(mid: smt.ArithRef, rad: smt.ArithRef) -> flint.types.arb.arb:  # type: ignore
+def arb_over_of_mid_rad(mid: smt.ArithRef, rad: smt.ArithRef) -> Arb:
     """
     Get overapproximating arb from midpoint and radius.
 
@@ -193,7 +192,7 @@ In principle, larger scale rules can be derived from this.
 """
 
 
-def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:
+def z3_of_exact_arb(x: Arb) -> smt.ArithRef:
     """
     Get exact arb as z3 value
 
@@ -213,7 +212,7 @@ def z3_of_exact_arb(x: flint.arb) -> smt.ArithRef:
     return smt.simplify(smt.RealVal(int(man)) * smt.RealVal(2) ** smt.RealVal(int(exp)))
 
 
-def z3_mid_rad_of_arb(x: flint.arb) -> tuple[smt.ArithRef, smt.ArithRef]:
+def z3_mid_rad_of_arb(x: Arb) -> tuple[smt.ArithRef, smt.ArithRef]:
     """
     Get midpoint and radius as z3 values.
 
