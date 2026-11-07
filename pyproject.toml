@@ -38,6 +38,7 @@ solvers = [
     "py-aiger>=8.1.0",
     "dd>=0.6.0",
     "kdrag-scryer>=0.2.0",
+    "kdrag-eprover>=3.5.1",
 ]
 
 [build-system]
