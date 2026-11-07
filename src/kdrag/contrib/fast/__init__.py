@@ -4,7 +4,6 @@ Experiments in C FFI
 
 from cffi import FFI
 import tempfile
-import os
 import sys
 from pathlib import Path
 import z3
@@ -16,10 +15,10 @@ ffibuilder = FFI()
 ffibuilder.cdef("""
 int myadd(int a, int b);
 const char* z3_version();
-typedef struct z3_config *Z3_config;
-typedef struct z3_context *Z3_context;
-typedef void *Z3_ast;
-typedef void *Z3_ast_vector;
+typedef struct _Z3_config *Z3_config;
+typedef struct _Z3_context *Z3_context;
+typedef struct _Z3_ast *Z3_ast;
+typedef struct _Z3_ast_vector *Z3_ast_vector;
 Z3_ast my_mk_true(Z3_context ctx);
 Z3_ast my_mk_and(Z3_context ctx, Z3_ast a, Z3_ast b);
 Z3_ast_vector KDRAG_get_consts(Z3_context ctx, Z3_ast t);
@@ -29,19 +28,15 @@ z3lib = Path(z3.__file__).parent.absolute() / "lib"
 z3_include = Path(z3.__file__).parent.absolute() / "include"
 ffibuilder.set_source(
     "_fast",
-    "",
-    sources=[str(Path(__file__).parent.absolute() / "fast.c")],
+    (Path(__file__).parent / "fast.c").read_text(),
     library_dirs=[str(z3lib)],
     include_dirs=[str(z3_include)],
     libraries=["z3"],
 )
-# shenangians to build in temp directory
-dir0 = os.getcwd()
+# Build outside the source tree without changing the process working directory.
 tmpdir = tempfile.mkdtemp()
-os.chdir(tmpdir)
-ffibuilder.compile(verbose=True)
+ffibuilder.compile(tmpdir=tmpdir, verbose=True)
 sys.path.insert(1, tmpdir)
-os.chdir(dir0)
 
 from _fast.lib import *  # noqa: E402, F403  # type: ignore
 

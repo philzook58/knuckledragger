@@ -277,29 +277,25 @@ def cumsum_mono(l):
 
 @kd.Theorem("forall (a b : RSeq) (n : Int), cumsum (a + b) n = cumsum a n + cumsum b n")
 def cumsum_add(l):
-    a, x, n = l.fixes()
+    a, b, n = l.fixes()
     l.induct(n)
 
-    # n < 0
-    # TODO: These induction cases look disgusting with too many lambdas.
+    # Unfold only the outer recurrence, preserving the induction hypothesis.
+    # The negative and positive steps both reduce to linear arithmetic.
     l.fix()
-    l.simp()
     l.intros()
-    l.unfold(cumsum, add)
-    l.simp()
-    l.auto(by=[add.defn, cumsum.defn])
+    l.unfold(cumsum)
+    l.auto(by=[add.defn(a, b)])
 
     # n == 0
-    l.auto(by=[add.defn, cumsum.defn])
+    l.unfold(cumsum)
+    l.auto(by=[add.defn(a, b)])
 
-    # n > 0
+    # Positive step
     l.fix()
-    l.simp()
-    l.unfold(cumsum, add)
-    l.simp()
-    l.unfold(cumsum, add)
-    l.simp()
-    l.auto(by=[add.defn, cumsum.defn])
+    l.intros()
+    l.unfold(cumsum)
+    l.auto(by=[add.defn(a, b)])
 
 
 max = smt.Function("max", RSeq, RSeq)
@@ -404,6 +400,16 @@ def max_suffix_bound(l):
 
 Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
 finsum = kd.define("finsum", [a, n], cumsum(a)[n])
+
+
+@kd.Theorem(
+    kd.QForAll([a, n], n >= 0, finsum(a, n + 1) == finsum(a, n) + a[n + 1])
+)
+def finsum_succ(l):
+    a, n = l.fixes()
+    # Use the recurrence at this index, rather than an equality of whole arrays.
+    _, step = kd.kernel.unfold(cumsum(a)[n + 1], [cumsum])
+    l.auto(by=[finsum.defn(a, n + 1), finsum.defn(a, n), step])
 
 
 @kd.Theorem(smt.ForAll([a, x, n], finsum(smul(x, a), n) == x * finsum(a, n)))
@@ -522,29 +528,24 @@ def abs_le_finsum_abs(l):
     l.intros()
     l.split(at=0)
 
+    # Establish the shared recurrence before splitting the two cases.
+    l.have(
+        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N + 1],
+        by=[finsum_succ(abs(a), N)],
+    )
+    l.have(abs(a)[N + 1] >= 0, by=[abs_ge_0(a, N + 1)])
+
     # Case split: n <= N or n = N + 1
     l.cases(n <= N)
 
     # n <= N: use IH and monotonicity of finsum
     l.have(abs(a)[n] <= finsum(abs(a), N), by=[])
-    l.have(N + 1 > 0, by=[])
-    l.have(
-        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N + 1],
-        by=[finsum.defn, cumsum.defn],
-    )
-    l.have(abs(a)[N + 1] >= 0, by=[abs_ge_0])
     l.have(finsum(abs(a), N) <= finsum(abs(a), N + 1), by=[])
     l.auto()
 
     # n > N: then n = N + 1
     l.have(n == N + 1, by=[])
     l.rw(-1)
-    l.have(N + 1 > 0, by=[])
-    l.have(
-        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N + 1],
-        by=[finsum.defn, cumsum.defn],
-    )
-    l.have(abs(a)[N + 1] >= 0, by=[abs_ge_0])
     l.have(abs(a)[0] <= finsum(abs(a), N), by=[])
     l.have(abs(a)[0] >= 0, by=[abs_ge_0])
     l.have(finsum(abs(a), N + 1) >= abs(a)[N + 1], by=[])
