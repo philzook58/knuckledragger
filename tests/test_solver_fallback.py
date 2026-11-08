@@ -76,13 +76,50 @@ def test_rejects_quantified_multidomain_array():
         CVC5Solver().add(consumer(smt.Lambda([x, y], x + y)) == 0)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="TPTP printer drops operands after the second in n-ary arithmetic",
+@pytest.mark.parametrize("format", ["tff", "thf"])
+def test_tptp_nary_arithmetic(format):
+    x, y, z, w = smt.Ints("x y z w")
+    assert (
+        expr_to_tptp(smt.Sum(x, y, z, w), format=format) == "$sum($sum($sum(x,y),z),w)"
+    )
+    assert (
+        expr_to_tptp(smt.Product(x, y, z), format=format) == "$product($product(x,y),z)"
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    "operation, correct, truncated", [(smt.Sum, 10, 5), (smt.Product, 30, 6)]
 )
-def test_tptp_nary_sum_gap():
-    x, y, z = smt.Ints("printer_x printer_y printer_z")
-    assert "printer_z" in expr_to_tptp(smt.Sum(x, y, z))
+def test_vampire_tptp_arithmetic_semantics(operation, correct, truncated):
+    if not shutil.which("vampire") and not shutil.which(binpath("vampire")):
+        pytest.skip("Vampire executable required")
+    for value, status in [(correct, smt.unsat), (truncated, smt.sat)]:
+        s = VampireSolver()
+        s.set("format", "tff")
+        s.add(smt.Not(operation(2, 3, 5) == value))
+        assert s.check() == status
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("solver", [EProverSolver, VampireSolver, CVC5Solver])
+def test_portable_algebra(solver):
+    if solver is EProverSolver:
+        pytest.importorskip("eprover")
+    elif solver is CVC5Solver and not shutil.which("cvc5"):
+        pytest.skip("cvc5 executable required")
+    elif (
+        solver is VampireSolver
+        and not shutil.which("vampire")
+        and not shutil.which(binpath("vampire"))
+    ):
+        pytest.skip("Vampire executable required")
+    from examples.portable_algebra import reassociate, associative, reassociate_four
+
+    proof = reassociate(solver)
+    assert not proof.admit
+    assert proof.thm.eq(smt.Implies(smt.And(associative), reassociate_four))
+    assert solver.__name__ in proof.reason
 
 
 @pytest.mark.slow

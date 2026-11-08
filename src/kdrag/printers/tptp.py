@@ -225,17 +225,21 @@ def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True) -> st
             return "$greater({},{})".format(*children)
         elif head == ">=":
             return "$greatereq({},{})".format(*children)
-        elif head == "+":
-            return "$sum({},{})".format(*children)
-        elif head == "-":
-            if len(children) == 1:
-                return "$difference(0,{})".format(children[0])
-            else:
-                return "$difference({},{})".format(*children)
-        elif head == "*":
-            return "$product({},{})".format(*children)
-        elif head == "/":
-            return "$quotient({},{})".format(*children)
+        elif head in ("+", "-", "*", "/"):
+            operator = {
+                "+": "$sum",
+                "-": "$difference",
+                "*": "$product",
+                "/": "$quotient",
+            }[head]
+            if head == "-" and len(children) == 1:
+                return f"$difference(0,{children[0]})"
+            # SMT arithmetic can have more than two operands; TPTP's operators
+            # are binary. Left association preserves subtraction and division.
+            result = children[0]
+            for child in children[1:]:
+                result = f"{operator}({result},{child})"
+            return result
         # elif head == "^":
         #    return "$power({},{})".format(
         #        *children
