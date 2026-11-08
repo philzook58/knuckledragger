@@ -151,3 +151,16 @@ def test_vampire():
     # TODO: broken again
     # test vampire with more significxant set of features
     # kd.prove(smt.BoolVal(True), solver=solvers.VampireSolver)
+
+
+def test_limits_at_removable_discontinuities():
+    # The values at zero differ from the limits, so continuity cannot be assumed.
+    zero, two, three = smt.RealVal(0), smt.RealVal(2), smt.RealVal(3)
+    f = smt.Store(smt.K(smt.RealSort(), two), zero, 1)
+    g = smt.Store(smt.K(smt.RealSort(), three), zero, 4)
+    lf = kd.prove(real.has_lim_at(f, zero, two), by=[real.has_lim_at.defn, real.abs.defn])
+    lg = kd.prove(real.has_lim_at(g, zero, three), by=[real.has_lim_at.defn, real.abs.defn])
+    sum_limit = real.has_lim_at_add(f, g, zero, two, three)(lf, lg)
+    product_limit = real.has_lim_at_mul(f, g, zero, two, three)(lf, lg)
+    assert smt.simplify(sum_limit.thm).eq(smt.simplify(real.has_lim_at(f + g, zero, 5)))
+    assert smt.simplify(product_limit.thm).eq(smt.simplify(real.has_lim_at(f * g, zero, 6)))

@@ -1,5 +1,7 @@
-[real_analysis.py](real_analysis.py) proves global continuity from definitions,
+[real_analysis.py](real_analysis.py) builds continuous functions using addition and multiplication,
 then derives pointwise continuity and limits using shared lemmas.
+The theory proves pointwise closure first, then lifts it to global continuity.
+General limit rules reuse pointwise continuity by updating the value at the limit point.
 Run it with `uv run python examples/real_analysis.py`.
 
 Run `uv run pytest tests/test_examples.py::test_real_analysis -s` for solver timings.

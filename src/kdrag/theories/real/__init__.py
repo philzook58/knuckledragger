@@ -26,6 +26,7 @@ from kdrag.smt import (
     RealSort,
     RealVal,
     Reals,
+    Store,
     ToInt,
     ToReal,
     is_app,
@@ -515,6 +516,156 @@ def has_lim_at_of_cont_at(l):
     delta = l.obtain(0)
     l.exists(delta)
     l.auto(by=[abs.defn])
+
+
+@Theorem(
+    ForAll([f, g, p], Implies(cont_at(f, p), Implies(cont_at(g, p), cont_at(f + g, p))))
+)
+def cont_at_add(l):
+    l.fixes()
+    l.intros()
+    l.intros()
+    l.unfold(cont_at, at=0)
+    l.unfold(cont_at, at=1)
+    l.unfold(cont_at).unfold(fadd)
+    eps = l.fix()
+    l.intros()
+    # Each summand gets half the error budget.
+    l.specialize(0, eps / 2)
+    l.forward(0)
+    d1 = l.obtain(0)
+    l.specialize(1, eps / 2)
+    l.forward(1)
+    d2 = l.obtain(1)
+    l.exists(min(d1, d2))
+    l.auto(by=[abs.defn, min.defn])
+
+
+@Theorem(
+    ForAll([f, g, p], Implies(cont_at(f, p), Implies(cont_at(g, p), cont_at(f * g, p))))
+)
+def cont_at_mul(l):
+    f, g, p = l.fixes()
+    l.intros()
+    l.intros()
+    l.unfold(cont_at, at=0)
+    l.unfold(cont_at, at=1)
+    l.unfold(cont_at).unfold(fmul)
+    eps = l.fix()
+    l.intros()
+    # Keep both errors below one and control the product error.
+    eta = min(1, eps / (2 * (abs(f[p]) + abs(g[p]) + 1)))
+    l.have(eta > 0, by=[abs.defn, min.defn])
+    l.specialize(0, eta)
+    l.forward(0)
+    d1 = l.obtain(0)
+    l.specialize(1, eta)
+    l.forward(1)
+    d2 = l.obtain(1)
+    l.split(at=1)
+    l.split(at=0)
+    l.exists(min(d1, d2))
+    l.split()
+    l.auto(by=[min.defn])
+    y = l.fix()
+    l.intros()
+    l.specialize(1, y)
+    l.specialize(3, y)
+    l.have(And(abs(p - y) < d1, abs(p - y) < d2), by=[min.defn])
+    l.forward(1)
+    l.forward(3)
+    l.have(
+        And(eta <= 1, 2 * eta * (abs(f[p]) + abs(g[p]) + 1) <= eps),
+        by=[abs.defn, min.defn],
+    )
+    l.auto(by=[abs.defn])
+
+
+is_cont_add = prove(
+    ForAll([f, g], Implies(is_cont(f), Implies(is_cont(g), is_cont(f + g)))),
+    by=[is_cont.defn, cont_at_add],
+)
+
+is_cont_mul = prove(
+    ForAll([f, g], Implies(is_cont(f), Implies(is_cont(g), is_cont(f * g)))),
+    by=[is_cont.defn, cont_at_mul],
+)
+
+
+# Updating the value at p turns a punctured limit into continuity at p.
+@Theorem(ForAll([f, p, L], Implies(has_lim_at(f, p, L), cont_at(Store(f, p, L), p))))
+def cont_at_update_of_has_lim_at(l):
+    l.fixes()
+    l.intros()
+    l.unfold(has_lim_at, at=0)
+    l.unfold(cont_at)
+    eps = l.fix()
+    l.intros()
+    l.specialize(0, eps)
+    l.forward(0)
+    delta = l.obtain(0)
+    l.exists(delta)
+    l.auto(by=[abs.defn])
+
+
+@Theorem(ForAll([f, p, L], Implies(cont_at(Store(f, p, L), p), has_lim_at(f, p, L))))
+def has_lim_at_of_cont_at_update(l):
+    l.fixes()
+    l.intros()
+    l.unfold(cont_at, at=0)
+    l.unfold(has_lim_at)
+    eps = l.fix()
+    l.intros()
+    l.specialize(0, eps)
+    l.forward(0)
+    delta = l.obtain(0)
+    l.exists(delta)
+    l.auto(by=[abs.defn])
+
+
+M = Real("M")
+
+
+@Theorem(
+    ForAll(
+        [f, g, p, L, M],
+        Implies(
+            has_lim_at(f, p, L),
+            Implies(has_lim_at(g, p, M), has_lim_at(f + g, p, L + M)),
+        ),
+    )
+)
+def has_lim_at_add(l):
+    f, g, p, L, M = l.fixes()
+    l.intros()
+    l.intros()
+    f1, g1 = Store(f, p, L), Store(g, p, M)
+    l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
+    l.have(cont_at(g1, p), by=[cont_at_update_of_has_lim_at(g, p, M)])
+    l.have(cont_at(f1 + g1, p), by=[cont_at_add(f1, g1, p)])
+    l.have(f1 + g1 == Store(f + g, p, L + M), by=[fadd.defn(f1, g1), fadd.defn(f, g)])
+    l.auto(by=[has_lim_at_of_cont_at_update(f + g, p, L + M)])
+
+
+@Theorem(
+    ForAll(
+        [f, g, p, L, M],
+        Implies(
+            has_lim_at(f, p, L),
+            Implies(has_lim_at(g, p, M), has_lim_at(f * g, p, L * M)),
+        ),
+    )
+)
+def has_lim_at_mul(l):
+    f, g, p, L, M = l.fixes()
+    l.intros()
+    l.intros()
+    f1, g1 = Store(f, p, L), Store(g, p, M)
+    l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
+    l.have(cont_at(g1, p), by=[cont_at_update_of_has_lim_at(g, p, M)])
+    l.have(cont_at(f1 * g1, p), by=[cont_at_mul(f1, g1, p)])
+    l.have(f1 * g1 == Store(f * g, p, L * M), by=[fmul.defn(f1, g1), fmul.defn(f, g)])
+    l.auto(by=[has_lim_at_of_cont_at_update(f * g, p, L * M)])
 
 
 diff_cont = axiom(QForAll([f], is_diff(f), is_cont(f)))
