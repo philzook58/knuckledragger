@@ -172,12 +172,13 @@ def prove(
         res = s.check()
         if res != smt.unsat:
             if res == smt.sat:
-                raise LemmaError(thm, "Countermodel", s.model())
+                model = s.model() if hasattr(s, "model") else "Model unavailable"
+                raise LemmaError(thm, "Countermodel", model)
             else:
-                smtfile = tempfile.NamedTemporaryFile(
+                with tempfile.NamedTemporaryFile(
                     delete=False, mode="w", suffix=".smt2"
-                )
-                smtfile.write(s.sexpr())
+                ) as smtfile:
+                    smtfile.write(s.sexpr())
             raise LemmaError("prove", thm, res, smtfile.name)
         else:
             reason: list[object] = ["prove"]

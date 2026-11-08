@@ -22,6 +22,18 @@ if solver is None or solver == Z3SOLVER:
 
     _py2expr = z3.z3._py2expr
 
+    def _is_kind(x: z3.ExprRef | z3.FuncDeclRef, kind: int) -> bool:
+        return x.kind() == kind if isinstance(x, z3.FuncDeclRef) else z3.is_app_of(x, kind)
+
+    def is_int_sort(sort: z3.SortRef) -> bool:
+        return sort.kind() == z3.Z3_INT_SORT
+
+    def is_real_sort(sort: z3.SortRef) -> bool:
+        return sort.kind() == z3.Z3_REAL_SORT
+
+    def is_bool_sort(sort: z3.SortRef) -> bool:
+        return sort.kind() == z3.Z3_BOOL_SORT
+
     def is_if(x: z3.ExprRef) -> bool:
         """
         Check if an expression is an if-then-else.
@@ -39,7 +51,7 @@ if solver is None or solver == Z3SOLVER:
         """
         return z3.is_app_of(x, z3.Z3_OP_UMINUS)
 
-    def is_constructor(x: z3.ExprRef) -> bool:
+    def is_constructor(x: z3.ExprRef | z3.FuncDeclRef) -> bool:
         """
         Check if an expression is a constructor.
         >>> Color = z3.Datatype("Color")
@@ -47,10 +59,12 @@ if solver is None or solver == Z3SOLVER:
         >>> Color = Color.create()
         >>> is_constructor(Color.red)
         True
+        >>> is_constructor(Color.red.decl())
+        True
         """
-        return z3.is_app_of(x, z3.Z3_OP_DT_CONSTRUCTOR)
+        return _is_kind(x, z3.Z3_OP_DT_CONSTRUCTOR)
 
-    def is_accessor(x: z3.ExprRef) -> bool:
+    def is_accessor(x: z3.ExprRef | z3.FuncDeclRef) -> bool:
         """
         Check if an expression is an accessor.
         >>> Color = z3.Datatype("Color")
@@ -58,10 +72,12 @@ if solver is None or solver == Z3SOLVER:
         >>> Color = Color.create()
         >>> is_accessor(Color.r(Color.red(3)))
         True
+        >>> is_accessor(Color.r)
+        True
         """
-        return z3.is_app_of(x, z3.Z3_OP_DT_ACCESSOR)
+        return _is_kind(x, z3.Z3_OP_DT_ACCESSOR)
 
-    def is_recognizer(x: z3.ExprRef) -> bool:
+    def is_recognizer(x: z3.ExprRef | z3.FuncDeclRef) -> bool:
         """
         Check if recognizer.
         >>> Color = z3.Datatype("Color")
@@ -69,8 +85,10 @@ if solver is None or solver == Z3SOLVER:
         >>> Color = Color.create()
         >>> is_recognizer(Color.is_red(Color.red))
         True
+        >>> is_recognizer(Color.is_red)
+        True
         """
-        return z3.is_app_of(x, z3.Z3_OP_DT_IS)
+        return _is_kind(x, z3.Z3_OP_DT_IS) or _is_kind(x, z3.Z3_OP_DT_RECOGNISER)
 
     def is_power(x: z3.ExprRef) -> bool:
         """
@@ -81,7 +99,7 @@ if solver is None or solver == Z3SOLVER:
         """
         return z3.is_app_of(x, z3.Z3_OP_POWER)
 
-    def is_uninterp(x: z3.ExprRef) -> bool:
+    def is_uninterp(x: z3.ExprRef | z3.FuncDeclRef) -> bool:
         """
         Check if uninterpreted function.
         >>> x = z3.Real("x")
@@ -90,12 +108,14 @@ if solver is None or solver == Z3SOLVER:
         True
         >>> is_uninterp(f(x))
         True
+        >>> is_uninterp(f)
+        True
         >>> is_uninterp(x + 1)
         False
         >>> is_uninterp(z3.RealVal(42.1))
         False
         """
-        return z3.is_app_of(x, z3.Z3_OP_UNINTERPRETED)
+        return _is_kind(x, z3.Z3_OP_UNINTERPRETED)
 
     Z3Solver = Solver
 elif solver == VAMPIRESOLVER:

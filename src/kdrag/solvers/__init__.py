@@ -16,12 +16,17 @@ or from project root run
 
 import kdrag as kd
 import kdrag.smt as smt
-from kdrag.printers.tptp import expr_to_tptp, sort_to_tptp, mangle_decl
+from kdrag.printers.tptp import (
+    expr_to_tptp,
+    sort_to_tptp,
+    mangle_decl,
+    validate_names,
+    identifier,
+)
 from kdrag.printers.smtlib import (
     expr_to_smtlib,
-    funcdecl_smtlib,
-    smtlib_datatypes,
     predefined_names,
+    smtlib_problem,
 )
 import subprocess
 import os
@@ -36,8 +41,8 @@ import json
 import hashlib
 import urllib
 import zipfile
-from collections import Counter
 import sys
+import tempfile
 
 logger = logging.getLogger("knuckledragger")
 
@@ -134,6 +139,25 @@ class BaseSolver:
         else:
             assert isinstance(thm, smt.BoolRef)
             if self.options["lambda_lift"]:
+
+                def multi_domain(sort):
+                    return isinstance(sort, smt.ArraySortRef) and (
+                        len(smt.domains(sort)) > 1
+                        or multi_domain(sort.domain())
+                        or multi_domain(sort.range())
+                    )
+
+                for term in kd.utils.subterms(thm, into_binder=True):
+                    if isinstance(term, smt.QuantifierRef) and term.is_lambda():
+                        continue
+                    sorts = [term.sort()]
+                    if isinstance(term, smt.QuantifierRef):
+                        sorts.extend(term.var_sort(i) for i in range(term.num_vars()))
+                    if any(multi_domain(sort) for sort in sorts):
+                        raise NotImplementedError(
+                            "Currying multi-domain arrays requires rewriting their signatures",
+                            term,
+                        )
                 thm1 = kd.utils.curry_arrays(thm)
                 thm1, extra = kd.utils.lambda_lift(thm1)
                 assert isinstance(thm1, smt.BoolRef)
@@ -178,11 +202,15 @@ class BaseSolver:
             declset = collect_decls(
                 self.adds + [thm for thm, name in self.assert_tracks]
             )
-            declcount = Counter(decl.name() for decl in declset)
-            no_mangle = {decl for decl in declset if declcount[decl.name()] == 1}
             sortset = collect_sorts(
                 self.adds + [thm for thm, name in self.assert_tracks]
             )
+            user_decls = {
+                d
+                for d in declset
+                if smt.is_uninterp(d) or smt.is_constructor(d) or smt.is_accessor(d) or smt.is_recognizer(d)
+            }
+            validate_names(user_decls, sortset)
             if format == "fof":
                 if len(sortset) != 2:
                     raise Exception(
@@ -193,26 +221,18 @@ class BaseSolver:
                 for sort in sortset:
                     # Write sort declarations (only for user-defined sorts)
                     name = sort.name()
-                    if name not in self.predefined_sorts:
+                    if not (smt.is_int_sort(sort) or smt.is_real_sort(sort) or smt.is_bool_sort(sort)):
                         if format != "fof":
                             fp.write(
                                 f"{format}({name.lower()}_type, type, {sort_to_tptp(sort)} : $tType ).\n"
                             )
-                    if isinstance(sort, smt.DatatypeSortRef):
-                        # TODO: add constructors and injectivity axioms
-                        for i in range(sort.num_constructors()):
-                            predefined.add(sort.constructor(i))
-                            predefined.add(sort.recognizer(i))
-                            for j in range(sort.constructor(i).arity()):
-                                predefined.add(sort.accessor(i, j))
-
                 # Declare all function symbols in TPTP THF format
                 fp.write("% Declarations\n")
-                for f in declset:
-                    if f not in predefined and f.name() not in predefined_names:
+                for f in user_decls:
+                    if f not in predefined:
                         if f.arity() == 0:
                             fp.write(
-                                f"{format}({f.name().replace('!', '__')}_type, type, {f.name().replace('!', '__') if f in no_mangle else mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
+                                f"{format}(decl_{f.get_id()}_type, type, {mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
                             )
                         else:
                             joiner = " > " if format == "thf" else " * "
@@ -220,18 +240,18 @@ class BaseSolver:
                                 [sort_to_tptp(f.domain(i)) for i in range(f.arity())]
                             )
                             fp.write(
-                                f"{format}({f.name().replace('!', '__')}_decl, type, {f.name().replace('!', '__') if f in no_mangle else mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
+                                f"{format}(decl_{f.get_id()}_type, type, {mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
                             )
 
             # Write axioms and assertions in TPTP THF format
             fp.write("% Axioms and assertions\n")
             for i, e in enumerate(self.adds):
                 fp.write(
-                    f"{format}(ax_{i}, axiom, {expr_to_tptp(e, format=format, no_mangle=no_mangle)}).\n"
+                    f"{format}(ax_{i}, axiom, {expr_to_tptp(e, format=format)}).\n"
                 )
             for thm, name in self.assert_tracks:
                 fp.write(
-                    f"{format}({name}, axiom, {expr_to_tptp(thm, format=format, no_mangle=no_mangle)}).\n"
+                    f"{format}({identifier(name)}, axiom, {expr_to_tptp(thm, format=format)}).\n"
                 )
             # fp.write("tff(goal, conjecture, $false).\n")
 
@@ -244,42 +264,17 @@ class BaseSolver:
         elif b"SZS status Satisfiable" in res:
             self.status = smt.sat
             return smt.sat
-        elif b"SZS status GaveUp" in res:
+        elif any(
+            b"SZS status " + status in res
+            for status in (b"GaveUp", b"Timeout", b"ResourceOut", b"Incomplete")
+        ):
             self.status = smt.unknown
             return smt.unknown
         else:
-            raise Exception("Unexpected return from solver", res)
+            return smt.unknown
 
     def write_smt(self, fp):
-        fp.write("(set-logic ALL)\n")
-        thms = self.adds + [thm for thm, name in self.assert_tracks]
-        # Gather up all datatypes referenced
-        predefined = set()
-        for sort in collect_sorts(thms):
-            if isinstance(sort, smt.DatatypeSortRef):
-                fp.write(smtlib_datatypes([sort]))
-                for i in range(sort.num_constructors()):
-                    predefined.add(sort.constructor(i))
-                    predefined.add(sort.recognizer(i))
-                    for j in range(sort.constructor(i).arity()):
-                        predefined.add(sort.accessor(i, j))
-            elif isinstance(sort, smt.ArraySortRef):
-                continue
-            elif sort.name() not in self.predefined_sorts:
-                fp.write(f"(declare-sort {sort.name()} 0)\n")
-        # Declare all function symbols
-        fp.write(";;declarations\n")
-        for f in collect_decls(thms):
-            if f not in predefined and f.name() not in predefined_names:
-                fp.write(funcdecl_smtlib(f))
-                fp.write("\n")
-        fp.write(";;axioms\n")
-        # TODO: Add back assert tracking
-        for e in thms:  # self.adds:
-            # We can't use e.sexpr() because we need to mangle overloaded names
-            fp.write("(assert " + expr_to_smtlib(e) + ")\n")
-        # for thm, name in self.assert_tracks:
-        #    fp.write("(assert (! " + expr_to_smtlib(thm) + " :named " + name + "))\n")
+        fp.write(smtlib_problem(self.adds + [thm for thm, name in self.assert_tracks]))
 
 
 def collect_sorts(exprs) -> set[smt.SortRef]:
@@ -341,51 +336,64 @@ class VampireSolver(BaseSolver):
         self.set("timeout", 1000)
 
     def check(self):
-        if self.options["format"] == "smtlib2":
-            with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
-                self.write_smt(fp)
-                fp.write("(check-sat)\n")
-                fp.flush()
-            cmd = [
-                self.options["solver_path"],
-                fp.name,
-                "--mode",  # This adds portfolio mode, but it was slower. Maybe more useful for hard questions?
-                "casc",
-                "--intent",
-                "unsat",
-                "--input_syntax",
-                "smtlib2",
-                # "--ignore_unrecognized_logic", "on",
-                # "--proof_extra" "fast" / "full"
-                # "--latex_output" "/tmp/vampire.tex"
-            ]
-        elif self.options["format"] in ["fof", "tff", "thf"]:
-            self.write_tptp("/tmp/vampire.p", format=self.options["format"])
-            cmd = [
-                self.options["solver_path"],
-                "/tmp/vampire.p",
-                "--mode",
-                "casc",
-                "--input_syntax",
-                "tptp",
-            ]
-        else:
-            raise Exception("Unsupported format for Vampire", self.options["format"])
-        if "timeout" in self.options:
-            cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
-        if len(self.assert_tracks) > 0:
-            cmd.extend(["--output_mode", "ucore"])
-        else:
-            cmd.extend(["--output_mode", "smtcomp"])
+        with tempfile.TemporaryDirectory(prefix="kdrag-vampire-") as directory:
+            filename = os.path.join(directory, "problem")
+            if self.options["format"] == "smtlib2":
+                with open(filename, "w") as fp:  # tempfile.NamedTemporaryFile()
+                    self.write_smt(fp)
+                    fp.write("(check-sat)\n")
+                    fp.flush()
+                cmd = [
+                    self.options["solver_path"],
+                    fp.name,
+                    "--mode",  # This adds portfolio mode, but it was slower. Maybe more useful for hard questions?
+                    "casc",
+                    "--intent",
+                    "unsat",
+                    "--input_syntax",
+                    "smtlib2",
+                    # "--ignore_unrecognized_logic", "on",
+                    # "--proof_extra" "fast" / "full"
+                    # "--latex_output" "/tmp/vampire.tex"
+                ]
+            elif self.options["format"] in ["fof", "tff", "thf"]:
+                self.write_tptp(filename, format=self.options["format"])
+                cmd = [
+                    self.options["solver_path"],
+                    filename,
+                    "--mode",
+                    "casc",
+                    "--input_syntax",
+                    "tptp",
+                ]
+            else:
+                raise Exception(
+                    "Unsupported format for Vampire", self.options["format"]
+                )
+            if "timeout" in self.options:
+                cmd.extend(
+                    ["-t", str(max(1, (self.options["timeout"] + 99) // 100)) + "d"]
+                )
+            if len(self.assert_tracks) > 0:
+                cmd.extend(["--output_mode", "ucore"])
+            else:
+                cmd.extend(["--output_mode", "smtcomp"])
 
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        res = self.res.stdout
-        if b"unsat\n" in res or b"% SZS status Unsatisfiable" in res:
-            self.status = smt.unsat
-            return smt.unsat
-        elif b"sat\n" in res or b"% SZS status Satisfiable" in res:
-            return smt.sat
-        else:
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+            res = self.res.stdout
+            lines = {line.strip() for line in res.splitlines()}
+            if self.res.returncode == 0:
+                if b"unsat" in lines or b"Unsatisfiable" in re.findall(
+                    rb"^% SZS status (\w+)", res, re.MULTILINE
+                ):
+                    self.status = smt.unsat
+                    return self.status
+                if b"sat" in lines or b"Satisfiable" in re.findall(
+                    rb"^% SZS status (\w+)", res, re.MULTILINE
+                ):
+                    return smt.sat
             return smt.unknown
 
     def query(self, q):
@@ -461,30 +469,27 @@ class CVC5Solver(BaseSolver):
         super().__init__()
 
     def check(self):
-        with open("/tmp/cvc5.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
-            self.write_smt(fp)
-            fp.write("(check-sat)\n")
-            fp.flush()
-        cmd = [
-            "cvc5",
-            "--lang",
-            "smt2.6",
-            fp.name,
-        ]
-        if "timeout" in self.options:
-            cmd.extend(
-                ["--tlimit", str(self.options["timeout"])]
-            )  # cvc5 uses milliseconds
-
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        res = self.res.stdout
-        if b"unsat" in res:
-            self.status = smt.unsat
-            return smt.unsat
-        elif b"sat" in res:
-            return smt.sat
-        else:
-            return smt.unknown
+        with tempfile.TemporaryDirectory(prefix="kdrag-cvc5-") as directory:
+            filename = os.path.join(directory, "problem.smt2")
+            with open(filename, "w") as fp:
+                self.write_smt(fp)
+                fp.write("(check-sat)\n")
+            cmd = ["cvc5", "--lang", "smt2.6", filename]
+            if "timeout" in self.options:
+                cmd.extend(["--tlimit-per", str(max(1, self.options["timeout"]))])
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        if self.res.returncode == 0:
+            lines = {line.strip() for line in self.res.stdout.splitlines()}
+            for word, status in (
+                (b"unsat", smt.unsat),
+                (b"sat", smt.sat),
+                (b"unknown", smt.unknown),
+            ):
+                if word in lines:
+                    return status
+        return smt.unknown
 
 
 class VampireTHFSolver(BaseSolver):
@@ -492,23 +497,27 @@ class VampireTHFSolver(BaseSolver):
         super().__init__()
 
     def check(self):
-        self.write_tptp("/tmp/vampire.p")
-        cmd = [
-            binpath("vampire-ho"),
-            "/tmp/vampire.p",
-            "--mode",
-            "portfolio",
-            "--schedule",
-            "snake_slh",
-            "--input_syntax",
-            "tptp",
-        ]
-        if "timeout" in self.options:
-            cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
+        with tempfile.TemporaryDirectory(prefix="kdrag-vampire-thf-") as directory:
+            filename = os.path.join(directory, "problem.p")
+            self.write_tptp(filename)
+            cmd = [
+                binpath("vampire-ho"),
+                filename,
+                "--mode",
+                "portfolio",
+                "--schedule",
+                "snake_slh",
+                "--input_syntax",
+                "tptp",
+            ]
+            if "timeout" in self.options:
+                cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
 
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
 
-        return self.check_tptp_status(self.res.stdout)
+            return self.check_tptp_status(self.res.stdout)
 
 
 class EProverSolver(BaseSolver):
@@ -520,18 +529,22 @@ class EProverSolver(BaseSolver):
         self.options["format"] = "tff"
 
     def check(self):
-        filename = "/tmp/eprover.p"
-        self.write_tptp(filename, format=self.options["format"])
-        cmd = [
-            self.solver_path,
-            "--auto-schedule=8",
-            filename,
-        ]
-        if "timeout" in self.options:
-            cmd.extend(["--cpu-limit=" + str(self.options["timeout"] // 1000 + 1)])
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if len(self.res.stderr) > 0:
-            raise Exception("Eprover error", self.res.stderr)
+        with tempfile.TemporaryDirectory(prefix="kdrag-eprover-") as directory:
+            filename = os.path.join(directory, "problem.p")
+            self.write_tptp(filename, format=self.options["format"])
+            cmd = [self.solver_path, "--auto-schedule=8", filename]
+            if "timeout" in self.options:
+                cmd.append(
+                    "--cpu-limit="
+                    + str(max(1, (self.options["timeout"] + 999) // 1000))
+                )
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        if self.res.returncode not in (0, 1):
+            return smt.unknown
+        if b"SZS status Unsatisfiable" in self.res.stdout and self.res.returncode != 0:
+            return smt.unknown
         return self.check_tptp_status(self.res.stdout)
 
 

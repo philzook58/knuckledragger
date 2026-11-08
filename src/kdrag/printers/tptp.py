@@ -1,21 +1,48 @@
 import kdrag.smt as smt
 import kdrag as kd
+import re
 
 
-def mangle_decl(d: smt.FuncDeclRef, env=[]):
-    """Mangle a declaration to a tptp name. SMTLib supports type based overloading, TPTP does not."""
-    # single quoted (for operators) + underscore + hex id
-    id_, name = d.get_id(), d.name()
-    name = name.replace("!", "__")
-    # TODO: mangling of operators is busted
-    # name = name.replace("*", "star")
-    assert id_ >= 0x80000000
-    if d in env:
-        return name + "_" + format(id_ - 0x80000000, "x")
-    else:
-        return name + "_" + format(id_ - 0x80000000, "x")
-        # TODO: single quote is not working.
-        # return "'" + d.name() + "_" + format(id_ - 0x80000000, "x") + "'"
+def identifier(name: str) -> str:
+    """The portable user-name convention: lowercase initial, no punctuation."""
+    if not re.fullmatch(r"[a-z][A-Za-z0-9_]*", name) or name.startswith("kd_"):
+        raise ValueError(
+            f"Non-portable TPTP name {name!r}; use a lowercase initial and letters, digits or underscores (e.g. vec3_add); kd_ is reserved"
+        )
+    return name
+
+
+def mangle_decl(d: smt.FuncDeclRef, env=None):
+    """Keep user names unchanged; only generated symbols need generated names."""
+    if env is not None and d in env:
+        return env[d]
+    if smt.is_recognizer(d):
+        return "kd_is_" + identifier(d.params()[0].name())
+    if re.fullmatch(r".*![0-9]+", d.name()):
+        return f"kd_f_{d.get_id():x}"
+    return identifier(d.name())
+
+
+def validate_names(decls, sorts):
+    names = {}
+    for d in decls:
+        name = mangle_decl(d)
+        if name in names and names[name] != d:
+            raise ValueError(
+                f"TPTP overloading is forbidden: {name!r} names both {names[name].sexpr()} and {d.sexpr()}"
+            )
+        names[name] = d
+    declarations = names
+    names = {}
+    for sort in sorts:
+        name = sort_to_tptp(sort)
+        if name in declarations:
+            raise ValueError(f"TPTP sort/function name collision: {name!r}")
+        if name in names and names[name] != sort:
+            raise ValueError(
+                f"TPTP sort-name collision: {names[name]} and {sort} both print as {name}"
+            )
+        names[name] = sort
 
 
 def expr_to_cnf(expr: smt.BoolRef) -> str:
@@ -91,14 +118,12 @@ def cnf_file(axioms: list[smt.BoolRef], nnf=False) -> str:
     return "\n".join(res)
 
 
-def expr_to_tptp(
-    expr: smt.ExprRef, env=None, format="thf", theories=True, no_mangle=None
-) -> str:
+def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True) -> str:
     """Pretty print expr as TPTP
 
     >>> x,y = smt.Ints("x y")
     >>> expr_to_tptp(smt.ForAll([x,y], smt.Implies(x < y, x + 1 <= y)))
-    '(![X...:$int, Y...:$int] : ($less(X...,Y...) => $lesseq($sum(X...,1),Y...))'
+    '(![V0:$int, V1:$int] : ($less(V0,V1) => $lesseq($sum(V0,1),V1)))'
     """
     if format == "cnf":
         assert isinstance(expr, smt.BoolRef)
@@ -110,21 +135,18 @@ def expr_to_tptp(
             "Supported formats are cnf, thf, tff, fof",
         )
     if env is None:
-        env = []
-    if no_mangle is None:
-        no_mangle = set()
+        env = {}
     if isinstance(expr, smt.IntNumRef):
         return str(expr.as_string())
     elif isinstance(expr, smt.QuantifierRef):
         vars, body = kd.utils.open_binder(expr)
         vdecls = [v.decl() for v in vars]
-        env = env + vdecls
-        no_mangle.update(vdecls)
-        body = expr_to_tptp(
-            body, env=env, format=format, theories=theories, no_mangle=no_mangle
-        )
+        env = dict(env)
+        offset = len(env)
+        env.update((d, f"V{offset + i}") for i, d in enumerate(vdecls))
+        body = expr_to_tptp(body, env=env, format=format, theories=theories)
         if format == "fof":
-            vs = ", ".join([v.decl().name().replace("!", "__") for v in vars])
+            vs = ", ".join([env[v.decl()] for v in vars])
             # type_preds = " & ".join(
             #    [
             #        f"{sort_to_tptp(v.sort())}({mangle_decl(v.decl(), env)}))"
@@ -132,12 +154,7 @@ def expr_to_tptp(
             #    ]
             # )
         else:
-            vs = ", ".join(
-                [
-                    v.decl().name().replace("!", "__") + ":" + sort_to_tptp(v.sort())
-                    for v in vars
-                ]
-            )
+            vs = ", ".join([env[v.decl()] + ":" + sort_to_tptp(v.sort()) for v in vars])
         if expr.is_forall():
             if format == "fof":
                 # TODO: is adding type predicates necessary?
@@ -157,11 +174,18 @@ def expr_to_tptp(
             return f"(^[{vs}] : {body})"
     assert smt.is_app(expr)
     children = [
-        expr_to_tptp(c, env=env, format=format, theories=theories, no_mangle=no_mangle)
+        expr_to_tptp(c, env=env, format=format, theories=theories)
         for c in expr.children()
     ]
     decl = expr.decl()
     head = decl.name()
+    if smt.is_uninterp(expr):
+        head = mangle_decl(decl, env)
+        if not children:
+            return head
+        if format == "thf":
+            return f"({head} @ {' @ '.join(children)})"
+        return f"{head}({', '.join(children)})"
     if head == "true":
         return "$true"
     elif head == "false":
@@ -190,6 +214,8 @@ def expr_to_tptp(
         return "$distinct({})".format(", ".join(children))
 
     if theories:
+        if head == "to_real":
+            return "$to_real({})".format(children[0])
         if head == "<":
             return "$less({},{})".format(*children)
         elif head == "<=":
@@ -198,27 +224,28 @@ def expr_to_tptp(
             return "$greater({},{})".format(*children)
         elif head == ">=":
             return "$greatereq({},{})".format(*children)
-        elif head == "+":
-            return "$sum({},{})".format(*children)
-        elif head == "-":
-            if len(children) == 1:
-                return "$difference(0,{})".format(children[0])
-            else:
-                return "$difference({},{})".format(*children)
-        elif head == "*":
-            return "$product({},{})".format(*children)
-        elif head == "/":
-            return "$quotient({},{})".format(*children)
+        elif head in ("+", "-", "*", "/"):
+            operator = {
+                "+": "$sum",
+                "-": "$difference",
+                "*": "$product",
+                "/": "$quotient",
+            }[head]
+            if head == "-" and len(children) == 1:
+                return f"$difference(0,{children[0]})"
+            # SMT arithmetic can have more than two operands; TPTP's operators
+            # are binary. Left association preserves subtraction and division.
+            result = children[0]
+            for child in children[1:]:
+                result = f"{operator}({result},{child})"
+            return result
         # elif head == "^":
         #    return "$power({},{})".format(
         #        *children
         #    )  # This is not a built in tptp function though
     # default assume regular term
 
-    if decl in no_mangle:
-        head = decl.name().replace("!", "__")
-    else:
-        head = mangle_decl(decl, env)
+    head = mangle_decl(decl, env)
     if len(children) == 0:
         return head
     if format == "thf":
@@ -236,15 +263,15 @@ def sort_to_tptp(sort: smt.SortRef):
     '($int > $o)'
     """
     name = sort.name()
-    if name == "Int":
+    if smt.is_int_sort(sort):
         return "$int"
-    elif name == "Bool":
+    elif smt.is_bool_sort(sort):
         return "$o"
-    elif name == "Real":
+    elif smt.is_real_sort(sort):
         return "$real"
     elif isinstance(sort, smt.ArraySortRef):
         return "({} > {})".format(
             sort_to_tptp(sort.domain()), sort_to_tptp(sort.range())
         )
     else:
-        return name.lower()
+        return identifier(name.lower())

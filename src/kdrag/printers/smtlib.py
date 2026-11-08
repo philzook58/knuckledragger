@@ -61,6 +61,32 @@ def mangle_decl_smtlib(d: smt.FuncDeclRef):
     return name + "_" + format(id_ - 0x80000000, "x")
 
 
+def smtlib_problem(exprs: list[smt.BoolRef]) -> str:
+    """Serialize a problem natively, renaming user functions to avoid overloading.
+
+    Native serialization preserves indexed operators, literals, and datatype
+    constructors, which cannot be identified reliably by their printed names.
+    """
+    decls = set().union(*(kd.utils.decls(e) for e in exprs))
+    substitutions = []
+    renamed = {d for d in decls if smt.is_uninterp(d)}
+    for d in renamed:
+        domains = [d.domain(i) for i in range(d.arity())]
+        f = smt.Function(mangle_decl_smtlib(d), *domains, d.range())
+        substitutions.append((d, f(*[smt.Var(i, s) for i, s in enumerate(domains)])))
+    # substitute_funs does not rewrite function declarations in indexed operators.
+    for e in exprs:
+        for term in kd.utils.subterms(e, into_binder=True):
+            if smt.is_app(term) and any(
+                isinstance(p, smt.FuncDeclRef) and p in renamed
+                for p in term.decl().params()
+            ):
+                raise NotImplementedError("User function in indexed operator", term)
+    s = smt.Z3Solver()
+    s.add([smt.substitute_funs(e, *substitutions) for e in exprs])
+    return "(set-logic ALL)\n" + s.sexpr() + "\n"
+
+
 def expr_to_smtlib(expr: smt.ExprRef):
     if isinstance(expr, smt.QuantifierRef):
         quantifier = (
