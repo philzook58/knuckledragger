@@ -1,7 +1,7 @@
 """Algebra of real sequence limits."""
 
 from kdrag import Theorem
-from kdrag.smt import And, Consts, ForAll, If, Implies, Reals
+from kdrag.smt import And, Consts, Exists, ForAll, If, Implies, Ints, Reals
 from kdrag.theories.real import RSeq, abs, abs_add, abs_mul, abs_pos, min
 from kdrag.theories.real.seq import add, has_lim, mul, smul
 
@@ -27,7 +27,12 @@ def has_lim_smul(l):
     # A positive denominator handles zero and nonzero scalars uniformly.
     eta = eps / (abs(c) + 1)
     l.have(eta > 0, by=[abs_pos(c)])
-    N = l.obtain(l.forward(l.specialize(ha, eta)))
+    ha = l.specialize(ha, eta)
+    bound, n = Ints("N n")
+    witness = Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta))
+    l.have(witness, by=[])
+    l.clear(ha)
+    N = l.obtain(witness)
     l.exists(N)
     m = l.fix()
     l.intros()
@@ -52,8 +57,17 @@ def has_lim_add(l):
     eps = l.fix()
     l.intros()
     # Each sequence contributes half the error budget.
-    N1 = l.obtain(l.forward(l.specialize(ha, eps / 2)))
-    N2 = l.obtain(l.forward(l.specialize(hb, eps / 2)))
+    ha = l.specialize(ha, eps / 2)
+    hb = l.specialize(hb, eps / 2)
+    bound, n = Ints("N n")
+    tail_a = Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eps / 2))
+    tail_b = Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eps / 2))
+    l.have(tail_a, by=[])
+    l.clear(ha)
+    N1 = l.obtain(tail_a)
+    l.have(tail_b, by=[])
+    l.clear(hb)
+    N2 = l.obtain(tail_b)
     l.exists(If(N1 > N2, N1, N2))
     m = l.fix()
     l.intros()
@@ -83,8 +97,17 @@ def has_lim_mul(l):
     # Keep both errors below one and small enough for the product estimate.
     eta = min(1, eps / (2 * (abs(x) + abs(y) + 1)))
     l.have(eta > 0, by=[abs_pos(x), abs_pos(y), min.defn])
-    N1 = l.obtain(l.forward(l.specialize(ha, eta)))
-    N2 = l.obtain(l.forward(l.specialize(hb, eta)))
+    ha = l.specialize(ha, eta)
+    hb = l.specialize(hb, eta)
+    bound, n = Ints("N n")
+    tail_a = Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta))
+    tail_b = Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eta))
+    l.have(tail_a, by=[])
+    l.clear(ha)
+    N1 = l.obtain(tail_a)
+    l.have(tail_b, by=[])
+    l.clear(hb)
+    N2 = l.obtain(tail_b)
     l.exists(If(N1 > N2, N1, N2))
     m = l.fix()
     l.intros()

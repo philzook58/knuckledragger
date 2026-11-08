@@ -4,7 +4,18 @@ Prove pointwise closure first, then derive global continuity and limit rules.
 """
 
 from kdrag import FreshVars, Theorem, prove
-from kdrag.smt import And, Consts, ForAll, Implies, Lambda, RealSort, Reals, Store
+from kdrag.smt import (
+    And,
+    Consts,
+    Exists,
+    ForAll,
+    Implies,
+    Lambda,
+    RealSort,
+    RealVal,
+    Reals,
+    Store,
+)
 from kdrag.theories.real import (
     RFun,
     abs,
@@ -27,28 +38,42 @@ cont_at_of_is_cont = prove(
 
 @Theorem(ForAll([f, x], cont_at(f, x), has_lim_at(f, x, f[x])))
 def has_lim_at_of_cont_at(l):
-    l.fixes()
+    f, x = l.fixes()
     l.unfold(cont_at, has_lim_at)
     continuity = l.intros()
     eps = l.fix()
     l.intros()
     # Reuse continuity's delta for the punctured neighborhood.
-    delta = l.obtain(l.forward(l.specialize(continuity, eps)))
+    continuity = l.specialize(continuity, eps)
+    d, y = Reals("delta y")
+    witness = Exists(d, d > 0, ForAll(y, abs(x - y) < d, abs(f[x] - f[y]) < eps))
+    l.have(witness, by=[])
+    l.clear(continuity)
+    delta = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
 
 @Theorem(ForAll([f, g, p], cont_at(f, p), Implies(cont_at(g, p), cont_at(f + g, p))))
 def cont_at_add(l):
-    l.fixes()
+    f, g, p = l.fixes()
     l.unfold(cont_at)
     hf, hg = l.intros(), l.intros()
     l.unfold(fadd)
     eps = l.fix()
     l.intros()
     # Each summand gets half the error budget.
-    d1 = l.obtain(l.forward(l.specialize(hf, eps / 2)))
-    d2 = l.obtain(l.forward(l.specialize(hg, eps / 2)))
+    hf = l.specialize(hf, eps / 2)
+    hg = l.specialize(hg, eps / 2)
+    d, y = Reals("delta y")
+    witness_f = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eps / 2))
+    witness_g = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eps / 2))
+    l.have(witness_f, by=[])
+    l.clear(hf)
+    d1 = l.obtain(witness_f)
+    l.have(witness_g, by=[])
+    l.clear(hg)
+    d2 = l.obtain(witness_g)
     l.exists(min(d1, d2))
     l.auto(by=[abs.defn, min.defn])
 
@@ -64,8 +89,17 @@ def cont_at_mul(l):
     # Keep both errors below one and control the product error.
     eta = min(1, eps / (2 * (abs(f[p]) + abs(g[p]) + 1)))
     l.have(eta > 0, by=[abs.defn, min.defn])
-    d1 = l.obtain(l.forward(l.specialize(hf, eta)))
-    d2 = l.obtain(l.forward(l.specialize(hg, eta)))
+    hf = l.specialize(hf, eta)
+    hg = l.specialize(hg, eta)
+    d, y = Reals("delta y")
+    witness_f = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eta))
+    witness_g = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eta))
+    l.have(witness_f, by=[])
+    l.clear(hf)
+    d1 = l.obtain(witness_f)
+    l.have(witness_g, by=[])
+    l.clear(hg)
+    d2 = l.obtain(witness_g)
     l.exists(min(d1, d2))
     l.split()
     l.auto(by=[min.defn])
@@ -95,24 +129,41 @@ is_cont_mul = prove(
 # Updating the value at p turns a punctured limit into continuity at p.
 @Theorem(ForAll([f, p, L], has_lim_at(f, p, L), cont_at(Store(f, p, L), p)))
 def cont_at_update_of_has_lim_at(l):
-    l.fixes()
+    f, p, L = l.fixes()
     l.unfold(has_lim_at, cont_at)
     limit = l.intros()
     eps = l.fix()
     l.intros()
-    delta = l.obtain(l.forward(l.specialize(limit, eps)))
+    limit = l.specialize(limit, eps)
+    d, x = Reals("delta x")
+    witness = Exists(
+        d,
+        d > 0,
+        ForAll(x, RealVal(0) < abs(x - p), abs(x - p) < d, abs(f[x] - L) < eps),
+    )
+    l.have(witness, by=[])
+    l.clear(limit)
+    delta = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
 
 @Theorem(ForAll([f, p, L], cont_at(Store(f, p, L), p), has_lim_at(f, p, L)))
 def has_lim_at_of_cont_at_update(l):
-    l.fixes()
+    f, p, L = l.fixes()
     l.unfold(cont_at, has_lim_at)
     continuity = l.intros()
     eps = l.fix()
     l.intros()
-    delta = l.obtain(l.forward(l.specialize(continuity, eps)))
+    continuity = l.specialize(continuity, eps)
+    d, y = Reals("delta y")
+    updated = Store(f, p, L)
+    witness = Exists(
+        d, d > 0, ForAll(y, abs(p - y) < d, abs(updated[p] - updated[y]) < eps)
+    )
+    l.have(witness, by=[])
+    l.clear(continuity)
+    delta = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
