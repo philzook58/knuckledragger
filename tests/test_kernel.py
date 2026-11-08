@@ -65,6 +65,30 @@ def test_choose_rejects_free_schema_variable():
         kd.kernel.choose(pf)
 
 
+def test_have_returns_formula_for_obtain():
+    x = smt.Int("x")
+    l = kd.Lemma(smt.Exists(x, x > 0))
+    formula = smt.Exists(x, x == 1)
+    witness = l.have(formula, by=[])
+    assert witness.eq(formula)
+    value = l.obtain(witness)
+    l.exists(value)
+    l.auto()
+    l.qed()
+
+
+def test_have_returns_formula_for_pending_goal():
+    x = smt.Int("x")
+    l = kd.Lemma(smt.Implies(x > 0, x > -2))
+    l.intros()
+    h = l.have(x > -1)
+    assert h.eq(x > -1)
+    assert l.goal.eq(h)
+    l.auto()  # Prove the new fact before continuing the original goal.
+    l.auto()
+    l.qed()
+
+
 def test_false_infer():
     with pytest.raises(Exception) as _:
         kd.kernel.prove(smt.BoolVal(False))

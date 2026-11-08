@@ -1526,11 +1526,10 @@ class ProofState:
                     goalctx._replace(ctx=ctx[:at] + [target] + ctx[at + 1 :], goal=goal)
                 )
             if cond is not None:
-                return self.have(
+                self.have(
                     smt.substitute(cond, *[(v, t) for v, t in subst.items()]), **kwargs
                 )
-            else:
-                return self
+            return self
 
     def symm(self):
         """
@@ -1967,9 +1966,13 @@ class ProofState:
         else:
             raise ValueError("Assumption tactic failed", goal, ctx)
 
-    def have(self, conc0: smt.BoolRef | str, **kwargs) -> "ProofState":
+    def have(self, conc0: smt.BoolRef | str, **kwargs) -> smt.BoolRef:
         """
-        Prove the given formula and add it to the current context
+        Add a formula to the context and return it for later tactics.
+
+        With keyword arguments (e.g. ``by=[]``), prove it immediately using
+        ``auto``. Otherwise leave its proof as the next goal. The return value
+        is a formula, not a proof; it is also parsed when given a string.
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, x > -2))
@@ -1977,11 +1980,18 @@ class ProofState:
         x > 0
         >>> l
         [x > 0] ?|= x > -2
-        >>> l.have(x > -1, by=[])
+        >>> h = l.have(x > -1, by=[])
+        >>> h
+        x > -1
+        >>> l
         [x > 0, x > -1] ?|= x > -2
         >>> l.have(x > 42)
+        x > 42
+        >>> l
         [x > 0, x > -1] ?|= x > 42
         >>> l.have("x > 42")
+        x > 42
+        >>> l
         [x > 0, x > -1] ?|= x > 42
         """
         if isinstance(conc0, str):
@@ -1999,7 +2009,7 @@ class ProofState:
             # self.add_lemma(
             #    kd.kernel.prove(smt.Implies(smt.And(goalctx.ctx), conc), **kwargs)
             # )
-        return self
+        return conc
 
     def case(self, thm=None) -> "ProofState":
         """
