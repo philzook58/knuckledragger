@@ -1,3 +1,5 @@
+import shutil
+
 import pytest
 
 import kdrag as kd
@@ -5,7 +7,20 @@ import kdrag.smt as smt
 from kdrag.solvers import VampireSolver, EProverSolver
 
 
-@pytest.mark.parametrize("solver", ["vampire", "eprover", VampireSolver, EProverSolver])
+@pytest.mark.parametrize(
+    "solver",
+    [
+        "z3",
+        "vampire",
+        "eprover",
+        VampireSolver,
+        EProverSolver,
+        pytest.param(
+            "cvc5",
+            marks=pytest.mark.skipif(not shutil.which("cvc5"), reason="cvc5 required"),
+        ),
+    ],
+)
 def test_prove_with_solver(solver):
     p, q = smt.Bools("p q")
     thm = smt.Implies(smt.And(p, q), p)

@@ -242,7 +242,7 @@ def prove(
 
     This wraps the kernel version in order to provide better counterexamples.
 
-    ``solver`` accepts a solver factory or the names "vampire" and "eprover".
+    ``solver`` accepts a solver factory or "z3", "cvc5", "vampire", "eprover".
 
     :param thm: The theorem to prove.
     Args:

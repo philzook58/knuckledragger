@@ -133,7 +133,8 @@ def prove(
         thm (smt.BoolRef): The theorem to prove.
         by (list[Proof]): A list of previously proved lemmas.
         admit     (bool): If True, admit the theorem without proof.
-        solver: A solver factory, "vampire", or "eprover"; None uses the default.
+        solver: A solver factory or "z3", "cvc5", "vampire", "eprover".
+            None uses the configured default.
 
     Returns:
         Proof: A proof object of thm
@@ -151,15 +152,17 @@ def prove(
     else:
         if isinstance(solver, str):
             # Vampire and E prover translations are less reliable than the direct Z3 path.
-            from .solvers import VampireSolver, EProverSolver
+            from .solvers import VampireSolver, EProverSolver, CVC5Solver
 
             solvers: dict[str, Callable[[], Any]] = {
+                "z3": smt.Z3Solver,
+                "cvc5": CVC5Solver,
                 "vampire": VampireSolver,
                 "eprover": EProverSolver,
             }
             if solver not in solvers:
                 raise ValueError(
-                    f"Unknown solver {solver!r}; expected 'vampire' or 'eprover'"
+                    f"Unknown solver {solver!r}; expected one of {', '.join(solvers)}"
                 )
             solver = solvers[solver]
         if solver is None:
