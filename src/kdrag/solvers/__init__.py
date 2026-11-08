@@ -1,6 +1,8 @@
 """
 Facilities for pretty printing and calling external solvers
 
+Vampire and E prover are included in the ``solvers`` extra.
+
 To install extra solvers, run either:
 ```
 python3 -m kdrag.solvers install # install extra solvers
@@ -35,13 +37,9 @@ import shutil
 import re
 from typing import Optional
 import urllib.request
-import stat
 import kdrag.printers.lean as lean
 import json
 import hashlib
-import urllib
-import zipfile
-import sys
 import tempfile
 
 logger = logging.getLogger("knuckledragger")
@@ -72,32 +70,19 @@ def download(url, filename, checksum=None) -> bool:
     return True
 
 
-def install_solvers2():
-    solvers = [
-        (
-            "vampire",
-            "https://github.com/vprover/vampire/releases/download/v4.9casc2024/vampire",
-        ),
-    ]
-    for filename, url in solvers:
-        filename = binpath(filename)
-        urllib.request.urlretrieve(
-            url,
-            filename,
-        )
-        st = os.stat(filename)
-        # Add execute permissions for user, group, and others
-        os.chmod(filename, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
-
 def install_solvers():
     print("Installing solvers")
     subprocess.run(["bash", binpath("install.sh")], check=True)
 
 
 def run(cmd, args, **kwargs):
-    cmd = [binpath(cmd)] + args
-    return subprocess.run(cmd, **kwargs)
+    if cmd in ("vampire", "vampire-ho"):
+        from vampire import vampire_path
+
+        path = vampire_path
+    else:
+        path = binpath(cmd)
+    return subprocess.run([path] + args, **kwargs)
 
 
 # (declare-datatypes ((EPosReal 0)) (((real (val Real)) (inf))))
@@ -316,22 +301,10 @@ def tptp2smt(tptp_filename):
 
 class VampireSolver(BaseSolver):
     def __init__(self):
-        super().__init__()
-        if sys.platform == "linux":
-            new = download(
-                "https://github.com/vprover/vampire/releases/download/v5.0.0/vampire-Linux-X64.zip",
-                "vampire.zip",
-                "46154f788996c1f1881c5c7120abf3dbb569b42f6bfed3c7d5331b1be3e97b18",
-            )
-            if new or not os.path.exists(binpath("vampire")):
-                with zipfile.ZipFile(binpath("vampire.zip"), "r") as zipf:
-                    zipf.extract("vampire", path=os.path.dirname(__file__))
-                os.chmod(binpath("vampire"), 0o755)
-            self.set("solver_path", binpath("vampire"))
-        else:
-            print("Warning: VampireSolver only supports Linux currently")
-            self.set("solver_path", "vampire")  # attempt to use system vampire
+        from vampire import vampire_path
 
+        super().__init__()
+        self.set("solver_path", vampire_path)
         self.set("format", "smtlib2")
         self.set("timeout", 1000)
 
@@ -492,32 +465,10 @@ class CVC5Solver(BaseSolver):
         return smt.unknown
 
 
-class VampireTHFSolver(BaseSolver):
+class VampireTHFSolver(VampireSolver):
     def __init__(self):
         super().__init__()
-
-    def check(self):
-        with tempfile.TemporaryDirectory(prefix="kdrag-vampire-thf-") as directory:
-            filename = os.path.join(directory, "problem.p")
-            self.write_tptp(filename)
-            cmd = [
-                binpath("vampire-ho"),
-                filename,
-                "--mode",
-                "portfolio",
-                "--schedule",
-                "snake_slh",
-                "--input_syntax",
-                "tptp",
-            ]
-            if "timeout" in self.options:
-                cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
-
-            self.res = subprocess.run(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-
-            return self.check_tptp_status(self.res.stdout)
+        self.set("format", "thf")
 
 
 class EProverSolver(BaseSolver):

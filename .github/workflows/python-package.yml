@@ -61,7 +61,7 @@ jobs:
         run: |
           uv sync --locked
           uv pip install -e .
-          uv run python3 -c "from kdrag.solvers import VampireSolver;print(VampireSolver().check())" # run to install vampire
+          uv run python3 -c "import kdrag.solvers"
       - name: Install the project
         run: |
           uv sync --locked --all-extras --dev

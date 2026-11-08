@@ -1093,6 +1093,18 @@ wheels = [
 ]
 
 [[package]]
+name = "kdrag-vampire"
+version = "5.1.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/72/91dc6b64af3a6f695cb54566024ac4e2d613102ca9a24491b55aed1f5e0c/kdrag_vampire-5.1.0-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:b3879ffd5f8374724a214d9cb523fac6d71934b1a1e936495d0abf2a6cedf67b", size = 13985944, upload-time = "2026-11-08T15:44:08.801Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/59/ca13a1009d6b64fea8f3124a0b34670ba24b11c303231ffc8d3e465dea62/kdrag_vampire-5.1.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:bf074db6aeba3ef5f292e98fd836f87be002e9c156dfe14204c8bfb10801a888", size = 12574746, upload-time = "2026-11-08T15:44:11.677Z" },
+    { url = "https://files.pythonhosted.org/packages/70/21/628251086f99a2337c8eb7cc6bc02ce79e5b33cac8384ed5a6d7b9438ec3/kdrag_vampire-5.1.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:190bab2226e83dde19280eade3d0160db88d99b83eb83014a5aaadf7d52425f5", size = 17978963, upload-time = "2026-11-08T15:44:15.762Z" },
+    { url = "https://files.pythonhosted.org/packages/15/f3/842240276550b528ec638f9f045e9e59fd327c91f214ba9c535da85eac39/kdrag_vampire-5.1.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:5a7032d8dffff59a27f37ffb85815e0254601d04fbbe445954a3773b2f8d7347", size = 19282967, upload-time = "2026-11-08T15:44:19.105Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/5e/877edebe0c327cffb0909d147e58b5c327a28d670246fb23baa8aeb3f526/kdrag_vampire-5.1.0-py3-none-win_amd64.whl", hash = "sha256:21e7c83d49d1f2377ae96c20d6c67d59db73ed9ad1515322942115ef784d0ffc", size = 28575426, upload-time = "2026-11-08T15:44:23.117Z" },
+]
+
+[[package]]
 name = "knuckledragger"
 version = "0.3.0"
 source = { editable = "." }
@@ -1126,6 +1138,7 @@ solvers = [
     { name = "egglog" },
     { name = "kdrag-eprover" },
     { name = "kdrag-scryer" },
+    { name = "kdrag-vampire" },
     { name = "py-aiger" },
     { name = "python-flint" },
     { name = "ziglang" },
@@ -1160,6 +1173,7 @@ requires-dist = [
     { name = "jupyter", marker = "extra == 'dev'" },
     { name = "kdrag-eprover", marker = "extra == 'solvers'", specifier = ">=3.5.1" },
     { name = "kdrag-scryer", marker = "extra == 'solvers'", specifier = ">=0.2.2" },
+    { name = "kdrag-vampire", marker = "extra == 'solvers'", specifier = ">=5.1.0" },
     { name = "lark", specifier = ">=1.3.1" },
     { name = "maturin", extras = ["patchelf"], marker = "extra == 'rust'", specifier = ">=1.8.6" },
     { name = "nbclient", marker = "extra == 'dev'" },
