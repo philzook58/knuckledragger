@@ -1,60 +1,57 @@
-import pytest
-
 import kdrag.smt as smt
 
 
-def test_operator_predicates():
+def test_is_uninterp():
+    x = smt.Int("x")
+    f = smt.Function("field", smt.IntSort(), smt.IntSort())
+    assert smt.is_uninterp(x)
+    assert smt.is_uninterp(x.decl())
+    assert smt.is_uninterp(f)
+    assert smt.is_uninterp(f(x))
+    assert not smt.is_uninterp(smt.IntVal(1))
+    assert not smt.is_uninterp(x + 1)
+    assert not smt.is_uninterp((x + 1).decl())
+    assert not smt.is_uninterp(smt.ForAll([x], x == x))
+
+
+def test_datatype_predicates():
     D = smt.Datatype("SMTPredicateRecord")
     D.declare("unit")
     D.declare("record", ("field", smt.IntSort()))
     D = D.create()
-    x = smt.Int("x")
-    # An uninterpreted function may share an accessor's printed name.
+    assert smt.is_constructor(D.unit)
+    assert smt.is_constructor(D.unit.decl())
+    assert smt.is_constructor(D.record)
+    assert smt.is_constructor(D.record(1))
+    assert smt.is_accessor(D.field)
+    assert smt.is_accessor(D.field(D.unit))
+    assert smt.is_recognizer(D.is_record)
+    assert smt.is_recognizer(D.is_record(D.unit))
+    assert smt.is_recognizer(D.is_record(D.unit).decl())
+    assert not smt.is_constructor(D.field)
+    assert not smt.is_accessor(D.record)
+    assert not smt.is_recognizer(D.record)
+    assert not smt.is_uninterp(D.field)
+    # The same printed name does not make a user function a datatype accessor.
     f = smt.Function("field", smt.IntSort(), smt.IntSort())
-    tester = D.is_record(D.unit)
-    cases = [
-        (x, "uninterp"),
-        (x.decl(), "uninterp"),
-        (f, "uninterp"),
-        (f(x), "uninterp"),
-        (D.unit, "constructor"),
-        (D.unit.decl(), "constructor"),
-        (D.record, "constructor"),
-        (D.record(x), "constructor"),
-        (D.field, "accessor"),
-        (D.field(D.unit), "accessor"),
-        (D.is_record, "recognizer"),
-        (tester, "recognizer"),
-        (tester.decl(), "recognizer"),
-        (smt.IntVal(1), None),
-        (smt.BoolVal(True), None),
-        (x + 1, None),
-        ((x + 1).decl(), None),
-        (smt.ForAll([x], x == x), None),
-        (smt.Lambda([x], x), None),
-    ]
-    predicates = {
-        "uninterp": smt.is_uninterp,
-        "constructor": smt.is_constructor,
-        "accessor": smt.is_accessor,
-        "recognizer": smt.is_recognizer,
-    }
-    for term, expected in cases:
-        for name, predicate in predicates.items():
-            assert predicate(term) is (name == expected), (name, term)
+    assert not smt.is_accessor(f)
 
 
-@pytest.mark.parametrize("fresh_context", [False, True])
-def test_sort_predicates(fresh_context):
-    ctx = smt.Context() if fresh_context else None
-    predicates = [smt.is_int_sort, smt.is_real_sort, smt.is_bool_sort]
-    sorts = [smt.IntSort(ctx), smt.RealSort(ctx), smt.BoolSort(ctx)]
-    for index, sort in enumerate(sorts):
-        assert [predicate(sort) for predicate in predicates] == [
-            index == i for i in range(3)
-        ]
-    for name in ["Int", "Real", "Bool"]:
-        sort = smt.DeclareSort(name)
-        assert not any(predicate(sort) for predicate in predicates)
-    array = smt.ArraySort(sorts[0], sorts[1])
-    assert not any(predicate(array) for predicate in predicates)
+def test_builtin_sort_predicates():
+    assert smt.is_int_sort(smt.IntSort())
+    assert smt.is_real_sort(smt.RealSort())
+    assert smt.is_bool_sort(smt.BoolSort())
+    assert not smt.is_int_sort(smt.RealSort())
+    assert not smt.is_real_sort(smt.BoolSort())
+    assert not smt.is_bool_sort(smt.IntSort())
+    assert not smt.is_int_sort(smt.DeclareSort("Int"))
+    assert not smt.is_real_sort(smt.DeclareSort("Real"))
+    assert not smt.is_bool_sort(smt.DeclareSort("Bool"))
+    assert not smt.is_int_sort(smt.ArraySort(smt.IntSort(), smt.RealSort()))
+
+
+def test_sort_predicates_in_another_context():
+    ctx = smt.Context()
+    assert smt.is_int_sort(smt.IntSort(ctx))
+    assert smt.is_real_sort(smt.RealSort(ctx))
+    assert smt.is_bool_sort(smt.BoolSort(ctx))

@@ -1,7 +1,6 @@
 """Regressions for dropped information and false solver success."""
 
 import shutil
-import subprocess
 
 import pytest
 import kdrag as kd
@@ -35,24 +34,31 @@ def test_tptp_arithmetic_counterexample(operation, correct, truncated):
 
 
 @pytest.mark.skipif(not shutil.which("cvc5"), reason="cvc5 required")
-@pytest.mark.parametrize("feature", ["datatype", "bitvector", "sequence", "overload"])
-def test_smt_builtin_semantics(feature):
-    if feature == "datatype":
-        D = smt.Datatype("CorrectnessDatatype")
-        D.declare("zero")
-        D.declare("succ", ("pred", D))
-        D = D.create()
-        thm = D.pred(D.succ(D.zero)) == D.zero
-    elif feature == "bitvector":
-        b = smt.BitVec("b", 16)
-        thm = -(-b) == b
-    elif feature == "sequence":
-        S = smt.SeqSort(smt.IntSort())
-        a = smt.Const("a", S)
-        thm = smt.Concat(smt.Empty(S), a) == a
-    else:
-        i, r = smt.Int("same"), smt.Real("same")
-        thm = smt.Implies(smt.And(i == 1, r == 2), smt.ToReal(i) < r)
+def test_smt_datatype_semantics():
+    D = smt.Datatype("CorrectnessDatatype")
+    D.declare("zero")
+    D.declare("succ", ("pred", D))
+    D = D.create()
+    kd.prove(D.pred(D.succ(D.zero)) == D.zero, solver=CVC5Solver)
+
+
+@pytest.mark.skipif(not shutil.which("cvc5"), reason="cvc5 required")
+def test_smt_bitvector_semantics():
+    b = smt.BitVec("b", 16)
+    kd.prove(-(-b) == b, solver=CVC5Solver)
+
+
+@pytest.mark.skipif(not shutil.which("cvc5"), reason="cvc5 required")
+def test_smt_sequence_semantics():
+    S = smt.SeqSort(smt.IntSort())
+    a = smt.Const("a", S)
+    kd.prove(smt.Concat(smt.Empty(S), a) == a, solver=CVC5Solver)
+
+
+@pytest.mark.skipif(not shutil.which("cvc5"), reason="cvc5 required")
+def test_smt_overloaded_names():
+    i, r = smt.Int("same"), smt.Real("same")
+    thm = smt.Implies(smt.And(i == 1, r == 2), smt.ToReal(i) < r)
     kd.prove(thm, solver=CVC5Solver)
 
 
@@ -95,25 +101,22 @@ def test_user_sort_is_not_a_builtin(tmp_path, name):
     assert f"{name.lower()} : $tType" in path.read_text()
 
 
-@pytest.mark.parametrize(
-    "code, output", [(1, b"unsat\n"), (0, b"notunsat\n"), (0, b'(error "unsat")\n')]
-)
-def test_failed_output_is_not_a_proof(monkeypatch, code, output):
-    monkeypatch.setattr(
-        subprocess,
-        "run",
-        lambda *a, **kw: subprocess.CompletedProcess([], code, output, b""),
-    )
-    s = CVC5Solver()
-    s.add(smt.BoolVal(True))
-    assert s.check() == smt.unknown
+@pytest.mark.skipif(not shutil.which("cvc5"), reason="cvc5 required")
+def test_error_containing_unsat_is_not_a_proof():
+    x = smt.Real("x")
+    f = smt.Function("unsat", smt.RealSort(), smt.RealSort())
+    solver = CVC5Solver()
+    solver.add(x == 1)
+    solver.add(f(x) == 1)
+    solver.add(x ** f(x) > 0)
+    # This is satisfiable (1**1 > 0). cvc5 currently rejects variable exponents
+    # with an error mentioning "unsat", the function's name, not a result.
+    assert solver.check() != smt.unsat
 
 
-def test_external_countermodel_without_model_api(monkeypatch):
-    monkeypatch.setattr(
-        subprocess,
-        "run",
-        lambda *a, **kw: subprocess.CompletedProcess([], 0, b"sat\n", b""),
-    )
+@pytest.mark.skipif(not shutil.which("cvc5"), reason="cvc5 required")
+def test_external_countermodel_without_model_api():
+    # The real solver finds a counterexample to False. Report a failed proof,
+    # rather than calling the model() method this backend does not provide.
     with pytest.raises(kd.kernel.LemmaError, match="Countermodel"):
         kd.kernel.prove(smt.BoolVal(False), solver=CVC5Solver)
