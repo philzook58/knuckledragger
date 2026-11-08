@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Sequence
 from . import config
 import tempfile
+import time
 
 
 class Judgement:
@@ -186,7 +187,9 @@ def prove(
         s.add(smt.Not(thm))
         if dump:
             print(s.sexpr())
+        start = time.perf_counter()
         res = s.check()
+        config.perf_event("solver.check", thm, time.perf_counter() - start)
         if res != smt.unsat:
             if res == smt.sat:
                 model = s.model() if hasattr(s, "model") else "Model unavailable"

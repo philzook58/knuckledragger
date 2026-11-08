@@ -2,6 +2,9 @@
 then derives pointwise continuity and limits using shared lemmas.
 Run it with `uv run python examples/real_analysis.py`.
 
+Run `uv run pytest tests/test_examples.py::test_real_analysis -s` for solver timings.
+The test excludes imports and fails if a solver check or proof takes 0.5 seconds or longer.
+
 Other ideas:
 
 - <http://www.concrete-semantics.org/>
