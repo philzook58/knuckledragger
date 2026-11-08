@@ -19,9 +19,8 @@ import kdrag.smt as smt
 from kdrag.printers.tptp import expr_to_tptp, sort_to_tptp, mangle_decl
 from kdrag.printers.smtlib import (
     expr_to_smtlib,
-    funcdecl_smtlib,
-    smtlib_datatypes,
     predefined_names,
+    smtlib_problem,
 )
 import subprocess
 import os
@@ -38,8 +37,63 @@ import urllib
 import zipfile
 from collections import Counter
 import sys
+import tempfile
+import signal
+from z3 import is_app_of, Z3_OP_UNINTERPRETED
 
 logger = logging.getLogger("knuckledragger")
+
+
+class SolverError(RuntimeError):
+    """An external solver rejected its input or failed to run."""
+
+
+def run_solver(cmd, timeout):
+    """Bound wall time as well as the solver's own CPU limit."""
+    with subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=os.name == "posix",
+    ) as proc:
+        try:
+            stdout, stderr = proc.communicate(timeout=timeout / 1000 + 0.2)
+        except subprocess.TimeoutExpired:
+            if os.name == "posix":
+                os.killpg(proc.pid, signal.SIGKILL)
+            else:
+                proc.kill()
+            stdout, stderr = proc.communicate()
+            return subprocess.CompletedProcess(
+                cmd, proc.returncode, b"unknown\n", stderr
+            )
+        return subprocess.CompletedProcess(cmd, proc.returncode, stdout, stderr)
+
+
+def smt_status(res):
+    szs = re.findall(rb"^% SZS status (\w+)", res.stdout, re.MULTILINE)
+    if res.returncode == 0 and b"Unsatisfiable" in szs:
+        return smt.unsat
+    if res.returncode == 0 and b"Satisfiable" in szs:
+        return smt.sat
+    if any(
+        status in szs
+        for status in (b"Timeout", b"GaveUp", b"ResourceOut", b"Incomplete")
+    ):
+        return smt.unknown
+    if res.returncode == 0:
+        lines = {line.strip() for line in res.stdout.splitlines()}
+        for word, status in (
+            (b"unsat", smt.unsat),
+            (b"sat", smt.sat),
+            (b"unknown", smt.unknown),
+        ):
+            if word in lines:
+                return status
+    # A process killed by the wall-time watchdog has an explicit unknown result.
+    if res.returncode < 0 and res.stdout == b"unknown\n":
+        return smt.unknown
+    raise SolverError((res.stderr + res.stdout).decode(errors="replace"))
 
 
 def binpath(cmd):
@@ -134,6 +188,39 @@ class BaseSolver:
         else:
             assert isinstance(thm, smt.BoolRef)
             if self.options["lambda_lift"]:
+                # curry_arrays rewrites terms, but not declaration signatures or
+                # quantified variable sorts. Do not silently change their meaning.
+                def multi_domain(sort):
+                    return isinstance(sort, smt.ArraySortRef) and (
+                        len(smt.domains(sort)) > 1
+                        or multi_domain(sort.domain())
+                        or multi_domain(sort.range())
+                    )
+
+                for term in kd.utils.subterms(thm, into_binder=True):
+                    if isinstance(term, smt.QuantifierRef) and term.is_lambda():
+                        continue
+                    if (
+                        multi_domain(term.sort())
+                        or (
+                            isinstance(term, smt.QuantifierRef)
+                            and any(
+                                multi_domain(term.var_sort(i))
+                                for i in range(term.num_vars())
+                            )
+                        )
+                        or (
+                            is_app_of(term, Z3_OP_UNINTERPRETED)
+                            and any(
+                                multi_domain(term.decl().domain(i))
+                                for i in range(term.num_args())
+                            )
+                        )
+                    ):
+                        raise NotImplementedError(
+                            "Currying a multi-domain array requires rewriting its signature",
+                            term,
+                        )
                 thm1 = kd.utils.curry_arrays(thm)
                 thm1, extra = kd.utils.lambda_lift(thm1)
                 assert isinstance(thm1, smt.BoolRef)
@@ -244,42 +331,17 @@ class BaseSolver:
         elif b"SZS status Satisfiable" in res:
             self.status = smt.sat
             return smt.sat
-        elif b"SZS status GaveUp" in res:
+        elif any(
+            b"SZS status " + status in res
+            for status in (b"GaveUp", b"Timeout", b"ResourceOut", b"Incomplete")
+        ):
             self.status = smt.unknown
             return smt.unknown
         else:
-            raise Exception("Unexpected return from solver", res)
+            raise SolverError("Unexpected return from solver", res)
 
     def write_smt(self, fp):
-        fp.write("(set-logic ALL)\n")
-        thms = self.adds + [thm for thm, name in self.assert_tracks]
-        # Gather up all datatypes referenced
-        predefined = set()
-        for sort in collect_sorts(thms):
-            if isinstance(sort, smt.DatatypeSortRef):
-                fp.write(smtlib_datatypes([sort]))
-                for i in range(sort.num_constructors()):
-                    predefined.add(sort.constructor(i))
-                    predefined.add(sort.recognizer(i))
-                    for j in range(sort.constructor(i).arity()):
-                        predefined.add(sort.accessor(i, j))
-            elif isinstance(sort, smt.ArraySortRef):
-                continue
-            elif sort.name() not in self.predefined_sorts:
-                fp.write(f"(declare-sort {sort.name()} 0)\n")
-        # Declare all function symbols
-        fp.write(";;declarations\n")
-        for f in collect_decls(thms):
-            if f not in predefined and f.name() not in predefined_names:
-                fp.write(funcdecl_smtlib(f))
-                fp.write("\n")
-        fp.write(";;axioms\n")
-        # TODO: Add back assert tracking
-        for e in thms:  # self.adds:
-            # We can't use e.sexpr() because we need to mangle overloaded names
-            fp.write("(assert " + expr_to_smtlib(e) + ")\n")
-        # for thm, name in self.assert_tracks:
-        #    fp.write("(assert (! " + expr_to_smtlib(thm) + " :named " + name + "))\n")
+        fp.write(smtlib_problem(self.adds + [thm for thm, name in self.assert_tracks]))
 
 
 def collect_sorts(exprs) -> set[smt.SortRef]:
@@ -320,9 +382,12 @@ def tptp2smt(tptp_filename):
 
 
 class VampireSolver(BaseSolver):
-    def __init__(self):
+    def __init__(self, solver_path=None):
         super().__init__()
-        if sys.platform == "linux":
+        installed = solver_path or shutil.which("vampire")
+        if installed or os.path.isfile(binpath("vampire")):
+            self.set("solver_path", installed or binpath("vampire"))
+        elif sys.platform == "linux":
             new = download(
                 "https://github.com/vprover/vampire/releases/download/v5.0.0/vampire-Linux-X64.zip",
                 "vampire.zip",
@@ -341,52 +406,52 @@ class VampireSolver(BaseSolver):
         self.set("timeout", 1000)
 
     def check(self):
-        if self.options["format"] == "smtlib2":
-            with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
-                self.write_smt(fp)
-                fp.write("(check-sat)\n")
-                fp.flush()
-            cmd = [
-                self.options["solver_path"],
-                fp.name,
-                "--mode",  # This adds portfolio mode, but it was slower. Maybe more useful for hard questions?
-                "casc",
-                "--intent",
-                "unsat",
-                "--input_syntax",
-                "smtlib2",
-                # "--ignore_unrecognized_logic", "on",
-                # "--proof_extra" "fast" / "full"
-                # "--latex_output" "/tmp/vampire.tex"
-            ]
-        elif self.options["format"] in ["fof", "tff", "thf"]:
-            self.write_tptp("/tmp/vampire.p", format=self.options["format"])
-            cmd = [
-                self.options["solver_path"],
-                "/tmp/vampire.p",
-                "--mode",
-                "casc",
-                "--input_syntax",
-                "tptp",
-            ]
-        else:
-            raise Exception("Unsupported format for Vampire", self.options["format"])
-        if "timeout" in self.options:
-            cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
-        if len(self.assert_tracks) > 0:
-            cmd.extend(["--output_mode", "ucore"])
-        else:
-            cmd.extend(["--output_mode", "smtcomp"])
+        with tempfile.TemporaryDirectory(prefix="kdrag-vampire-") as directory:
+            filename = os.path.join(directory, "problem")
+            if self.options["format"] == "smtlib2":
+                with open(filename, "w") as fp:  # tempfile.NamedTemporaryFile()
+                    self.write_smt(fp)
+                    fp.write("(check-sat)\n")
+                    fp.flush()
+                cmd = [
+                    self.options["solver_path"],
+                    fp.name,
+                    "--mode",  # This adds portfolio mode, but it was slower. Maybe more useful for hard questions?
+                    "casc",
+                    "--intent",
+                    "unsat",
+                    "--input_syntax",
+                    "smtlib2",
+                    # "--ignore_unrecognized_logic", "on",
+                    # "--proof_extra" "fast" / "full"
+                    # "--latex_output" "/tmp/vampire.tex"
+                ]
+            elif self.options["format"] in ["fof", "tff", "thf"]:
+                self.write_tptp(filename, format=self.options["format"])
+                cmd = [
+                    self.options["solver_path"],
+                    filename,
+                    "--mode",
+                    "casc",
+                    "--input_syntax",
+                    "tptp",
+                ]
+            else:
+                raise Exception(
+                    "Unsupported format for Vampire", self.options["format"]
+                )
+            if "timeout" in self.options:
+                cmd.extend(
+                    ["-t", str(max(1, (self.options["timeout"] + 99) // 100)) + "d"]
+                )
+            if len(self.assert_tracks) > 0:
+                cmd.extend(["--output_mode", "ucore"])
+            else:
+                cmd.extend(["--output_mode", "smtcomp"])
 
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        res = self.res.stdout
-        if b"unsat\n" in res or b"% SZS status Unsatisfiable" in res:
-            self.status = smt.unsat
-            return smt.unsat
-        elif b"sat\n" in res or b"% SZS status Satisfiable" in res:
-            return smt.sat
-        else:
-            return smt.unknown
+            self.res = run_solver(cmd, self.options.get("timeout", 1000))
+            self.status = smt_status(self.res)
+            return self.status
 
     def query(self, q):
         with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
@@ -461,30 +526,23 @@ class CVC5Solver(BaseSolver):
         super().__init__()
 
     def check(self):
-        with open("/tmp/cvc5.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
-            self.write_smt(fp)
-            fp.write("(check-sat)\n")
-            fp.flush()
-        cmd = [
-            "cvc5",
-            "--lang",
-            "smt2.6",
-            fp.name,
-        ]
-        if "timeout" in self.options:
-            cmd.extend(
-                ["--tlimit", str(self.options["timeout"])]
-            )  # cvc5 uses milliseconds
-
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        res = self.res.stdout
-        if b"unsat" in res:
-            self.status = smt.unsat
-            return smt.unsat
-        elif b"sat" in res:
-            return smt.sat
-        else:
-            return smt.unknown
+        with tempfile.TemporaryDirectory(prefix="kdrag-cvc5-") as directory:
+            filename = os.path.join(directory, "problem.smt2")
+            with open(filename, "w") as fp:
+                self.write_smt(fp)
+                fp.write("(check-sat)\n")
+            timeout = self.options.get("timeout", 1000)
+            cmd = [
+                "cvc5",
+                "--lang",
+                "smt2.6",
+                "--tlimit-per",
+                str(max(1, timeout)),
+                filename,
+            ]
+            self.res = run_solver(cmd, timeout)
+        self.status = smt_status(self.res)
+        return self.status
 
 
 class VampireTHFSolver(BaseSolver):
@@ -512,32 +570,36 @@ class VampireTHFSolver(BaseSolver):
 
 
 class EProverSolver(BaseSolver):
-    def __init__(self):
+    def __init__(self, cores=8):
         from eprover import eprover_path
 
         self.solver_path = eprover_path
         super().__init__()
         self.options["format"] = "tff"
+        self.options["cores"] = cores
 
     def check(self):
-        filename = "/tmp/eprover.p"
-        self.write_tptp(filename, format=self.options["format"])
-        cmd = [
-            self.solver_path,
-            "--auto-schedule=8",
-            filename,
-        ]
-        if "timeout" in self.options:
-            cmd.extend(["--cpu-limit=" + str(self.options["timeout"] // 1000 + 1)])
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if len(self.res.stderr) > 0:
-            raise Exception("Eprover error", self.res.stderr)
+        with tempfile.TemporaryDirectory(prefix="kdrag-eprover-") as directory:
+            filename = os.path.join(directory, "problem.p")
+            self.write_tptp(filename, format=self.options["format"])
+            timeout = self.options.get("timeout", 5000)
+            cmd = [
+                self.solver_path,
+                f"--auto-schedule={self.options['cores']}",
+                filename,
+                "--cpu-limit=" + str(max(1, (timeout + 999) // 1000)),
+            ]
+            self.res = run_solver(cmd, timeout)
+        if self.res.stdout == b"unknown\n":
+            return smt.unknown
+        if b"SZS status" not in self.res.stdout:
+            raise SolverError("Eprover error", self.res.stderr, self.res.stdout)
         return self.check_tptp_status(self.res.stdout)
 
 
 class EProverTHFSolver(EProverSolver):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, cores=8):
+        super().__init__(cores=cores)
         self.options["format"] = "thf"
 
 

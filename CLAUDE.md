@@ -244,3 +244,5 @@ def sum_append(pf):
 - For quantified witness proofs, fix the outer parameters and instantiate the defining theorem before `auto`.
 - Check free schema variables on the original theorem before opening binders; Z3 may recycle collected schema-variable IDs.
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.
+- External SMT export must preserve built-in operators by kind, including indexed operators and datatype values; printed names alone are insufficient.
+- `curry_arrays` rewrites terms but not quantified variable sorts or function signatures. Multi-domain arrays need a complete sort translation before external solver use.

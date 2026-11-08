@@ -115,6 +115,10 @@ class LemmaError(Exception):
     pass
 
 
+class SolverUnknown(LemmaError):
+    """The solver could neither prove the theorem nor find a countermodel."""
+
+
 def prove(
     thm: smt.BoolRef,
     by: Proof | Iterable[Proof] = [],
@@ -172,15 +176,18 @@ def prove(
         res = s.check()
         if res != smt.unsat:
             if res == smt.sat:
-                raise LemmaError(thm, "Countermodel", s.model())
+                model = s.model() if hasattr(s, "model") else "Model unavailable"
+                raise LemmaError(thm, "Countermodel", model)
             else:
-                smtfile = tempfile.NamedTemporaryFile(
+                with tempfile.NamedTemporaryFile(
                     delete=False, mode="w", suffix=".smt2"
-                )
-                smtfile.write(s.sexpr())
-            raise LemmaError("prove", thm, res, smtfile.name)
+                ) as smtfile:
+                    smtfile.write(s.sexpr())
+                raise SolverUnknown("prove", thm, res, smtfile.name)
         else:
             reason: list[object] = ["prove"]
+            if solver is not None:
+                reason.append(type(s).__name__)
             reason.extend(by)
             return Proof(fvs, thm, reason, False)
 
