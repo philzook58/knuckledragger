@@ -1,14 +1,6 @@
 import kdrag.smt as smt
 import kdrag as kd
 import re
-from z3 import (
-    is_app_of,
-    Z3_OP_UNINTERPRETED,
-    Z3_OP_DT_RECOGNISER,
-    Z3_INT_SORT,
-    Z3_REAL_SORT,
-    Z3_BOOL_SORT,
-)
 
 
 def identifier(name: str) -> str:
@@ -24,7 +16,7 @@ def mangle_decl(d: smt.FuncDeclRef, env=None):
     """Keep user names unchanged; only generated symbols need generated names."""
     if env is not None and d in env:
         return env[d]
-    if d.kind() == Z3_OP_DT_RECOGNISER:
+    if smt.is_recognizer(d):
         return "kd_is_" + identifier(d.params()[0].name())
     if re.fullmatch(r".*![0-9]+", d.name()):
         return f"kd_f_{d.get_id():x}"
@@ -187,7 +179,7 @@ def expr_to_tptp(expr: smt.ExprRef, env=None, format="thf", theories=True) -> st
     ]
     decl = expr.decl()
     head = decl.name()
-    if is_app_of(expr, Z3_OP_UNINTERPRETED):
+    if smt.is_uninterp(expr):
         head = mangle_decl(decl, env)
         if not children:
             return head
@@ -271,11 +263,11 @@ def sort_to_tptp(sort: smt.SortRef):
     '($int > $o)'
     """
     name = sort.name()
-    if sort.kind() == Z3_INT_SORT:
+    if smt.is_int_sort(sort):
         return "$int"
-    elif sort.kind() == Z3_BOOL_SORT:
+    elif smt.is_bool_sort(sort):
         return "$o"
-    elif sort.kind() == Z3_REAL_SORT:
+    elif smt.is_real_sort(sort):
         return "$real"
     elif isinstance(sort, smt.ArraySortRef):
         return "({} > {})".format(

@@ -43,13 +43,6 @@ import urllib
 import zipfile
 import sys
 import tempfile
-from z3 import (
-    Z3_OP_UNINTERPRETED,
-    Z3_OP_DT_CONSTRUCTOR,
-    Z3_OP_DT_ACCESSOR,
-    Z3_OP_DT_RECOGNISER,
-    Z3_INT_SORT, Z3_REAL_SORT, Z3_BOOL_SORT,
-)
 
 logger = logging.getLogger("knuckledragger")
 
@@ -215,9 +208,7 @@ class BaseSolver:
             user_decls = {
                 d
                 for d in declset
-                if d.kind() == Z3_OP_UNINTERPRETED
-                or d.kind()
-                in (Z3_OP_DT_CONSTRUCTOR, Z3_OP_DT_ACCESSOR, Z3_OP_DT_RECOGNISER)
+                if smt.is_uninterp(d) or smt.is_constructor(d) or smt.is_accessor(d) or smt.is_recognizer(d)
             }
             validate_names(user_decls, sortset)
             if format == "fof":
@@ -230,7 +221,7 @@ class BaseSolver:
                 for sort in sortset:
                     # Write sort declarations (only for user-defined sorts)
                     name = sort.name()
-                    if sort.kind() not in (Z3_INT_SORT, Z3_REAL_SORT, Z3_BOOL_SORT):
+                    if not (smt.is_int_sort(sort) or smt.is_real_sort(sort) or smt.is_bool_sort(sort)):
                         if format != "fof":
                             fp.write(
                                 f"{format}({name.lower()}_type, type, {sort_to_tptp(sort)} : $tType ).\n"

@@ -6,7 +6,6 @@ This module provides SMT-LIB printers for such cases.
 
 import kdrag.smt as smt
 import kdrag as kd
-from z3 import Solver as Z3Solver, Z3_OP_UNINTERPRETED
 
 # Some are polymorphic so decl doesn't work
 # predefined theory symbols don't need function declarations
@@ -70,7 +69,7 @@ def smtlib_problem(exprs: list[smt.BoolRef]) -> str:
     """
     decls = set().union(*(kd.utils.decls(e) for e in exprs))
     substitutions = []
-    renamed = {d for d in decls if d.kind() == Z3_OP_UNINTERPRETED}
+    renamed = {d for d in decls if smt.is_uninterp(d)}
     for d in renamed:
         domains = [d.domain(i) for i in range(d.arity())]
         f = smt.Function(mangle_decl_smtlib(d), *domains, d.range())
@@ -83,7 +82,7 @@ def smtlib_problem(exprs: list[smt.BoolRef]) -> str:
                 for p in term.decl().params()
             ):
                 raise NotImplementedError("User function in indexed operator", term)
-    s = Z3Solver()
+    s = smt.Z3Solver()
     s.add([smt.substitute_funs(e, *substitutions) for e in exprs])
     return "(set-logic ALL)\n" + s.sexpr() + "\n"
 
