@@ -51,6 +51,17 @@ def continuous_sq(l):
     )
 
 
+@Theorem(is_cont(Lambda(x, x * x * x)))
+def continuous_cube(l):
+    square, identity = Lambda(x, x * x), Lambda(x, x)
+    l.auto(
+        by=[
+            fmul.defn(square, identity),
+            is_cont_mul(square, identity)(continuous_sq, continuous_id),
+        ]
+    )
+
+
 @Theorem(is_cont(Lambda(x, abs(x))))
 def continuous_abs(l):
     l.unfold(is_cont).unfold(cont_at).unfold(abs).auto()
@@ -65,6 +76,9 @@ continuous_at_add_const = cont_at_of_is_cont(Lambda(x, x + a), p)(
     continuous_add_const(a)
 ).forall([a, p])
 continuous_at_sq = cont_at_of_is_cont(Lambda(x, x * x), p)(continuous_sq).forall([p])
+continuous_at_cube = cont_at_of_is_cont(Lambda(x, x * x * x), p)(
+    continuous_cube
+).forall([p])
 continuous_at_abs = cont_at_of_is_cont(Lambda(x, abs(x)), p)(continuous_abs).forall([p])
 
 # A continuous function tends to its value at the point.
@@ -78,6 +92,9 @@ has_lim_at_add_const = has_lim_at_of_cont_at(Lambda(x, x + a), p)(
 has_lim_at_sq = has_lim_at_of_cont_at(Lambda(x, x * x), p)(continuous_at_sq(p)).forall(
     [p]
 )
+has_lim_at_cube = has_lim_at_of_cont_at(Lambda(x, x * x * x), p)(
+    continuous_at_cube(p)
+).forall([p])
 has_lim_at_abs = has_lim_at_of_cont_at(Lambda(x, abs(x)), p)(
     continuous_at_abs(p)
 ).forall([p])
