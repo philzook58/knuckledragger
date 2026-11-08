@@ -359,6 +359,7 @@ def prove(
                     OSError,
                     ImportError,
                     NotImplementedError,
+                    ValueError,
                     smt.Z3Exception,
                 ) as error:
                     name = getattr(backend, "__name__", type(backend).__name__)

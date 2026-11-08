@@ -232,6 +232,7 @@ def sum_append(pf):
 
 - **Imports**: Group standard library, third-party, and local imports
 - In theories and examples, import proof and SMT helpers explicitly (`from kdrag import prove, Theorem`; `from kdrag.smt import ForAll, Implies`). Keep qualification where names would clash.
+- Prefer SMT symbol names such as `vec3_add`: lowercase initial, letters/digits/underscores, no periods. TPTP export rejects overloading within a problem and reserves `kd_` for generated symbols. The datatype naming prototype uses `portable=True` to prefix internal constructor/field names while preserving Python field access.
 - **Types**: Use type annotations for function parameters and return values
 - **Formatting**: Follow PEP 8 guidelines; ruff handles formatting
 - **Docstrings**: Include for public functions and classes

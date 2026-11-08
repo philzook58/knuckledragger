@@ -309,7 +309,7 @@ def test_tptp():
     x = smt.Int("x")
     assert (
         re.match(
-            r"\(\$greater\(x_[0-9a-f]+,4\) & \$lesseq\(x_[0-9a-f]+,7\)\)",
+            r"\(\$greater\(x,4\) & \$lesseq\(x,7\)\)",
             kd.solvers.expr_to_tptp(smt.And(x > 4, x <= 7)),
         )
         is not None

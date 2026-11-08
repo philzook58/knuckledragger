@@ -86,17 +86,15 @@ def test_tptp_nary_sum_gap():
 
 
 @pytest.mark.slow
-@pytest.mark.xfail(
-    strict=True, reason="TPTP printer does not quote dotted declaration names"
-)
-def test_eprover_dotted_name_gap():
+def test_eprover_rejects_dotted_name():
     pytest.importorskip("eprover")
     T = smt.DeclareSort("PrinterDomain")
     x, y = smt.Consts("x y", T)
     f = smt.Function("namespace.function", T, T)
-    kd.prove(
-        smt.ForAll([x, y], smt.Implies(x == y, f(x) == f(y))), solver=EProverSolver
-    )
+    with pytest.raises(ValueError, match="Non-portable TPTP name"):
+        kd.prove(
+            smt.ForAll([x, y], smt.Implies(x == y, f(x) == f(y))), solver=EProverSolver
+        )
 
 
 @pytest.mark.skipif(shutil.which("cvc5") is None, reason="cvc5 executable required")

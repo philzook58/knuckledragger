@@ -16,7 +16,7 @@ or from project root run
 
 import kdrag as kd
 import kdrag.smt as smt
-from kdrag.printers.tptp import expr_to_tptp, sort_to_tptp, mangle_decl
+from kdrag.printers.tptp import expr_to_tptp, sort_to_tptp, mangle_decl, validate_names, identifier
 from kdrag.printers.smtlib import (
     expr_to_smtlib,
     predefined_names,
@@ -35,11 +35,10 @@ import json
 import hashlib
 import urllib
 import zipfile
-from collections import Counter
 import sys
 import tempfile
 import signal
-from z3 import is_app_of, Z3_OP_UNINTERPRETED
+from z3 import is_app_of, Z3_OP_UNINTERPRETED, Z3_OP_DT_CONSTRUCTOR, Z3_OP_DT_ACCESSOR, Z3_OP_DT_RECOGNISER
 
 logger = logging.getLogger("knuckledragger")
 
@@ -265,11 +264,9 @@ class BaseSolver:
             declset = collect_decls(
                 self.adds + [thm for thm, name in self.assert_tracks]
             )
-            declcount = Counter(decl.name() for decl in declset)
-            no_mangle = {decl for decl in declset if declcount[decl.name()] == 1}
-            sortset = collect_sorts(
-                self.adds + [thm for thm, name in self.assert_tracks]
-            )
+            sortset = collect_sorts(self.adds + [thm for thm, name in self.assert_tracks])
+            user_decls = {d for d in declset if d.kind() == Z3_OP_UNINTERPRETED or d.kind() in (Z3_OP_DT_CONSTRUCTOR, Z3_OP_DT_ACCESSOR, Z3_OP_DT_RECOGNISER)}
+            validate_names(user_decls, sortset)
             if format == "fof":
                 if len(sortset) != 2:
                     raise Exception(
@@ -285,21 +282,13 @@ class BaseSolver:
                             fp.write(
                                 f"{format}({name.lower()}_type, type, {sort_to_tptp(sort)} : $tType ).\n"
                             )
-                    if isinstance(sort, smt.DatatypeSortRef):
-                        # TODO: add constructors and injectivity axioms
-                        for i in range(sort.num_constructors()):
-                            predefined.add(sort.constructor(i))
-                            predefined.add(sort.recognizer(i))
-                            for j in range(sort.constructor(i).arity()):
-                                predefined.add(sort.accessor(i, j))
-
                 # Declare all function symbols in TPTP THF format
                 fp.write("% Declarations\n")
-                for f in declset:
-                    if f not in predefined and f.name() not in predefined_names:
+                for f in user_decls:
+                    if f not in predefined:
                         if f.arity() == 0:
                             fp.write(
-                                f"{format}({f.name().replace('!', '__')}_type, type, {f.name().replace('!', '__') if f in no_mangle else mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
+                                f"{format}(decl_{f.get_id()}_type, type, {mangle_decl(f)} : {sort_to_tptp(f.range())} ).\n"
                             )
                         else:
                             joiner = " > " if format == "thf" else " * "
@@ -307,18 +296,18 @@ class BaseSolver:
                                 [sort_to_tptp(f.domain(i)) for i in range(f.arity())]
                             )
                             fp.write(
-                                f"{format}({f.name().replace('!', '__')}_decl, type, {f.name().replace('!', '__') if f in no_mangle else mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
+                                f"{format}(decl_{f.get_id()}_type, type, {mangle_decl(f)} : {dom_tptp} > {sort_to_tptp(f.range())}).\n"
                             )
 
             # Write axioms and assertions in TPTP THF format
             fp.write("% Axioms and assertions\n")
             for i, e in enumerate(self.adds):
                 fp.write(
-                    f"{format}(ax_{i}, axiom, {expr_to_tptp(e, format=format, no_mangle=no_mangle)}).\n"
+                    f"{format}(ax_{i}, axiom, {expr_to_tptp(e, format=format)}).\n"
                 )
             for thm, name in self.assert_tracks:
                 fp.write(
-                    f"{format}({name}, axiom, {expr_to_tptp(thm, format=format, no_mangle=no_mangle)}).\n"
+                    f"{format}({identifier(name)}, axiom, {expr_to_tptp(thm, format=format)}).\n"
                 )
             # fp.write("tff(goal, conjecture, $false).\n")
 
