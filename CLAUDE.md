@@ -232,7 +232,6 @@ def sum_append(pf):
 
 - **Imports**: Group standard library, third-party, and local imports
 - In theories and examples, import proof and SMT helpers explicitly (`from kdrag import prove, Theorem`; `from kdrag.smt import ForAll, Implies`). Keep qualification where names would clash.
-- Prefer SMT symbol names such as `vec3_add`: lowercase initial, letters/digits/underscores, no periods. TPTP export rejects overloading within a problem and reserves `kd_` for generated symbols. The datatype naming prototype uses `portable=True` to prefix internal constructor/field names while preserving Python field access.
 - **Types**: Use type annotations for function parameters and return values
 - **Formatting**: Follow PEP 8 guidelines; ruff handles formatting
 - **Docstrings**: Include for public functions and classes
@@ -245,5 +244,3 @@ def sum_append(pf):
 - For quantified witness proofs, fix the outer parameters and instantiate the defining theorem before `auto`.
 - Check free schema variables on the original theorem before opening binders; Z3 may recycle collected schema-variable IDs.
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.
-- External SMT export must preserve built-in operators by kind, including indexed operators and datatype values; printed names alone are insufficient.
-- `curry_arrays` rewrites terms but not quantified variable sorts or function signatures. Multi-domain arrays need a complete sort translation before external solver use.

@@ -23,10 +23,6 @@ import typing
 from kdrag.kernel import Inductive
 
 
-def _public_name(sort, name):
-    return kd.kernel._datatype_aliases.get(sort, {}).get(name, name)
-
-
 def _lookup_constructor_recog(
     self: smt.DatatypeRef, k: str
 ) -> typing.Optional[smt.ExprRef]:
@@ -38,13 +34,13 @@ def _lookup_constructor_recog(
     for i in range(sort.num_constructors()):
         cons = sort.constructor(i)
         if recog:
-            if _public_name(sort, cons.name()) == k[3:]:
+            if cons.name() == k[3:]:
                 recog = sort.recognizer(i)
                 return recog(self)
         else:
             for j in range(cons.arity()):
                 acc = sort.accessor(i, j)
-                if _public_name(sort, acc.name()) == k:
+                if acc.name() == k:
                     return acc(self)
 
 
@@ -54,7 +50,7 @@ smt.DatatypeRef.__getattr__ = _lookup_constructor_recog  # type: ignore
 def constructor_num(s: smt.DatatypeSortRef, k: str) -> int:
     for i in range(s.num_constructors()):
         cons = s.constructor(i)
-        if _public_name(s, cons.name()) == k:
+        if cons.name() == k:
             return i
     raise ValueError(f"Constructor {k} not found in datatype {s}")
 
@@ -63,7 +59,7 @@ def accessor_num(s: smt.DatatypeSortRef, constr_num: int, k: str) -> int:
     cons = s.constructor(constr_num)
     for j in range(cons.arity()):
         acc = s.accessor(constr_num, j)
-        if _public_name(s, acc.name()) == k:
+        if acc.name() == k:
             return j
     raise ValueError(f"Accessor {k} not found in constructor {cons} of datatype {s}")
 
@@ -131,7 +127,7 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
     cons = sort.constructor(0)
     arity = cons.arity()
     accs = [sort.accessor(0, i) for i in range(arity)]
-    names = {_public_name(sort, acc.name()): acc for acc in accs}
+    names = {acc.name(): acc for acc in accs}  # Use a set for quick lookup
 
     invalid_fields = kwargs.keys() - names.keys()
     if invalid_fields:
@@ -150,7 +146,7 @@ def datatype_replace(self: smt.DatatypeRef, **kwargs: smt.ExprRef) -> smt.Dataty
         self.children() if smt.is_constructor(self) else [acc(self) for acc in accs]
     )
 
-    fields = [kwargs.get(_public_name(sort, acc.name()), default) for acc, default in zip(accs, defaults)]
+    fields = [kwargs.get(acc.name(), default) for acc, default in zip(accs, defaults)]
 
     return cons(*fields)
 
@@ -368,15 +364,13 @@ smt.DatatypeRef.match_ = datatype_match_  # type: ignore
 
 
 def Struct(
-    name: str, *fields: tuple[str, smt.SortRef], pred=None, portable=False
+    name: str, *fields: tuple[str, smt.SortRef], pred=None
 ) -> smt.DatatypeSortRef:
     """
     Define a record datatype.
     This is the analog in many respects of python's NamedTuple.
     The optional argument `pred` will add a well-formedness condition to the record
     giving something akin to a refinement type.
-
-    ``portable=True`` generates names such as ``point_x`` while retaining ``p.x``.
 
     >>> Point = Struct("Point", ("x", smt.RealSort()), ("y", smt.RealSort()))
     >>> Point(1,2)
@@ -388,7 +382,7 @@ def Struct(
     >>> kd.QForAll([p], p.x > -42)
     ForAll(p, Implies(And(x(p) > 0, y(p) > 0), x(p) > -42))
     """
-    rec0 = Inductive(name, portable=portable)
+    rec0 = Inductive(name)
     rec0.declare(name, *fields)
     rec = rec0.create()
     assert isinstance(rec, smt.DatatypeSortRef)

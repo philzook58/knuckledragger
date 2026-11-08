@@ -115,10 +115,6 @@ class LemmaError(Exception):
     pass
 
 
-class SolverUnknown(LemmaError):
-    """The solver could neither prove the theorem nor find a countermodel."""
-
-
 def prove(
     thm: smt.BoolRef,
     by: Proof | Iterable[Proof] = [],
@@ -183,11 +179,9 @@ def prove(
                     delete=False, mode="w", suffix=".smt2"
                 ) as smtfile:
                     smtfile.write(s.sexpr())
-                raise SolverUnknown("prove", thm, res, smtfile.name)
+            raise LemmaError("prove", thm, res, smtfile.name)
         else:
             reason: list[object] = ["prove"]
-            if solver is not None:
-                reason.append(type(s).__name__)
             reason.extend(by)
             return Proof(fvs, thm, reason, False)
 
@@ -771,17 +765,13 @@ def induct_inductive(x: smt.DatatypeRef, P: smt.QuantifierRef) -> Proof:
 
 
 _datatypes: dict[str, smt.DatatypeSortRef] = {}
-_datatype_aliases: dict[smt.SortRef, dict[str, str]] = {}
 """Registry of existing Inductives. Disallows duplicates"""
 
 
 # TODO. Make this a subclass
-def Inductive(name: str, ctx=None, auto_fresh=False, portable=False) -> smt.Datatype:
+def Inductive(name: str, ctx=None, auto_fresh=False) -> smt.Datatype:
     """
     Declare datatypes with auto generated induction principles. Wrapper around z3.Datatype
-
-    ``portable=True`` prefixes constructor and accessor names with the lowercase
-    datatype name while preserving their Python aliases.
 
     >>> Nat = Inductive("Nat909")
     >>> Nat.declare("zero")
@@ -791,12 +781,6 @@ def Inductive(name: str, ctx=None, auto_fresh=False, portable=False) -> smt.Data
     succ(zero)
     """
     counter = 0
-    aliases = {}
-    if portable:
-        from kdrag.printers.tptp import identifier
-        prefix = identifier(name.lower())
-        if name in _datatypes or auto_fresh:
-            raise ValueError("Portable datatypes require a unique explicit name", name)
     n = name
     if not auto_fresh and n in _datatypes:
         if config.strict_define:
@@ -814,19 +798,7 @@ def Inductive(name: str, ctx=None, auto_fresh=False, portable=False) -> smt.Data
     oldcreate = dt.create
 
     def create() -> smt.DatatypeSortRef:
-        if portable and len(set(aliases.values())) != len(aliases):
-            raise ValueError("Duplicate public constructor or field name", name)
         dt = oldcreate()
-        if portable:
-            _datatype_aliases[dt] = aliases
-            for i in range(dt.num_constructors()):
-                cons = dt.constructor(i)
-                public = aliases[cons.name()]
-                setattr(dt, public, cons() if cons.arity() == 0 else cons)
-                setattr(dt, "is_" + public, dt.recognizer(i))
-                for j in range(cons.arity()):
-                    acc = dt.accessor(i, j)
-                    setattr(dt, aliases[acc.name()], acc)
         # Sanity check no duplicate names. Causes confusion.
         names = set()
         for i in range(dt.num_constructors()):
@@ -848,19 +820,6 @@ def Inductive(name: str, ctx=None, auto_fresh=False, portable=False) -> smt.Data
     old_declare = dt.declare
 
     def declare(name, *args):
-        if portable:
-            stem = "mk" if name.lower() == prefix else identifier(name.lower())
-            internal = prefix + "_" + stem
-            aliases[internal] = name
-            fields = []
-            for i, arg in enumerate(args):
-                label, sort = arg if isinstance(arg, tuple) else ("field" + str(i), arg)
-                identifier(label)
-                field = prefix + "_" + label if stem == "mk" else internal + "_" + label
-                aliases[field] = label
-                fields.append((field, sort))
-            dt.declare_core(internal, "is_" + internal, *fields)
-            return
         old_declare(
             name,
             *[

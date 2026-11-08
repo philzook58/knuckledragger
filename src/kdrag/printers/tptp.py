@@ -1,7 +1,14 @@
 import kdrag.smt as smt
 import kdrag as kd
 import re
-from z3 import is_app_of, Z3_OP_UNINTERPRETED, Z3_OP_DT_RECOGNISER
+from z3 import (
+    is_app_of,
+    Z3_OP_UNINTERPRETED,
+    Z3_OP_DT_RECOGNISER,
+    Z3_INT_SORT,
+    Z3_REAL_SORT,
+    Z3_BOOL_SORT,
+)
 
 
 def identifier(name: str) -> str:
@@ -264,11 +271,11 @@ def sort_to_tptp(sort: smt.SortRef):
     '($int > $o)'
     """
     name = sort.name()
-    if name == "Int":
+    if sort.kind() == Z3_INT_SORT:
         return "$int"
-    elif name == "Bool":
+    elif sort.kind() == Z3_BOOL_SORT:
         return "$o"
-    elif name == "Real":
+    elif sort.kind() == Z3_REAL_SORT:
         return "$real"
     elif isinstance(sort, smt.ArraySortRef):
         return "({} > {})".format(

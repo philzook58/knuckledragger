@@ -16,7 +16,13 @@ or from project root run
 
 import kdrag as kd
 import kdrag.smt as smt
-from kdrag.printers.tptp import expr_to_tptp, sort_to_tptp, mangle_decl, validate_names, identifier
+from kdrag.printers.tptp import (
+    expr_to_tptp,
+    sort_to_tptp,
+    mangle_decl,
+    validate_names,
+    identifier,
+)
 from kdrag.printers.smtlib import (
     expr_to_smtlib,
     predefined_names,
@@ -37,62 +43,15 @@ import urllib
 import zipfile
 import sys
 import tempfile
-import signal
-from z3 import is_app_of, Z3_OP_UNINTERPRETED, Z3_OP_DT_CONSTRUCTOR, Z3_OP_DT_ACCESSOR, Z3_OP_DT_RECOGNISER
+from z3 import (
+    Z3_OP_UNINTERPRETED,
+    Z3_OP_DT_CONSTRUCTOR,
+    Z3_OP_DT_ACCESSOR,
+    Z3_OP_DT_RECOGNISER,
+    Z3_INT_SORT, Z3_REAL_SORT, Z3_BOOL_SORT,
+)
 
 logger = logging.getLogger("knuckledragger")
-
-
-class SolverError(RuntimeError):
-    """An external solver rejected its input or failed to run."""
-
-
-def run_solver(cmd, timeout):
-    """Bound wall time as well as the solver's own CPU limit."""
-    with subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        start_new_session=os.name == "posix",
-    ) as proc:
-        try:
-            stdout, stderr = proc.communicate(timeout=timeout / 1000 + 0.2)
-        except subprocess.TimeoutExpired:
-            if os.name == "posix":
-                os.killpg(proc.pid, signal.SIGKILL)
-            else:
-                proc.kill()
-            stdout, stderr = proc.communicate()
-            return subprocess.CompletedProcess(
-                cmd, proc.returncode, b"unknown\n", stderr
-            )
-        return subprocess.CompletedProcess(cmd, proc.returncode, stdout, stderr)
-
-
-def smt_status(res):
-    szs = re.findall(rb"^% SZS status (\w+)", res.stdout, re.MULTILINE)
-    if res.returncode == 0 and b"Unsatisfiable" in szs:
-        return smt.unsat
-    if res.returncode == 0 and b"Satisfiable" in szs:
-        return smt.sat
-    if any(
-        status in szs
-        for status in (b"Timeout", b"GaveUp", b"ResourceOut", b"Incomplete")
-    ):
-        return smt.unknown
-    if res.returncode == 0:
-        lines = {line.strip() for line in res.stdout.splitlines()}
-        for word, status in (
-            (b"unsat", smt.unsat),
-            (b"sat", smt.sat),
-            (b"unknown", smt.unknown),
-        ):
-            if word in lines:
-                return status
-    # A process killed by the wall-time watchdog has an explicit unknown result.
-    if res.returncode < 0 and res.stdout == b"unknown\n":
-        return smt.unknown
-    raise SolverError((res.stderr + res.stdout).decode(errors="replace"))
 
 
 def binpath(cmd):
@@ -187,8 +146,7 @@ class BaseSolver:
         else:
             assert isinstance(thm, smt.BoolRef)
             if self.options["lambda_lift"]:
-                # curry_arrays rewrites terms, but not declaration signatures or
-                # quantified variable sorts. Do not silently change their meaning.
+
                 def multi_domain(sort):
                     return isinstance(sort, smt.ArraySortRef) and (
                         len(smt.domains(sort)) > 1
@@ -199,25 +157,12 @@ class BaseSolver:
                 for term in kd.utils.subterms(thm, into_binder=True):
                     if isinstance(term, smt.QuantifierRef) and term.is_lambda():
                         continue
-                    if (
-                        multi_domain(term.sort())
-                        or (
-                            isinstance(term, smt.QuantifierRef)
-                            and any(
-                                multi_domain(term.var_sort(i))
-                                for i in range(term.num_vars())
-                            )
-                        )
-                        or (
-                            is_app_of(term, Z3_OP_UNINTERPRETED)
-                            and any(
-                                multi_domain(term.decl().domain(i))
-                                for i in range(term.num_args())
-                            )
-                        )
-                    ):
+                    sorts = [term.sort()]
+                    if isinstance(term, smt.QuantifierRef):
+                        sorts.extend(term.var_sort(i) for i in range(term.num_vars()))
+                    if any(multi_domain(sort) for sort in sorts):
                         raise NotImplementedError(
-                            "Currying a multi-domain array requires rewriting its signature",
+                            "Currying multi-domain arrays requires rewriting their signatures",
                             term,
                         )
                 thm1 = kd.utils.curry_arrays(thm)
@@ -264,8 +209,16 @@ class BaseSolver:
             declset = collect_decls(
                 self.adds + [thm for thm, name in self.assert_tracks]
             )
-            sortset = collect_sorts(self.adds + [thm for thm, name in self.assert_tracks])
-            user_decls = {d for d in declset if d.kind() == Z3_OP_UNINTERPRETED or d.kind() in (Z3_OP_DT_CONSTRUCTOR, Z3_OP_DT_ACCESSOR, Z3_OP_DT_RECOGNISER)}
+            sortset = collect_sorts(
+                self.adds + [thm for thm, name in self.assert_tracks]
+            )
+            user_decls = {
+                d
+                for d in declset
+                if d.kind() == Z3_OP_UNINTERPRETED
+                or d.kind()
+                in (Z3_OP_DT_CONSTRUCTOR, Z3_OP_DT_ACCESSOR, Z3_OP_DT_RECOGNISER)
+            }
             validate_names(user_decls, sortset)
             if format == "fof":
                 if len(sortset) != 2:
@@ -277,7 +230,7 @@ class BaseSolver:
                 for sort in sortset:
                     # Write sort declarations (only for user-defined sorts)
                     name = sort.name()
-                    if name not in self.predefined_sorts:
+                    if sort.kind() not in (Z3_INT_SORT, Z3_REAL_SORT, Z3_BOOL_SORT):
                         if format != "fof":
                             fp.write(
                                 f"{format}({name.lower()}_type, type, {sort_to_tptp(sort)} : $tType ).\n"
@@ -327,7 +280,7 @@ class BaseSolver:
             self.status = smt.unknown
             return smt.unknown
         else:
-            raise SolverError("Unexpected return from solver", res)
+            return smt.unknown
 
     def write_smt(self, fp):
         fp.write(smtlib_problem(self.adds + [thm for thm, name in self.assert_tracks]))
@@ -371,12 +324,9 @@ def tptp2smt(tptp_filename):
 
 
 class VampireSolver(BaseSolver):
-    def __init__(self, solver_path=None):
+    def __init__(self):
         super().__init__()
-        installed = solver_path or shutil.which("vampire")
-        if installed or os.path.isfile(binpath("vampire")):
-            self.set("solver_path", installed or binpath("vampire"))
-        elif sys.platform == "linux":
+        if sys.platform == "linux":
             new = download(
                 "https://github.com/vprover/vampire/releases/download/v5.0.0/vampire-Linux-X64.zip",
                 "vampire.zip",
@@ -438,9 +388,22 @@ class VampireSolver(BaseSolver):
             else:
                 cmd.extend(["--output_mode", "smtcomp"])
 
-            self.res = run_solver(cmd, self.options.get("timeout", 1000))
-            self.status = smt_status(self.res)
-            return self.status
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+            res = self.res.stdout
+            lines = {line.strip() for line in res.splitlines()}
+            if self.res.returncode == 0:
+                if b"unsat" in lines or b"Unsatisfiable" in re.findall(
+                    rb"^% SZS status (\w+)", res, re.MULTILINE
+                ):
+                    self.status = smt.unsat
+                    return self.status
+                if b"sat" in lines or b"Satisfiable" in re.findall(
+                    rb"^% SZS status (\w+)", res, re.MULTILINE
+                ):
+                    return smt.sat
+            return smt.unknown
 
     def query(self, q):
         with open("/tmp/vampire.smt2", "w") as fp:  # tempfile.NamedTemporaryFile()
@@ -520,18 +483,22 @@ class CVC5Solver(BaseSolver):
             with open(filename, "w") as fp:
                 self.write_smt(fp)
                 fp.write("(check-sat)\n")
-            timeout = self.options.get("timeout", 1000)
-            cmd = [
-                "cvc5",
-                "--lang",
-                "smt2.6",
-                "--tlimit-per",
-                str(max(1, timeout)),
-                filename,
-            ]
-            self.res = run_solver(cmd, timeout)
-        self.status = smt_status(self.res)
-        return self.status
+            cmd = ["cvc5", "--lang", "smt2.6", filename]
+            if "timeout" in self.options:
+                cmd.extend(["--tlimit-per", str(max(1, self.options["timeout"]))])
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        if self.res.returncode == 0:
+            lines = {line.strip() for line in self.res.stdout.splitlines()}
+            for word, status in (
+                (b"unsat", smt.unsat),
+                (b"sat", smt.sat),
+                (b"unknown", smt.unknown),
+            ):
+                if word in lines:
+                    return status
+        return smt.unknown
 
 
 class VampireTHFSolver(BaseSolver):
@@ -539,56 +506,60 @@ class VampireTHFSolver(BaseSolver):
         super().__init__()
 
     def check(self):
-        self.write_tptp("/tmp/vampire.p")
-        cmd = [
-            binpath("vampire-ho"),
-            "/tmp/vampire.p",
-            "--mode",
-            "portfolio",
-            "--schedule",
-            "snake_slh",
-            "--input_syntax",
-            "tptp",
-        ]
-        if "timeout" in self.options:
-            cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
+        with tempfile.TemporaryDirectory(prefix="kdrag-vampire-thf-") as directory:
+            filename = os.path.join(directory, "problem.p")
+            self.write_tptp(filename)
+            cmd = [
+                binpath("vampire-ho"),
+                filename,
+                "--mode",
+                "portfolio",
+                "--schedule",
+                "snake_slh",
+                "--input_syntax",
+                "tptp",
+            ]
+            if "timeout" in self.options:
+                cmd.extend(["-t", str(self.options["timeout"] // 100) + "d"])
 
-        self.res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
 
-        return self.check_tptp_status(self.res.stdout)
+            return self.check_tptp_status(self.res.stdout)
 
 
 class EProverSolver(BaseSolver):
-    def __init__(self, cores=8):
+    def __init__(self):
         from eprover import eprover_path
 
         self.solver_path = eprover_path
         super().__init__()
         self.options["format"] = "tff"
-        self.options["cores"] = cores
 
     def check(self):
         with tempfile.TemporaryDirectory(prefix="kdrag-eprover-") as directory:
             filename = os.path.join(directory, "problem.p")
             self.write_tptp(filename, format=self.options["format"])
-            timeout = self.options.get("timeout", 5000)
-            cmd = [
-                self.solver_path,
-                f"--auto-schedule={self.options['cores']}",
-                filename,
-                "--cpu-limit=" + str(max(1, (timeout + 999) // 1000)),
-            ]
-            self.res = run_solver(cmd, timeout)
-        if self.res.stdout == b"unknown\n":
+            cmd = [self.solver_path, "--auto-schedule=8", filename]
+            if "timeout" in self.options:
+                cmd.append(
+                    "--cpu-limit="
+                    + str(max(1, (self.options["timeout"] + 999) // 1000))
+                )
+            self.res = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        if self.res.returncode not in (0, 1):
             return smt.unknown
-        if b"SZS status" not in self.res.stdout:
-            raise SolverError("Eprover error", self.res.stderr, self.res.stdout)
+        if b"SZS status Unsatisfiable" in self.res.stdout and self.res.returncode != 0:
+            return smt.unknown
         return self.check_tptp_status(self.res.stdout)
 
 
 class EProverTHFSolver(EProverSolver):
-    def __init__(self, cores=8):
-        super().__init__(cores=cores)
+    def __init__(self):
+        super().__init__()
         self.options["format"] = "thf"
 
 

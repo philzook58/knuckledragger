@@ -12,9 +12,6 @@ import operator as op
 from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
 import time
-import os
-import shutil
-from z3 import Solver as Z3Solver
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
@@ -238,18 +235,12 @@ def prove(
     # simps=simps,
     # intros / fix / herb = False
     unfold: Optional[int | list[smt.FuncDeclRef]] = None,
-    fallback: Optional[Sequence[Callable]] = None,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
     In essence `prove(Implies(by, thm))`.
 
     This wraps the kernel version in order to provide better counterexamples.
-
-    When the default Z3 solver returns unknown, try installed cvc5 and Vampire
-    executables with a shared additional timeout budget. Pass ``fallback=[]`` to
-    disable this, or supply solver factories to select the fallback backends.
-    An explicit ``solver=`` disables automatic fallback.
 
     :param thm: The theorem to prove.
     Args:
@@ -320,63 +311,14 @@ def prove(
         if not thm.eq(thm1):
             by_list.extend(cast(list[kd.kernel.Proof], trace))
 
-    primary_timed_out = False
     try:
-        try:
-            pf = kd.kernel.prove(
-                thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
-            )
-        except kd.kernel.SolverUnknown as failure:
-            primary_timed_out = time.perf_counter() - start_time > timeout / 1000
-            if solver is not None or kdrag.config.solver is not Z3Solver:
-                raise
-            backends = list(fallback) if fallback is not None else []
-            if fallback is None:
-                if shutil.which("cvc5"):
-                    backends.append(solvers.CVC5Solver)
-                if shutil.which("vampire") or os.path.isfile(
-                    solvers.binpath("vampire")
-                ):
-                    backends.append(solvers.VampireSolver)
-            deadline = time.perf_counter() + timeout / 1000
-            recovered = None
-            for index, backend in enumerate(backends):
-                remaining = int((deadline - time.perf_counter()) * 1000)
-                if remaining <= 0:
-                    break
-                try:
-                    recovered = kd.kernel.prove(
-                        thm,
-                        by=by_list,
-                        timeout=max(1, remaining // (len(backends) - index)),
-                        dump=dump,
-                        solver=backend,
-                    )
-                    break
-                except (
-                    kd.kernel.SolverUnknown,
-                    solvers.SolverError,
-                    OSError,
-                    ImportError,
-                    NotImplementedError,
-                    ValueError,
-                    smt.Z3Exception,
-                ) as error:
-                    name = getattr(backend, "__name__", type(backend).__name__)
-                    failure.add_note(f"{name}: {error}")
-            if recovered is None:
-                raise failure
-            pf = recovered
+        pf = kd.kernel.prove(
+            thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
+        )
         if fixes:
             pf = kd.kernel.generalize(fixes, pf)
         kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
         return pf
-    except kd.kernel.SolverUnknown as failure:
-        if primary_timed_out:
-            raise TimeoutError(
-                "Z3 and the fallback solvers could not prove the goal within the timeout"
-            ) from failure
-        raise
     except kd.kernel.LemmaError as e:
         if time.perf_counter() - start_time > timeout / 1000:
             raise TimeoutError(
