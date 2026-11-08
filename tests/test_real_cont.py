@@ -1,3 +1,5 @@
+import pytest
+
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.real as real
@@ -17,16 +19,17 @@ def test_limits_at_removable_discontinuities():
     assert smt.simplify(product_limit.thm).eq(smt.simplify(real.has_lim_at(f * g, zero, 6)))
 
 
-def test_continuity():
+@pytest.mark.parametrize("module", ["cont", "lim_algebra"])
+def test_analysis_proofs(module):
     import runpy
     import kdrag.config as config
-    import kdrag.theories.real  # Load the theory before measuring the lemmas.
+    import kdrag.theories.real.seq  # Load dependencies before measuring the lemmas.
 
     was_timing = config.timing
     start = len(config.perf_log)
     try:
         config.timing = True
-        runpy.run_path("src/kdrag/theories/real/cont.py")
+        runpy.run_path(f"src/kdrag/theories/real/{module}.py")
         timings = config.perf_log[start:]
     finally:
         config.timing = was_timing
