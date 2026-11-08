@@ -5,7 +5,7 @@ The kernel hold core proof datatypes and core inference rules. By and large, all
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
-from typing import Any, Iterable, Sequence
+from typing import Any, Callable, Iterable, Sequence
 from . import config
 import tempfile
 
@@ -121,7 +121,7 @@ def prove(
     admit=False,
     timeout=1000,
     dump=False,
-    solver=None,
+    solver: str | Callable[[], Any] | None = None,
     fvs=frozenset(),
 ) -> Proof:
     """Prove a theorem using a list of previously proved lemmas.
@@ -133,6 +133,8 @@ def prove(
         thm (smt.BoolRef): The theorem to prove.
         by (list[Proof]): A list of previously proved lemmas.
         admit     (bool): If True, admit the theorem without proof.
+        solver: A solver factory or "z3", "cvc5", "vampire", "eprover".
+            None uses the configured default.
 
     Returns:
         Proof: A proof object of thm
@@ -148,6 +150,21 @@ def prove(
         print("Admitting lemma {}".format(thm))
         return Proof(fvs, thm, list(by), admit=True)
     else:
+        if isinstance(solver, str):
+            # Vampire and E prover translations are less reliable than the direct Z3 path.
+            from .solvers import VampireSolver, EProverSolver, CVC5Solver
+
+            solvers: dict[str, Callable[[], Any]] = {
+                "z3": smt.Z3Solver,
+                "cvc5": CVC5Solver,
+                "vampire": VampireSolver,
+                "eprover": EProverSolver,
+            }
+            if solver not in solvers:
+                raise ValueError(
+                    f"Unknown solver {solver!r}; expected one of {', '.join(solvers)}"
+                )
+            solver = solvers[solver]
         if solver is None:
             s = config.solver()  # type: ignore
         else:
