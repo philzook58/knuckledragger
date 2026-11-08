@@ -3,7 +3,9 @@ Theory of fixed point arithmetic
 """
 
 import kdrag as kd
+from kdrag import NewType
 import kdrag.smt as smt
+from kdrag.smt import BV2Int, BitVecSort, Consts, RealVal, ToReal
 import functools
 
 # https://pmc.ncbi.nlm.nih.gov/articles/PMC7324132/ An SMT Theory of Fixed-Point Arithmetic
@@ -18,10 +20,10 @@ def FixedSort(bvsize: int, exp: int) -> smt.DatatypeSortRef:
     Fixed_64_0
     """
     # put exp into record or make part of sort?
-    S = kd.NewType(f"Fixed_{bvsize}_{exp}", smt.BitVecSort(bvsize))
-    x, y, z = smt.Consts("x y z", S)
+    S = NewType(f"Fixed_{bvsize}_{exp}", BitVecSort(bvsize))
+    x, y, z = Consts("x y z", S)
     kd.notation.to_real.define(
-        [x], smt.ToReal(smt.BV2Int(x.val, is_signed=True)) * smt.RealVal(2) ** exp
+        [x], ToReal(BV2Int(x.val, is_signed=True)) * RealVal(2) ** exp
     )
     S.exp = exp
     return S

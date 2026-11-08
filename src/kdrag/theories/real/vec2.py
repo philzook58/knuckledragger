@@ -1,10 +1,10 @@
 import kdrag as kd
+from kdrag import Struct, define, prove  # noqa: F401
 import kdrag.theories.real as real
-from kdrag.smt import ForAll, Real
-from kdrag import prove, define  # noqa: F401
+from kdrag.smt import Consts, ForAll, Real
 
-Vec2 = kd.Struct("Vec2", ("x", kd.R), ("y", kd.R))
-u, v = kd.smt.Consts("u v", Vec2)
+Vec2 = Struct("Vec2", ("x", kd.R), ("y", kd.R))
+u, v = Consts("u v", Vec2)
 add = kd.notation.add.define([u, v], Vec2(u.x + v.x, u.y + v.y))
 sub = kd.notation.sub.define([u, v], Vec2(u.x - v.x, u.y - v.y))
 neg = kd.notation.neg.define([u], Vec2(-u.x, -u.y))
@@ -13,9 +13,9 @@ r = Real("r")
 smul = define("Vec2.smul", [r, u], Vec2(r * u.x, r * u.y))
 
 vzero = Vec2(0, 0)
-dot = kd.define("Vec2.dot", [u, v], u.x * v.x + u.y * v.y)
-norm2 = kd.define("Vec2.norm2", [u], dot(u, u))
-norm = kd.define("Vec2.norm", [u], real.sqrt(dot(u, u)))
+dot = define("Vec2.dot", [u, v], u.x * v.x + u.y * v.y)
+norm2 = define("Vec2.norm2", [u], dot(u, u))
+norm = define("Vec2.norm", [u], real.sqrt(dot(u, u)))
 
 norm2_pos = prove(ForAll([u], norm2(u) >= 0), by=[norm2.defn, dot.defn])
 norm2_zero = prove(

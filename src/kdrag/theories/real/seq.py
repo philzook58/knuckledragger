@@ -1,6 +1,30 @@
 # %%
 import kdrag as kd
+from kdrag import FreshVars, QExists, QForAll, Theorem, define, prove
 import kdrag.smt as smt
+from kdrag.smt import (
+    Array,
+    ArraySort,
+    BoolSort,
+    Const,
+    Consts,
+    Exists,
+    ForAll,
+    Function,
+    If,
+    Implies,
+    Int,
+    IntSort,
+    Ints,
+    K,
+    Lambda,
+    Map,
+    RealSort,
+    RealVal,
+    Reals,
+    ToInt,
+    ToReal,
+)
 
 import kdrag.theories.int as int_
 import kdrag.theories.real as real
@@ -9,52 +33,44 @@ import kdrag.theories.real as real
 RSeq = real.RSeq
 R = real.R
 
-a, b, c = smt.Consts("a b c", RSeq)
-A, B, C = kd.FreshVars("A B C", RSeq)
-i, j, k, n, m, N = smt.Ints("i j k n m N")
-x, y, z, eps, delta, M = smt.Reals("x y z eps delta M")
+a, b, c = Consts("a b c", RSeq)
+A, B, C = FreshVars("A B C", RSeq)
+i, j, k, n, m, N = Ints("i j k n m N")
+x, y, z, eps, delta, M = Reals("x y z eps delta M")
 
-zero = kd.define("RSeq.zero", [], smt.K(smt.IntSort(), smt.RealVal(0)))
-const = kd.define("RSeq.const", [x], smt.Lambda([i], x))
-id_ = kd.define("RSeq.id", [], smt.Lambda([i], smt.ToReal(i)))
+zero = define("RSeq.zero", [], K(IntSort(), RealVal(0)))
+const = define("RSeq.const", [x], Lambda([i], x))
+id_ = define("RSeq.id", [], Lambda([i], ToReal(i)))
 assert isinstance(id_, smt.ExprRef)  # for typechecker
 
-geom = kd.define("geom", [x], smt.Lambda([i], real.pownat(x, i)))
+geom = define("geom", [x], Lambda([i], real.pownat(x, i)))
 
-S = smt.Array("S", smt.IntSort(), smt.BoolSort())
-ind = kd.define(
-    "ind", [S], smt.Lambda([i], smt.If(S[i], smt.RealVal(1), smt.RealVal(0)))
+S = Array("S", IntSort(), BoolSort())
+ind = define(
+    "ind", [S], Lambda([i], If(S[i], RealVal(1), RealVal(0)))
 )  # indicator sequence / iverson bracket
 
-F = smt.Array("F", smt.IntSort(), smt.IntSort())
-dommap = kd.define("dommap", [F, a], smt.Lambda([i], a[F[i]]))
+F = Array("F", IntSort(), IntSort())
+dommap = define("dommap", [F, a], Lambda([i], a[F[i]]))
 
 # Domain operations
-shift = kd.define("RSeq.shift", [a, n], smt.Lambda([i], a[i - n]))
-delay = kd.define("delay", [a], shift(a, 1))
-rev = kd.define("RSeq.rev", [a], smt.Lambda([i], a[-i]))
-dilate = kd.define("dilate", [a, n], smt.Lambda([i], a[i / n]))
-decimate = kd.define("decimate", [a, n], smt.Lambda([i], a[i * n]))
+shift = define("RSeq.shift", [a, n], Lambda([i], a[i - n]))
+delay = define("delay", [a], shift(a, 1))
+rev = define("RSeq.rev", [a], Lambda([i], a[-i]))
+dilate = define("dilate", [a, n], Lambda([i], a[i / n]))
+decimate = define("decimate", [a, n], Lambda([i], a[i * n]))
 
-f = smt.Array("f", kd.R, kd.R)
-iterate = smt.Function(
-    "iterate", smt.ArraySort(kd.R, kd.R), kd.R, smt.ArraySort(kd.R, kd.R)
-)
-iterate = kd.define(
-    "iterate", [f, x], smt.Lambda([i], smt.If(i <= 0, x, f[iterate(f, x)[i - 1]]))
-)
+f = Array("f", kd.R, kd.R)
+iterate = Function("iterate", ArraySort(kd.R, kd.R), kd.R, ArraySort(kd.R, kd.R))
+iterate = define("iterate", [f, x], Lambda([i], If(i <= 0, x, f[iterate(f, x)[i - 1]])))
 
-mask = smt.Array("mask", smt.IntSort(), smt.BoolSort())
-where = kd.define("where", [mask, a, b], smt.Lambda([i], smt.If(mask[i], a[i], b[i])))
-krondelta = kd.define(
-    "krondelta", [n], smt.Lambda([i], smt.If(i == n, smt.RealVal(1), smt.RealVal(0)))
-)
-kron_same = kd.prove(smt.ForAll([n], krondelta(n)(n) == 1), by=[krondelta.defn])
-kron_diff = kd.prove(
-    smt.ForAll([n, m], n != m, krondelta(n)(m) == 0), by=[krondelta.defn]
-)
+mask = Array("mask", IntSort(), BoolSort())
+where = define("where", [mask, a, b], Lambda([i], If(mask[i], a[i], b[i])))
+krondelta = define("krondelta", [n], Lambda([i], If(i == n, RealVal(1), RealVal(0))))
+kron_same = prove(ForAll([n], krondelta(n)(n) == 1), by=[krondelta.defn])
+kron_diff = prove(ForAll([n, m], n != m, krondelta(n)(m) == 0), by=[krondelta.defn])
 
-pos = kd.define("pos", [a], smt.Lambda([i], smt.If(i >= 0, a[i], smt.RealVal(0))))
+pos = define("pos", [a], Lambda([i], If(i >= 0, a[i], RealVal(0))))
 # arange = kd.define("arange", [n], smt.Lambda([i], smt.ToReal(i) * smt.ToReal(n >= i)))
 
 # numpy names
@@ -62,55 +78,49 @@ zeros = zero
 full = const
 roll = shift
 
-diff = kd.define("diff", [a], smt.Lambda([i], a[i + 1] - a[i]))
+diff = define("diff", [a], Lambda([i], a[i + 1] - a[i]))
 
 
-add = kd.notation.add.define([a, b], smt.Lambda([i], a[i] + b[i]))
+add = kd.notation.add.define([a, b], Lambda([i], a[i] + b[i]))
 # add = kd.define("add", [a, b], smt.Map(real.add, a, b))
 kd.notation.add.register(RSeq, add)
-add_comm = kd.prove(
+add_comm = prove(
     A + B == B + A, by=[add.defn(B, A), add.defn(A, B), real.add_comm]
 ).forall([A, B])
-add_assoc = kd.prove(
+add_assoc = prove(
     (A + B) + C == A + (B + C),
     unfold=1,
     by=[real.add_assoc],
 ).forall([A, B, C])
 # kd.Lemma(diff(cumsum(A)) == A)
-add_zero = kd.prove(A + zero == A, by=[add.defn, zero.defn]).forall([A])
+add_zero = prove(A + zero == A, by=[add.defn, zero.defn]).forall([A])
 
 
-sub = kd.notation.sub.define([a, b], smt.Lambda([i], a[i] - b[i]))
-mul = kd.notation.mul.define([a, b], smt.Lambda([i], a[i] * b[i]))
+sub = kd.notation.sub.define([a, b], Lambda([i], a[i] - b[i]))
+mul = kd.notation.mul.define([a, b], Lambda([i], a[i] * b[i]))
 
-mul_comm = kd.prove(
+mul_comm = prove(
     A * B == B * A, by=[mul.defn(B, A), mul.defn(A, B), real.mul_comm]
 ).forall([A, B])
-mul_assoc = kd.prove(
+mul_assoc = prove(
     (A * B) * C == A * (B * C),
     unfold=1,
     by=[real.mul_assoc],
 ).forall([A, B, C])
 
-mul_zero = kd.prove(A * zero == zero, by=[mul.defn, zero.defn]).forall([A])
-mul_one = kd.prove(A * const(1) == A, by=[mul.defn, const.defn, real.mul_one]).forall(
-    [A]
-)
+mul_zero = prove(A * zero == zero, by=[mul.defn, zero.defn]).forall([A])
+mul_one = prove(A * const(1) == A, by=[mul.defn, const.defn, real.mul_one]).forall([A])
 
-add_mul = kd.prove((A + B) * C == A * C + B * C, by=[add.defn, mul.defn]).forall(
-    [A, B, C]
-)
-mul_add = kd.prove(A * (B + C) == A * B + A * C, by=[add.defn, mul.defn]).forall(
-    [A, B, C]
-)
+add_mul = prove((A + B) * C == A * C + B * C, by=[add.defn, mul.defn]).forall([A, B, C])
+mul_add = prove(A * (B + C) == A * B + A * C, by=[add.defn, mul.defn]).forall([A, B, C])
 
-div = kd.notation.div.define([a, b], smt.Lambda([i], a[i] / b[i]))
-neg = kd.notation.neg.define([a], smt.Lambda([i], -a[i]))
+div = kd.notation.div.define([a, b], Lambda([i], a[i] / b[i]))
+neg = kd.notation.neg.define([a], Lambda([i], -a[i]))
 
-smul = kd.define("RSeq.smul", [x, a], smt.Lambda([n], x * a[n]))
+smul = define("RSeq.smul", [x, a], Lambda([n], x * a[n]))
 
 
-@kd.Theorem(smt.ForAll([x, a, b], smul(x, a) * b == smul(x, a * b)))
+@Theorem(ForAll([x, a, b], smul(x, a) * b == smul(x, a * b)))
 def smul_mul(l):
     x, a, b = l.fixes()
     l.unfold(smul)
@@ -119,18 +129,16 @@ def smul_mul(l):
     l.auto()
 
 
-rev_rev = kd.prove(rev(rev(A)) == A, by=[rev.defn]).forall([A])
-shift_shit = kd.prove(
-    smt.ForAll([n, m, a], shift(shift(a, n), m) == shift(a, n + m)), by=[shift.defn]
+rev_rev = prove(rev(rev(A)) == A, by=[rev.defn]).forall([A])
+shift_shit = prove(
+    ForAll([n, m, a], shift(shift(a, n), m) == shift(a, n + m)), by=[shift.defn]
 )
-rev_shift = kd.prove(
-    smt.ForAll([n, a], rev(shift(a, n)) == shift(rev(a), -n)), by=[shift.defn, rev.defn]
+rev_shift = prove(
+    ForAll([n, a], rev(shift(a, n)) == shift(rev(a), -n)), by=[shift.defn, rev.defn]
 )
-rev_zero = kd.prove(rev(zero) == zero, by=[rev.defn, zero.defn])
-rev_const = kd.prove(
-    smt.ForAll([x], rev(const(x)) == const(x)), by=[rev.defn, const.defn]
-)
-rev_id = kd.prove(rev(id_) == -id_, by=[rev.defn, id_.defn, neg.defn])
+rev_zero = prove(rev(zero) == zero, by=[rev.defn, zero.defn])
+rev_const = prove(ForAll([x], rev(const(x)) == const(x)), by=[rev.defn, const.defn])
+rev_id = prove(rev(id_) == -id_, by=[rev.defn, id_.defn, neg.defn])
 
 
 def test():
@@ -140,22 +148,22 @@ def test():
     """
 
 
-cumsum = smt.Function("cumsum", RSeq, RSeq)
-cumsum = kd.define(
+cumsum = Function("cumsum", RSeq, RSeq)
+cumsum = define(
     "cumsum",
     [a],
-    smt.Lambda(
+    Lambda(
         [i],
-        smt.If(  # Maybe this is a badly shifted definition
+        If(  # Maybe this is a badly shifted definition
             i == 0,
             a[0],
-            smt.If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i + 1]),
+            If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i + 1]),
         ),
     ),
 )
 
 
-@kd.Theorem("forall (n : Int), cumsum zero n = 0")
+@Theorem("forall (n : Int), cumsum zero n = 0")
 def cumsum_zero(l):
     n = l.fix()
     l.unfold(zero)
@@ -178,7 +186,7 @@ def cumsum_zero(l):
     l.auto()
 
 
-@kd.Theorem(
+@Theorem(
     "forall (x : Real) (n : Int), n >= 0 -> cumsum (const x) n = (n + 1) * x"
 )  # TODO: fix for n < 0. Wrong definition?
 def cumsum_const(l):
@@ -216,8 +224,8 @@ def cumsum_const(l):
 # cumsum_diff - the fundamental theorem of calculus for sequences
 
 
-cumsum_smul = kd.prove(
-    smt.ForAll([a, x], cumsum(smul(x, a)) == smul(x, cumsum(a))), admit=True
+cumsum_smul = prove(
+    ForAll([a, x], cumsum(smul(x, a)) == smul(x, cumsum(a))), admit=True
 )
 """
 # TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
@@ -253,7 +261,7 @@ def cumsum_smul(l):
 """
 
 
-@kd.Theorem(
+@Theorem(
     "forall (a b : RSeq) (m : Int), (forall (n : Int), n >= 0 -> a n <= b n) -> m >= 0 -> cumsum a m <= cumsum b m"
 )
 def cumsum_mono(l):
@@ -275,7 +283,7 @@ def cumsum_mono(l):
     l.auto(by=[cumsum.defn])
 
 
-@kd.Theorem("forall (a b : RSeq) (n : Int), cumsum (a + b) n = cumsum a n + cumsum b n")
+@Theorem("forall (a b : RSeq) (n : Int), cumsum (a + b) n = cumsum a n + cumsum b n")
 def cumsum_add(l):
     a, b, n = l.fixes()
     l.induct(n)
@@ -298,16 +306,16 @@ def cumsum_add(l):
     l.auto(by=[add.defn(a, b)])
 
 
-max = smt.Function("max", RSeq, RSeq)
-max = kd.define(
+max = Function("max", RSeq, RSeq)
+max = define(
     "max",
     [a],
-    smt.Lambda(
+    Lambda(
         [i],
-        smt.If(
+        If(
             i == 0,
             a[0],
-            smt.If(
+            If(
                 i > 0,
                 real.max(max(a)[i - 1], a[i]),
                 real.max(max(a)[i + 1], a[i]),
@@ -317,18 +325,18 @@ max = kd.define(
 )
 
 
-@kd.Theorem(smt.ForAll([a, i], max(a)[i] >= a[i]))
+@Theorem(ForAll([a, i], max(a)[i] >= a[i]))
 def max_ge_self(l):
     a, i = l.fixes()
     l.unfold(max)
     l.auto(by=[real.max_ge_2])
 
 
-@kd.Theorem(
-    kd.QForAll(
+@Theorem(
+    QForAll(
         [a, n],
         n >= 0,
-        kd.QForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]),
+        QForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]),
     )
 )
 def max_prefix_bound(l):
@@ -341,8 +349,8 @@ def max_prefix_bound(l):
     l.intros()
     l.split(at=0)
     l.simp(at=-1)
-    i = smt.Int("i")
-    l.have(smt.ForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]), by=[])
+    i = Int("i")
+    l.have(ForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]), by=[])
     l.intros()
     i = l.fix()
     l.intros()
@@ -353,17 +361,17 @@ def max_prefix_bound(l):
     l.auto()
 
 
-max_bound = kd.prove(
-    kd.QForAll([a, n, i], n >= 0, i >= 0, i <= n, a[i] <= max(a)[n]),
+max_bound = prove(
+    QForAll([a, n, i], n >= 0, i >= 0, i <= n, a[i] <= max(a)[n]),
     by=[max_prefix_bound],
 )
 
 
-@kd.Theorem(
-    kd.QForAll(
+@Theorem(
+    QForAll(
         [a, n],
         n <= 0,
-        kd.QForAll([i], n <= i, i <= 0, a[i] <= max(a)[n]),
+        QForAll([i], n <= i, i <= 0, a[i] <= max(a)[n]),
     )
 )
 def max_suffix_bound(l):
@@ -384,8 +392,8 @@ def max_suffix_bound(l):
     l.auto(by=[real.max_ge_2])
     l.have(i != n - 1, by=[])
     l.have(n <= i, by=[])
-    j = smt.Int("j")
-    l.have(kd.QForAll([j], n <= j, j <= 0, a[j] <= max(a)[n]), by=[])
+    j = Int("j")
+    l.have(QForAll([j], n <= j, j <= 0, a[j] <= max(a)[n]), by=[])
     l.specialize(-1, i)
     l.have(a[i] <= max(a)[n], by=[])
     l.unfold(max)
@@ -398,13 +406,11 @@ def max_suffix_bound(l):
     l.auto()
 
 
-Sum = smt.Function("Sum", RSeq, smt.IntSort(), smt.IntSort(), R)
-finsum = kd.define("finsum", [a, n], cumsum(a)[n])
+Sum = Function("Sum", RSeq, IntSort(), IntSort(), R)
+finsum = define("finsum", [a, n], cumsum(a)[n])
 
 
-@kd.Theorem(
-    kd.QForAll([a, n], n >= 0, finsum(a, n + 1) == finsum(a, n) + a[n + 1])
-)
+@Theorem(QForAll([a, n], n >= 0, finsum(a, n + 1) == finsum(a, n) + a[n + 1]))
 def finsum_succ(l):
     a, n = l.fixes()
     # Use the recurrence at this index, rather than an equality of whole arrays.
@@ -412,7 +418,7 @@ def finsum_succ(l):
     l.auto(by=[finsum.defn(a, n + 1), finsum.defn(a, n), step])
 
 
-@kd.Theorem(smt.ForAll([a, x, n], finsum(smul(x, a), n) == x * finsum(a, n)))
+@Theorem(ForAll([a, x, n], finsum(smul(x, a), n) == x * finsum(a, n)))
 def finsum_smul(l):
     a, x, n = l.fixes()
     l.unfold(finsum)
@@ -421,30 +427,30 @@ def finsum_smul(l):
     l.auto()
 
 
-finsum_add = kd.prove(
-    kd.QForAll([a, b, n], finsum(a + b, n) == finsum(a, n) + finsum(b, n)),
+finsum_add = prove(
+    QForAll([a, b, n], finsum(a + b, n) == finsum(a, n) + finsum(b, n)),
     by=[finsum.defn, cumsum_add],
 )
 
-finsum_zero = kd.prove(
-    kd.QForAll([n], finsum(zero, n) == 0),
+finsum_zero = prove(
+    QForAll([n], finsum(zero, n) == 0),
     by=[finsum.defn, cumsum_zero],
 )
 
-dot = kd.define("rseq.dot", [n, a, b], finsum(a * b, n))
+dot = define("rseq.dot", [n, a, b], finsum(a * b, n))
 
-dot_comm = kd.prove(
-    kd.QForAll([a, b, n], dot(n, a, b) == dot(n, b, a)),
+dot_comm = prove(
+    QForAll([a, b, n], dot(n, a, b) == dot(n, b, a)),
     by=[dot.defn, mul_comm],
 )
 
-dot_smul = kd.prove(
-    kd.QForAll([x, a, b, n], dot(n, smul(x, a), b) == x * dot(n, a, b)),
+dot_smul = prove(
+    QForAll([x, a, b, n], dot(n, smul(x, a), b) == x * dot(n, a, b)),
     by=[dot.defn, finsum_smul, smul_mul],
 )
 
 
-@kd.Theorem(kd.QForAll([a, b, c, n], dot(n, a + b, c) == dot(n, a, c) + dot(n, b, c)))
+@Theorem(QForAll([a, b, c, n], dot(n, a + b, c) == dot(n, a, c) + dot(n, b, c)))
 def dot_add(l):
     a, b, c, n = l.fixes()
     l.unfold(dot)
@@ -453,8 +459,8 @@ def dot_add(l):
     l.auto()
 
 
-@kd.Theorem(
-    kd.QForAll([a, n], dot(n, zero, a) == 0),
+@Theorem(
+    QForAll([a, n], dot(n, zero, a) == 0),
 )
 def dot_zero(l):
     a, n = l.fixes()
@@ -474,10 +480,8 @@ def dot_zero(l):
 # triangle inequality
 
 
-outer = kd.define("rseq.outer", [a, b], smt.Lambda([i, j], a[i] * b[j]))
-eye = kd.define(
-    "eye", [n], smt.Lambda([i, j], smt.If(i == j, smt.RealVal(1), smt.RealVal(0)))
-)
+outer = define("rseq.outer", [a, b], Lambda([i, j], a[i] * b[j]))
+eye = define("eye", [n], Lambda([i, j], If(i == j, RealVal(1), RealVal(0))))
 ehat = krondelta
 
 
@@ -485,22 +489,22 @@ ehat = krondelta
 # matrixsum ehat = id
 
 
-sin = kd.define("rseq.sin", [a], smt.Map(real.sin, a))
-cos = kd.define("rseq.cos", [a], smt.Map(real.cos, a))
+sin = define("rseq.sin", [a], Map(real.sin, a))
+cos = define("rseq.cos", [a], Map(real.cos, a))
 
-abs = kd.define("rseq.abs", [a], smt.Map(real.abs, a))
-abs_ext = kd.prove(smt.ForAll([a, n], abs(a)[n] == real.abs(a[n])), by=[abs.defn])
-abs_ge_0 = kd.prove(
-    kd.QForAll([a, n], abs(a)[n] >= 0),
+abs = define("rseq.abs", [a], Map(real.abs, a))
+abs_ext = prove(ForAll([a, n], abs(a)[n] == real.abs(a[n])), by=[abs.defn])
+abs_ge_0 = prove(
+    QForAll([a, n], abs(a)[n] >= 0),
     by=[abs_ext, real.abs_pos],
 )
 
 
-@kd.Theorem(
-    kd.QForAll(
+@Theorem(
+    QForAll(
         [a, N],
         N >= 0,
-        kd.QForAll([n], n >= 0, n <= N, abs(a)[n] <= finsum(abs(a), N)),
+        QForAll([n], n >= 0, n <= N, abs(a)[n] <= finsum(abs(a), N)),
     )
 )
 def abs_le_finsum_abs(l):
@@ -552,32 +556,32 @@ def abs_le_finsum_abs(l):
     l.auto()
 
 
-has_bound = kd.define("has_bound", [a, M], kd.QForAll([n], real.abs(a[n]) <= M))
-is_bounded = kd.define("is_bounded", [a], smt.Exists([M], has_bound(a, M)))
+has_bound = define("has_bound", [a, M], QForAll([n], real.abs(a[n]) <= M))
+is_bounded = define("is_bounded", [a], Exists([M], has_bound(a, M)))
 
-is_monotone = kd.define("is_monotone", [a], kd.QForAll([n, m], n <= m, a[n] <= a[m]))
-is_nonneg = kd.define("is_nonneg", [a], kd.QForAll([n], a[n] >= 0))
+is_monotone = define("is_monotone", [a], QForAll([n, m], n <= m, a[n] <= a[m]))
+is_nonneg = define("is_nonneg", [a], QForAll([n], a[n] >= 0))
 
 # https://en.wikipedia.org/wiki/Cauchy_sequence
 
-mod = smt.Const("mod", smt.ArraySort(smt.RealSort(), smt.IntSort()))
+mod = Const("mod", ArraySort(RealSort(), IntSort()))
 
-is_cauchy = kd.define(
+is_cauchy = define(
     "is_cauchy",
     [a],
-    kd.QForAll(
+    QForAll(
         [eps],
         eps > 0,
-        smt.Exists([N], kd.QForAll([m, k], m > N, k > N, real.abs(a[m] - a[k]) < eps)),
+        Exists([N], QForAll([m, k], m > N, k > N, real.abs(a[m] - a[k]) < eps)),
     ),
 )
-cauchy_mod = kd.define(
+cauchy_mod = define(
     "cauchy_mod",
     [a, mod],
-    kd.QForAll(
+    QForAll(
         [eps],
         eps > 0,
-        kd.QForAll([m, k], m > mod[eps], k > mod[eps], real.abs(a[m] - a[k]) < eps),
+        QForAll([m, k], m > mod[eps], k > mod[eps], real.abs(a[m] - a[k]) < eps),
     ),
 )
 """
@@ -594,45 +598,45 @@ is_convergent = kd.define(
 )
 """
 # limit of sequence as n -> infinity
-has_lim = kd.define(
+has_lim = define(
     "has_lim",
     [a, y],
-    kd.QForAll(
+    QForAll(
         [eps],
         eps > 0,
-        kd.QExists([N], kd.QForAll([n], n > N, real.abs(a[n] - y) < eps)),
+        QExists([N], QForAll([n], n > N, real.abs(a[n] - y) < eps)),
     ),
 )
 
 # convergent
-is_conv = kd.define("is_conv", [a], smt.Exists([y], has_lim(a, y)))
+is_conv = define("is_conv", [a], Exists([y], has_lim(a, y)))
 
 # skolemize and define
-(sk,), pf = kd.kernel.obtain(smt.Exists([y], has_lim(A, y)))
-lim = kd.define("lim", [A], sk)
-lim_defn = kd.prove(
-    smt.Implies(is_conv(A), has_lim(A, lim(A))), by=[lim.defn, pf, is_conv.defn]
+(sk,), pf = kd.kernel.obtain(Exists([y], has_lim(A, y)))
+lim = define("lim", [A], sk)
+lim_defn = prove(
+    Implies(is_conv(A), has_lim(A, lim(A))), by=[lim.defn, pf, is_conv.defn]
 )
 
 
 # kd.Lemma(has_lim(zero, 0)).unfold(has_lim).unfold(zero).unfold(real.abs)
-lim_zero = kd.prove(has_lim(zero, 0), by=[has_lim.defn, zero.defn, real.abs.defn])
-lim_const = kd.prove(has_lim(const(x), x), by=[has_lim.defn, const.defn, real.abs.defn])
+lim_zero = prove(has_lim(zero, 0), by=[has_lim.defn, zero.defn, real.abs.defn])
+lim_const = prove(has_lim(const(x), x), by=[has_lim.defn, const.defn, real.abs.defn])
 
 
-@kd.Theorem(has_lim(smt.Lambda([n], smt.RealVal(1) / n), smt.RealVal(0)))
+@Theorem(has_lim(Lambda([n], RealVal(1) / n), RealVal(0)))
 def has_lim_inv(l):
     l.unfold(has_lim)
     eps = l.fix()
     l.assumes(eps > 0)
-    l.exists(smt.ToInt(1 / eps) + 1)
+    l.exists(ToInt(1 / eps) + 1)
     n = l.fix()
-    l.assumes(n > smt.ToInt(1 / eps) + 1)
+    l.assumes(n > ToInt(1 / eps) + 1)
     l.unfold(real.abs)
     l.auto()
 
 
-@kd.Theorem("forall (a : RSeq) (x y : Real), has_lim a x -> has_lim a y -> x = y")
+@Theorem("forall (a : RSeq) (x y : Real), has_lim a x -> has_lim a y -> x = y")
 def lim_unique(l):
     a, x, y = l.fixes()
     l.intros()
@@ -647,24 +651,24 @@ def lim_unique(l):
     l.specialize(hy, eps)
     l.have(real.abs(x - y) > 0, by=[real.abs_pos_iff])
     l.have(eps > 0, by=[])
-    n1 = smt.Int("N")  # "N1" is problem for alpha rename
-    n2 = smt.Int("N")  # "N2" is problem for alpha rename
-    n = smt.Int("n")
-    exists_x = kd.QExists(
+    n1 = Int("N")  # "N1" is problem for alpha rename
+    n2 = Int("N")  # "N2" is problem for alpha rename
+    n = Int("n")
+    exists_x = QExists(
         [n1],
-        kd.QForAll([n], n > n1, real.abs(a[n] - x) < eps),
+        QForAll([n], n > n1, real.abs(a[n] - x) < eps),
     )
-    exists_y = kd.QExists(
+    exists_y = QExists(
         [n2],
-        kd.QForAll([n], n > n2, real.abs(a[n] - y) < eps),
+        QForAll([n], n > n2, real.abs(a[n] - y) < eps),
     )
     l.have(exists_x, by=[])  # unstable due to alpha rename?
     N1 = l.obtain(exists_x)
     l.have(exists_y, by=[])
     N2 = l.obtain(exists_y)
-    N = smt.If(N1 > N2, N1, N2) + 1
-    forall_x = kd.QForAll([n], n > N1, real.abs(a[n] - x) < eps)
-    forall_y = kd.QForAll([n], n > N2, real.abs(a[n] - y) < eps)
+    N = If(N1 > N2, N1, N2) + 1
+    forall_x = QForAll([n], n > N1, real.abs(a[n] - x) < eps)
+    forall_y = QForAll([n], n > N2, real.abs(a[n] - y) < eps)
     l.specialize(forall_x, N)
     l.specialize(forall_y, N)
     l.have(N > N1, by=[])
@@ -685,22 +689,22 @@ def lim_unique(l):
     l.auto()
 
 
-has_sum = kd.define("has_sum", [a, y], has_lim(cumsum(a), y))
-is_summable = kd.define("is_summable", [a], smt.Exists([y], has_sum(a, y)))
+has_sum = define("has_sum", [a, y], has_lim(cumsum(a), y))
+is_summable = define("is_summable", [a], Exists([y], has_sum(a, y)))
 
 
 class Series:
     # https://www.cs.dartmouth.edu/~doug/powser.html
-    powers = smt.Function("powers", R, RSeq)
-    powers = kd.define(
+    powers = Function("powers", R, RSeq)
+    powers = define(
         "powers",
         [x],
-        smt.Lambda(
+        Lambda(
             [i],
-            smt.If(
+            If(
                 i == 0,
-                smt.RealVal(1),
-                smt.If(i < 0, powers(x)[i + 1] / x, x * powers(x)[i - 1]),
+                RealVal(1),
+                If(i < 0, powers(x)[i + 1] / x, x * powers(x)[i - 1]),
             ),
         ),
     )

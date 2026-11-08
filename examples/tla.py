@@ -1,25 +1,25 @@
 from kdrag.all import *
+from kdrag import Theorem
+from kdrag.smt import And, ArraySort, Const, ForAll, FreshInt, IntSort, Lambda
 import kdrag.modal as mod
 
 
-TInt = smt.ArraySort(smt.IntSort(), smt.IntSort())
-hr = smt.Const("hr", TInt)
+TInt = ArraySort(IntSort(), IntSort())
+hr = Const("hr", TInt)
 
 
 def Next(x):
-    t = smt.FreshInt(prefix="t")
-    return smt.Lambda([t], x(t + 1))
+    t = FreshInt(prefix="t")
+    return Lambda([t], x(t + 1))
 
 
 def Always(x, unchanged=None):
-    t1 = smt.FreshInt(prefix="t")
-    t2 = smt.FreshInt(prefix="t")
+    t1 = FreshInt(prefix="t")
+    t2 = FreshInt(prefix="t")
     if unchanged is not None:
-        return smt.Lambda(
-            [t1], smt.ForAll([t2], t2 >= t1, (x(t2) | UNCHANGED(*unchanged)(t2)))
-        )
+        return Lambda([t1], ForAll([t2], t2 >= t1, (x(t2) | UNCHANGED(*unchanged)(t2))))
     else:
-        return smt.Lambda([t1], smt.ForAll([t2], t2 >= t1, x(t2)))
+        return Lambda([t1], ForAll([t2], t2 >= t1, x(t2)))
 
 
 def Valid(x):
@@ -27,15 +27,15 @@ def Valid(x):
 
 
 def UNCHANGED(*args):
-    t = smt.FreshInt(prefix="t")
-    return smt.Lambda([t], smt.And(*(arg(t + 1) == arg(t) for arg in args)))
+    t = FreshInt(prefix="t")
+    return Lambda([t], And(*(arg(t + 1) == arg(t) for arg in args)))
 
 
 HCini = (0 <= hr) & (hr <= 12)
 HCtrans = mod.PEq(Next(hr), mod.PIf(hr < 12, hr + 1, 0))  # todo stutter
 
 
-@kd.Theorem(Valid(mod.PImplies(HCini & Always(HCtrans), Always(HCini))))
+@Theorem(Valid(mod.PImplies(HCini & Always(HCtrans), Always(HCini))))
 def clock_inv(l):
     l.intros()
     _t = l.fix()

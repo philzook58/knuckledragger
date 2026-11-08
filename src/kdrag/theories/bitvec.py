@@ -3,7 +3,33 @@ Theorems about bitvectors. These are theorems about the built in smtlib bitvecto
 """
 
 import kdrag as kd
+from kdrag import NewType, define, prove
 import kdrag.smt as smt
+from kdrag.smt import (
+    Array,
+    BV2Int,
+    BitVec,
+    BitVecVal,
+    BitVecs,
+    Concat,
+    Const,
+    Consts,
+    Empty,
+    Extract,
+    ForAll,
+    Function,
+    If,
+    IntSort,
+    IntVal,
+    LShR,
+    Lambda,
+    Length,
+    SeqMap,
+    Store,
+    SubSeq,
+    Unit,
+    simplify,
+)
 import kdrag.theories.seq as seq
 import functools
 
@@ -18,92 +44,90 @@ def BitVecSort(N):
     """
     S = smt.BitVecSort(N)
     smt.sort_registry[S.get_id()] = S
-    x, y, z = smt.BitVecs("x y z", N)
-    zero = smt.BitVecVal(0, N)
+    x, y, z = BitVecs("x y z", N)
+    zero = BitVecVal(0, N)
     S.BVNot = (~x).decl()
     S.zero = zero
-    one = smt.BitVecVal(1, N)
+    one = BitVecVal(1, N)
     S.one = one
 
-    S.bvadd_comm = kd.prove(smt.ForAll([x, y], x + y == y + x))
-    S.bvadd_assoc = kd.prove(smt.ForAll([x, y, z], (x + y) + z == x + (y + z)))
-    S.bvadd_id = kd.prove(smt.ForAll([x], x + zero == x))
-    S.bvadd_neg = kd.prove(smt.ForAll([x], x + (-x) == zero))
+    S.bvadd_comm = prove(ForAll([x, y], x + y == y + x))
+    S.bvadd_assoc = prove(ForAll([x, y, z], (x + y) + z == x + (y + z)))
+    S.bvadd_id = prove(ForAll([x], x + zero == x))
+    S.bvadd_neg = prove(ForAll([x], x + (-x) == zero))
 
-    S.bvsub_self = kd.prove(smt.ForAll([x], x - x == zero))
-    S.bvsub_def = kd.prove(smt.ForAll([x, y], x - y == x + (-y)))
+    S.bvsub_self = prove(ForAll([x], x - x == zero))
+    S.bvsub_def = prove(ForAll([x, y], x - y == x + (-y)))
 
-    S.bvmul_comm = kd.prove(smt.ForAll([x, y], x * y == y * x))
-    S.bvmul_assoc = kd.prove(smt.ForAll([x, y, z], (x * y) * z == x * (y * z)))
-    S.bvmul_id = kd.prove(smt.ForAll([x], x * smt.BitVecVal(1, N) == x))
-    S.bvmul_zero = kd.prove(smt.ForAll([x], x * zero == zero))
+    S.bvmul_comm = prove(ForAll([x, y], x * y == y * x))
+    S.bvmul_assoc = prove(ForAll([x, y, z], (x * y) * z == x * (y * z)))
+    S.bvmul_id = prove(ForAll([x], x * BitVecVal(1, N) == x))
+    S.bvmul_zero = prove(ForAll([x], x * zero == zero))
 
-    S.bvand_comm = kd.prove(smt.ForAll([x, y], x & y == y & x))
-    S.bvand_assoc = kd.prove(smt.ForAll([x, y, z], (x & y) & z == x & (y & z)))
-    S.bvand_id = kd.prove(smt.ForAll([x], x & smt.BitVecVal(-1, N) == x))
-    S.bvand_zero = kd.prove(smt.ForAll([x], x & zero == zero))
+    S.bvand_comm = prove(ForAll([x, y], x & y == y & x))
+    S.bvand_assoc = prove(ForAll([x, y, z], (x & y) & z == x & (y & z)))
+    S.bvand_id = prove(ForAll([x], x & BitVecVal(-1, N) == x))
+    S.bvand_zero = prove(ForAll([x], x & zero == zero))
 
-    S.bvor_comm = kd.prove(smt.ForAll([x, y], x | y == y | x))
-    S.bvor_assoc = kd.prove(smt.ForAll([x, y, z], (x | y) | z == x | (y | z)))
-    S.bvor_id = kd.prove(smt.ForAll([x], x | zero == x))
-    S.bvor_neg = kd.prove(smt.ForAll([x], x | ~x == smt.BitVecVal(-1, N)))
+    S.bvor_comm = prove(ForAll([x, y], x | y == y | x))
+    S.bvor_assoc = prove(ForAll([x, y, z], (x | y) | z == x | (y | z)))
+    S.bvor_id = prove(ForAll([x], x | zero == x))
+    S.bvor_neg = prove(ForAll([x], x | ~x == BitVecVal(-1, N)))
 
-    S.bvxor_comm = kd.prove(smt.ForAll([x, y], x ^ y == y ^ x))
-    S.bvxor_assoc = kd.prove(smt.ForAll([x, y, z], (x ^ y) ^ z == x ^ (y ^ z)))
-    S.bvxor_id = kd.prove(smt.ForAll([x], x ^ zero == x))
-    S.bvxor_self = kd.prove(smt.ForAll([x], x ^ x == zero))
+    S.bvxor_comm = prove(ForAll([x, y], x ^ y == y ^ x))
+    S.bvxor_assoc = prove(ForAll([x, y, z], (x ^ y) ^ z == x ^ (y ^ z)))
+    S.bvxor_id = prove(ForAll([x], x ^ zero == x))
+    S.bvxor_self = prove(ForAll([x], x ^ x == zero))
 
-    S.bvshl_zero = kd.prove(smt.ForAll([x], x << zero == x))
-    S.bvshr_zero = kd.prove(smt.ForAll([x], smt.LShR(x, zero) == x))
+    S.bvshl_zero = prove(ForAll([x], x << zero == x))
+    S.bvshr_zero = prove(ForAll([x], LShR(x, zero) == x))
 
     # Bitwise simplification rules
-    S.bvand_self = kd.prove(smt.ForAll([x], x & x == x))
-    S.bvor_self = kd.prove(smt.ForAll([x], x | x == x))
-    S.bvxor_zero = kd.prove(smt.ForAll([x], x ^ zero == x))
-    S.bvnot_self = kd.prove(smt.ForAll([x], ~x == -x - 1))
+    S.bvand_self = prove(ForAll([x], x & x == x))
+    S.bvor_self = prove(ForAll([x], x | x == x))
+    S.bvxor_zero = prove(ForAll([x], x ^ zero == x))
+    S.bvnot_self = prove(ForAll([x], ~x == -x - 1))
 
     # Rules for shifting and rotating
-    S.bvshl_self = kd.prove(
-        smt.ForAll([x, y], x << y == x * (one << y))
+    S.bvshl_self = prove(
+        ForAll([x, y], x << y == x * (one << y))
     )  # Left shift as multiplication
     # bvshr_self = kd.prove(smt.ForAll([x, y], smt.LShR(x, y) == x / (one << y)))  # Logical right shift as division
     # bvashr_self = kd.prove(smt.ForAll([x, y], smt.AShr(x, y) == smt.If(x >> 31 == 0, smt.LShR(x, y), ~smt.LShR(~x, y))))  # Arithmetic right shift rule
 
     # Simplification with negation and subtraction
-    S.bvsub_zero = kd.prove(smt.ForAll([x], x - zero == x))
-    S.bvsub_id = kd.prove(smt.ForAll([x], zero - x == -x))
-    S.bvadd_sub = kd.prove(smt.ForAll([x, y], x + (-y) == x - y))
-    S.bvsub_add = kd.prove(smt.ForAll([x, y], x - (-y) == x + y))
+    S.bvsub_zero = prove(ForAll([x], x - zero == x))
+    S.bvsub_id = prove(ForAll([x], zero - x == -x))
+    S.bvadd_sub = prove(ForAll([x, y], x + (-y) == x - y))
+    S.bvsub_add = prove(ForAll([x, y], x - (-y) == x + y))
 
     # Bitwise AND, OR, and XOR with constants
-    S.bvand_allones = kd.prove(smt.ForAll([x], x & smt.BitVecVal(-1, N) == x))
-    S.bvor_allzeros = kd.prove(smt.ForAll([x], x | zero == x))
-    S.bvxor_allzeros = kd.prove(smt.ForAll([x], x ^ zero == x))
+    S.bvand_allones = prove(ForAll([x], x & BitVecVal(-1, N) == x))
+    S.bvor_allzeros = prove(ForAll([x], x | zero == x))
+    S.bvxor_allzeros = prove(ForAll([x], x ^ zero == x))
 
     # Distribution and absorption laws
-    S.bvand_or = kd.prove(smt.ForAll([x, y, z], x & (y | z) == (x & y) | (x & z)))
-    S.bvor_and = kd.prove(smt.ForAll([x, y, z], x | (y & z) == (x | y) & (x | z)))
-    S.bvand_absorb = kd.prove(smt.ForAll([x, y], x & (x | y) == x))
-    S.bvor_absorb = kd.prove(smt.ForAll([x, y], x | (x & y) == x))
+    S.bvand_or = prove(ForAll([x, y, z], x & (y | z) == (x & y) | (x & z)))
+    S.bvor_and = prove(ForAll([x, y, z], x | (y & z) == (x | y) & (x | z)))
+    S.bvand_absorb = prove(ForAll([x, y], x & (x | y) == x))
+    S.bvor_absorb = prove(ForAll([x, y], x | (x & y) == x))
 
     # Shifting rules with zero and identity
-    S.bvshl_zero_shift = kd.prove(smt.ForAll([x], x << zero == x))
-    S.bvshr_zero_shift = kd.prove(smt.ForAll([x], smt.LShR(x, zero) == x))
+    S.bvshl_zero_shift = prove(ForAll([x], x << zero == x))
+    S.bvshr_zero_shift = prove(ForAll([x], LShR(x, zero) == x))
     # bvashr_zero_shift = kd.prove(smt.ForAll([x], smt.AShr(x, zero) == x))  # Arithmetic right shift by zero is identity
-    S.bvshl_allzeros = kd.prove(smt.ForAll([y], zero << y == zero))
-    S.bvshr_allzeros = kd.prove(smt.ForAll([y], smt.LShR(zero, y) == zero))
+    S.bvshl_allzeros = prove(ForAll([y], zero << y == zero))
+    S.bvshr_allzeros = prove(ForAll([y], LShR(zero, y) == zero))
     # bvashr_allzeros = kd.prove(smt.ForAll([y], smt.AShr(zero, y) == zero))  # Arithmetic right shift of zero is zero
 
     # Additional rules for combining operations
     # bvadd_and = kd.prove(smt.ForAll([x, y, z], (x & y) + (x & z) == x & (y + z)))  # AND distribution over addition
-    S.bvor_and_not = kd.prove(smt.ForAll([x, y], (x & y) | (x & ~y) == x))
+    S.bvor_and_not = prove(ForAll([x, y], (x & y) | (x & ~y) == x))
     # bvxor_and_not = kd.prove(smt.ForAll([x, y], (x & y) ^ (x & ~y) == y))  # Distribution of XOR and AND with negation
 
     # Properties involving shifts and bit manipulations
-    S.bvshl_and = kd.prove(smt.ForAll([x, y, z], (x & y) << z == (x << z) & (y << z)))
-    S.bvshr_and = kd.prove(
-        smt.ForAll([x, y, z], smt.LShR(x & y, z) == smt.LShR(x, z) & smt.LShR(y, z))
-    )
+    S.bvshl_and = prove(ForAll([x, y, z], (x & y) << z == (x << z) & (y << z)))
+    S.bvshr_and = prove(ForAll([x, y, z], LShR(x & y, z) == LShR(x, z) & LShR(y, z)))
     return S
 
 
@@ -116,7 +140,7 @@ BV8 = BitVecSort(8)
 # BV64 = BitVecSort(64)
 
 
-BitVecN = kd.NewType("BitVecN", seq.Seq(BV1))
+BitVecN = NewType("BitVecN", seq.Seq(BV1))
 """
 Arbitrary length bitvectors. Least significant bit comes first (index 0). Concat is unfortunately reversed compared to bitvector convetions.
 
@@ -125,16 +149,16 @@ Fix via Newtype wrapper? I guess I want overloading anyway
 """
 
 BVN = BitVecN
-BVN.empty = BVN(smt.Empty(seq.Seq(BV1)))
-x, y, z = smt.Consts("x y z", BitVecN)
-to_int = smt.Function("BitVecN.to_int", BitVecN, smt.IntSort())
+BVN.empty = BVN(Empty(seq.Seq(BV1)))
+x, y, z = Consts("x y z", BitVecN)
+to_int = Function("BitVecN.to_int", BitVecN, IntSort())
 to_int = kd.notation.to_int.define(
     [x],
-    smt.If(
-        smt.Length(x.val) == 0,
-        smt.IntVal(0),
-        smt.BV2Int(x.val[0], is_signed=False)
-        + 2 * to_int(BitVecN(smt.SubSeq(x.val, 1, smt.Length(x.val) - 1))),
+    If(
+        Length(x.val) == 0,
+        IntVal(0),
+        BV2Int(x.val[0], is_signed=False)
+        + 2 * to_int(BitVecN(SubSeq(x.val, 1, Length(x.val) - 1))),
     ),
 )
 
@@ -147,41 +171,37 @@ def BitVecNVal(x: int, N: int) -> smt.DatatypeRef:
     if N == 0:
         return BVN.empty
     elif N == 1:
-        return BVN(smt.Unit(smt.BitVecVal(x, 1)))
+        return BVN(Unit(BitVecVal(x, 1)))
     else:
-        return BVN(
-            smt.Concat([smt.Unit(smt.BitVecVal((x >> i) & 1, 1)) for i in range(N)])
-        )
+        return BVN(Concat([Unit(BitVecVal((x >> i) & 1, 1)) for i in range(N)]))
 
 
-to_int_empty = kd.prove(to_int(BitVecNVal(0, 0)) == smt.IntVal(0), unfold=1)
-to_int_false = kd.prove(BitVecNVal(0, 1).to_int() == smt.IntVal(0), by=[to_int.defn])
-to_int_true = kd.prove(BitVecNVal(1, 1).to_int() == smt.IntVal(1), by=[to_int.defn])
+to_int_empty = prove(to_int(BitVecNVal(0, 0)) == IntVal(0), unfold=1)
+to_int_false = prove(BitVecNVal(0, 1).to_int() == IntVal(0), by=[to_int.defn])
+to_int_true = prove(BitVecNVal(1, 1).to_int() == IntVal(1), by=[to_int.defn])
 # (x + y).to_int() == x.to_int() + 2**(smt.Length(x)) * y.to_int()
 
 
 def fromBV(x: smt.BitVecRef) -> smt.DatatypeRef:
     """
-    >>> fromBV(smt.BitVecVal(6, 3))
+    >>> fromBV(BitVecVal(6, 3))
     BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))
     """
-    return smt.simplify(
-        BitVecN(smt.Concat([smt.Unit(smt.Extract(i, i, x)) for i in range(x.size())]))
-    )
+    return simplify(BitVecN(Concat([Unit(Extract(i, i, x)) for i in range(x.size())])))
 
 
 def toBV(x: smt.DatatypeRef, N: int) -> smt.BitVecRef:
     """
-    >>> smt.simplify(toBV(BitVecNVal(6, 3), 3))
+    >>> simplify(toBV(BitVecNVal(6, 3), 3))
     6
     """
     BV = BitVecSort(N)
-    undef = smt.Function("toBV_undef", BitVecN, BV)
-    unpack = smt.Concat(*reversed([x.val[i] for i in range(N)]))
+    undef = Function("toBV_undef", BitVecN, BV)
+    unpack = Concat(*reversed([x.val[i] for i in range(N)]))
     # could possibly raise error here if we _know_ you've reduced to undef
     # assert not smt.simplify(expr).eq(smt.simplify(undef(x)))
-    return smt.If(
-        smt.Length(x.val) == N,
+    return If(
+        Length(x.val) == N,
         unpack,  # smt.Int2BV(to_int(x), N),  # Or could do full unpack
         undef(x),
     )
@@ -194,17 +214,17 @@ def BitVecNConst(name: str, N: int) -> smt.DatatypeRef:
     >>> BitVecNConst("x", 3)
     BitVecN(Concat(Unit(x[0]), Concat(Unit(x[1]), Unit(x[2]))))
     """
-    x = smt.Array(name, smt.IntSort(), BV1)  # array vs function vs seq?
-    return BitVecN(smt.Concat([smt.Unit(x[i]) for i in range(N)]))
+    x = Array(name, IntSort(), BV1)  # array vs function vs seq?
+    return BitVecN(Concat([Unit(x[i]) for i in range(N)]))
 
 
 def BVNot(x: smt.DatatypeRef) -> smt.DatatypeRef:
     """
-    >>> smt.simplify(BVNot(BitVecNVal(1, 3)))
+    >>> simplify(BVNot(BitVecNVal(1, 3)))
     BitVecN(Concat(Unit(0), Concat(Unit(1), Unit(1))))
     """
-    z = smt.Const("z", smt.BitVecSort(1))
-    return BitVecN(smt.SeqMap(smt.Lambda([z], BV1.BVNot(z)), x.val))
+    z = Const("z", smt.BitVecSort(1))
+    return BitVecN(SeqMap(Lambda([z], BV1.BVNot(z)), x.val))
 
 
 # BVAdd SeqFold
@@ -218,29 +238,29 @@ def SelectConcat(
     n is number of bytes.
     Flag is for little endian concatenation vs big endian.
 
-    >>> x = smt.Const("x", BitVecSort(8))
-    >>> a = smt.Lambda([x], x)
-    >>> smt.simplify(SelectConcat(a, 1, 1))
+    >>> x = Const("x", BitVecSort(8))
+    >>> a = Lambda([x], x)
+    >>> simplify(SelectConcat(a, 1, 1))
     1
-    >>> smt.simplify(SelectConcat(a, 0, 2))
+    >>> simplify(SelectConcat(a, 0, 2))
     256
-    >>> smt.simplify(SelectConcat(a, 0, 2, le=False))
+    >>> simplify(SelectConcat(a, 0, 2, le=False))
     1
     """
     assert n > 0
     if n == 1:
         return a[addr]
     elif le:
-        return smt.Concat([a[addr + n - i - 1] for i in range(n)])
+        return Concat([a[addr + n - i - 1] for i in range(n)])
     else:
-        return smt.Concat([a[addr + i] for i in range(n)])
+        return Concat([a[addr + i] for i in range(n)])
 
 
 @functools.cache
 def select_concats(bits, size, le=True):
-    _a = smt.Array("a", smt.BitVecSort(bits), smt.BitVecSort(8))
-    _addr = smt.BitVec("addr", bits)
-    return kd.define(
+    _a = Array("a", smt.BitVecSort(bits), smt.BitVecSort(8))
+    _addr = BitVec("addr", bits)
+    return define(
         f"select{size}{'le' if le else 'be'}",
         [_a, _addr],
         SelectConcat(_a, _addr, size // 8, le=le),
@@ -251,7 +271,7 @@ def select_concat(
     a: smt.ArrayRef, addr: smt.BitVecRef | int, n: int, le=True
 ) -> smt.BitVecRef:
     """
-    >>> mem = smt.Array("mem", smt.BitVecSort(64), BV8)
+    >>> mem = Array("mem", smt.BitVecSort(64), BV8)
     >>> select_concat(mem, 0, 2)
     select16le(mem, 0)
     """
@@ -268,36 +288,34 @@ def StoreConcat(
     """
     Store multiple bytes into an array.
 
-    >>> a = smt.Array("a", smt.BitVecSort(8), smt.BitVecSort(8))
-    >>> smt.simplify(StoreConcat(a, 0, smt.BitVecVal(258, 16)))
+    >>> a = Array("a", smt.BitVecSort(8), smt.BitVecSort(8))
+    >>> simplify(StoreConcat(a, 0, BitVecVal(258, 16)))
     Store(Store(a, 0, 2), 1, 1)
-    >>> smt.simplify(SelectConcat(StoreConcat(a, 6, smt.BitVecVal(258, 16)), 6, 2))
+    >>> simplify(SelectConcat(StoreConcat(a, 6, BitVecVal(258, 16)), 6, 2))
     258
-    >>> smt.simplify(SelectConcat(StoreConcat(a, 6, smt.BitVecVal(258, 16), le=False), 6, 2, le=False))
+    >>> simplify(SelectConcat(StoreConcat(a, 6, BitVecVal(258, 16), le=False), 6, 2, le=False))
     258
     """
     n = data.size()
     assert n % 8 == 0
     for offset in range(n // 8):
         if le:
-            a = smt.Store(
-                a, addr + offset, smt.Extract(8 * offset + 7, 8 * offset, data)
-            )
+            a = Store(a, addr + offset, Extract(8 * offset + 7, 8 * offset, data))
         else:
-            a = smt.Store(
+            a = Store(
                 a,
                 addr + n // 8 - offset - 1,
-                smt.Extract(8 * offset + 7, 8 * offset, data),
+                Extract(8 * offset + 7, 8 * offset, data),
             )
     return a
 
 
 @functools.cache
 def store_concats(bits, size, le=True):
-    _a = smt.Array("a", smt.BitVecSort(bits), smt.BitVecSort(8))
-    _addr = smt.BitVec("addr", bits)
-    data = smt.BitVec("data", size)
-    return kd.define(
+    _a = Array("a", smt.BitVecSort(bits), smt.BitVecSort(8))
+    _addr = BitVec("addr", bits)
+    data = BitVec("data", size)
+    return define(
         f"store{size}{'le' if le else 'be'}",
         [_a, _addr, data],
         StoreConcat(_a, _addr, data, le=le),
@@ -309,18 +327,18 @@ def store_concat(
 ) -> smt.ArrayRef:
     n = data.size()
     if n == 8:
-        return smt.Store(a, addr, data)
+        return Store(a, addr, data)
     else:
         return store_concats(a.domain().size(), n, le=le)(a, addr, data)
 
 
 def PopCount(x: smt.BitVecRef) -> smt.ArithRef:
     """
-    >>> smt.simplify(PopCount(smt.BitVecVal(6, 3)))
+    >>> simplify(PopCount(BitVecVal(6, 3)))
     2
     """
     size = x.size()
-    out = smt.BitVecVal(0, size)
+    out = BitVecVal(0, size)
     for i in range(size):
         out += (x >> i) & 1
     return out
@@ -329,8 +347,8 @@ def PopCount(x: smt.BitVecRef) -> smt.ArithRef:
 
 @functools.cache
 def popcounts(size: int) -> smt.FuncDeclRef:
-    x = smt.BitVec("x", size)
-    return kd.define("popcount" + str(size), [x], PopCount(x))
+    x = BitVec("x", size)
+    return define("popcount" + str(size), [x], PopCount(x))
 
 
 def popcount(x: smt.BitVecRef):
@@ -341,18 +359,18 @@ def UnConcat(x: smt.BitVecRef, lane_num: int) -> list[smt.BitVecRef]:
     """
     Unpack a bitvector into lanes.
 
-    >>> x,y = smt.BitVecs("x y", 32)
-    >>> kd.prove(smt.Concat(UnConcat(x, 4)) == x)
+    >>> x,y = BitVecs("x y", 32)
+    >>> prove(Concat(UnConcat(x, 4)) == x)
     |= Concat(Concat(Concat(Extract(31, 24, x), Extract(23, 16, x)),
                   Extract(15, 8, x)),
            Extract(7, 0, x)) == x
-    >>> kd.prove(UnConcat(smt.Concat(x,y), 2)[0] == x)
+    >>> prove(UnConcat(Concat(x,y), 2)[0] == x)
     |= Extract(63, 32, Concat(x, y)) == x
     """
     assert x.size() % lane_num == 0
     lanesize = x.size() // lane_num
     return [
-        smt.Extract((i + 1) * lanesize - 1, i * lanesize, x)
+        Extract((i + 1) * lanesize - 1, i * lanesize, x)
         for i in reversed(range(lane_num))
     ]
 
@@ -360,8 +378,8 @@ def UnConcat(x: smt.BitVecRef, lane_num: int) -> list[smt.BitVecRef]:
 def vmap(f, n):
     """
 
-    >>> x,y = smt.BitVecs("x y", 16)
-    >>> kd.prove(vmap(lambda a: a, 2)(x) == x)
+    >>> x,y = BitVecs("x y", 16)
+    >>> prove(vmap(lambda a: a, 2)(x) == x)
     |= Concat(Extract(15, 8, x), Extract(7, 0, x)) == x
     >>> vmap(lambda a,b: a - b, 2)(x, y)
     Concat(Extract(15, 8, x) - Extract(15, 8, y),
@@ -369,7 +387,7 @@ def vmap(f, n):
     """
 
     def res(*args):
-        return smt.Concat(
+        return Concat(
             [f(*smallargs) for smallargs in zip(*[UnConcat(arg, n) for arg in args])]
         )
 

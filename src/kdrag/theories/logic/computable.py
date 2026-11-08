@@ -1,30 +1,26 @@
-import kdrag as kd
-import kdrag.smt as smt
+from kdrag import define
+from kdrag.smt import And, BoolSort, Consts, Function, If, IntSort, Ints, Or
 import kdrag.theories.set as set_
 
-IntSet = set_.Set(smt.IntSort())
-computable = smt.Function("computable", IntSet, smt.BoolSort())
+IntSet = set_.Set(IntSort())
+computable = Function("computable", IntSet, BoolSort())
 
 
 # bounded quantifiers
 # Can define them actually
-n, m = smt.Ints("n m")
-A, B = smt.Consts("A B", IntSet)
-bexists = smt.Function("bexists", IntSet, smt.IntSort(), smt.BoolSort())
-bexists = kd.define(
-    "bexist", [A, n], smt.If(n < 0, False, smt.Or(A[n], bexists(A, n - 1)))
-)
+n, m = Ints("n m")
+A, B = Consts("A B", IntSet)
+bexists = Function("bexists", IntSet, IntSort(), BoolSort())
+bexists = define("bexist", [A, n], If(n < 0, False, Or(A[n], bexists(A, n - 1))))
 
-bforall = smt.Function("bforall", IntSet, smt.IntSort(), smt.BoolSort())
-bforall = kd.define(
-    "bforall", [A, n], smt.If(n < 0, True, smt.And(A[n], bforall(A, n - 1)))
-)
+bforall = Function("bforall", IntSet, IntSort(), BoolSort())
+bforall = define("bforall", [A, n], If(n < 0, True, And(A[n], bforall(A, n - 1))))
 
 # Kleene mu operator
 # https://en.wikipedia.org/wiki/%CE%9C_operator
-mu_iter = smt.Function("mu_iter", IntSet, smt.IntSort(), smt.IntSort())
-mu_iter = kd.define("mu_iter", [A, n], smt.If(A[n], n, mu_iter(A, n + 1)))
-mu = kd.define("mu", [A], mu_iter(A, 0))
+mu_iter = Function("mu_iter", IntSet, IntSort(), IntSort())
+mu_iter = define("mu_iter", [A, n], If(A[n], n, mu_iter(A, n + 1)))
+mu = define("mu", [A], mu_iter(A, 0))
 
 """
 # https://isabelle.in.tum.de/library/HOL/HOL-Library/Countable_Set.html

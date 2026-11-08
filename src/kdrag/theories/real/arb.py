@@ -1,5 +1,19 @@
 import kdrag as kd
+from kdrag import QForAll, axiom, prove
 import kdrag.smt as smt
+from kdrag.smt import (
+    And,
+    BoolVal,
+    Eq,
+    Real,
+    RealVal,
+    Reals,
+    is_app,
+    is_rational_value,
+    is_real,
+    is_select,
+    simplify,
+)
 import kdrag.theories.real as real
 import operator as op
 from flint import arb
@@ -7,7 +21,7 @@ from typing import TypeAlias
 
 Arb: TypeAlias = arb
 
-a, b = smt.Reals("a b")
+a, b = Reals("a b")
 flint_decls = {
     real.sqrt: arb.sqrt,
     real.sqr: lambda x: x**2,
@@ -38,13 +52,13 @@ def interp_flint(e: smt.ArithRef, env) -> Arb:
         return arb(e)
     if e in env:
         return env[e]
-    elif smt.is_select(e) and e.arg(0) in flint_decls:
+    elif is_select(e) and e.arg(0) in flint_decls:
         return flint_decls[e.arg(0)](
             *[interp_flint(arg, env) for arg in e.children()[1:]]
         )
-    elif smt.is_rational_value(e) and isinstance(e, smt.RatNumRef):
+    elif is_rational_value(e) and isinstance(e, smt.RatNumRef):
         return arb(e.numerator_as_long()) / arb(e.denominator_as_long())
-    elif smt.is_app(e) and e.decl() in flint_decls:
+    elif is_app(e) and e.decl() in flint_decls:
         decl = e.decl()
         return flint_decls[decl](*[interp_flint(arg, env) for arg in e.children()])
     assert False, f"Can't interpret {e} into flint"
@@ -70,14 +84,14 @@ def flint_eq_ax_unsafe(lhs, rhs):
 
     >>> flint_eq_ax_unsafe(real.pi, 4*real.atan(1))
     |= pi == 4*atan(1)
-    >>> flint_eq_ax_unsafe(smt.RealVal(0), real.sin(0))
+    >>> flint_eq_ax_unsafe(RealVal(0), real.sin(0))
     |= 0 == Real.sin(0)
     >>> flint_eq_ax_unsafe(real.sin(3*real.pi/2), -1)
     |= Real.sin((3*pi)/2) == -1
     """
     if not interp_flint(lhs, {}).overlaps(interp_flint(rhs, {})):
         raise ValueError(f"lhs and rhs do not numerically overlap: {lhs} and {rhs}")
-    return kd.axiom(smt.Eq(lhs, rhs), by="flint")
+    return axiom(Eq(lhs, rhs), by="flint")
 
 
 def arb_lt_ax(lhs: smt.ArithRef, rhs: smt.ArithRef) -> kd.kernel.Proof:
@@ -88,11 +102,11 @@ def arb_lt_ax(lhs: smt.ArithRef, rhs: smt.ArithRef) -> kd.kernel.Proof:
     |= 157/50 < pi
     """
     if isinstance(lhs, int) or isinstance(lhs, float):
-        lhs = smt.RealVal(
+        lhs = RealVal(
             lhs
         )  # We do this so that `<` overloading doesn't flip the direction, which is annoying
     if interp_flint(lhs, {}) < (interp_flint(rhs, {})):
-        return kd.axiom(lhs < rhs, by="flint")  # type: ignore
+        return axiom(lhs < rhs, by="flint")  # type: ignore
     else:
         raise ValueError(
             f"{lhs} is not numerically strictly less than {rhs}",
@@ -110,7 +124,7 @@ def arb_le_ax(lhs0: smt.ArithRef, rhs: smt.ArithRef) -> kd.kernel.Proof:
     |= 1 <= 1
     """
     if isinstance(lhs0, int) or isinstance(lhs0, float):
-        lhs: smt.ArithRef = smt.RealVal(
+        lhs: smt.ArithRef = RealVal(
             lhs0
         )  # We do this so that `<` overloading doesn't flip the direction, which is annoying
     elif isinstance(lhs0, smt.ArithRef):
@@ -118,7 +132,7 @@ def arb_le_ax(lhs0: smt.ArithRef, rhs: smt.ArithRef) -> kd.kernel.Proof:
     else:
         raise ValueError("lhs must be a number or z3 expression", lhs0)
     if interp_flint(lhs, {}) <= (interp_flint(rhs, {})):
-        return kd.axiom(lhs <= rhs, by="flint")  # type: ignore
+        return axiom(lhs <= rhs, by="flint")  # type: ignore
     else:
         raise ValueError(
             f"{lhs} ball is not numerically less than {rhs} ball",
@@ -128,11 +142,11 @@ def arb_le_ax(lhs0: smt.ArithRef, rhs: smt.ArithRef) -> kd.kernel.Proof:
 
 
 def arb_gt(lhs, rhs):
-    kd.prove(lhs > rhs, by=[arb_lt_ax(rhs, lhs)])
+    prove(lhs > rhs, by=[arb_lt_ax(rhs, lhs)])
 
 
 def arb_ge(lhs, rhs):
-    kd.prove(lhs >= rhs, by=[arb_le_ax(rhs, lhs)])
+    prove(lhs >= rhs, by=[arb_le_ax(rhs, lhs)])
 
 
 def sin_bnd(x: Arb) -> kd.kernel.Proof:
@@ -141,20 +155,20 @@ def sin_bnd(x: Arb) -> kd.kernel.Proof:
     |= ForAll(x,
         Implies(And(0 - 0 <= x, x <= 0 + 0),
                 And(0 - 0 <= Real.sin(x), Real.sin(x) <= 0 + 0)))
-    >>> kd.prove(real.sin(0) <= 2, by=[sin_bnd(arb(0,0.1))(smt.RealVal(0))])
+    >>> prove(real.sin(0) <= 2, by=[sin_bnd(arb(0,0.1))(RealVal(0))])
     |= Real.sin(0) <= 2
-    >>> kd.prove(real.sin(3.14) <= 0.02, by=[sin_bnd(arb(3.14, 0.01))])
+    >>> prove(real.sin(3.14) <= 0.02, by=[sin_bnd(arb(3.14, 0.01))])
     |= Real.sin(157/50) <= 1/50
     """
     xm, xr = z3_mid_rad_of_arb(x)
     smid, sr = z3_mid_rad_of_arb(arb.sin(x))
-    z3x = smt.Real("x")
-    return kd.axiom(
-        kd.QForAll(
+    z3x = Real("x")
+    return axiom(
+        QForAll(
             [z3x],
             xm - xr <= z3x,
             z3x <= xm + xr,
-            smt.And(smid - sr <= real.sin(z3x), real.sin(z3x) <= smid + sr),
+            And(smid - sr <= real.sin(z3x), real.sin(z3x) <= smid + sr),
         ),
         by="flint",
     )
@@ -162,20 +176,20 @@ def sin_bnd(x: Arb) -> kd.kernel.Proof:
 
 def arb_bnd(arbf, z3f):
     """
-    >>> kd.prove(real.cos(0) == 1, by=[cos_bnd(arb(0))])
+    >>> prove(real.cos(0) == 1, by=[cos_bnd(arb(0))])
     |= Real.cos(0) == 1
     """
 
     def res(x: Arb) -> kd.kernel.Proof:
         xm, xr = z3_mid_rad_of_arb(x)
         smid, sr = z3_mid_rad_of_arb(arbf(x))
-        z3x = smt.Real("x")
-        return kd.axiom(
-            kd.QForAll(
+        z3x = Real("x")
+        return axiom(
+            QForAll(
                 [z3x],
                 xm - xr <= z3x,
                 z3x <= xm + xr,
-                smt.And(smid - sr <= z3f(z3x), z3f(z3x) <= smid + sr),
+                And(smid - sr <= z3f(z3x), z3f(z3x) <= smid + sr),
             ),
             by="flint",
         )
@@ -209,7 +223,7 @@ def z3_of_exact_arb(x: Arb) -> smt.ArithRef:
     elif not x.is_exact():
         raise ValueError("Not exact value in z3_of_exact", x)
     man, exp = x.man_exp()
-    return smt.simplify(smt.RealVal(int(man)) * smt.RealVal(2) ** smt.RealVal(int(exp)))
+    return simplify(RealVal(int(man)) * RealVal(2) ** RealVal(int(exp)))
 
 
 def z3_mid_rad_of_arb(x: Arb) -> tuple[smt.ArithRef, smt.ArithRef]:
@@ -239,27 +253,27 @@ def bounds(e: smt.ArithRef) -> tuple[smt.ArithRef, smt.ArithRef]:
     Get the bounds of a z3 expression.
     >>> bounds(1)
     (1, 1)
-    >>> bounds(smt.RealVal(1) + smt.RealVal(2))
+    >>> bounds(RealVal(1) + RealVal(2))
     (3, 3)
     """
     if isinstance(e, int) or isinstance(e, float):
-        e = smt.RealVal(e)
-    if not smt.is_real(e):
+        e = RealVal(e)
+    if not is_real(e):
         raise ValueError("Not a real value", e)
     mid, rad = z3_mid_rad_of_arb(interp_flint(e, {}))
-    return smt.simplify(mid - rad), smt.simplify(mid + rad)
+    return simplify(mid - rad), simplify(mid + rad)
 
 
 def bound_ax(e: smt.ArithRef) -> kd.kernel.Proof:
     lower, upper = bounds(e)
-    return kd.axiom(smt.And(lower <= e, e <= upper), by="flint_bnd")
+    return axiom(And(lower <= e, e <= upper), by="flint_bnd")
 
 
 def flint_bnd(t: smt.ArithRef, env) -> kd.kernel.Proof:
     # TODO: Maybe get rid of this?
-    assert smt.is_real(t)
-    assert all(smt.is_real(k) and isinstance(v, arb) for k, v in env.items())
-    preconds = [smt.BoolVal(True)]
+    assert is_real(t)
+    assert all(is_real(k) and isinstance(v, arb) for k, v in env.items())
+    preconds = [BoolVal(True)]
     for k, v in env.items():
         mid, rad = z3_mid_rad_of_arb(v)
         preconds.append(mid - rad <= k)
@@ -269,11 +283,9 @@ def flint_bnd(t: smt.ArithRef, env) -> kd.kernel.Proof:
         raise ValueError("Infinite value in flint_bnd", t, env, v)
     mid, rad = z3_mid_rad_of_arb(v)
     if len(env) > 0:
-        return kd.axiom(
-            kd.QForAll(
-                list(env.keys()), smt.And(preconds), mid - rad <= t, t <= mid + rad
-            ),
+        return axiom(
+            QForAll(list(env.keys()), And(preconds), mid - rad <= t, t <= mid + rad),
             by="flint_eval",
         )
     else:
-        return kd.axiom(smt.And(mid - rad <= t, t <= mid + rad), by="flint_eval")
+        return axiom(And(mid - rad <= t, t <= mid + rad), by="flint_eval")

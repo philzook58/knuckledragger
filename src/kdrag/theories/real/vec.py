@@ -1,5 +1,25 @@
 import kdrag as kd
+from kdrag import Enum, NewType, Struct, UnitSort, axiom, define, prove
 import kdrag.smt as smt
+from kdrag.smt import (
+    Array,
+    ArraySort,
+    Const,
+    Consts,
+    DeclareSort,
+    ForAll,
+    Function,
+    Int,
+    IntSort,
+    K,
+    Lambda,
+    Length,
+    Or,
+    RealSort,
+    RealVal,
+    Reals,
+    SeqSort,
+)
 
 import functools
 import kdrag.theories.algebra.vector as vector
@@ -30,7 +50,7 @@ def FinSort(N):
     >>> FinSort(3)
     Fin3
     """
-    return kd.Enum("Fin" + str(N), " ".join(["X" + str(i) for i in range(N)]))
+    return Enum("Fin" + str(N), " ".join(["X" + str(i) for i in range(N)]))
 
 
 @functools.cache
@@ -44,7 +64,7 @@ def Fin0Sort(N):
     """
     # https://rocq-prover.org/doc/v9.0/stdlib/Stdlib.Vectors.Fin.html
     if N == 1:
-        return kd.UnitSort()
+        return UnitSort()
     else:
         return kd.OptionSort(Fin0Sort(N - 1))
         # dt = kd.Inductive("Fin0_" + str(N))
@@ -54,16 +74,16 @@ def Fin0Sort(N):
 
 @functools.cache
 def SeqVec(N: smt.ExprRef | int):
-    l = smt.Const("l", smt.SeqSort(smt.RealSort()))
+    l = Const("l", SeqSort(RealSort()))
     if isinstance(N, smt.ExprRef):
         assert kd.utils.free_in([l], N)
-    return smt.Lambda([l], smt.Length(l) == N)
+    return Lambda([l], Length(l) == N)
 
 
 def FunVec(N: smt.ExprRef | int):
-    v = smt.Array("v", smt.IntSort(), smt.RealSort())
-    i = smt.Int("i")
-    return smt.Lambda([v], smt.ForAll([i], smt.Or(i < 0, i >= N), v[i] == 0))
+    v = Array("v", IntSort(), RealSort())
+    i = Int("i")
+    return Lambda([v], ForAll([i], Or(i < 0, i >= N), v[i] == 0))
 
 
 @functools.cache
@@ -71,17 +91,17 @@ def Vec0(N: int) -> smt.DatatypeSortRef:
     """
 
     >>> Vec2 = Vec0(2)
-    >>> u, v = smt.Consts("u v", Vec2)
+    >>> u, v = Consts("u v", Vec2)
     >>> u[1]
     val(u)[X1]
     >>> dot(u, v)
     Vec0_2.dot(u, v)
     """
     Fin = FinSort(N)
-    S = kd.NewType("Vec0_" + str(N), smt.ArraySort(Fin, kd.R))
-    i, j, k = smt.Consts("i j k", FinSort(N))
-    u, v, w = smt.Consts("u v w", S)
-    a, b = smt.Reals("a b")
+    S = NewType("Vec0_" + str(N), ArraySort(Fin, kd.R))
+    i, j, k = Consts("i j k", FinSort(N))
+    u, v, w = Consts("u v w", S)
+    a, b = Reals("a b")
 
     def getitem(x, i):
         if isinstance(i, int):
@@ -92,24 +112,22 @@ def Vec0(N: int) -> smt.DatatypeSortRef:
             return x.val[i]
 
     kd.notation.getitem.register(S, getitem)
-    S.add = kd.notation.add.define([u, v], S(smt.Lambda([i], u[i] + v[i])))
-    S.sub = kd.notation.sub.define([u, v], S(smt.Lambda([i], u[i] - v[i])))
-    S.neg = kd.notation.neg.define([u], S(smt.Lambda([i], -u[i])))
+    S.add = kd.notation.add.define([u, v], S(Lambda([i], u[i] + v[i])))
+    S.sub = kd.notation.sub.define([u, v], S(Lambda([i], u[i] - v[i])))
+    S.neg = kd.notation.neg.define([u], S(Lambda([i], -u[i])))
     S.dot = dot.define(
         [u, v], functools.reduce(operator.add, (u[i] * v[i] for i in Fin))
     )
-    S.add_comm = kd.prove(smt.ForAll([u, v], u + v == v + u), by=[S.add.defn])
-    S.add_assoc = kd.prove(
-        smt.ForAll([u, v, w], (u + v) + w == u + (v + w)), by=[S.add.defn]
-    )
-    S.zero = S(smt.K(Fin, smt.RealVal(0)))
-    S.add_zero = kd.prove(smt.ForAll([u], u + S.zero == u), by=[S.add.defn])
-    S.smul = kd.define("smul", [a, u], S(smt.Lambda([i], a * u[i])))
+    S.add_comm = prove(ForAll([u, v], u + v == v + u), by=[S.add.defn])
+    S.add_assoc = prove(ForAll([u, v, w], (u + v) + w == u + (v + w)), by=[S.add.defn])
+    S.zero = S(K(Fin, RealVal(0)))
+    S.add_zero = prove(ForAll([u], u + S.zero == u), by=[S.add.defn])
+    S.smul = define("smul", [a, u], S(Lambda([i], a * u[i])))
     smul = S.smul
-    S.smul_one = kd.prove(smt.ForAll([u], smul(1, u) == u), by=[S.smul.defn])
-    S.smul_zero = kd.prove(smt.ForAll([u], smul(0, u) == S.zero), by=[S.smul.defn])
+    S.smul_one = prove(ForAll([u], smul(1, u) == u), by=[S.smul.defn])
+    S.smul_zero = prove(ForAll([u], smul(0, u) == S.zero), by=[S.smul.defn])
     S.norm2 = norm2.define([u], sum(u[i] * u[i] for i in Fin))
-    S.norm_pos = kd.prove(smt.ForAll([u], S.norm2(u) >= 0), by=[S.norm2.defn])
+    S.norm_pos = prove(ForAll([u], S.norm2(u) >= 0), by=[S.norm2.defn])
 
     return S
 
@@ -117,8 +135,8 @@ def Vec0(N: int) -> smt.DatatypeSortRef:
 # Vec2.triangle = norm2(u - v) <= norm2(u) + norm2(v)
 @functools.cache
 def Vec(N):
-    V = kd.Struct("Vec1_" + str(N), *[("x" + str(i), kd.R) for i in range(N)])
-    u, v, w = kd.smt.Consts("u v w", V)
+    V = Struct("Vec1_" + str(N), *[("x" + str(i), kd.R) for i in range(N)])
+    u, v, w = Consts("u v w", V)
     kd.notation.getitem.register(V, lambda x, i: V.accessor(0, i)(x))
     kd.notation.add.define([u, v], V(*[u[i] + v[i] for i in range(N)]))
     kd.notation.sub.define([u, v], V(*[u[i] - v[i] for i in range(N)]))
@@ -136,22 +154,22 @@ def Vec(N):
 # banach fixed point https://en.wikipedia.org/wiki/Banach_fixed-point_theorem
 
 
-V = smt.DeclareSort("Vec")
-u, v, w = smt.Consts("u v w", V)
-a, b = smt.Reals("a b")
-smul = smt.Function("Vec.smul", smt.RealSort(), V, V)
-add = smt.Function("Vec.add", V, V, V)
+V = DeclareSort("Vec")
+u, v, w = Consts("u v w", V)
+a, b = Reals("a b")
+smul = Function("Vec.smul", RealSort(), V, V)
+add = Function("Vec.add", V, V, V)
 kd.notation.add.register(V, lambda x, y: add(x, y))
 
-add_comm = kd.axiom(smt.ForAll([u, v], u + v == v + u))
-add_assoc = kd.axiom(smt.ForAll([u, v, w], (u + v) + w == u + (v + w)))
-zero = smt.Const("Vec.zero", V)
-add_zero = kd.axiom(smt.ForAll([u], u + zero == u))
-smul_assoc = kd.axiom(
-    smt.ForAll([a, b, u], smul(a, smul(b, u)) == smul(a * b, u))
+add_comm = axiom(ForAll([u, v], u + v == v + u))
+add_assoc = axiom(ForAll([u, v, w], (u + v) + w == u + (v + w)))
+zero = Const("Vec.zero", V)
+add_zero = axiom(ForAll([u], u + zero == u))
+smul_assoc = axiom(
+    ForAll([a, b, u], smul(a, smul(b, u)) == smul(a * b, u))
 )  # trigger left to right?
-smul_add = kd.axiom(smt.ForAll([a, b, u], smul(a + b, u) == smul(a, u) + smul(b, u)))
-smul_vadd = kd.axiom(smt.ForAll([a, u, v], smul(a, u + v) == smul(a, u) + smul(a, v)))
+smul_add = axiom(ForAll([a, b, u], smul(a + b, u) == smul(a, u) + smul(b, u)))
+smul_vadd = axiom(ForAll([a, u, v], smul(a, u + v) == smul(a, u) + smul(a, v)))
 
 # zero_unique
 # smul_one

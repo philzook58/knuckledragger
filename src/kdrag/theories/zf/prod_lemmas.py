@@ -1,23 +1,23 @@
-import kdrag as kd
-import kdrag.smt as smt
+from kdrag import QExists, Theorem
+from kdrag.smt import And, Const, Consts, Eq, ForAll, Implies
 import kdrag.theories.zf.zf as zf
 
 Set = zf.ZFSet
-A, B, p = smt.Consts("A B p", Set)
-R = smt.Const("R", Set)
-X = smt.Const("X", Set)
-Y = smt.Const("Y", Set)
-x, y = smt.Consts("x y", Set)
+A, B, p = Consts("A B p", Set)
+R = Const("R", Set)
+X = Const("X", Set)
+Y = Const("Y", Set)
+x, y = Consts("x y", Set)
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [A, B, p],
-        smt.Eq(
+        Eq(
             zf.elem(p, zf.prod(A, B)),
-            kd.QExists(
+            QExists(
                 [x, y],
-                smt.And(zf.elem(x, A), zf.elem(y, B)),
+                And(zf.elem(x, A), zf.elem(y, B)),
                 p == zf.pair(x, y),
             ),
         ),
@@ -56,14 +56,14 @@ def elem_prod_strong(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [A, B, p],
-        smt.Eq(
+        Eq(
             zf.elem(p, zf.prod(A, B)),
-            smt.And(
+            And(
                 zf.elem(zf.fst(p), A),
-                smt.And(zf.elem(zf.snd(p), B), p == zf.pair(zf.fst(p), zf.snd(p))),
+                And(zf.elem(zf.snd(p), B), p == zf.pair(zf.fst(p), zf.snd(p))),
             ),
         ),
     )
@@ -74,10 +74,10 @@ def elem_prod_fst_snd_eq(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [R],
-        smt.Implies(
+        Implies(
             zf.is_rel(R),
             R <= zf.prod(zf.dom(R), zf.ran(R)),
         ),
@@ -161,8 +161,8 @@ def rel_le_prod(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [A, B, X],
         zf.prod(A | B, X) == zf.prod(A, X) | zf.prod(B, X),
     )
@@ -202,10 +202,10 @@ def prod_union_left(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [A, B, X, Y, p],
-        smt.Implies(
+        Implies(
             zf.elem(p, zf.prod(A & B, X & Y)),
             zf.elem(p, zf.prod(A, X) & zf.prod(B, Y)),
         ),
@@ -228,10 +228,10 @@ def prod_inter_le(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [A, B, X, Y, p],
-        smt.Implies(
+        Implies(
             zf.elem(p, zf.prod(A, X) & zf.prod(B, Y)),
             zf.elem(p, zf.prod(A & B, X & Y)),
         ),
@@ -258,8 +258,8 @@ def prod_inter_ge(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [A, B, X, Y],
         zf.prod(A & B, X & Y) == zf.prod(A, X) & zf.prod(B, Y),
     )
@@ -305,8 +305,8 @@ def prod_inter_dist(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [A, B, X],
         zf.prod(X, A | B) == zf.prod(X, A) | zf.prod(X, B),
     )

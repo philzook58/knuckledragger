@@ -1,46 +1,58 @@
-import kdrag as kd
-import kdrag.smt as smt
+from kdrag import QForAll, Theorem, axiom, define, prove
+from kdrag.smt import (
+    And,
+    ArraySort,
+    Const,
+    Consts,
+    Exists,
+    ForAll,
+    Function,
+    IntSort,
+    Lambda,
+    RealSort,
+    SetSort,
+)
 # import kdrag.theories.real as real
 
-RSet = smt.SetSort(smt.RealSort())
-x, y, z, M, c = smt.Consts("x y z M c", smt.RealSort())
-A, B, C = smt.Consts("A B C", RSet)
+RSet = SetSort(RealSort())
+x, y, z, M, c = Consts("x y z M c", RealSort())
+A, B, C = Consts("A B C", RSet)
 
-has_ub = kd.define(
+has_ub = define(
     "has_ub",
     [A, M],
-    kd.QForAll(
+    QForAll(
         [x],
         A[x],
         x <= M,
     ),
 )
-is_ub = kd.define("RSet.is_ub", [A], smt.Exists([M], has_ub(A, M)))
+is_ub = define("RSet.is_ub", [A], Exists([M], has_ub(A, M)))
 
-sup = smt.Function("RSet.sup", RSet, smt.RealSort())
-sup_ax = kd.axiom(
-    smt.ForAll(
+sup = Function("RSet.sup", RSet, RealSort())
+sup_ax = axiom(
+    ForAll(
         [A, M],
         has_ub(A, M),
-        smt.And(
+        And(
             has_ub(A, sup(A)),
             sup(A) <= M,
         ),
     ),
 )
 
-sup_least = kd.prove(
-    kd.QForAll([A, M], has_ub(A, M), sup(A) <= M),
+sup_least = prove(
+    QForAll([A, M], has_ub(A, M), sup(A) <= M),
     by=[sup_ax],
 )
 
-sup_ub = kd.prove(
-    kd.QForAll([A, M], has_ub(A, M), has_ub(A, sup(A))),
+sup_ub = prove(
+    QForAll([A, M], has_ub(A, M), has_ub(A, sup(A))),
     by=[sup_ax],
 )
 
 
-@kd.Theorem(smt.ForAll([A, M, x], A[x], has_ub(A, M), x <= sup(A)))
+@Theorem(ForAll([A, M, x], A[x], has_ub(A, M), x <= sup(A)))
 def sup_ge(l):
     A, M, x = l.fixes()
     l.intros()
@@ -48,45 +60,45 @@ def sup_ge(l):
     l.auto(by=[has_ub.defn])
 
 
-has_max = kd.define("has_max", [A, x], smt.And(A[x], sup(A) == x))
+has_max = define("has_max", [A, x], And(A[x], sup(A) == x))
 
 # Union and intersection theorems
 
-open_int = kd.define("open_int", [x, y], smt.Lambda([z], smt.And(x < z, z < y)))
-closed_int = kd.define("closed_int", [x, y], smt.Lambda([z], smt.And(x <= z, z <= y)))
+open_int = define("open_int", [x, y], Lambda([z], And(x < z, z < y)))
+closed_int = define("closed_int", [x, y], Lambda([z], And(x <= z, z <= y)))
 
-shift = kd.define(
+shift = define(
     "shift",
     [A, c],
-    smt.Lambda([x], A[x - c]),
+    Lambda([x], A[x - c]),
 )
 
-sing = kd.define(
+sing = define(
     "RSet.sing",
     [c],
-    smt.Lambda([x], x == c),
+    Lambda([x], x == c),
 )
-sing_elem = kd.prove(
-    kd.QForAll([c, x], sing(c)[x] == (x == c)),
+sing_elem = prove(
+    QForAll([c, x], sing(c)[x] == (x == c)),
     by=[sing.defn],
 )
 
 
-has_lb = kd.define(
+has_lb = define(
     "RSet.has_lb",
     [A, M],
-    kd.QForAll(
+    QForAll(
         [x],
         A[x],
         M <= x,
     ),
 )
 
-inf = kd.define("RSet.inf", [A], sup(smt.Lambda([x], has_lb(A, x))))
+inf = define("RSet.inf", [A], sup(Lambda([x], has_lb(A, x))))
 
 
-lb_le_ub = kd.prove(
-    smt.ForAll([A, x, y, z], A[x], has_lb(A, y), has_ub(A, z), y <= z),
+lb_le_ub = prove(
+    ForAll([A, x, y, z], A[x], has_lb(A, y), has_ub(A, z), y <= z),
     by=[has_lb.defn, has_ub.defn],
 )
 
@@ -106,7 +118,7 @@ def lb_le_ub(l):
 """
 
 
-@kd.Theorem(smt.ForAll([A, M], has_lb(A, M), has_lb(A, inf(A))))
+@Theorem(ForAll([A, M], has_lb(A, M), has_lb(A, inf(A))))
 def lb_inf(l):
     A, M = l.fixes()
     l.unfold(has_lb)
@@ -148,14 +160,14 @@ def inf_least(l):
     # l.auto()
 """
 
-SetSeq = smt.ArraySort(smt.IntSort(), RSet)
-An = smt.Const("An", SetSeq)
-n = smt.Const("n", smt.IntSort())
-cinter = kd.define("cinter", [An], smt.Lambda([x], kd.QForAll([n], An[n][x])))
-cunion = kd.define("cunion", [An], smt.Lambda([x], smt.Exists([n], An[n][x])))
+SetSeq = ArraySort(IntSort(), RSet)
+An = Const("An", SetSeq)
+n = Const("n", IntSort())
+cinter = define("cinter", [An], Lambda([x], QForAll([n], An[n][x])))
+cunion = define("cunion", [An], Lambda([x], Exists([n], An[n][x])))
 
-a, b = smt.Consts("a b", smt.ArraySort(smt.IntSort(), smt.RealSort()))
-nested = kd.define("nested", [An], kd.QForAll([n], An[n + 1] <= An[n]))
+a, b = Consts("a b", ArraySort(IntSort(), RealSort()))
+nested = define("nested", [An], QForAll([n], An[n + 1] <= An[n]))
 # intseq = kd.define("intseq", [a, b], smt.lambda([n], closed_int(a[n], b[n])))
 
 # nested interval, forall a b, a <= b, nested(intseq(a,b)),  smt.Exists([x], cinter(intseq(a, b))[x])

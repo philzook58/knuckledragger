@@ -31,10 +31,12 @@
 
 # %%
 from kdrag.all import *
+from kdrag import Lemma, QForAll
+from kdrag.smt import Consts, Implies
 import kdrag.theories.nat as nat
 
-m, n = smt.Consts("m n", nat.Nat)
-l = kd.Lemma(kd.QForAll([n, m], n == m, n == m))
+m, n = Consts("m n", nat.Nat)
+l = Lemma(QForAll([n, m], n == m, n == m))
 _n, _m = l.fixes()
 l.intros()
 
@@ -66,12 +68,12 @@ silly1
 #   apply eq2. apply eq1.  Qed.
 import kdrag.theories.seq as seq
 
-n, m, o, p = smt.Consts("n m o p", nat.Nat)
-l = kd.Lemma(
-    kd.QForAll(
+n, m, o, p = Consts("n m o p", nat.Nat)
+l = Lemma(
+    QForAll(
         [n, m, o, p],
         n == m,
-        smt.Implies(n == m, seq.seq(n, o) == seq.seq(m, p)),
+        Implies(n == m, seq.seq(n, o) == seq.seq(m, p)),
         seq.seq(n, o) == seq.seq(m, p),
     ),
 )
@@ -100,12 +102,12 @@ silly2 = l.qed()
 # Proof.
 #   intros n m eq1 eq2.
 #   apply eq2. apply eq1.  Qed.
-q, r = smt.Consts("q r", nat.Nat)
-l = kd.Lemma(
-    kd.QForAll(
+q, r = Consts("q r", nat.Nat)
+l = Lemma(
+    QForAll(
         [n, m],
         seq.seq(n, n) == seq.seq(m, m),
-        kd.QForAll([q, r], seq.seq(q, q) == seq.seq(r, r), seq.seq(q) == seq.seq(r)),
+        QForAll([q, r], seq.seq(q, q) == seq.seq(r, r), seq.seq(q) == seq.seq(r)),
         seq.seq(n) == seq.seq(m),
     )
 )
@@ -151,7 +153,7 @@ silly2a = l.qed()
 
 #   symmetry. apply H.  Qed.
 
-l = kd.Lemma(kd.QForAll([n, m], n == m, m == n))
+l = Lemma(QForAll([n, m], n == m, m == n))
 _n, _m = l.fixes()
 l.intros()
 l.symm()
@@ -198,9 +200,9 @@ silly3 = l.qed()
 #   intros a b c d e f eq1 eq2.
 #   rewrite -> eq1. rewrite -> eq2. reflexivity.  Qed.
 
-a, b, c, d, e, f = smt.Consts("a b c d e f", nat.Nat)
-l = kd.Lemma(
-    kd.QForAll(
+a, b, c, d, e, f = Consts("a b c d e f", nat.Nat)
+l = Lemma(
+    QForAll(
         [a, b, c, d, e, f],
         seq.seq(a, b) == seq.seq(c, d),
         seq.seq(c, d) == seq.seq(e, f),

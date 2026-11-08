@@ -94,9 +94,10 @@ Inductive day : Type :=
 
 # from kdrag.all import *
 import kdrag as kd
-from kdrag import smt
+from kdrag import Enum, Inductive, Lemma, Struct, cond, define, prove, simp
+from kdrag.smt import ArraySort, Const, Consts, ForAll, If, Lambda
 
-day = kd.Enum("day", "monday tuesday wednesday thursday friday saturday sunday")
+day = Enum("day", "monday tuesday wednesday thursday friday saturday sunday")
 
 # %% [markdown]
 # The new type is called [day], and its members are [monday],
@@ -118,11 +119,11 @@ Definition next_weekday (d:day) : day :=
   | sunday    => monday
   end.
 """
-d = smt.Const("d", day)
-next_weekday = kd.define(
+d = Const("d", day)
+next_weekday = define(
     "next_weekday",
     [d],
-    kd.cond(
+    cond(
         (d.is_monday, day.tuesday),
         (d.is_tuesday, day.wednesday),
         (d.is_wednesday, day.thursday),
@@ -148,11 +149,11 @@ next_weekday = kd.define(
 
 # %%
 """ Compute (next_weekday friday). """
-kd.simp(next_weekday(day.friday))
+simp(next_weekday(day.friday))
 
 # %%
 """ Compute (next_weekday (next_weekday saturday)). """
-kd.simp(next_weekday(next_weekday(day.saturday)))
+simp(next_weekday(next_weekday(day.saturday)))
 
 # %% [markdown]
 # (We show Coq's responses in comments; if you have a computer
@@ -170,7 +171,7 @@ kd.simp(next_weekday(next_weekday(day.saturday)))
 Example test_next_weekday:
   (next_weekday (next_weekday saturday)) = tuesday.
 """
-l = kd.Lemma(next_weekday(next_weekday(day.saturday)) == day.tuesday)
+l = Lemma(next_weekday(next_weekday(day.saturday)) == day.tuesday)
 
 """
 This declaration does two things: it makes an assertion
@@ -275,7 +276,7 @@ l.qed()
   | true
   | false.
 """
-bool = kd.Enum("bool", "true false")
+bool = Enum("bool", "true false")
 
 # %% [markdown]
 #  Functions over booleans can be defined in the same way as
@@ -303,35 +304,35 @@ Definition orb (b1:bool) (b2:bool) : bool :=
 """
 
 
-b, b1, b2 = smt.Consts("b b1 b2", bool)
+b, b1, b2 = Consts("b b1 b2", bool)
 
 
-negb = kd.define(
+negb = define(
     "negb",
     [b],
-    kd.cond(
+    cond(
         (b.is_true, bool.false),
         (b.is_false, bool.true),
     ),
 )
-andb = kd.define(
+andb = define(
     "andb",
     [b1, b2],
-    kd.cond(
+    cond(
         (b1.is_true, b2),
         (b1.is_false, bool.false),
     ),
 )
-orb = kd.define(
+orb = define(
     "orb",
     [b1, b2],
-    kd.cond(
+    cond(
         (b1.is_true, bool.true),
         (b1.is_false, b2),
     ),
 )
 
-negb1 = kd.define(
+negb1 = define(
     "negb1",
     [b],
     b.match_(
@@ -340,7 +341,7 @@ negb1 = kd.define(
     ),
 )
 
-kd.prove(smt.ForAll([b], negb(b) == negb1(b)), by=[negb1.defn, negb.defn])
+prove(ForAll([b], negb(b) == negb1(b)), by=[negb1.defn, negb.defn])
 
 # %% [markdown]
 #
@@ -368,10 +369,10 @@ Proof. simpl. reflexivity.  Qed.
 Example test_orb4:  (orb true  true)  = true.
 Proof. simpl. reflexivity.  Qed.
 """
-kd.prove(orb(bool.true, bool.false) == bool.true, by=orb.defn)
-kd.prove(orb(bool.false, bool.false) == bool.false, by=orb.defn)
-kd.prove(orb(bool.false, bool.true) == bool.true, by=orb.defn)
-kd.prove(orb(bool.true, bool.true) == bool.true, by=orb.defn)
+prove(orb(bool.true, bool.false) == bool.true, by=orb.defn)
+prove(orb(bool.false, bool.false) == bool.false, by=orb.defn)
+prove(orb(bool.false, bool.true) == bool.true, by=orb.defn)
+prove(orb(bool.true, bool.true) == bool.true, by=orb.defn)
 
 # %% [markdown]
 # We can also introduce some familiar infix syntax for the
@@ -391,7 +392,7 @@ kd.notation.and_.register(bool, andb)
 Example test_orb5:  false || false || true = true.
 Proof. simpl. reflexivity. Qed.
 """
-kd.prove(bool.false | bool.false | bool.true == bool.true, by=orb.defn)
+prove(bool.false | bool.false | bool.true == bool.true, by=orb.defn)
 
 
 # %% [markdown]
@@ -421,9 +422,9 @@ Definition orb' (b1:bool) (b2:bool) : bool :=
   if b1 then true
   else b2.
 """
-negb2 = kd.define("negb2", [b], smt.If(b1.is_true, bool.false, bool.true))
-andb2 = kd.define("andb2", [b1, b2], smt.If(b1.is_true, b2, bool.false))
-orb2 = kd.define("orb2", [b1, b2], smt.If(b1.is_true, bool.true, b2))
+negb2 = define("negb2", [b], If(b1.is_true, bool.false, bool.true))
+andb2 = define("andb2", [b1, b2], If(b1.is_true, b2, bool.false))
+orb2 = define("orb2", [b1, b2], If(b1.is_true, bool.true, b2))
 
 
 # %% [markdown]
@@ -534,7 +535,7 @@ assert negb(bool.true).sort() == bool
 Check negb
   : bool -> bool.
 """
-assert smt.Lambda([b], negb(b)).sort() == smt.ArraySort(bool, bool)
+assert Lambda([b], negb(b)).sort() == ArraySort(bool, bool)
 
 # %% [markdown]
 # (** The type of [negb], written [bool -> bool] and pronounced
@@ -568,8 +569,8 @@ assert smt.Lambda([b], negb(b)).sort() == smt.ArraySort(bool, bool)
 #   | primary (p : rgb).
 
 # %%
-rgb = kd.Enum("rgb", "red green blue")
-color = kd.Inductive("color")
+rgb = Enum("rgb", "red green blue")
+color = Inductive("color")
 color.declare("black")
 color.declare("white")
 color.declare("primary", ("p", rgb))
@@ -647,9 +648,9 @@ color = color.create()
 #
 
 # %%
-c = smt.Const("c", color)
-p = smt.Const("p", rgb)
-monochome = kd.define(
+c = Const("c", color)
+p = Const("p", rgb)
+monochome = define(
     "monochrome",
     [c],
     c.match_(
@@ -659,7 +660,7 @@ monochome = kd.define(
     ),
 )
 
-isred = kd.define(
+isred = define(
     "isred", [c], c.match_((color.primary(rgb.red), bool.true), default=bool.false)
 )
 isred.defn
@@ -735,8 +736,8 @@ isred.defn
 # End TuplePlayground.
 
 # %%
-bit = kd.Enum("bit", "B1 B0")
-nybble = kd.Struct("nybble", ("b0", bit), ("b1", bit), ("b2", bit), ("b3", bit))
+bit = Enum("bit", "B1 B0")
+nybble = Struct("nybble", ("b0", bit), ("b1", bit), ("b2", bit), ("b3", bit))
 
 nybble(b0=bit.B0, b1=bit.B1, b2=bit.B0, b3=bit.B1)
 
@@ -830,12 +831,12 @@ nybble(b0=bit.B0, b1=bit.B1, b2=bit.B0, b3=bit.B1)
 #   | tick (foo : otherNat).
 
 # %%
-Nat = kd.Inductive("Nat")
+Nat = Inductive("Nat")
 Nat.declare("O")
 Nat.declare("S", ("n", Nat))
 Nat = Nat.create()
 
-otherNat = kd.Inductive("otherNat")
+otherNat = Inductive("otherNat")
 otherNat.declare("O")
 otherNat.declare("S", ("n", otherNat))
 otherNat = otherNat.create()
@@ -865,8 +866,8 @@ otherNat = otherNat.create()
 # End NatPlayground.
 
 # %%
-n = smt.Const("n", Nat)
-pred = kd.define("pred", [n], n.match_((Nat.O, Nat.O), (Nat.S(n), n)))
+n = Const("n", Nat)
+pred = define("pred", [n], n.match_((Nat.O, Nat.O), (Nat.S(n), n)))
 pred.defn
 
 # %% [markdown]

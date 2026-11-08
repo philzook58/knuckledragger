@@ -1,5 +1,7 @@
 import kdrag as kd
+from kdrag import axiom, prove
 import kdrag.smt as smt
+from kdrag.smt import Abs, Const, Consts, DeclareSort, ForAll, Function
 import kdrag.contrib.junk_drawer.generic as generic
 
 # dispatching on the first argument isn't great
@@ -22,22 +24,22 @@ class VectorSpace(generic.TypeClass):
     smul_assoc: kd.Proof
 
     def check(self, T):
-        x, y, z = smt.Consts("x y z", T)
-        a, b = smt.Consts("a b", self.scalar)
+        x, y, z = Consts("x y z", T)
+        a, b = Consts("a b", self.scalar)
         smul = self.smul
         assert T in kd.notation.add
         assert self.assert_eq(
-            self.add_assoc.thm, smt.ForAll([x, y], x + (y + z) == (x + y) + z)
+            self.add_assoc.thm, ForAll([x, y], x + (y + z) == (x + y) + z)
         )
-        assert self.assert_eq(self.add_comm.thm, smt.ForAll([x, y], x + y == y + x))
-        assert self.assert_eq(self.add_zero.thm, smt.ForAll([x], x + self.zero == x))
-        assert self.assert_eq(self.add_inv.thm, smt.ForAll([x], x + -x == self.zero))
+        assert self.assert_eq(self.add_comm.thm, ForAll([x, y], x + y == y + x))
+        assert self.assert_eq(self.add_zero.thm, ForAll([x], x + self.zero == x))
+        assert self.assert_eq(self.add_inv.thm, ForAll([x], x + -x == self.zero))
         assert self.assert_eq(
-            self.smul_distrib.thm, smt.ForAll([a, y, z], a * (y + z) == a * y + a * z)
+            self.smul_distrib.thm, ForAll([a, y, z], a * (y + z) == a * y + a * z)
         )
         assert self.assert_eq(
             self.smul_assoc.thm,
-            smt.ForAll([a, b, z], smul(a, smul(b, z)) == smul(a * b, z)),
+            ForAll([a, b, z], smul(a, smul(b, z)) == smul(a * b, z)),
         )
 
         # assert self.scalar in kd.notation.mul and self.scalar in kd.notation.add
@@ -63,22 +65,22 @@ class Normed(generic.TypeClass):
     norm_triangle: kd.Proof
 
     def check(self, T):
-        x, y = smt.Consts("x y", T)
+        x, y = Consts("x y", T)
         V = VectorSpace(T)
-        a = smt.Const("a", V.scalar)
+        a = Const("a", V.scalar)
         assert T in kd.notation.add
         assert T in kd.notation.mul
-        assert self.assert_eq(self.norm_nonneg.thm, smt.ForAll([x], self.norm(x) >= 0))
+        assert self.assert_eq(self.norm_nonneg.thm, ForAll([x], self.norm(x) >= 0))
         assert self.assert_eq(
-            self.norm_zero.thm, smt.ForAll([x], self.norm(x) == 0 == (x == V.zero))
+            self.norm_zero.thm, ForAll([x], self.norm(x) == 0 == (x == V.zero))
         )
         assert self.assert_eq(
             self.norm_homog.thm,
-            smt.ForAll([a, x], self.norm(V.smul(a, x)) == smt.Abs(a) * self.norm(x)),
+            ForAll([a, x], self.norm(V.smul(a, x)) == Abs(a) * self.norm(x)),
         )
         assert self.assert_eq(
             self.norm_triangle.thm,
-            smt.ForAll([x, y], self.norm(x + y) <= self.norm(x) + self.norm(y)),
+            ForAll([x, y], self.norm(x + y) <= self.norm(x) + self.norm(y)),
         )
 
         # assert self.scalar in kd.notation.mul and self.scalar in kd.notation.add
@@ -86,20 +88,20 @@ class Normed(generic.TypeClass):
 
 # https://en.wikipedia.org/wiki/Vector_space
 
-V = smt.DeclareSort("V")
-u, v, w = smt.Consts("u v w", V)
+V = DeclareSort("V")
+u, v, w = Consts("u v w", V)
 
-add = smt.Function("vadd", V, V, V)
+add = Function("vadd", V, V, V)
 kd.notation.add.register(V, add)
 
 
-add_comm = kd.axiom(smt.ForAll([u, v], u + v == v + u))
-add_assoc = kd.axiom(smt.ForAll([u, v, w], u + (v + w) == (u + v) + w))
+add_comm = axiom(ForAll([u, v], u + v == v + u))
+add_assoc = axiom(ForAll([u, v, w], u + (v + w) == (u + v) + w))
 
-zero = smt.Const("zero", V)
+zero = Const("zero", V)
 
-add_zero = kd.axiom(smt.ForAll([u], u + zero == u))
-zero_add = kd.prove(smt.ForAll([u], zero + u == u), by=[add_comm, add_zero])
+add_zero = axiom(ForAll([u], u + zero == u))
+zero_add = prove(ForAll([u], zero + u == u), by=[add_comm, add_zero])
 
 
 """

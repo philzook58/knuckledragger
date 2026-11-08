@@ -1,50 +1,51 @@
 import kdrag as kd
+from kdrag import Struct, Theorem, define, prove
 import kdrag.theories.real as real
-import kdrag.smt as smt
+from kdrag.smt import Consts, ForAll, Reals
 
-Vec3 = kd.Struct("Vec3", ("x", kd.R), ("y", kd.R), ("z", kd.R))
-u, v, w = smt.Consts("u v w", Vec3)
+Vec3 = Struct("Vec3", ("x", kd.R), ("y", kd.R), ("z", kd.R))
+u, v, w = Consts("u v w", Vec3)
 add = kd.notation.add.define([u, v], Vec3(u.x + v.x, u.y + v.y, u.z + v.z))
-add_comm = kd.prove(
-    smt.ForAll([u, v], add(u, v) == add(v, u)),
+add_comm = prove(
+    ForAll([u, v], add(u, v) == add(v, u)),
     by=[add.defn],
 )
-add_assoc = kd.prove(
-    kd.smt.ForAll([u, v, w], add(add(u, v), w) == add(u, add(v, w))),
+add_assoc = prove(
+    ForAll([u, v, w], add(add(u, v), w) == add(u, add(v, w))),
     by=[add.defn],
 )
 
 sub = kd.notation.sub.define([u, v], Vec3(u.x - v.x, u.y - v.y, u.z - v.z))
 neg = kd.notation.neg.define([u], Vec3(-u.x, -u.y, -u.z))
-a, b = smt.Reals("a b")
-smul = kd.define("Vec3.smul", [a, u], Vec3(a * u.x, a * u.y, a * u.z))
+a, b = Reals("a b")
+smul = define("Vec3.smul", [a, u], Vec3(a * u.x, a * u.y, a * u.z))
 
 
-smul_assoc = kd.prove(
-    smt.ForAll([a, b, u], smul(a * b, u) == smul(a, smul(b, u))),
+smul_assoc = prove(
+    ForAll([a, b, u], smul(a * b, u) == smul(a, smul(b, u))),
     by=[smul.defn],
 )
-smul_distrib = kd.prove(
-    smt.ForAll([a, b, u], smul(a + b, u) == smul(a, u) + smul(b, u)),
+smul_distrib = prove(
+    ForAll([a, b, u], smul(a + b, u) == smul(a, u) + smul(b, u)),
     by=[smul.defn, add.defn],
 )
-smul_distrib_r = kd.prove(
-    smt.ForAll([a, u, v], smul(a, u + v) == smul(a, u) + smul(a, v)),
+smul_distrib_r = prove(
+    ForAll([a, u, v], smul(a, u + v) == smul(a, u) + smul(a, v)),
     by=[smul.defn, add.defn],
 )
 
 
 vzero = Vec3(0, 0, 0)
-add_zero = kd.prove(
-    smt.ForAll([u], u + vzero == u),
+add_zero = prove(
+    ForAll([u], u + vzero == u),
     by=[add.defn],
 )
-zero_add = kd.prove(
-    smt.ForAll([u], vzero + u == u),
+zero_add = prove(
+    ForAll([u], vzero + u == u),
     by=[add_zero, add_comm],
 )
-neg_zero = kd.prove(
-    smt.ForAll([u], -vzero == vzero),
+neg_zero = prove(
+    ForAll([u], -vzero == vzero),
     by=[neg.defn],
 )
 
@@ -53,38 +54,38 @@ e2 = Vec3(0, 1, 0)
 e3 = Vec3(0, 0, 1)
 
 
-dot = kd.define("Vec3.dot", [u, v], u.x * v.x + u.y * v.y + u.z * v.z)
-dot_comm = kd.prove(
-    smt.ForAll([u, v], dot(u, v) == dot(v, u)),
+dot = define("Vec3.dot", [u, v], u.x * v.x + u.y * v.y + u.z * v.z)
+dot_comm = prove(
+    ForAll([u, v], dot(u, v) == dot(v, u)),
     by=[dot.defn],
 )
-dot_add = kd.prove(
-    smt.ForAll([u, v, w], dot(u, v + w) == dot(u, v) + dot(u, w)),
+dot_add = prove(
+    ForAll([u, v, w], dot(u, v + w) == dot(u, v) + dot(u, w)),
     by=[dot.defn, add.defn],
 )
-dot_smul = kd.prove(
-    smt.ForAll([a, u, v], dot(smul(a, u), v) == a * dot(u, v)),
+dot_smul = prove(
+    ForAll([a, u, v], dot(smul(a, u), v) == a * dot(u, v)),
     by=[dot.defn, smul.defn],
 )
 
-dot_expand = kd.prove(
-    smt.ForAll(
+dot_expand = prove(
+    ForAll(
         [u], u == smul(dot(u, e1), e1) + smul(dot(u, e2), e2) + smul(dot(u, e3), e3)
     ),
     by=[smul.defn, add.defn, dot.defn],
 )
-dot_self_pos = kd.prove(
-    kd.smt.ForAll([u], dot(u, u) >= 0),
+dot_self_pos = prove(
+    ForAll([u], dot(u, u) >= 0),
     by=[dot.defn],
 )
 
-norm2 = kd.define("Vec3.norm2", [u], dot(u, u))
-norm2_pos = kd.prove(smt.ForAll([u], norm2(u) >= 0), by=[norm2.defn, dot_self_pos])
-norm2_add = kd.prove(
-    smt.ForAll([u, v], norm2(u + v) == norm2(u) + norm2(v) + 2 * dot(u, v)),
+norm2 = define("Vec3.norm2", [u], dot(u, u))
+norm2_pos = prove(ForAll([u], norm2(u) >= 0), by=[norm2.defn, dot_self_pos])
+norm2_add = prove(
+    ForAll([u, v], norm2(u + v) == norm2(u) + norm2(v) + 2 * dot(u, v)),
     by=[norm2.defn, dot.defn, add.defn],
 )
-norm = kd.define("Vec3.norm", [u], real.sqrt(norm2(u)))
+norm = define("Vec3.norm", [u], real.sqrt(norm2(u)))
 
 # unstable
 # cauchy_schwarz2 = kd.prove(
@@ -96,50 +97,48 @@ norm = kd.define("Vec3.norm", [u], real.sqrt(norm2(u)))
 #    by=[norm2.defn, dot.defn, add.defn, smul.defn, real.sqrt_mono],
 # )
 
-norm_pos = kd.prove(  #
-    kd.smt.ForAll([u], norm(u) >= 0), by=[norm2_pos, real.sqrt_pos, norm.defn]
+norm_pos = prove(  #
+    ForAll([u], norm(u) >= 0), by=[norm2_pos, real.sqrt_pos, norm.defn]
 )
-norm2_zero = kd.prove(
-    smt.ForAll([u], (norm2(u) == 0) == (u == vzero)),
+norm2_zero = prove(
+    ForAll([u], (norm2(u) == 0) == (u == vzero)),
     by=[norm2.defn, dot.defn],
 )
 
-dist = kd.define("Vec3.dist", [u, v], real.sqrt(norm2(u - v)))
-perp = kd.define("perp", [u, v], dot(u, v) == 0)
+dist = define("Vec3.dist", [u, v], real.sqrt(norm2(u - v)))
+perp = define("perp", [u, v], dot(u, v) == 0)
 
-cross = kd.define(
+cross = define(
     "cross",
     [u, v],
     Vec3(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x),
 )
 
-cross_antisym = kd.prove(
-    smt.ForAll([u, v], cross(u, v) == -cross(v, u)),
+cross_antisym = prove(
+    ForAll([u, v], cross(u, v) == -cross(v, u)),
     by=[neg.defn, cross.defn],
 )
-cross_add = kd.prove(
-    smt.ForAll([u, v, w], cross(u, v + w) == cross(u, v) + cross(u, w)),
+cross_add = prove(
+    ForAll([u, v, w], cross(u, v + w) == cross(u, v) + cross(u, w)),
     by=[cross.defn, add.defn],
 )
 
-cross_cross = kd.prove(
-    smt.ForAll(
-        [u, v, w], cross(u, cross(v, w)) == smul(dot(u, w), v) - smul(dot(u, v), w)
-    ),
+cross_cross = prove(
+    ForAll([u, v, w], cross(u, cross(v, w)) == smul(dot(u, w), v) - smul(dot(u, v), w)),
     by=[cross.defn, dot.defn, sub.defn, smul.defn],
 )
-dot_cross = kd.prove(
-    smt.ForAll([u, v, w], dot(u, cross(v, w)) == dot(v, cross(w, u))),
+dot_cross = prove(
+    ForAll([u, v, w], dot(u, cross(v, w)) == dot(v, cross(w, u))),
     by=[cross.defn, dot.defn],
 )
 
-perp_cross = kd.prove(
-    smt.ForAll([u, v], perp(u, cross(u, v))),
+perp_cross = prove(
+    ForAll([u, v], perp(u, cross(u, v))),
     by=[cross.defn, perp.defn, dot.defn],
 )
 
-jacobi = kd.prove(
-    smt.ForAll(
+jacobi = prove(
+    ForAll(
         [u, v, w],
         cross(u, cross(v, w)) + cross(v, cross(w, u)) + cross(w, cross(u, v)) == vzero,
     ),
@@ -147,8 +146,8 @@ jacobi = kd.prove(
 )
 
 
-lagrange = kd.prove(
-    smt.ForAll(
+lagrange = prove(
+    ForAll(
         [u, v, w],
         dot(cross(u, v), cross(u, w)) == dot(u, u) * dot(v, w) - dot(u, v) * dot(u, w),
     ),
@@ -156,7 +155,7 @@ lagrange = kd.prove(
 )
 
 
-@kd.Theorem(smt.ForAll([u, v], dot(u, v) ** 2 <= norm2(u) * norm2(v)))
+@Theorem(ForAll([u, v], dot(u, v) ** 2 <= norm2(u) * norm2(v)))
 def cauchy_schwarz2(l):
     u, v = l.fixes()
     l.unfold(norm2)
@@ -171,7 +170,7 @@ def cauchy_schwarz2(l):
     l.auto()
 
 
-@kd.Theorem(smt.ForAll([u, v], real.abs(dot(u, v)) <= norm(u) * norm(v)))
+@Theorem(ForAll([u, v], real.abs(dot(u, v)) <= norm(u) * norm(v)))
 def cauchy_schwarz(l):
     u, v = l.fixes()
     l.unfold(norm)

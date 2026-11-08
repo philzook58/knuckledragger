@@ -9,16 +9,33 @@ This example demonstrates:
 """
 
 import kdrag as kd
-import kdrag.smt as smt
+from kdrag import Calc, FreshVars, Inductive, Struct, Theorem, define, prove
+from kdrag.smt import (
+    And,
+    BoolSort,
+    BoolVal,
+    Const,
+    Consts,
+    ForAll,
+    Function,
+    If,
+    Implies,
+    Int,
+    IntSort,
+    Ints,
+    Lambda,
+    Not,
+    Or,
+)
 import line_profiler
 
 
 @line_profiler.profile
 def main():
     # Define the IntList inductive datatype
-    IntList = kd.Inductive("IntList")
+    IntList = Inductive("IntList")
     IntList.declare("Nil")
-    IntList.declare("Cons", ("head", smt.IntSort()), ("tail", IntList))
+    IntList.declare("Cons", ("head", IntSort()), ("tail", IntList))
     IntList = IntList.create()
 
     # Constructors
@@ -26,8 +43,8 @@ def main():
     Cons = IntList.Cons
 
     # Common variables
-    x, y, z = smt.Ints("x y z")
-    l, l1, l2, l3 = smt.Consts("l l1 l2 l3", IntList)
+    x, y, z = Ints("x y z")
+    l, l1, l2, l3 = Consts("l l1 l2 l3", IntList)
 
     # Some example lists
     empty = Nil
@@ -44,20 +61,20 @@ def main():
     # Define length function
     # ============================================================================
 
-    length = smt.Function("length", IntList, smt.IntSort())
-    length = kd.define("length", [l], smt.If(l.is_Nil, 0, 1 + length(l.tail)))
+    length = Function("length", IntList, IntSort())
+    length = define("length", [l], If(l.is_Nil, 0, 1 + length(l.tail)))
 
     # Test length on concrete examples
     print("Testing length:")
-    print(f"  length(empty) = {kd.prove(length(empty) == 0, by=[length.defn])}")
-    print(f"  length([1,2,3]) = {kd.prove(length(list_123) == 3, by=[length.defn])}")
+    print(f"  length(empty) = {prove(length(empty) == 0, by=[length.defn])}")
+    print(f"  length([1,2,3]) = {prove(length(list_123) == 3, by=[length.defn])}")
     print()
 
     # ============================================================================
     # Prove: length is always non-negative
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([l], length(l) >= 0))
+    @Theorem(ForAll([l], length(l) >= 0))
     def length_nonneg(pf):
         """Length is always non-negative"""
         _l = pf.fix()
@@ -74,9 +91,9 @@ def main():
     # Define append function
     # ============================================================================
 
-    append = smt.Function("append", IntList, IntList, IntList)
-    append = kd.define(
-        "append", [l1, l2], smt.If(l1.is_Nil, l2, Cons(l1.head, append(l1.tail, l2)))
+    append = Function("append", IntList, IntList, IntList)
+    append = define(
+        "append", [l1, l2], If(l1.is_Nil, l2, Cons(l1.head, append(l1.tail, l2)))
     )
 
     # Register append with + notation
@@ -84,7 +101,7 @@ def main():
 
     print("Testing append:")
     print("  Nil ++ [1,2,3] = Cons(1, Cons(2, Cons(3, Nil)))")
-    append_test = kd.prove(append(Nil, list_123) == list_123, by=[append.defn])
+    append_test = prove(append(Nil, list_123) == list_123, by=[append.defn])
     print(f"  Proved: {append_test}")
     print()
 
@@ -92,7 +109,7 @@ def main():
     # Prove: append with Nil on the right is identity
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([l], append(l, Nil) == l))
+    @Theorem(ForAll([l], append(l, Nil) == l))
     def append_nil_r(pf):
         """Appending Nil on the right is identity"""
         _l = pf.fix()
@@ -111,7 +128,7 @@ def main():
     # Prove: length of append is sum of lengths
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([l1, l2], length(append(l1, l2)) == length(l1) + length(l2)))
+    @Theorem(ForAll([l1, l2], length(append(l1, l2)) == length(l1) + length(l2)))
     def length_append(pf):
         """Length of appended lists is sum of lengths"""
         _l1, _l2 = pf.fixes()
@@ -129,10 +146,8 @@ def main():
     # Prove: append is associative
     # ============================================================================
 
-    @kd.Theorem(
-        smt.ForAll(
-            [l1, l2, l3], append(append(l1, l2), l3) == append(l1, append(l2, l3))
-        )
+    @Theorem(
+        ForAll([l1, l2, l3], append(append(l1, l2), l3) == append(l1, append(l2, l3)))
     )
     def append_assoc(pf):
         """Append is associative"""
@@ -151,14 +166,12 @@ def main():
     # Define reverse function
     # ============================================================================
 
-    rev = smt.Function("rev", IntList, IntList)
-    rev = kd.define(
-        "rev", [l], smt.If(l.is_Nil, Nil, append(rev(l.tail), Cons(l.head, Nil)))
-    )
+    rev = Function("rev", IntList, IntList)
+    rev = define("rev", [l], If(l.is_Nil, Nil, append(rev(l.tail), Cons(l.head, Nil))))
 
     print("Testing reverse:")
     print(kd.rewrite.full_simp(rev(Cons(1, Cons(2, Cons(3, Nil))))))
-    rev_test = kd.prove(
+    rev_test = prove(
         rev(Cons(1, Cons(2, Cons(3, Nil)))) == Cons(3, Cons(2, Cons(1, Nil))),
         by=[rev.defn, append.defn],
     )
@@ -171,7 +184,7 @@ def main():
     # ============================================================================
 
     # First we need a helper lemma about reverse and append
-    @kd.Theorem(smt.ForAll([l1, l2], rev(append(l1, l2)) == append(rev(l2), rev(l1))))
+    @Theorem(ForAll([l1, l2], rev(append(l1, l2)) == append(rev(l2), rev(l1))))
     def rev_append(pf):
         """Reverse distributes over append (with order swap)"""
         _l1, _l2 = pf.fixes()
@@ -194,7 +207,7 @@ def main():
     print(f"Proved helper lemma: {rev_append}")
     print()
 
-    @kd.Theorem(smt.ForAll([l], rev(rev(l)) == l))
+    @Theorem(ForAll([l], rev(rev(l)) == l))
     def rev_rev(pf):
         """Reverse of reverse is identity"""
         _l = pf.fix()
@@ -212,14 +225,12 @@ def main():
     # Define membership predicate
     # ============================================================================
 
-    mem = smt.Function("mem", smt.IntSort(), IntList, smt.BoolSort())
-    mem = kd.define(
-        "mem", [x, l], smt.If(l.is_Nil, False, smt.Or(l.head == x, mem(x, l.tail)))
-    )
+    mem = Function("mem", IntSort(), IntList, BoolSort())
+    mem = define("mem", [x, l], If(l.is_Nil, False, Or(l.head == x, mem(x, l.tail))))
 
     print("Testing membership:")
-    mem_test1 = kd.prove(mem(2, list_123) == smt.BoolVal(True), by=[mem.defn])
-    mem_test2 = kd.prove(mem(5, list_123) == smt.BoolVal(False), by=[mem.defn])
+    mem_test1 = prove(mem(2, list_123) == BoolVal(True), by=[mem.defn])
+    mem_test2 = prove(mem(5, list_123) == BoolVal(False), by=[mem.defn])
     print(f"  2 ∈ [1,2,3]: {mem_test1}")
     print(f"  5 ∈ [1,2,3]: {mem_test2}")
     print()
@@ -228,11 +239,7 @@ def main():
     # Prove: membership in append (Lean/Rocq tactic style)
     # ============================================================================
 
-    @kd.Theorem(
-        smt.ForAll(
-            [x, l1, l2], mem(x, append(l1, l2)) == smt.Or(mem(x, l1), mem(x, l2))
-        )
-    )
+    @Theorem(ForAll([x, l1, l2], mem(x, append(l1, l2)) == Or(mem(x, l1), mem(x, l2))))
     def mem_append_tactic(pf):
         """Membership in append - tactic style proof"""
         _x, _l1, _l2 = pf.fixes()
@@ -251,9 +258,7 @@ def main():
     # ============================================================================
 
     # This one is easier to prove - just use the full characterization
-    @kd.Theorem(
-        smt.ForAll([x, l1, l2], smt.Implies(mem(x, l1), mem(x, append(l1, l2))))
-    )
+    @Theorem(ForAll([x, l1, l2], Implies(mem(x, l1), mem(x, append(l1, l2)))))
     def mem_append_left(pf):
         """If x is in l1, then x is in append(l1, l2) - using helper lemma"""
         _x, _l1, _l2 = pf.fixes()
@@ -268,7 +273,7 @@ def main():
     # Length of reverse equals length of original
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([l], length(rev(l)) == length(l)))
+    @Theorem(ForAll([l], length(rev(l)) == length(l)))
     def length_rev(pf):
         """Length of reverse equals length of original"""
         _l = pf.fix()
@@ -287,16 +292,14 @@ def main():
     # Define map function
     # ============================================================================
 
-    map_f = smt.Function("map", (smt.IntSort() >> smt.IntSort()), IntList, IntList)
-    f = smt.Const("f", smt.IntSort() >> smt.IntSort())
-    map_f = kd.define(
-        "map", [f, l], smt.If(l.is_Nil, Nil, Cons(f(l.head), map_f(f, l.tail)))
-    )
+    map_f = Function("map", (IntSort() >> IntSort()), IntList, IntList)
+    f = Const("f", IntSort() >> IntSort())
+    map_f = define("map", [f, l], If(l.is_Nil, Nil, Cons(f(l.head), map_f(f, l.tail))))
 
     # Example: map (+1) over a list
-    succ = smt.Lambda([x], x + 1)
+    succ = Lambda([x], x + 1)
     print("Testing map:")
-    map_test = kd.prove(
+    map_test = prove(
         map_f(succ, Cons(1, Cons(2, Nil))) == Cons(2, Cons(3, Nil)), by=[map_f.defn]
     )
     print(f"  map(+1, [1,2]) = [2,3]: {map_test}")
@@ -306,7 +309,7 @@ def main():
     # Prove: length of map equals length of original
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([f, l], length(map_f(f, l)) == length(l)))
+    @Theorem(ForAll([f, l], length(map_f(f, l)) == length(l)))
     def length_map(pf):
         """Length of map equals length of original"""
         _f, _l = pf.fixes()
@@ -324,8 +327,8 @@ def main():
     # Prove: map distributes over append (Isar style)
     # ============================================================================
 
-    @kd.Theorem(
-        smt.ForAll(
+    @Theorem(
+        ForAll(
             [f, l1, l2], map_f(f, append(l1, l2)) == append(map_f(f, l1), map_f(f, l2))
         )
     )
@@ -355,17 +358,15 @@ def main():
     # Define filter function
     # ============================================================================
 
-    pred = smt.Const("pred", smt.IntSort() >> smt.BoolSort())
-    filter_f = smt.Function(
-        "filter", (smt.IntSort() >> smt.BoolSort()), IntList, IntList
-    )
-    filter_f = kd.define(
+    pred = Const("pred", IntSort() >> BoolSort())
+    filter_f = Function("filter", (IntSort() >> BoolSort()), IntList, IntList)
+    filter_f = define(
         "filter",
         [pred, l],
-        smt.If(
+        If(
             l.is_Nil,
             Nil,
-            smt.If(
+            If(
                 pred(l.head),
                 Cons(l.head, filter_f(pred, l.tail)),
                 filter_f(pred, l.tail),
@@ -374,9 +375,9 @@ def main():
     )
 
     # Example: filter positive numbers
-    is_pos = smt.Lambda([x], x > 0)
+    is_pos = Lambda([x], x > 0)
     print("Testing filter:")
-    filter_test = kd.prove(
+    filter_test = prove(
         filter_f(is_pos, Cons(-1, Cons(2, Cons(-3, Cons(4, Nil)))))
         == Cons(2, Cons(4, Nil)),
         by=[filter_f.defn],
@@ -388,7 +389,7 @@ def main():
     # Prove: length of filter is at most length of original
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([pred, l], length(filter_f(pred, l)) <= length(l)))
+    @Theorem(ForAll([pred, l], length(filter_f(pred, l)) <= length(l)))
     def length_filter(pf):
         """Length of filtered list is at most length of original"""
         _pred, _l = pf.fixes()
@@ -408,11 +409,11 @@ def main():
     # Define sum function
     # ============================================================================
 
-    sum_f = smt.Function("sum", IntList, smt.IntSort())
-    sum_f = kd.define("sum", [l], smt.If(l.is_Nil, 0, l.head + sum_f(l.tail)))
+    sum_f = Function("sum", IntList, IntSort())
+    sum_f = define("sum", [l], If(l.is_Nil, 0, l.head + sum_f(l.tail)))
 
     print("Testing sum:")
-    sum_test = kd.prove(sum_f(list_123) == 6, by=[sum_f.defn])
+    sum_test = prove(sum_f(list_123) == 6, by=[sum_f.defn])
     print(f"  sum([1,2,3]) = 6: {sum_test}")
     print()
 
@@ -420,7 +421,7 @@ def main():
     # Prove: sum of append is sum of parts (Isar style with careful steps)
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([l1, l2], sum_f(append(l1, l2)) == sum_f(l1) + sum_f(l2)))
+    @Theorem(ForAll([l1, l2], sum_f(append(l1, l2)) == sum_f(l1) + sum_f(l2)))
     def sum_append(pf):
         """Sum distributes over append - detailed Isar style proof"""
         _l1, _l2 = pf.fixes()
@@ -455,7 +456,7 @@ def main():
     # Map-sum fusion (advanced property)
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([f, l], sum_f(map_f(f, l)) == sum_f(map_f(f, l))))
+    @Theorem(ForAll([f, l], sum_f(map_f(f, l)) == sum_f(map_f(f, l))))
     def map_sum_fusion_trivial(pf):
         """Trivial identity for demonstration"""
         pf.auto()
@@ -464,9 +465,9 @@ def main():
     # But for now let's prove something concrete
 
     # Define double function
-    double_lam = smt.Lambda([x], 2 * x)
+    double_lam = Lambda([x], 2 * x)
 
-    @kd.Theorem(smt.ForAll([l], sum_f(map_f(double_lam, l)) == 2 * sum_f(l)))
+    @Theorem(ForAll([l], sum_f(map_f(double_lam, l)) == 2 * sum_f(l)))
     def sum_map_double(pf):
         """Sum of doubled list is double the sum"""
         _l = pf.fix()
@@ -490,7 +491,7 @@ def main():
     print("Sanity check: append is NOT commutative")
     l1 = Cons(1, Nil)
     l2 = Cons(2, Nil)
-    not_comm = kd.prove(append(l1, l2) != append(l2, l1), by=[append.defn])
+    not_comm = prove(append(l1, l2) != append(l2, l1), by=[append.defn])
     print(f"  [1] ++ [2] != [2] ++ [1]: {not_comm}")
     print()
 
@@ -511,8 +512,8 @@ def main():
     # FreshVar creates schema variables that can be generalized later
     # This is useful for proving parametric theorems
 
-    a, b, c = kd.FreshVars("a b c", smt.IntSort())
-    xs, ys, zs = kd.FreshVars("xs ys zs", IntList)
+    a, b, c = FreshVars("a b c", IntSort())
+    xs, ys, zs = FreshVars("xs ys zs", IntList)
 
     # Prove a theorem using FreshVars, then generalize
     print("Using FreshVar to prove schematic theorems:")
@@ -520,7 +521,7 @@ def main():
     # Prove append associativity using FreshVar (similar to Lean's `variable` command)
     # In Lean: variable (xs ys zs : List Int)
     # In Rocq/Coq: Variable xs ys zs : list Z.
-    pf1 = kd.prove(
+    pf1 = prove(
         append(append(xs, ys), zs) == append(xs, append(ys, zs)), by=[append_assoc]
     )
     append_assoc_fresh = pf1.forall([xs, ys, zs])
@@ -532,27 +533,25 @@ def main():
     # ============================================================================
 
     # Take first n elements
-    take_f = smt.Function("take", smt.IntSort(), IntList, IntList)
-    n_var = smt.Int("n")
-    take_f = kd.define(
+    take_f = Function("take", IntSort(), IntList, IntList)
+    n_var = Int("n")
+    take_f = define(
         "take",
         [n_var, l],
-        smt.If(
-            smt.Or(n_var <= 0, l.is_Nil), Nil, Cons(l.head, take_f(n_var - 1, l.tail))
-        ),
+        If(Or(n_var <= 0, l.is_Nil), Nil, Cons(l.head, take_f(n_var - 1, l.tail))),
     )
 
     # Drop first n elements
-    drop_f = smt.Function("drop", smt.IntSort(), IntList, IntList)
-    drop_f = kd.define(
+    drop_f = Function("drop", IntSort(), IntList, IntList)
+    drop_f = define(
         "drop",
         [n_var, l],
-        smt.If(smt.Or(n_var <= 0, l.is_Nil), l, drop_f(n_var - 1, l.tail)),
+        If(Or(n_var <= 0, l.is_Nil), l, drop_f(n_var - 1, l.tail)),
     )
 
     print("Testing take/drop:")
-    take_test = kd.prove(take_f(2, list_123) == Cons(1, Cons(2, Nil)), by=[take_f.defn])
-    drop_test = kd.prove(drop_f(2, list_123) == Cons(3, Nil), by=[drop_f.defn])
+    take_test = prove(take_f(2, list_123) == Cons(1, Cons(2, Nil)), by=[take_f.defn])
+    drop_test = prove(drop_f(2, list_123) == Cons(3, Nil), by=[drop_f.defn])
     print(f"  take(2, [1,2,3]) = [1,2]: {take_test}")
     print(f"  drop(2, [1,2,3]) = [3]: {drop_test}")
     print()
@@ -583,7 +582,7 @@ def main():
     print("Demonstrating simplification tactics:")
 
     # Using simp to unfold definitions
-    @kd.Theorem(smt.ForAll([l], length(append(l, Nil)) == length(l)))
+    @Theorem(ForAll([l], length(append(l, Nil)) == length(l)))
     def length_append_nil_simp(pf):
         """Demonstrate simp tactic - unfolds and simplifies
 
@@ -614,20 +613,18 @@ def main():
     print("Demonstrating predicates with concrete examples:")
 
     # Define `all` with predicate parameter
-    pred_var = smt.Const("pred_var", smt.IntSort() >> smt.BoolSort())
-    all_f = smt.Function(
-        "all", (smt.IntSort() >> smt.BoolSort()), IntList, smt.BoolSort()
-    )
-    all_f = kd.define(
+    pred_var = Const("pred_var", IntSort() >> BoolSort())
+    all_f = Function("all", (IntSort() >> BoolSort()), IntList, BoolSort())
+    all_f = define(
         "all",
         [pred_var, l],
-        smt.If(l.is_Nil, True, smt.And(pred_var(l.head), all_f(pred_var, l.tail))),
+        If(l.is_Nil, True, And(pred_var(l.head), all_f(pred_var, l.tail))),
     )
 
     # Test with concrete predicate
-    is_positive = smt.Lambda([x], x > 0)
-    all_pos_test = kd.prove(
-        all_f(is_positive, Cons(1, Cons(2, Nil))) == smt.BoolVal(True), by=[all_f.defn]
+    is_positive = Lambda([x], x > 0)
+    all_pos_test = prove(
+        all_f(is_positive, Cons(1, Cons(2, Nil))) == BoolVal(True), by=[all_f.defn]
     )
     print(f"  all(>0, [1,2]) = True: {all_pos_test}")
     print()
@@ -642,7 +639,7 @@ def main():
     # Demonstrate: rw (rewrite) tactic
     # ============================================================================
 
-    @kd.Theorem(smt.ForAll([l], length(rev(rev(l))) == length(l)))
+    @Theorem(ForAll([l], length(rev(rev(l))) == length(l)))
     def length_rev_rev_rw(pf):
         """Demonstrate rewrite tactic
 
@@ -674,9 +671,9 @@ def main():
     #     _     = expr4 := by proof3
 
     # Prove: length(l ++ (m ++ n)) = length(l) + length(m) + length(n)
-    l_fresh, m_fresh, n_fresh = kd.FreshVars("l_ex m_ex n_ex", IntList)
+    l_fresh, m_fresh, n_fresh = FreshVars("l_ex m_ex n_ex", IntList)
 
-    c = kd.Calc(
+    c = Calc(
         [l_fresh, m_fresh, n_fresh], length(append(l_fresh, append(m_fresh, n_fresh)))
     )
     c.eq(length(append(append(l_fresh, m_fresh), n_fresh)), by=[append_assoc])
@@ -693,8 +690,8 @@ def main():
     # Zip two lists together
     # ============================================================================
 
-    IntPair = kd.Struct("IntPair", ("fst", smt.IntSort()), ("snd", smt.IntSort()))
-    IntPairList = kd.Inductive("IntPairList")
+    IntPair = Struct("IntPair", ("fst", IntSort()), ("snd", IntSort()))
+    IntPairList = Inductive("IntPairList")
     IntPairList.declare("PNil")
     IntPairList.declare("PCons", ("phead", IntPair), ("ptail", IntPairList))
     IntPairList = IntPairList.create()
@@ -702,20 +699,20 @@ def main():
     PNil = IntPairList.PNil
     PCons = IntPairList.PCons
 
-    zip_l1, zip_l2 = smt.Consts("zip_l1 zip_l2", IntList)
-    zip_f = smt.Function("zip", IntList, IntList, IntPairList)
-    zip_f = kd.define(
+    zip_l1, zip_l2 = Consts("zip_l1 zip_l2", IntList)
+    zip_f = Function("zip", IntList, IntList, IntPairList)
+    zip_f = define(
         "zip",
         [zip_l1, zip_l2],
-        smt.If(
-            smt.Or(zip_l1.is_Nil, zip_l2.is_Nil),
+        If(
+            Or(zip_l1.is_Nil, zip_l2.is_Nil),
             PNil,
             PCons(IntPair(zip_l1.head, zip_l2.head), zip_f(zip_l1.tail, zip_l2.tail)),
         ),
     )
 
     print("Testing zip:")
-    zip_test = kd.prove(
+    zip_test = prove(
         zip_f(Cons(1, Cons(2, Nil)), Cons(3, Cons(4, Nil)))
         == PCons(IntPair(1, 3), PCons(IntPair(2, 4), PNil)),
         by=[zip_f.defn],
@@ -730,7 +727,7 @@ def main():
     # Simple example of using sub() to isolate a subgoal
     print("Demonstrating sub() for subgoal management:")
 
-    @kd.Theorem(smt.ForAll([l], smt.Implies(length(l) > 0, smt.Not(l.is_Nil))))
+    @Theorem(ForAll([l], Implies(length(l) > 0, Not(l.is_Nil))))
     def length_pos_not_nil(pf):
         """If length > 0, then list is not Nil
 

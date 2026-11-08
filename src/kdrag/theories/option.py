@@ -4,6 +4,7 @@ Algebraic data type for optional values
 """
 
 import kdrag.smt as smt
+from kdrag.smt import If, IntSort  # noqa: F401
 import kdrag as kd
 
 
@@ -35,13 +36,13 @@ def get(x: smt.DatatypeRef, default: smt.ExprRef) -> smt.ExprRef:
         raise ValueError(
             f"default sort {default.sort()} does not match option sort {x.val.sort()}"
         )
-    return smt.If(x.is_Some, x.val, default)
+    return If(x.is_Some, x.val, default)
 
 
 def None_(T: smt.SortRef) -> smt.DatatypeRef:
     """
     Helper to create Option None_ values
-    >>> None_(smt.IntSort())
+    >>> None_(IntSort())
     None_
     """
     return OptionSort(T).None_

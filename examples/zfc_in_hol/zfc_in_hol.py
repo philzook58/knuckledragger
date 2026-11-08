@@ -13,15 +13,17 @@
 # %%
 
 from kdrag.all import *
+from kdrag import QForAll, axiom
+from kdrag.smt import Consts, DeclareSort, Function
 
 # typedecl V
 
-V = smt.DeclareSort("V")
+V = DeclareSort("V")
 
 import kdrag.theories.set as set_
 
-x, y, z = smt.Consts("x y z", V)
-X, Y, Z = smt.Consts("X Y Z", set_.Set(V))
+x, y, z = Consts("x y z", V)
+X, Y, Z = Consts("X Y Z", set_.Set(V))
 # text\<open>Presentation refined by Dmitriy Traytel\<close>
 # axiomatization elts :: "V \<Rightarrow> V set"
 #  where ext [intro?]:    "elts x = elts y \<Longrightarrow> x=y"
@@ -32,9 +34,9 @@ X, Y, Z = smt.Consts("X Y Z", set_.Set(V))
 #    and inf_raw:         "range (g :: nat \<Rightarrow> V) \<in> range elts"
 #    and foundation:      "wf {(x,y). x \<in> elts y}"
 
-elts = smt.Function("elts", V, set_.Set(V))
-ext = kd.axiom(kd.QForAll([x, y], elts(x) == elts(y), x == y))
-down_raw = kd.axiom(kd.QForAll([Y, x], Y <= elts(x), set_.member(Y, set_.Range(elts))))
+elts = Function("elts", V, set_.Set(V))
+ext = axiom(QForAll([x, y], elts(x) == elts(y), x == y))
+down_raw = axiom(QForAll([Y, x], Y <= elts(x), set_.member(Y, set_.Range(elts))))
 # Union_raw = kd.axiom(kd.QForAll([X], set_.member(X, set_.Range(elts)), set_.member(set_.Union(set_.image(elts, X)), set_.Range(elts)))
 # %%
 
