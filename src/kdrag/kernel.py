@@ -150,6 +150,7 @@ def prove(
         return Proof(fvs, thm, list(by), admit=True)
     else:
         if isinstance(solver, str):
+            # Vampire and E prover translations are less reliable than the direct Z3 path.
             from .solvers import VampireSolver, EProverSolver
 
             solvers: dict[str, Callable[[], Any]] = {
