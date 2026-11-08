@@ -4,6 +4,10 @@ import subprocess
 import tempfile
 
 
+def test_real_analysis():
+    import examples.real_analysis
+
+
 @pytest.mark.slow
 def test_examples():
     import examples.soft_found.lf.indprop

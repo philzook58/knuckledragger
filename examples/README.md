@@ -1,3 +1,6 @@
+[real_analysis.py](real_analysis.py) contains short continuity and limit proofs
+using explicit definitions and Z3. Run it with `uv run python examples/real_analysis.py`.
+
 Other ideas:
 
 - <http://www.concrete-semantics.org/>
