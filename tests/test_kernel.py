@@ -26,6 +26,26 @@ def test_true_infer():
     kd.prove(smt.BoolVal(True))
 
 
+def test_proof_call_forall_then_implies():
+    x = smt.Int("x")
+    pf = kd.prove(smt.ForAll([x], smt.Implies(x > 0, x >= 0)))
+    positive = kd.prove(smt.IntVal(1) > 0)
+    assert pf(1, positive).thm.eq(smt.IntVal(1) >= 0)
+
+
+def test_proof_call_implies_then_forall():
+    x = smt.Int("x")
+    pf = kd.prove(smt.Implies(smt.BoolVal(True), smt.ForAll([x], x == x)))
+    truth = kd.prove(smt.BoolVal(True))
+    assert pf(truth, 1).thm.eq(smt.IntVal(1) == 1)
+
+
+def test_proof_call_nested_forall_with_different_arities():
+    x, y, z = smt.Ints("x y z")
+    pf = kd.prove(smt.ForAll([x], smt.ForAll([y, z], x + y + z == z + y + x)))
+    assert pf(1, 2, 3).thm.eq(smt.IntVal(1) + 2 + 3 == smt.IntVal(3) + 2 + 1)
+
+
 def test_choose_after_fresh_var_collection():
     x, y = smt.Ints("choose_test_x choose_test_y")
     pf = kd.prove(smt.ForAll([x], smt.Exists([y], y >= x)))

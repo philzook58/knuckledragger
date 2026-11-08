@@ -83,15 +83,15 @@ class Proof(Judgement):
         acc = self
         n = 0
         while n < len(args):
-            if isinstance(self.thm, smt.QuantifierRef) and self.thm.is_forall():
-                i = self.thm.num_vars()
+            if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
+                i = acc.thm.num_vars()
                 subargs = [
                     a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
                     for a in args[n : n + i]
                 ]
                 acc = instan(subargs, acc)
                 n += i
-            elif smt.is_implies(self.thm):
+            elif smt.is_implies(acc.thm):
                 x = args[n]
                 n += 1
                 assert isinstance(x, kd.Proof), "Can only apply implication to kd.Proof"
