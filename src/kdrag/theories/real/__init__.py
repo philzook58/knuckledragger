@@ -495,14 +495,14 @@ def archimedes(l):
 is_diff = define("is_diff", [f], ForAll([x], diff_at(f, x)))
 is_cont = define("is_cont", [f], ForAll([x], cont_at(f, x)))
 
-is_cont_cont_at = prove(
+cont_at_of_is_cont = prove(
     ForAll([f, x], Implies(is_cont(f), cont_at(f, x))),
     by=[is_cont.defn],
 )
 
 
 @Theorem(ForAll([f, x], Implies(cont_at(f, x), has_lim_at(f, x, f[x]))))
-def cont_at_has_lim_at(l):
+def has_lim_at_of_cont_at(l):
     l.fixes()
     l.intros()
     l.unfold(cont_at, at=0)

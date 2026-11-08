@@ -236,6 +236,7 @@ def sum_append(pf):
 - **Formatting**: Follow PEP 8 guidelines; ruff handles formatting
 - **Docstrings**: Include for public functions and classes
 - **Function Names**: snake_case for functions, CamelCase for classes
+- **Lemma Names**: Follow mathlib names where practical, adapting to snake_case and existing predicates. Prefer `const`, `id`, and `conclusion_of_hypothesis`.
 - **Error Handling**: Use exceptions for failure conditions with clear messages
 - **Test Names**: Prefix with `test_` and descriptively name the behavior
 
