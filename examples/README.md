@@ -1,11 +1,8 @@
-[real_analysis.py](real_analysis.py) builds continuous functions using addition and multiplication,
-then derives pointwise continuity and limits using shared lemmas.
-The theory proves pointwise closure first, then lifts it to global continuity.
-General limit rules reuse pointwise continuity by updating the value at the limit point.
-Run it with `uv run python examples/real_analysis.py`.
-
-Run `uv run pytest tests/test_examples.py::test_real_analysis -s` for solver timings.
-The test excludes imports and fails if a solver check or proof takes 0.5 seconds or longer.
+Continuity and limit lemmas live in
+[real/cont.py](../src/kdrag/theories/real/cont.py).
+Run `uv run pytest tests/test_real_cont.py::test_continuity -s` for solver timings.
+The test excludes base-theory imports and fails if a solver check or proof takes
+0.5 seconds or longer.
 
 Other ideas:
 
