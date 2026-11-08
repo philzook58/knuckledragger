@@ -20,12 +20,12 @@ f, g = Consts("f g", RFun)
 x, p, L, M = Reals("x p L M")
 
 cont_at_of_is_cont = prove(
-    ForAll([f, x], Implies(is_cont(f), cont_at(f, x))),
+    ForAll([f, x], is_cont(f), cont_at(f, x)),
     by=[is_cont.defn],
 )
 
 
-@Theorem(ForAll([f, x], Implies(cont_at(f, x), has_lim_at(f, x, f[x]))))
+@Theorem(ForAll([f, x], cont_at(f, x), has_lim_at(f, x, f[x])))
 def has_lim_at_of_cont_at(l):
     l.fixes()
     l.unfold(cont_at, has_lim_at)
@@ -38,9 +38,7 @@ def has_lim_at_of_cont_at(l):
     l.auto(by=[abs.defn])
 
 
-@Theorem(
-    ForAll([f, g, p], Implies(cont_at(f, p), Implies(cont_at(g, p), cont_at(f + g, p))))
-)
+@Theorem(ForAll([f, g, p], cont_at(f, p), Implies(cont_at(g, p), cont_at(f + g, p))))
 def cont_at_add(l):
     l.fixes()
     l.unfold(cont_at)
@@ -55,9 +53,7 @@ def cont_at_add(l):
     l.auto(by=[abs.defn, min.defn])
 
 
-@Theorem(
-    ForAll([f, g, p], Implies(cont_at(f, p), Implies(cont_at(g, p), cont_at(f * g, p))))
-)
+@Theorem(ForAll([f, g, p], cont_at(f, p), Implies(cont_at(g, p), cont_at(f * g, p))))
 def cont_at_mul(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
@@ -86,18 +82,18 @@ def cont_at_mul(l):
 
 
 is_cont_add = prove(
-    ForAll([f, g], Implies(is_cont(f), Implies(is_cont(g), is_cont(f + g)))),
+    ForAll([f, g], is_cont(f), Implies(is_cont(g), is_cont(f + g))),
     by=[is_cont.defn, cont_at_add],
 )
 
 is_cont_mul = prove(
-    ForAll([f, g], Implies(is_cont(f), Implies(is_cont(g), is_cont(f * g)))),
+    ForAll([f, g], is_cont(f), Implies(is_cont(g), is_cont(f * g))),
     by=[is_cont.defn, cont_at_mul],
 )
 
 
 # Updating the value at p turns a punctured limit into continuity at p.
-@Theorem(ForAll([f, p, L], Implies(has_lim_at(f, p, L), cont_at(Store(f, p, L), p))))
+@Theorem(ForAll([f, p, L], has_lim_at(f, p, L), cont_at(Store(f, p, L), p)))
 def cont_at_update_of_has_lim_at(l):
     l.fixes()
     l.unfold(has_lim_at, cont_at)
@@ -109,7 +105,7 @@ def cont_at_update_of_has_lim_at(l):
     l.auto(by=[abs.defn])
 
 
-@Theorem(ForAll([f, p, L], Implies(cont_at(Store(f, p, L), p), has_lim_at(f, p, L))))
+@Theorem(ForAll([f, p, L], cont_at(Store(f, p, L), p), has_lim_at(f, p, L)))
 def has_lim_at_of_cont_at_update(l):
     l.fixes()
     l.unfold(cont_at, has_lim_at)
@@ -124,10 +120,8 @@ def has_lim_at_of_cont_at_update(l):
 @Theorem(
     ForAll(
         [f, g, p, L, M],
-        Implies(
-            has_lim_at(f, p, L),
-            Implies(has_lim_at(g, p, M), has_lim_at(f + g, p, L + M)),
-        ),
+        has_lim_at(f, p, L),
+        Implies(has_lim_at(g, p, M), has_lim_at(f + g, p, L + M)),
     )
 )
 def has_lim_at_add(l):
@@ -145,10 +139,8 @@ def has_lim_at_add(l):
 @Theorem(
     ForAll(
         [f, g, p, L, M],
-        Implies(
-            has_lim_at(f, p, L),
-            Implies(has_lim_at(g, p, M), has_lim_at(f * g, p, L * M)),
-        ),
+        has_lim_at(f, p, L),
+        Implies(has_lim_at(g, p, M), has_lim_at(f * g, p, L * M)),
     )
 )
 def has_lim_at_mul(l):
