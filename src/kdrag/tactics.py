@@ -11,6 +11,7 @@ from enum import IntEnum
 import operator as op
 from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
+from functools import cache
 import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
@@ -484,6 +485,16 @@ def Lemma(goal: smt.BoolRef, fixes=None, assumes=None) -> "ProofState":
         ctx=[] if assumes is None else assumes,
         goal=goal,
     ).proof()
+
+
+@cache
+def _modus_ponens() -> kd.kernel.Proof:
+    """Prove the propositional helper once, then instantiate it without search."""
+    a, b = smt.Bools("a b")
+    return kd.kernel.prove(
+        smt.RawForAll([a, b], smt.Implies(smt.And(a, smt.Implies(a, b)), b)),
+        solver=smt.Z3Solver,
+    )
 
 
 class ProofState:
@@ -1231,45 +1242,92 @@ class ProofState:
         self.goals[-1] = self.goalctx._replace(ctx=newctx)
         return self
 
-    def specialize(self, n: int | smt.QuantifierRef, *ts, keep=False) -> smt.BoolRef:
-        """
-        Instantiate a universal quantifier in the context.
+    def specialize(
+        self, n: int | smt.BoolRef | kd.kernel.Proof, *ts, keep=False
+    ) -> smt.BoolRef:
+        """Apply terms and premise evidence to a hypothesis or proof.
+
+        Terms instantiate universal quantifiers. At an implication, supply a
+        Proof of the premise or a BoolRef that occurs exactly in the context.
+        A BoolRef used as a quantified Boolean term need not be in the context.
+
+        Context hypotheses are replaced unless ``keep=True``. A Proof target
+        adds its specialized result. The result is returned as a formula.
 
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))
         >>> hyp = l.intros()
-        >>> hyp
-        ForAll(x, x == y)
-        >>> l
-        [ForAll(x, x == y)] ?|= True
         >>> l.specialize(hyp, smt.IntVal(42))
         42 == y
         >>> l
         [42 == y] ?|= True
+
+        >>> rule = smt.ForAll([x], smt.Implies(x > 0, x >= 0))
+        >>> l = Lemma(smt.Implies(rule, smt.Implies(y > 0, y >= 0)))
+        >>> hyp = l.intros()
+        >>> positive = l.intros()
+        >>> l.specialize(hyp, y, positive)
+        y >= 0
+        >>> l
+        [y >= 0, y > 0] ?|= y >= 0
         """
+        if not ts:
+            raise ValueError("Specialize requires at least one argument")
         goalctx = self.top_goal()
-        (n, thm) = goalctx.ctx_find(n)
-        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-            l = kd.kernel.specialize(ts, thm)
-            self.add_lemma(l)
-            # kernel.specialize returns Implies(forall x, P, P[t/x])
-            newformula = l.thm.arg(1)
-            if keep:
-                self.goals[-1] = goalctx._replace(ctx=goalctx.ctx + [newformula])
-            else:
-                self.goals[-1] = goalctx._replace(
-                    ctx=goalctx.ctx[:n] + [newformula] + goalctx.ctx[n + 1 :]
-                )
-            return newformula
+        if isinstance(n, kd.Proof):
+            index, thm = None, n.thm
+            lemmas = [n]
         else:
-            foralls = {
-                n: formula
-                for n, formula in enumerate(goalctx.ctx)
-                if isinstance(formula, smt.QuantifierRef) and formula.is_forall()
-            }
-            raise ValueError(
-                "Specialize failed. Not a forall", thm, "Available foralls:", foralls
-            )
+            index, thm = goalctx.ctx_find(n)
+            lemmas = []
+        pos = 0
+        while pos < len(ts):
+            if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+                count = thm.num_vars()
+                args = ts[pos : pos + count]
+                if len(args) != count:
+                    raise ValueError(
+                        "Specialize requires a term for each quantified variable"
+                    )
+                if any(isinstance(arg, kd.Proof) for arg in args):
+                    raise TypeError(
+                        "Expected terms for quantified variables, not Proofs"
+                    )
+                terms = [thm.var_sort(i).cast(arg) for i, arg in enumerate(args)]
+                lemma = kd.kernel.specialize(terms, thm)
+                lemmas.append(lemma)
+                thm = lemma.thm.arg(1)
+                pos += count
+            elif smt.is_implies(thm):
+                arg = ts[pos]
+                if isinstance(arg, kd.Proof):
+                    premise = arg.thm
+                    lemmas.append(arg)
+                elif isinstance(arg, smt.BoolRef):
+                    _, premise = goalctx.ctx_find(arg)
+                else:
+                    raise TypeError(
+                        "Implication arguments must be Proofs or context formulas"
+                    )
+                if not thm.arg(0).eq(premise):
+                    raise ValueError(
+                        "Argument does not match implication premise", premise, thm
+                    )
+                lemma = kd.kernel.instan([premise, thm.arg(1)], _modus_ponens())
+                lemmas.append(lemma)
+                thm = thm.arg(1)
+                pos += 1
+            else:
+                raise ValueError("Specialize expected a forall or implication", thm)
+        # Commit only after all arguments pass their checks.
+        for lemma in lemmas:
+            self.add_lemma(lemma)
+        if keep or index is None:
+            ctx = goalctx.ctx + [thm]
+        else:
+            ctx = goalctx.ctx[:index] + [thm] + goalctx.ctx[index + 1 :]
+        self.goals[-1] = goalctx._replace(ctx=ctx)
+        return thm
 
     def ext(self, at=None):
         """
