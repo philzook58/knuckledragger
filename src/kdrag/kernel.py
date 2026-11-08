@@ -5,6 +5,7 @@ The kernel hold core proof datatypes and core inference rules. By and large, all
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
+from types import EllipsisType
 from typing import Any, Callable, Iterable, Sequence
 from . import config
 import tempfile
@@ -61,7 +62,7 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def __call__(self, *args: "smt.ExprRef | Proof"):
+    def __call__(self, *args: "smt.ExprRef | Proof | EllipsisType"):
         """
 
         >>> x,y = smt.Ints("x y")
@@ -78,7 +79,18 @@ class Proof(Judgement):
         |= Implies(a, a)
         >>> ab(a,a)
         |= a
+
+        Use ``...`` to skip one variable or premise, leaving its binder in place.
+        No inference or proof search is performed for skipped arguments.
+
+        >>> q = prove(smt.ForAll([x, y], x + y == y + x))
+        >>> q(..., 3)
+        |= ForAll(x!..., x!... + 3 == 3 + x!...)
+        >>> ab(..., a)
+        |= Implies(a, a)
         """
+        if any(arg is Ellipsis for arg in args):
+            return partial_apply(self, args)
         # Note: Not trusted code. Trusted code is in `instan` and `modus`
         acc = self
         n = 0
@@ -105,6 +117,56 @@ class Proof(Judgement):
                     "Only implications and forall quantifier Proofs can be called",
                 )
         return acc
+
+
+def partial_apply(
+    pf: Proof, args: Sequence[smt.ExprRef | Proof | EllipsisType]
+) -> Proof:
+    """Apply arguments under skipped quantifiers and implication premises.
+
+    Supplied proofs must prove their premises outright; skipped premises are
+    retained as implications, never introduced as unconditional assumptions.
+    Fresh constants keep retained binders from capturing supplied arguments.
+    """
+    assert isinstance(pf, Proof)
+
+    def apply_at(thm: smt.BoolRef, n: int) -> smt.BoolRef:
+        if n == len(args):
+            return thm
+        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+            variables = fresh_const(thm)
+            terms, retained = [], []
+            count = min(thm.num_vars(), len(args) - n)
+            for i, variable in enumerate(variables):
+                arg = args[n + i] if i < count else Ellipsis
+                if arg is Ellipsis:
+                    terms.append(variable)
+                    retained.append(variable)
+                else:
+                    if isinstance(arg, Proof):
+                        raise TypeError(
+                            "Expected a term for a quantified variable", arg
+                        )
+                    terms.append(thm.var_sort(i).cast(arg))
+            body = smt.substitute_vars(thm.body(), *reversed(terms))
+            result = apply_at(body, n + count)
+            return smt.RawForAll(retained, result) if retained else result
+        if smt.is_implies(thm):
+            arg = args[n]
+            if arg is not Ellipsis:
+                assert isinstance(arg, Proof), "Can only apply implication to kd.Proof"
+                assert thm.arg(0).eq(arg.thm), (
+                    "Proof does not match implication premise"
+                )
+            result = apply_at(thm.arg(1), n + 1)
+            return smt.Implies(thm.arg(0), result) if arg is Ellipsis else result
+        raise TypeError(
+            "Only implications and forall quantifier Proofs can be called", thm
+        )
+
+    result = apply_at(pf.thm, 0)
+    fvs = pf.fvs.union(*(arg.fvs for arg in args if isinstance(arg, Proof)))
+    return axiom(result, fvs=fvs, by=["partial_apply", pf, *args])
 
 
 def is_proof(p: Proof) -> bool:

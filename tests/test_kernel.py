@@ -46,6 +46,87 @@ def test_proof_call_nested_forall_with_different_arities():
     assert pf(1, 2, 3).thm.eq(smt.IntVal(1) + 2 + 3 == smt.IntVal(3) + 2 + 1)
 
 
+def test_proof_call_ellipsis_forall():
+    x, y = smt.Ints("x y")
+    pf = kd.prove(smt.ForAll([x, y], x + y == y + x))
+    # The free x supplied for y must not be captured by the retained quantifier.
+    result = pf(..., x)
+    expected = smt.ForAll([y], y + x == x + y)
+    assert result.thm.num_vars() == 1
+    assert result.thm.body().eq(expected.body())
+    assert pf(3, ...).thm.body().eq(smt.ForAll([y], 3 + y == y + 3).body())
+    assert pf(...).thm.body().eq(pf.thm.body())
+    assert pf(..., ...).thm.body().eq(pf.thm.body())
+
+
+def test_proof_call_ellipsis_implies():
+    p = smt.Bool("p")
+    truth = kd.prove(smt.BoolVal(True))
+    pf = kd.prove(smt.Implies(p, smt.Implies(smt.BoolVal(True), p)))
+    assert pf(..., truth).thm.eq(smt.Implies(p, p))
+    assert pf(..., ...).thm.eq(pf.thm)
+    skipped = kd.prove(smt.Implies(smt.BoolVal(True), smt.Implies(p, p)))(..., ...)
+    assert skipped(truth).thm.eq(smt.Implies(p, p))
+    # Retain scope information from both the theorem and supplied proofs.
+    scope = smt.Int("ellipsis_scope")
+    scoped = kd.kernel.weaken(pf, [scope])
+    assert scoped(..., truth).fvs == scoped.fvs
+    scoped_truth = kd.kernel.weaken(truth, [scope])
+    assert pf(..., scoped_truth).fvs == scoped_truth.fvs
+
+
+def test_proof_call_ellipsis_preserves_binder_order():
+    p = smt.Bool("p")
+    x, y = smt.Ints("x y")
+    truth = kd.prove(smt.BoolVal(True))
+    pf = kd.prove(smt.Implies(p, smt.ForAll([x], smt.Implies(
+        smt.BoolVal(True), smt.ForAll([y], x + y == y + x)))))
+    result = pf(..., ..., truth, 3)
+    expected = smt.ForAll([x], x + 3 == 3 + x)
+    assert result.thm.arg(0).eq(p)
+    assert result.thm.arg(1).num_vars() == 1
+    assert result.thm.arg(1).body().eq(expected.body())
+    assert pf(..., 2, ..., 3).thm.eq(smt.Implies(p, smt.Implies(
+        smt.BoolVal(True), smt.IntVal(2) + 3 == smt.IntVal(3) + 2)))
+
+
+def test_proof_call_ellipsis_preserves_dependent_premise():
+    x, y = smt.Ints("x y")
+    pf = kd.prove(smt.ForAll([x], smt.Implies(
+        x > 0, smt.ForAll([y], x + y == y + x))))
+    result = pf(..., ..., x)
+    expected = smt.ForAll([y], smt.Implies(y > 0, y + x == x + y))
+    assert result.thm.num_vars() == 1
+    assert result.thm.body().eq(expected.body())
+
+
+def test_proof_call_ellipsis_checks_term_sorts():
+    x = smt.Int("x")
+    b = smt.Bool("b")
+    pf = kd.prove(smt.ForAll([x, b], smt.Implies(b, x == x)))
+    with pytest.raises(smt.Z3Exception):
+        pf(..., 3)
+    with pytest.raises(TypeError, match="Expected a term"):
+        pf(..., kd.prove(smt.BoolVal(True)))
+
+
+def test_proof_call_ellipsis_rejects_mismatched_proof():
+    x = smt.Int("x")
+    pf = kd.prove(smt.ForAll([x], smt.Implies(x > 0, x >= 0)))
+    # A proof about 1 cannot discharge a premise about every retained x.
+    with pytest.raises(AssertionError, match="does not match"):
+        pf(..., kd.prove(smt.IntVal(1) > 0))
+    with pytest.raises(AssertionError, match="kd.Proof"):
+        pf(..., smt.BoolVal(True))
+
+
+def test_proof_call_ellipsis_rejects_extra_arguments():
+    x = smt.Int("x")
+    pf = kd.prove(smt.ForAll([x], x == x))
+    with pytest.raises(TypeError, match="Only implications"):
+        pf(..., ...)
+
+
 def test_choose_after_fresh_var_collection():
     x, y = smt.Ints("choose_test_x choose_test_y")
     pf = kd.prove(smt.ForAll([x], smt.Exists([y], y >= x)))
