@@ -231,6 +231,7 @@ def sum_append(pf):
 ## Code Style
 
 - **Imports**: Group standard library, third-party, and local imports
+- In theories and examples, import proof and SMT helpers explicitly (`from kdrag import prove, Theorem`; `from kdrag.smt import ForAll, Implies`). Keep qualification where names would clash.
 - **Types**: Use type annotations for function parameters and return values
 - **Formatting**: Follow PEP 8 guidelines; ruff handles formatting
 - **Docstrings**: Include for public functions and classes

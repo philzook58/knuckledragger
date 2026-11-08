@@ -1,55 +1,64 @@
 import kdrag as kd
-import kdrag.smt as smt
+from kdrag import QForAll, Theorem, axiom, define, prove
+from kdrag.smt import (
+    And,
+    ArraySort,
+    BoolSort,
+    Const,
+    Consts,
+    DeclareSort,
+    ForAll,
+    Function,
+    Implies,
+    Lambda,
+    SetSort,
+)
 
 # Declare an abstract complete lattice
-L = smt.DeclareSort("L")
-SetL = smt.SetSort(L)
+L = DeclareSort("L")
+SetL = SetSort(L)
 
-x, y, z = smt.Consts("x y z", L)
-A, B = smt.Consts("A B", SetL)
+x, y, z = Consts("x y z", L)
+A, B = Consts("A B", SetL)
 
-le = smt.Function("le", L, L, smt.BoolSort())
+le = Function("le", L, L, BoolSort())
 kd.notation.le.register(L, le)
 
-le_refl = kd.axiom(smt.ForAll([x], x <= x))
-le_trans = kd.axiom(smt.ForAll([x, y, z], smt.Implies(smt.And(x <= y, y <= z), x <= z)))
-le_antisym = kd.axiom(smt.ForAll([x, y], smt.Implies(smt.And(x <= y, y <= x), x == y)))
+le_refl = axiom(ForAll([x], x <= x))
+le_trans = axiom(ForAll([x, y, z], Implies(And(x <= y, y <= z), x <= z)))
+le_antisym = axiom(ForAll([x, y], Implies(And(x <= y, y <= x), x == y)))
 
-is_ub = kd.define("is_ub", [A, y], kd.QForAll([x], A[x], x <= y))
-is_lb = kd.define("is_lb", [A, y], kd.QForAll([x], A[x], y <= x))
+is_ub = define("is_ub", [A, y], QForAll([x], A[x], x <= y))
+is_lb = define("is_lb", [A, y], QForAll([x], A[x], y <= x))
 
-sup = smt.Function("sup", SetL, L)
-inf = smt.Function("inf", SetL, L)
+sup = Function("sup", SetL, L)
+inf = Function("inf", SetL, L)
 
-sup_is_ub = kd.axiom(smt.ForAll([A], is_ub(A, sup(A))))
-sup_least = kd.axiom(smt.ForAll([A, y], smt.Implies(is_ub(A, y), sup(A) <= y)))
+sup_is_ub = axiom(ForAll([A], is_ub(A, sup(A))))
+sup_least = axiom(ForAll([A, y], Implies(is_ub(A, y), sup(A) <= y)))
 
-inf_is_lb = kd.axiom(smt.ForAll([A], is_lb(A, inf(A))))
-inf_greatest = kd.axiom(smt.ForAll([A, y], smt.Implies(is_lb(A, y), y <= inf(A))))
+inf_is_lb = axiom(ForAll([A], is_lb(A, inf(A))))
+inf_greatest = axiom(ForAll([A, y], Implies(is_lb(A, y), y <= inf(A))))
 
 # Monotone functions on L (represented as arrays L -> L)
-FSort = smt.ArraySort(L, L)
-f = smt.Const("f", FSort)
+FSort = ArraySort(L, L)
+f = Const("f", FSort)
 
-monotone = kd.define(
-    "monotone", [f], smt.ForAll([x, y], smt.Implies(x <= y, f[x] <= f[y]))
-)
+monotone = define("monotone", [f], ForAll([x, y], Implies(x <= y, f[x] <= f[y])))
 
-prefixed = kd.define("prefixed", [f], smt.Lambda([x], f[x] <= x))
-postfixed = kd.define("postfixed", [f], smt.Lambda([x], x <= f[x]))
+prefixed = define("prefixed", [f], Lambda([x], f[x] <= x))
+postfixed = define("postfixed", [f], Lambda([x], x <= f[x]))
 
-lfp = kd.define("lfp", [f], inf(prefixed(f)))
-gfp = kd.define("gfp", [f], sup(postfixed(f)))
+lfp = define("lfp", [f], inf(prefixed(f)))
+gfp = define("gfp", [f], sup(postfixed(f)))
 
-prefixed_eval = kd.prove(
-    smt.ForAll([f, x], prefixed(f)[x] == (f[x] <= x)), by=[prefixed.defn]
-)
-postfixed_eval = kd.prove(
-    smt.ForAll([f, x], postfixed(f)[x] == (x <= f[x])), by=[postfixed.defn]
+prefixed_eval = prove(ForAll([f, x], prefixed(f)[x] == (f[x] <= x)), by=[prefixed.defn])
+postfixed_eval = prove(
+    ForAll([f, x], postfixed(f)[x] == (x <= f[x])), by=[postfixed.defn]
 )
 
 
-@kd.Theorem(smt.ForAll([f], smt.Implies(monotone(f), f[lfp(f)] <= lfp(f))))
+@Theorem(ForAll([f], Implies(monotone(f), f[lfp(f)] <= lfp(f))))
 def lfp_prefixed(l):
     f = l.fix()
     l.intros()
@@ -74,7 +83,7 @@ def lfp_prefixed(l):
     l.auto(by=[le_trans])
 
 
-@kd.Theorem(smt.ForAll([f], smt.Implies(monotone(f), lfp(f) <= f[lfp(f)])))
+@Theorem(ForAll([f], Implies(monotone(f), lfp(f) <= f[lfp(f)])))
 def lfp_postfixed(l):
     f = l.fix()
     l.intros()
@@ -97,7 +106,7 @@ def lfp_postfixed(l):
     l.auto()
 
 
-@kd.Theorem(smt.ForAll([f], smt.Implies(monotone(f), f[lfp(f)] == lfp(f))))
+@Theorem(ForAll([f], Implies(monotone(f), f[lfp(f)] == lfp(f))))
 def lfp_fixed(l):
     f = l.fix()
     l.intros()
@@ -107,10 +116,10 @@ def lfp_fixed(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [f, x],
-        smt.Implies(smt.And(monotone(f), f[x] == x), lfp(f) <= x),
+        Implies(And(monotone(f), f[x] == x), lfp(f) <= x),
     )
 )
 def lfp_least(l):
@@ -128,7 +137,7 @@ def lfp_least(l):
     l.auto()
 
 
-@kd.Theorem(smt.ForAll([f], smt.Implies(monotone(f), gfp(f) <= f[gfp(f)])))
+@Theorem(ForAll([f], Implies(monotone(f), gfp(f) <= f[gfp(f)])))
 def gfp_postfixed(l):
     f = l.fix()
     l.intros()
@@ -153,7 +162,7 @@ def gfp_postfixed(l):
     l.auto(by=[le_trans])
 
 
-@kd.Theorem(smt.ForAll([f], smt.Implies(monotone(f), f[gfp(f)] <= gfp(f))))
+@Theorem(ForAll([f], Implies(monotone(f), f[gfp(f)] <= gfp(f))))
 def gfp_prefixed(l):
     f = l.fix()
     l.intros()
@@ -175,7 +184,7 @@ def gfp_prefixed(l):
     l.auto()
 
 
-@kd.Theorem(smt.ForAll([f], smt.Implies(monotone(f), f[gfp(f)] == gfp(f))))
+@Theorem(ForAll([f], Implies(monotone(f), f[gfp(f)] == gfp(f))))
 def gfp_fixed(l):
     f = l.fix()
     l.intros()
@@ -185,10 +194,10 @@ def gfp_fixed(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [f, x],
-        smt.Implies(smt.And(monotone(f), f[x] == x), x <= gfp(f)),
+        Implies(And(monotone(f), f[x] == x), x <= gfp(f)),
     )
 )
 def gfp_greatest(l):
@@ -206,16 +215,16 @@ def gfp_greatest(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [f],
-        smt.Implies(
+        Implies(
             monotone(f),
-            smt.And(
+            And(
                 f[lfp(f)] == lfp(f),
                 f[gfp(f)] == gfp(f),
-                kd.QForAll([x], f[x] == x, lfp(f) <= x),
-                kd.QForAll([x], f[x] == x, x <= gfp(f)),
+                QForAll([x], f[x] == x, lfp(f) <= x),
+                QForAll([x], f[x] == x, x <= gfp(f)),
             ),
         ),
     )
@@ -226,11 +235,11 @@ def knaster_tarski(l):
     l.have(f[lfp(f)] == lfp(f), by=[lfp_fixed(f)])
     l.have(f[gfp(f)] == gfp(f), by=[gfp_fixed(f)])
     l.have(
-        kd.QForAll([x], f[x] == x, lfp(f) <= x),
+        QForAll([x], f[x] == x, lfp(f) <= x),
         by=[lfp_least],
     )
     l.have(
-        kd.QForAll([x], f[x] == x, x <= gfp(f)),
+        QForAll([x], f[x] == x, x <= gfp(f)),
         by=[gfp_greatest],
     )
     l.auto()

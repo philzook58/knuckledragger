@@ -1,8 +1,8 @@
 # IndProp: Inductively Defined Propositions (partial translation from indprop.v)
 # Goal: surface missing features / inconsistencies in knuckledragger as we go.
 
-import kdrag as kd
-import kdrag.smt as smt
+from kdrag import Enum, Theorem, inductive, ldefine
+from kdrag.smt import Empty, IntSort, SeqSort
 import kdrag.theories.nat as nat
 from kdrag.theories.int import even
 
@@ -11,7 +11,7 @@ from kdrag.theories.int import even
 
 # NOTE: This is a recursive definition encoded as axioms; there is no
 # termination checker. Please inspect before we rely on it further.
-div2 = kd.ldefine(
+div2 = ldefine(
     "def div2 (n : Int) : Int := "
     "if n < 0 then 0 else "
     "if n = 0 then 0 else "
@@ -19,12 +19,12 @@ div2 = kd.ldefine(
 )
 print(div2.defn)
 
-csf = kd.ldefine("def csf (n : Int) : Int := if even n then div2 n else (3 * n) + 1")
+csf = ldefine("def csf (n : Int) : Int := if even n then div2 n else (3 * n) + 1")
 
 print(csf.defn)
 # A deliberately failing attempt at a recursive definition (microlean has no fixpoint).
 try:
-    kd.ldefine(
+    ldefine(
         "def reaches1_in (n : Int) : Int := "
         "if n = 1 then 0 else 1 + reaches1_in (csf n)"
     )
@@ -32,14 +32,14 @@ except Exception as err:
     print("Expected failure (recursive definition):", err)
 
 
-Collatz_holds_for = kd.inductive(
+Collatz_holds_for = inductive(
     "inductive Collatz_holds_for where "
     "| chf_one : Collatz_holds_for "
     "| chf_even : Collatz_holds_for -> Collatz_holds_for "
     "| chf_odd : Collatz_holds_for -> Collatz_holds_for"
 )
 
-collatz_holds_for_wf = kd.ldefine(
+collatz_holds_for_wf = ldefine(
     "def collatz_holds_for_wf (ev : Collatz_holds_for) (n : Int) : Bool := "
     "match ev with "
     "| Collatz_holds_for.chf_one => n = 1 "
@@ -50,7 +50,7 @@ collatz_holds_for_wf = kd.ldefine(
 # print(collatz_holds_for_wf.defn)
 
 
-@kd.Theorem("exists (ev : Collatz_holds_for), collatz_holds_for_wf ev 1")
+@Theorem("exists (ev : Collatz_holds_for), collatz_holds_for_wf ev 1")
 def collatz_1(pf):
     # Build the base-case evidence directly.
     pf.exists(Collatz_holds_for.chf_one)
@@ -86,9 +86,9 @@ three = S(two)
 four = S(three)
 five = S(four)
 
-Le = kd.inductive("inductive Le where | le_n : Le | le_S : Le -> Le")
+Le = inductive("inductive Le where | le_n : Le | le_S : Le -> Le")
 
-le_wf = kd.ldefine(
+le_wf = ldefine(
     "def le_wf (ev : Le) (n m : Nat) : Bool := "
     "match ev with "
     "| Le.le_n => n = m "
@@ -96,7 +96,7 @@ le_wf = kd.ldefine(
 )
 
 
-@kd.Theorem("exists (ev : Le), le_wf ev three five")
+@Theorem("exists (ev : Le), le_wf ev three five")
 def le_3_5(pf):
     # Build evidence by peeling two successors off the RHS.
     pf.exists(Le.le_S(Le.le_S(Le.le_n)))
@@ -106,22 +106,22 @@ def le_3_5(pf):
 # --------------------------------------------------------------------
 # Transitive closure example (specialized to a concrete relation).
 
-Person = kd.Enum("Person", "Sage Cleo Ridley Moss")
+Person = Enum("Person", "Sage Cleo Ridley Moss")
 
-parent_of = kd.ldefine(
+parent_of = ldefine(
     "def parent_of (x y : Person) : Bool := "
     "if x = Person.Sage /\\ y = Person.Cleo then True else "
     "if x = Person.Sage /\\ y = Person.Ridley then True else "
     "if x = Person.Cleo /\\ y = Person.Moss then True else False"
 )
 
-ancestor_of = kd.inductive(
+ancestor_of = inductive(
     "inductive ancestor_of where "
     "| t_step : ancestor_of "
     "| t_trans : Person -> ancestor_of -> ancestor_of -> ancestor_of"
 )
 
-ancestor_of_wf = kd.ldefine(
+ancestor_of_wf = ldefine(
     "def ancestor_of_wf (ev : ancestor_of) (x y : Person) : Bool := "
     "match ev with "
     "| ancestor_of.t_step => parent_of x y "
@@ -129,7 +129,7 @@ ancestor_of_wf = kd.ldefine(
 )
 
 
-@kd.Theorem("exists (ev : ancestor_of), ancestor_of_wf ev Person.Sage Person.Moss")
+@Theorem("exists (ev : ancestor_of), ancestor_of_wf ev Person.Sage Person.Moss")
 def ancestor_of_ex(pf):
     # Build evidence by chaining the two parent_of steps.
     pf.exists(
@@ -146,12 +146,12 @@ def ancestor_of_ex(pf):
 # Evenness as an inductive proposition on Nat (explicit spine + wf).
 # Named Even0 to avoid clash with Even defined in standard library during tests
 # Note that later "Even" are referring to the python name, not the internal z3 name. This is somewhat confusing
-Even = kd.inductive("inductive Even0 where | EvenZ : Even0 | EvenSS : Even0 -> Even0")
+Even = inductive("inductive Even0 where | EvenZ : Even0 | EvenSS : Even0 -> Even0")
 
 EvenZ = Even.EvenZ
 EvenSS = Even.EvenSS
 
-even_wf = kd.ldefine(
+even_wf = ldefine(
     "def even_wf (ev : Even) (n : Nat) : Bool := "
     "match ev with "
     "| Even.EvenZ => n = Z "
@@ -159,14 +159,14 @@ even_wf = kd.ldefine(
 )
 
 
-@kd.Theorem("exists (e : Even), even_wf e four")
+@Theorem("exists (e : Even), even_wf e four")
 def ev_4(pf):
     # Build evidence with two applications of EvenSS.
     pf.exists(EvenSS(EvenSS(EvenZ)))
     pf.auto(by=[even_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "forall (ev : Even) (n : Nat), even_wf ev (S (S n)) -> "
     "(exists (ev2 : Even), even_wf ev2 n)"
 )
@@ -181,7 +181,7 @@ def evSS_ev(pf):
     pf.auto(by=[even_wf.defn])
 
 
-@kd.Theorem("forall (ev : Even), even_wf ev (S Z) -> False")
+@Theorem("forall (ev : Even), even_wf ev (S Z) -> False")
 def one_not_even(pf):
     ev = pf.fix()
     pf.intros()
@@ -190,7 +190,7 @@ def one_not_even(pf):
     pf.auto(by=[even_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "forall (ev : Even) (n : Nat), even_wf ev n -> even_wf (Even.EvenSS ev) (S (S n))"
 )
 def even_SS(pf):
@@ -200,7 +200,7 @@ def even_SS(pf):
     pf.auto(by=[even_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "forall (ev : Even) (n : Nat), even_wf ev n -> "
     "even_wf (Even.EvenSS (Even.EvenSS ev)) (S (S (S (S n))))"
 )
@@ -215,14 +215,14 @@ def even_plus4(pf):
 # More le_wf examples.
 
 
-@kd.Theorem("forall (n : Nat), exists (ev : Le), le_wf ev n n")
+@Theorem("forall (n : Nat), exists (ev : Le), le_wf ev n n")
 def le_refl(pf):
     _n = pf.fix()
     pf.exists(Le.le_n)
     pf.auto(by=[le_wf.defn])
 
 
-@kd.Theorem("forall (ev : Le) (n m : Nat), le_wf ev n m -> le_wf (Le.le_S ev) n (S m)")
+@Theorem("forall (ev : Le) (n m : Nat), le_wf ev n m -> le_wf (Le.le_S ev) n (S m)")
 def le_step(pf):
     ev, n, m = pf.fixes()
     pf.intros()
@@ -233,7 +233,7 @@ def le_step(pf):
 # Inversion-style lemmas.
 
 
-@kd.Theorem(
+@Theorem(
     "forall (ev : Even) (n : Nat), even_wf ev n -> "
     "(n = Z \\/ (exists (n2 : Nat), n = S (S n2)))"
 )
@@ -250,7 +250,7 @@ def ev_inversion(pf):
     pf.auto(by=[even_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "forall (ev : Le) (n m : Nat), le_wf ev n m -> "
     "(n = m \\/ (exists (m2 : Nat), m = S m2))"
 )
@@ -270,18 +270,18 @@ def le_inversion(pf):
 # --------------------------------------------------------------------
 # Permutations of triples (Perm3 on Int sequences).
 
-IntSeq = smt.SeqSort(smt.IntSort())
+IntSeq = SeqSort(IntSort())
 
-Perm3 = kd.inductive(
+Perm3 = inductive(
     "inductive Perm3 where "
     "| perm3_swap12 : Perm3 "
     "| perm3_swap23 : Perm3 "
     "| perm3_trans : IntSeq -> Perm3 -> Perm3 -> Perm3"
 )
 
-triple = kd.ldefine("def triple (a b c : Int) : IntSeq := [a, b, c]")
+triple = ldefine("def triple (a b c : Int) : IntSeq := [a, b, c]")
 
-perm3_wf = kd.ldefine(
+perm3_wf = ldefine(
     "def perm3_wf (ev : Perm3) (l1 l2 : IntSeq) : Bool := "
     "match ev with "
     "| Perm3.perm3_swap12 => "
@@ -299,30 +299,30 @@ t132 = triple(1, 3, 2)
 t321 = triple(3, 2, 1)
 
 
-@kd.Theorem("perm3_wf Perm3.perm3_swap12 t123 t213")
+@Theorem("perm3_wf Perm3.perm3_swap12 t123 t213")
 def perm3_swap12_ex(pf):
     pf.auto(by=[perm3_wf.defn, triple.defn])
 
 
-@kd.Theorem("perm3_wf Perm3.perm3_swap23 t123 t132")
+@Theorem("perm3_wf Perm3.perm3_swap23 t123 t132")
 def perm3_swap23_ex(pf):
     pf.auto(by=[perm3_wf.defn, triple.defn])
 
 
-@kd.Theorem("exists (ev : Perm3), perm3_wf ev t123 t231")
+@Theorem("exists (ev : Perm3), perm3_wf ev t123 t231")
 def perm3_ex1(pf):
     pf.exists(Perm3.perm3_trans(t213, Perm3.perm3_swap12, Perm3.perm3_swap23))
     pf.auto(by=[perm3_wf.defn, triple.defn])
 
 
-@kd.Theorem("exists (ev : Perm3), perm3_wf ev t123 t123")
+@Theorem("exists (ev : Perm3), perm3_wf ev t123 t123")
 def perm3_refl(pf):
     # Two swaps on adjacent positions return to the original list.
     pf.exists(Perm3.perm3_trans(t213, Perm3.perm3_swap12, Perm3.perm3_swap12))
     pf.auto(by=[perm3_wf.defn, triple.defn])
 
 
-@kd.Theorem("exists (ev : Perm3), perm3_wf ev t123 t321")
+@Theorem("exists (ev : Perm3), perm3_wf ev t123 t321")
 def perm3_rev(pf):
     pf.exists(
         Perm3.perm3_trans(
@@ -337,7 +337,7 @@ def perm3_rev(pf):
 # --------------------------------------------------------------------
 # Regular expressions (inductive evidence + wf predicate).
 
-RegExp = kd.inductive(
+RegExp = inductive(
     "inductive RegExp where "
     "| EmptySet : RegExp "
     "| EmptyStr : RegExp "
@@ -347,7 +347,7 @@ RegExp = kd.inductive(
     "| Star : RegExp -> RegExp"
 )
 
-ExpMatch = kd.inductive(
+ExpMatch = inductive(
     "inductive ExpMatch where "
     "| MEmpty : ExpMatch "
     "| MChar : Int -> ExpMatch "
@@ -358,9 +358,9 @@ ExpMatch = kd.inductive(
     "| MStarApp : IntSeq -> IntSeq -> RegExp -> ExpMatch -> ExpMatch -> ExpMatch"
 )
 
-empty_intseq = smt.Empty(IntSeq)
+empty_intseq = Empty(IntSeq)
 
-exp_match_wf = kd.ldefine(
+exp_match_wf = ldefine(
     "def exp_match_wf (ev : ExpMatch) (s : IntSeq) (re : RegExp) : Bool := "
     "match ev with "
     "| ExpMatch.MEmpty => s = empty_intseq /\\ re = RegExp.EmptyStr "
@@ -379,17 +379,17 @@ exp_match_wf = kd.ldefine(
 )
 
 
-@kd.Theorem("exp_match_wf ExpMatch.MEmpty empty_intseq RegExp.EmptyStr")
+@Theorem("exp_match_wf ExpMatch.MEmpty empty_intseq RegExp.EmptyStr")
 def exp_match_empty(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem("exp_match_wf (ExpMatch.MChar 1) [1] (RegExp.Char 1)")
+@Theorem("exp_match_wf (ExpMatch.MChar 1) [1] (RegExp.Char 1)")
 def exp_match_char(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "exp_match_wf "
     "(ExpMatch.MApp [1] [2] (RegExp.Char 1) (RegExp.Char 2) "
     "(ExpMatch.MChar 1) (ExpMatch.MChar 2)) "
@@ -399,7 +399,7 @@ def exp_match_app(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "exp_match_wf (ExpMatch.MStar0 (RegExp.Char 1)) "
     "empty_intseq (RegExp.Star (RegExp.Char 1))"
 )
@@ -407,7 +407,7 @@ def exp_match_star0(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "exp_match_wf "
     "(ExpMatch.MUnionL (RegExp.Char 1) (RegExp.Char 2) (ExpMatch.MChar 1)) "
     "[1] (RegExp.Union (RegExp.Char 1) (RegExp.Char 2))"
@@ -416,7 +416,7 @@ def exp_match_union_l(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "exp_match_wf "
     "(ExpMatch.MUnionR (RegExp.Char 1) (RegExp.Char 2) (ExpMatch.MChar 2)) "
     "[2] (RegExp.Union (RegExp.Char 1) (RegExp.Char 2))"
@@ -425,7 +425,7 @@ def exp_match_union_r(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "exp_match_wf "
     "(ExpMatch.MStarApp [1] empty_intseq (RegExp.Char 1) "
     "(ExpMatch.MChar 1) (ExpMatch.MStar0 (RegExp.Char 1))) "
@@ -435,7 +435,7 @@ def exp_match_star1(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "exp_match_wf "
     "(ExpMatch.MStarApp [1] [1] (RegExp.Char 1) "
     "(ExpMatch.MChar 1) "
@@ -447,7 +447,7 @@ def exp_match_star2(pf):
     pf.auto(by=[exp_match_wf.defn])
 
 
-@kd.Theorem(
+@Theorem(
     "exp_match_wf "
     "(ExpMatch.MApp [1, 2] [3] "
     "(RegExp.App (RegExp.Char 1) (RegExp.Char 2)) (RegExp.Char 3) "

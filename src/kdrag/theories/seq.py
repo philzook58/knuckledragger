@@ -3,7 +3,28 @@ Built in smtlib theory of finite sequences.
 """
 
 import kdrag as kd
+from kdrag import QForAll, axiom, prove
 import kdrag.smt as smt
+from kdrag.smt import (  # noqa: F401
+    And,
+    BoolSort,
+    Concat,
+    Const,
+    Consts,
+    Contains,
+    Empty,
+    ForAll,
+    FreshConst,
+    Function,
+    Implies,
+    IntSort,
+    IntVal,
+    Ints,
+    Length,
+    SeqSort,
+    SubSeq,
+    simplify,
+)
 
 
 # induct_list List style induction
@@ -15,8 +36,8 @@ import kdrag.smt as smt
 def induct_list(x: smt.SeqRef, P):
     """
 
-    >>> x = smt.Const("x", Seq(smt.IntSort()))
-    >>> P = smt.Function("P", Seq(smt.IntSort()), smt.BoolSort())
+    >>> x = Const("x", Seq(IntSort()))
+    >>> P = Function("P", Seq(IntSort()), BoolSort())
     >>> induct_list(x, P)
     |= Implies(And(P(Empty(Seq(Int))),
                 ForAll([hd!..., tl!...],
@@ -25,13 +46,13 @@ def induct_list(x: smt.SeqRef, P):
             P(x))
     """
     assert isinstance(x, smt.SeqRef)
-    hd = smt.FreshConst(x.sort().basis(), prefix="hd")
-    tl = smt.FreshConst(x.sort(), prefix="tl")
-    return kd.axiom(
-        smt.Implies(
-            smt.And(
-                P(smt.Empty(x.sort())),
-                kd.QForAll([hd, tl], P(tl), P(smt.Unit(hd) + tl)),
+    hd = FreshConst(x.sort().basis(), prefix="hd")
+    tl = FreshConst(x.sort(), prefix="tl")
+    return axiom(
+        Implies(
+            And(
+                P(Empty(x.sort())),
+                QForAll([hd, tl], P(tl), P(smt.Unit(hd) + tl)),
             ),
             P(x),
         )
@@ -60,75 +81,71 @@ seq = kd.seq
 
 def Cons(x: smt.ExprRef, tl: smt.SeqSortRef):
     """
-    >>> smt.simplify(Cons(smt.IntVal(3), Nil(smt.IntSort())))
+    >>> simplify(Cons(IntVal(3), Nil(IntSort())))
     Unit(3)
     """
-    return smt.Concat([smt.Unit(x), tl])
+    return Concat([smt.Unit(x), tl])
 
 
 def Nil(s: smt.SortRef):
-    return smt.Empty(smt.SeqSort(s))
+    return Empty(SeqSort(s))
 
 
 def Seq(T: smt.SortRef) -> smt.SeqSortRef:
     """
     Make sort of Sequences and prove useful lemmas.
 
-    >>> BoolSeq = Seq(smt.BoolSort())
-    >>> x,y,z = smt.Consts("x y z", BoolSeq)
+    >>> BoolSeq = Seq(BoolSort())
+    >>> x,y,z = Consts("x y z", BoolSeq)
     >>> x + y
     Concat(x, y)
     """
-    S = smt.SeqSort(T)
+    S = SeqSort(T)
     smt.sort_registry[S.get_id()] = S
-    x, y, z = smt.Consts("x y z", S)
-    empty = smt.Empty(S)
+    x, y, z = Consts("x y z", S)
+    empty = Empty(S)
     S.empty = empty
 
-    S.concat_empty = kd.prove(kd.QForAll([x], empty + x == x))
-    S.empty_concat = kd.prove(kd.QForAll([x], x + empty == x))
-    S.concat_assoc = kd.prove(
-        kd.QForAll(
+    S.concat_empty = prove(QForAll([x], empty + x == x))
+    S.empty_concat = prove(QForAll([x], x + empty == x))
+    S.concat_assoc = prove(
+        QForAll(
             [x, y, z],
             (x + y) + z == x + (y + z),
         )
     )
 
-    S.length_empty = kd.prove(kd.QForAll([x], smt.Length(empty) == 0))
-    S.length_unit = kd.prove(kd.QForAll([x], smt.Length(smt.Unit(x)) == 1))
-    S.concat_length = kd.prove(
-        kd.QForAll([x, y], smt.Length(x + y) == smt.Length(x) + smt.Length(y))
-    )
-    S.length_zero_unique = kd.prove(
-        kd.QForAll([x], (smt.Length(x) == 0) == (x == empty))
-    )
-    S.concat_head = kd.prove(
-        kd.QForAll(
+    S.length_empty = prove(QForAll([x], Length(empty) == 0))
+    S.length_unit = prove(QForAll([x], Length(smt.Unit(x)) == 1))
+    S.concat_length = prove(QForAll([x, y], Length(x + y) == Length(x) + Length(y)))
+    S.length_zero_unique = prove(QForAll([x], (Length(x) == 0) == (x == empty)))
+    S.concat_head = prove(
+        QForAll(
             [x],
-            smt.Length(x) > 0,
-            smt.Unit(x[0]) + smt.SubSeq(x, 1, smt.Length(x) - 1) == x,
+            Length(x) > 0,
+            smt.Unit(x[0]) + SubSeq(x, 1, Length(x) - 1) == x,
         )
     )
 
-    n, m = smt.Ints("n m")
+    n, m = Ints("n m")
 
-    S.subseq_zero = kd.prove(kd.QForAll([x, n], smt.SubSeq(x, n, 0) == empty))
-    S.subseq_length = kd.prove(
-        kd.QForAll(
+    S.subseq_zero = prove(QForAll([x, n], SubSeq(x, n, 0) == empty))
+    S.subseq_length = prove(
+        QForAll(
             [x, n, m],
             m >= 0,
             n >= 0,
-            n + m <= smt.Length(x),
-            smt.Length(smt.SubSeq(x, n, m)) == m,
+            n + m <= Length(x),
+            Length(SubSeq(x, n, m)) == m,
         )
     )
-    S.subseq_all = kd.prove(kd.QForAll([x], smt.SubSeq(x, 0, smt.Length(x)) == x))
-    S.subseq_concat = kd.prove(
-        kd.QForAll(
+    S.subseq_all = prove(QForAll([x], SubSeq(x, 0, Length(x)) == x))
+    S.subseq_concat = prove(
+        QForAll(
             [x, n],
             n >= 0,
-            n <= smt.Length(x),
-            smt.SubSeq(x, 0, n) + smt.SubSeq(x, n, smt.Length(x) - n) == x,
+            n <= Length(x),
+            SubSeq(x, 0, n) + SubSeq(x, n, Length(x) - n) == x,
         )
     )
 
@@ -137,21 +154,19 @@ def Seq(T: smt.SortRef) -> smt.SeqSortRef:
     #        [x], smt.Length(x) != 0, x[0] + smt.SubSeq(x, 1, smt.Length(x) - 1) == x
     #    )
     # )
-    S.contains_empty = kd.prove(smt.ForAll([x], smt.Contains(x, empty)))
-    S.contains_self = kd.prove(smt.ForAll([x], smt.Contains(x, x)))
-    S.contains_concat_left = kd.prove(
-        kd.QForAll([x, y, z], smt.Contains(x, z), smt.Contains(x + y, z))
+    S.contains_empty = prove(ForAll([x], Contains(x, empty)))
+    S.contains_self = prove(ForAll([x], Contains(x, x)))
+    S.contains_concat_left = prove(
+        QForAll([x, y, z], Contains(x, z), Contains(x + y, z))
     )
-    S.contains_concat_right = kd.prove(
-        kd.QForAll([x, y, z], smt.Contains(y, z), smt.Contains(x + y, z))
+    S.contains_concat_right = prove(
+        QForAll([x, y, z], Contains(y, z), Contains(x + y, z))
     )
-    S.contains_subseq = kd.prove(smt.ForAll([x], smt.Contains(x, smt.SubSeq(x, n, m))))
+    S.contains_subseq = prove(ForAll([x], Contains(x, SubSeq(x, n, m))))
     # self.contains_unit = kd.kernel.prove(
     #    kd.QForAll([x, y], smt.Contains(smt.Unit(x), y) == (smt.Unit(x) == y))
     # )
-    S.empty_contains = kd.kernel.prove(
-        kd.QForAll([x], smt.Contains(empty, x), (x == empty))
-    )
+    S.empty_contains = kd.kernel.prove(QForAll([x], Contains(empty, x), (x == empty)))
 
     # InRe, Extract, IndexOf, LastIndexOf, prefixof, replace, suffixof
     # SeqMap, SeqMapI, SeqFoldLeft, SeqFoldLeftI

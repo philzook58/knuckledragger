@@ -1,15 +1,30 @@
 # Imp: Simple Imperative Programs (partial translation from Imp.v)
 # Note: Using Int for arithmetic for now (Nat subtraction isn't in the library yet).
 
-import kdrag as kd
+from kdrag import Theorem, define, inductive, ldefine
 import kdrag.smt as smt
+from kdrag.smt import (
+    ArraySort,
+    Const,
+    Int,
+    IntSort,
+    IntVal,
+    K,
+    Select,
+    Store,
+    String,
+    StringSort,
+    StringVal,
+    is_true,
+    simplify,
+)
 import kdrag.rewrite as kdrw
 import lark
 
 # --------------------------------------------------------------------
 # Arithmetic and Boolean Expressions
 
-AExp = kd.inductive(
+AExp = inductive(
     "inductive AExp where "
     "| ANum : Int -> AExp "
     "| APlus : AExp -> AExp -> AExp "
@@ -17,7 +32,7 @@ AExp = kd.inductive(
     "| AMult : AExp -> AExp -> AExp"
 )
 
-BExp = kd.inductive(
+BExp = inductive(
     "inductive BExp where "
     "| BTrue : BExp "
     "| BFalse : BExp "
@@ -29,7 +44,7 @@ BExp = kd.inductive(
     "| BAnd : BExp -> BExp -> BExp"
 )
 
-aeval = kd.ldefine(
+aeval = ldefine(
     "def aeval (a : AExp) : Int := "
     "match a with "
     "| AExp.ANum n => n "
@@ -38,7 +53,7 @@ aeval = kd.ldefine(
     "| AExp.AMult a1 a2 => aeval a1 * aeval a2"
 )
 
-beval = kd.ldefine(
+beval = ldefine(
     "def beval (b : BExp) : Bool := "
     "match b with "
     "| BExp.BTrue => True "
@@ -52,12 +67,12 @@ beval = kd.ldefine(
 )
 
 
-@kd.Theorem("aeval (AExp.APlus (AExp.ANum 2) (AExp.ANum 2)) = 4")
+@Theorem("aeval (AExp.APlus (AExp.ANum 2) (AExp.ANum 2)) = 4")
 def test_aeval1(pf):
     pf.auto(by=[aeval.defn])
 
 
-optimize_0plus = kd.ldefine(
+optimize_0plus = ldefine(
     "def optimize_0plus (a : AExp) : AExp := "
     "match a with "
     "| AExp.ANum n => AExp.ANum n "
@@ -68,7 +83,7 @@ optimize_0plus = kd.ldefine(
 )
 
 
-@kd.Theorem(
+@Theorem(
     "optimize_0plus "
     "(AExp.APlus (AExp.ANum 2) "
     "  (AExp.APlus (AExp.ANum 0) (AExp.APlus (AExp.ANum 0) (AExp.ANum 1)))) "
@@ -86,7 +101,7 @@ BY_BEVAL = [beval.defn, aeval.defn]
 # --------------------------------------------------------------------
 # Relational evaluation for arithmetic expressions.
 
-AevalR = kd.inductive(
+AevalR = inductive(
     "inductive AevalR where "
     "| AE_Num : Int -> AevalR "
     "| AE_Plus : AExp -> AExp -> Int -> Int -> AevalR -> AevalR -> AevalR "
@@ -94,7 +109,7 @@ AevalR = kd.inductive(
     "| AE_Mult : AExp -> AExp -> Int -> Int -> AevalR -> AevalR -> AevalR"
 )
 
-aevalR_wf = kd.ldefine(
+aevalR_wf = ldefine(
     "def aevalR_wf (ev : AevalR) (a : AExp) (n : Int) : Bool := "
     "match ev with "
     "| AevalR.AE_Num k => a = AExp.ANum k /\\ n = k "
@@ -110,8 +125,8 @@ aevalR_wf = kd.ldefine(
 )
 
 
-@kd.Theorem(
-    "exists (ev : AevalR), " "aevalR_wf ev (AExp.APlus (AExp.ANum 2) (AExp.ANum 2)) 4"
+@Theorem(
+    "exists (ev : AevalR), aevalR_wf ev (AExp.APlus (AExp.ANum 2) (AExp.ANum 2)) 4"
 )
 def aevalR_ex1(pf):
     pf.exists(
@@ -130,7 +145,7 @@ def aevalR_ex1(pf):
 # --------------------------------------------------------------------
 # Relational evaluation for boolean expressions.
 
-BevalR = kd.inductive(
+BevalR = inductive(
     "inductive BevalR where "
     "| BE_True : BevalR "
     "| BE_False : BevalR "
@@ -142,7 +157,7 @@ BevalR = kd.inductive(
     "| BE_And : BExp -> BExp -> BevalR -> BevalR -> BevalR"
 )
 
-bevalR_wf = kd.ldefine(
+bevalR_wf = ldefine(
     "def bevalR_wf (ev : BevalR) (b : BExp) (v : Bool) : Bool := "
     "match ev with "
     "| BevalR.BE_True => b = BExp.BTrue /\\ v = True "
@@ -165,10 +180,8 @@ bevalR_wf = kd.ldefine(
 )
 
 
-@kd.Theorem(
-    "exists (ev : BevalR), "
-    "bevalR_wf ev "
-    "(BExp.BEq (AExp.ANum 2) (AExp.ANum 2)) True"
+@Theorem(
+    "exists (ev : BevalR), bevalR_wf ev (BExp.BEq (AExp.ANum 2) (AExp.ANum 2)) True"
 )
 def bevalR_ex1(pf):
     pf.exists(
@@ -187,23 +200,23 @@ def bevalR_ex1(pf):
 # --------------------------------------------------------------------
 # Expressions with variables and state.
 
-Str = smt.StringSort()
-State = smt.ArraySort(Str, smt.IntSort())
+Str = StringSort()
+State = ArraySort(Str, IntSort())
 
-st = smt.Const("st", State)
-vx = smt.String("x")
-vv = smt.Int("v")
+st = Const("st", State)
+vx = String("x")
+vv = Int("v")
 
-empty_state = kd.define("empty_state", [], smt.K(Str, smt.IntVal(0)))
-lookup = kd.define("lookup", [st, vx], smt.Select(st, vx))
-update = kd.define("update", [st, vx, vv], smt.Store(st, vx, vv))
+empty_state = define("empty_state", [], K(Str, IntVal(0)))
+lookup = define("lookup", [st, vx], Select(st, vx))
+update = define("update", [st, vx, vv], Store(st, vx, vv))
 
 A_W = "W"
 A_X = "X"
 A_Y = "Y"
 A_Z = "Z"
 
-AExpV = kd.inductive(
+AExpV = inductive(
     "inductive AExpV where "
     "| ANum : Int -> AExpV "
     "| AVar : String -> AExpV "
@@ -212,7 +225,7 @@ AExpV = kd.inductive(
     "| AMult : AExpV -> AExpV -> AExpV"
 )
 
-BExpV = kd.inductive(
+BExpV = inductive(
     "inductive BExpV where "
     "| BTrue : BExpV "
     "| BFalse : BExpV "
@@ -224,7 +237,7 @@ BExpV = kd.inductive(
     "| BAnd : BExpV -> BExpV -> BExpV"
 )
 
-aeval_st = kd.ldefine(
+aeval_st = ldefine(
     "def aeval_st (st : State) (a : AExpV) : Int := "
     "match a with "
     "| AExpV.ANum n => n "
@@ -234,7 +247,7 @@ aeval_st = kd.ldefine(
     "| AExpV.AMult a1 a2 => aeval_st st a1 * aeval_st st a2"
 )
 
-beval_st = kd.ldefine(
+beval_st = ldefine(
     "def beval_st (st : State) (b : BExpV) : Bool := "
     "match b with "
     "| BExpV.BTrue => True "
@@ -256,7 +269,7 @@ BY_STATE = [
 ]
 
 
-@kd.Theorem(
+@Theorem(
     'aeval_st (update empty_state "X" 5) '
     '(AExpV.APlus (AExpV.AVar "X") (AExpV.ANum 2)) = 7'
 )
@@ -264,7 +277,7 @@ def test_aeval_state(pf):
     pf.auto(by=BY_STATE)
 
 
-@kd.Theorem(
+@Theorem(
     'beval_st (update empty_state "X" 5) '
     '(BExpV.BLe (AExpV.AVar "X") (AExpV.ANum 4)) = False'
 )
@@ -272,7 +285,7 @@ def test_beval_state(pf):
     pf.auto(by=BY_STATE)
 
 
-@kd.Theorem(
+@Theorem(
     'aeval_st (update empty_state "X" 5) '
     '(AExpV.APlus (AExpV.ANum 3) (AExpV.AMult (AExpV.AVar "X") (AExpV.ANum 2))) = 13'
 )
@@ -280,7 +293,7 @@ def test_aeval_state2(pf):
     pf.auto(by=BY_STATE)
 
 
-@kd.Theorem(
+@Theorem(
     'aeval_st (update (update empty_state "X" 5) "Y" 4) '
     '(AExpV.APlus (AExpV.AVar "Z") (AExpV.AMult (AExpV.AVar "X") (AExpV.AVar "Y"))) = 20'
 )
@@ -288,7 +301,7 @@ def test_aeval_state3(pf):
     pf.auto(by=BY_STATE)
 
 
-@kd.Theorem(
+@Theorem(
     'beval_st (update empty_state "X" 5) '
     '(BExpV.BAnd BExpV.BTrue (BExpV.BNot (BExpV.BLe (AExpV.AVar "X") (AExpV.ANum 4)))) = True'
 )
@@ -299,7 +312,7 @@ def test_beval_state2(pf):
 # --------------------------------------------------------------------
 # Commands and big-step evaluation.
 
-Com = kd.inductive(
+Com = inductive(
     "inductive Com where "
     "| CSkip : Com "
     "| CAss : String -> AExpV -> Com "
@@ -308,7 +321,7 @@ Com = kd.inductive(
     "| CWhile : BExpV -> Com -> Com"
 )
 
-Ceval = kd.inductive(
+Ceval = inductive(
     "inductive Ceval where "
     "| CE_Skip : Ceval "
     "| CE_Ass : String -> AExpV -> Int -> Ceval "
@@ -319,7 +332,7 @@ Ceval = kd.inductive(
     "| CE_WhileTrue : BExpV -> Com -> State -> Ceval -> Ceval -> Ceval"
 )
 
-ceval_wf = kd.ldefine(
+ceval_wf = ldefine(
     "def ceval_wf (ev : Ceval) (c : Com) (st st' : State) : Bool := "
     "match ev with "
     "| Ceval.CE_Skip => c = Com.CSkip /\\ st' = st "
@@ -344,12 +357,12 @@ ceval_wf = kd.ldefine(
 BY_CEVAL = [ceval_wf.defn] + BY_STATE
 
 
-@kd.Theorem("ceval_wf Ceval.CE_Skip Com.CSkip empty_state empty_state")
+@Theorem("ceval_wf Ceval.CE_Skip Com.CSkip empty_state empty_state")
 def ceval_skip(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     'ceval_wf (Ceval.CE_Ass "X" (AExpV.ANum 5) 5) '
     '(Com.CAss "X" (AExpV.ANum 5)) '
     'empty_state (update empty_state "X" 5)'
@@ -358,7 +371,7 @@ def ceval_assign(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     "ceval_wf "
     '(Ceval.CE_Seq (update empty_state "X" 5) '
     '(Ceval.CE_Ass "X" (AExpV.ANum 5) 5) '
@@ -370,7 +383,7 @@ def ceval_seq(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     "ceval_wf "
     "(Ceval.CE_IfTrue "
     "(BExpV.BLe (AExpV.ANum 1) (AExpV.ANum 2)) "
@@ -386,7 +399,7 @@ def ceval_if_true(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     "ceval_wf "
     "(Ceval.CE_WhileFalse "
     "(BExpV.BLe (AExpV.ANum 1) (AExpV.ANum 0)) "
@@ -399,7 +412,7 @@ def ceval_while_false(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     "ceval_wf "
     "(Ceval.CE_WhileTrue "
     '(BExpV.BLe (AExpV.AVar "X") (AExpV.ANum 0)) '
@@ -417,7 +430,7 @@ def ceval_while_true(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     "ceval_wf "
     "(Ceval.CE_IfFalse "
     "(BExpV.BLe (AExpV.ANum 2) (AExpV.ANum 1)) "
@@ -483,7 +496,7 @@ class ImpTransformer(lark.Transformer):
         return items[0]
 
     def _s(self, tok):
-        return smt.StringVal(str(tok))
+        return StringVal(str(tok))
 
     def a_num(self, items):
         return AExpV.ANum(int(items[0]))
@@ -564,34 +577,34 @@ c_example1 = parse_imp("X := 2; if X <= 1 then Y := 3 else Z := 4 end")
 c_example2 = parse_imp("X := 0; Y := 1; Z := 2")
 
 
-SX = smt.StringVal("X")
-SY = smt.StringVal("Y")
+SX = StringVal("X")
+SY = StringVal("Y")
 
 _imp_seq_expected = Com.CSeq(
     Com.CAss(SX, AExpV.ANum(1)),
     Com.CAss(SY, AExpV.APlus(AExpV.AVar(SX), AExpV.ANum(2))),
 )
-assert smt.is_true(smt.simplify(imp_demo == _imp_seq_expected))
+assert is_true(simplify(imp_demo == _imp_seq_expected))
 
 _imp_if_expected = Com.CIf(
     BExpV.BLe(AExpV.AVar(SX), AExpV.ANum(1)),
     Com.CAss(SY, AExpV.ANum(0)),
     Com.CAss(SY, AExpV.ANum(1)),
 )
-assert smt.is_true(smt.simplify(imp_demo_if == _imp_if_expected))
+assert is_true(simplify(imp_demo_if == _imp_if_expected))
 
 _imp_while_expected = Com.CWhile(
     BExpV.BNeq(AExpV.AVar(SX), AExpV.ANum(0)),
     Com.CAss(SX, AExpV.AMinus(AExpV.AVar(SX), AExpV.ANum(1))),
 )
-assert smt.is_true(smt.simplify(imp_demo_while == _imp_while_expected))
+assert is_true(simplify(imp_demo_while == _imp_while_expected))
 
 _imp_ge_expected = Com.CIf(
     BExpV.BLe(AExpV.ANum(1), AExpV.AVar(SX)),
     Com.CSkip,
     Com.CSkip,
 )
-assert smt.is_true(smt.simplify(imp_demo_ge == _imp_ge_expected))
+assert is_true(simplify(imp_demo_ge == _imp_ge_expected))
 
 
 # --------------------------------------------------------------------
@@ -611,7 +624,7 @@ loop = parse_imp("while true do skip end")
 # Relational semantics matches functional evaluation.
 
 
-@kd.Theorem(
+@Theorem(
     "ceval_wf "
     '(Ceval.CE_Seq (update empty_state "X" 2) '
     '(Ceval.CE_Ass "X" (AExpV.ANum 2) 2) '
@@ -627,7 +640,7 @@ def ceval_example1(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     "ceval_wf "
     '(Ceval.CE_Seq (update empty_state "X" 0) '
     '(Ceval.CE_Ass "X" (AExpV.ANum 0) 0) '
@@ -644,8 +657,8 @@ def ceval_example2(pf):
 # --------------------------------------------------------------------
 # esimp experiments (existential synthesis for ceval_wf).
 
-ev_ex2 = smt.Const("ev_ex2", Ceval)
-st_ex2 = smt.Const("st_ex2", State)
+ev_ex2 = Const("ev_ex2", Ceval)
+st_ex2 = Const("st_ex2", State)
 esimp_ex2 = kdrw.esimp(
     [ev_ex2, st_ex2], ceval_wf(ev_ex2, c_example2, empty_state, st_ex2)
 )
@@ -700,7 +713,7 @@ def XtimesYinZ_spec(pf):
 """
 
 
-@kd.Theorem(
+@Theorem(
     "forall (st st' : State) (n : Int) (ev : Ceval), "
     'lookup st "X" = n -> '
     "ceval_wf ev plus2 st st' -> "
@@ -711,7 +724,7 @@ def plus2_spec(pf):
     pf.auto(by=BY_CEVAL)
 
 
-@kd.Theorem(
+@Theorem(
     "forall (st st' : State) (x y : Int) (ev : Ceval), "
     'lookup st "X" = x -> '
     'lookup st "Y" = y -> '

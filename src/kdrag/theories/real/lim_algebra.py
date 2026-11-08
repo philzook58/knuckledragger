@@ -1,20 +1,20 @@
-import kdrag as kd
-import kdrag.smt as smt
+from kdrag import QExists, QForAll, Theorem
+from kdrag.smt import And, Consts, ForAll, If, Implies, Int, IntVal, RealVal, Reals
 import kdrag.theories.real as real
 import kdrag.theories.real.seq as seq
 
 RSeq = real.RSeq
 
 
-a, b = smt.Consts("a b", RSeq)
-x, y, c = smt.Reals("x y c")
-u, v, w, z = smt.Reals("u v w z")
+a, b = Consts("a b", RSeq)
+x, y, c = Reals("x y c")
+u, v, w, z = Reals("u v w z")
 
-n = smt.Int("n")
+n = Int("n")
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [a, x, c],
         seq.has_lim(a, x),
         seq.has_lim(seq.smul(c, a), c * x),
@@ -30,7 +30,7 @@ def has_lim_smul(l):
     l.unfold(seq.has_lim)
     eps = l.fix()
     l.assumes(eps > 0)
-    l.exists(smt.IntVal(0))
+    l.exists(IntVal(0))
     n = l.fix()
     l.assumes(n > 0)
     l.unfold(seq.smul)
@@ -50,18 +50,18 @@ def has_lim_smul(l):
     l.have(real.abs(c) > 0, by=[real.abs_pos_iff])
     l.have(eps1 > 0, by=[])
     l.specialize(hlim, eps1)
-    N = smt.Int("N")
-    n_var = smt.Int("n")
-    exists_n = kd.QExists(
+    N = Int("N")
+    n_var = Int("n")
+    exists_n = QExists(
         [N],
-        kd.QForAll([n_var], n_var > N, real.abs(a[n_var] - x) < eps1),
+        QForAll([n_var], n_var > N, real.abs(a[n_var] - x) < eps1),
     )
     l.have(exists_n, by=[])
     N1 = l.obtain(exists_n)
     l.exists(N1)
     n = l.fix()
     l.assumes(n > N1)
-    forall_n = kd.QForAll([n_var], n_var > N1, real.abs(a[n_var] - x) < eps1)
+    forall_n = QForAll([n_var], n_var > N1, real.abs(a[n_var] - x) < eps1)
     l.specialize(forall_n, n, keep=True)
     l.have(real.abs(a[n] - x) < eps1, by=[])
     l.unfold(seq.smul)
@@ -75,8 +75,8 @@ def has_lim_smul(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [a, b, x, y],
         seq.has_lim(a, x),
         seq.has_lim(b, y),
@@ -98,16 +98,16 @@ def has_lim_add(l):
     l.unfold(seq.has_lim, at=1)
     l.specialize(0, eps2)
     l.specialize(1, eps2)
-    N1 = smt.Int("N")
-    N2 = smt.Int("N")
-    n_var = smt.Int("n")
-    exists_a = kd.QExists(
+    N1 = Int("N")
+    N2 = Int("N")
+    n_var = Int("n")
+    exists_a = QExists(
         [N1],
-        kd.QForAll([n_var], n_var > N1, real.abs(a[n_var] - x) < eps2),
+        QForAll([n_var], n_var > N1, real.abs(a[n_var] - x) < eps2),
     )
-    exists_b = kd.QExists(
+    exists_b = QExists(
         [N2],
-        kd.QForAll([n_var], n_var > N2, real.abs(b[n_var] - y) < eps2),
+        QForAll([n_var], n_var > N2, real.abs(b[n_var] - y) < eps2),
     )
     l.have(exists_a, by=[])
     N1v = l.obtain(exists_a)
@@ -115,15 +115,15 @@ def has_lim_add(l):
     N2v = l.obtain(exists_b)
 
     # Choose a common bound for both tails.
-    N = smt.If(N1v > N2v, N1v, N2v) + 1
+    N = If(N1v > N2v, N1v, N2v) + 1
     l.exists(N)
     n = l.fix()
     l.assumes(n > N)
     l.have(n > N1v, by=[])
     l.have(n > N2v, by=[])
 
-    forall_a = kd.QForAll([n_var], n_var > N1v, real.abs(a[n_var] - x) < eps2)
-    forall_b = kd.QForAll([n_var], n_var > N2v, real.abs(b[n_var] - y) < eps2)
+    forall_a = QForAll([n_var], n_var > N1v, real.abs(a[n_var] - x) < eps2)
+    forall_b = QForAll([n_var], n_var > N2v, real.abs(b[n_var] - y) < eps2)
     l.specialize(forall_a, n)
     l.specialize(forall_b, n)
     l.have(real.abs(a[n] - x) < eps2, by=[])
@@ -140,8 +140,8 @@ def has_lim_add(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [a, b, x, y],
         seq.has_lim(a, x),
         seq.has_lim(b, y),
@@ -169,24 +169,24 @@ def has_lim_mul(l):
     l.specialize(0, eps1)
     l.specialize(1, eps2, keep=True)
 
-    l.have(smt.RealVal(1) > 0, by=[])
-    l.specialize(1, smt.RealVal(1), keep=True)
+    l.have(RealVal(1) > 0, by=[])
+    l.specialize(1, RealVal(1), keep=True)
 
-    N1 = smt.Int("N")
-    N2 = smt.Int("N")
-    N3 = smt.Int("N")
-    n_var = smt.Int("n")
-    exists_a = kd.QExists(
+    N1 = Int("N")
+    N2 = Int("N")
+    N3 = Int("N")
+    n_var = Int("n")
+    exists_a = QExists(
         [N1],
-        kd.QForAll([n_var], n_var > N1, real.abs(a[n_var] - x) < eps1),
+        QForAll([n_var], n_var > N1, real.abs(a[n_var] - x) < eps1),
     )
-    exists_b = kd.QExists(
+    exists_b = QExists(
         [N2],
-        kd.QForAll([n_var], n_var > N2, real.abs(b[n_var] - y) < eps2),
+        QForAll([n_var], n_var > N2, real.abs(b[n_var] - y) < eps2),
     )
-    exists_b1 = kd.QExists(
+    exists_b1 = QExists(
         [N3],
-        kd.QForAll([n_var], n_var > N3, real.abs(b[n_var] - y) < 1),
+        QForAll([n_var], n_var > N3, real.abs(b[n_var] - y) < 1),
     )
     l.have(exists_a, by=[])
     N1v = l.obtain(exists_a)
@@ -196,8 +196,8 @@ def has_lim_mul(l):
     N3v = l.obtain(exists_b1)
 
     # Use a common tail for all three estimates.
-    N = smt.If(N1v > N2v, N1v, N2v)
-    N = smt.If(N > N3v, N, N3v) + 1
+    N = If(N1v > N2v, N1v, N2v)
+    N = If(N > N3v, N, N3v) + 1
     l.exists(N)
     n = l.fix()
     l.assumes(n > N)
@@ -205,9 +205,9 @@ def has_lim_mul(l):
     l.have(n > N2v, by=[])
     l.have(n > N3v, by=[])
 
-    forall_a = kd.QForAll([n_var], n_var > N1v, real.abs(a[n_var] - x) < eps1)
-    forall_b = kd.QForAll([n_var], n_var > N2v, real.abs(b[n_var] - y) < eps2)
-    forall_b1 = kd.QForAll([n_var], n_var > N3v, real.abs(b[n_var] - y) < 1)
+    forall_a = QForAll([n_var], n_var > N1v, real.abs(a[n_var] - x) < eps1)
+    forall_b = QForAll([n_var], n_var > N2v, real.abs(b[n_var] - y) < eps2)
+    forall_b1 = QForAll([n_var], n_var > N3v, real.abs(b[n_var] - y) < 1)
     l.specialize(forall_a, n)
     l.specialize(forall_b, n)
     l.specialize(forall_b1, n)
@@ -223,7 +223,7 @@ def has_lim_mul(l):
     # Control |b[n]| using the triangle inequality.
     l.have(
         real.abs(b[n]) <= real.abs(b[n] - y) + real.abs(y),
-        by=[real.abs_triangle(b[n], smt.RealVal(0), y)],
+        by=[real.abs_triangle(b[n], RealVal(0), y)],
     )
     l.have(real.abs(b[n]) < real.abs(y) + 1, by=[])
     l.have(real.abs(b[n]) <= real.abs(y) + 1, by=[])
@@ -265,11 +265,11 @@ def has_lim_mul(l):
     l.auto()
 
 
-@kd.Theorem(
-    smt.ForAll(
+@Theorem(
+    ForAll(
         [u, v, w, z],
-        smt.Implies(
-            smt.And(v != 0, z != 0),
+        Implies(
+            And(v != 0, z != 0),
             (u / v) + -1 * (w / z) == (u - w) / v + w * ((z - v) / (v * z)),
         ),
     )

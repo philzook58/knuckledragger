@@ -1,7 +1,6 @@
 import kdrag as kd
-import kdrag.smt as smt
-from kdrag.smt import Store, K, Exists, Reals, Lambda, And, Not, ForAll, If  # noqa: F401
-from kdrag import Theorem, define, PTheorem, prove  # noqa: F401
+from kdrag.smt import And, Consts, Exists, ForAll, If, K, Lambda, Not, Reals, Store  # noqa: F401
+from kdrag import PTheorem, Theorem, define, prove  # noqa: F401
 
 import kdrag.theories.real as real  # noqa: F401
 import kdrag.theories.real.vec2 as vec2
@@ -10,13 +9,13 @@ import kdrag.theories.set as set_
 x, y, z = Reals("x y z")
 
 Point2D = vec2.Vec2
-p, q, a, b, c = smt.Consts("p q a b c", Point2D)
+p, q, a, b, c = Consts("p q a b c", Point2D)
 
 Shape = set_.Set(Point2D)
-A, B, C = smt.Consts("A B C", Shape)
+A, B, C = Consts("A B C", Shape)
 
-point = kd.define("point", [p], Store(K(Point2D, False), p, True))
-is_point = kd.define("is_point", [A], Exists([p], point(p) == A))
+point = define("point", [p], Store(K(Point2D, False), p, True))
+is_point = define("is_point", [A], Exists([p], point(p) == A))
 
 """
 line = define(
@@ -119,6 +118,8 @@ dir = define("dir", [p], ray(origin, p))
 is_dir = define(
     "is_dir", [A], Exists([p], p != origin, vec2.norm2(p) == 1, dir(p) == A)
 )
+
+
 @Theorem(
     ForAll(
         [A],
@@ -277,14 +278,10 @@ def is_line_iff_linep(l):
 # )
 
 
-circle = kd.define(
-    "circle", [c, p], smt.Lambda([q], vec2.norm2(p - c) == vec2.norm2(q - c))
-)
+circle = define("circle", [c, p], Lambda([q], vec2.norm2(p - c) == vec2.norm2(q - c)))
 
 
-is_circle = kd.define(
-    "is_circle", [A], smt.Exists([c, q], ForAll(p, circle(c, q)[p] == A[p]))
-)
+is_circle = define("is_circle", [A], Exists([c, q], ForAll(p, circle(c, q)[p] == A[p])))
 # center, circp = kd.kernel.choose
 
 # convex = kd.define("convex", [A], kd.QForAll([p, q], A(p), A(q), A(vec.Vec2(smul(0.5, p + q)))))

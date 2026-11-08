@@ -1,60 +1,67 @@
 import kdrag as kd
-import kdrag.smt as smt
-
-
-B = smt.BoolSort()
-p, q, r = smt.Bools("p q r")
-
-or_comm = kd.prove(smt.ForAll([p, q], p | q == q | p))
-or_assoc = kd.prove(smt.ForAll([p, q, r], (p | q) | r == p | (q | r)))
-or_true = kd.prove(smt.ForAll([p], p | smt.BoolVal(True) == smt.BoolVal(True)))
-or_false = kd.prove(smt.ForAll([p], p | smt.BoolVal(False) == p))
-
-or_idem = kd.prove(smt.ForAll([p], p | p == p))
-or_absorb = kd.prove(smt.ForAll([p, q], p | (p & q) == p))
-or_distr = kd.prove(smt.ForAll([p, q, r], p | (q & r) == (p | q) & (p | r)))
-or_compl = kd.prove(smt.ForAll([p], p | ~p == smt.BoolVal(True)))
-
-
-and_comm = kd.prove(smt.ForAll([p, q], p & q == q & p))
-and_assoc = kd.prove(smt.ForAll([p, q, r], (p & q) & r == p & (q & r)))
-and_true = kd.prove(smt.ForAll([p], p & smt.BoolVal(True) == p))
-and_false = kd.prove(smt.ForAll([p], p & smt.BoolVal(False) == smt.BoolVal(False)))
-and_absorb = kd.prove(smt.ForAll([p, q], (p & (p | q)) == p))
-and_compl = kd.prove(smt.ForAll([p], p & ~p == smt.BoolVal(False)))
-
-and_idem = kd.prove(smt.ForAll([p], p & p == p))
-
-
-imp_true = kd.prove(smt.ForAll([p], smt.Implies(smt.BoolVal(True), p) == p))
-imp_false = kd.prove(
-    smt.ForAll([p], smt.Implies(smt.BoolVal(False), p) == smt.BoolVal(True))
-)
-imp_idem = kd.prove(smt.ForAll([p], smt.Implies(p, p) == smt.BoolVal(True)))
-imp_refl = kd.prove(smt.ForAll([p], smt.Implies(p, p)))
-imp_trans = kd.prove(
-    kd.QForAll([p, q, r], smt.Implies(p, q), smt.Implies(q, r), smt.Implies(p, r))
+from kdrag import QForAll, prove
+from kdrag.smt import (
+    Array,
+    BoolSort,
+    BoolVal,
+    Bools,
+    Consts,
+    DeclareTypeVar,
+    ForAll,
+    If,
+    Implies,
 )
 
 
-not_true = kd.prove(~smt.BoolVal(True) == smt.BoolVal(False))
-not_false = kd.prove(~smt.BoolVal(False) == smt.BoolVal(True))
-not_inv = kd.prove(smt.ForAll([p], ~~p == p))  # Double negation elimination
-not_and = kd.prove(smt.ForAll([p, q], ~(p & q) == (~p | ~q)))  # De Morgan’s Law
-not_or = kd.prove(smt.ForAll([p, q], ~(p | q) == (~p & ~q)))  # De Morgan’s Law
+B = BoolSort()
+p, q, r = Bools("p q r")
 
-xor_neq = kd.prove(smt.ForAll([p, q], (p ^ q) == (p != q)))
-xor_comm = kd.prove(smt.ForAll([p, q], p ^ q == q ^ p))
-xor_assoc = kd.prove(smt.ForAll([p, q, r], (p ^ q) ^ r == p ^ (q ^ r)))
-xor_idem = kd.prove(smt.ForAll([p], p ^ p == smt.BoolVal(False)))
-xor_true = kd.prove(smt.ForAll([p], p ^ smt.BoolVal(True) == ~p))
-xor_false = kd.prove(smt.ForAll([p], p ^ smt.BoolVal(False) == p))
+or_comm = prove(ForAll([p, q], p | q == q | p))
+or_assoc = prove(ForAll([p, q, r], (p | q) | r == p | (q | r)))
+or_true = prove(ForAll([p], p | BoolVal(True) == BoolVal(True)))
+or_false = prove(ForAll([p], p | BoolVal(False) == p))
+
+or_idem = prove(ForAll([p], p | p == p))
+or_absorb = prove(ForAll([p, q], p | (p & q) == p))
+or_distr = prove(ForAll([p, q, r], p | (q & r) == (p | q) & (p | r)))
+or_compl = prove(ForAll([p], p | ~p == BoolVal(True)))
 
 
-T = smt.DeclareTypeVar("T")
-a, b = smt.Consts("a b", T)
-if_true = kd.prove(smt.ForAll([a, b], smt.If(True, a, b) == a))
-if_false = kd.prove(smt.ForAll([a, b], smt.If(False, a, b) == b))
+and_comm = prove(ForAll([p, q], p & q == q & p))
+and_assoc = prove(ForAll([p, q, r], (p & q) & r == p & (q & r)))
+and_true = prove(ForAll([p], p & BoolVal(True) == p))
+and_false = prove(ForAll([p], p & BoolVal(False) == BoolVal(False)))
+and_absorb = prove(ForAll([p, q], (p & (p | q)) == p))
+and_compl = prove(ForAll([p], p & ~p == BoolVal(False)))
+
+and_idem = prove(ForAll([p], p & p == p))
+
+
+imp_true = prove(ForAll([p], Implies(BoolVal(True), p) == p))
+imp_false = prove(ForAll([p], Implies(BoolVal(False), p) == BoolVal(True)))
+imp_idem = prove(ForAll([p], Implies(p, p) == BoolVal(True)))
+imp_refl = prove(ForAll([p], Implies(p, p)))
+imp_trans = prove(QForAll([p, q, r], Implies(p, q), Implies(q, r), Implies(p, r)))
+
+
+not_true = prove(~BoolVal(True) == BoolVal(False))
+not_false = prove(~BoolVal(False) == BoolVal(True))
+not_inv = prove(ForAll([p], ~~p == p))  # Double negation elimination
+not_and = prove(ForAll([p, q], ~(p & q) == (~p | ~q)))  # De Morgan’s Law
+not_or = prove(ForAll([p, q], ~(p | q) == (~p & ~q)))  # De Morgan’s Law
+
+xor_neq = prove(ForAll([p, q], (p ^ q) == (p != q)))
+xor_comm = prove(ForAll([p, q], p ^ q == q ^ p))
+xor_assoc = prove(ForAll([p, q, r], (p ^ q) ^ r == p ^ (q ^ r)))
+xor_idem = prove(ForAll([p], p ^ p == BoolVal(False)))
+xor_true = prove(ForAll([p], p ^ BoolVal(True) == ~p))
+xor_false = prove(ForAll([p], p ^ BoolVal(False) == p))
+
+
+T = DeclareTypeVar("T")
+a, b = Consts("a b", T)
+if_true = prove(ForAll([a, b], If(True, a, b) == a))
+if_false = prove(ForAll([a, b], If(False, a, b) == b))
 
 
 rws = [
@@ -81,7 +88,5 @@ rws = [
     if_false,
 ]
 
-P = smt.Array("P", B, B)
-choose = kd.notation.choose.define(
-    [P], smt.If(P[True], smt.BoolVal(True), smt.BoolVal(False))
-)
+P = Array("P", B, B)
+choose = kd.notation.choose.define([P], If(P[True], BoolVal(True), BoolVal(False)))

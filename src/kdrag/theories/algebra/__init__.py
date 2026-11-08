@@ -1,5 +1,6 @@
 import kdrag as kd
 import kdrag.smt as smt
+from kdrag.smt import Consts, ForAll
 
 # import kdrag.property as prop
 from typing import Protocol, runtime_checkable
@@ -20,10 +21,10 @@ class SemiGroup(Protocol):
 
 def check_semigroup(S: SemiGroup):
     T = S.mul.domain(0)
-    x, y, z = smt.Consts("x y z", T)
+    x, y, z = Consts("x y z", T)
     assert kd.utils.alpha_eq(
         S.mul_assoc.thm,
-        smt.ForAll([x, y, z], S.mul(S.mul(x, y), z) == S.mul(x, S.mul(y, z))),
+        ForAll([x, y, z], S.mul(S.mul(x, y), z) == S.mul(x, S.mul(y, z))),
     )
 
 

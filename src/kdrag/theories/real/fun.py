@@ -1,26 +1,26 @@
-import kdrag as kd
-import kdrag.smt as smt
+from kdrag import Theorem, define
+from kdrag.smt import And, ArraySort, Consts, ForAll, Lambda
 import kdrag.theories.real as real
 
-RFun = smt.ArraySort(real.R, real.R)
-f, g, h = smt.Consts("f g h", RFun)
-x, y, c = smt.Consts("x y c", real.R)
+RFun = ArraySort(real.R, real.R)
+f, g, h = Consts("f g h", RFun)
+x, y, c = Consts("x y c", real.R)
 
-smul = kd.define("RFun.smul", [c, f], smt.Lambda([x], real.mul(c, f[x])))
+smul = define("RFun.smul", [c, f], Lambda([x], real.mul(c, f[x])))
 
 
 # TODO: if I leave these add and mul bare, I have problems in the following proofs. Not great. Z3 has bad handling of quantifiers + real operators
 def Linear(f):
-    return smt.And(
-        smt.ForAll([x, y], f[real.add(x, y)] == real.add(f[x], f[y])),
-        smt.ForAll([x, c], f[real.mul(c, x)] == real.mul(c, f[x])),
+    return And(
+        ForAll([x, y], f[real.add(x, y)] == real.add(f[x], f[y])),
+        ForAll([x, c], f[real.mul(c, x)] == real.mul(c, f[x])),
     )
 
 
-is_linear = kd.define("is_linear", [f], Linear(f))
+is_linear = define("is_linear", [f], Linear(f))
 
 
-@kd.Theorem(smt.ForAll([f, g], is_linear(f), is_linear(g), is_linear(f + g)))
+@Theorem(ForAll([f, g], is_linear(f), is_linear(g), is_linear(f + g)))
 def linear_add(l):
     f, g = l.fixes()
     l.unfold()
@@ -43,7 +43,7 @@ def linear_add(l):
     l.auto(unfold=[real.mul])
 
 
-@kd.Theorem(smt.ForAll([f, c], is_linear(f), is_linear(smul(c, f))))
+@Theorem(ForAll([f, c], is_linear(f), is_linear(smul(c, f))))
 def linear_smul(l):
     f, c = l.fixes()
     l.unfold()

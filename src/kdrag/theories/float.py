@@ -2,102 +2,128 @@
 Theory of built in floating point and connection to the reals
 """
 
-import kdrag as kd
+from kdrag import QForAll, axiom, prove
 import kdrag.smt as smt
+from kdrag.smt import (
+    And,
+    Const,
+    Consts,
+    Float16,
+    FloatDouble,
+    FloatQuadruple,
+    FloatSingle,
+    ForAll,
+    Function,
+    Implies,
+    IntVal,
+    Or,
+    RNE,
+    RTN,
+    RTP,
+    RealSort,
+    RealVal,
+    Reals,
+    fpIsInf,
+    fpIsNaN,
+    fpIsNegative,
+    fpIsNormal,
+    fpIsPositive,
+    fpIsSubnormal,
+    fpIsZero,
+    fpRealToFP,
+    fpToReal,
+    fpZero,
+)
 import sys
 
-F16 = smt.Float16()
-F32 = smt.FloatSingle()
-F64 = smt.FloatDouble()
-F128 = smt.FloatQuadruple()
+F16 = Float16()
+F32 = FloatSingle()
+F64 = FloatDouble()
+F128 = FloatQuadruple()
 
 # https://www.why3.org/stdlib/ieee_float.html
 
 
 def IsFinite(x: smt.FPRef) -> smt.BoolRef:
-    return smt.Or(smt.fpIsNormal(x), smt.fpIsSubnormal(x), smt.fpIsZero(x))
+    return Or(fpIsNormal(x), fpIsSubnormal(x), fpIsZero(x))
 
 
 def NoOverflow(m, x: smt.ArithRef, s):
-    return IsFinite(smt.fpRealToFP(m, x, s))
+    return IsFinite(fpRealToFP(m, x, s))
 
 
-zeroF_is_positive = kd.prove(smt.fpIsPositive(smt.fpZero(F32, False)))
-zeroF_is_negative = kd.prove(smt.fpIsNegative(smt.fpZero(F32, True)))
+zeroF_is_positive = prove(fpIsPositive(fpZero(F32, False)))
+zeroF_is_negative = prove(fpIsNegative(fpZero(F32, True)))
 
-RMSort = smt.RNE().sort()
+RMSort = RNE().sort()
 
 # a real -> real extension of rounding
-round = smt.Function("round32", RMSort, smt.RealSort(), smt.RealSort())
-x, y = smt.Reals("x y")
-m, m1, m2 = smt.Consts("m m1 m2", RMSort)
+round = Function("round32", RMSort, RealSort(), RealSort())
+x, y = Reals("x y")
+m, m1, m2 = Consts("m m1 m2", RMSort)
 # Actually, let's just complete it to the identity function and use kd.define?
-round_def = kd.axiom(
-    kd.QForAll(
+round_def = axiom(
+    QForAll(
         [m, x],
         NoOverflow(m, x, F32),
-        round(m, x) == smt.fpToReal(smt.fpRealToFP(m, x, F32)),
+        round(m, x) == fpToReal(fpRealToFP(m, x, F32)),
     )
 )
 
 
-pow2sb = smt.IntVal(16777216)
-max_int = smt.IntVal(0xFFFF_FF00_0000_0000_0000_0000_0000_0000)
-max_real = smt.RealVal(2 - 2**-23) * 2**127  # smt.RealVal(0xFFFFFE * 2**121)
-z = smt.Const("z", F32)
-max_real_thm = kd.prove(
-    kd.QForAll([z], IsFinite(z), z <= smt.fpRealToFP(smt.RNE(), max_real, F32))
-)
-minfloat = kd.prove(
-    kd.QForAll([z], IsFinite(z), z >= smt.fpRealToFP(smt.RNE(), -max_real, F32))
-)
+pow2sb = IntVal(16777216)
+max_int = IntVal(0xFFFF_FF00_0000_0000_0000_0000_0000_0000)
+max_real = RealVal(2 - 2**-23) * 2**127  # smt.RealVal(0xFFFFFE * 2**121)
+z = Const("z", F32)
+max_real_thm = prove(QForAll([z], IsFinite(z), z <= fpRealToFP(RNE(), max_real, F32)))
+minfloat = prove(QForAll([z], IsFinite(z), z >= fpRealToFP(RNE(), -max_real, F32)))
 
-special_cases = kd.prove(
-    smt.ForAll(
+special_cases = prove(
+    ForAll(
         [z],
-        smt.Or(
-            smt.fpIsNaN(z),
-            smt.fpIsInf(z),
-            smt.fpIsZero(z),
-            smt.fpIsNormal(z),
-            smt.fpIsSubnormal(z),
+        Or(
+            fpIsNaN(z),
+            fpIsInf(z),
+            fpIsZero(z),
+            fpIsNormal(z),
+            fpIsSubnormal(z),
         ),
     )
 )
 
 
 def in_range(x):
-    return smt.And(-max_real <= x, x <= max_real)
+    return And(-max_real <= x, x <= max_real)
 
 
 def is_finite(x: smt.FPRef):
-    return in_range(smt.fpToReal(x))
+    return in_range(fpToReal(x))
 
 
 def no_overflow(m, x):
     return in_range(round(m, x))
 
 
-bounded_real_no_overflow = kd.prove(
+bounded_real_no_overflow = prove(
     # kd.QForAll( # quantifier form doesn't pass?
     #    [m, x],
-    smt.Implies(in_range(x), NoOverflow(m, x, F32))
+    Implies(in_range(x), NoOverflow(m, x, F32))
     # )
 )
 
-bounded_no_overflow = kd.axiom(kd.QForAll([m, x], in_range(x), no_overflow(m, x)))
+bounded_no_overflow = axiom(QForAll([m, x], in_range(x), no_overflow(m, x)))
 # round_monotonic shouldn't be an axiom if IsFinite(round). We need the axiom to extend rounding to be monotonic outside the range out floats.
-round_monotonic = kd.axiom(kd.QForAll([x, y], x <= y, round(m, x) <= round(m, y)))
-round_idem = kd.axiom(kd.QForAll([x, m1, m2], round(m1, round(m2, x)) == round(m2, x)))
+round_monotonic = axiom(QForAll([x, y], x <= y, round(m, x) <= round(m, y)))
+round_idem = axiom(QForAll([x, m1, m2], round(m1, round(m2, x)) == round(m2, x)))
 
-round_to_real = kd.axiom(
-    kd.QForAll([z, m], IsFinite(z), round(m, smt.fpToReal(z)) == smt.fpToReal(z))
+round_to_real = axiom(
+    QForAll([z, m], IsFinite(z), round(m, fpToReal(z)) == fpToReal(z))
 )
 
-round_down_le = kd.axiom(smt.ForAll([x], round(smt.RTN(), x) <= x))
-round_up_ge = kd.axiom(smt.ForAll([x], round(smt.RTP(), x) >= x))
-round_down_neg = kd.axiom(smt.ForAll([x], round(smt.RTN(), -x) == -round(smt.RTP(), x)))
-round_up_neg = kd.axiom(smt.ForAll([x], round(smt.RTP(), -x) == -round(smt.RTN(), x)))
+round_down_le = axiom(ForAll([x], round(RTN(), x) <= x))
+round_up_ge = axiom(ForAll([x], round(RTP(), x) >= x))
+round_down_neg = axiom(ForAll([x], round(RTN(), -x) == -round(RTP(), x)))
+round_up_neg = axiom(ForAll([x], round(RTP(), -x) == -round(RTN(), x)))
 
 
 """
@@ -112,14 +138,10 @@ round_idem_finite = kd.prove(
 """
 
 
-max64 = smt.RealVal(sys.float_info.max)
-z = smt.Const("z", F64)
-max_real_thm = kd.prove(
-    kd.QForAll([z], IsFinite(z), z <= smt.fpRealToFP(smt.RNE(), max64, F64))
-)
-min_float64 = kd.prove(
-    kd.QForAll([z], IsFinite(z), z >= smt.fpRealToFP(smt.RNE(), -max64, F64))
-)
+max64 = RealVal(sys.float_info.max)
+z = Const("z", F64)
+max_real_thm = prove(QForAll([z], IsFinite(z), z <= fpRealToFP(RNE(), max64, F64)))
+min_float64 = prove(QForAll([z], IsFinite(z), z >= fpRealToFP(RNE(), -max64, F64)))
 """
 >>> assert True
 """

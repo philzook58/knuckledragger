@@ -1,22 +1,23 @@
-import kdrag.smt as smt
+from kdrag.smt import BoolSort, Consts, DeclareSort, ForAll, Function
 import kdrag as kd
+from kdrag import QForAll, axiom
 
-Ob = smt.DeclareSort("Ob")
-a, b, c, d = smt.Consts("a b c d", Ob)
+Ob = DeclareSort("Ob")
+a, b, c, d = Consts("a b c d", Ob)
 
-Arr = smt.DeclareSort("Arr")
-f, g, h, k = smt.Consts("f g h k", Arr)
+Arr = DeclareSort("Arr")
+f, g, h, k = Consts("f g h k", Arr)
 
-dom = smt.Function("dom", Arr, Ob)
-cod = smt.Function("cod", Arr, Ob)
+dom = Function("dom", Arr, Ob)
+cod = Function("cod", Arr, Ob)
 
 # not all arrow expressions are well formed.
-wf = smt.Function("wf", Arr, smt.BoolSort())
+wf = Function("wf", Arr, BoolSort())
 kd.notation.wf.register(Arr, wf)
 
-comp = smt.Function("comp", Arr, Arr, Arr)
+comp = Function("comp", Arr, Arr, Arr)
 kd.notation.matmul.register(Arr, comp)
-wf_comp = kd.axiom(kd.QForAll([f, g], cod(g) == dom(f), wf(f @ g)))
+wf_comp = axiom(QForAll([f, g], cod(g) == dom(f), wf(f @ g)))
 
-id = smt.Function("id", Ob, Arr)
-wf_id = kd.axiom(smt.ForAll([a], wf(id(a))))
+id = Function("id", Ob, Arr)
+wf_id = axiom(ForAll([a], wf(id(a))))
