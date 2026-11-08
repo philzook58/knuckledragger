@@ -757,10 +757,14 @@ class Module:
             dom, cod = e.args
             dom_smt = self.to_smt(dom, decls)
             cod_smt = self.to_smt(cod, decls)
+            assert smt.is_func(dom_smt), f"Expected set for domain, got {dom_smt}"
+            assert smt.is_func(cod_smt), f"Expected set for codomain, got {cod_smt}"
+            dom_sort = smt.domains(dom_smt)[0]
+            cod_sort = smt.domains(cod_smt)[0]
             f = smt.FreshConst(
-                smt.ArraySort(dom_smt.domain(), cod_smt.domain()), prefix="f"
+                smt.ArraySort(dom_sort, cod_sort), prefix="f"
             )
-            x = smt.FreshConst(dom_smt.domain(), prefix="x")
+            x = smt.FreshConst(dom_sort, prefix="x")
             return smt.Lambda(
                 [f], smt.ForAll([x], smt.Implies(dom_smt[x], cod_smt[f[x]]))
             )

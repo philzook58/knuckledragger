@@ -469,7 +469,7 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
         olddeclare(name, *args)
         preds.append(pred)
 
-    dt.declare = declare  # type: ignore[ty:invalid-assignment]
+    dt.declare = declare
 
     oldcreate = dt.create
 
@@ -513,7 +513,7 @@ def InductiveRel(name: str, *params: smt.ExprRef) -> smt.Datatype:
                 kd.notation.wf.register(dt, lambda x: x.rel())
         return dt
 
-    dt.create = create  # type: ignore[ty:invalid-assignment]
+    dt.create = create
     return dt
 
 

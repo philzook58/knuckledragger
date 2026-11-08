@@ -380,7 +380,7 @@ def reify(s: smt.SortRef, x: object) -> smt.ExprRef:
         # TODO: Probably not right, also not dealing with multi arg lambdas.
         if isinstance(x, Callable):
             v = smt.FreshConst(s.domain())
-            y = x(v)  # type: ignore[ty:call-top-callable]
+            y = x(v)
             assert isinstance(y, smt.ExprRef), y
             assert y.sort() == s.range()
             return smt.Lambda([v], y)
@@ -552,7 +552,7 @@ def _reflect_expr(expr: ast.expr, globals, locals) -> object:
                 # TODO: emit instantiated proof objects
                 # if hasattr(f, "contract") and f.contract is not None:
                 #    pfs.append(f.contract(*map(rec, args), **kwargs))
-                return f(*args, **kwargs)  # type: ignore[ty:call-top-callable]
+                return f(*args, **kwargs)
             case ast.IfExp(test, body, orelse):
                 return smt.If(rec(test), rec(body), rec(orelse))
             case ast.Name(id_, _ctx):
