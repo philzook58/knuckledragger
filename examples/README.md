@@ -1,5 +1,6 @@
-[real_analysis.py](real_analysis.py) contains short continuity and limit proofs
-using explicit definitions and Z3. Run it with `uv run python examples/real_analysis.py`.
+[real_analysis.py](real_analysis.py) proves global continuity from definitions,
+then derives pointwise continuity and limits using shared lemmas.
+Run it with `uv run python examples/real_analysis.py`.
 
 Other ideas:
 

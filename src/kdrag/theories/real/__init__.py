@@ -494,6 +494,29 @@ def archimedes(l):
 
 is_diff = define("is_diff", [f], ForAll([x], diff_at(f, x)))
 is_cont = define("is_cont", [f], ForAll([x], cont_at(f, x)))
+
+is_cont_cont_at = prove(
+    ForAll([f, x], Implies(is_cont(f), cont_at(f, x))),
+    by=[is_cont.defn],
+)
+
+
+@Theorem(ForAll([f, x], Implies(cont_at(f, x), has_lim_at(f, x, f[x]))))
+def cont_at_has_lim_at(l):
+    l.fixes()
+    l.intros()
+    l.unfold(cont_at, at=0)
+    l.unfold(has_lim_at)
+    eps = l.fix()
+    l.intros()
+    # Reuse continuity's delta for the punctured neighborhood.
+    l.specialize(0, eps)
+    l.forward(0)
+    delta = l.obtain(0)
+    l.exists(delta)
+    l.auto(by=[abs.defn])
+
+
 diff_cont = axiom(QForAll([f], is_diff(f), is_cont(f)))
 
 sin_diff = axiom(is_diff(Lambda([x], sin(x))))
