@@ -14,15 +14,7 @@ make
 cd ..
 
 
-# https://github.com/vprover/vampire/releases
-#echo "Installing Vampire"
-#wget -nc https://github.com/vprover/vampire/releases/download/v4.9casc2024/vampire
-#chmod +x ./vampire
-
-wget -nc https://github.com/vprover/vampire/releases/download/v4.8HO4Sledgahammer/vampire_rel_static_forIsabelle_6878.zip -O vampire-ho.zip
-unzip vampire-ho.zip
-mv vampire_rel_static_forIsabelle_6878 vampire-ho
-chmod +x vampire-ho
+# Vampire is provided by the kdrag-vampire Python package (solvers extra).
 
 echo "Installing LEO-III"
 # https://github.com/leoprover/Leo-III/releases

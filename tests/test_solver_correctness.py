@@ -7,7 +7,7 @@ import kdrag as kd
 import kdrag.smt as smt
 from kdrag.printers.smtlib import smtlib_problem
 from kdrag.printers.tptp import expr_to_tptp
-from kdrag.solvers import BaseSolver, CVC5Solver, VampireSolver, binpath
+from kdrag.solvers import BaseSolver, CVC5Solver, VampireSolver
 
 
 @pytest.mark.parametrize("format", ["tff", "thf"])
@@ -19,13 +19,10 @@ def test_nary_arithmetic(format):
     )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     "operation, correct, truncated", [(smt.Sum, 10, 5), (smt.Product, 30, 6)]
 )
 def test_tptp_arithmetic_counterexample(operation, correct, truncated):
-    if not shutil.which(binpath("vampire")):
-        pytest.skip("Vampire required")
     for value, status in [(correct, smt.unsat), (truncated, smt.sat)]:
         s = VampireSolver()
         s.set("format", "tff")

@@ -39,6 +39,7 @@ solvers = [
     "dd>=0.6.0",
     "kdrag-scryer>=0.2.2",
     "kdrag-eprover>=3.5.1",
+    "kdrag-vampire>=5.1.0",
 ]
 
 [build-system]
