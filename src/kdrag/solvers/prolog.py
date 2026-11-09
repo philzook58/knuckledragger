@@ -161,7 +161,10 @@ def prolog(
                     if subst1 is None:
                         continue
                     else:
-                        newgoals = goals + [smt.substitute(rule.hyp, *subst1.items())]
+                        newgoals = goals + [
+                            smt.substitute(h, *subst1.items())
+                            for h in reversed(rule.hyps)
+                        ]
                         newsubst = {
                             **{
                                 k: smt.substitute(v, *subst1.items())
