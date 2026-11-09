@@ -2025,27 +2025,21 @@ class ProofState:
 
     def exact(self, pf: kd.kernel.Proof):
         """
-        Exact match of goal with given proof
+        Check the goal and its context, inferring universal arguments.
 
         >>> p = smt.Bool("p")
         >>> l = Lemma(smt.Implies(p, p))
         >>> l.exact(kd.prove(smt.BoolVal(True)))
         Traceback (most recent call last):
             ...
-        ValueError: Exact tactic failed. Given: True Expected: Implies(p, p)
+        ValueError: ('Exact theorem mismatch. Expected:', Implies(p, p), 'Given:', True)
         >>> l.exact(kd.prove(smt.Implies(p, p)))
         Nothing to do!
         """
-        goalctx = self.top_goal()
-        goalexpr = goalctx.to_expr()
-        if pf.thm.eq(goalexpr):
-            self.add_lemma(pf)
-            self.pop_goal()
-            return self.top_goal()
-        else:
-            raise ValueError(
-                "Exact tactic failed. Given:", pf.thm, "Expected:", goalexpr
-            )
+        pf = exact(self.top_goal().to_expr(), pf)
+        self.add_lemma(pf)
+        self.pop_goal()
+        return self.top_goal()
 
     def assumption(self) -> Goal:
         """

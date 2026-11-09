@@ -56,3 +56,37 @@ def test_exact_rejects_different_conjunction_arity(quantified, count):
     )
     with pytest.raises(ValueError, match="mismatch"):
         kd.exact(target, pf)
+
+
+@pytest.mark.parametrize("with_context", [False, True])
+def test_exact_tactic_infers_arguments(with_context):
+    x = smt.Int("exact_tactic_x")
+    p = smt.Bool("exact_tactic_p")
+    body = x + 0 == x
+    target = smt.IntVal(2) + 0 == 2
+    if with_context:
+        body, target = smt.Implies(p, body), smt.Implies(p, target)
+    pf = kd.prove(smt.ForAll(x, body))
+    l = kd.Lemma(target)
+    if with_context:
+        l.intros()
+    assert l.exact(pf).is_empty()
+    assert l.qed().thm.eq(target)
+
+
+def test_exact_tactic_accepts_binder_renaming():
+    x, y = smt.Ints("exact_tactic_x exact_tactic_y")
+    pf = kd.prove(smt.ForAll(x, x == x))
+    l = kd.Lemma(smt.ForAll(y, y == y))
+    assert l.exact(pf).is_empty()
+
+
+def test_exact_tactic_mismatch_preserves_state():
+    p = smt.Bool("exact_tactic_p")
+    l = kd.Lemma(p)
+    before = l.top_goal()
+    lemmas = dict(l.lemmas[-1])
+    with pytest.raises(ValueError, match="mismatch"):
+        l.exact(kd.prove(smt.BoolVal(True)))
+    assert l.top_goal() == before
+    assert l.lemmas[-1] == lemmas
