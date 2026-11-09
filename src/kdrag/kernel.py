@@ -62,6 +62,9 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
+    # These convenience combinators are not part of the trusted code base;
+    # they compose existing trusted functions. They live in kernel.py only
+    # to attach them to the Proof class.
     def exists(self, terms: Sequence[smt.ExprRef], prefix: str = "w") -> "Proof":
         """Abstract matching occurrences of terms and introduce an existential.
 
