@@ -127,7 +127,11 @@ def pmatch(
             todo.append((F, t1))
         elif smt.is_app(pat):
             nargs = pat.num_args()
-            if not smt.is_app(t) or pat.decl() != t.decl():  # or nargs != t.num_args():
+            if (
+                not smt.is_app(t)
+                or pat.decl() != t.decl()
+                or nargs != t.num_args()
+            ):
                 return None
             for i in range(nargs):
                 todo.append((pat.arg(i), t.arg(i)))
@@ -424,7 +428,11 @@ def alpha_eq(t1, t2):
         else:
             return False
     elif smt.is_app(t1):
-        if smt.is_app(t2) and t1.decl() == t2.decl():
+        if (
+            smt.is_app(t2)
+            and t1.decl() == t2.decl()
+            and t1.num_args() == t2.num_args()
+        ):
             return all(alpha_eq(t1.arg(i), t2.arg(i)) for i in range(t1.num_args()))
         else:
             return False

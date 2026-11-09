@@ -26,6 +26,7 @@ Proof = kernel.Proof
 
 
 prove = tactics.prove
+exact = tactics.exact
 vprove = tactics.vprove
 
 axiom = kernel.axiom
@@ -592,6 +593,7 @@ invert = notation.invert
 
 __all__ = [
     "prove",
+    "exact",
     "axiom",
     "define",
     "Proof",

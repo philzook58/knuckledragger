@@ -344,6 +344,35 @@ def prove(
         raise e
 
 
+def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
+    """Check a proof against a statement without calling a solver.
+
+    Infer arguments of outer universal quantifiers by one-way matching.
+    All arguments must be determined; premises are not discharged. Bound
+    variable names may differ, and the returned proof keeps its binder names.
+
+    >>> x = smt.Int("x")
+    >>> pf = kd.prove(smt.ForAll([x], x + 0 == x))
+    >>> exact(smt.IntVal(3) + 0 == 3, pf)
+    |= 3 + 0 == 3
+    """
+    if not isinstance(thm, smt.BoolRef) or not isinstance(pf, kd.Proof):
+        raise TypeError("exact expects a statement and a Proof")
+    if kd.utils.alpha_eq(pf.thm, thm):
+        return pf
+    vs = []
+    body = pf.thm
+    while isinstance(body, smt.QuantifierRef) and body.is_forall():
+        binders, body = kd.utils.open_binder(body)
+        vs.extend(binders)
+        subst = kd.utils.pmatch(vs, body, thm)
+        if subst is not None and all(v in subst for v in vs):
+            result = pf(*(subst[v] for v in vs))
+            if kd.utils.alpha_eq(result.thm, thm):
+                return result
+    raise ValueError("Exact theorem mismatch. Expected:", thm, "Given:", pf.thm)
+
+
 def vprove(thm: smt.BoolRef, **kwargs) -> kd.kernel.Proof:
     """
     Prove a theorem using an egraph-based solver.
@@ -1966,27 +1995,21 @@ class ProofState:
 
     def exact(self, pf: kd.kernel.Proof):
         """
-        Exact match of goal with given proof
+        Check the goal and its context, inferring universal arguments.
 
         >>> p = smt.Bool("p")
         >>> l = Lemma(smt.Implies(p, p))
         >>> l.exact(kd.prove(smt.BoolVal(True)))
         Traceback (most recent call last):
             ...
-        ValueError: Exact tactic failed. Given: True Expected: Implies(p, p)
+        ValueError: ('Exact theorem mismatch. Expected:', Implies(p, p), 'Given:', True)
         >>> l.exact(kd.prove(smt.Implies(p, p)))
         Nothing to do!
         """
-        goalctx = self.top_goal()
-        goalexpr = goalctx.to_expr()
-        if pf.thm.eq(goalexpr):
-            self.add_lemma(pf)
-            self.pop_goal()
-            return self.top_goal()
-        else:
-            raise ValueError(
-                "Exact tactic failed. Given:", pf.thm, "Expected:", goalexpr
-            )
+        pf = exact(self.top_goal().to_expr(), pf)
+        self.add_lemma(pf)
+        self.pop_goal()
+        return self.top_goal()
 
     def assumption(self) -> Goal:
         """
