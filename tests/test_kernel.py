@@ -80,7 +80,7 @@ def test_have_returns_formula_for_obtain():
 def test_have_returns_formula_for_pending_goal():
     x = smt.Int("x")
     l = kd.Lemma(smt.Implies(x > 0, x > -2))
-    l.intros()
+    l.intro()
     h = l.have(x > -1)
     assert h.eq(x > -1)
     assert l.goal.eq(h)
@@ -219,7 +219,7 @@ def test_Lemma():
 
     l = kd.tactics.Lemma(kd.QForAll([p, q], p, q, p))
     p1, q1 = l.fixes()
-    l.intros()
+    l.intro()
     l.cases(p1)
     l.auto()
     l.auto()
@@ -241,19 +241,19 @@ def test_Lemma():
 
     p, q = smt.Bools("p q")
     l = kd.Lemma(smt.Implies(p, smt.Or(p, q)))
-    l.intros()
+    l.intro()
     l.left()
     l.auto()
     l.qed()
 
     l = kd.Lemma(smt.Implies(q, smt.Or(p, p, p, q, p)))
-    l.intros()
+    l.intro()
     l.left(3)
     l.auto()
     l.qed()
 
     l = kd.Lemma(smt.Implies(p, smt.Or(q, q, q, p)))
-    l.intros()
+    l.intro()
     l.right()
     l.qed()
 
@@ -281,7 +281,7 @@ def test_Lemma():
     )
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
     x1 = l.fix()
-    l.intros()
+    l.intro()
     l.rw(even.defn)
     l.rw(even.defn, at=0)
     y1 = l.obtain(0)
@@ -295,7 +295,7 @@ def test_Lemma():
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
     [
         x1 := l.fix(),
-        l.intros(),
+        l.intro(),
         l.rw(even.defn),
         l.rw(even.defn, at=0),
         y1 := l.obtain(0),

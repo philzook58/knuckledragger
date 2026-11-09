@@ -346,7 +346,7 @@ exp_inv = prove(ForAll([x], exp(-x) == 1 / exp(x)), by=[exp_div])
 def exp_mono(l):
     # exp(x) <= exp(x) * exp(y-x) == exp(y)
     x, y = l.fixes()
-    _x_ge_y = l.intros()
+    _x_ge_y = l.intro()
     l.have(exp(y) == exp(y - x) * exp(x), by=[exp_add(y - x, x)])
     l.have(exp(y - x) >= 1, by=[exp_pos_ge_one(y - x)])
     l.auto(by=[exp_pos])
@@ -483,7 +483,7 @@ N = Int("N")
 def archimedes(l):
     # https://en.wikipedia.org/wiki/Archimedean_property
     x, y = l.fixes()
-    l.intros()
+    l.intro()
 
     # Choose N = floor(y/x) + 1.
     l.exists(ToInt(y / x) + 1)

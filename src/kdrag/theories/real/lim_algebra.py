@@ -22,7 +22,7 @@ n = Int("n")
 )
 def has_lim_smul(l):
     a, x, c = l.fixes()
-    l.intros()
+    l.intro()
     l.cases(c == 0)
 
     # Zero scalar: smul is constant zero, so limit is zero.
@@ -85,8 +85,8 @@ def has_lim_smul(l):
 )
 def has_lim_add(l):
     a, b, x, y = l.fixes()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.unfold(seq.has_lim)
     eps = l.fix()
     l.assumes(eps > 0)
@@ -150,8 +150,8 @@ def has_lim_add(l):
 )
 def has_lim_mul(l):
     a, b, x, y = l.fixes()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.unfold(seq.has_lim)
     eps = l.fix()
     l.assumes(eps > 0)
@@ -276,7 +276,7 @@ def has_lim_mul(l):
 )
 def div_decomp(l):
     u, v, w, z = l.fixes()
-    l.intros()
+    l.intro()
     l.auto()
 
 
@@ -299,7 +299,7 @@ def div_decomp(l):
 
 def has_lim_div(l):
     a, b, x, y = l.fixes()
-    l.intros()
+    l.intro()
     l.split(at=0)
     l.unfold(seq.has_lim)
     eps = l.fix()
