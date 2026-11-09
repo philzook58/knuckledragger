@@ -85,8 +85,7 @@ def has_lim_smul(l):
 )
 def has_lim_add(l):
     a, b, x, y = l.fixes()
-    l.intro()
-    l.intro()
+    l.intros()
     l.unfold(seq.has_lim)
     eps = l.fix()
     l.assumes(eps > 0)
@@ -150,8 +149,7 @@ def has_lim_add(l):
 )
 def has_lim_mul(l):
     a, b, x, y = l.fixes()
-    l.intro()
-    l.intro()
+    l.intros()
     l.unfold(seq.has_lim)
     eps = l.fix()
     l.assumes(eps > 0)

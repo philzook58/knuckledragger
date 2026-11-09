@@ -55,8 +55,7 @@ sup_ub = prove(
 @Theorem(ForAll([A, M, x], A[x], has_ub(A, M), x <= sup(A)))
 def sup_ge(l):
     A, M, x = l.fixes()
-    l.intro()
-    l.intro()
+    l.intros()
     l.have(has_ub(A, sup(A)), by=[sup_ub(A, M)])
     l.auto(by=[has_ub.defn])
 

@@ -743,6 +743,24 @@ class ProofState:
         else:
             raise ValueError("Intro failed on goal", goal)
 
+    def intros(self) -> list[smt.BoolRef]:
+        """Introduce all leading implications and return their premises in order.
+
+        Stop before quantifiers or other connectives. An explicit conjunction
+        remains one premise. With no leading implication, return an empty list.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, smt.Implies(q, p)))
+        >>> l.intros()
+        [p, q]
+        >>> l
+        [p, q] ?|= p
+        """
+        hypotheses = []
+        while smt.is_implies(self.goal):
+            hypotheses.append(self.intro())
+        return hypotheses
+
     def splintro(self):
         """
         Split and intro on a conjunction in the goal.

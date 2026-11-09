@@ -81,6 +81,7 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 - `l.fix()` - open one ∀, returns the fresh variable
 - `l.fixes()` - open multiple ∀s, returns list
 - `l.intro()` - move one implication hypothesis into context and return its formula.
+- `l.intros()` - introduce the leading implication chain and return a list of premise formulas; stop at quantifiers or other connectives.
 - `l.obtain(n)` - open ∃ in hypothesis `n`, returns witness constants
 
 **Proving subgoals:**
