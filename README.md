@@ -35,20 +35,10 @@ uv pip install -e .[solvers,rust,pypcode,dev]
 ```python
 from kdrag import Calc, Inductive, Proof, Theorem, axiom, cond, define, prove
 from kdrag.kernel import LemmaError
-from kdrag.notation import add as add_notation, mul as mul_notation
+import kdrag.notation as notation
 from kdrag.smt import (
-    And,
-    BitVec,
-    Bools,
-    Const,
-    Consts,
-    DeclareSort,
-    ExprRef,
-    ForAll,
-    Function,
-    Implies,
-    Or,
-    Real,
+    And, BitVec, Bools, Const, Consts, DeclareSort, ExprRef,
+    ForAll, Function, Implies, Or, Real,
 )
 
 # Anything Z3 can do on its own, we can "prove" with no extra work
@@ -87,10 +77,15 @@ Nat = Nat.create()
 # We can define an addition function by cases
 n, m = Consts("n m", Nat)
 add = Function("add", Nat, Nat, Nat)
-add = define("add", [n, m], cond((n.is_Zero, m), (n.is_Succ, Nat.Succ(add(n.pred, m)))))
+add = define("add", [n, m],
+    cond(
+        (n.is_Zero, m),
+        (n.is_Succ, Nat.Succ(add(n.pred, m))),
+    ),
+)
 
 # There is a notation overloading mechanism modelled after python's singledispatch
-add_notation.register(Nat, add)
+notation.add.register(Nat, add)
 
 # The definitional lemma is not available to the solver unless you give it
 add_zero_x = prove(ForAll(n, Nat.Zero + n == n), by=[add.defn])
@@ -120,7 +115,7 @@ mul = Function("mul", G, G, G)
 e = Const("e", G)
 inv = Function("inv", G, G)
 
-mul_notation.register(G, mul)
+notation.mul.register(G, mul)
 
 x, y, z = Consts("x y z", G)
 mul_assoc = axiom(ForAll([x, y, z], x * (y * z) == (x * y) * z))
