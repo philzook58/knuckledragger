@@ -3,13 +3,12 @@
 Prove pointwise closure first, then derive global continuity and limit rules.
 """
 
-from kdrag import FreshVars, Theorem, prove
+from kdrag import FreshVars, Theorem, exact, prove
 from kdrag.smt import (
     And,
     Consts,
     Exists,
     ForAll,
-    Implies,
     Lambda,
     RealSort,
     RealVal,
@@ -46,15 +45,16 @@ def has_lim_at_of_cont_at(l):
     # Reuse continuity's delta for the punctured neighborhood.
     continuity = l.specialize(continuity, eps)
     d, y = Reals("delta y")
-    witness = Exists(d, d > 0, ForAll(y, abs(x - y) < d, abs(f[x] - f[y]) < eps))
-    l.have(witness, by=[])
+    witness = l.have(
+        Exists(d, d > 0, ForAll(y, abs(x - y) < d, abs(f[x] - f[y]) < eps)), by=[]
+    )
     l.clear(continuity)
     delta = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
 
-@Theorem(ForAll([f, g, p], cont_at(f, p), Implies(cont_at(g, p), cont_at(f + g, p))))
+@Theorem(ForAll([f, g, p], cont_at(f, p), cont_at(g, p), cont_at(f + g, p)))
 def cont_at_add(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
@@ -66,19 +66,21 @@ def cont_at_add(l):
     hf = l.specialize(hf, eps / 2)
     hg = l.specialize(hg, eps / 2)
     d, y = Reals("delta y")
-    witness_f = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eps / 2))
-    witness_g = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eps / 2))
-    l.have(witness_f, by=[])
+    witness_f = l.have(
+        Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eps / 2)), by=[]
+    )
     l.clear(hf)
     d1 = l.obtain(witness_f)
-    l.have(witness_g, by=[])
+    witness_g = l.have(
+        Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eps / 2)), by=[]
+    )
     l.clear(hg)
     d2 = l.obtain(witness_g)
     l.exists(min(d1, d2))
     l.auto(by=[abs.defn, min.defn])
 
 
-@Theorem(ForAll([f, g, p], cont_at(f, p), Implies(cont_at(g, p), cont_at(f * g, p))))
+@Theorem(ForAll([f, g, p], cont_at(f, p), cont_at(g, p), cont_at(f * g, p)))
 def cont_at_mul(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
@@ -92,12 +94,14 @@ def cont_at_mul(l):
     hf = l.specialize(hf, eta)
     hg = l.specialize(hg, eta)
     d, y = Reals("delta y")
-    witness_f = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eta))
-    witness_g = Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eta))
-    l.have(witness_f, by=[])
+    witness_f = l.have(
+        Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eta)), by=[]
+    )
     l.clear(hf)
     d1 = l.obtain(witness_f)
-    l.have(witness_g, by=[])
+    witness_g = l.have(
+        Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eta)), by=[]
+    )
     l.clear(hg)
     d2 = l.obtain(witness_g)
     l.exists(min(d1, d2))
@@ -116,12 +120,12 @@ def cont_at_mul(l):
 
 
 is_cont_add = prove(
-    ForAll([f, g], is_cont(f), Implies(is_cont(g), is_cont(f + g))),
+    ForAll([f, g], is_cont(f), is_cont(g), is_cont(f + g)),
     by=[is_cont.defn, cont_at_add],
 )
 
 is_cont_mul = prove(
-    ForAll([f, g], is_cont(f), Implies(is_cont(g), is_cont(f * g))),
+    ForAll([f, g], is_cont(f), is_cont(g), is_cont(f * g)),
     by=[is_cont.defn, cont_at_mul],
 )
 
@@ -136,12 +140,14 @@ def cont_at_update_of_has_lim_at(l):
     l.intros()
     limit = l.specialize(limit, eps)
     d, x = Reals("delta x")
-    witness = Exists(
-        d,
-        d > 0,
-        ForAll(x, RealVal(0) < abs(x - p), abs(x - p) < d, abs(f[x] - L) < eps),
+    witness = l.have(
+        Exists(
+            d,
+            d > 0,
+            ForAll(x, RealVal(0) < abs(x - p), abs(x - p) < d, abs(f[x] - L) < eps),
+        ),
+        by=[],
     )
-    l.have(witness, by=[])
     l.clear(limit)
     delta = l.obtain(witness)
     l.exists(delta)
@@ -158,10 +164,10 @@ def has_lim_at_of_cont_at_update(l):
     continuity = l.specialize(continuity, eps)
     d, y = Reals("delta y")
     updated = Store(f, p, L)
-    witness = Exists(
-        d, d > 0, ForAll(y, abs(p - y) < d, abs(updated[p] - updated[y]) < eps)
+    witness = l.have(
+        Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(updated[p] - updated[y]) < eps)),
+        by=[],
     )
-    l.have(witness, by=[])
     l.clear(continuity)
     delta = l.obtain(witness)
     l.exists(delta)
@@ -172,7 +178,8 @@ def has_lim_at_of_cont_at_update(l):
     ForAll(
         [f, g, p, L, M],
         has_lim_at(f, p, L),
-        Implies(has_lim_at(g, p, M), has_lim_at(f + g, p, L + M)),
+        has_lim_at(g, p, M),
+        has_lim_at(f + g, p, L + M),
     )
 )
 def has_lim_at_add(l):
@@ -191,7 +198,8 @@ def has_lim_at_add(l):
     ForAll(
         [f, g, p, L, M],
         has_lim_at(f, p, L),
-        Implies(has_lim_at(g, p, M), has_lim_at(f * g, p, L * M)),
+        has_lim_at(g, p, M),
+        has_lim_at(f * g, p, L * M),
     )
 )
 def has_lim_at_mul(l):
@@ -259,18 +267,30 @@ def continuous_abs(l):
 
 
 # Apply the bridge lemmas directly, then generalize the arbitrary parameters.
-continuous_at_const = cont_at_of_is_cont(Lambda(x, a), p)(continuous_const(a)).forall(
-    [a, p]
+continuous_at_const = exact(
+    ForAll([a, p], cont_at(Lambda(x, a), p)),
+    cont_at_of_is_cont(Lambda(x, a), p, continuous_const(a)).forall([a, p]),
 )
-continuous_at_id = cont_at_of_is_cont(Lambda(x, x), p)(continuous_id).forall([p])
-continuous_at_add_const = cont_at_of_is_cont(Lambda(x, x + a), p)(
-    continuous_add_const(a)
-).forall([a, p])
-continuous_at_sq = cont_at_of_is_cont(Lambda(x, x * x), p)(continuous_sq).forall([p])
-continuous_at_cube = cont_at_of_is_cont(Lambda(x, x * x * x), p)(
-    continuous_cube
-).forall([p])
-continuous_at_abs = cont_at_of_is_cont(Lambda(x, abs(x)), p)(continuous_abs).forall([p])
+continuous_at_id = exact(
+    ForAll(p, cont_at(Lambda(x, x), p)),
+    cont_at_of_is_cont(Lambda(x, x), p, continuous_id).forall([p]),
+)
+continuous_at_add_const = exact(
+    ForAll([a, p], cont_at(Lambda(x, x + a), p)),
+    cont_at_of_is_cont(Lambda(x, x + a), p, continuous_add_const(a)).forall([a, p]),
+)
+continuous_at_sq = exact(
+    ForAll(p, cont_at(Lambda(x, x * x), p)),
+    cont_at_of_is_cont(Lambda(x, x * x), p, continuous_sq).forall([p]),
+)
+continuous_at_cube = exact(
+    ForAll(p, cont_at(Lambda(x, x * x * x), p)),
+    cont_at_of_is_cont(Lambda(x, x * x * x), p, continuous_cube).forall([p]),
+)
+continuous_at_abs = exact(
+    ForAll(p, cont_at(Lambda(x, abs(x)), p)),
+    cont_at_of_is_cont(Lambda(x, abs(x)), p, continuous_abs).forall([p]),
+)
 
 # A continuous function tends to its value at the point.
 has_lim_at_const = has_lim_at_of_cont_at(Lambda(x, a), p)(

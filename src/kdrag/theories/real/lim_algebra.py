@@ -1,7 +1,7 @@
 """Algebra of real sequence limits."""
 
 from kdrag import Theorem
-from kdrag.smt import And, Consts, Exists, ForAll, If, Implies, Ints, Reals
+from kdrag.smt import And, Consts, Exists, ForAll, If, Ints, Reals
 from kdrag.theories.real import RSeq, abs, abs_add, abs_mul, abs_pos, min
 from kdrag.theories.real.seq import add, has_lim, mul, smul
 
@@ -29,8 +29,7 @@ def has_lim_smul(l):
     l.have(eta > 0, by=[abs_pos(c)])
     ha = l.specialize(ha, eta)
     bound, n = Ints("N n")
-    witness = Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta))
-    l.have(witness, by=[])
+    witness = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta)), by=[])
     l.clear(ha)
     N = l.obtain(witness)
     l.exists(N)
@@ -53,19 +52,17 @@ def has_lim_smul(l):
 def has_lim_add(l):
     a, b, x, y = l.fixes()
     l.unfold(has_lim)
-    ha, hb = l.andE(l.intros())
+    ha, hb = l.intros(), l.intros()
     eps = l.fix()
     l.intros()
     # Each sequence contributes half the error budget.
     ha = l.specialize(ha, eps / 2)
     hb = l.specialize(hb, eps / 2)
     bound, n = Ints("N n")
-    tail_a = Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eps / 2))
-    tail_b = Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eps / 2))
-    l.have(tail_a, by=[])
+    tail_a = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eps / 2)), by=[])
     l.clear(ha)
     N1 = l.obtain(tail_a)
-    l.have(tail_b, by=[])
+    tail_b = l.have(Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eps / 2)), by=[])
     l.clear(hb)
     N2 = l.obtain(tail_b)
     l.exists(If(N1 > N2, N1, N2))
@@ -91,7 +88,7 @@ def has_lim_add(l):
 def has_lim_mul(l):
     a, b, x, y = l.fixes()
     l.unfold(has_lim)
-    ha, hb = l.andE(l.intros())
+    ha, hb = l.intros(), l.intros()
     eps = l.fix()
     l.intros()
     # Keep both errors below one and small enough for the product estimate.
@@ -100,12 +97,10 @@ def has_lim_mul(l):
     ha = l.specialize(ha, eta)
     hb = l.specialize(hb, eta)
     bound, n = Ints("N n")
-    tail_a = Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta))
-    tail_b = Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eta))
-    l.have(tail_a, by=[])
+    tail_a = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta)), by=[])
     l.clear(ha)
     N1 = l.obtain(tail_a)
-    l.have(tail_b, by=[])
+    tail_b = l.have(Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eta)), by=[])
     l.clear(hb)
     N2 = l.obtain(tail_b)
     l.exists(If(N1 > N2, N1, N2))
@@ -138,10 +133,8 @@ def has_lim_mul(l):
 @Theorem(
     ForAll(
         [u, v, w, z],
-        Implies(
-            And(v != 0, z != 0),
-            (u / v) + -1 * (w / z) == (u - w) / v + w * ((z - v) / (v * z)),
-        ),
+        And(v != 0, z != 0),
+        (u / v) + -1 * (w / z) == (u - w) / v + w * ((z - v) / (v * z)),
     )
 )
 def div_decomp(l):
