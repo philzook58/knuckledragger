@@ -5,7 +5,8 @@ The kernel hold core proof datatypes and core inference rules. By and large, all
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable, Sequence
+from functools import cache
+from typing import Any, Callable, Iterable, Iterator, Sequence
 from . import config
 import tempfile
 
@@ -60,6 +61,60 @@ class Proof(Judgement):
         |= ForAll(x!..., x!... + 1 > x!...)
         """
         return generalize(fresh_vars, self)
+
+    def exists(self, terms: Sequence[smt.ExprRef]) -> "Proof":
+        """Abstract matching occurrences of terms and introduce an existential.
+
+        >>> three = smt.IntVal(3)
+        >>> prove(three > 0).exists([three])
+        |= Exists(..., ... > 0)
+        """
+        if not terms or not all(isinstance(t, smt.ExprRef) for t in terms):
+            raise TypeError("exists expects a nonempty sequence of SMT terms")
+        vs = [smt.FreshConst(t.sort(), prefix="w") for t in terms]
+        body = smt.substitute(self.thm, *zip(terms, vs))
+        introduction = forget(terms, smt.RawExists(vs, body))
+        if not introduction.thm.arg(0).eq(self.thm):
+            raise ValueError("Existential abstraction did not reproduce the theorem")
+        return modus(introduction, self)
+
+    def obtain(self) -> tuple[list[smt.ExprRef], "Proof"]:
+        """Return fresh witnesses and a proof of an existential's body.
+
+        >>> x = smt.Int("x")
+        >>> [w], hw = prove(smt.Exists(x, x > 0)).obtain()
+        >>> hw.thm.eq(w > 0)
+        True
+        """
+        if not isinstance(self.thm, smt.QuantifierRef) or not self.thm.is_exists():
+            raise TypeError("obtain expects an existential proof")
+        witnesses, elimination = obtain(self.thm)
+        return witnesses, modus(elimination, self)
+
+    def __getitem__(self, index: int) -> "Proof":
+        """Project an immediate conjunct; negative indices follow Python lists."""
+        if not smt.is_and(self.thm):
+            raise TypeError("Only conjunction proofs support indexing")
+        if not isinstance(index, int):
+            raise TypeError("Conjunction indices must be integers")
+        children = self.thm.children()
+        children[index]  # Check bounds before normalizing negative indices.
+        if index < 0:
+            index += len(children)
+        projection = instan(children, _and_projection(len(children), index))
+        return modus(projection, self)
+
+    def __iter__(self) -> Iterator["Proof"]:
+        """Unpack immediate conjuncts without recursively flattening them.
+
+        >>> x = smt.Int("x")
+        >>> hx, hy = prove(smt.And(x == x, x + 0 == x))
+        >>> hy
+        |= x + 0 == x
+        """
+        if not smt.is_and(self.thm):
+            raise TypeError("Only conjunction proofs support iteration")
+        return (self[i] for i in range(self.thm.num_args()))
 
     def __call__(self, *args: "smt.ExprRef | Proof"):
         """
@@ -721,6 +776,16 @@ def modus(ab: Proof, a: Proof) -> Proof:
     assert smt.is_implies(ab.thm) or smt.is_eq(ab.thm)
     assert ab.thm.arg(0).eq(a.thm)
     return axiom(ab.thm.arg(1), by=["modus", ab, a])
+
+
+@cache
+def _and_projection(arity: int, index: int) -> Proof:
+    """Derive a projection schema once per conjunction shape."""
+    ps = [smt.Bool(f"p{i}") for i in range(arity)]
+    return prove(
+        smt.RawForAll(ps, smt.Implies(smt.And(ps), ps[index])),
+        solver=smt.Z3Solver,
+    )
 
 
 def andI(pfs: Sequence[Proof]) -> Proof:
