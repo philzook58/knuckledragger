@@ -1,11 +1,12 @@
 """Experimental ordered contexts, backed by existing closed kernel proofs.
 
-No FreshVar registry or new trusted rules. Structural transformations that
-change the internalized formula currently use Z3; this is an API prototype.
+No FreshVar registry or new trusted rules. All-variable application/weakening
+compile through the old kernel's Herbrand and instantiation rules. Other
+structural transformations currently use Z3; this is an API prototype.
 """
 
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Callable, Sequence
 
 import kdrag.kernel as kernel
 import kdrag.smt as smt
@@ -78,6 +79,36 @@ def internalize(ctx: Context, thm: smt.BoolRef) -> smt.BoolRef:
     return thm
 
 
+def _close_vars(
+    ctx: Context,
+    thm: smt.BoolRef,
+    build: Callable[[dict[smt.ExprRef, smt.ExprRef]], kernel.Proof],
+) -> kernel.Proof:
+    """Compile an all-variable telescope back to the old kernel.
+
+    Herbrand constants are confined to this adapter; no FreshVar registration.
+    A native scoped kernel could replace this compatibility step. Normally
+    no solver is needed; differing retained binder names may require repair.
+    """
+    goal = internalize(ctx, thm)
+    bindings = {}
+    closing = []
+    for entry in ctx:
+        assert isinstance(entry, Vars)
+        assert isinstance(goal, smt.QuantifierRef) and goal.is_forall()
+        vs, rule = kernel.herb(goal)
+        bindings.update(zip(entry.vs, vs))
+        closing.append(rule)
+        goal = rule.thm.arg(0)
+    result = build(bindings)
+    if not result.thm.eq(goal):
+        # The certificate may retain different names after fix/close roundtrips.
+        result = kernel.prove(goal, by=[result])
+    for rule in reversed(closing):
+        result = kernel.modus(rule, result)
+    return result
+
+
 @dataclass(frozen=True, eq=False)
 class ScopedProof:
     """A scoped judgment with a kernel certificate for its internalization."""
@@ -99,9 +130,9 @@ class ScopedProof:
         return f"{self.ctx} |- {self.thm}"
 
     @classmethod
-    def from_proof(cls, pf: kernel.Proof) -> "ScopedProof":
-        """Import an existing theorem with an empty context."""
-        return cls((), pf.thm, pf)
+    def from_proof(cls, pf: kernel.Proof, ctx: Context = ()) -> "ScopedProof":
+        """Import a closed theorem, weakening before any local instantiation."""
+        return cls((), pf.thm, pf).weaken(ctx)
 
     def to_expr(self) -> smt.BoolRef:
         """Internalize this judgment, preserving telescope order and grouping."""
@@ -148,6 +179,19 @@ class ScopedProof:
         for entry in ctx[len(self.ctx) :]:
             if isinstance(entry, Vars) and not _absent(entry.vs, self.thm):
                 raise ValueError("Weakening would capture a free constant")
+        if all(isinstance(e, Vars) for e in ctx):
+
+            def build(bindings):
+                return self.closed(
+                    *(
+                        bindings[v]
+                        for e in self.ctx
+                        if isinstance(e, Vars)
+                        for v in e.vs
+                    )
+                )
+
+            return ScopedProof(ctx, self.thm, _close_vars(ctx, self.thm, build))
         return self._derive(ctx, self.thm)
 
     def subst(self, index: int, terms: tuple[smt.ExprRef, ...]) -> "ScopedProof":
@@ -172,6 +216,68 @@ class ScopedProof:
             for e in self.ctx[index + 1 :]
         )
         return self._derive(self.ctx[:index] + suffix, smt.substitute(self.thm, *pairs))
+
+    def __call__(
+        self, *args: "smt.ExprRef | ScopedProof | kernel.Proof"
+    ) -> "ScopedProof":
+        """Apply forall terms and premise proofs in the current context.
+
+        Import closed lemmas into the context *before* applying local variables.
+        All-variable contexts replay existing kernel rules without search;
+        contexts with hypotheses currently certify the result with Z3.
+        """
+        if not args:
+            return self
+        thm, pos = self.thm, 0
+        premises = [self]
+        applied = []
+        while pos < len(args):
+            if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+                count = thm.num_vars()
+                supplied = args[pos : pos + count]
+                if len(supplied) != count:
+                    raise ValueError("Supply a term for each variable in the block")
+                terms = []
+                for i, term in enumerate(supplied):
+                    if not isinstance(term, smt.ExprRef) or term.sort() != thm.var_sort(
+                        i
+                    ):
+                        raise TypeError("Expected a term of the quantified sort")
+                    terms.append(term)
+                applied.extend(terms)
+                thm = smt.substitute_vars(thm.body(), *reversed(terms))
+                pos += count
+            elif smt.is_implies(thm):
+                evidence = args[pos]
+                if isinstance(evidence, kernel.Proof):
+                    evidence = ScopedProof.from_proof(evidence, self.ctx)
+                if not isinstance(evidence, ScopedProof):
+                    raise TypeError("Implication arguments must be proofs")
+                evidence = evidence.weaken(self.ctx)
+                if not utils.alpha_eq(thm.arg(0), evidence.thm):
+                    raise ValueError("Proof does not match the implication premise")
+                premises.append(evidence)
+                applied.append(evidence)
+                thm = thm.arg(1)
+                pos += 1
+            else:
+                raise ValueError("Application expects a forall or implication")
+        if all(isinstance(e, Vars) for e in self.ctx):
+
+            def build(bindings):
+                variables = [
+                    bindings[v] for e in self.ctx if isinstance(e, Vars) for v in e.vs
+                ]
+                args = [
+                    a.closed(*variables)
+                    if isinstance(a, ScopedProof)
+                    else smt.substitute(a, *bindings.items())
+                    for a in applied
+                ]
+                return self.closed(*variables)(*args)
+
+            return ScopedProof(self.ctx, thm, _close_vars(self.ctx, thm, build))
+        return prove(thm, ctx=self.ctx, by=premises)
 
     def _derive(self, ctx: Context, thm: smt.BoolRef) -> "ScopedProof":
         _validate(ctx)

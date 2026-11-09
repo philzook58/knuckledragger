@@ -1,7 +1,8 @@
 """Compare explicit telescopes with the existing global schematic variables.
 
 The wrapper keeps a kernel proof of the internalized judgment. Opening and
-closing reuse it; weakening and substitution currently ask Z3 for a new proof.
+closing reuse it. All-variable weakening uses existing kernel rules; mixed
+contexts and substitution currently ask Z3 for a new proof.
 """
 
 from kdrag import define, prove as prove_closed
