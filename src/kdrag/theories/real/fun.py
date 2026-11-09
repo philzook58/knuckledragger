@@ -24,10 +24,9 @@ is_linear = define("is_linear", [f], Linear(f))
 def linear_add(l):
     f, g = l.fixes()
     l.unfold()
-    _h = l.intros()
-    l.split(at=-1)
-    l.split(at=-1)
-    l.split(at=0)
+    hf, hg = l.intros(), l.intros()
+    l.andE(hf)
+    l.andE(hg)
     l.split()
 
     _x, _y = l.fixes()

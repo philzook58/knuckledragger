@@ -153,8 +153,10 @@ def sin_bnd(x: Arb) -> kd.kernel.Proof:
     """
     >>> sin_bnd(arb(0))
     |= ForAll(x,
-        Implies(And(0 - 0 <= x, x <= 0 + 0),
-                And(0 - 0 <= Real.sin(x), Real.sin(x) <= 0 + 0)))
+           Implies(0 - 0 <= x,
+                   Implies(x <= 0 + 0,
+                           And(0 - 0 <= Real.sin(x),
+                               Real.sin(x) <= 0 + 0))))
     >>> prove(real.sin(0) <= 2, by=[sin_bnd(arb(0,0.1))(RealVal(0))])
     |= Real.sin(0) <= 2
     >>> prove(real.sin(3.14) <= 0.02, by=[sin_bnd(arb(3.14, 0.01))])

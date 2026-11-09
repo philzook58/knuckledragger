@@ -172,6 +172,7 @@ def cumsum_zero(l):
     # n < 0
     l.fix()
     l.intros()
+    l.intros()
     l.unfold(cumsum)
     l.auto()
 
@@ -181,6 +182,7 @@ def cumsum_zero(l):
 
     # n > 0
     l.fix()
+    l.intros()
     l.intros()
     l.unfold(cumsum)
     l.auto()
@@ -277,6 +279,7 @@ def cumsum_mono(l):
     # n > 0
     _n = l.fix()
     l.intros()
+    l.intros()
     l.simp()
     l.intros()
     l.unfold(cumsum)
@@ -292,6 +295,7 @@ def cumsum_add(l):
     # The negative and positive steps both reduce to linear arithmetic.
     l.fix()
     l.intros()
+    l.intros()
     l.unfold(cumsum)
     l.auto(by=[add.defn(a, b)])
 
@@ -301,6 +305,7 @@ def cumsum_add(l):
 
     # Positive step
     l.fix()
+    l.intros()
     l.intros()
     l.unfold(cumsum)
     l.auto(by=[add.defn(a, b)])
@@ -347,7 +352,7 @@ def max_prefix_bound(l):
     l.auto(by=[max.defn])  # n == 0. Kind of weird that we lose the equality...
     n = l.fix()
     l.intros()
-    l.split(at=0)
+    l.intros()
     l.simp(at=-1)
     i = Int("i")
     l.have(ForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]), by=[])
@@ -381,9 +386,10 @@ def max_suffix_bound(l):
     n = l.fix()
     l.intros()
     l.intros()
+    l.intros()
     i = l.fix()
     l.intros()
-    l.split(at=0)
+    l.intros()
     l.cases(i == n - 1)
     l.have(i == n - 1, by=[])
     l.unfold(max)
@@ -515,7 +521,7 @@ def abs_le_finsum_abs(l):
     l.intros()
     n = l.fix()
     l.intros()
-    l.split(at=-1)
+    l.intros()
     l.have(n == 0, by=[])
     l.rw(-1)
     l.unfold(finsum)
@@ -527,10 +533,11 @@ def abs_le_finsum_abs(l):
     N = l.fix()
     l.intros()
     l.intros()
+    l.intros()
 
     n = l.fix()
     l.intros()
-    l.split(at=0)
+    l.intros()
 
     # Establish the shared recurrence before splitting the two cases.
     l.have(

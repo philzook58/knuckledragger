@@ -454,7 +454,8 @@ def Closed(S: smt.ArrayRef, f: smt.FuncDeclRef) -> smt.BoolRef:
     >>> x = Int("x")
     >>> prove(Closed(Lambda([x], x >= 0), (x + x).decl()))
     |= ForAll([x0!..., x1!...],
-              Implies(And(x0!... >= 0, x1!... >= 0), x0!... + x1!... >= 0))
+           Implies(x0!... >= 0,
+                   Implies(x1!... >= 0, x0!... + x1!... >= 0)))
     """
     xs = [FreshConst(f.domain(i), prefix="x" + str(i)) for i in range(f.arity())]
     return QForAll(xs, *[S(x) for x in xs], S(f(*xs)))

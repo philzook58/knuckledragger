@@ -142,7 +142,7 @@ def test_qforall():
     x, y = smt.Reals("x y")
     assert kd.QForAll([x], x > 0).eq(smt.ForAll([x], x > 0))
     assert kd.QForAll([x], x == 10, x == 14, x > 0).eq(
-        smt.ForAll([x], smt.Implies(smt.And(x == 10, x == 14), x > 0))
+        smt.ForAll([x], smt.Implies(x == 10, smt.Implies(x == 14, x > 0)))
     )
     assert kd.QForAll([x, y], x > 0, y > 0).eq(
         smt.ForAll([x, y], smt.Implies(x > 0, y > 0))

@@ -377,9 +377,10 @@ def induct_seq(a: smt.SeqRef, P) -> kd.kernel.Proof:
     |= Implies(And(Length(Empty(Seq(Int))) >= 0,
                 ForAll(z!..., Length(Unit(z!...)) >= 0),
                 ForAll([x!..., y!...],
-                       Implies(And(Length(x!...) >= 0,
-                                   Length(y!...) >= 0),
-                               Length(Concat(x!..., y!...)) >= 0))),
+                       Implies(Length(x!...) >= 0,
+                               Implies(Length(y!...) >= 0,
+                                       Length(Concat(x!..., y!...)) >=
+                                       0)))),
             Length(x) >= 0)
     """
     assert isinstance(a, smt.SeqRef)
@@ -465,7 +466,8 @@ def QImplies(*hyp_conc) -> smt.BoolRef:
 def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
     """Quantified ForAll
 
-    Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`
+    Shorthand for `ForAll(vars, Implies(hyp[0], Implies(hyp[1], ..., conc)))`.
+    Use an explicit `And` to group premises.
 
     If variables have a property `wf` attached, this is added as a hypothesis.
 
@@ -473,20 +475,12 @@ def QForAll(vs: list[smt.ExprRef], *hyp_conc) -> smt.BoolRef:
 
     >>> x,y = smt.Ints("x y")
     >>> QForAll([x,y], x > 0, y > 0, x + y > 0)
-    ForAll([x, y], Implies(And(x > 0, y > 0), x + y > 0))
+    ForAll([x, y], Implies(x > 0, Implies(y > 0, x + y > 0)))
 
     """
-    conc = hyp_conc[-1]
-    hyps = [v.assumes for v in vs if v.assumes is not None]
-    hyps.extend([v.wf() for v in vs if v.sort() in wf.methods])
-    hyps.extend(hyp_conc[:-1])
-    if len(hyps) == 0:
-        return smt.RawForAll(vs, conc)
-    elif len(hyps) == 1:
-        return smt.RawForAll(vs, smt.Implies(hyps[0], conc))
-    else:
-        hyp = smt.And(hyps)
-        return smt.RawForAll(vs, smt.Implies(hyp, conc))
+    assert hyp_conc
+    hyps = [v.wf() for v in vs if v.sort() in wf.methods]
+    return smt.ForAll(vs, *hyps, *hyp_conc)
 
 
 def QExists(vs: list[smt.ExprRef], *concs0) -> smt.BoolRef:

@@ -1157,7 +1157,7 @@ class ProofState:
             *[kdsympy.sympy_const(v) for v in vs],
         )
 
-    def obtain(self, n: int | smt.QuantifierRef) -> smt.ExprRef | list[smt.ExprRef]:
+    def obtain(self, n: int | smt.BoolRef) -> smt.ExprRef | list[smt.ExprRef]:
         """
         obtain opens an exists quantifier in context and returns the fresh eigenvariable.
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
@@ -1491,10 +1491,13 @@ class ProofState:
         else:
             vs = []
             body = rulethm
-        if smt.is_implies(body):
-            cond, body = body.children()
-        else:
-            cond = None
+        conditions = []
+        while smt.is_implies(body):
+            premise, body = body.children()
+            conditions.append(premise)
+        cond = None
+        if conditions:
+            cond = conditions[0] if len(conditions) == 1 else smt.And(conditions)
         if smt.is_eq(body):
             lhs, rhs = body.arg(0), body.arg(1)
             if rev:
