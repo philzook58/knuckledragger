@@ -36,6 +36,7 @@ uv pip install -e .[solvers,rust,pypcode,dev]
 from kdrag import Calc, Inductive, Proof, Theorem, axiom, cond, define, prove
 from kdrag.kernel import LemmaError
 import kdrag.notation as notation
+# smt is literally a reexporting of z3
 from kdrag.smt import (
     And, BitVec, Bools, Const, Consts, DeclareSort, ExprRef,
     ForAll, Function, Implies, Or, Real,
