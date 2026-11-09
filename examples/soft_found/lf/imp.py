@@ -693,7 +693,7 @@ esimp_ex1 = kdrw.esimp(
 )
 def plus2_spec(pf):
     st, st1, n, ev = pf.fixes()
-    pf.intros()
+    pf.intro()
     pf.cases(ev)
     pf.auto(by=BY_CEVAL)
 
@@ -707,7 +707,7 @@ def plus2_spec(pf):
 )
 def XtimesYinZ_spec(pf):
     st, st1, x, y, ev = pf.fixes()
-    pf.intros()
+    pf.intro()
     pf.cases(ev)
     pf.auto(by=BY_CEVAL)
 """

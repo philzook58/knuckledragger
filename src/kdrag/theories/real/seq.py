@@ -171,8 +171,8 @@ def cumsum_zero(l):
 
     # n < 0
     l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.unfold(cumsum)
     l.auto()
 
@@ -182,8 +182,8 @@ def cumsum_zero(l):
 
     # n > 0
     l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.unfold(cumsum)
     l.auto()
 
@@ -198,7 +198,7 @@ def cumsum_const(l):
 
     # n < 0
     # l.fix()
-    # l.intros()
+    # l.intro()
     # l.unfold(cumsum)
     # l.simp()
     l.auto()
@@ -209,8 +209,8 @@ def cumsum_const(l):
 
     # n > 0
     n = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.unfold(cumsum)
     # l.boolsimp() # boolsimp is not working well
     # l.simp()
@@ -244,7 +244,7 @@ def cumsum_smul(l):
     # TODO: These induction cases look disgusting with too many lambdas.
     l.fix()
     l.simp()
-    l.intros()
+    l.intro()
     l.unfold(cumsum, smul)
     l.simp()
     l.auto(by=[smul.defn, cumsum.defn])
@@ -268,7 +268,7 @@ def cumsum_smul(l):
 )
 def cumsum_mono(l):
     a, b, m = l.fixes()
-    l.intros()
+    l.intro()
     l.induct(m)
     _n = l.fix()
     l.auto()
@@ -278,10 +278,10 @@ def cumsum_mono(l):
 
     # n > 0
     _n = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.simp()
-    l.intros()
+    l.intro()
     l.unfold(cumsum)
     l.auto(by=[cumsum.defn])
 
@@ -294,8 +294,8 @@ def cumsum_add(l):
     # Unfold only the outer recurrence, preserving the induction hypothesis.
     # The negative and positive steps both reduce to linear arithmetic.
     l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.unfold(cumsum)
     l.auto(by=[add.defn(a, b)])
 
@@ -305,8 +305,8 @@ def cumsum_add(l):
 
     # Positive step
     l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.unfold(cumsum)
     l.auto(by=[add.defn(a, b)])
 
@@ -346,19 +346,19 @@ def max_ge_self(l):
 )
 def max_prefix_bound(l):
     a, n = l.fixes()
-    # l.intros()
+    # l.intro()
     l.induct(n)  # Some weird stuff happened here
     l.auto()  # n < 0
     l.auto(by=[max.defn])  # n == 0. Kind of weird that we lose the equality...
     n = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.simp(at=-1)
     i = Int("i")
     l.have(ForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]), by=[])
-    l.intros()
+    l.intro()
     i = l.fix()
-    l.intros()
+    l.intro()
     l.specialize(2, i)
     l.unfold(max)
     l.simp()
@@ -384,12 +384,12 @@ def max_suffix_bound(l):
     l.induct(n)
     # step: n <= 0 -> n - 1
     n = l.fix()
-    l.intros()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
+    l.intro()
     i = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.cases(i == n - 1)
     l.have(i == n - 1, by=[])
     l.unfold(max)
@@ -518,10 +518,10 @@ def abs_le_finsum_abs(l):
 
     l.induct(N, using=int_.induct_nat)
     # base case: N = 0
-    l.intros()
+    l.intro()
     n = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.have(n == 0, by=[])
     l.rw(-1)
     l.unfold(finsum)
@@ -531,13 +531,13 @@ def abs_le_finsum_abs(l):
 
     # step: N >= 0, IH -> N + 1
     N = l.fix()
-    l.intros()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
+    l.intro()
 
     n = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
 
     # Establish the shared recurrence before splitting the two cases.
     l.have(
@@ -646,8 +646,8 @@ def has_lim_inv(l):
 @Theorem("forall (a : RSeq) (x y : Real), has_lim a x -> has_lim a y -> x = y")
 def lim_unique(l):
     a, x, y = l.fixes()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.contra()
     eps = real.abs(x - y) / 2
     l.unfold(has_lim, at=0)

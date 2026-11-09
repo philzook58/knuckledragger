@@ -151,7 +151,7 @@ Group.register(
 # id_unique2 = c.qed()
 l = Lemma(QForAll([x], QForAll([y], x * y == y), x == e))
 _x = l.fix()
-l.intros()
+l.intro()
 l.eq(_x * e)
 l.eq(_x, by=[id_right(_x)])
 id_unique2 = l.qed()

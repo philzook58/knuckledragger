@@ -38,7 +38,7 @@ import kdrag.theories.nat as nat
 m, n = Consts("m n", nat.Nat)
 l = Lemma(QForAll([n, m], n == m, n == m))
 _n, _m = l.fixes()
-l.intros()
+l.intro()
 
 # %%
 # (** Here, we could finish with "[rewrite -> eq.  reflexivity.]" as we
@@ -79,7 +79,6 @@ l = Lemma(
 )
 _n, _m, _o, _p = l.fixes()
 l.intros()
-l.intros()
 l.apply(1)
 l.apply(0)
 silly2 = l.qed()
@@ -112,7 +111,6 @@ l = Lemma(
     )
 )
 _n, _m = l.fixes()
-l.intros()
 l.intros()
 l.apply(1)
 l.apply(0)
@@ -155,7 +153,7 @@ silly2a = l.qed()
 
 l = Lemma(QForAll([n, m], n == m, m == n))
 _n, _m = l.fixes()
-l.intros()
+l.intro()
 l.symm()
 l.apply(0)
 silly3 = l.qed()
@@ -210,7 +208,6 @@ l = Lemma(
     )
 )
 _a, _b, _c, _d, _e, _f = l.fixes()
-l.intros()
 l.intros()
 l.rw(0)
 l.rw(1)

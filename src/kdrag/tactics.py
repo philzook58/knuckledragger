@@ -541,7 +541,7 @@ class ProofState:
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p,q))
         >>> l1 = l.copy()
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
@@ -563,7 +563,7 @@ class ProofState:
         >>> l = Lemma(smt.Implies(p,q))
         >>> l.push()
         [] ?|= Implies(p, q)
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
@@ -675,26 +675,26 @@ class ProofState:
 
     def qfix(self, prefix=None) -> smt.ExprRef:
         n = self.fix(prefix=prefix)
-        self.intros()
+        self.intro()
         return n
 
     def qfixes(self, prefixes=None) -> list[smt.ExprRef]:
         vs = self.fixes(prefixes=prefixes)
-        self.intros()
+        self.intro()
         return vs
 
-    def intros(self) -> smt.BoolRef:
+    def intro(self) -> smt.BoolRef:
         """
-        intros opens an implication. ?|= p -> q becomes p ?|= q
+        intro opens one implication. ?|= p -> q becomes p ?|= q
 
         >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Implies(p, q))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
         >>> l = Lemma(smt.Not(q))
-        >>> l.intros()
+        >>> l.intro()
         q
         >>> l
         [q] ?|= False
@@ -717,7 +717,7 @@ class ProofState:
         elif smt.is_distinct(goal):
             self.pop_goal()
             if goal.num_args() != 2:
-                raise NotImplementedError("Intros only implemented for two arguments")
+                raise NotImplementedError("Intro only implemented for two arguments")
             else:
                 hyp = smt.Eq(goal.arg(0), goal.arg(1))
                 self.goals.append(
@@ -738,10 +738,28 @@ class ProofState:
             return hyp
         elif isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             raise ValueError(
-                "Intros failed on goal. Use fixes/fix to open forall quantifier", goal
+                "Intro failed on goal. Use fixes/fix to open forall quantifier", goal
             )
         else:
-            raise ValueError("Intros failed on goal", goal)
+            raise ValueError("Intro failed on goal", goal)
+
+    def intros(self) -> list[smt.BoolRef]:
+        """Introduce all leading implications and return their premises in order.
+
+        Stop before quantifiers or other connectives. An explicit conjunction
+        remains one premise. With no leading implication, return an empty list.
+
+        >>> p,q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, smt.Implies(q, p)))
+        >>> l.intros()
+        [p, q]
+        >>> l
+        [p, q] ?|= p
+        """
+        hypotheses = []
+        while smt.is_implies(self.goal):
+            hypotheses.append(self.intro())
+        return hypotheses
 
     def splintro(self):
         """
@@ -752,7 +770,7 @@ class ProofState:
         >>> l.splintro()
         [p, q] ?|= p
         """
-        self.intros()
+        self.intro()
         return self.split(at=-1)
 
     def assumes(self, hyp: smt.BoolRef):
@@ -765,7 +783,7 @@ class ProofState:
         >>> l
         [p] ?|= q
         """
-        hyp1 = self.intros()
+        hyp1 = self.intro()
         if hyp1.eq(hyp):
             return hyp
         else:
@@ -825,12 +843,12 @@ class ProofState:
 
         >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Implies(smt.And(p, smt.Not(q)), smt.And(q, p, r)))
-        >>> l.intros()
+        >>> l.intro()
         And(p, Not(q))
         >>> l.boolsimp()
         [And(p, Not(q)), p == True, And(q, p, r) == False, q == False] ?|= False
         >>> l = Lemma(smt.Implies(p, smt.If(smt.Not(p), p, q) == r))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l.boolsimp()
         [p, p == True, Not(p) == False] ?|= If(False, True, q) == r
@@ -877,7 +895,7 @@ class ProofState:
 
         >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Implies(smt.And(p, smt.Implies(p, q)), r))
-        >>> _  = l.intros()
+        >>> _  = l.intro()
         >>> l.split(at=0)
         [p, Implies(p, q)] ?|= r
         >>> l.forward(1)
@@ -904,7 +922,7 @@ class ProofState:
         Use egraph based equality modulo theories to simplify the goal.
         >>> x, y, z, w = smt.Ints("x y z w")
         >>> l = Lemma(smt.Implies(x + y + 1 == z, x + y + 1 == w))
-        >>> l.intros()
+        >>> l.intro()
         x + y + 1 == z
         >>> l
         [x + y + 1 == z] ?|= x + y + 1 == w
@@ -1040,7 +1058,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(smt.And(p, smt.Not(p)), q))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> l
         [And(p, Not(p))] ?|= q
         >>> _ = l.impossible().qed()
@@ -1137,7 +1155,7 @@ class ProofState:
 
         >>> x,y,z = smt.Reals("x y z")
         >>> l = Lemma(smt.Implies(smt.And(x + y == 10, y + z == 4), True))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> _ = l.split(at=0)
         >>> l.solve(x,z)
         {x: 10 - y, z: 4 - y}
@@ -1164,7 +1182,7 @@ class ProofState:
 
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
-        >>> l.intros()
+        >>> l.intro()
         Exists(x, x*x == y)
         >>> l
         [Exists(x, x*x == y)] ?|= y >= 0
@@ -1172,7 +1190,7 @@ class ProofState:
         >>> l
         [...] ; [...*... == y] ?|= y >= 0
         >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> _x = l.obtain(smt.Exists([x], x * x == y))
         """
         goalctx = self.top_goal()
@@ -1212,7 +1230,7 @@ class ProofState:
         >>> kd.contract(succ, [x], x >= 0, succ(x) >= 0, by=[succ.defn])
         |= ForAll(x, Implies(x >= 0, mysucc72(x) >= 0))
         >>> l = Lemma(smt.Implies(smt.And(x >= 0, succ(x) >= 0), succ(succ(x)) >= 0))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> l.contract()
         [And(x >= 0, mysucc72(x) >= 0),
         Implies(mysucc72(x) >= 0, mysucc72(mysucc72(x)) >= 0),
@@ -1237,7 +1255,7 @@ class ProofState:
 
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))
-        >>> hyp = l.intros()
+        >>> hyp = l.intro()
         >>> hyp
         ForAll(x, x == y)
         >>> l
@@ -1301,7 +1319,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(smt.And(p, q), p))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> p,q = l.andE(0)
         >>> l
         [p, q] ?|= p
@@ -1467,7 +1485,7 @@ class ProofState:
         >>> x = kd.FreshVar("x", smt.RealSort())
         >>> pf = kd.prove(smt.Implies(x >= 0, smt.Sqrt(x) ** 2 == x)).forall([x])
         >>> l = Lemma(smt.Implies(x >= 0, smt.Sqrt(x + 2)**2 == x + 2))
-        >>> l.intros()
+        >>> l.intro()
         x!... >= 0
         >>> l
         [x!... >= 0] ?|= ((x!... + 2)**(1/2))**2 == x!... + 2
@@ -1589,7 +1607,7 @@ class ProofState:
         >>> l.beta()
         [] ?|= 3 + 1 == 4
         >>> l = Lemma(smt.Implies(smt.Lambda([x], x + 1)[3] == 5, True))
-        >>> l.intros()
+        >>> l.intro()
         Lambda(x, x + 1)[3] == 5
         >>> l
         [Lambda(x, x + 1)[3] == 5] ?|= True
@@ -1693,7 +1711,7 @@ class ProofState:
 
         >>> x,y = smt.Ints("x y")
         >>> l = kd.Lemma(smt.Implies(smt.Implies(x == 7, y == 3), y == 3))
-        >>> l.intros()
+        >>> l.intro()
         Implies(x == 7, y == 3)
         >>> l
         [Implies(x == 7, y == 3)] ?|= y == 3
@@ -1706,7 +1724,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = kd.Lemma(smt.Implies(smt.Not(p), q))
-        >>> l.intros()
+        >>> l.intro()
         Not(p)
         >>> l
         [Not(p)] ?|= q
@@ -1799,7 +1817,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p, q))
-        >>> h = l.intros()
+        >>> h = l.intro()
         >>> l
         [p] ?|= q
         >>> l.clear(h)
@@ -1827,7 +1845,7 @@ class ProofState:
         Move a hypothesis back onto the goal as an implication.
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p, q))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
@@ -1911,7 +1929,7 @@ class ProofState:
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, smt.And(x > -2, x > -1)))
-        >>> l.intros()
+        >>> l.intro()
         x > 0
         >>> l
         [x > 0] ?|= And(x > -2, x > -1)
@@ -1979,7 +1997,7 @@ class ProofState:
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, x > -2))
-        >>> l.intros()
+        >>> l.intro()
         x > 0
         >>> l
         [x > 0] ?|= x > -2
@@ -2053,12 +2071,12 @@ class ProofState:
         """
         >>> p = smt.Bool("p")
         >>> l = Lemma(smt.Implies(p, smt.Implies(p, p)))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= Implies(p, p)
         >>> l = Lemma(smt.Implies(p, smt.Implies(p, p)))
-        >>> l.repeat(lambda: l.intros())
+        >>> l.repeat(lambda: l.intro())
         p
         >>> l
         [p, p] ?|= p

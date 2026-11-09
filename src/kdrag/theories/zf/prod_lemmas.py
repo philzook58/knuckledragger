@@ -28,7 +28,7 @@ def elem_prod_strong(l):
     l.split()
 
     # -> direction: use elem_prod and pick fst/snd as witnesses.
-    l.intros()
+    l.intro()
     l.rw(zf.elem_prod, at=0)
     l.split(at=0)
     l.exists(zf.fst(p), zf.snd(p))
@@ -37,7 +37,7 @@ def elem_prod_strong(l):
     l.auto()
 
     # <- direction: use the witnesses to rebuild the fst/snd form.
-    l.intros()
+    l.intro()
     x1, y1 = l.obtain(0)
     l.split(at=0)
     l.rw(zf.elem_prod)
@@ -85,10 +85,10 @@ def elem_prod_fst_snd_eq(l):
 )
 def rel_le_prod(l):
     R = l.fix()
-    l.intros()
+    l.intro()
     l.unfold(zf.le)
     p = l.fix()
-    l.intros()
+    l.intro()
 
     # Use relation-ness to extract pair witnesses for p.
     l.unfold(zf.is_rel, at=0)
@@ -175,7 +175,7 @@ def prod_union_left(l):
     l.split()
 
     # -> : element of prod(A | B, X) is in prod(A, X) or prod(B, X)
-    l.intros()
+    l.intro()
     l.rw(zf.elem_prod, at=0)
     l.split(at=0)
     l.rw(zf.elem_union, at=0)
@@ -189,7 +189,7 @@ def prod_union_left(l):
     l.auto()
 
     # <- : element of prod(A, X) or prod(B, X) is in prod(A | B, X)
-    l.intros()
+    l.intro()
     l.split(at=0)
 
     l.rw(zf.elem_prod, at=0)
@@ -213,7 +213,7 @@ def prod_union_left(l):
 )
 def prod_inter_le(l):
     A, B, X, Y, p = l.fixes()
-    l.intros()
+    l.intro()
     l.rw(zf.elem_prod, at=0)
     l.split(at=0)
     l.rw(zf.elem_inter, at=0)
@@ -239,7 +239,7 @@ def prod_inter_le(l):
 )
 def prod_inter_ge(l):
     A, B, X, Y, p = l.fixes()
-    l.intros()
+    l.intro()
     l.rw(zf.elem_inter, at=0)
     l.split(at=0)
 
@@ -271,7 +271,7 @@ def prod_inter_dist(l):
     l.split()
 
     # left -> right
-    l.intros()
+    l.intro()
     l.rw(zf.elem_prod, at=0)
     l.split(at=0)
     l.rw(zf.elem_inter, at=0)
@@ -286,7 +286,7 @@ def prod_inter_dist(l):
     l.auto()
 
     # right -> left
-    l.intros()
+    l.intro()
     l.rw(zf.elem_inter, at=0)
     l.split(at=0)
 
@@ -319,7 +319,7 @@ def prod_union_right(l):
     l.split()
 
     # -> : element of prod(X, A | B) is in prod(X, A) or prod(X, B)
-    l.intros()
+    l.intro()
     l.rw(zf.elem_prod, at=0)
     l.split(at=0)
     l.rw(zf.elem_union, at=1)
@@ -333,7 +333,7 @@ def prod_union_right(l):
     l.auto()
 
     # <- : element of prod(X, A) or prod(X, B) is in prod(X, A | B)
-    l.intros()
+    l.intro()
     l.split(at=0)
 
     l.rw(zf.elem_prod, at=0)

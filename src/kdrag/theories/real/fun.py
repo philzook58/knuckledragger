@@ -24,7 +24,7 @@ is_linear = define("is_linear", [f], Linear(f))
 def linear_add(l):
     f, g = l.fixes()
     l.unfold()
-    hf, hg = l.intros(), l.intros()
+    hf, hg = l.intros()
     l.andE(hf)
     l.andE(hg)
     l.split()
@@ -46,7 +46,7 @@ def linear_add(l):
 def linear_smul(l):
     f, c = l.fixes()
     l.unfold()
-    h = l.intros()
+    h = l.intro()
     l.split(at=h)
     l.split()
 
