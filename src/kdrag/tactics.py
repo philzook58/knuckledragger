@@ -497,35 +497,6 @@ def _modus_ponens() -> kd.kernel.Proof:
     )
 
 
-def _specialize_forall(
-    thm: smt.QuantifierRef, args: Sequence[Any]
-) -> tuple[smt.BoolRef, list[kd.kernel.Proof]]:
-    if len(args) != thm.num_vars():
-        raise ValueError("Specialize requires a term for each quantified variable")
-    if any(isinstance(arg, kd.Proof) for arg in args):
-        raise TypeError("Expected terms for quantified variables, not Proofs")
-    terms = [thm.var_sort(i).cast(arg) for i, arg in enumerate(args)]
-    lemma = kd.kernel.specialize(terms, thm)
-    return lemma.thm.arg(1), [lemma]
-
-
-def _specialize_implies(
-    thm: smt.BoolRef, arg: smt.BoolRef | kd.kernel.Proof, goalctx: Goal
-) -> tuple[smt.BoolRef, list[kd.kernel.Proof]]:
-    if isinstance(arg, kd.Proof):
-        premise, lemmas = arg.thm, [arg]
-    elif isinstance(arg, smt.BoolRef):
-        _, premise = goalctx.ctx_find(arg)
-        lemmas = []
-    else:
-        raise TypeError("Implication arguments must be Proofs or context formulas")
-    if not thm.arg(0).eq(premise):
-        raise ValueError("Argument does not match implication premise", premise, thm)
-    conclusion = thm.arg(1)
-    lemma = kd.kernel.instan([premise, conclusion], _modus_ponens())
-    return conclusion, lemmas + [lemma]
-
-
 class ProofState:
     """
     A tactic class for interactive proofs.
@@ -1313,14 +1284,41 @@ class ProofState:
         while pos < len(ts):
             if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
                 count = thm.num_vars()
-                thm, step = _specialize_forall(thm, ts[pos : pos + count])
+                args = ts[pos : pos + count]
+                if len(args) != count:
+                    raise ValueError(
+                        "Specialize requires a term for each quantified variable"
+                    )
+                if any(isinstance(arg, kd.Proof) for arg in args):
+                    raise TypeError(
+                        "Expected terms for quantified variables, not Proofs"
+                    )
+                terms = [thm.var_sort(i).cast(arg) for i, arg in enumerate(args)]
+                lemma = kd.kernel.specialize(terms, thm)
+                lemmas.append(lemma)
+                thm = lemma.thm.arg(1)
+                pos += count
             elif smt.is_implies(thm):
-                count = 1
-                thm, step = _specialize_implies(thm, ts[pos], goalctx)
+                arg = ts[pos]
+                if isinstance(arg, kd.Proof):
+                    premise = arg.thm
+                    lemmas.append(arg)
+                elif isinstance(arg, smt.BoolRef):
+                    _, premise = goalctx.ctx_find(arg)
+                else:
+                    raise TypeError(
+                        "Implication arguments must be Proofs or context formulas"
+                    )
+                if not thm.arg(0).eq(premise):
+                    raise ValueError(
+                        "Argument does not match implication premise", premise, thm
+                    )
+                lemma = kd.kernel.instan([premise, thm.arg(1)], _modus_ponens())
+                lemmas.append(lemma)
+                thm = thm.arg(1)
+                pos += 1
             else:
                 raise ValueError("Specialize expected a forall or implication", thm)
-            lemmas.extend(step)
-            pos += count
         # Commit only after all arguments pass their checks.
         for lemma in lemmas:
             self.add_lemma(lemma)
