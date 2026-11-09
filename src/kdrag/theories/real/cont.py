@@ -293,19 +293,29 @@ continuous_at_abs = exact(
 )
 
 # A continuous function tends to its value at the point.
-has_lim_at_const = has_lim_at_of_cont_at(Lambda(x, a), p)(
-    continuous_at_const(a, p)
-).forall([a, p])
-has_lim_at_id = has_lim_at_of_cont_at(Lambda(x, x), p)(continuous_at_id(p)).forall([p])
-has_lim_at_add_const = has_lim_at_of_cont_at(Lambda(x, x + a), p)(
-    continuous_at_add_const(a, p)
-).forall([a, p])
-has_lim_at_sq = has_lim_at_of_cont_at(Lambda(x, x * x), p)(continuous_at_sq(p)).forall(
-    [p]
+has_lim_at_const = exact(
+    ForAll([a, p], has_lim_at(Lambda(x, a), p, Lambda(x, a)[p])),
+    has_lim_at_of_cont_at(Lambda(x, a), p, continuous_at_const(a, p)).forall([a, p]),
 )
-has_lim_at_cube = has_lim_at_of_cont_at(Lambda(x, x * x * x), p)(
-    continuous_at_cube(p)
-).forall([p])
-has_lim_at_abs = has_lim_at_of_cont_at(Lambda(x, abs(x)), p)(
-    continuous_at_abs(p)
-).forall([p])
+has_lim_at_id = exact(
+    ForAll(p, has_lim_at(Lambda(x, x), p, Lambda(x, x)[p])),
+    has_lim_at_of_cont_at(Lambda(x, x), p, continuous_at_id(p)).forall([p]),
+)
+has_lim_at_add_const = exact(
+    ForAll([a, p], has_lim_at(Lambda(x, x + a), p, Lambda(x, x + a)[p])),
+    has_lim_at_of_cont_at(Lambda(x, x + a), p, continuous_at_add_const(a, p)).forall(
+        [a, p]
+    ),
+)
+has_lim_at_sq = exact(
+    ForAll(p, has_lim_at(Lambda(x, x * x), p, Lambda(x, x * x)[p])),
+    has_lim_at_of_cont_at(Lambda(x, x * x), p, continuous_at_sq(p)).forall([p]),
+)
+has_lim_at_cube = exact(
+    ForAll(p, has_lim_at(Lambda(x, x * x * x), p, Lambda(x, x * x * x)[p])),
+    has_lim_at_of_cont_at(Lambda(x, x * x * x), p, continuous_at_cube(p)).forall([p]),
+)
+has_lim_at_abs = exact(
+    ForAll(p, has_lim_at(Lambda(x, abs(x)), p, Lambda(x, abs(x))[p])),
+    has_lim_at_of_cont_at(Lambda(x, abs(x)), p, continuous_at_abs(p)).forall([p]),
+)
