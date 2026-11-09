@@ -13,9 +13,9 @@ Z3 also has built in datalog. https://microsoft.github.io/z3guide/docs/fixedpoin
 
 
 def _compile_body(
-    vs: list[smt.ExprRef], body: smt.BoolRef
+    vs: list[smt.ExprRef], hyps: list[smt.BoolRef]
 ) -> tuple[dict, list[str], list[str]]:
-    todo = [body]
+    todo = list(hyps)
     env = {}
     froms = []
     wheres = []
@@ -52,7 +52,7 @@ def _compile_body(
 
 
 def _compile_rule(rule: rw.Rule) -> str:
-    env, froms, wheres = _compile_body(rule.vs, rule.hyp)
+    env, froms, wheres = _compile_body(rule.vs, rule.hyps)
     name = rule.conc.decl().name()
     selects = []
     for n, arg in enumerate(rule.conc.children()):

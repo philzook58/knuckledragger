@@ -495,8 +495,10 @@ def all_narrow(
 
 
 class Rule(NamedTuple):
+    """A universally quantified implication chain with ordered premises."""
+
     vs: list[smt.ExprRef]
-    hyp: smt.BoolRef
+    hyps: list[smt.BoolRef]
     conc: smt.BoolRef
     pf: Optional[kd.kernel.Proof] = None
 
@@ -504,9 +506,9 @@ class Rule(NamedTuple):
         """Freshen the rule by renaming variables.
 
         >>> x,y= smt.Reals("x y")
-        >>> rule = Rule([x], x > 0, x < 0)
+        >>> rule = Rule([x], [x > 0], x < 0)
         >>> rule.freshen()
-        Rule(vs=[x...], hyp=x... > 0, conc=x... < 0, pf=None)
+        Rule(vs=[x...], hyps=[x... > 0], conc=x... < 0, pf=None)
         """
         vs1 = [
             smt.FreshConst(v.sort(), prefix=v.decl().name().split("!")[0])
@@ -514,31 +516,31 @@ class Rule(NamedTuple):
         ]
         return Rule(
             vs1,
-            hyp=smt.substitute(self.hyp, *zip(self.vs, vs1)),
+            hyps=[smt.substitute(h, *zip(self.vs, vs1)) for h in self.hyps],
             conc=smt.substitute(self.conc, *zip(self.vs, vs1)),
             pf=self.pf,
         )
 
     def to_expr(self) -> smt.ExprRef | smt.QuantifierRef:
-        """Convert the rule to a theorem of form `forall vs, hyp => conc`.
+        """Convert the rule to `forall vs, h1 => ... => conc`.
 
         >>> x = smt.Real("x")
-        >>> Rule([x], x > 0, x < 0).to_expr()
+        >>> Rule([x], [x > 0], x < 0).to_expr()
         ForAll(x..., Implies(x... > 0, x... < 0))
         """
-        if len(self.vs) == 0:
-            return smt.Implies(self.hyp, self.conc)
-        else:
-            return smt.ForAll(self.vs, smt.Implies(self.hyp, self.conc))
+        body = self.conc
+        for hyp in reversed(self.hyps):
+            body = smt.Implies(hyp, body)
+        return smt.ForAll(self.vs, body) if self.vs else body
 
 
 def rule_of_expr_exact(pf: smt.ExprRef | kd.kernel.Proof) -> Optional[Rule]:
     """
-    Unpack _exactly_ theorem of form `forall vs, body => head` into a Rule tuple
+    Recognize a universally quantified implication chain.
 
     >>> x = smt.Real("x")
     >>> rule_of_expr_exact(smt.ForAll([x], smt.Implies(x**2 == x*x, x > 0)))
-    Rule(vs=[X...], hyp=X...**2 == X...*X..., conc=X... > 0, pf=None)
+    Rule(vs=[X...], hyps=[X...**2 == X...*X...], conc=X... > 0, pf=None)
     >>> assert rule_of_expr_exact(x > 0) is None
     """
     if isinstance(pf, kd.kernel.Proof):
@@ -551,13 +553,13 @@ def rule_of_expr_exact(pf: smt.ExprRef | kd.kernel.Proof) -> Optional[Rule]:
 
 
 def rule_of_expr(pf_or_thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
-    """Unpack theorem of form `forall vs, body => head` into a Rule tuple
+    """Unpack the right-hand implication chain, preserving explicit conjunctions.
 
     >>> x = smt.Real("x")
     >>> rule_of_expr(smt.ForAll([x], smt.Implies(x**2 == x*x, x > 0)))
-    Rule(vs=[X...], hyp=X...**2 == X...*X..., conc=X... > 0, pf=None)
+    Rule(vs=[X...], hyps=[X...**2 == X...*X...], conc=X... > 0, pf=None)
     >>> rule_of_expr(x > 0)
-    Rule(vs=[], hyp=True, conc=x > 0, pf=None)
+    Rule(vs=[], hyps=[], conc=x > 0, pf=None)
     """
     if isinstance(pf_or_thm, smt.ExprRef):
         thm = pf_or_thm
@@ -575,12 +577,8 @@ def rule_of_expr(pf_or_thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
     while smt.is_implies(thm):
         hyp, thm = thm.children()
         hyps.append(hyp)
-    if not hyps:
-        hyp = smt.BoolVal(True)
-    else:
-        hyp = hyps[0] if len(hyps) == 1 else smt.And(hyps)
     assert isinstance(thm, smt.BoolRef)
-    return Rule(vs, hyp=hyp, conc=thm, pf=pf)
+    return Rule(vs, hyps=hyps, conc=thm, pf=pf)
 
 
 def backward_rule(
@@ -589,7 +587,7 @@ def backward_rule(
     """
     Apply a rule to a target term.
     """
-    hyps = list(r.hyp.children()) if smt.is_and(r.hyp) else [r.hyp]
+    hyps = list(r.hyps)
     conc = r.conc
     # Also match an implication goal against a curried suffix of the rule.
     while True:
@@ -609,7 +607,11 @@ def forward_rule(r: Rule, tgt: smt.BoolRef):
     """
     Apply a rule to a target term.
     """
-    subst = kd.utils.pmatch(r.vs, r.hyp, tgt)
+    if not r.hyps:
+        hyp = smt.BoolVal(True)
+    else:
+        hyp = r.hyps[0] if len(r.hyps) == 1 else smt.And(r.hyps)
+    subst = kd.utils.pmatch(r.vs, hyp, tgt)
     if subst is not None:
         return smt.substitute(r.conc, *subst.items())
     else:

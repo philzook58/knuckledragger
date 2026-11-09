@@ -88,11 +88,12 @@ class EgglogSolver:
                 cmd = f"(rewrite {z3_to_egglog(rw.lhs, vars=rw.vs)} {z3_to_egglog(rw.rhs, vars=rw.vs)})"
                 self.run_cmd(cmd)
             elif (clause := kd.rewrite.rule_of_expr_exact(rule)) is not None:
-                vs, hyp, conc = clause.vs, clause.hyp, clause.conc
-                if smt.is_and(hyp):
-                    hyps = hyp.children()
-                else:
-                    hyps = [hyp]
+                vs, conc = clause.vs, clause.conc
+                hyps = [
+                    h
+                    for hyp in clause.hyps
+                    for h in (hyp.children() if smt.is_and(hyp) else [hyp])
+                ]
                 if smt.is_and(conc):
                     concs = conc.children()
                 else:
