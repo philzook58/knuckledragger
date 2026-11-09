@@ -882,34 +882,6 @@ class ProofState:
         self.goals[-1] = goalctx._replace(ctx=newctx, goal=newgoal)
         return self
 
-    def forward(self, n: int | smt.BoolRef) -> smt.BoolRef:
-        """
-        Remove the hypothesis of an implication in the context
-
-        >>> p,q,r = smt.Bools("p q r")
-        >>> l = Lemma(smt.Implies(smt.And(p, smt.Implies(p, q)), r))
-        >>> _  = l.intros()
-        >>> l.split(at=0)
-        [p, Implies(p, q)] ?|= r
-        >>> l.forward(1)
-        q
-        >>> l
-        [p, q] ?|= r
-        """
-        # TODO: extra by paramters? Give an exact index to use modus ponens?
-        goalctx = self.top_goal()
-        (at, formula) = goalctx.ctx_find(n)
-        if smt.is_implies(formula):
-            hyp, conc = formula.children()
-            self.have(hyp, by=[])
-            self.clear(-1)
-            self.goals[-1] = goalctx._replace(
-                ctx=goalctx.ctx[:at] + [conc] + goalctx.ctx[at + 1 :]
-            )
-            return conc
-        else:
-            raise ValueError("forward failed. Not an implication", formula)
-
     def emt(self):
         """
         Use egraph based equality modulo theories to simplify the goal.
