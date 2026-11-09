@@ -136,7 +136,7 @@ List = List.create()
 
 ### Quantifier Helpers
 
-- `kd.QForAll([x], hyp, body)` → `ForAll([x], Implies(hyp, body))`
+- `ForAll([x], h1, h2, body)` and `kd.QForAll([x], h1, h2, body)` curry premises as `∀ x, h1 → h2 → body`. Use an explicit `And(h1, h2)` for a grouped premise.
 - `kd.QExists([x], hyp, body)` → `Exists([x], And(hyp, body))`
 - `kd.QImplies(hyp, conc)` → sugar for conditional implications
 

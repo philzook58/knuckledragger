@@ -120,6 +120,7 @@ def test_sheffer():
     l = kd.Lemma(kd.QForAll([a, b], sup(a, b) == top, inf(a, b) == bot, b == ~a))
     _a, _b = l.fixes()
     l.intros()
+    l.intros()
     l.symm()
     l.eq(inf(_b, top), by=[ident2])
     l.eq(inf(_b, sup(_a, ~_a)), by=[compl1])
@@ -151,6 +152,7 @@ def test_sheffer():
 
     l = kd.Lemma(kd.QForAll([a, b], sup(a, ~b) == top, inf(a, ~b) == bot, a == b))
     _a, _b = l.fixes()
+    l.intros()
     l.intros()
     l.have(~_b == ~_a, by=[inv])
     l.apply(inv_elim)

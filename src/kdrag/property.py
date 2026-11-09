@@ -126,7 +126,7 @@ def Refl(rel) -> smt.BoolRef:
 def Antisymm(rel) -> smt.BoolRef:
     """
     >>> Antisymm(smt.Function("rel", smt.IntSort(), smt.IntSort(), smt.BoolSort()))
-    ForAll([x, y], Implies(And(rel(x, y), rel(y, x)), x == y))
+    ForAll([x, y], Implies(rel(x, y), Implies(rel(y, x), x == y)))
     """
     T = rel.domain(0)
     x, y = smt.Consts("x y", T)
@@ -136,7 +136,7 @@ def Antisymm(rel) -> smt.BoolRef:
 def Trans(rel) -> smt.BoolRef:
     """
     >>> Trans(smt.Function("rel", smt.IntSort(), smt.IntSort(), smt.BoolSort()))
-    ForAll([x, y, z], Implies(And(rel(x, y), rel(y, z)), rel(x, z)))
+    ForAll([x, y, z], Implies(rel(x, y), Implies(rel(y, z), rel(x, z))))
     """
     T = rel.domain(0)
     x, y, z = smt.Consts("x y z", T)

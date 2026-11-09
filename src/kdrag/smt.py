@@ -202,11 +202,12 @@ def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     """
     Quantified ForAll
 
-    Shorthand for `ForAll(vars, Implies(And(hyp[0], hyp[1], ...), conc))`
+    Shorthand for `ForAll(vars, Implies(hyp[0], Implies(hyp[1], ..., conc)))`.
+    Use an explicit `And` to group premises.
 
     >>> x,y = Ints("x y")
     >>> ForAll([x,y], x > 0, y > 0, x + y > 0)
-    ForAll([x, y], Implies(And(x > 0, y > 0), x + y > 0))
+    ForAll([x, y], Implies(x > 0, Implies(y > 0, x + y > 0)))
     >>> x = Const("x", Lambda([x], x >= 0))
     >>> ForAll([x], x > 3)
     ForAll(x, Implies(x >= 0, x > 3))
@@ -219,14 +220,11 @@ def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
         hyp_conc0 = hyp_conc
         hyp_conc = [v.assumes for v in vs if v.assumes is not None]
         hyp_conc.extend(hyp_conc0)
-    l = len(hyp_conc)
-    assert l > 0
-    if l == 1:
-        return RawForAll(vs, hyp_conc[0], **kwargs)
-    elif l == 2:
-        return RawForAll(vs, Implies(hyp_conc[0], hyp_conc[1]), **kwargs)
-    else:
-        return RawForAll(vs, Implies(And(hyp_conc[:-1]), hyp_conc[-1]), **kwargs)
+    assert hyp_conc
+    body = hyp_conc[-1]
+    for hyp in reversed(hyp_conc[:-1]):
+        body = Implies(hyp, body)
+    return RawForAll(vs, body, **kwargs)
 
 
 def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:

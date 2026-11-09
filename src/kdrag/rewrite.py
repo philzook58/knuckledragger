@@ -545,14 +545,9 @@ def rule_of_expr_exact(pf: smt.ExprRef | kd.kernel.Proof) -> Optional[Rule]:
         thm = pf.thm
     else:
         thm = pf
-    if isinstance(thm, smt.QuantifierRef):
-        if thm.is_forall():
-            vs, body = utils.open_binder(thm)
-            if smt.is_implies(body):
-                hyp, conc = body.children()
-                return Rule(
-                    vs, hyp, conc, pf=pf if isinstance(pf, kd.kernel.Proof) else None
-                )
+    if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+        if smt.is_implies(thm.body()):
+            return rule_of_expr(pf)
 
 
 def rule_of_expr(pf_or_thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
@@ -576,11 +571,16 @@ def rule_of_expr(pf_or_thm: smt.ExprRef | kd.kernel.Proof) -> Rule:
         vs, thm = utils.open_binder(thm)
     else:
         vs = []
-    if smt.is_implies(thm):
-        return Rule(vs, hyp=thm.arg(0), conc=thm.arg(1), pf=pf)
+    hyps = []
+    while smt.is_implies(thm):
+        hyp, thm = thm.children()
+        hyps.append(hyp)
+    if not hyps:
+        hyp = smt.BoolVal(True)
     else:
-        assert isinstance(thm, smt.BoolRef)
-        return Rule(vs, hyp=smt.BoolVal(True), conc=thm, pf=pf)
+        hyp = hyps[0] if len(hyps) == 1 else smt.And(hyps)
+    assert isinstance(thm, smt.BoolRef)
+    return Rule(vs, hyp=hyp, conc=thm, pf=pf)
 
 
 def backward_rule(
@@ -589,11 +589,20 @@ def backward_rule(
     """
     Apply a rule to a target term.
     """
-    subst = kd.utils.pmatch(r.vs, r.conc, tgt)
-    if subst is not None:
-        return subst, smt.substitute(r.hyp, *subst.items())
-    else:
-        return None
+    hyps = list(r.hyp.children()) if smt.is_and(r.hyp) else [r.hyp]
+    conc = r.conc
+    # Also match an implication goal against a curried suffix of the rule.
+    while True:
+        subst = kd.utils.pmatch(r.vs, conc, tgt)
+        if subst is not None:
+            if not hyps:
+                hyp = smt.BoolVal(True)
+            else:
+                hyp = hyps[0] if len(hyps) == 1 else smt.And(hyps)
+            return subst, smt.substitute(hyp, *subst.items())
+        if not hyps:
+            return None
+        conc = smt.Implies(hyps.pop(), conc)
 
 
 def forward_rule(r: Rule, tgt: smt.BoolRef):
