@@ -4,11 +4,14 @@ import kdrag as kd
 import kdrag.smt as smt
 
 
-def test_exists_abstracts_multiple_terms():
+@pytest.mark.parametrize("prefix", ["w", "witness"])
+def test_exists_abstracts_multiple_terms(prefix):
     two, three = smt.IntVal(2), smt.IntVal(3)
     x, y = smt.Ints("exists_x exists_y")
-    pf = kd.prove(two + three == 5).exists([two, three])
+    pf = kd.prove(two + three == 5).exists([two, three], prefix=prefix)
     assert kd.utils.alpha_eq(pf.thm, smt.Exists([x, y], x + y == 5))
+    assert all(pf.thm.var_name(i).startswith(prefix + "!") for i in range(2))
+    assert pf.thm.var_name(0) != pf.thm.var_name(1)
 
 
 def test_exists_abstracts_overlapping_terms_simultaneously():

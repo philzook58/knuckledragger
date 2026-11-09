@@ -62,16 +62,16 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def exists(self, terms: Sequence[smt.ExprRef]) -> "Proof":
+    def exists(self, terms: Sequence[smt.ExprRef], prefix: str = "w") -> "Proof":
         """Abstract matching occurrences of terms and introduce an existential.
 
         >>> three = smt.IntVal(3)
-        >>> prove(three > 0).exists([three])
-        |= Exists(..., ... > 0)
+        >>> prove(three > 0).exists([three], prefix="witness")
+        |= Exists(witness!..., witness!... > 0)
         """
         if not terms or not all(isinstance(t, smt.ExprRef) for t in terms):
             raise TypeError("exists expects a nonempty sequence of SMT terms")
-        vs = [smt.FreshConst(t.sort(), prefix="w") for t in terms]
+        vs = [smt.FreshConst(t.sort(), prefix=prefix) for t in terms]
         body = smt.substitute(self.thm, *zip(terms, vs))
         introduction = forget(terms, smt.RawExists(vs, body))
         if not introduction.thm.arg(0).eq(self.thm):
