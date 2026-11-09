@@ -358,8 +358,6 @@ def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
     """
     if not isinstance(thm, smt.BoolRef) or not isinstance(pf, kd.Proof):
         raise TypeError("exact expects a statement and a Proof")
-    if pf.thm.eq(thm):
-        return pf
     if kd.utils.alpha_eq(pf.thm, thm):
         return pf
     vs = []
