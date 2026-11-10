@@ -141,9 +141,11 @@ def test_contextual_application_does_not_turn_a_false_premise_into_a_theorem():
         ScopedProof.from_proof(lemma, ctx)(a, a > 0)
     with pytest.raises(TypeError, match="sort"):
         ScopedProof.from_proof(lemma, ctx)(smt.IntVal(1))
+    conditional = prove(a > 0, ctx=ctx + (Hyp(a > 0),))
+    result = ScopedProof.from_proof(lemma, ctx)(a, conditional)
+    # Application may enter the argument's richer context, but cannot export it.
     with pytest.raises(ValueError, match="prefix"):
-        wrong_context = prove(a > 0, ctx=ctx + (Hyp(a > 0),))
-        ScopedProof.from_proof(lemma, ctx)(a, wrong_context)
+        prove(a + 1 > 0, ctx=ctx, by=[result])
 
 
 def test_named_roundtrip_can_be_reused_in_another_variable_context():

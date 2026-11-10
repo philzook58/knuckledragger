@@ -3,8 +3,11 @@
 No FreshVar registry or new trusted rules. All-variable application/weakening
 compile through the old kernel's Herbrand and instantiation rules. Other
 structural transformations currently use Z3; this is an API prototype.
+ScopedExpr carries the same contexts through terms and Boolean propositions;
+raw Z3 calls cross an explicit lift boundary, rather than silently losing scope.
 """
 
+import operator as op
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
@@ -66,6 +69,106 @@ def _same_context(left: Context, right: Context) -> bool:
         elif not (isinstance(a, Hyp) and isinstance(b, Hyp) and a.thm.eq(b.thm)):
             return False
     return True
+
+
+def _check_extension(source: Context, target: Context, term: smt.ExprRef) -> None:
+    _validate(target)
+    if not _same_context(source, target[: len(source)]):
+        raise ValueError("Weakening requires an identical context prefix")
+    for entry in target[len(source) :]:
+        if isinstance(entry, Vars) and not _absent(entry.vs, term):
+            raise ValueError("Weakening would capture a free constant")
+
+
+@dataclass(frozen=True, eq=False)
+class ScopedExpr:
+    """A term in an explicit context; a Boolean term is not a proof."""
+
+    ctx: Context
+    raw: smt.ExprRef
+
+    def __post_init__(self):
+        _validate(self.ctx)
+        if not isinstance(self.raw, smt.ExprRef):
+            raise TypeError("Expected a Z3 expression")
+
+    def __repr__(self):
+        return f"{self.ctx} |- {self.raw} : {self.raw.sort()}"
+
+    def __bool__(self):
+        raise TypeError("Scoped expressions are not Python booleans")
+
+    def weaken(self, ctx: Context) -> "ScopedExpr":
+        _check_extension(self.ctx, ctx, self.raw)
+        return self if _same_context(self.ctx, ctx) else ScopedExpr(ctx, self.raw)
+
+    def assume(self) -> Context:
+        """Extend this term's context with it as a Boolean hypothesis."""
+        if not isinstance(self.raw, smt.BoolRef):
+            raise TypeError("Only a Boolean expression can be assumed")
+        return self.ctx + (Hyp(self.raw),)
+
+    def close(self) -> "ScopedExpr":
+        """Close a Boolean proposition using one ForAll/Implies layer."""
+        if not isinstance(self.raw, smt.BoolRef) or not self.ctx:
+            raise ValueError("close requires a Boolean expression and a context")
+        return ScopedExpr(self.ctx[:-1], internalize(self.ctx[-1:], self.raw))
+
+    def lambda_(self) -> "ScopedExpr":
+        """Abstract the final variable block into a function, preserving its arity."""
+        if not self.ctx or not isinstance(self.ctx[-1], Vars):
+            raise ValueError("lambda_ requires a final Vars block, not a hypothesis")
+        return ScopedExpr(self.ctx[:-1], smt.Lambda(self.ctx[-1].vs, self.raw))
+
+    def __add__(self, other) -> "ScopedExpr":
+        return lift(op.add, self, other)
+
+    def __radd__(self, other) -> "ScopedExpr":
+        return lift(op.add, other, self)
+
+    def __sub__(self, other) -> "ScopedExpr":
+        return lift(op.sub, self, other)
+
+    def __mul__(self, other) -> "ScopedExpr":
+        return lift(op.mul, self, other)
+
+    def __rmul__(self, other) -> "ScopedExpr":
+        return lift(op.mul, other, self)
+
+    def __gt__(self, other) -> "ScopedExpr":
+        return lift(op.gt, self, other)
+
+    def __lt__(self, other) -> "ScopedExpr":
+        return lift(op.lt, self, other)
+
+    # Like Z3 equality, this constructs a proposition rather than a Python bool.
+    def __eq__(self, other) -> "ScopedExpr":  # type: ignore[ty:incompatible-method-override]
+        return lift(op.eq, self, other)
+
+    def __getitem__(self, index) -> "ScopedExpr":
+        indices = index if isinstance(index, tuple) else (index,)
+        return lift(smt.Select, self, *indices)
+
+
+def variables(
+    names: str, sort: smt.SortRef, ctx: Context = ()
+) -> tuple[ScopedExpr, ...]:
+    """Introduce a named simultaneous variable block without a freshness registry."""
+    vs = tuple(smt.Consts(names, sort))
+    ctx = ctx + (Vars(vs),)
+    return tuple(ScopedExpr(ctx, v) for v in vs)
+
+
+def lift(fn: Callable, *args) -> ScopedExpr:
+    """Apply a Z3 constructor/function, reconciling only prefix-compatible contexts.
+
+    Raw Z3 arguments are rigid empty-context expressions. Python literals are
+    passed through for Z3's ordinary sort-directed coercion. No implicit unwrap.
+    """
+    args = tuple(ScopedExpr((), a) if isinstance(a, smt.ExprRef) else a for a in args)
+    ctx = max((a.ctx for a in args if isinstance(a, ScopedExpr)), key=len, default=())
+    raw = [a.weaken(ctx).raw if isinstance(a, ScopedExpr) else a for a in args]
+    return ScopedExpr(ctx, fn(*raw))
 
 
 def internalize(ctx: Context, thm: smt.BoolRef) -> smt.BoolRef:
@@ -134,6 +237,11 @@ class ScopedProof:
         """Import a closed theorem, weakening before any local instantiation."""
         return cls((), pf.thm, pf).weaken(ctx)
 
+    @property
+    def expr(self) -> ScopedExpr:
+        """The proposition proved by this judgment, retaining its context."""
+        return ScopedExpr(self.ctx, self.thm)
+
     def to_expr(self) -> smt.BoolRef:
         """Internalize this judgment, preserving telescope order and grouping."""
         return internalize(self.ctx, self.thm)
@@ -171,14 +279,9 @@ class ScopedProof:
 
     def weaken(self, ctx: Context) -> "ScopedProof":
         """Extend a matching prefix without capturing existing free constants."""
-        _validate(ctx)
-        if not _same_context(self.ctx, ctx[: len(self.ctx)]):
-            raise ValueError("Weakening requires an identical context prefix")
+        _check_extension(self.ctx, ctx, self.thm)
         if _same_context(self.ctx, ctx):
             return self
-        for entry in ctx[len(self.ctx) :]:
-            if isinstance(entry, Vars) and not _absent(entry.vs, self.thm):
-                raise ValueError("Weakening would capture a free constant")
         if all(isinstance(e, Vars) for e in ctx):
 
             def build(bindings):
@@ -194,13 +297,19 @@ class ScopedProof:
             return ScopedProof(ctx, self.thm, _close_vars(ctx, self.thm, build))
         return self._derive(ctx, self.thm)
 
-    def subst(self, index: int, terms: tuple[smt.ExprRef, ...]) -> "ScopedProof":
+    def subst(
+        self, index: int, terms: tuple[smt.ExprRef | ScopedExpr, ...]
+    ) -> "ScopedProof":
         """Instantiate an entire variable block using terms available in its prefix."""
         entry = self.ctx[index]
         if not isinstance(entry, Vars):
             raise ValueError("Substitution expects a Vars entry")
         if index < 0:
             index += len(self.ctx)
+        terms = tuple(
+            t.weaken(self.ctx[:index]).raw if isinstance(t, ScopedExpr) else t
+            for t in terms
+        )
         if len(terms) != len(entry.vs) or any(
             t.sort() != v.sort() for t, v in zip(terms, entry.vs)
         ):
@@ -218,7 +327,7 @@ class ScopedProof:
         return self._derive(self.ctx[:index] + suffix, smt.substitute(self.thm, *pairs))
 
     def __call__(
-        self, *args: "smt.ExprRef | ScopedProof | kernel.Proof"
+        self, *args: "smt.ExprRef | ScopedExpr | ScopedProof | kernel.Proof"
     ) -> "ScopedProof":
         """Apply forall terms and premise proofs in the current context.
 
@@ -228,6 +337,13 @@ class ScopedProof:
         """
         if not args:
             return self
+        ctx = max(
+            [self.ctx]
+            + [a.ctx for a in args if isinstance(a, (ScopedExpr, ScopedProof))],
+            key=len,
+        )
+        if not _same_context(self.ctx, ctx):
+            return self.weaken(ctx)(*args)
         thm, pos = self.thm, 0
         premises = [self]
         applied = []
@@ -239,6 +355,8 @@ class ScopedProof:
                     raise ValueError("Supply a term for each variable in the block")
                 terms = []
                 for i, term in enumerate(supplied):
+                    if isinstance(term, ScopedExpr):
+                        term = term.weaken(self.ctx).raw
                     if not isinstance(term, smt.ExprRef) or term.sort() != thm.var_sort(
                         i
                     ):
@@ -287,18 +405,26 @@ class ScopedProof:
 
 
 def prove(
-    thm: smt.BoolRef,
+    thm: smt.BoolRef | ScopedExpr,
     *,
-    ctx: Context = (),
+    ctx: Context | None = None,
     by: Sequence[ScopedProof | kernel.Proof] = (),
     **kwargs,
 ) -> ScopedProof:
-    """Prove a contextual goal, reconciling only identical/prefix contexts."""
+    """Prove a contextual goal, using a scoped proposition's context by default."""
+    if isinstance(thm, ScopedExpr):
+        ctx = thm.ctx if ctx is None else ctx
+        raw = thm.weaken(ctx).raw
+    else:
+        raw = thm
+    ctx = () if ctx is None else ctx
+    if not isinstance(raw, smt.BoolRef):
+        raise TypeError("prove requires a Boolean proposition, not an arbitrary term")
     _validate(ctx)
     premises = [
         p if isinstance(p, ScopedProof) else ScopedProof.from_proof(p) for p in by
     ]
     aligned = [p.weaken(ctx).closed for p in premises]
     return ScopedProof(
-        ctx, thm, kernel.prove(internalize(ctx, thm), by=aligned, **kwargs)
+        ctx, raw, kernel.prove(internalize(ctx, raw), by=aligned, **kwargs)
     )

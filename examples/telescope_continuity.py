@@ -15,7 +15,7 @@ import sys
 from time import perf_counter
 
 from kdrag import FreshVars, prove as prove_closed
-from kdrag.contrib.telescope import Hyp, ScopedProof, Vars, prove
+from kdrag.contrib.telescope import Hyp, ScopedProof, Vars, prove, variables
 from kdrag.smt import Consts, ForAll, Lambda, RealSort, Reals, Z3Solver
 from kdrag.theories.real import RFun, is_cont
 from kdrag.utils import alpha_eq
@@ -30,6 +30,19 @@ def constant_limit_terms(lemmas):
         constant, p, local(lemmas["continuous_const"])(a)
     )
     limit = local(lemmas["has_lim_at_of_cont_at"])(constant, p, at_point)
+    return limit.close().closed
+
+
+def constant_limit_exprs(lemmas):
+    a, p = variables("a p", RealSort())
+    (x,) = variables("x", RealSort(), ctx=a.ctx)
+    constant = a.weaken(x.ctx).lambda_()
+    # Scoped arguments import each lemma into the right context automatically.
+    lemma = ScopedProof.from_proof
+    at_point = lemma(lemmas["cont_at_of_is_cont"])(
+        constant, p, lemma(lemmas["continuous_const"])(a)
+    )
+    limit = lemma(lemmas["has_lim_at_of_cont_at"])(constant, p, at_point)
     return limit.close().closed
 
 
@@ -87,9 +100,12 @@ if __name__ == "__main__":
         ("constant limit", constant_limit_schematic, constant_limit_terms),
         ("global addition", addition_solver, addition_terms),
     ]:
-        times = {"baseline": [], "scoped": []}
+        choices = [("baseline", baseline), ("scoped", scoped)]
+        if name == "constant limit":
+            choices.append(("scoped expressions", constant_limit_exprs))
+        times = {label: [] for label, _ in choices}
         for repeat in range(3):
-            variants = [("baseline", baseline), ("scoped", scoped)]
+            variants = list(choices)
             if repeat % 2:
                 variants.reverse()
             proofs = []
@@ -97,7 +113,7 @@ if __name__ == "__main__":
                 pf, elapsed, calls, solver_time = measure(fn, lemmas)
                 times[label].append((elapsed, calls, solver_time))
                 proofs.append(pf)
-            assert alpha_eq(proofs[0].thm, proofs[1].thm)
+            assert all(alpha_eq(proofs[0].thm, p.thm) for p in proofs[1:])
         for label, runs in times.items():
             print(
                 f"{name}, {label}: {median(r[0] for r in runs) * 1000:.2f} ms; "

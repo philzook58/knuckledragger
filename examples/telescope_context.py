@@ -6,19 +6,21 @@ contexts and substitution currently ask Z3 for a new proof.
 """
 
 from kdrag import define, prove as prove_closed
-from kdrag.contrib.telescope import Hyp, ScopedProof, Vars, prove
-from kdrag.smt import ForAll, RealVal, Reals
+from kdrag.contrib.telescope import ScopedProof, lift, prove, variables
+from kdrag.smt import ForAll, RealSort, RealVal, Reals
 
-# Ordinary named constants become local through their explicit context.
-x, y = Reals("x y")
-ctx = (Vars((x,)), Hyp(x > 0))
-inc = define("telescope_inc", [x], x + 1)
-positive = prove(x > 0, ctx=ctx)
-result = prove(inc(x) > 0, ctx=ctx, by=[positive, inc.defn])
+# Local terms carry their context through arithmetic and function calls.
+(x,) = variables("x", RealSort())
+x = x.weaken((x > 0).assume())
+inc = define("telescope_inc", [x.raw], x.raw + 1)
+positive = prove(x > 0)
+result = prove(lift(inc, x) > 0, by=[positive, inc.defn])
 print("Local judgment:", result)
+print("Scoped proposition:", result.expr)
 print("Closed theorem:", result.close().close().closed)
 
 # Move one simultaneous binder block and one implication onto the left.
+x, y = Reals("x y")
 source = ScopedProof.from_proof(prove_closed(ForAll([x, y], x > y, x + 1 > y)))
 a, b = Reals("a b")
 opened = source.fix((a, b)).intro()
