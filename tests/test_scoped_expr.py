@@ -2,7 +2,14 @@ import pytest
 
 import kdrag as kd
 import kdrag.smt as smt
-from kdrag.contrib.telescope import ScopedExpr, ScopedProof, lift, prove, variables
+from kdrag.contrib.telescope import (
+    Context,
+    ScopedExpr,
+    ScopedProof,
+    lift,
+    prove,
+    variables,
+)
 
 
 def test_arithmetic_and_proving_carry_the_context():
@@ -37,7 +44,7 @@ def test_only_prefix_contexts_combine_and_raw_constants_stay_rigid():
     with pytest.raises(ValueError, match="capture"):
         x + x.raw
     with pytest.raises(ValueError, match="capture"):
-        ScopedExpr((), y.raw).weaken(y.ctx)
+        ScopedExpr(Context.of(), y.raw).weaken(y.ctx)
 
 
 def test_hypotheses_propagate_and_cannot_be_dropped():
@@ -47,7 +54,7 @@ def test_hypotheses_propagate_and_cannot_be_dropped():
     with pytest.raises(ValueError, match="prefix"):
         prove(x + 1 > 0, by=[result])
     closed = result.expr.close().close()
-    assert closed.ctx == ()
+    assert not closed.ctx
     assert closed.raw.eq(smt.ForAll(x.raw, x.raw > 0, x.raw + 1 > 0))
     with pytest.raises(kd.kernel.LemmaError):
         prove(x > 0)
@@ -57,7 +64,7 @@ def test_lambda_closing_is_different_from_closing_a_proposition():
     x, y = variables("expr_x expr_y", smt.RealSort())
     addition = (x + y).lambda_()
     assert addition.raw.num_vars() == 2
-    assert addition.ctx == ()
+    assert not addition.ctx
     assert prove(addition[x, y] == x + y).thm.eq(
         addition.raw[x.raw, y.raw] == x.raw + y.raw
     )

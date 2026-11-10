@@ -15,7 +15,7 @@ import sys
 from time import perf_counter
 
 from kdrag import FreshVars, prove as prove_closed
-from kdrag.contrib.telescope import Hyp, ScopedProof, Vars, prove, variables
+from kdrag.contrib.telescope import Context, Hyp, ScopedProof, Vars, prove, variables
 from kdrag.smt import Consts, ForAll, Lambda, RealSort, Reals, Z3Solver
 from kdrag.theories.real import RFun, is_cont
 from kdrag.utils import alpha_eq
@@ -23,7 +23,7 @@ from kdrag.utils import alpha_eq
 
 def constant_limit_terms(lemmas):
     a, p, x = Reals("a p x")
-    ctx = (Vars((a, p)),)
+    ctx = Context.of(Vars((a, p)))
     local = partial(ScopedProof.from_proof, ctx=ctx)
     constant = Lambda(x, a)
     at_point = local(lemmas["cont_at_of_is_cont"])(
@@ -57,7 +57,7 @@ def constant_limit_schematic(lemmas):
 def addition_terms(lemmas):
     f, g = Consts("f g", RFun)
     (p,) = Reals("p")
-    outer = (Vars((f, g)), Hyp(is_cont(f)), Hyp(is_cont(g)))
+    outer = Context.of(Vars((f, g)), Hyp(is_cont(f)), Hyp(is_cont(g)))
     ctx = outer + (Vars((p,)),)
     local = partial(ScopedProof.from_proof, ctx=ctx)
     hf, hg = prove(is_cont(f), ctx=ctx), prove(is_cont(g), ctx=ctx)
