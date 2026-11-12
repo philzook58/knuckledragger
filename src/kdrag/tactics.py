@@ -2313,10 +2313,15 @@ def PTheorem(
             f(l)
         except _AutoFailure as failure:
             code = getattr(f, "__code__", None)
-            for frame, lineno in traceback.walk_tb(failure.__traceback__):
-                if frame.f_code is code:
-                    print(f"auto failed in {frame.f_code.co_name} at line {lineno}")
-                    break
+            frames = traceback.walk_tb(failure.__traceback__)
+            proof_frames = (
+                (frame, lineno) for frame, lineno in frames if frame.f_code is code
+            )
+            for frame in traceback.StackSummary.extract(proof_frames):
+                print(f"auto failed in {frame.name} at line {frame.lineno}")
+                if frame.line:
+                    print(f"    {frame.line}")
+                break
             else:
                 print("auto failed")
             error = failure.error

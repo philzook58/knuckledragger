@@ -131,6 +131,7 @@ def test_ptheorem_solver_failure(capsys):
 
     output = capsys.readouterr().out
     assert "auto failed in unfinished at line " in output
+    assert "    l.have(x > 0, by=[])\n" in output
     assert "Countermodel:" in output
     assert "⊢ x > 0" in output
     assert "Traceback" not in output
