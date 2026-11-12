@@ -339,9 +339,16 @@ def pretty_goal(goal: "Goal", *, width: int = 80) -> str:
         [printer.names.get(local.decl(), str(local)) for local in goal.sig],
         [local.sort() for local in goal.sig],
     )
-    rows.extend(
+    hypotheses = [
         _layout((f"{index}: ", _Nest(printer.expr(hyp))), width)
         for index, hyp in enumerate(goal.ctx)
-    )
-    rows.append(_layout(("⊢ ", _Nest(printer.expr(goal.goal))), width))
+    ]
+    conclusion = _layout(("⊢ ", _Nest(printer.expr(goal.goal))), width)
+    if hypotheses:
+        rows.extend(hypotheses)
+        longest = max(
+            len(line) for row in [*hypotheses, conclusion] for line in row.splitlines()
+        )
+        rows.append("─" * max(1, min(width, longest)))
+    rows.append(conclusion)
     return "\n".join(rows)

@@ -21,9 +21,15 @@ def test_goal_names_and_binders():
         smt.Exists([smt.Real("x₀")], x > xsub),
     )
     goal = Goal([eps, epsilon, x, xsub], [eps < epsilon], target)
-    assert pretty_goal(goal) == (
-        "eps!4 ε₁ x!2 x₀ : ℤ\n0: eps!4 < ε₁\n⊢ ∀x₀′1 : ℝ, ∃x₀′2 : ℝ, x!2 > x₀"
-    )
+    conclusion = "⊢ ∀x₀′1 : ℝ, ∃x₀′2 : ℝ, x!2 > x₀"
+    assert pretty_goal(goal).splitlines() == [
+        "eps!4 ε₁ x!2 x₀ : ℤ",
+        "0: eps!4 < ε₁",
+        "─" * len(conclusion),
+        conclusion,
+    ]
+    assert pretty_goal(goal, width=12).splitlines()[2] == "─" * 12
+    assert pretty_goal(Goal([], [], eps > 0)) == "⊢ ε₀ > 0"
     assert pretty_expr(eps > 0) == "ε₀ > 0"
     a, b = smt.Reals("alpha beta")
     assert pretty_expr(smt.RawForAll([a, b], a < b)) == "∀α β : ℝ, α < β"
