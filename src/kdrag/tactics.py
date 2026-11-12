@@ -12,6 +12,7 @@ import operator as op
 from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
 from functools import cache
+import traceback
 import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
@@ -323,6 +324,8 @@ def prove(
         kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
         return pf
     except kd.kernel.LemmaError as e:
+        if not isinstance(e, kd.kernel.SolverFailure):
+            raise
         if time.perf_counter() - start_time > timeout / 1000:
             raise TimeoutError(
                 "Timeout. Maybe you have given `prove` too many or not enough lemmas?"
@@ -524,6 +527,15 @@ def _modus_ponens() -> kd.kernel.Proof:
         smt.RawForAll([a, b], smt.Implies(smt.And(a, smt.Implies(a, b)), b)),
         solver=smt.Z3Solver,
     )
+
+
+class _AutoFailure(ValueError):
+    """An open goal that auto could not discharge."""
+
+    def __init__(self, goal: Goal, error: kd.kernel.SolverFailure | TimeoutError):
+        super().__init__("auto failed on goal", goal)
+        self.goal = goal
+        self.error = error
 
 
 class ProofState:
@@ -1027,8 +1039,8 @@ class ProofState:
         goalctx = self.top_goal()
         try:
             pf = kd.prove(goalctx.to_expr(), **kwargs)
-        except Exception as _e:
-            raise ValueError("auto failed on goal", goalctx)
+        except (kd.kernel.SolverFailure, TimeoutError) as error:
+            raise _AutoFailure(goalctx, error) from error
         self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
@@ -2268,7 +2280,7 @@ def PTheorem(
     goal: smt.BoolRef | str,
 ):
     """
-    A decorator to create a theorem from a function that takes a `ProofState` as argument.
+    Display the next goal or a solver failure while developing a proof.
 
     >>> x = smt.Int("x")
     >>> @PTheorem(x + 1 > x)
@@ -2294,14 +2306,32 @@ def PTheorem(
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> None:
+        from kdrag.printers.pretty import pretty_goal
+
         l = kd.Lemma(goal1)
-        f(l)
+        try:
+            f(l)
+        except _AutoFailure as failure:
+            code = getattr(f, "__code__", None)
+            for frame, lineno in traceback.walk_tb(failure.__traceback__):
+                if frame.f_code is code:
+                    print(f"auto failed in {frame.f_code.co_name} at line {lineno}")
+                    break
+            else:
+                print("auto failed")
+            error = failure.error
+            if isinstance(error, TimeoutError):
+                print(error)
+            elif len(error.args) == 3:
+                print(f"Countermodel: {error.args[2]}")
+            else:
+                print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
+            print(pretty_goal(failure.goal))
+            return
         if len(l.goals) == 0:
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
-            from kdrag.printers.pretty import pretty_goal
-
             print("Next Goal:")
             print(pretty_goal(l.top_goal()))
 

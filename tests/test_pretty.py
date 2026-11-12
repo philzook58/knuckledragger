@@ -118,3 +118,31 @@ def test_zf_notation():
     x = smt.Const("x", zf.ZFSet)
     assert pretty_expr(zf.elem(x, (a | b) * c)) == "x ∈ (A ∪ B) × C"
     assert pretty_expr((a - b) <= (a & c)) == "A ∖ B ⊆ A ∩ C"
+
+
+def test_ptheorem_solver_failure(capsys):
+    from kdrag import PTheorem
+
+    x = smt.Int("x")
+
+    @PTheorem(x >= 0)
+    def unfinished(l):
+        l.have(x > 0, by=[])
+
+    output = capsys.readouterr().out
+    assert "auto failed in unfinished at line " in output
+    assert "Countermodel:" in output
+    assert "⊢ x > 0" in output
+    assert "Traceback" not in output
+
+
+def test_ptheorem_propagates_python_errors():
+    import pytest
+
+    from kdrag import PTheorem
+
+    with pytest.raises(ValueError, match="Unknown solver"):
+
+        @PTheorem(smt.BoolVal(True))
+        def unfinished(l):
+            l.auto(solver="not-a-solver")

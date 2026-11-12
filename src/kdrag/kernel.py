@@ -115,6 +115,10 @@ class LemmaError(Exception):
     pass
 
 
+class SolverFailure(LemmaError):
+    """The solver could not establish a theorem."""
+
+
 def prove(
     thm: smt.BoolRef,
     by: Proof | Iterable[Proof] = [],
@@ -190,13 +194,13 @@ def prove(
         if res != smt.unsat:
             if res == smt.sat:
                 model = s.model() if hasattr(s, "model") else "Model unavailable"
-                raise LemmaError(thm, "Countermodel", model)
+                raise SolverFailure(thm, "Countermodel", model)
             else:
                 with tempfile.NamedTemporaryFile(
                     delete=False, mode="w", suffix=".smt2"
                 ) as smtfile:
                     smtfile.write(s.sexpr())
-            raise LemmaError("prove", thm, res, smtfile.name)
+            raise SolverFailure("prove", thm, res, smtfile.name)
         else:
             reason: list[object] = ["prove"]
             reason.extend(by)
