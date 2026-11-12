@@ -94,3 +94,18 @@ def test_datatype_accessors():
     assert pretty_expr(record.value(smt.If(p, a, b))) == "(if p then a else b).value"
     f = smt.Function("value", record, smt.IntSort())
     assert pretty_expr(f(a)) == "value(a)"
+
+
+def test_set_operators():
+    for element in (smt.IntSort(), smt.RealSort(), smt.SetSort(smt.IntSort())):
+        a, b, c = smt.Consts("A B C", smt.SetSort(element))
+        union = smt.SetUnion(a, b, c)
+        inter = smt.SetIntersect(a, b)
+        assert pretty_expr(union) == "A ∪ B ∪ C"
+        assert pretty_expr(smt.IsSubset(inter, union)) == "A ∩ B ⊆ A ∪ B ∪ C"
+        assert pretty_expr(smt.SetComplement(union)) == "(A ∪ B ∪ C)ᶜ"
+        assert (
+            pretty_expr(smt.SetDifference(a, smt.SetDifference(b, c))) == "A ∖ (B ∖ C)"
+        )
+        x = smt.Const("x", element)
+        assert pretty_expr(smt.Select(inter, x)) == "(A ∩ B)[x]"

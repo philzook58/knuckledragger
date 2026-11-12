@@ -149,6 +149,10 @@ _INFIX = (
         smt.Z3_OP_IDIV: _Infix("div", 6, "left"),
         smt.Z3_OP_MOD: _Infix("mod", 6, "left"),
         smt.Z3_OP_POWER: _Infix("^", 8, "right"),
+        smt.Z3_OP_SET_UNION: _Infix("∪", 5, "right", True),
+        smt.Z3_OP_SET_INTERSECT: _Infix("∩", 6, "right", True),
+        smt.Z3_OP_SET_DIFFERENCE: _Infix("∖", 5),
+        smt.Z3_OP_SET_SUBSET: _Infix("⊆", 4),
         smt.Z3_OP_BADD: _Infix("+", 5, "left"),
         smt.Z3_OP_BSUB: _Infix("-", 5, "left"),
         smt.Z3_OP_BMUL: _Infix("*", 6, "left"),
@@ -335,6 +339,8 @@ class _Printer:
         if decl in _delimiters:
             left, right = _delimiters[decl]
             return (left, child(args[0], 1), right)
+        if kind == smt.Z3_OP_SET_COMPLEMENT:  # type: ignore[ty:unresolved-attribute]
+            return wrap((child(args[0], 9), "ᶜ"), 9)
         if smt.is_accessor(decl):
             return (child(args[0], 9), ".", self.names[decl])
         if kind == smt.Z3_OP_SELECT:  # type: ignore[ty:unresolved-attribute]
