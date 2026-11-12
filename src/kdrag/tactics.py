@@ -2328,7 +2328,7 @@ def PTheorem(
             if isinstance(error, TimeoutError):
                 print(error)
             elif len(error.args) == 3:
-                print(f"Countermodel: {error.args[2]}")
+                print("Solver found a countermodel.")
             else:
                 print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
             print("Goal:")
