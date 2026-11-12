@@ -187,24 +187,36 @@ _PREFIX = (
     else {}
 )
 _REGISTERED_INFIX = (
-    (notation.add, _Infix("+", 5, "left")),
-    (notation.radd, _Infix("+", 5, "left")),
-    (notation.sub, _Infix("-", 5, "left")),
-    (notation.mul, _Infix("*", 6, "left")),
-    (notation.rmul, _Infix("*", 6, "left")),
-    (notation.matmul, _Infix("@", 6, "left")),
-    (notation.div, _Infix("/", 6, "left")),
-    (notation.and_, _Infix("∧", 3, "left", True)),
-    (notation.or_, _Infix("∨", 2, "left", True)),
-    (notation.lt, _Infix("<", 4)),
-    (notation.le, _Infix("≤", 4)),
-    (notation.gt, _Infix(">", 4)),
-    (notation.ge, _Infix("≥", 4)),
-    (notation.eq, _Infix("=", 4)),
-    (notation.ne, _Infix("≠", 4)),
+    (
+        (notation.add, _INFIX[smt.Z3_OP_ADD]),
+        (notation.radd, _INFIX[smt.Z3_OP_ADD]),
+        (notation.sub, _INFIX[smt.Z3_OP_SUB]),
+        (notation.mul, _INFIX[smt.Z3_OP_MUL]),
+        (notation.rmul, _INFIX[smt.Z3_OP_MUL]),
+        (notation.matmul, _Infix("@", 6, "left")),
+        (notation.div, _INFIX[smt.Z3_OP_DIV]),
+        (notation.and_, _INFIX[smt.Z3_OP_AND]),
+        (notation.or_, _INFIX[smt.Z3_OP_OR]),
+        (notation.lt, _INFIX[smt.Z3_OP_LT]),
+        (notation.le, _INFIX[smt.Z3_OP_LE]),
+        (notation.gt, _INFIX[smt.Z3_OP_GT]),
+        (notation.ge, _INFIX[smt.Z3_OP_GE]),
+        (notation.eq, _INFIX[smt.Z3_OP_EQ]),
+        (notation.ne, _Infix("≠", 4)),
+    )
+    if _Z3_AST
+    else ()
 )
-_REGISTERED_PREFIX = ((notation.neg, ("-", 7)), (notation.invert, ("¬", 4)))
+_REGISTERED_PREFIX = (
+    (
+        (notation.neg, _PREFIX[smt.Z3_OP_UMINUS]),
+        (notation.invert, _PREFIX[smt.Z3_OP_NOT]),
+    )
+    if _Z3_AST
+    else ()
+)
 
+_infix_overrides: dict[smt.FuncDeclRef, _Infix] = {}
 # Theory modules can opt a specific declaration into paired delimiters.
 _delimiters: dict[smt.FuncDeclRef, tuple[str, str]] = {}
 
@@ -320,7 +332,7 @@ class _Printer:
             ]
             clauses.append(("else ", child(default, 1)))
             return wrap(_Group(_join(_Break(), clauses)), 0)
-        infix = _INFIX.get(kind) or self.infix.get(decl)
+        infix = _infix_overrides.get(decl) or _INFIX.get(kind) or self.infix.get(decl)
         if infix is not None and len(args) >= 2:
             symbol, prec, association, breaks = infix
             left_prec = prec if association == "left" else prec + 1

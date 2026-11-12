@@ -109,3 +109,12 @@ def test_set_operators():
         )
         x = smt.Const("x", element)
         assert pretty_expr(smt.Select(inter, x)) == "(A ∩ B)[x]"
+
+
+def test_zf_notation():
+    from kdrag.theories.zf import zf
+
+    a, b, c = smt.Consts("A B C", zf.ZFSet)
+    x = smt.Const("x", zf.ZFSet)
+    assert pretty_expr(zf.elem(x, (a | b) * c)) == "x ∈ (A ∪ B) × C"
+    assert pretty_expr((a - b) <= (a & c)) == "A ∖ B ⊆ A ∩ C"
