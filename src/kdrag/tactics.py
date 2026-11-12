@@ -2331,6 +2331,7 @@ def PTheorem(
                 print(f"Countermodel: {error.args[2]}")
             else:
                 print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
+            print("Goal:")
             print(pretty_goal(failure.goal))
             return
         if len(l.goals) == 0:
