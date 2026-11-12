@@ -68,3 +68,17 @@ def test_registered_notation():
     assert pretty_expr(nat.add(x, nat.add(y, x))) == "x + (y + x)"
     a, b = smt.Consts("a b", seq.RSeq)
     assert pretty_expr((a + b)[0]) == "(a + b)[0]"
+
+
+def test_bitvector_operators():
+    a, b, c = smt.BitVecs("a b c", 32)
+    assert pretty_expr(a + b * c) == "a + b * c"
+    assert pretty_expr(a - (b - c)) == "a - (b - c)"
+    assert pretty_expr(a <= b) == "a ≤ₛ b"
+    assert pretty_expr(smt.ULE(a, b)) == "a ≤ᵤ b"
+    assert pretty_expr((a & b) | c) == "(a & b) | c"
+    assert pretty_expr(smt.LShR(a, b)) == "a >>ᵤ b"
+    assert pretty_expr(a >> b) == "a >>ₛ b"
+    assert pretty_expr(smt.UDiv(a, b)) == "a /ᵤ b"
+    assert pretty_expr(a / b) == "a /ₛ b"
+    assert pretty_expr(~(a + b)) == "~(a + b)"

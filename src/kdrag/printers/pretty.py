@@ -149,11 +149,39 @@ _INFIX = (
         smt.Z3_OP_IDIV: _Infix("div", 6, "left"),
         smt.Z3_OP_MOD: _Infix("mod", 6, "left"),
         smt.Z3_OP_POWER: _Infix("^", 8, "right"),
+        smt.Z3_OP_BADD: _Infix("+", 5, "left"),
+        smt.Z3_OP_BSUB: _Infix("-", 5, "left"),
+        smt.Z3_OP_BMUL: _Infix("*", 6, "left"),
+        smt.Z3_OP_BAND: _Infix("&", 3),
+        smt.Z3_OP_BXOR: _Infix("⊕", 3),
+        smt.Z3_OP_BOR: _Infix("|", 3),
+        smt.Z3_OP_BSHL: _Infix("<<", 4),
+        smt.Z3_OP_BLSHR: _Infix(">>ᵤ", 4),
+        smt.Z3_OP_BASHR: _Infix(">>ₛ", 4),
+        smt.Z3_OP_BSDIV: _Infix("/ₛ", 6, "left"),
+        smt.Z3_OP_BUDIV: _Infix("/ᵤ", 6, "left"),
+        smt.Z3_OP_SLT: _Infix("<ₛ", 4),
+        smt.Z3_OP_SLEQ: _Infix("≤ₛ", 4),
+        smt.Z3_OP_SGT: _Infix(">ₛ", 4),
+        smt.Z3_OP_SGEQ: _Infix("≥ₛ", 4),
+        smt.Z3_OP_ULT: _Infix("<ᵤ", 4),
+        smt.Z3_OP_ULEQ: _Infix("≤ᵤ", 4),
+        smt.Z3_OP_UGT: _Infix(">ᵤ", 4),
+        smt.Z3_OP_UGEQ: _Infix("≥ᵤ", 4),
     }
     if _Z3_AST
     else {}
 )
-_PREFIX = {smt.Z3_OP_NOT: ("¬", 4), smt.Z3_OP_UMINUS: ("-", 7)} if _Z3_AST else {}
+_PREFIX = (
+    {
+        smt.Z3_OP_NOT: ("¬", 4),
+        smt.Z3_OP_UMINUS: ("-", 7),
+        smt.Z3_OP_BNEG: ("-", 7),
+        smt.Z3_OP_BNOT: ("~", 7),
+    }
+    if _Z3_AST
+    else {}
+)
 _REGISTERED_INFIX = (
     (notation.add, _Infix("+", 5, "left")),
     (notation.radd, _Infix("+", 5, "left")),
