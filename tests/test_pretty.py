@@ -15,7 +15,7 @@ def test_precedence_and_width():
 
 
 def test_goal_names_and_binders():
-    eps, epsilon, x, xsub = smt.Ints("eps!4 ε₁ x!2 x₀")
+    eps, epsilon, x, xsub = smt.Ints("eps!4 ε₀ x!2 x₀")
     target = smt.RawForAll(
         [smt.Real("x₀")],
         smt.Exists([smt.Real("x₀")], x > xsub),
@@ -23,8 +23,8 @@ def test_goal_names_and_binders():
     goal = Goal([eps, epsilon, x, xsub], [eps < epsilon], target)
     conclusion = "⊢ ∀x₀′1 : ℝ, ∃x₀′2 : ℝ, x!2 > x₀"
     assert pretty_goal(goal).splitlines() == [
-        "eps!4 ε₁ x!2 x₀ : ℤ",
-        "0: eps!4 < ε₁",
+        "eps!4 ε₀ x!2 x₀ : ℤ",
+        "0: eps!4 < ε₀",
         "─" * len(conclusion),
         conclusion,
     ]
@@ -55,6 +55,8 @@ def test_fresh_names_follow_numeric_order():
     later, earlier = smt.Ints("x!100 x!20")
     assert pretty_expr(later > earlier) == "x₁ > x₀"
     assert pretty_expr(later > 0) == "x₀ > 0"
+    y = smt.Int("y!10")
+    assert pretty_expr(later + earlier > y) == "x₁ + x₀ > y₀"
 
 
 def test_registered_notation():

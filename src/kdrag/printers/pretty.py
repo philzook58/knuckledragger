@@ -214,14 +214,15 @@ class _Printer:
                     decls.setdefault(expr.decl(), str(expr.decl().name()))
                 pending.extend(reversed(expr.children()))
         raw = set(decls.values())
-        suffixes = {
-            int(match[2])
-            for name in raw | binder_names
-            if (match := _FRESH_NAME.fullmatch(name))
-        }
+        suffixes: dict[str, set[int]] = {}
+        for name in raw | binder_names:
+            if match := _FRESH_NAME.fullmatch(name):
+                base, suffix = match.groups()
+                suffixes.setdefault(base, set()).add(int(suffix))
         self.fresh_indices = {
-            suffix: str(i).translate(_SUBSCRIPT)
-            for i, suffix in enumerate(sorted(suffixes))
+            (base, suffix): str(i).translate(_SUBSCRIPT)
+            for base, numbers in suffixes.items()
+            for i, suffix in enumerate(sorted(numbers))
         }
         self.names: dict[smt.FuncDeclRef, str] = {}
         self.used: set[str] = set()
@@ -235,7 +236,7 @@ class _Printer:
     def alias(self, name: str) -> str:
         if match := _FRESH_NAME.fullmatch(name):
             base, suffix = match.groups()
-            return _GREEK.get(base, base) + self.fresh_indices[int(suffix)]
+            return _GREEK.get(base, base) + self.fresh_indices[base, int(suffix)]
         return _GREEK.get(name, name)
 
     def fresh(self, name: str, reserved: set[str]) -> str:
