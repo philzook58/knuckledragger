@@ -9,8 +9,6 @@ import kdrag.rewrite
 import kdrag.solvers as solvers
 from enum import IntEnum
 import operator as op
-import os
-import sys
 from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
 from functools import cache
@@ -2278,17 +2276,6 @@ def Theorem(
     return res
 
 
-def _print_tactic_failure(message: str) -> None:
-    # Jupyter's output stream renders ANSI colors but is not a terminal.
-    notebook_stream = getattr(sys.modules.get("ipykernel.iostream"), "OutStream", ())
-    if not os.environ.get("NO_COLOR") and (
-        isinstance(sys.stdout, notebook_stream)
-        or (sys.stdout.isatty() and os.environ.get("TERM") != "dumb")
-    ):
-        message = f"\x1b[31m{message}\x1b[0m"
-    print(message)
-
-
 def PTheorem(
     goal: smt.BoolRef | str,
 ):
@@ -2331,12 +2318,12 @@ def PTheorem(
                 (frame, lineno) for frame, lineno in frames if frame.f_code is code
             )
             for frame in traceback.StackSummary.extract(proof_frames):
-                _print_tactic_failure(f"auto failed in {frame.name} at line {frame.lineno}")
+                print(f"auto failed in {frame.name} at line {frame.lineno}")
                 if frame.line:
                     print(f"    {frame.line}")
                 break
             else:
-                _print_tactic_failure("auto failed")
+                print("auto failed")
             error = failure.error
             if isinstance(error, TimeoutError):
                 print(error)
