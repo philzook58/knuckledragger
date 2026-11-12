@@ -82,3 +82,15 @@ def test_bitvector_operators():
     assert pretty_expr(smt.UDiv(a, b)) == "a /ᵤ b"
     assert pretty_expr(a / b) == "a /ₛ b"
     assert pretty_expr(~(a + b)) == "~(a + b)"
+
+
+def test_datatype_accessors():
+    record = smt.Datatype("PrettyRecord")
+    record.declare("record", ("value", smt.IntSort()))
+    record = record.create()
+    a, b = smt.Consts("a b", record)
+    p = smt.Bool("p")
+    assert pretty_expr(record.value(a)) == "a.value"
+    assert pretty_expr(record.value(smt.If(p, a, b))) == "(if p then a else b).value"
+    f = smt.Function("value", record, smt.IntSort())
+    assert pretty_expr(f(a)) == "value(a)"

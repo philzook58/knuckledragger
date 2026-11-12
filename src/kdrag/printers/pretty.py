@@ -335,6 +335,8 @@ class _Printer:
         if decl in _delimiters:
             left, right = _delimiters[decl]
             return (left, child(args[0], 1), right)
+        if smt.is_accessor(decl):
+            return (child(args[0], 9), ".", self.names[decl])
         if kind == smt.Z3_OP_SELECT:  # type: ignore[ty:unresolved-attribute]
             return (
                 child(args[0], 9),
