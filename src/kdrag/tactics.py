@@ -2276,6 +2276,15 @@ def PTheorem(
     ...     "An example theorem"
     ...     l.auto()
     Lemma Complete! Change PTheorem to Theorem
+
+    >>> p, q = smt.Bools("p q")
+    >>> @PTheorem(smt.Implies(p, q))
+    ... def unfinished(l: ProofState):
+    ...     l.intros()
+    Next Goal:
+    0: p
+    ────
+    ⊢ q
     """
     if isinstance(goal, str):
         l, g = kd.utils.calling_globals_locals()
@@ -2291,6 +2300,9 @@ def PTheorem(
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
-            print("Next Goal:\n", l.top_goal())
+            from kdrag.printers.pretty import pretty_goal
+
+            print("Next Goal:")
+            print(pretty_goal(l.top_goal()))
 
     return res
