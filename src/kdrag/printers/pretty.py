@@ -91,14 +91,13 @@ def _delimited(left: str, parts: list[_Doc], right: str) -> _Doc:
 
 
 def _sort(sort: smt.SortRef) -> str:
-    if (
-        isinstance(sort, smt.ArraySortRef)
-        and smt.Z3_get_array_arity(sort.ctx_ref(), sort.ast) == 1  # type: ignore[ty:unresolved-attribute]
-    ):
-        domain = _sort(sort.domain())
-        if isinstance(sort.domain(), smt.ArraySortRef):
-            domain = "(" + domain + ")"
-        return domain + " → " + _sort(sort.range())
+    if isinstance(sort, smt.ArraySortRef):
+        domains = smt.domains(sort)
+        if len(domains) == 1:
+            domain = _sort(domains[0])
+            if isinstance(domains[0], smt.ArraySortRef):
+                domain = "(" + domain + ")"
+            return domain + " → " + _sort(sort.range())
     return {"Int": "ℤ", "Real": "ℝ", "Bool": "Bool"}.get(sort.sexpr(), str(sort))
 
 
