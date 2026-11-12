@@ -15,16 +15,16 @@ def test_precedence_and_width():
 
 
 def test_goal_names_and_binders():
-    eps, epsilon, x, xsub = smt.Ints("eps!4 ε₄ x!2 x₂")
+    eps, epsilon, x, xsub = smt.Ints("eps!4 ε₁ x!2 x₀")
     target = smt.RawForAll(
-        [smt.Real("x₂")],
-        smt.Exists([smt.Real("x₂")], x > xsub),
+        [smt.Real("x₀")],
+        smt.Exists([smt.Real("x₀")], x > xsub),
     )
     goal = Goal([eps, epsilon, x, xsub], [eps < epsilon], target)
     assert pretty_goal(goal) == (
-        "eps!4 ε₄ x!2 x₂ : ℤ\n0: eps!4 < ε₄\n⊢ ∀x₂′1 : ℝ, ∃x₂′2 : ℝ, x!2 > x₂"
+        "eps!4 ε₁ x!2 x₀ : ℤ\n0: eps!4 < ε₁\n⊢ ∀x₀′1 : ℝ, ∃x₀′2 : ℝ, x!2 > x₀"
     )
-    assert pretty_expr(eps > 0) == "ε₄ > 0"
+    assert pretty_expr(eps > 0) == "ε₀ > 0"
     a, b = smt.Reals("alpha beta")
     assert pretty_expr(smt.RawForAll([a, b], a < b)) == "∀α β : ℝ, α < β"
     nested = smt.RawForAll([a], smt.Exists([b], a < b))
@@ -43,3 +43,20 @@ def test_datatype_cases():
         "else if is[blue](x) then 2",
         "else 0",
     ]
+
+
+def test_fresh_names_follow_numeric_order():
+    later, earlier = smt.Ints("x!100 x!20")
+    assert pretty_expr(later > earlier) == "x₁ > x₀"
+    assert pretty_expr(later > 0) == "x₀ > 0"
+
+
+def test_registered_notation():
+    from kdrag.theories import nat
+    from kdrag.theories.real import seq
+
+    x, y = smt.Consts("x y", nat.Nat)
+    assert pretty_expr(nat.add(x, y)) == "x + y"
+    assert pretty_expr(nat.add(x, nat.add(y, x))) == "x + (y + x)"
+    a, b = smt.Consts("a b", seq.RSeq)
+    assert pretty_expr((a + b)[0]) == "(a + b)[0]"

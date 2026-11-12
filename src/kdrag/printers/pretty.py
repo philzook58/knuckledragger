@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import re
 from typing import TYPE_CHECKING, NamedTuple, cast
 
-from kdrag import smt
+from kdrag import notation, smt
 from kdrag.utils import ite_to_cases
 
 if TYPE_CHECKING:
@@ -121,11 +121,7 @@ _GREEK = dict(
 _SUBSCRIPT = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
 
 
-def _alias(name: str) -> str:
-    base, bang, digits = name.rpartition("!")
-    if bang and re.fullmatch("[0-9]+", digits):
-        return _GREEK.get(base, base) + digits.translate(_SUBSCRIPT)
-    return _GREEK.get(name, name)
+_FRESH_NAME = re.compile(r"(.+)!([0-9]+)")
 
 
 class _Infix(NamedTuple):
@@ -158,13 +154,45 @@ _INFIX = (
     else {}
 )
 _PREFIX = {smt.Z3_OP_NOT: ("¬", 4), smt.Z3_OP_UMINUS: ("-", 7)} if _Z3_AST else {}
+_REGISTERED_INFIX = (
+    (notation.add, _Infix("+", 5, "left")),
+    (notation.radd, _Infix("+", 5, "left")),
+    (notation.sub, _Infix("-", 5, "left")),
+    (notation.mul, _Infix("*", 6, "left")),
+    (notation.rmul, _Infix("*", 6, "left")),
+    (notation.matmul, _Infix("@", 6, "left")),
+    (notation.div, _Infix("/", 6, "left")),
+    (notation.and_, _Infix("∧", 3, "left", True)),
+    (notation.or_, _Infix("∨", 2, "left", True)),
+    (notation.lt, _Infix("<", 4)),
+    (notation.le, _Infix("≤", 4)),
+    (notation.gt, _Infix(">", 4)),
+    (notation.ge, _Infix("≥", 4)),
+    (notation.eq, _Infix("=", 4)),
+    (notation.ne, _Infix("≠", 4)),
+)
+_REGISTERED_PREFIX = ((notation.neg, ("-", 7)), (notation.invert, ("¬", 4)))
+
 # Theory modules can opt a specific declaration into paired delimiters.
 _delimiters: dict[smt.FuncDeclRef, tuple[str, str]] = {}
 
 
 class _Printer:
     def __init__(self, expressions: list[smt.ExprRef]):
+        self.infix = {
+            decl: rule
+            for dispatch, rule in _REGISTERED_INFIX
+            for decl in dispatch.methods.values()
+            if isinstance(decl, smt.FuncDeclRef) and decl.arity() == 2
+        }
+        self.prefix = {
+            decl: rule
+            for dispatch, rule in _REGISTERED_PREFIX
+            for decl in dispatch.methods.values()
+            if isinstance(decl, smt.FuncDeclRef) and decl.arity() == 1
+        }
         decls = {}
+        binder_names = set()
         seen = set()
         pending = list(reversed(expressions))
         while pending:
@@ -173,6 +201,9 @@ class _Printer:
                 continue
             seen.add(expr.get_id())
             if isinstance(expr, smt.QuantifierRef):
+                binder_names.update(
+                    str(expr.var_name(i)) for i in range(expr.num_vars())
+                )
                 pending.append(expr.body())
             elif smt.is_app(expr):
                 if expr.decl().kind() in (
@@ -183,14 +214,29 @@ class _Printer:
                     decls.setdefault(expr.decl(), str(expr.decl().name()))
                 pending.extend(reversed(expr.children()))
         raw = set(decls.values())
+        suffixes = {
+            int(match[2])
+            for name in raw | binder_names
+            if (match := _FRESH_NAME.fullmatch(name))
+        }
+        self.fresh_indices = {
+            suffix: str(i).translate(_SUBSCRIPT)
+            for i, suffix in enumerate(sorted(suffixes))
+        }
         self.names: dict[smt.FuncDeclRef, str] = {}
         self.used: set[str] = set()
         for decl, name in decls.items():
-            alias = _alias(name)
+            alias = self.alias(name)
             if alias != name and (alias in raw or alias in self.used):
                 alias = name
             self.names[decl] = self.fresh(alias, raw if alias in self.used else set())
             self.used.add(self.names[decl])
+
+    def alias(self, name: str) -> str:
+        if match := _FRESH_NAME.fullmatch(name):
+            base, suffix = match.groups()
+            return _GREEK.get(base, base) + self.fresh_indices[int(suffix)]
+        return _GREEK.get(name, name)
 
     def fresh(self, name: str, reserved: set[str]) -> str:
         if name not in self.used and name not in reserved:
@@ -218,7 +264,7 @@ class _Printer:
             reserved = set(raw)
             names = []
             for name in raw:
-                alias = _alias(name)
+                alias = self.alias(name)
                 if alias in self.used or (alias != name and alias in raw):
                     alias = name
                 name = self.fresh(alias, reserved - {name})
@@ -241,8 +287,9 @@ class _Printer:
             ]
             clauses.append(("else ", child(default, 1)))
             return wrap(_Group(_join(_Break(), clauses)), 0)
-        if kind in _INFIX and len(args) >= 2:
-            symbol, prec, association, breaks = _INFIX[kind]
+        infix = _INFIX.get(kind) or self.infix.get(decl)
+        if infix is not None and len(args) >= 2:
+            symbol, prec, association, breaks = infix
             left_prec = prec if association == "left" else prec + 1
             right_prec = prec if association == "right" else prec + 1
             if kind == smt.Z3_OP_IMPLIES and isinstance(args[-1], smt.QuantifierRef):  # type: ignore[ty:unresolved-attribute]
@@ -252,8 +299,9 @@ class _Printer:
             parts.append(child(args[-1], right_prec))
             separator = (" " + symbol, _Break()) if breaks else " " + symbol + " "
             return wrap(_Group(_join(separator, parts)), prec)
-        if kind in _PREFIX:
-            symbol, prec = _PREFIX[kind]
+        prefix = _PREFIX.get(kind) or self.prefix.get(decl)
+        if prefix is not None:
+            symbol, prec = prefix
             return wrap((symbol, child(args[0], prec + 1)), prec)
         if decl in _delimiters:
             left, right = _delimiters[decl]
