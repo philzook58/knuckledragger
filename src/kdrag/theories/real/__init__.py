@@ -5,6 +5,7 @@ Transcendental functions and bounds.
 """
 
 import kdrag.smt as smt
+from kdrag.printers import pretty
 from kdrag.smt import (
     Abs,
     And,
@@ -149,6 +150,7 @@ def abstract_arith(t: smt.ExprRef) -> smt.ExprRef:
 
 
 abs = define("absR", [x], If(x >= 0, x, -x))
+pretty._delimiters[abs] = ("|", "|")
 sgn = define("sgn", [x], If(x > 0, 1, If(x < 0, -1, 0)))
 
 abs_if_pos = prove(ForAll([x], x >= 0, abs(x) == x), by=[abs.defn])

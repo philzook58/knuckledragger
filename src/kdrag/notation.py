@@ -19,7 +19,7 @@ import kdrag.smt as smt
 import kdrag as kd
 
 
-smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[ty:unresolved-attribute]
+smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[ty:missing-attribute]
 
 smt.ArrayRef.__call__ = lambda self, *arg: self[arg]
 

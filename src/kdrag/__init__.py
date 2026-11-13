@@ -19,6 +19,7 @@ from . import tactics
 from . import reflect
 import functools
 from .parsers import microlean
+from .printers.pretty import pretty_expr, register_infix
 import typing
 
 
@@ -592,6 +593,8 @@ invert = notation.invert
 
 
 __all__ = [
+    "pretty_expr",
+    "register_infix",
     "prove",
     "exact",
     "axiom",
