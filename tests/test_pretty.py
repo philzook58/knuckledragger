@@ -9,6 +9,10 @@ def test_precedence_and_width():
     assert pretty_expr(a - (b - c)) == "a - (b - c)"
     assert pretty_expr(smt.Implies(smt.Implies(p, q), r)) == "(p → q) → r"
     assert pretty_expr(smt.Implies(p, smt.Implies(q, r))) == "p → q → r"
+    for op, symbol in ((smt.And, "∧"), (smt.Or, "∨")):
+        assert pretty_expr(op(op(p, q), r)) == f"(p {symbol} q) {symbol} r"
+        assert pretty_expr(op(p, op(q, r))) == f"p {symbol} q {symbol} r"
+        assert pretty_expr(op(p, q, r)) == f"p {symbol} q {symbol} r"
     f = smt.Function("long_call", smt.IntSort(), smt.IntSort(), smt.IntSort())
     assert pretty_expr(f(a, b)) == "long_call(a, b)"
     assert pretty_expr(f(a, b), width=12) == "long_call(a,\n  b)"
@@ -77,7 +81,8 @@ def test_bitvector_operators():
     assert pretty_expr(a <= b) == "a ≤ₛ b"
     assert pretty_expr(smt.ULE(a, b)) == "a ≤ᵤ b"
     assert pretty_expr((a & b) | c) == "(a & b) | c"
-    assert pretty_expr(smt.LShR(a, b)) == "a >>ᵤ b"
+    assert pretty_expr(smt.LShR(a, b)) == "a >>> b"
+    assert pretty_expr(a << b) == "a <<< b"
     assert pretty_expr(a >> b) == "a >>ₛ b"
     assert pretty_expr(smt.UDiv(a, b)) == "a /ᵤ b"
     assert pretty_expr(a / b) == "a /ₛ b"
@@ -105,7 +110,8 @@ def test_set_operators():
         assert pretty_expr(smt.IsSubset(inter, union)) == "A ∩ B ⊆ A ∪ B ∪ C"
         assert pretty_expr(smt.SetComplement(union)) == "(A ∪ B ∪ C)ᶜ"
         assert (
-            pretty_expr(smt.SetDifference(a, smt.SetDifference(b, c))) == "A ∖ (B ∖ C)"
+            pretty_expr(smt.SetDifference(a, smt.SetDifference(b, c)))
+            == "A \\ (B \\ C)"
         )
         x = smt.Const("x", element)
         assert pretty_expr(smt.Select(inter, x)) == "(A ∩ B)[x]"
@@ -117,7 +123,7 @@ def test_zf_notation():
     a, b, c = smt.Consts("A B C", zf.ZFSet)
     x = smt.Const("x", zf.ZFSet)
     assert pretty_expr(zf.elem(x, (a | b) * c)) == "x ∈ (A ∪ B) × C"
-    assert pretty_expr((a - b) <= (a & c)) == "A ∖ B ⊆ A ∩ C"
+    assert pretty_expr((a - b) <= (a & c)) == "A \\ B ⊆ A ∩ C"
 
 
 def test_ptheorem_solver_failure(capsys):
