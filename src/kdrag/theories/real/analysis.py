@@ -7,8 +7,8 @@ from kdrag.smt import (
     Lambda,
     RealSort,
     RealVal,
-    Reals,
-)  # noqa: F401
+    Reals,  # noqa: F401 (used in the Ball doctest)
+)
 import kdrag.theories.real as real
 import kdrag.theories.set as set_
 
