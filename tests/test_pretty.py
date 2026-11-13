@@ -148,3 +148,31 @@ def test_ptheorem_propagates_python_errors():
         @PTheorem(smt.BoolVal(True))
         def unfinished(l):
             l.auto(solver="not-a-solver")
+
+
+def test_deep_expression_uses_smtlib():
+    x = smt.Int("x")
+    term = x
+    for _ in range(1100):
+        term = term + 1
+    target = term == x
+    hyp = x >= 0
+    assert pretty_expr(target) == target.sexpr()
+    assert pretty_goal(Goal([x], [hyp], target)) == (
+        f"x : Int\n0: {hyp.sexpr()}\n⊢ {target.sexpr()}"
+    )
+
+
+def test_custom_infix_precedence():
+    import pytest
+
+    from kdrag.printers.pretty import register_infix
+
+    sort = smt.ArraySort(smt.IntSort(), smt.IntSort())
+    combine = smt.Function("combine_pretty_test", sort, sort, sort)
+    a, b = smt.Consts("a b", sort)
+    for precedence in (0, 9, 10):
+        with pytest.raises(ValueError, match="between 1 and 8"):
+            register_infix(combine, "⊕", precedence)
+    register_infix(combine, "⊕", 8)
+    assert pretty_expr(combine(a, b)[0]) == "(a ⊕ b)[0]"

@@ -222,9 +222,11 @@ def register_infix(
     association: Literal["left", "right", "none"] = "none",
     breaks: bool = False,
 ) -> None:
-    """Set the display rule for a binary declaration. Higher precedence binds tighter."""
+    """Set a binary display rule with precedence from 1 to 8 (tightest)."""
     if decl.arity() != 2:
         raise ValueError("Infix notation requires a binary declaration")
+    if not 1 <= precedence <= 8:
+        raise ValueError("Infix precedence must be between 1 and 8")
     _custom_infix[decl] = _Infix(symbol, precedence, association, breaks)
 
 
@@ -246,18 +248,24 @@ class _Printer:
         # us rank fresh suffixes per base and avoid collisions with existing names.
         decls = {}
         binder_names = set()
-        seen = set()
-        pending = list(reversed(expressions))
+        seen: dict[int, int] = {}
+        pending = [(expr, 0) for expr in reversed(expressions)]
+        self.too_deep = False
         while pending:
-            expr = pending.pop()
-            if expr.get_id() in seen:
+            expr, depth = pending.pop()
+            # Rendering uses several Python frames per expression level.
+            if depth > 150:
+                self.too_deep = True
+                return
+            expr_id = expr.get_id()
+            if seen.get(expr_id, -1) >= depth:
                 continue
-            seen.add(expr.get_id())
+            seen[expr_id] = depth
             if isinstance(expr, smt.QuantifierRef):
                 binder_names.update(
                     str(expr.var_name(i)) for i in range(expr.num_vars())
                 )
-                pending.append(expr.body())
+                pending.append((expr.body(), depth + 1))
             elif smt.is_app(expr):
                 if (
                     smt.is_uninterp(expr)
@@ -265,7 +273,7 @@ class _Printer:
                     or smt.is_accessor(expr)
                 ):
                     decls.setdefault(expr.decl(), str(expr.decl().name()))
-                pending.extend(reversed(expr.children()))
+                pending.extend((arg, depth + 1) for arg in reversed(expr.children()))
         raw = set(decls.values())
         suffixes: dict[str, set[int]] = {}
         for name in raw | binder_names:
@@ -385,7 +393,10 @@ def pretty_expr(expr: smt.ExprRef, *, width: int = 80) -> str:
     """Display an SMT expression using compact mathematical notation."""
     if not _USE_COMPACT_PRINTER:
         return str(expr)
-    return _layout(_Printer([expr]).expr(expr), width)
+    printer = _Printer([expr])
+    if printer.too_deep:
+        return expr.sexpr()
+    return _layout(printer.expr(expr), width)
 
 
 def pretty_goal(goal: "Goal", *, width: int = 80) -> str:
@@ -393,6 +404,11 @@ def pretty_goal(goal: "Goal", *, width: int = 80) -> str:
     if not _USE_COMPACT_PRINTER or goal.is_empty():
         return repr(goal)
     printer = _Printer([*goal.sig, *goal.ctx, goal.goal])
+    if printer.too_deep:
+        rows = [f"{local.sexpr()} : {local.sort().sexpr()}" for local in goal.sig]
+        rows.extend(f"{i}: {hyp.sexpr()}" for i, hyp in enumerate(goal.ctx))
+        rows.append(f"⊢ {goal.goal.sexpr()}")
+        return "\n".join(rows)
     rows = _declarations(
         [printer.names.get(local.decl(), str(local)) for local in goal.sig],
         [local.sort() for local in goal.sig],
