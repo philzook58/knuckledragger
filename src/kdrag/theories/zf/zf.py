@@ -803,16 +803,12 @@ zero = define("zf.zero", [], emp)
 succ = define("zf.succ", [x], x | sing(x))
 
 
-pretty._infix_overrides.update(
-    {
-        elem: pretty._Infix("∈", 4),
-        le: pretty._Infix("⊆", 4),
-        union: pretty._Infix("∪", 5, "right", True),
-        inter: pretty._Infix("∩", 6, "right", True),
-        sub: pretty._Infix("∖", 5),
-        prod: pretty._Infix("×", 7, "left"),
-    }
-)
+pretty.register_infix(elem, "∈", 4)
+pretty.register_infix(le, "⊆", 4)
+pretty.register_infix(union, "∪", 5, association="right", breaks=True)
+pretty.register_infix(inter, "∩", 6, association="right", breaks=True)
+pretty.register_infix(sub, "∖", 5)
+pretty.register_infix(prod, "×", 7, association="left")
 
 
 def test():

@@ -198,9 +198,23 @@ _SORT_DISPATCH_PREFIX = (
     (notation.invert, _PREFIX["not"]),
 )
 
-_infix_overrides: dict[smt.FuncDeclRef, _Infix] = {}
+_custom_infix: dict[smt.FuncDeclRef, _Infix] = {}
 # Theory modules can opt a specific declaration into paired delimiters.
 _delimiters: dict[smt.FuncDeclRef, tuple[str, str]] = {}
+
+
+def register_infix(
+    decl: smt.FuncDeclRef,
+    symbol: str,
+    precedence: int,
+    *,
+    association: Literal["left", "right", "none"] = "none",
+    breaks: bool = False,
+) -> None:
+    """Set the display rule for a binary declaration. Higher precedence binds tighter."""
+    if decl.arity() != 2:
+        raise ValueError("Infix notation requires a binary declaration")
+    _custom_infix[decl] = _Infix(symbol, precedence, association, breaks)
 
 
 class _Printer:
@@ -314,7 +328,7 @@ class _Printer:
             ]
             clauses.append(("else ", child(default, 1)))
             return wrap(_Group(_join(_Break(), clauses)), 0)
-        infix = _infix_overrides.get(decl) or _INFIX.get(kind) or self.infix.get(decl)
+        infix = _custom_infix.get(decl) or _INFIX.get(kind) or self.infix.get(decl)
         if infix is not None and len(args) >= 2:
             symbol, prec, association, breaks = infix
             left_prec = prec if association == "left" else prec + 1
