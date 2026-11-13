@@ -21,17 +21,25 @@ class TheoremIndex(SphinxDirective):
         modules = self.arguments or [
             f"kdrag.theories.{name}" for name in sorted(_STATEMENT_MODULES)
         ]
-        entries = [
-            entry
+        rows = [
+            row
             for module in modules
             if module.removeprefix("kdrag.theories.") in _STATEMENT_MODULES
-            for entry in self.statements(module)
+            for row in self.statements(module)
         ]
-        return (
-            [nodes.bullet_list("", *entries, classes=["theorem-list"])]
-            if entries
-            else []
-        )
+        if not rows:
+            return []
+        table = nodes.table(classes=["theorem-table"])
+        group = nodes.tgroup(cols=2)
+        for width in (24, 76):
+            group += nodes.colspec(colwidth=width)
+        header = nodes.row()
+        for label in ("Theorem", "Statement"):
+            header += nodes.entry("", nodes.paragraph(text=label))
+        group += nodes.thead("", header)
+        group += nodes.tbody("", *rows)
+        table += group
+        return [table]
 
     def statements(self, module_name):
         from kdrag import Proof, pretty_expr
@@ -56,7 +64,7 @@ class TheoremIndex(SphinxDirective):
             if name.startswith("_") or not isinstance(proof, Proof):
                 continue
             qualified_name = f"{module_name}.{name}"
-            entry = nodes.list_item(
+            entry = nodes.row(
                 ids=[nodes.make_id(qualified_name)], classes=["theorem-entry"]
             )
             title = nodes.paragraph()
@@ -64,14 +72,15 @@ class TheoremIndex(SphinxDirective):
             title += nodes.reference("", "", nodes.literal(text=name), refuri=url)
             if proof.admit:
                 title += nodes.Text(" (admitted)")
-            entry += title
+            entry += nodes.entry("", title)
             symbols = sorted({str(decl.name()) for decl in decls(proof.thm)})
             data = escape(json.dumps([qualified_name, symbols]), quote=True)
             metadata = nodes.raw(
                 "", f'<span hidden data-theorem="{data}"></span>', format="html"
             )
-            entry += nodes.literal_block(text=pretty_expr(proof.thm, width=60))
-            entry += metadata
+            entry += nodes.entry(
+                "", nodes.literal_block(text=pretty_expr(proof.thm, width=60)), metadata
+            )
             self.state.document.note_explicit_target(entry)
             entries.append(entry)
         return entries

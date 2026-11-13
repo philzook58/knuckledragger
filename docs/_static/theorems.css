@@ -1,21 +1,58 @@
-.rst-content ul.theorem-list > li.theorem-entry {
-  list-style: none;
-  margin: 0;
-  padding: 0.2rem 0;
-  border-bottom: 1px solid #e1e4e5;
+.rst-content .theorem-table {
+  width: 100%;
+  table-layout: fixed;
 }
 
-.rst-content .theorem-entry p,
-.rst-content .theorem-entry div[class^="highlight"],
-.rst-content .theorem-entry pre {
+.rst-content .theorem-table td,
+.rst-content .theorem-table th {
+  padding: 0.2rem 0.4rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+
+.rst-content .theorem-table .highlight,
+.rst-content .theorem-table div[class^="highlight"],
+.rst-content .theorem-table pre {
   margin: 0;
   padding: 0;
   border: 0;
-  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+}
+
+.rst-content .theorem-table tr[hidden] {
+  display: none;
+}
+
+.rst-content .theorem-table th:first-child {
+  width: 24%;
+}
+
+.rst-content .theorem-table tbody p {
+  margin: 0;
+  font-size: inherit;
   line-height: 1.3;
 }
 
-.rst-content .theorem-entry pre {
+.rst-content .theorem-table tbody td {
+  padding-block: 0.1rem;
+  vertical-align: middle;
+}
+
+.rst-content .theorem-table pre,
+.rst-content .theorem-table pre span {
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow: visible;
+  line-height: 1.3;
+}
+
+.rst-content .theorem-table tbody td > p,
+.rst-content .theorem-table tbody td > div {
+  margin: 0;
+}
+
+.rst-content .theorem-table tbody td pre {
+  padding: 0;
 }
