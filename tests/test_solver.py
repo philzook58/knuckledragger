@@ -282,12 +282,20 @@ def test_vampire_question_answer():
     )
 
 
-def test_gappa():
+def test_gappa_translation():
     x, y = smt.Reals("x y")
     assert (
         gappa.gappa_of_bool(smt.Implies(smt.And(x <= 2, x >= -2 / 8), x * x <= 4))
         == "(((x <= 2) /\\ (x >= -0.25)) -> ((x * x) <= 4))"
     )
+
+
+@pytest.mark.skipif(
+    shutil.which(solvers.binpath("gappa/src/gappa")) is None,
+    reason="Gappa binary is not installed",
+)
+def test_gappa():
+    x = smt.Real("x")
     s = gappa.GappaSolver()
     s.add(smt.Implies(smt.And(x <= 2, x >= -1 / 128), x * x <= 4))
     s.check()
