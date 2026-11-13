@@ -5,7 +5,6 @@ The kernel hold core proof datatypes and core inference rules. By and large, all
 import kdrag as kd
 import kdrag.smt as smt
 from dataclasses import dataclass
-from types import EllipsisType
 from typing import Any, Callable, Iterable, Sequence
 from . import config
 import tempfile
@@ -63,7 +62,7 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def __call__(self, *args: "smt.ExprRef | Proof | EllipsisType"):
+    def __call__(self, *args: "smt.ExprRef | Proof"):
         """
 
         >>> x,y = smt.Ints("x y")
@@ -88,7 +87,7 @@ class Proof(Judgement):
             if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
                 i = acc.thm.num_vars()
                 subargs = [
-                    a if a is Ellipsis or isinstance(a, smt.ExprRef) else smt._py2expr(a)
+                    a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
                     for a in args[n : n + i]
                 ]
                 acc = instan(subargs, acc)
@@ -558,19 +557,10 @@ def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
     return t1, kd.axiom(smt.Eq(t, t1), by=["subst", t, eqs])
 
 
-def instan(ts: Sequence[smt.ExprRef | EllipsisType], pf: Proof) -> Proof:
+def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.
     This is forall elimination
-
-    A single `...` leaves that variable universally quantified.
-
-    >>> x, y = smt.Ints("x y")
-    >>> pf = prove(smt.ForAll([x, y], x + y == y + x))
-    >>> instan([..., smt.IntVal(3)], pf)
-    |= ForAll(x!..., x!... + 3 == 3 + x!...)
-    >>> pf(3, ...)(4)
-    |= 3 + 4 == 4 + 3
     """
     # Note: modus + specialize easily derive this rule, but it is nice to have it directly.
     assert (
@@ -579,21 +569,6 @@ def instan(ts: Sequence[smt.ExprRef | EllipsisType], pf: Proof) -> Proof:
         and pf.thm.is_forall()
         and len(ts) == pf.thm.num_vars()
     )
-
-    holes = [i for i, t in enumerate(ts) if t is Ellipsis]
-    if holes:
-        if len(holes) != 1:
-            raise TypeError("Expected a single ellipsis in a forall binder")
-        if pf.fvs:
-            raise ValueError("Cannot leave a variable uninstantiated in a scoped proof")
-        i = holes[0]
-        v = FreshVar(pf.thm.var_name(i).split("!")[0], pf.thm.var_sort(i))
-        terms = [v if t is Ellipsis else t for t in ts]
-        if not kd.utils.free_in([v], pf.thm) or any(
-            not kd.utils.free_in([v], t) for t in ts if t is not Ellipsis
-        ):
-            raise ValueError("Fresh variable already occurs in the proof or arguments")
-        return instan(terms, pf).forall([v])
 
     return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), by=[pf])
 
