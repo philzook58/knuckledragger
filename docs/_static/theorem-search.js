@@ -45,6 +45,16 @@
 
   query.value = new URLSearchParams(window.location.search).get("theorem") || "";
   search.hidden = false;
-  query.addEventListener("input", update);
+  query.addEventListener("input", () => {
+    const url = new URL(window.location.href);
+    const term = query.value.trim();
+    if (term) {
+      url.searchParams.set("theorem", term);
+    } else {
+      url.searchParams.delete("theorem");
+    }
+    window.history.replaceState(window.history.state, "", url);
+    update();
+  });
   update();
 })();
