@@ -203,4 +203,5 @@ def has_lim_div(l):
     )
     l.have(da / B < eps / 2, by=[])
     l.have(X * (db / (B * Y)) < eps / 2, by=[abs_pos(x), abs_pos(bm - y)])
-    l.auto(by=[div.defn(a, b), abs_add(t1, t2)])
+    l.have(abs(t1 + t2) < eps, by=[abs_add(t1, t2)])
+    l.auto(by=[div.defn(a, b)])
