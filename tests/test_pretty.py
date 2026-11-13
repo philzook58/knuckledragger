@@ -81,7 +81,8 @@ def test_bitvector_operators():
     assert pretty_expr(a <= b) == "a ≤ₛ b"
     assert pretty_expr(smt.ULE(a, b)) == "a ≤ᵤ b"
     assert pretty_expr((a & b) | c) == "(a & b) | c"
-    assert pretty_expr(smt.LShR(a, b)) == "a >>ᵤ b"
+    assert pretty_expr(smt.LShR(a, b)) == "a >>> b"
+    assert pretty_expr(a << b) == "a <<< b"
     assert pretty_expr(a >> b) == "a >>ₛ b"
     assert pretty_expr(smt.UDiv(a, b)) == "a /ᵤ b"
     assert pretty_expr(a / b) == "a /ₛ b"
@@ -109,7 +110,8 @@ def test_set_operators():
         assert pretty_expr(smt.IsSubset(inter, union)) == "A ∩ B ⊆ A ∪ B ∪ C"
         assert pretty_expr(smt.SetComplement(union)) == "(A ∪ B ∪ C)ᶜ"
         assert (
-            pretty_expr(smt.SetDifference(a, smt.SetDifference(b, c))) == "A ∖ (B ∖ C)"
+            pretty_expr(smt.SetDifference(a, smt.SetDifference(b, c)))
+            == "A \\ (B \\ C)"
         )
         x = smt.Const("x", element)
         assert pretty_expr(smt.Select(inter, x)) == "(A ∩ B)[x]"
@@ -121,7 +123,7 @@ def test_zf_notation():
     a, b, c = smt.Consts("A B C", zf.ZFSet)
     x = smt.Const("x", zf.ZFSet)
     assert pretty_expr(zf.elem(x, (a | b) * c)) == "x ∈ (A ∪ B) × C"
-    assert pretty_expr((a - b) <= (a & c)) == "A ∖ B ⊆ A ∩ C"
+    assert pretty_expr((a - b) <= (a & c)) == "A \\ B ⊆ A ∩ C"
 
 
 def test_ptheorem_solver_failure(capsys):
