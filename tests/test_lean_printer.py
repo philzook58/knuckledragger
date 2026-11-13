@@ -49,6 +49,8 @@ def test_prop_guard_in_lean():
     u = smt.DeclareSort("U")
     a = smt.Const("a", u)
     g = smt.Function("g", u, u)
+    v = smt.DeclareSort("V")
+    b = smt.Const("b", v)
     cases = [
         (x - (y - z) == (x + y) * z, "(x - (y - z)) = ((x + y) * z)"),
         (smt.Implies(smt.Implies(p, q), r), "(p → q) → r"),
@@ -65,7 +67,11 @@ def test_prop_guard_in_lean():
         (-(-x) == -(y + z), "-(-x) = -(y + z)"),
         (
             smt.And(g(a) == a, smt.ForAll(a, g(a) == a)),
-            "g a = a ∧ (∀ (b : U), g b = b)",
+            "Nonempty U → g a = a ∧ (∀ (b : U), g b = b)",
+        ),
+        (
+            smt.Exists([a, b], a == a) == p,
+            "Nonempty U → Nonempty V → ((∃ (a : U) (b : V), a = a) ↔ p)",
         ),
     ]
     prelude = """open Classical
@@ -74,6 +80,7 @@ abbrev «pred!» (p : Prop) (x : Int) : Prop := p ∧ x > 0
 end Spec
 variable (x y z : Int) (p q r : Prop) (f : Int → Int → Int)
 variable (U : Type) (a : U) (g : U → U)
+variable (V : Type)
 """
     source = [prelude]
     for expr, expected in cases:
@@ -82,6 +89,8 @@ variable (U : Type) (a : U) (g : U → U)
             source.append(f"#guard_expr ({of_prop(expr, width=width)}) =ₐ ({expected})")
     prop = of_prop(smt.ForAll(x, smt.Implies(x > 0, x + 1 > 0)), width=24)
     source.append(f"example : ({prop}) := by\n  intro x hx\n  omega")
+    witness = of_prop(smt.Exists(a, a == a))
+    source.append(f"example : ({witness}) := by\n  intro ⟨b⟩\n  exact ⟨b, rfl⟩")
     result = subprocess.run(
         lean, input="\n".join(source), capture_output=True, text=True, timeout=30
     )

@@ -211,7 +211,7 @@ _KEYWORDS = frozenset(
     "import open export structure inductive class instance deriving set_option "
     "true false _ _root_".split()
 )
-_BUILTIN_NAMES = {"Int", "ℝ", "Prop", "True", "False"}
+_BUILTIN_NAMES = {"Int", "ℝ", "Prop", "True", "False", "Nonempty"}
 
 
 def _identifier(name: str) -> str:
@@ -273,6 +273,19 @@ class _PropPrinter:
         if sort.kind() == smt.Z3_UNINTERPRETED_SORT:  # type: ignore[ty:missing-attribute]
             return self.name(sort)
         raise NotImplementedError(f"Unsupported Lean export sort: {sort}")
+
+    def proposition(self, expr: smt.ExprRef) -> _Doc:
+        sorts = [
+            name
+            for name, decl in self.free_names.items()
+            if isinstance(decl, smt.SortRef)
+        ]
+        body = self.expr(expr, outer=25 if sorts else 0)
+        for name in reversed(sorts):
+            body = _Group((f"Nonempty {name} →", _Break(), body))
+            if self.full:
+                body = ("(", body, ")")
+        return body
 
     def expr(
         self, expr: smt.ExprRef, outer: int = 0, bound: tuple[str, ...] = ()
@@ -423,6 +436,7 @@ def of_prop(
     """Emit a Lean proposition in a context that declares its free symbols.
 
     SMT Booleans become propositions and unary arrays become functions.
+    Each uninterpreted sort contributes an outer `Nonempty` premise.
     Dots in free symbol names are treated as Lean namespace separators.
     Use Mathlib for reals and `open Classical` for undecidable conditions.
 
@@ -430,13 +444,13 @@ def of_prop(
     >>> of_prop(smt.ForAll(x, smt.Implies(x > 0, x + 1 > 0)))
     '∀ (x : Int), x > (0 : Int) → x + (1 : Int) > (0 : Int)'
     """
-    return _layout(_PropPrinter(expr, fully_parenthesized).expr(expr), width)
+    return _layout(_PropPrinter(expr, fully_parenthesized).proposition(expr), width)
 
 
 def guard_prop(expr: smt.ExprRef, *, width: int = 100) -> str:
     """Emit a Lean check that both renderings elaborate to the same proposition."""
-    readable = _PropPrinter(expr, False).expr(expr)
-    explicit = _PropPrinter(expr, True).expr(expr)
+    readable = _PropPrinter(expr, False).proposition(expr)
+    explicit = _PropPrinter(expr, True).proposition(expr)
     return _layout(
         (
             "#guard_expr",
