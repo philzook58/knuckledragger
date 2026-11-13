@@ -1,7 +1,7 @@
 """Algebra of real sequence limits."""
 
 from kdrag import Theorem
-from kdrag.smt import And, Consts, Exists, ForAll, If, Ints, Reals
+from kdrag.smt import And, Consts, Exists, ForAll, If, Ints, RealVal, Reals
 from kdrag.theories.real import (
     RSeq,
     abs,
@@ -190,7 +190,7 @@ def has_lim_div(l):
     l.have(db < eb, by=[])
     l.have(And(db < Y / 2, db * (4 * (X + 1)) < eps * Y * Y), by=[min.defn, abs_pos(x)])
     l.have(abs(y - bm) == db, by=[abs_neg(bm - y)])
-    l.have(Y <= db + B, by=[abs_triangle(y, 0, bm)])
+    l.have(Y <= db + B, by=[abs_triangle(y, RealVal(0), bm)])
     l.have(B > Y / 2, by=[])
     l.have(bm != 0, by=[abs_pos_iff(bm)])
     t1 = (am - x) / bm
