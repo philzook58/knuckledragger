@@ -11,10 +11,6 @@
   font-size: 0.8rem;
 }
 
-.rst-content .theorem-table td:last-child {
-  font-size: 0.7rem;
-}
-
 .rst-content .theorem-table .highlight,
 .rst-content .theorem-table div[class^="highlight"],
 .rst-content .theorem-table pre {
@@ -32,8 +28,4 @@
 
 .rst-content .theorem-table th:first-child {
   width: 24%;
-}
-
-.rst-content .theorem-table th:last-child {
-  width: 3.5rem;
 }

@@ -30,11 +30,11 @@ class TheoremIndex(SphinxDirective):
         if not rows:
             return []
         table = nodes.table(classes=["theorem-table"])
-        group = nodes.tgroup(cols=3)
-        for width in (24, 68, 8):
+        group = nodes.tgroup(cols=2)
+        for width in (24, 76):
             group += nodes.colspec(colwidth=width)
         header = nodes.row()
-        for label in ("Theorem", "Statement", "Source"):
+        for label in ("Theorem", "Statement"):
             header += nodes.entry("", nodes.paragraph(text=label))
         group += nodes.thead("", header)
         group += nodes.tbody("", *rows)
@@ -69,18 +69,18 @@ class TheoremIndex(SphinxDirective):
             )
             title = nodes.paragraph()
             url = f"{source_url}#L{lines[name]}" if name in lines else source_url
-            title += nodes.literal(text=name)
+            title += nodes.reference("", "", nodes.literal(text=name), refuri=url)
             if proof.admit:
                 title += nodes.Text(" (admitted)")
             entry += nodes.entry("", title)
-            entry += nodes.entry("", nodes.literal_block(text=pretty_expr(proof.thm)))
             symbols = sorted({str(decl.name()) for decl in decls(proof.thm)})
             data = escape(json.dumps([qualified_name, symbols]), quote=True)
-            link = nodes.paragraph("", "", nodes.reference(text="source", refuri=url))
             metadata = nodes.raw(
                 "", f'<span hidden data-theorem="{data}"></span>', format="html"
             )
-            entry += nodes.entry("", link, metadata)
+            entry += nodes.entry(
+                "", nodes.literal_block(text=pretty_expr(proof.thm)), metadata
+            )
             self.state.document.note_explicit_target(entry)
             entries.append(entry)
         return entries
