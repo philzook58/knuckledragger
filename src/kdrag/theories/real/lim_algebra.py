@@ -2,8 +2,19 @@
 
 from kdrag import Theorem
 from kdrag.smt import And, Consts, Exists, ForAll, If, Ints, Reals
-from kdrag.theories.real import RSeq, abs, abs_add, abs_mul, abs_pos, min
-from kdrag.theories.real.seq import add, has_lim, mul, smul
+from kdrag.theories.real import (
+    RSeq,
+    abs,
+    abs_add,
+    abs_div,
+    abs_mul,
+    abs_neg,
+    abs_pos,
+    abs_pos_iff,
+    abs_triangle,
+    min,
+)
+from kdrag.theories.real.seq import add, div, has_lim, mul, smul
 
 
 a, b = Consts("a b", RSeq)
@@ -141,3 +152,55 @@ def div_decomp(l):
     u, v, w, z = l.fixes()
     l.intros()
     l.auto()
+
+
+@Theorem(
+    ForAll([a, b, x, y], has_lim(a, x), has_lim(b, y), y != 0, has_lim(a / b, x / y))
+)
+def has_lim_div(l):
+    a, b, x, y = l.fixes()
+    l.unfold(has_lim)
+    ha, hb = l.intros(), l.intros()
+    l.intros()
+    eps = l.fix()
+    l.intros()
+    # Keep the denominator away from zero and split the quotient error.
+    Y, X = abs(y), abs(x)
+    ea = eps * Y / 4
+    eb = min(Y / 2, eps * Y * Y / (4 * (X + 1)))
+    l.have(Y > 0, by=[abs_pos_iff(y)])
+    l.have(ea > 0, by=[])
+    l.have(eb > 0, by=[abs_pos(x), min.defn])
+    ha = l.specialize(ha, ea)
+    hb = l.specialize(hb, eb)
+    bound, n = Ints("N n")
+    tail_a = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < ea)), by=[])
+    l.clear(ha)
+    N1 = l.obtain(tail_a)
+    tail_b = l.have(Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eb)), by=[])
+    l.clear(hb)
+    N2 = l.obtain(tail_b)
+    l.exists(If(N1 > N2, N1, N2))
+    m = l.fix()
+    l.intros()
+
+    am, bm = a[m], b[m]
+    da, db, B = abs(am - x), abs(bm - y), abs(bm)
+    l.have(da < ea, by=[])
+    l.have(db < eb, by=[])
+    l.have(And(db < Y / 2, db * (4 * (X + 1)) < eps * Y * Y), by=[min.defn, abs_pos(x)])
+    l.have(abs(y - bm) == db, by=[abs_neg(bm - y)])
+    l.have(Y <= db + B, by=[abs_triangle(y, 0, bm)])
+    l.have(B > Y / 2, by=[])
+    l.have(bm != 0, by=[abs_pos_iff(bm)])
+    t1 = (am - x) / bm
+    t2 = x * ((y - bm) / (bm * y))
+    l.have(am / bm - x / y == t1 + t2, by=[div_decomp(am, bm, x, y)])
+    l.have(abs(t1) == da / B, by=[abs_div(am - x, bm)])
+    l.have(
+        abs(t2) == X * (db / (B * Y)),
+        by=[abs_mul(x, (y - bm) / (bm * y)), abs_div(y - bm, bm * y), abs_mul(bm, y)],
+    )
+    l.have(da / B < eps / 2, by=[])
+    l.have(X * (db / (B * Y)) < eps / 2, by=[abs_pos(x), abs_pos(bm - y)])
+    l.auto(by=[div.defn(a, b), abs_add(t1, t2)])
