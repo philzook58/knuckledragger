@@ -1,4 +1,21 @@
+import pytest
+
 import kdrag.smt as smt
+
+
+def test_function_lambda_holes():
+    unary = smt.Function("unary", smt.IntSort(), smt.IntSort())
+    assert smt.simplify(smt.Select(unary(...), 2)).eq(unary(2))
+
+    f = smt.Function(
+        "mixed", smt.IntSort(), smt.IntSort(), smt.BoolSort(), smt.IntSort()
+    )
+    arg = smt.Int("arg")
+    lifted = f(..., arg, ...)
+    assert smt.simplify(smt.Select(lifted, 2, True)).eq(f(2, arg, True))
+
+    with pytest.raises(TypeError, match="full positional argument list"):
+        f(...)
 
 
 def test_is_uninterp():
