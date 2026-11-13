@@ -1139,6 +1139,7 @@ solvers = [
     { name = "kdrag-eprover" },
     { name = "kdrag-scryer" },
     { name = "kdrag-vampire" },
+    { name = "passagemath-kissat", marker = "python_full_version < '3.15'" },
     { name = "py-aiger" },
     { name = "python-flint" },
     { name = "ziglang" },
@@ -1177,6 +1178,7 @@ requires-dist = [
     { name = "lark", specifier = ">=1.3.1" },
     { name = "maturin", extras = ["patchelf"], marker = "extra == 'rust'", specifier = ">=1.8.6" },
     { name = "nbclient", marker = "extra == 'dev'" },
+    { name = "passagemath-kissat", marker = "python_full_version < '3.15' and extra == 'solvers'", specifier = ">=10.8.13" },
     { name = "py-aiger", marker = "extra == 'solvers'", specifier = ">=8.1.0" },
     { name = "pypcode", marker = "extra == 'pypcode'", specifier = ">=4.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
@@ -1467,6 +1469,26 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/66/94/68e2e17afaa9169cf6412ab0f28623903be73d1b32e208d9e8e541bb086d/parso-0.8.4.tar.gz", hash = "sha256:eb3a7b58240fb99099a345571deecc0f9540ea5f4dd2fe14c2a99d6b281ab92d", size = 400609, upload-time = "2024-04-05T09:43:55.897Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c6/ac/dac4a63f978e4dcb3c6d3a78c4d8e0192a113d288502a1216950c41b1027/parso-0.8.4-py2.py3-none-any.whl", hash = "sha256:a418670a20291dacd2dddc80c377c5c3791378ee1e8d12bffc35420643d43f18", size = 103650, upload-time = "2024-04-05T09:43:53.299Z" },
+]
+
+[[package]]
+name = "passagemath-kissat"
+version = "10.8.13"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/c9/a1706f8aa5a5ccccf0a77f61e374bb6058da1401becd8dd1602774019a20/passagemath_kissat-10.8.13.tar.gz", hash = "sha256:5ca223371cccce1456ad6860fa779239d9eefe151afc9543fb6328b03a1b1b24", size = 5178, upload-time = "2026-10-12T19:50:55.478Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ce/5b/713889bf8b6c8b474660d116cde3aa73b3f4dbedc20a63f96373b2ed5699/passagemath_kissat-10.8.13-cp312-abi3-macosx_13_0_arm64.whl", hash = "sha256:7a3816654aaf0280b62792e72c6e831949218d68ee4e7ddfa9b325e51fd1e4ac", size = 208489, upload-time = "2026-10-12T08:39:10.173Z" },
+    { url = "https://files.pythonhosted.org/packages/49/eb/980cea8a9aead7a5609f34bdd2beabbe5b4fc4f7a77806ed6f9c2b0f969c/passagemath_kissat-10.8.13-cp312-abi3-macosx_13_0_x86_64.whl", hash = "sha256:65a71d03170371ddfdeb450b40e1d5d01b022c01a05837cf7bd8cd9031e31748", size = 231666, upload-time = "2026-10-12T08:39:21.615Z" },
+    { url = "https://files.pythonhosted.org/packages/76/9b/8acede3710645413382dff794a7e957e78bd574f66584bab5badbe5ca183/passagemath_kissat-10.8.13-cp312-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:e97129ec2893fab23a3ddc15de49e8b27ea76e0502a81489432817a6fc5198b0", size = 276684, upload-time = "2026-10-12T19:42:55.54Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/fb/00657b21aab75a708e590bb3c7f66104e4f9abd76d59be77781c4a298108/passagemath_kissat-10.8.13-cp312-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:579f369a01f69781b9adf1b36548c965d869bd9d50cddfb798253d3eed8147f9", size = 280763, upload-time = "2026-10-12T08:41:34.4Z" },
+    { url = "https://files.pythonhosted.org/packages/02/04/ed10f4426fc65ba35167da95a5bf6a0fa2a8f43e9a8295efc736fb95ce33/passagemath_kissat-10.8.13-cp312-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:9b556cdfe258754ac556b10024b9c2adc8ea9defd4304767c9eefcec37c52063", size = 279484, upload-time = "2026-10-12T08:39:47.182Z" },
+    { url = "https://files.pythonhosted.org/packages/88/c9/1121f69e48e2ab39f6617896094d77e541b899bea60e48cb179f859197db/passagemath_kissat-10.8.13-cp312-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:2b7fbdcec04422ca3281f416a67990490bf4383065c79ab93f692e35b2179417", size = 284892, upload-time = "2026-10-12T08:40:39.816Z" },
+    { url = "https://files.pythonhosted.org/packages/20/82/7daadd0054d0a63ea77e1980fd499d63f85a6830289ec2a1f93a83a3659f/passagemath_kissat-10.8.13-cp314-cp314t-macosx_13_0_arm64.whl", hash = "sha256:cc5eb482aa22fc564e8b7488a2b9505878666bd00a2226775aa9432b5029e35d", size = 208580, upload-time = "2026-10-12T08:39:11.448Z" },
+    { url = "https://files.pythonhosted.org/packages/1a/e4/40526d78f34cc80f3b975bd1597660e4e976ecfee1f4f0855580f267138b/passagemath_kissat-10.8.13-cp314-cp314t-macosx_13_0_x86_64.whl", hash = "sha256:9c368a675f8d5f7be5ed4e9403357cafe9c8faeafba088ad6a9efadcbb3fb7e7", size = 231427, upload-time = "2026-10-12T08:39:22.955Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/c2/e957af0a3d03d13963f20fc0ae37b42e0e5ca2646711e8f1e6fb6433b1c7/passagemath_kissat-10.8.13-cp314-cp314t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:378a0ef49ecdc7014acda8dcc891727deb3aea5cf76da0ff69b2933bda8da073", size = 283059, upload-time = "2026-10-12T19:42:56.747Z" },
+    { url = "https://files.pythonhosted.org/packages/92/de/fea6dd5d32e56c6422b331dc22c22e348a7ce87b0619798ec0a9ad8fe7a3/passagemath_kissat-10.8.13-cp314-cp314t-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5ddd7504d39aa276547c11feae58e7be1d019a5344f4d22dd8e1dda11123a98c", size = 286038, upload-time = "2026-10-12T08:41:35.472Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/19/7e4693bc8047542d1716318855dbfc1dc8fa3cbae87e1aa8ebf40aac17f0/passagemath_kissat-10.8.13-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:26133272595e3b9f0f269f0073049722435731ec01371954ce5b434ad836cfbd", size = 285601, upload-time = "2026-10-12T08:39:48.204Z" },
+    { url = "https://files.pythonhosted.org/packages/37/fa/12da534e34a03bb72c88ab375ec5b0ac6bc395148eb5d2d75867226ebde4/passagemath_kissat-10.8.13-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:a94182574fda2335c6fe995dc3c7624a328f617b82f9bd2bf32d06b56ae1dfdb", size = 290206, upload-time = "2026-10-12T08:40:40.961Z" },
 ]
 
 [[package]]

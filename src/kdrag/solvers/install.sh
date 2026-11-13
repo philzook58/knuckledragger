@@ -47,13 +47,7 @@ if [[ "${SKIP_PROVER9:-0}" != 1 ]]; then
 fi
 
 
-# Kissat
-# Subsumed by passagemath-kissat?
-echo "Installing Kissat"
-git -C kissat pull || git clone https://github.com/arminbiere/kissat.git --depth 1
-cd kissat
-./configure && make test
-cd ..
+# Kissat is provided by the passagemath-kissat package (solvers extra).
 
 if [[ "${SKIP_GAPPA:-0}" != 1 ]]; then
     echo "Installing Gappa"

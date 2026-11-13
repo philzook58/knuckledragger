@@ -40,6 +40,7 @@ import urllib.request
 import kdrag.printers.lean as lean
 import json
 import hashlib
+from importlib.metadata import distribution
 import tempfile
 
 logger = logging.getLogger("knuckledragger")
@@ -564,10 +565,14 @@ class TweeSolver(BaseSolver):
         return self.check_tptp_status(self.res.stdout)
 
 
+def _kissat_path() -> str:
+    return str(distribution("passagemath-kissat").locate_file("sage_wheels/bin/kissat"))
+
+
 class SATSolver:
     def __init__(self):
         self.G = smt.Goal()
-        self.cmd = [binpath("kissat/build/kissat"), "--relaxed"]
+        self.cmd = [_kissat_path(), "--relaxed"]
 
     def add(self, clause):
         self.G.add(clause)
