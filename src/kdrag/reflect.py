@@ -569,7 +569,7 @@ def _reflect_expr(expr: ast.expr, globals, locals) -> object:
                 assert hasattr(
                     v, "__getitem__"
                 ), f"Value {rec(value)} is not subscriptable"
-                return v[rec(slice)]  # type: ignore[ty:call-non-callable]
+                return v[rec(slice)]  # type: ignore[ty:not-callable]
             case ast.List(elts=elts, ctx=ast.Load()):
                 return [rec(e) for e in elts]
             case ast.Tuple(elts=elts, ctx=ast.Load()):
@@ -1313,7 +1313,7 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
     assert z3fun.arity() == decl.arity() and all(
         z3fun.domain(i) == decl.domain(i) for i in range(z3fun.arity())
     )
-    return functools.update_wrapper(z3fun1, f)  # type: ignore[ty:invalid-return-type]
+    return functools.update_wrapper(z3fun1, f)  # type: ignore[ty:invalid-explicit-return]
 
 
 def datatype(s: str, locals=None, globals=None) -> smt.DatatypeSortRef:

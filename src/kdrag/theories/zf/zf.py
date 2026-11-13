@@ -14,6 +14,7 @@ sets from classes. This is not done here.
 
 import kdrag as kd
 from kdrag import FreshVars, Lemma, QExists, QForAll, Theorem, axiom, define, prove
+from kdrag.printers import pretty
 from kdrag.smt import (
     And,
     BoolSort,
@@ -800,6 +801,14 @@ Bool = upair(true, false)
 
 zero = define("zf.zero", [], emp)
 succ = define("zf.succ", [x], x | sing(x))
+
+
+pretty.register_infix(elem, "∈", 4)
+pretty.register_infix(le, "⊆", 4)
+pretty.register_infix(union, "∪", 5, association="right", breaks=True)
+pretty.register_infix(inter, "∩", 6, association="right", breaks=True)
+pretty.register_infix(sub, "∖", 5)
+pretty.register_infix(prod, "×", 7, association="left")
 
 
 def test():
