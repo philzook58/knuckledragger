@@ -1,28 +1,23 @@
-Knuckledragger
-==============
+Welcome to knuckledragger's documentation!
+==========================================
+
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :caption: Contents:
 
-   real
-   theorems
-   api
+.. autosummary::
+   :toctree: _autosummary
+   :recursive:
 
-Getting started
----------------
+   kdrag.theories
+   kdrag
 
-.. doctest::
+Indices and tables
+==================
 
-   >>> from kdrag import Theorem, pretty_expr
-   >>> from kdrag.smt import ForAll, Int
-   >>> x = Int("x")
-   >>> @Theorem(ForAll(x, x > 0, x + 1 > 0))
-   ... def add_one_pos(l):
-   ...     l.fix()
-   ...     l.intros()
-   ...     l.auto()
-   >>> print(pretty_expr(add_one_pos.thm))
-   ∀x : ℤ, x > 0 → x + 1 > 0
-
-* `Introductory notebook <https://github.com/philzook58/knuckledragger/blob/main/tutorial.ipynb>`_
-* `Project README <https://github.com/philzook58/knuckledragger#readme>`_
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

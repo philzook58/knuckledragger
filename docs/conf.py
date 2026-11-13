@@ -22,9 +22,12 @@ extensions = [
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "myst_parser",
 ]
+
+autosummary_generate = True
 
 autodoc_default_options = {
     "members": True,
@@ -38,7 +41,7 @@ doctest_test_doctest_blocks = ""
 
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "_autosummary", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # Napoleon settings
 napoleon_google_docstring = True

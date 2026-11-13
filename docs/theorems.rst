@@ -1,4 +1,6 @@
-Theory modules
+:orphan:
+
+Theorem search
 ==============
 
 .. raw:: html
@@ -10,9 +12,5 @@ Theory modules
      <p id="theorem-count" role="status"></p>
      <ul id="theorem-results"></ul>
    </div>
-
-.. contents::
-   :local:
-   :depth: 2
 
 .. theorem-index::

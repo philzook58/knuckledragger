@@ -1,43 +1,29 @@
-"""Render the theory module tree and statements from selected modules."""
+"""Render theorem statements and attach symbol search data."""
 
 import json
 from html import escape
 from importlib import import_module
-from pathlib import Path
 
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 
-_THEORIES = Path(__file__).resolve().parents[1] / "src/kdrag/theories"
 _STATEMENT_MODULES = {"int", "nat", "real", "real.analysis", "real.cont", "real.seq"}
-_SOURCE = "https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories"
 
 
 class TheoremIndex(SphinxDirective):
-    def run(self):
-        return self.modules(_THEORIES)
+    optional_arguments = 1
 
-    def modules(self, directory, prefix=""):
-        self.env.note_dependency(str(directory))
-        sections = []
-        for path in sorted(directory.iterdir(), key=lambda path: path.stem):
-            package = path.is_dir() and (path / "__init__.py").is_file()
-            if not package and (path.suffix != ".py" or path.name == "__init__.py"):
-                continue
-            name = prefix + path.stem
-            qualified_name = f"kdrag.theories.{name}"
-            section = nodes.section(ids=[nodes.make_id(qualified_name)])
-            section += nodes.title(text=path.stem)
-            source = path / "__init__.py" if package else path
-            url = f"{_SOURCE}/{source.relative_to(_THEORIES).as_posix()}"
-            section += nodes.paragraph("", "", nodes.reference(text="Source", refuri=url))
-            self.state.document.note_explicit_target(section)
-            if name in _STATEMENT_MODULES:
-                section.extend(self.statements(qualified_name))
-            if package:
-                section.extend(self.modules(path, name + "."))
-            sections.append(section)
-        return sections
+    def run(self):
+        if self.arguments:
+            module_name = self.arguments[0]
+            if module_name.removeprefix("kdrag.theories.") in _STATEMENT_MODULES:
+                return self.statements(module_name)
+            return []
+        return [
+            entry
+            for name in sorted(_STATEMENT_MODULES)
+            for entry in self.statements(f"kdrag.theories.{name}")
+        ]
 
     def statements(self, module_name):
         from kdrag import Proof, pretty_expr
