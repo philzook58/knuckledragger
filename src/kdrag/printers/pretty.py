@@ -349,7 +349,10 @@ class _Printer:
             ]
             clauses.append(("else ", child(default, 1)))
             return wrap(_Group(_join(_Break(), clauses)), 0)
-        infix = _custom_infix.get(decl) or _INFIX.get(kind) or self.infix.get(decl)
+        builtin = _INFIX.get(kind)
+        if len(args) == 2 and smt.is_distinct(expr):
+            builtin = _Infix("≠", 4)
+        infix = _custom_infix.get(decl) or builtin or self.infix.get(decl)
         if infix is not None and len(args) >= 2:
             symbol, prec, association, breaks = infix
             left_prec = prec if association == "left" else prec + 1
