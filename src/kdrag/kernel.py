@@ -184,8 +184,16 @@ def partial_apply(
         else:
             result = smt.Implies(entry.premise, result)
 
-    fvs = pf.fvs.union(*(arg.fvs for arg in args if isinstance(arg, Proof)))
-    return axiom(result, fvs=fvs, by=["partial_apply", pf, *args])
+    reasons = [pf, *(arg for arg in args if isinstance(arg, Proof))]
+    fvs = frozenset().union(*(reason.fvs for reason in reasons))
+    if fvs == pf.fvs and result.eq(pf.thm):
+        return pf
+    # The trail computes a candidate. Check it using the original proofs.
+    reasons = [
+        weaken(reason, list(fvs - reason.fvs)) if reason.fvs != fvs else reason
+        for reason in reasons
+    ]
+    return prove(result, by=reasons, fvs=fvs, solver=smt.Z3Solver)
 
 
 def is_proof(p: Proof) -> bool:
