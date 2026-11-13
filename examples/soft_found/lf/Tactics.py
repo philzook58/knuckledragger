@@ -40,7 +40,7 @@ m, n = Consts("m n", nat.Nat)
 
 @Theorem(ForAll([n, m], n == m, n == m))
 def silly1(l):
-    _n, _m = l.fixes()
+    n, m = l.fixes()
     l.intros()
 
     # %%
@@ -84,7 +84,7 @@ n, m, o, p = Consts("n m o p", nat.Nat)
     )
 )
 def silly2(l):
-    _n, _m, _o, _p = l.fixes()
+    n, m, o, p = l.fixes()
     l.intros()
     l.intros()
     l.apply(1)
@@ -122,7 +122,7 @@ q, r = Consts("q r", nat.Nat)
     )
 )
 def silly2a(l):
-    _n, _m = l.fixes()
+    n, m = l.fixes()
     l.intros()
     l.intros()
     l.apply(1)
@@ -167,7 +167,7 @@ def silly2a(l):
 
 @Theorem(ForAll([n, m], n == m, m == n))
 def silly3(l):
-    _n, _m = l.fixes()
+    n, m = l.fixes()
     l.intros()
     l.symm()
     l.apply(0)
@@ -226,7 +226,7 @@ a, b, c, d, e, f = Consts("a b c d e f", nat.Nat)
     )
 )
 def trans_eq_example(l):
-    _a, _b, _c, _d, _e, _f = l.fixes()
+    a, b, c, d, e, f = l.fixes()
     l.intros()
     l.intros()
     l.rw(0)

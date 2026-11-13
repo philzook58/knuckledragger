@@ -83,29 +83,29 @@ elem_emp = axiom(ForAll([x], elem(x, emp) == BoolVal(False)))
 
 @kd.tactics.Theorem(ForAll([A], (A == emp) == Not(Exists([x], elem(x, A)))))
 def emp_exists_elem(l):
-    _A = l.fix()
+    A = l.fix()
     l.split()
     with l.sub() as l1:
         l1.intros()
         l1.intros()
-        _x = l1.obtain(-1)
+        x = l1.obtain(-1)
         l1.show(BoolVal(False), by=[ext_ax, elem_emp])
     with l.sub() as l2:
         l2.intros()
         l2.rw(ext_ax)
-        _x = l2.fix()
+        x = l2.fix()
         l2.apply(0)
-        l2.exists(_x)
-        l2.have(elem(_x, emp) == BoolVal(False), by=[elem_emp(_x)])
-        l2.have(elem(_x, _A), by=[])
+        l2.exists(x)
+        l2.have(elem(x, emp) == BoolVal(False), by=[elem_emp(x)])
+        l2.have(elem(x, A), by=[])
 
         l2.auto()
 
 
 @Theorem(ForAll(A, A != emp, Exists([x], elem(x, A))))
 def not_emp_exists_elem(l):
-    _A = l.fix()
-    l.auto(by=[emp_exists_elem(_A)])
+    A = l.fix()
+    l.auto(by=[emp_exists_elem(A)])
 
 
 pf1 = prove(Exists([x], Implies(a != emp, elem(x, a))), by=[emp_exists_elem(a)])
@@ -125,11 +125,11 @@ elem_upair = axiom(ForAll([x, y, z], elem(z, upair(x, y)) == Or(z == x, z == y))
 
 @Theorem(ForAll([a, b], Not(upair(a, b) == emp)))
 def upair_not_emp(l):
-    _a, _b = l.fixes()
+    a, b = l.fixes()
     l.rw(ext_ax)
     l.intros()
-    l.have(elem(_a, upair(_a, _b)), by=[elem_upair(_a, _b, _a)])
-    l.have(Not(elem(_a, emp)), by=[elem_emp(_a)])
+    l.have(elem(a, upair(a, b)), by=[elem_upair(a, b, a)])
+    l.have(Not(elem(a, emp)), by=[elem_emp(a)])
     l.auto()
 
 
@@ -199,7 +199,7 @@ sing_not_emp = prove(Not(sing(a) == emp), unfold=1, by=[upair_not_emp]).forall([
 
 @kd.tactics.Theorem(ForAll([a], pick(sing(a)) == a))
 def pick_sing(l):
-    _a = l.fix()
+    l.fix()
     l.unfold(sing)
     l.auto(by=[pick_upair])
     # l.rw(ext_ax)
@@ -264,35 +264,35 @@ def union_comm(l):
     a, b = l.fixes()
     l.unfold(union)
     l.rw(ext_ax)
-    _x = l.fix()
+    l.fix()
     l.auto(by=[elem_upair, bigunion_ax])
 
 
 @Theorem(ForAll([x, A, B], elem(x, bigunion(upair(A, B))) == (elem(x, A) | elem(x, B))))
 def elem_bigunion_upair(l):
-    _x, _A, _B = l.fixes()
+    x, A, B = l.fixes()
     l.rw(bigunion_ax)
     l.split()
     with l.sub() as c1:
         c1.intros()
-        _B1 = c1.obtain(0)
+        c1.obtain(0)
         c1.rw(elem_upair, at=0)
         c1.auto()
     with l.sub() as c2:
         c2.intros()
-        c2.cases(elem(_x, _A))
-        c2.exists(_A)
+        c2.cases(elem(x, A))
+        c2.exists(A)
         c2.rw(elem_upair)
         c2.auto()
 
-        c2.exists(_B)
+        c2.exists(B)
         c2.rw(elem_upair)
         c2.auto()
 
 
 @Theorem(ForAll([x, A, B], elem(x, A | B) == (elem(x, A) | elem(x, B))))
 def elem_union(l):
-    _x, _A, _B = l.fixes()
+    x, A, B = l.fixes()
     l.unfold(union)
     l.rw(elem_bigunion_upair)
     l.auto()
@@ -300,9 +300,9 @@ def elem_union(l):
 
 @Theorem(ForAll([a, b, c], (a | b) | c == a | (b | c)))
 def union_assoc(l):
-    _a, _b, _c = l.fixes()
+    a, b, c = l.fixes()
     l.rw(ext_ax)
-    _x = l.fix()
+    l.fix()
     l.rw(elem_union)
     l.rw(elem_union)
     l.rw(elem_union)
@@ -365,7 +365,7 @@ biginter = define(
     )
 )
 def elem_biginter(l):
-    _A, _x = l.fixes()
+    A, x = l.fixes()
     l.intros()
     l.unfold(biginter)
     l.rw(elem_sep)
@@ -374,13 +374,13 @@ def elem_biginter(l):
     l.intros()
     l.split()
     l.auto()
-    l.have(elem(pick(_A), _A), by=[elem_pick])
+    l.have(elem(pick(A), A), by=[elem_pick])
     l.auto()
 
     l.intros()
-    _b = l.fix()
+    l.fix()
     l.intros()
-    l.have(elem(pick(_A), _A), by=[elem_pick])
+    l.have(elem(pick(A), A), by=[elem_pick])
     l.auto()
 
 
@@ -400,11 +400,11 @@ def elem_inter(l):
 
 @Theorem(ForAll([A, B], biginter(upair(A, B)) == inter(A, B)))
 def biginter_upair_inter(l):
-    _A, _B = l.fixes()
+    A, B = l.fixes()
     l.rw(ext_ax)
-    l.have(Not(upair(_A, _B) == emp))
-    l.exact(upair_not_emp(_A, _B))
-    _x = l.fix()
+    l.have(Not(upair(A, B) == emp))
+    l.exact(upair_not_emp(A, B))
+    l.fix()
     l.rw(elem_inter)
     l.auto(by=[elem_biginter, elem_upair])
 
@@ -502,7 +502,7 @@ def inter_upair_2(l):
     a, b, c = l.fixes()
     l.unfold(inter)
     l.rw(ext_ax)
-    _x = l.fix()
+    l.fix()
     l.rw(elem_sep)
     l.simp()
     l.rw(elem_upair)
@@ -701,7 +701,7 @@ kd.notation.mul.register(Set, prod)
     )
 )
 def elem_prod_def(l):
-    _A, _B, _p = l.fixes()
+    A, B, p = l.fixes()
     l.unfold(prod)
     l.rw(elem_sep)
     l.auto()
@@ -750,7 +750,7 @@ def elem_prod(l):
     l.rw(elem_pow)
     l.rw(-1)
     l.unfold(le)
-    _z = l.fix()
+    l.fix()
     l.intros()
     l.rw(elem_pair, at=-1)
     l.split(at=-1)
@@ -759,7 +759,7 @@ def elem_prod(l):
     l.rw(-1)
     l.rw(elem_pow)
     l.unfold(le)
-    _w = l.fix()
+    l.fix()
     l.intros()
     l.rw(elem_upair, at=-1)
     l.split(at=-1)
@@ -774,7 +774,7 @@ def elem_prod(l):
     l.rw(-1)
     l.rw(elem_pow)
     l.unfold(le)
-    _w = l.fix()
+    l.fix()
     l.intros()
     l.rw(elem_sing, at=-1)
     l.rw(elem_union)

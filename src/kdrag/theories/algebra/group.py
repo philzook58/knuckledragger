@@ -153,10 +153,10 @@ Group.register(
 # id_unique2 = c.qed()
 @Theorem(ForAll([x], ForAll([y], x * y == y), x == e))
 def id_unique2(l):
-    _x = l.fix()
+    x = l.fix()
     l.intros()
-    l.eq(_x * e)
-    l.eq(_x, by=[id_right(_x)])
+    l.eq(x * e)
+    l.eq(x, by=[id_right(x)])
 
 
 c = Calc([x, y], y, assume=[y * x == e])

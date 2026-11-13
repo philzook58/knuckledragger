@@ -34,24 +34,24 @@ to_int_S = prove(ForAll([n], to_int(S(n)) == 1 + to_int(n)), by=[to_int.defn])
 
 @Theorem(ForAll(n, to_int(n) >= 0))
 def to_int_ge_0(l):
-    _n = l.fix()
-    l.induct(_n)
+    n = l.fix()
+    l.induct(n)
     l.auto(by=[to_int.defn])
     l.auto(by=[to_int.defn])
 
 
 @Theorem(ForAll(n, from_int(to_int(n)) == n))
 def from_to_int(l):
-    _n = l.fix()
-    l.induct(_n)
+    n = l.fix()
+    l.induct(n)
     l.auto(by=[from_int.defn, to_int.defn])
     l.auto(by=[from_int.defn, to_int.defn])
 
 
 @Theorem(ForAll(a, to_int(from_int(a)) == If(a <= 0, 0, a)))
 def to_from_int(l):
-    _a = l.fix()
-    l.induct(_a, using=int_.induct)
+    a = l.fix()
+    l.induct(a, using=int_.induct)
     l.auto(by=[from_int.defn, to_int.defn])
     l.auto(by=[from_int.defn, to_int.defn])
     l.auto(by=[from_int.defn, to_int.defn])
@@ -72,11 +72,11 @@ add_S = kd.kernel.prove(
 
 @Theorem(ForAll(x, add(x, Nat.Z) == x))
 def add_Z_r(l):
-    _x1 = l.fix()
-    l.induct(_x1)
+    x1 = l.fix()
+    l.induct(x1)
     l.auto(by=[add.defn(Nat.Z, Nat.Z)])
-    _pred = l.fix()
-    l.auto(by=[add.defn(Nat.S(_pred), Nat.Z)])
+    pred = l.fix()
+    l.auto(by=[add.defn(Nat.S(pred), Nat.Z)])
 
 
 add_x_zero = exact(ForAll(x, add(x, Z) == x), add_Z_r)

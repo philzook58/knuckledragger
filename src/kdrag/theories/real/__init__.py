@@ -110,7 +110,7 @@ mul_comm = prove(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
 # )
 @Theorem(ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)))
 def mul_assoc(l):
-    _x, _y, _z = l.fixes()
+    x, y, z = l.fixes()
     l.unfold()
     l.auto()
 
@@ -358,7 +358,7 @@ exp_inv = prove(ForAll([x], exp(-x) == 1 / exp(x)), by=[exp_div])
 def exp_mono(l):
     # exp(x) <= exp(x) * exp(y-x) == exp(y)
     x, y = l.fixes()
-    _x_ge_y = l.intros()
+    l.intros()
     l.have(exp(y) == exp(y - x) * exp(x), by=[exp_add(y - x, x)])
     l.have(exp(y - x) >= 1, by=[exp_pos_ge_one(y - x)])
     l.auto(by=[exp_pos])
@@ -407,13 +407,13 @@ sin_add = axiom(ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * sin(y)))
 
 @Theorem(ForAll([x, y], cos(x - y) == cos(x) * cos(y) + sin(x) * sin(y)))
 def cos_diff(l):
-    _x, _y = l.fixes()
-    assert isinstance(_y, smt.ArithRef)  # make typechecker stop complaining
+    x, y = l.fixes()
+    assert isinstance(y, smt.ArithRef)  # make typechecker stop complaining
     l.have(
-        cos(_x - _y) == cos(_x) * cos(-_y) - sin(_x) * sin(-_y),
-        by=[cos_add(_x, -_y)],
+        cos(x - y) == cos(x) * cos(-y) - sin(x) * sin(-y),
+        by=[cos_add(x, -y)],
     )
-    l.auto(by=[cos_neg(_y), sin_neg(_y)])
+    l.auto(by=[cos_neg(y), sin_neg(y)])
 
 
 tan = define("tan", [x], sin(x) / cos(x))

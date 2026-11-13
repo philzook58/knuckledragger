@@ -65,12 +65,12 @@ P = Array("P", Z, BoolSort())
     )
 )
 def induct_nat_ax(l):
-    _P = l.fix()
+    l.fix()
     l.intros()
     l.intros()
-    _x = l.fix()
+    x = l.fix()
     l.intros()
-    l.induct(_x, using=induct_nat)
+    l.induct(x, using=induct_nat)
 
 
 def induct_nat_strong(x, P):
@@ -199,7 +199,7 @@ def fact_ge_1(l):
     l.unfold(fact)
     l.auto()
     l.auto(unfold=1)
-    _n = l.fix()
+    l.fix()
     l.intros()
     l.intros()
     l.simp()
@@ -221,7 +221,7 @@ def dvd_fact(l):
     l.auto(by=[fact.defn(IntVal(0))])
     # inductive case n > 0
     l.unfold(dvd)
-    _n = l.fix()
+    n1 = l.fix()
     l.intros()
     l.intros()
     l.intros()
@@ -229,13 +229,13 @@ def dvd_fact(l):
     l.unfold(fact)
     l.simp()
     l.simp(at=1)
-    l.cases(m == _n + 1)
-    # case m == 1 + _n
+    l.cases(m == n1 + 1)
+    # case m == 1 + n1
     l.auto()
-    # case m != 1 + _n
-    witness = l.have(Exists([p], fact(_n) == m * p), by=[])
-    _p = l.obtain(witness)
-    l.exists(_p * (_n + 1))
+    # case m != 1 + n1
+    witness = l.have(Exists([p], fact(n1) == m * p), by=[])
+    p1 = l.obtain(witness)
+    l.exists(p1 * (n1 + 1))
     l.auto()
 
 
