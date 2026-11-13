@@ -166,7 +166,7 @@ def test_deep_expression_uses_smtlib():
 def test_custom_infix_precedence():
     import pytest
 
-    from kdrag.printers.pretty import register_infix
+    from kdrag import register_infix
 
     sort = smt.ArraySort(smt.IntSort(), smt.IntSort())
     combine = smt.Function("combine_pretty_test", sort, sort, sort)
