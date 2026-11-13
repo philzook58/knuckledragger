@@ -11,12 +11,18 @@ def test_limits_at_removable_discontinuities():
     zero, two, three = smt.RealVal(0), smt.RealVal(2), smt.RealVal(3)
     f = smt.Store(smt.K(smt.RealSort(), two), zero, 1)
     g = smt.Store(smt.K(smt.RealSort(), three), zero, 4)
-    lf = kd.prove(real.has_lim_at(f, zero, two), by=[real.has_lim_at.defn, real.abs.defn])
-    lg = kd.prove(real.has_lim_at(g, zero, three), by=[real.has_lim_at.defn, real.abs.defn])
+    lf = kd.prove(
+        real.has_lim_at(f, zero, two), by=[real.has_lim_at.defn, real.abs.defn]
+    )
+    lg = kd.prove(
+        real.has_lim_at(g, zero, three), by=[real.has_lim_at.defn, real.abs.defn]
+    )
     sum_limit = has_lim_at_add(f, g, zero, two, three)(lf, lg)
     product_limit = has_lim_at_mul(f, g, zero, two, three)(lf, lg)
     assert smt.simplify(sum_limit.thm).eq(smt.simplify(real.has_lim_at(f + g, zero, 5)))
-    assert smt.simplify(product_limit.thm).eq(smt.simplify(real.has_lim_at(f * g, zero, 6)))
+    assert smt.simplify(product_limit.thm).eq(
+        smt.simplify(real.has_lim_at(f * g, zero, 6))
+    )
 
 
 @pytest.mark.parametrize("module", ["cont", "lim_algebra"])
@@ -35,8 +41,11 @@ def test_analysis_proofs(module):
         config.timing = was_timing
         del config.perf_log[start:]
 
-    solves = [elapsed for tag, _, elapsed in timings if tag == "solver.check"]
+    solves = [(thm, elapsed) for tag, thm, elapsed in timings if tag == "solver.check"]
     assert solves
-    print(f"Z3 checks: {len(solves)}, total {sum(solves):.4f}s, max {max(solves):.4f}s")
-    for tag, thm, elapsed in timings:
-        assert elapsed < 0.5, (tag, thm, elapsed)
+    durations = [elapsed for _, elapsed in solves]
+    print(
+        f"Z3 checks: {len(solves)}, total {sum(durations):.4f}s, max {max(durations):.4f}s"
+    )
+    for thm, elapsed in solves:
+        assert elapsed < 0.5, ("solver.check", thm, elapsed)
