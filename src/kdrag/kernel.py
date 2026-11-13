@@ -87,25 +87,53 @@ class Proof(Judgement):
         >>> q(..., 3)
         |= ForAll(x!..., x!... + 3 == 3 + x!...)
         """
-        if any(arg is Ellipsis for arg in args):
-            return partial_apply(self, args)
-        # Note: Not trusted code. Trusted code is in `instan` and `modus`
-        acc = self
-        n = 0
-        while n < len(args):
-            if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
-                i = acc.thm.num_vars()
-                subargs = [
-                    a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
-                    for a in args[n : n + i]
-                ]
-                acc = instan(subargs, acc)
-                n += i
-            elif smt.is_implies(acc.thm):
-                x = args[n]
-                n += 1
-                assert isinstance(x, kd.Proof), "Can only apply implication to kd.Proof"
-                acc = modus(acc, x)
+        partial = any(arg is Ellipsis for arg in args)
+        if partial and (
+            self.fvs or any(isinstance(arg, Proof) and arg.fvs for arg in args)
+        ):
+            raise ValueError("Partial application requires proofs with empty fvs")
+
+        # Compose the existing instantiation, modus ponens, and generalization rules.
+        retained_blocks: list[list[smt.ExprRef]] = []
+        pf = self
+        pos = 0
+        while pos < len(args):
+            thm = pf.thm
+            if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+                arity = thm.num_vars()
+                block = args[pos : pos + arity]
+                if partial:
+                    block += (Ellipsis,) * (arity - len(block))
+                terms: list[smt.ExprRef] = []
+                retained: list[smt.ExprRef] = []
+                for i, arg in enumerate(block):
+                    if arg is Ellipsis:
+                        variable = FreshVar(
+                            thm.var_name(i).split("!")[0], thm.var_sort(i)
+                        )
+                        terms.append(variable)
+                        retained.append(variable)
+                    elif partial:
+                        if isinstance(arg, Proof):
+                            raise TypeError(
+                                "Expected a term for a quantified variable", arg
+                            )
+                        terms.append(thm.var_sort(i).cast(arg))
+                    else:
+                        terms.append(
+                            arg if isinstance(arg, smt.ExprRef) else smt._py2expr(arg)
+                        )
+                pf = instan(terms, pf)
+                if retained:
+                    retained_blocks.append(retained)
+                pos += arity
+            elif smt.is_implies(thm):
+                arg = args[pos]
+                if partial and not isinstance(arg, Proof):
+                    raise TypeError("Expected a kd.Proof for an implication premise", arg)
+                assert isinstance(arg, Proof), "Can only apply implication to kd.Proof"
+                pf = modus(pf, arg)
+                pos += 1
             else:
                 raise TypeError(
                     "Failure to apply",
@@ -114,53 +142,10 @@ class Proof(Judgement):
                     args,
                     "Only implications and forall quantifier Proofs can be called",
                 )
-        return acc
 
-
-def partial_apply(
-    pf: Proof, args: Sequence[smt.ExprRef | Proof | EllipsisType]
-) -> Proof:
-    """Apply arguments and generalize the quantified variables left open."""
-    if pf.fvs or any(isinstance(arg, Proof) and arg.fvs for arg in args):
-        raise ValueError("Partial application requires proofs with empty fvs")
-
-    retained_blocks: list[list[smt.ExprRef]] = []
-    pos = 0
-    while pos < len(args):
-        thm = pf.thm
-        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-            terms = []
-            retained = []
-            count = min(thm.num_vars(), len(args) - pos)
-            for i in range(thm.num_vars()):
-                arg = args[pos + i] if i < count else Ellipsis
-                sort = thm.var_sort(i)
-                if arg is Ellipsis:
-                    variable = FreshVar(thm.var_name(i).split("!")[0], sort)
-                    terms.append(variable)
-                    retained.append(variable)
-                elif isinstance(arg, Proof):
-                    raise TypeError("Expected a term for a quantified variable", arg)
-                else:
-                    terms.append(sort.cast(arg))
-            pf = instan(terms, pf)
-            if retained:
-                retained_blocks.append(retained)
-            pos += count
-        elif smt.is_implies(thm):
-            arg = args[pos]
-            if not isinstance(arg, Proof):
-                raise TypeError("Expected a kd.Proof for an implication premise", arg)
-            pf = modus(pf, arg)
-            pos += 1
-        else:
-            raise TypeError(
-                "Only implications and forall quantifier Proofs can be called", thm
-            )
-
-    for retained in reversed(retained_blocks):
-        pf = generalize(retained, pf)
-    return pf
+        for retained in reversed(retained_blocks):
+            pf = generalize(retained, pf)
+        return pf
 
 
 def is_proof(p: Proof) -> bool:
