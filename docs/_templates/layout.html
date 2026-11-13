@@ -6,3 +6,14 @@
   <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
 </form>
 {% endblock %}
+
+{% block menu %}
+{% if pagename == "theorems" %}
+<ul>
+  <li class="toctree-l1"><a class="reference internal" href="{{ pathto('_autosummary/kdrag.theories') }}">kdrag.theories</a></li>
+  <li class="toctree-l1"><a class="reference internal" href="{{ pathto('_autosummary/kdrag') }}">kdrag</a></li>
+</ul>
+{% else %}
+{{ super() }}
+{% endif %}
+{% endblock %}
