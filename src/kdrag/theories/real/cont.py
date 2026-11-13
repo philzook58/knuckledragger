@@ -170,8 +170,25 @@ def has_lim_at_of_cont_at_update(l):
     )
     l.clear(continuity)
     delta = l.obtain(witness)
+    l.split(at=-1)  # Separate positivity from the universal error bound.
+    tail = l.top_goal().ctx[-1]
     l.exists(delta)
-    l.auto(by=[abs.defn])
+    l.split()
+    l.assumption()
+
+    # Instantiate continuity at the point in the punctured neighborhood.
+    x = l.fix()
+    l.intros()
+    l.intros()
+    l.specialize(tail, x)
+    l.auto(
+        by=[
+            abs.defn(x - p),
+            abs.defn(p - x),
+            abs.defn(L - f[x]),
+            abs.defn(f[x] - L),
+        ]
+    )
 
 
 @Theorem(
