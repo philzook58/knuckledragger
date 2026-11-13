@@ -1,0 +1,14 @@
+.rst-content .theorem-entry {
+  margin-bottom: 0.7rem;
+}
+
+.rst-content .theorem-entry p,
+.rst-content .theorem-entry div.highlight,
+.rst-content .theorem-entry pre {
+  margin: 0;
+}
+
+.rst-content .theorem-entry pre {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}

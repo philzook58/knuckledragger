@@ -11,7 +11,7 @@
     const shortName = fullName.split(".").at(-1);
     return {
       name,
-      anchor: node.closest("section").id,
+      anchor: node.closest(".theorem-entry").id,
       names: [fullName, shortName],
       symbols: symbols.map((symbol) => symbol.toLowerCase()),
     };

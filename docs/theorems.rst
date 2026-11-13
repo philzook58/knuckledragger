@@ -1,5 +1,5 @@
-Theorem index
-=============
+Theory modules
+==============
 
 .. raw:: html
 
@@ -13,52 +13,6 @@ Theorem index
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
-Real numbers
-------------
-
-``kdrag.theories.real``
-
-.. theorem-index:: kdrag.theories.real
-
-.. _cont-statements:
-
-Continuity and pointwise limits
--------------------------------
-
-``kdrag.theories.real.cont``
-
-.. theorem-index:: kdrag.theories.real.cont
-
-.. _seq-statements:
-
-Real sequences
---------------
-
-``kdrag.theories.real.seq``
-
-.. theorem-index:: kdrag.theories.real.seq
-
-.. _analysis-statements:
-
-Distance and open sets
-----------------------
-
-``kdrag.theories.real.analysis``
-
-.. theorem-index:: kdrag.theories.real.analysis
-
-Integers
---------
-
-``kdrag.theories.int``
-
-.. theorem-index:: kdrag.theories.int
-
-Natural numbers
----------------
-
-``kdrag.theories.nat``
-
-.. theorem-index:: kdrag.theories.nat
+.. theorem-index::

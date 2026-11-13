@@ -1,9 +1,9 @@
 Real analysis
 =============
 
-* :ref:`cont-statements`
-* :ref:`seq-statements`
-* :ref:`analysis-statements`
+* `real.cont <theorems.html#kdrag-theories-real-cont>`_
+* `real.seq <theorems.html#kdrag-theories-real-seq>`_
+* `real.analysis <theorems.html#kdrag-theories-real-analysis>`_
 * `Sequence limit algebra source <https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/lim_algebra.py>`_
 
 Continuity and pointwise limits

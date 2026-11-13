@@ -79,3 +79,4 @@ def setup(app):
 
     app.add_directive("theorem-index", TheoremIndex)
     app.add_js_file("theorem-search.js", loading_method="defer")
+    app.add_css_file("theorems.css")
