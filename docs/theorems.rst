@@ -1,11 +1,6 @@
 Theorem index
 =============
 
-These statements come from public ``Proof`` objects in the modules below.
-The docs build formats them with Knuckledragger's pretty printer.
-The index includes named axioms alongside proved lemmas and labels entries
-whose proof is marked admitted.
-
 .. raw:: html
 
    <div id="theorem-search" hidden>

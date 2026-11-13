@@ -50,6 +50,7 @@
     }
   }
 
+  query.value = new URLSearchParams(window.location.search).get("theorem") || "";
   search.hidden = false;
   query.addEventListener("input", update);
   update();

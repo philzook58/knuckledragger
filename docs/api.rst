@@ -1,9 +1,6 @@
 Python API
 ==========
 
-Build formulas with constructors from ``kdrag.smt``, which exposes Z3
-expressions and adds conveniences such as curried premises in ``ForAll``.
-
 .. autofunction:: kdrag.smt.ForAll
 .. autofunction:: kdrag.smt.Exists
 .. autofunction:: kdrag.define
