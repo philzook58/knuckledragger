@@ -119,6 +119,16 @@ class Proof(Judgement):
         return acc
 
 
+@dataclass(frozen=True)
+class _Var:
+    variables: tuple[smt.ExprRef, ...]
+
+
+@dataclass(frozen=True)
+class _Hyp:
+    premise: smt.BoolRef
+
+
 def partial_apply(
     pf: Proof, args: Sequence[smt.ExprRef | Proof | EllipsisType]
 ) -> Proof:
@@ -130,41 +140,50 @@ def partial_apply(
     """
     assert isinstance(pf, Proof)
 
-    def apply_at(thm: smt.BoolRef, n: int) -> smt.BoolRef:
-        if n == len(args):
-            return thm
-        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-            variables = fresh_const(thm)
-            terms, retained = [], []
-            count = min(thm.num_vars(), len(args) - n)
-            for i, variable in enumerate(variables):
-                arg = args[n + i] if i < count else Ellipsis
+    trail: list[_Var | _Hyp] = []
+    result = pf.thm
+    pos = 0
+    while pos < len(args):
+        if isinstance(result, smt.QuantifierRef) and result.is_forall():
+            terms: list[smt.ExprRef] = []
+            retained: list[smt.ExprRef] = []
+            count = min(result.num_vars(), len(args) - pos)
+            for i in range(result.num_vars()):
+                sort = result.var_sort(i)
+                arg = args[pos + i] if i < count else Ellipsis
                 if arg is Ellipsis:
+                    prefix = result.var_name(i).split("!")[0]
+                    variable = smt.FreshConst(sort, prefix=prefix)
                     terms.append(variable)
                     retained.append(variable)
                 else:
                     if isinstance(arg, Proof):
-                        raise TypeError(
-                            "Expected a term for a quantified variable", arg
-                        )
-                    terms.append(thm.var_sort(i).cast(arg))
-            body = smt.substitute_vars(thm.body(), *reversed(terms))
-            result = apply_at(body, n + count)
-            return smt.RawForAll(retained, result) if retained else result
-        if smt.is_implies(thm):
-            arg = args[n]
-            if arg is not Ellipsis:
+                        raise TypeError("Expected a term for a quantified variable", arg)
+                    terms.append(sort.cast(arg))
+            if retained:
+                trail.append(_Var(tuple(retained)))
+            result = smt.substitute_vars(result.body(), *reversed(terms))
+            pos += count
+        elif smt.is_implies(result):
+            premise, result = result.children()
+            arg = args[pos]
+            if arg is Ellipsis:
+                trail.append(_Hyp(premise))
+            else:
                 assert isinstance(arg, Proof), "Can only apply implication to kd.Proof"
-                assert thm.arg(0).eq(arg.thm), (
-                    "Proof does not match implication premise"
-                )
-            result = apply_at(thm.arg(1), n + 1)
-            return smt.Implies(thm.arg(0), result) if arg is Ellipsis else result
-        raise TypeError(
-            "Only implications and forall quantifier Proofs can be called", thm
-        )
+                assert premise.eq(arg.thm), "Proof does not match implication premise"
+            pos += 1
+        else:
+            raise TypeError(
+                "Only implications and forall quantifier Proofs can be called", result
+            )
 
-    result = apply_at(pf.thm, 0)
+    for entry in reversed(trail):
+        if isinstance(entry, _Var):
+            result = smt.RawForAll(entry.variables, result)
+        else:
+            result = smt.Implies(entry.premise, result)
+
     fvs = pf.fvs.union(*(arg.fvs for arg in args if isinstance(arg, Proof)))
     return axiom(result, fvs=fvs, by=["partial_apply", pf, *args])
 
