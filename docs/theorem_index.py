@@ -18,16 +18,28 @@ class TheoremIndex(SphinxDirective):
     optional_arguments = 1
 
     def run(self):
-        if self.arguments:
-            module_name = self.arguments[0]
-            if module_name.removeprefix("kdrag.theories.") in _STATEMENT_MODULES:
-                return self.statements(module_name)
-            return []
-        return [
-            entry
-            for name in sorted(_STATEMENT_MODULES)
-            for entry in self.statements(f"kdrag.theories.{name}")
+        modules = self.arguments or [
+            f"kdrag.theories.{name}" for name in sorted(_STATEMENT_MODULES)
         ]
+        rows = [
+            row
+            for module in modules
+            if module.removeprefix("kdrag.theories.") in _STATEMENT_MODULES
+            for row in self.statements(module)
+        ]
+        if not rows:
+            return []
+        table = nodes.table(classes=["theorem-table"])
+        group = nodes.tgroup(cols=3)
+        for width in (24, 68, 8):
+            group += nodes.colspec(colwidth=width)
+        header = nodes.row()
+        for label in ("Theorem", "Statement", "Source"):
+            header += nodes.entry("", nodes.paragraph(text=label))
+        group += nodes.thead("", header)
+        group += nodes.tbody("", *rows)
+        table += group
+        return [table]
 
     def statements(self, module_name):
         from kdrag import Proof, pretty_expr
@@ -52,21 +64,23 @@ class TheoremIndex(SphinxDirective):
             if name.startswith("_") or not isinstance(proof, Proof):
                 continue
             qualified_name = f"{module_name}.{name}"
-            entry = nodes.container(
+            entry = nodes.row(
                 ids=[nodes.make_id(qualified_name)], classes=["theorem-entry"]
             )
             title = nodes.paragraph()
             url = f"{source_url}#L{lines[name]}" if name in lines else source_url
-            title += nodes.reference("", "", nodes.literal(text=name), refuri=url)
+            title += nodes.literal(text=name)
             if proof.admit:
                 title += nodes.Text(" (admitted)")
-            entry += title
-            entry += nodes.literal_block(text=pretty_expr(proof.thm))
+            entry += nodes.entry("", title)
+            entry += nodes.entry("", nodes.literal_block(text=pretty_expr(proof.thm)))
             symbols = sorted({str(decl.name()) for decl in decls(proof.thm)})
             data = escape(json.dumps([qualified_name, symbols]), quote=True)
-            entry += nodes.raw(
+            link = nodes.paragraph("", "", nodes.reference(text="source", refuri=url))
+            metadata = nodes.raw(
                 "", f'<span hidden data-theorem="{data}"></span>', format="html"
             )
+            entry += nodes.entry("", link, metadata)
             self.state.document.note_explicit_target(entry)
             entries.append(entry)
         return entries

@@ -1,37 +1,39 @@
-.rst-content .theorem-entry {
-  margin-bottom: 0.7rem;
+.rst-content .theorem-table {
+  width: 100%;
+  table-layout: fixed;
 }
 
-.rst-content .theorem-entry p,
-.rst-content .theorem-entry div.highlight,
-.rst-content .theorem-entry pre {
+.rst-content .theorem-table td,
+.rst-content .theorem-table th {
+  padding: 0.2rem 0.4rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+
+.rst-content .theorem-table td:last-child {
+  font-size: 0.7rem;
+}
+
+.rst-content .theorem-table .highlight,
+.rst-content .theorem-table div[class^="highlight"],
+.rst-content .theorem-table pre {
   margin: 0;
-}
-
-.rst-content .theorem-entry pre {
-  padding: 0.25rem 0.5rem;
+  padding: 0;
+  border: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   font-size: 0.75rem;
 }
 
-.rst-content .theorem-entry:not([hidden]) {
-  display: grid;
-  grid-template-columns: minmax(10rem, 1fr) minmax(0, 3fr);
-  align-items: baseline;
-  gap: 0.5rem;
+.rst-content .theorem-table tr[hidden] {
+  display: none;
 }
 
-.rst-content .theorem-entry > div.highlight-default {
-  min-width: 0;
+.rst-content .theorem-table th:first-child {
+  width: 24%;
 }
 
-.rst-content .theorem-entry pre {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-@media (max-width: 480px) {
-  .rst-content .theorem-entry:not([hidden]) {
-    grid-template-columns: 1fr;
-    gap: 0.15rem;
-  }
+.rst-content .theorem-table th:last-child {
+  width: 3.5rem;
 }
