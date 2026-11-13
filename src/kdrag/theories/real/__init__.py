@@ -34,7 +34,7 @@ from kdrag.smt import (
 )
 import kdrag.theories.set as set_
 import kdrag as kd
-from kdrag import Lemma, NewType, QExists, QForAll, Theorem, axiom, cond, define, prove
+from kdrag import NewType, QExists, QForAll, Theorem, axiom, cond, define, prove
 
 T = RealSort()
 
@@ -103,14 +103,16 @@ one = define("one", [], RealVal(1))
 mul_one = prove(ForAll([x], mul(x, one) == x), by=[mul.defn, one.defn])
 one_mul = prove(ForAll([x], mul(one, x) == x), by=[mul.defn, one.defn])
 mul_comm = prove(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
+
+
 # mul_assoc = kd.prove(
 #    ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)), by=[mul.defn]
 # )
-_l = Lemma(ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)))
-_x, _y, _z = _l.fixes()
-_l.unfold()
-_l.auto()
-mul_assoc = _l.qed()
+@Theorem(ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)))
+def mul_assoc(l):
+    _x, _y, _z = l.fixes()
+    l.unfold()
+    l.auto()
 
 
 class Mul:
@@ -284,13 +286,16 @@ sqr_neg = prove(ForAll([x], sqr(-x) == sqr(x)), by=[sqr.defn])
 
 # Note that guarding under Real prefix prevents clash with cvc5 built-ins. For better and worse
 sqrt = define("Real.sqrt", [x], x ** "1/2")
+
+
 # sqrt = kd.define("sqrt", [x], smt.If(x >= 0, x ** "1/2", kd.Undef(smt.RealSort(), x)))
 # sqrt
-_l = Lemma(QForAll([x], x >= 0, sqrt(x) >= 0))
-_ = _l.fix()
-_l.unfold()
-_l.auto()
-sqrt_pos = _l.qed()
+@Theorem(QForAll([x], x >= 0, sqrt(x) >= 0))
+def sqrt_pos(l):
+    _ = l.fix()
+    l.unfold()
+    l.auto()
+
 
 # kd.contract(sqrt, [x], x >= 0, sqrt(x) >= 0, by=[sqrt_pos])
 
@@ -298,11 +303,14 @@ sqrt_define = prove(ForAll([x], sqrt(x) == x**0.5), by=[sqrt.defn, pow.defn])
 
 sqrt_one = prove(sqrt(1) == 1, by=[sqrt.defn])
 sqrt_zero = prove(sqrt(0) == 0, by=[sqrt.defn])
-_l = Lemma(QForAll([x], x >= 0, sqrt(x) ** 2 == x))
-_ = _l.fix()
-_l.unfold()
-_l.auto()
-sqrt_square = _l.qed()
+
+
+@Theorem(QForAll([x], x >= 0, sqrt(x) ** 2 == x))
+def sqrt_square(l):
+    _ = l.fix()
+    l.unfold()
+    l.auto()
+
 
 sqr_sqrt = prove(QForAll([x], x >= 0, sqr(sqrt(x)) == x), by=[sqrt_square, sqr.defn])
 
@@ -316,11 +324,13 @@ sqrt_mono = prove(
     by=[sqrt.defn],
 )
 
-_l = Lemma(QForAll([x], x >= 0, sqrt(sqr(x)) == x))
-_ = _l.fix()
-_l.unfold()
-_l.auto()
-sqrt_sqr = _l.qed()
+
+@Theorem(QForAll([x], x >= 0, sqrt(sqr(x)) == x))
+def sqrt_sqr(l):
+    _ = l.fix()
+    l.unfold()
+    l.auto()
+
 
 sqrt_sqr_neg = prove(QForAll([x], x <= 0, sqrt(sqr(x)) == -x), by=[sqrt_sqr, sqr_neg])
 
@@ -394,15 +404,17 @@ sin_neg = axiom(ForAll([x], sin(-x) == -sin(x)))
 cos_add = axiom(ForAll([x, y], cos(x + y) == cos(x) * cos(y) - sin(x) * sin(y)))
 sin_add = axiom(ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * sin(y)))
 
-_l = Lemma(ForAll([x, y], cos(x - y) == cos(x) * cos(y) + sin(x) * sin(y)))
-_x, _y = _l.fixes()
-assert isinstance(_y, smt.ArithRef)  # make typechecker stop complaining
-_l.symm()
-_l.eq(cos(_x + (-_y)))
-_l.rw(cos_add(_x, -_y))
-_l.auto(by=[cos_neg(_y), sin_neg(_y)])
-_l.lemmas
-cos_diff = _l.qed()
+
+@Theorem(ForAll([x, y], cos(x - y) == cos(x) * cos(y) + sin(x) * sin(y)))
+def cos_diff(l):
+    _x, _y = l.fixes()
+    assert isinstance(_y, smt.ArithRef)  # make typechecker stop complaining
+    l.have(
+        cos(_x - _y) == cos(_x) * cos(-_y) - sin(_x) * sin(-_y),
+        by=[cos_add(_x, -_y)],
+    )
+    l.auto(by=[cos_neg(_y), sin_neg(_y)])
+
 
 tan = define("tan", [x], sin(x) / cos(x))
 atan = Function("atan", R, R)  # smt.Const("atan", kd.R >> kd.R)

@@ -13,7 +13,7 @@ sets from classes. This is not done here.
 """
 
 import kdrag as kd
-from kdrag import FreshVars, Lemma, QExists, QForAll, Theorem, axiom, define, prove
+from kdrag import FreshVars, QExists, QForAll, Theorem, axiom, define, prove
 from kdrag.printers import pretty
 from kdrag.smt import (
     And,
@@ -81,7 +81,6 @@ emp = Const("∅", ZFSet)
 elem_emp = axiom(ForAll([x], elem(x, emp) == BoolVal(False)))
 
 
-# l = kd.Lemma(smt.ForAll([A], (A == emp) == smt.Not(smt.Exists([x], elem(x, A)))))
 @kd.tactics.Theorem(ForAll([A], (A == emp) == Not(Exists([x], elem(x, A)))))
 def emp_exists_elem(l):
     _A = l.fix()
@@ -103,14 +102,11 @@ def emp_exists_elem(l):
         l2.auto()
 
 
-# emp_exists_elem = l.qed()
+@Theorem(ForAll(A, Implies((A != emp), Exists([x], elem(x, A)))))
+def not_emp_exists_elem(l):
+    _A = l.fix()
+    l.auto(by=[emp_exists_elem(_A)])
 
-
-l = Lemma(ForAll([A], Implies((A != emp), Exists([x], elem(x, A)))))
-_A = l.fix()
-l.auto(by=[emp_exists_elem(_A)])
-l.qed()
-not_emp_exists_elem = l.qed()
 
 pf1 = prove(Exists([x], Implies(a != emp, elem(x, a))), by=[emp_exists_elem(a)])
 (skolem,), elem_pick0 = kd.tactics.skolem(pf1)
@@ -126,23 +122,26 @@ elem_pick = prove(
 upair = Function("upair", ZFSet, ZFSet, ZFSet)
 elem_upair = axiom(QForAll([x, y, z], elem(z, upair(x, y)) == Or(z == x, z == y)))
 
-l = Lemma(ForAll([a, b], Not(upair(a, b) == emp)))
-_a, _b = l.fixes()
-l.rw(ext_ax)
-l.intros()
-l.have(elem(_a, upair(_a, _b)), by=[elem_upair(_a, _b, _a)])
-l.have(Not(elem(_a, emp)), by=[elem_emp(_a)])
-l.auto()
-upair_not_emp = l.qed()
 
-l = Lemma(ForAll([a, b], upair(a, b) == upair(b, a)))
-l.fixes()
-l.rw(ext_ax)
-l.fix()
-l.rw(elem_upair)
-l.rw(elem_upair)
-l.auto()
-upair_comm = l.qed()
+@Theorem(ForAll([a, b], Not(upair(a, b) == emp)))
+def upair_not_emp(l):
+    _a, _b = l.fixes()
+    l.rw(ext_ax)
+    l.intros()
+    l.have(elem(_a, upair(_a, _b)), by=[elem_upair(_a, _b, _a)])
+    l.have(Not(elem(_a, emp)), by=[elem_emp(_a)])
+    l.auto()
+
+
+@Theorem(ForAll([a, b], upair(a, b) == upair(b, a)))
+def upair_comm(l):
+    l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_upair)
+    l.rw(elem_upair)
+    l.auto()
+
 
 elem_upair_1 = prove(
     ForAll([a, b], elem(a, upair(a, b)) == BoolVal(True)), by=[elem_upair]
@@ -259,71 +258,74 @@ bigunion_ax = axiom(
 union = define("union", [A, B], bigunion(upair(A, B)))
 kd.notation.or_.register(Set, union)
 
-l = Lemma(a | b == b | a)
-l.unfold(union)
-l.rw(ext_ax)
-_x = l.fix()
-l.auto(by=[elem_upair, bigunion_ax])
-union_comm = l.qed().forall([a, b])
 
-l = Lemma(
-    ForAll([x, A, B], elem(x, bigunion(upair(A, B))) == (elem(x, A) | elem(x, B)))
-)
-_x, _A, _B = l.fixes()
-l.rw(bigunion_ax)
-l.split()
-with l.sub() as c1:
-    c1.intros()
-    _B1 = c1.obtain(0)
-    c1.rw(elem_upair, at=0)
-    c1.auto()
-with l.sub() as c2:
-    c2.intros()
-    c2.cases(elem(_x, _A))
-    c2.exists(_A)
-    c2.rw(elem_upair)
-    c2.auto()
-
-    c2.exists(_B)
-    c2.rw(elem_upair)
-    c2.auto()
-elem_bigunion_upair = l.qed()
+@Theorem(ForAll([a, b], a | b == b | a))
+def union_comm(l):
+    a, b = l.fixes()
+    l.unfold(union)
+    l.rw(ext_ax)
+    _x = l.fix()
+    l.auto(by=[elem_upair, bigunion_ax])
 
 
-l = Lemma(ForAll([x, A, B], elem(x, A | B) == (elem(x, A) | elem(x, B))))
-_x, _A, _B = l.fixes()
-l.unfold(union)
-l.rw(elem_bigunion_upair)
-l.auto()
-elem_union = l.qed()
+@Theorem(ForAll([x, A, B], elem(x, bigunion(upair(A, B))) == (elem(x, A) | elem(x, B))))
+def elem_bigunion_upair(l):
+    _x, _A, _B = l.fixes()
+    l.rw(bigunion_ax)
+    l.split()
+    with l.sub() as c1:
+        c1.intros()
+        _B1 = c1.obtain(0)
+        c1.rw(elem_upair, at=0)
+        c1.auto()
+    with l.sub() as c2:
+        c2.intros()
+        c2.cases(elem(_x, _A))
+        c2.exists(_A)
+        c2.rw(elem_upair)
+        c2.auto()
+
+        c2.exists(_B)
+        c2.rw(elem_upair)
+        c2.auto()
 
 
-l = Lemma(ForAll([a, b, c], (a | b) | c == a | (b | c)))
-_a, _b, _c = l.fixes()
-l.rw(ext_ax)
-_x = l.fix()
-l.rw(elem_union)
-l.rw(elem_union)
-l.rw(elem_union)
-l.rw(elem_union)
-l.auto()
-union_assoc = l.qed()
+@Theorem(ForAll([x, A, B], elem(x, A | B) == (elem(x, A) | elem(x, B))))
+def elem_union(l):
+    _x, _A, _B = l.fixes()
+    l.unfold(union)
+    l.rw(elem_bigunion_upair)
+    l.auto()
 
-l = Lemma(ForAll([a], a | a == a))
-l.fixes()
-l.rw(ext_ax)
-l.fix()
-l.rw(elem_union)
-l.auto()
-union_idem = l.qed()
 
-l = Lemma(ForAll([a, b, c], a <= a | b))
-l.fixes()
-l.unfold(le)
-l.fix()
-l.rw(elem_union)
-l.auto()
-le_union = l.qed()
+@Theorem(ForAll([a, b, c], (a | b) | c == a | (b | c)))
+def union_assoc(l):
+    _a, _b, _c = l.fixes()
+    l.rw(ext_ax)
+    _x = l.fix()
+    l.rw(elem_union)
+    l.rw(elem_union)
+    l.rw(elem_union)
+    l.rw(elem_union)
+    l.auto()
+
+
+@Theorem(ForAll(a, a | a == a))
+def union_idem(l):
+    l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_union)
+    l.auto()
+
+
+@Theorem(ForAll([a, b, c], a <= a | b))
+def le_union(l):
+    l.fixes()
+    l.unfold(le)
+    l.fix()
+    l.rw(elem_union)
+    l.auto()
 
 
 @kd.tactics.Theorem(ForAll([a, b], sing(a) | upair(a, b) == upair(a, b)))
@@ -353,31 +355,33 @@ biginter = define(
     [a],
     sep(pick(a), Lambda([x], QForAll([b], elem(b, a), elem(x, b)))),
 )
+
+
 # huh. biginter(emp) is undefined since we can't pick from it.
-l = Lemma(
+@Theorem(
     ForAll(
         [A, x],
         Implies(A != emp, elem(x, biginter(A)) == QForAll([b], elem(b, A), elem(x, b))),
     )
 )
-_A, _x = l.fixes()
-l.intros()
-l.unfold(biginter)
-l.rw(elem_sep)
-l.simp()
-l.split()
-l.intros()
-l.split()
-l.auto()
-l.have(elem(pick(_A), _A), by=[elem_pick])
-l.auto()
+def elem_biginter(l):
+    _A, _x = l.fixes()
+    l.intros()
+    l.unfold(biginter)
+    l.rw(elem_sep)
+    l.simp()
+    l.split()
+    l.intros()
+    l.split()
+    l.auto()
+    l.have(elem(pick(_A), _A), by=[elem_pick])
+    l.auto()
 
-l.intros()
-_b = l.fix()
-l.intros()
-l.have(elem(pick(_A), _A), by=[elem_pick])
-l.auto()
-elem_biginter = l.qed()
+    l.intros()
+    _b = l.fix()
+    l.intros()
+    l.have(elem(pick(_A), _A), by=[elem_pick])
+    l.auto()
 
 
 # Intersection
@@ -385,71 +389,77 @@ elem_biginter = l.qed()
 inter = define("inter", [A, B], sep(A, Lambda([x], elem(x, B))))
 kd.notation.and_.register(Set, inter)
 
-l = Lemma(ForAll([x, A, B], elem(x, A & B) == (elem(x, A) & elem(x, B))))
-l.fixes()
-l.unfold(inter)
-l.rw(elem_sep)
-l.auto()
-elem_inter = l.qed()
 
-l = Lemma(ForAll([A, B], biginter(upair(A, B)) == inter(A, B)))
-_A, _B = l.fixes()
-l.rw(ext_ax)
-l.have(upair(_A, _B) != emp, by=[upair_not_emp(_A, _B)])
-_x = l.fix()
-l.rw(elem_inter)
-l.auto(by=[elem_biginter, elem_upair])
-biginter_upair_inter = l.qed()
-
-l = Lemma(ForAll([A, B], A & B == B & A))
-l.fixes()
-l.rw(ext_ax)
-l.fix()
-l.rw(elem_inter)
-l.rw(elem_inter)
-l.auto()
-inter_comm = l.qed()
-
-l = Lemma(ForAll([a, b, c], (a & b) & c == a & (b & c)))
-l.fixes()
-l.rw(ext_ax)
-l.fix()
-l.rw(elem_inter)
-l.rw(elem_inter)
-l.rw(elem_inter)
-l.rw(elem_inter)
-l.auto()
-inter_assoc = l.qed()
+@Theorem(ForAll([x, A, B], elem(x, A & B) == (elem(x, A) & elem(x, B))))
+def elem_inter(l):
+    l.fixes()
+    l.unfold(inter)
+    l.rw(elem_sep)
+    l.auto()
 
 
-l = Lemma(ForAll([a], a & a == a))
-l.fixes()
-l.rw(ext_ax)
-l.fix()
-l.rw(elem_inter)
-l.auto()
-inter_idem = l.qed()
+@Theorem(ForAll([A, B], biginter(upair(A, B)) == inter(A, B)))
+def biginter_upair_inter(l):
+    _A, _B = l.fixes()
+    l.rw(ext_ax)
+    l.have(Not(upair(_A, _B) == emp))
+    l.exact(upair_not_emp(_A, _B))
+    _x = l.fix()
+    l.rw(elem_inter)
+    l.auto(by=[elem_biginter, elem_upair])
 
 
-l = Lemma(ForAll([a, b, c], a & (b | c) == (a & b) | (a & c)))
-l.fixes()
-l.rw(ext_ax)
-l.fix()
-l.rw(elem_inter)
-l.rw(elem_union)
-l.rw(elem_inter)
-l.rw(elem_union)
-l.rw(elem_inter)
-l.auto()
-inter_union_distr = l.qed()
+@Theorem(ForAll([A, B], A & B == B & A))
+def inter_comm(l):
+    l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_inter)
+    l.rw(elem_inter)
+    l.auto()
 
-l = Lemma(ForAll([a, b], a & b <= a))
-l.fixes()
-l.unfold(le)
-l.fix()
-l.rw(elem_inter)
-l.auto()
-inter_le = l.qed()
+
+@Theorem(ForAll([a, b, c], (a & b) & c == a & (b & c)))
+def inter_assoc(l):
+    l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_inter)
+    l.rw(elem_inter)
+    l.rw(elem_inter)
+    l.rw(elem_inter)
+    l.auto()
+
+
+@Theorem(ForAll(a, a & a == a))
+def inter_idem(l):
+    l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_inter)
+    l.auto()
+
+
+@Theorem(ForAll([a, b, c], a & (b | c) == (a & b) | (a & c)))
+def inter_union_distr(l):
+    l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_inter)
+    l.rw(elem_union)
+    l.rw(elem_inter)
+    l.rw(elem_union)
+    l.rw(elem_inter)
+    l.auto()
+
+
+@Theorem(ForAll([a, b], a & b <= a))
+def inter_le(l):
+    l.fixes()
+    l.unfold(le)
+    l.fix()
+    l.rw(elem_inter)
+    l.auto()
 
 
 @Theorem(ForAll([a, b, x], (x <= (a & b)) == ((x <= a) & (x <= b))))
@@ -461,20 +471,20 @@ def le_inter_2(l):
     l.auto(by=[elem_inter])
 
 
-l = Lemma(ForAll([x], x & emp == emp))
-l.fixes()
-l.rw(ext_ax)
-l.fix()
-l.rw(elem_inter)
-l.rw(elem_emp)
-l.auto()
-inter_emp = l.qed()
+@Theorem(ForAll(x, x & emp == emp))
+def inter_emp(l):
+    l.fixes()
+    l.rw(ext_ax)
+    l.fix()
+    l.rw(elem_inter)
+    l.rw(elem_emp)
+    l.auto()
 
 
-l = Lemma(ForAll([a, b, c], (a | b) & c == (a & c) | (b & c)))
-l.fixes()
-l.auto(by=[inter_comm, inter_union_distr])
-union_inter_distr = l.qed()
+@Theorem(ForAll([a, b, c], (a | b) & c == (a & c) | (b & c)))
+def union_inter_distr(l):
+    l.fixes()
+    l.auto(by=[inter_comm, inter_union_distr])
 
 
 @kd.tactics.Theorem(

@@ -6,7 +6,6 @@ import kdrag as kd
 from kdrag import (  # noqa: F401
     FreshVar,
     FreshVars,
-    Lemma,
     QForAll,
     Struct,
     Theorem,
@@ -56,21 +55,23 @@ def induct_nat(x, P):
 
 n, x, N = Ints("n x N")
 P = Array("P", Z, BoolSort())
-_l = Lemma(
+
+
+@Theorem(
     QForAll(
         [P],
         P(0),
         QForAll([n], n >= 0, P(n), P(n + 1)),
         QForAll([x], x >= 0, P(x)),
-    ),
+    )
 )
-_P = _l.fix()
-_l.intros()
-_l.intros()
-_x = _l.fix()
-_l.intros()
-_l.induct(_x, using=induct_nat)
-induct_nat_ax = _l.qed()
+def induct_nat_ax(l):
+    _P = l.fix()
+    l.intros()
+    l.intros()
+    _x = l.fix()
+    l.intros()
+    l.induct(_x, using=induct_nat)
 
 
 def induct_nat_strong(x, P):
@@ -175,56 +176,69 @@ fact = Function("fact", IntSort(), IntSort())
 fact = define("fact", [n], If(n <= 0, 1, n * fact(n - 1)))
 
 n, k = FreshVars("n k", Z)
-prime_nat = prove(Implies(prime(n), n >= 0), by=prime.defn(n)).forall([n])
-
-prime_gt_1 = prove(Implies(prime(n), n > 1), by=prime.defn(n)).forall([n])
 
 
-dvd_imp_le = prove(Implies(And(dvd(k, n), k >= 0, n > 0), k <= n), unfold=1).forall(
-    [k, n]
+@Theorem(ForAll(n, Implies(prime(n), n >= 0)))
+def prime_nat(l):
+    n = l.fix()
+    l.auto(by=prime.defn(n))
+
+
+@Theorem(ForAll(n, Implies(prime(n), n > 1)))
+def prime_gt_1(l):
+    n = l.fix()
+    l.auto(by=prime.defn(n))
+
+
+dvd_imp_le = prove(
+    ForAll([k, n], Implies(And(dvd(k, n), k >= 0, n > 0), k <= n)), unfold=1
 )
 
 
-_l = Lemma(fact(n) >= 1)
-_l.induct(n)
-_l.unfold(fact)
-_l.auto()
-_l.auto(unfold=1)
-_n = _l.fix()
-_l.intros()
-_l.intros()
-_l.simp()
-_l.unfold(fact)
-_l.simp()
-_l.auto()
-fact_ge_1 = _l.qed().forall([n])
+@Theorem(ForAll(n, fact(n) >= 1))
+def fact_ge_1(l):
+    n = l.fix()
+    l.induct(n)
+    l.unfold(fact)
+    l.auto()
+    l.auto(unfold=1)
+    _n = l.fix()
+    l.intros()
+    l.intros()
+    l.simp()
+    l.unfold(fact)
+    l.simp()
+    l.auto()
+
 
 m = FreshVar("m", IntSort())
 
-_l = Lemma(Implies(And(1 <= m, m <= n), dvd(m, fact(n))))
-_l.induct(n)
-# inductive case n < 0 is vacuous
-_l.auto()
-# inductive case n == 0
-_l.auto(by=[fact.defn(IntVal(0))])
-# inductive case n > 0
-_l.unfold(dvd)
-_n = _l.fix()
-_l.intros()
-_l.intros()
-_l.unfold(fact)
-_l.simp()
-_l.intros()
-_l.simp(at=1)
-_l.cases(m == _n + 1)
-# case m == 1 + _n
-_l.auto()
-# case m != 1 + _n
-witness = _l.have(Exists([p], fact(_n) == m * p), by=[])
-_p = _l.obtain(witness)
-_l.exists(_p * (_n + 1))
-_l.auto()
-dvd_fact = _l.qed().forall([m, n])
+
+@Theorem(ForAll([m, n], Implies(And(1 <= m, m <= n), dvd(m, fact(n)))))
+def dvd_fact(l):
+    m, n = l.fixes()
+    l.induct(n)
+    # inductive case n < 0 is vacuous
+    l.auto()
+    # inductive case n == 0
+    l.auto(by=[fact.defn(IntVal(0))])
+    # inductive case n > 0
+    l.unfold(dvd)
+    _n = l.fix()
+    l.intros()
+    l.intros()
+    l.unfold(fact)
+    l.simp()
+    l.intros()
+    l.simp(at=1)
+    l.cases(m == _n + 1)
+    # case m == 1 + _n
+    l.auto()
+    # case m != 1 + _n
+    witness = l.have(Exists([p], fact(_n) == m * p), by=[])
+    _p = l.obtain(witness)
+    l.exists(_p * (_n + 1))
+    l.auto()
 
 
 P = Const("P", ZSet)  # smt.Array("P", Z, smt.BoolSort())

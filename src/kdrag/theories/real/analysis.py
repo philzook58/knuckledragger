@@ -1,4 +1,4 @@
-from kdrag import FreshVars, Lemma, QExists, QForAll, define, prove
+from kdrag import FreshVars, QExists, QForAll, Theorem, define, prove
 from kdrag.smt import Const, FreshConst, Implies, Lambda, RealSort, RealVal, Reals  # noqa: F401
 import kdrag.theories.real as real
 import kdrag.theories.set as set_
@@ -33,13 +33,14 @@ is_open = define(
 is_open_full = prove(is_open(RSet.full), unfold=1)
 is_open_empty = prove(is_open(RSet.empty), unfold=1)
 
-l = Lemma(is_open(ball(0, 1)))
-l.unfold()
-_x = l.fix()
-l.intros()
-l.exists(1 - real.abs(_x))
-l.auto(unfold=2)
-is_open_unit_ball = l.qed()
+
+@Theorem(is_open(ball(0, 1)))
+def is_open_unit_ball(l):
+    l.unfold()
+    _x = l.fix()
+    l.intros()
+    l.exists(1 - real.abs(_x))
+    l.auto(unfold=2)
 
 
 dist = define("R.dist", [x, y], real.abs(x - y))

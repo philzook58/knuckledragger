@@ -1,5 +1,5 @@
 import kdrag as kd
-from kdrag import Calc, Lemma, QForAll, axiom, define, prove
+from kdrag import Calc, QForAll, Theorem, axiom, define, prove
 import kdrag.smt as smt
 from kdrag.smt import (
     Const,
@@ -145,16 +145,19 @@ Group.register(
     inv_left=inv_left,
     inv_right=inv_right,
 )
+
+
 # c = kd.Calc([x], e, assume=[smt.ForAll([y], x * y == y)])
 # c.eq(x * e)
 # c.eq(x, by=[id_right])
 # id_unique2 = c.qed()
-l = Lemma(QForAll([x], QForAll([y], x * y == y), x == e))
-_x = l.fix()
-l.intros()
-l.eq(_x * e)
-l.eq(_x, by=[id_right(_x)])
-id_unique2 = l.qed()
+@Theorem(QForAll([x], QForAll([y], x * y == y), x == e))
+def id_unique2(l):
+    _x = l.fix()
+    l.intros()
+    l.eq(_x * e)
+    l.eq(_x, by=[id_right(_x)])
+
 
 c = Calc([x, y], y, assume=[y * x == e])
 c.eq(y * e, by=[id_right])

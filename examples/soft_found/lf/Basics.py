@@ -94,7 +94,7 @@ Inductive day : Type :=
 
 # from kdrag.all import *
 import kdrag as kd
-from kdrag import Enum, Inductive, Lemma, Struct, cond, define, prove, simp
+from kdrag import Enum, Inductive, Struct, Theorem, cond, define, prove, simp
 from kdrag.smt import ArraySort, Const, Consts, ForAll, If, Lambda
 
 day = Enum("day", "monday tuesday wednesday thursday friday saturday sunday")
@@ -171,7 +171,6 @@ simp(next_weekday(next_weekday(day.saturday)))
 Example test_next_weekday:
   (next_weekday (next_weekday saturday)) = tuesday.
 """
-l = Lemma(next_weekday(next_weekday(day.saturday)) == day.tuesday)
 
 """
 This declaration does two things: it makes an assertion
@@ -181,9 +180,12 @@ Having made the assertion, we can also ask Coq to verify it like
 this:
 """
 """Proof. simpl. reflexivity.  Qed."""
-# l.unfold(next_weekday, next_weekday)
-l.auto(by=next_weekday.defn)
-l.qed()
+
+
+@Theorem(next_weekday(next_weekday(day.saturday)) == day.tuesday)
+def test_next_weekday(l):
+    l.auto(by=next_weekday.defn)
+
 
 # %% [markdown]
 # The details are not important just now, but essentially this

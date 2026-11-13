@@ -31,24 +31,28 @@
 
 # %%
 from kdrag.all import *
-from kdrag import Lemma, QForAll
+from kdrag import QForAll, Theorem
 from kdrag.smt import Consts, Implies
 import kdrag.theories.nat as nat
 
 m, n = Consts("m n", nat.Nat)
-l = Lemma(QForAll([n, m], n == m, n == m))
-_n, _m = l.fixes()
-l.intros()
 
-# %%
-# (** Here, we could finish with "[rewrite -> eq.  reflexivity.]" as we
-#     have done several times before.  Or we can finish in a single step
-#     by using [apply]: *)
 
-#   apply eq.  Qed.
+@Theorem(QForAll([n, m], n == m, n == m))
+def silly1(l):
+    _n, _m = l.fixes()
+    l.intros()
 
-l.apply(0)
-silly1 = l.qed()
+    # %%
+    # (** Here, we could finish with "[rewrite -> eq.  reflexivity.]" as we
+    #     have done several times before.  Or we can finish in a single step
+    #     by using [apply]: *)
+
+    #   apply eq.  Qed.
+
+    l.apply(0)
+
+
 silly1
 
 # %%
@@ -69,20 +73,24 @@ silly1
 import kdrag.theories.seq as seq
 
 n, m, o, p = Consts("n m o p", nat.Nat)
-l = Lemma(
+
+
+@Theorem(
     QForAll(
         [n, m, o, p],
         n == m,
         Implies(n == m, seq.seq(n, o) == seq.seq(m, p)),
         seq.seq(n, o) == seq.seq(m, p),
-    ),
+    )
 )
-_n, _m, _o, _p = l.fixes()
-l.intros()
-l.intros()
-l.apply(1)
-l.apply(0)
-silly2 = l.qed()
+def silly2(l):
+    _n, _m, _o, _p = l.fixes()
+    l.intros()
+    l.intros()
+    l.apply(1)
+    l.apply(0)
+
+
 # %%
 
 # (** Typically, when we use [apply H], the statement [H] will
@@ -103,7 +111,9 @@ silly2 = l.qed()
 #   intros n m eq1 eq2.
 #   apply eq2. apply eq1.  Qed.
 q, r = Consts("q r", nat.Nat)
-l = Lemma(
+
+
+@Theorem(
     QForAll(
         [n, m],
         seq.seq(n, n) == seq.seq(m, m),
@@ -111,12 +121,13 @@ l = Lemma(
         seq.seq(n) == seq.seq(m),
     )
 )
-_n, _m = l.fixes()
-l.intros()
-l.intros()
-l.apply(1)
-l.apply(0)
-silly2a = l.qed()
+def silly2a(l):
+    _n, _m = l.fixes()
+    l.intros()
+    l.intros()
+    l.apply(1)
+    l.apply(0)
+
 
 # %%
 
@@ -153,12 +164,15 @@ silly2a = l.qed()
 
 #   symmetry. apply H.  Qed.
 
-l = Lemma(QForAll([n, m], n == m, m == n))
-_n, _m = l.fixes()
-l.intros()
-l.symm()
-l.apply(0)
-silly3 = l.qed()
+
+@Theorem(QForAll([n, m], n == m, m == n))
+def silly3(l):
+    _n, _m = l.fixes()
+    l.intros()
+    l.symm()
+    l.apply(0)
+
+
 # %%
 
 # (** **** Exercise: 2 stars, standard (apply_exercise1)
@@ -201,7 +215,9 @@ silly3 = l.qed()
 #   rewrite -> eq1. rewrite -> eq2. reflexivity.  Qed.
 
 a, b, c, d, e, f = Consts("a b c d e f", nat.Nat)
-l = Lemma(
+
+
+@Theorem(
     QForAll(
         [a, b, c, d, e, f],
         seq.seq(a, b) == seq.seq(c, d),
@@ -209,13 +225,14 @@ l = Lemma(
         seq.seq(a, b) == seq.seq(e, f),
     )
 )
-_a, _b, _c, _d, _e, _f = l.fixes()
-l.intros()
-l.intros()
-l.rw(0)
-l.rw(1)
-l.auto()
-trans_eq_example = l.qed()
+def trans_eq_example(l):
+    _a, _b, _c, _d, _e, _f = l.fixes()
+    l.intros()
+    l.intros()
+    l.rw(0)
+    l.rw(1)
+    l.auto()
+
 
 # %%
 
