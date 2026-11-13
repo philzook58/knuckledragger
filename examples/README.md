@@ -1,3 +1,9 @@
+Continuity and limit lemmas live in
+[real/cont.py](../src/kdrag/theories/real/cont.py).
+Run `uv run pytest tests/test_real_cont.py::test_analysis_proofs -s` for solver timings.
+The test excludes base-theory imports and fails if a solver check or proof takes
+0.5 seconds or longer.
+
 Other ideas:
 
 - <http://www.concrete-semantics.org/>
