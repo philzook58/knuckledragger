@@ -176,7 +176,7 @@ _PREFIX = {
     "bv_neg": ("-", 7),
     "bv_not": ("~", 7),
 }
-_REGISTERED_INFIX = (
+_SORT_DISPATCH_INFIX = (
     (notation.add, _INFIX["add"]),
     (notation.radd, _INFIX["add"]),
     (notation.sub, _INFIX["sub"]),
@@ -193,7 +193,7 @@ _REGISTERED_INFIX = (
     (notation.eq, _INFIX["eq"]),
     (notation.ne, _Infix("≠", 4)),
 )
-_REGISTERED_PREFIX = (
+_SORT_DISPATCH_PREFIX = (
     (notation.neg, _PREFIX["neg"]),
     (notation.invert, _PREFIX["not"]),
 )
@@ -207,13 +207,13 @@ class _Printer:
     def __init__(self, expressions: list[smt.ExprRef]):
         self.infix = {
             decl: rule
-            for dispatch, rule in _REGISTERED_INFIX
+            for dispatch, rule in _SORT_DISPATCH_INFIX
             for decl in dispatch.methods.values()
             if isinstance(decl, smt.FuncDeclRef) and decl.arity() == 2
         }
         self.prefix = {
             decl: rule
-            for dispatch, rule in _REGISTERED_PREFIX
+            for dispatch, rule in _SORT_DISPATCH_PREFIX
             for decl in dispatch.methods.values()
             if isinstance(decl, smt.FuncDeclRef) and decl.arity() == 1
         }
