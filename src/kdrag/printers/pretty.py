@@ -46,8 +46,10 @@ def _layout(doc: _Doc, width: int) -> str:
                 )
             elif isinstance(part, _Nest):
                 pending.append((indent + 2, flat, part.doc))
-            else:
+            elif isinstance(part, _Group):
                 pending.append((indent, flat, part.doc))
+            else:
+                raise TypeError(f"Unexpected layout node: {type(part).__name__}")
         return column <= width
 
     pending = [(0, False, doc)]
@@ -71,9 +73,11 @@ def _layout(doc: _Doc, width: int) -> str:
             )
         elif isinstance(part, _Nest):
             pending.append((indent + 2, flat, part.doc))
-        else:
+        elif isinstance(part, _Group):
             flat = flat or fits(column, [*pending, (indent, True, part.doc)])
             pending.append((indent, flat, part.doc))
+        else:
+            raise TypeError(f"Unexpected layout node: {type(part).__name__}")
     return "".join(out)
 
 
