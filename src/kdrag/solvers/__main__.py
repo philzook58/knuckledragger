@@ -1,6 +1,6 @@
 import sys
 import subprocess
-from . import binpath, install_solvers
+from . import _kissat_path, binpath, install_solvers
 
 
 def run_subprocess(command, args):
@@ -37,9 +37,9 @@ def main():
     elif command == "nanocopi":
         run_subprocess(binpath("nanoCoP-i20/nanocopi.sh"), args)
     elif command == "prover9":
-        run_subprocess(binpath("Prover9/bin/prover9"), args)
+        run_subprocess(binpath("Prover9/LADR-2026-8A/bin/prover9"), args)
     elif command == "kissat":
-        run_subprocess(binpath("kissat/build/kissat"), args)
+        run_subprocess(_kissat_path(), args)
     elif command == "aprove":
         run_subprocess("java", ["-ea", "-jar", binpath("aprove.jar")] + args)
     else:
