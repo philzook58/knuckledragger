@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 import re
-from typing import TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, Literal, NamedTuple, cast
 
 from kdrag import notation, smt
 from kdrag.utils import ite_to_cases
@@ -126,7 +126,7 @@ _FRESH_NAME = re.compile(r"(.+)!([0-9]+)")
 class _Infix(NamedTuple):
     symbol: str
     precedence: int
-    association: str = ""
+    association: Literal["left", "right", "none"] = "none"
     breaks: bool = False
 
 
