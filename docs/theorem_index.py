@@ -11,7 +11,7 @@ from sphinx.util.docutils import SphinxDirective
 
 _SOURCE = "https://github.com/philzook58/knuckledragger/blob/main"
 _ROOT = Path(__file__).resolve().parents[1]
-_STATEMENT_MODULES = {"int", "nat", "real", "real.analysis", "real.cont", "real.seq"}
+_THEORIES = _ROOT / "src/kdrag/theories"
 
 
 class TheoremIndex(SphinxDirective):
@@ -19,14 +19,11 @@ class TheoremIndex(SphinxDirective):
 
     def run(self):
         modules = self.arguments or [
-            f"kdrag.theories.{name}" for name in sorted(_STATEMENT_MODULES)
+            ".".join(path.relative_to(_ROOT / "src").with_suffix("").parts)
+            .removesuffix(".__init__")
+            for path in sorted(_THEORIES.rglob("*.py"))
         ]
-        rows = [
-            row
-            for module in modules
-            if module.removeprefix("kdrag.theories.") in _STATEMENT_MODULES
-            for row in self.statements(module)
-        ]
+        rows = [row for module in modules for row in self.statements(module)]
         if not rows:
             return []
         table = nodes.table(classes=["theorem-table"])
