@@ -44,7 +44,9 @@ from _fast.lib import *  # noqa: E402, F403  # type: ignore
 
 
 def ctxptr(ctx: z3.Context):
-    return ffibuilder.cast("void *", ctx.ctx.value)  # type: ignore[ty:unresolved-attribute]
+    ptr = ctx.ref()
+    assert ptr is not None
+    return ffibuilder.cast("void *", ptr.value)
 
 
 def astptr(ast: z3.AstRef):
