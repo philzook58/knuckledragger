@@ -13,7 +13,7 @@ sets from classes. This is not done here.
 """
 
 import kdrag as kd
-from kdrag import FreshVars, QExists, QForAll, Theorem, axiom, define, prove
+from kdrag import FreshVars, QExists, Theorem, axiom, define, prove
 from kdrag.printers import pretty
 from kdrag.smt import (
     And,
@@ -73,9 +73,9 @@ def slemma(thm, by=[], **kwargs):
     return prove(thm, by=by + zf_db, **kwargs)
 
 
-ext_ax = axiom(QForAll([A, B], Eq((A == B), ForAll([x], elem(x, A) == elem(x, B)))))
+ext_ax = axiom(ForAll([A, B], Eq((A == B), ForAll([x], elem(x, A) == elem(x, B)))))
 
-le = kd.notation.le.define([A, B], QForAll([x], elem(x, A), elem(x, B)))
+le = kd.notation.le.define([A, B], ForAll([x], elem(x, A), elem(x, B)))
 
 emp = Const("∅", ZFSet)
 elem_emp = axiom(ForAll([x], elem(x, emp) == BoolVal(False)))
@@ -120,7 +120,7 @@ elem_pick = prove(
 
 
 upair = Function("upair", ZFSet, ZFSet, ZFSet)
-elem_upair = axiom(QForAll([x, y, z], elem(z, upair(x, y)) == Or(z == x, z == y)))
+elem_upair = axiom(ForAll([x, y, z], elem(z, upair(x, y)) == Or(z == x, z == y)))
 
 
 @Theorem(ForAll([a, b], Not(upair(a, b) == emp)))
@@ -210,11 +210,11 @@ def pick_sing(l):
 # Separation
 
 sep = Function("sep", ZFSet, Class, ZFSet)
-elem_sep = axiom(QForAll([P, A, x], elem(x, sep(A, P)) == And(P[x], elem(x, A))))
+elem_sep = axiom(ForAll([P, A, x], elem(x, sep(A, P)) == And(P[x], elem(x, A))))
 
 
 @Theorem(
-    QForAll(
+    ForAll(
         [a, b, P],
         sep(upair(a, b), P)
         == If(P(a), If(P(b), upair(a, b), sing(a)), If(P(b), sing(b), emp)),
@@ -249,7 +249,7 @@ zf_db.extend([elem_emp, elem_upair, ext_ax, elem_sep])
 
 bigunion = Function("bigunion", ZFSet, ZFSet)  # ⋃
 bigunion_ax = axiom(
-    QForAll([A, x], Eq(elem(x, bigunion(A)), QExists([B], elem(B, A), elem(x, B))))
+    ForAll([A, x], Eq(elem(x, bigunion(A)), QExists([B], elem(B, A), elem(x, B))))
 )
 
 
@@ -353,7 +353,7 @@ def bigunion_upair(l):
 biginter = define(
     "biginter",
     [a],
-    sep(pick(a), Lambda([x], QForAll([b], elem(b, a), elem(x, b)))),
+    sep(pick(a), Lambda([x], ForAll([b], elem(b, a), elem(x, b)))),
 )
 
 
@@ -361,7 +361,7 @@ biginter = define(
 @Theorem(
     ForAll(
         [A, x],
-        Implies(A != emp, elem(x, biginter(A)) == QForAll([b], elem(b, A), elem(x, b))),
+        Implies(A != emp, elem(x, biginter(A)) == ForAll([b], elem(b, A), elem(x, b))),
     )
 )
 def elem_biginter(l):
@@ -550,7 +550,7 @@ inter_upair_1 = prove(
 sub = kd.notation.sub.define([A, B], sep(A, Lambda([x], Not(elem(x, B)))))
 
 
-@Theorem(QForAll([a, b], upair(a, b) - sing(a) == If(a == b, emp, sing(b))))
+@Theorem(ForAll([a, b], upair(a, b) - sing(a) == If(a == b, emp, sing(b))))
 def upair_sub_sing(l):
     a, b = l.fixes()
     l.unfold(sub)

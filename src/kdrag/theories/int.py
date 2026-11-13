@@ -6,7 +6,6 @@ import kdrag as kd
 from kdrag import (  # noqa: F401
     FreshVar,
     FreshVars,
-    QForAll,
     Struct,
     Theorem,
     axiom,
@@ -46,7 +45,7 @@ def induct_nat(x, P):
     n = FreshConst(Z, prefix="n")
     return axiom(
         Implies(
-            And(P(0), QForAll([n], n >= 0, P(n), P(n + 1)), x >= 0),
+            And(P(0), ForAll([n], n >= 0, P(n), P(n + 1)), x >= 0),
             # ---------------------------------------------------
             P(x),
         )
@@ -58,11 +57,11 @@ P = Array("P", Z, BoolSort())
 
 
 @Theorem(
-    QForAll(
+    ForAll(
         [P],
         P(0),
-        QForAll([n], n >= 0, P(n), P(n + 1)),
-        QForAll([x], x >= 0, P(x)),
+        ForAll([n], n >= 0, P(n), P(n + 1)),
+        ForAll([x], x >= 0, P(x)),
     )
 )
 def induct_nat_ax(l):
@@ -80,7 +79,7 @@ def induct_nat_strong(x, P):
     return axiom(
         Implies(
             And(
-                QForAll([n], n >= 0, QForAll([m], m >= 0, m < n, P(m)), P(n)),
+                ForAll([n], n >= 0, ForAll([m], m >= 0, m < n, P(m)), P(n)),
                 x >= 0,
             ),
             # ---------------------------------------------------
@@ -132,22 +131,22 @@ add_assoc = prove(ForAll([n, m, k], n + (m + k) == (n + m) + k))
 add_zero = prove(ForAll([n], n + 0 == n))
 add_inv = prove(ForAll([n], n + -n == 0))
 
-add_monotone = prove(QForAll([n, m, k], n <= m, n + k <= m + k))
+add_monotone = prove(ForAll([n, m, k], n <= m, n + k <= m + k))
 
 mul_comm = prove(ForAll([n, m], n * m == m * n))
 mul_assoc = prove(ForAll([n, m, k], n * (m * k) == (n * m) * k))
 mul_one = prove(ForAll([n], n * 1 == n))
 mul_zero = prove(ForAll([n], n * 0 == 0))
 
-mul_monotone = prove(QForAll([n, m, k], n <= m, k >= 0, n * k <= m * k))
+mul_monotone = prove(ForAll([n, m, k], n <= m, k >= 0, n * k <= m * k))
 
 
 le_refl = prove(ForAll([n], n <= n))
-le_trans = prove(QForAll([n, m, k], n <= m, m <= k, n <= k))
+le_trans = prove(ForAll([n, m, k], n <= m, m <= k, n <= k))
 
 
-lt_trans = prove(QForAll([n, m, k], n < m, m < k, n < k))
-lt_total = prove(QForAll([n, m], Or(n < m, n == m, m < n)))
+lt_trans = prove(ForAll([n, m, k], n < m, m < k, n < k))
+lt_total = prove(ForAll([n, m], Or(n < m, n == m, m < n)))
 
 
 distrib_left = prove(ForAll([n, m, k], n * (m + k) == n * m + n * k))
@@ -265,13 +264,13 @@ bexists = define("bexists", [P, N], P[bchoose(P, N)])
 
 
 A = Const("A", ZSet)
-has_ub = define("ZSet.has_ub", [A, y], QForAll([x], A[x], x <= y))
+has_ub = define("ZSet.has_ub", [A, y], ForAll([x], A[x], x <= y))
 # closed under union,inter,etc.
 # closed upward has_ub_le
 
 
 is_ub = define("ZSet.is_ub", [A], Exists([x], has_ub(A, x)))
-has_lb = define("ZSet.has_lb", [A, y], QForAll([x], A[x], y <= x))
+has_lb = define("ZSet.has_lb", [A, y], ForAll([x], A[x], y <= x))
 is_lb = define("ZSet.is_lb", [A], Exists([x], has_lb(A, x)))
 # has_bounds = kd.define("has_bounds", [A,x,y], smt.And(has_ub(A,x), has_lb(A,y)))
 finite = define("ZSet.finite", [A], And(is_ub(A), is_lb(A)))

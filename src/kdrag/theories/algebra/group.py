@@ -1,5 +1,5 @@
 import kdrag as kd
-from kdrag import Calc, QForAll, Theorem, axiom, define, prove
+from kdrag import Calc, Theorem, axiom, define, prove
 import kdrag.smt as smt
 from kdrag.smt import (
     Const,
@@ -151,7 +151,7 @@ Group.register(
 # c.eq(x * e)
 # c.eq(x, by=[id_right])
 # id_unique2 = c.qed()
-@Theorem(QForAll([x], QForAll([y], x * y == y), x == e))
+@Theorem(ForAll([x], ForAll([y], x * y == y), x == e))
 def id_unique2(l):
     _x = l.fix()
     l.intros()

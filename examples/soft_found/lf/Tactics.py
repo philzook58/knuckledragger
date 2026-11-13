@@ -31,14 +31,14 @@
 
 # %%
 from kdrag.all import *
-from kdrag import QForAll, Theorem
-from kdrag.smt import Consts, Implies
+from kdrag import Theorem
+from kdrag.smt import Consts, ForAll, Implies
 import kdrag.theories.nat as nat
 
 m, n = Consts("m n", nat.Nat)
 
 
-@Theorem(QForAll([n, m], n == m, n == m))
+@Theorem(ForAll([n, m], n == m, n == m))
 def silly1(l):
     _n, _m = l.fixes()
     l.intros()
@@ -76,7 +76,7 @@ n, m, o, p = Consts("n m o p", nat.Nat)
 
 
 @Theorem(
-    QForAll(
+    ForAll(
         [n, m, o, p],
         n == m,
         Implies(n == m, seq.seq(n, o) == seq.seq(m, p)),
@@ -114,10 +114,10 @@ q, r = Consts("q r", nat.Nat)
 
 
 @Theorem(
-    QForAll(
+    ForAll(
         [n, m],
         seq.seq(n, n) == seq.seq(m, m),
-        QForAll([q, r], seq.seq(q, q) == seq.seq(r, r), seq.seq(q) == seq.seq(r)),
+        ForAll([q, r], seq.seq(q, q) == seq.seq(r, r), seq.seq(q) == seq.seq(r)),
         seq.seq(n) == seq.seq(m),
     )
 )
@@ -165,7 +165,7 @@ def silly2a(l):
 #   symmetry. apply H.  Qed.
 
 
-@Theorem(QForAll([n, m], n == m, m == n))
+@Theorem(ForAll([n, m], n == m, m == n))
 def silly3(l):
     _n, _m = l.fixes()
     l.intros()
@@ -218,7 +218,7 @@ a, b, c, d, e, f = Consts("a b c d e f", nat.Nat)
 
 
 @Theorem(
-    QForAll(
+    ForAll(
         [a, b, c, d, e, f],
         seq.seq(a, b) == seq.seq(c, d),
         seq.seq(c, d) == seq.seq(e, f),
