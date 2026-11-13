@@ -69,7 +69,10 @@ class TheoremIndex(SphinxDirective):
             )
             title = nodes.paragraph()
             url = f"{source_url}#L{lines[name]}" if name in lines else source_url
-            title += nodes.reference("", "", nodes.literal(text=name), refuri=url)
+            display_name = qualified_name.removeprefix("kdrag.theories.")
+            title += nodes.reference(
+                "", "", nodes.literal(text=display_name), refuri=url
+            )
             if proof.admit:
                 title += nodes.Text(" (admitted)")
             entry += nodes.entry("", title)

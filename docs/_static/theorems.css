@@ -27,7 +27,7 @@
 }
 
 .rst-content .theorem-table th:first-child {
-  width: 24%;
+  width: 35%;
 }
 
 .rst-content .theorem-table tbody p {
@@ -36,7 +36,7 @@
   line-height: 1.3;
 }
 
-.rst-content .theorem-table tbody td {
+.rst-content table.theorem-table tbody td {
   padding-block: 0.1rem;
   vertical-align: middle;
 }
@@ -55,4 +55,14 @@
 
 .rst-content .theorem-table tbody td pre {
   padding: 0;
+}
+
+.rst-content .theorem-table td code,
+.rst-content .theorem-table td code .pre {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.rst-content .theorem-table tbody td .highlight {
+  margin: 0;
 }
