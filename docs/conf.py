@@ -71,9 +71,11 @@ source_parsers = {
 
 # html_theme = "alabaster"
 html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]
 
 
 def setup(app):
     from theorem_index import TheoremIndex
 
     app.add_directive("theorem-index", TheoremIndex)
+    app.add_js_file("theorem-search.js", loading_method="defer")
