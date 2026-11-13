@@ -1,7 +1,7 @@
 """Algebra of real sequence limits."""
 
-from kdrag import Theorem
-from kdrag.smt import And, Consts, Exists, ForAll, If, Int, Ints, RealVal, Reals
+from kdrag import Theorem, prove
+from kdrag.smt import And, Consts, Exists, ForAll, If, Implies, Int, Ints, RealVal, Reals
 from kdrag.theories.real import (
     RSeq,
     abs,
@@ -233,7 +233,7 @@ def has_lim_div(l):
     l.have(bm != 0, by=[abs_pos_iff(bm)])
     t1 = (am - x) / bm
     t2 = x * ((y - bm) / (bm * y))
-    l.have(am / bm - x / y == t1 + t2, by=[div_decomp(am, bm, x, y)])
+    decomp = l.have(am / bm - x / y == t1 + t2, by=[div_decomp(am, bm, x, y)])
     l.have(abs(t1) == da / B, by=[abs_div(am - x, bm)])
     l.have(
         abs(t2) == X * (db / (B * Y)),
@@ -241,5 +241,7 @@ def has_lim_div(l):
     )
     l.have(da / B < eps / 2, by=[])
     l.have(X * (db / (B * Y)) < eps / 2, by=[abs_pos(x), abs_pos(bm - y)])
-    l.have(abs(t1 + t2) < eps, by=[abs_add(t1, t2)])
-    l.auto()
+    bound = l.have(abs(t1 + t2) < eps, by=[abs_add(t1, t2)])
+    # Discharge congruence with just the equality and the scalar bound.
+    result = abs(am / bm - x / y) < eps
+    l.auto(by=[prove(Implies(And(decomp, bound), result))])
