@@ -102,7 +102,7 @@ def emp_exists_elem(l):
         l2.auto()
 
 
-@Theorem(ForAll(A, Implies((A != emp), Exists([x], elem(x, A)))))
+@Theorem(ForAll(A, A != emp, Exists([x], elem(x, A))))
 def not_emp_exists_elem(l):
     _A = l.fix()
     l.auto(by=[emp_exists_elem(_A)])

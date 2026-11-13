@@ -178,21 +178,19 @@ fact = define("fact", [n], If(n <= 0, 1, n * fact(n - 1)))
 n, k = FreshVars("n k", Z)
 
 
-@Theorem(ForAll(n, Implies(prime(n), n >= 0)))
+@Theorem(ForAll(n, prime(n), n >= 0))
 def prime_nat(l):
     n = l.fix()
     l.auto(by=prime.defn(n))
 
 
-@Theorem(ForAll(n, Implies(prime(n), n > 1)))
+@Theorem(ForAll(n, prime(n), n > 1))
 def prime_gt_1(l):
     n = l.fix()
     l.auto(by=prime.defn(n))
 
 
-dvd_imp_le = prove(
-    ForAll([k, n], Implies(And(dvd(k, n), k >= 0, n > 0), k <= n)), unfold=1
-)
+dvd_imp_le = prove(ForAll([k, n], dvd(k, n), k >= 0, n > 0, k <= n), unfold=1)
 
 
 @Theorem(ForAll(n, fact(n) >= 1))
@@ -214,7 +212,7 @@ def fact_ge_1(l):
 m = FreshVar("m", IntSort())
 
 
-@Theorem(ForAll([m, n], Implies(And(1 <= m, m <= n), dvd(m, fact(n)))))
+@Theorem(ForAll([m, n], 1 <= m, m <= n, dvd(m, fact(n))))
 def dvd_fact(l):
     m, n = l.fixes()
     l.induct(n)
@@ -227,9 +225,10 @@ def dvd_fact(l):
     _n = l.fix()
     l.intros()
     l.intros()
+    l.intros()
+    l.intros()
     l.unfold(fact)
     l.simp()
-    l.intros()
     l.simp(at=1)
     l.cases(m == _n + 1)
     # case m == 1 + _n
