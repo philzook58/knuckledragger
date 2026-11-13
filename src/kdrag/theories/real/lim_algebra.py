@@ -1,7 +1,7 @@
 """Algebra of real sequence limits."""
 
 from kdrag import Theorem
-from kdrag.smt import And, Consts, Exists, ForAll, If, Ints, RealVal, Reals
+from kdrag.smt import And, Consts, Exists, ForAll, If, Int, Ints, RealVal, Reals
 from kdrag.theories.real import (
     RSeq,
     abs,
@@ -20,6 +20,20 @@ from kdrag.theories.real.seq import add, div, has_lim, mul, smul
 a, b = Consts("a b", RSeq)
 x, y, c = Reals("x y c")
 u, v, w, z = Reals("u v w z")
+n = Int("n")
+
+
+@Theorem(ForAll([a, y], has_lim(a, y), ForAll(n, n >= 0, a[n] >= 0), y >= 0))
+def lim_of_nonneg_seq(l):
+    a, y = l.fixes()
+    limit, nonneg = l.intros(), l.intros()
+    l.unfold(has_lim, at=limit)
+    l.contra()
+    positive = l.have(-y > 0, by=[])
+    cutoff = l.obtain(l.specialize(0, -y, positive))
+    m = cutoff + 1
+    l.specialize(nonneg, m)
+    l.auto(by=[abs.defn(a[m] - y)])
 
 
 @Theorem(
@@ -40,10 +54,14 @@ def has_lim_smul(l):
     l.have(eta > 0, by=[abs_pos(c)])
     ha = l.specialize(ha, eta)
     bound, n = Ints("N n")
-    witness = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta)), by=[])
+    witness = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(a[n] - x) < eta)), by=[]
+    )
     l.clear(ha)
     N = l.obtain(witness)
     l.exists(N)
+    l.split()
+    l.auto()
     m = l.fix()
     l.intros()
     l.have(abs(a[m] - x) < eta, by=[])
@@ -70,13 +88,19 @@ def has_lim_add(l):
     ha = l.specialize(ha, eps / 2)
     hb = l.specialize(hb, eps / 2)
     bound, n = Ints("N n")
-    tail_a = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eps / 2)), by=[])
+    tail_a = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(a[n] - x) < eps / 2)), by=[]
+    )
     l.clear(ha)
     N1 = l.obtain(tail_a)
-    tail_b = l.have(Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eps / 2)), by=[])
+    tail_b = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(b[n] - y) < eps / 2)), by=[]
+    )
     l.clear(hb)
     N2 = l.obtain(tail_b)
     l.exists(If(N1 > N2, N1, N2))
+    l.split()
+    l.auto()
     m = l.fix()
     l.intros()
     l.have(abs(a[m] - x) < eps / 2, by=[])
@@ -108,13 +132,19 @@ def has_lim_mul(l):
     ha = l.specialize(ha, eta)
     hb = l.specialize(hb, eta)
     bound, n = Ints("N n")
-    tail_a = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < eta)), by=[])
+    tail_a = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(a[n] - x) < eta)), by=[]
+    )
     l.clear(ha)
     N1 = l.obtain(tail_a)
-    tail_b = l.have(Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eta)), by=[])
+    tail_b = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(b[n] - y) < eta)), by=[]
+    )
     l.clear(hb)
     N2 = l.obtain(tail_b)
     l.exists(If(N1 > N2, N1, N2))
+    l.split()
+    l.auto()
     m = l.fix()
     l.intros()
     l.have(abs(a[m] - x) < eta, by=[])
@@ -174,13 +204,19 @@ def has_lim_div(l):
     ha = l.specialize(ha, ea)
     hb = l.specialize(hb, eb)
     bound, n = Ints("N n")
-    tail_a = l.have(Exists(bound, ForAll(n, n > bound, abs(a[n] - x) < ea)), by=[])
+    tail_a = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(a[n] - x) < ea)), by=[]
+    )
     l.clear(ha)
     N1 = l.obtain(tail_a)
-    tail_b = l.have(Exists(bound, ForAll(n, n > bound, abs(b[n] - y) < eb)), by=[])
+    tail_b = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(b[n] - y) < eb)), by=[]
+    )
     l.clear(hb)
     N2 = l.obtain(tail_b)
     l.exists(If(N1 > N2, N1, N2))
+    l.split()
+    l.auto()
     m = l.fix()
     l.intros()
 
