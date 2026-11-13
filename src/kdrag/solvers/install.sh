@@ -35,12 +35,16 @@ tar -xzf nanoCoP-i20.tar.gz
 # Waldemister https://www.mpi-inf.mpg.de/departments/automation-of-logic/software/waldmeister
 # wget https://www.mpi-inf.mpg.de/fileadmin/inf/rg1/Documents/wm-feb18-linux.tgz
 
-# Prover9 and Mace4
-echo "Installing Prover9"
-git -C Prover9 pull || git clone https://github.com/ai4reason/Prover9 --depth 1
-cd Prover9
-make all
-cd ..
+# Prover9 and Mace4 have no CI tests.
+if [[ "${SKIP_PROVER9:-0}" != 1 ]]; then
+    echo "Installing Prover9"
+    mkdir -p Prover9
+    if [[ ! -d Prover9/LADR-2026-8A ]]; then
+        git clone --depth 1 --branch LADR-2026-8A \
+            https://github.com/AlgorithmicTruth/Prover9.git Prover9/LADR-2026-8A || exit 1
+    fi
+    make -C Prover9/LADR-2026-8A all || exit 1
+fi
 
 
 # Kissat
@@ -51,13 +55,14 @@ cd kissat
 ./configure && make test
 cd ..
 
-echo "Installing Gappa"
-sudo apt-get install -y libmpfr-dev libgmp-dev libboost-all-dev
-wget -nc https://gappa.gitlabpages.inria.fr/releases/gappa-1.6.0.tar.gz
-mkdir -p gappa
-tar -xzf gappa-1.6.0.tar.gz -C gappa/ --strip-components=1
-cd gappa
-./configure && ./remake
+if [[ "${SKIP_GAPPA:-0}" != 1 ]]; then
+    echo "Installing Gappa"
+    sudo apt-get install -y libmpfr-dev libgmp-dev libboost-all-dev
+    wget -nc https://gappa.gitlabpages.inria.fr/releases/gappa-1.6.0.tar.gz
+    mkdir -p gappa
+    tar -xzf gappa-1.6.0.tar.gz -C gappa/ --strip-components=1
+    (cd gappa && ./configure && ./remake)
+fi
 
 # https://github.com/aprove-developers/aprove-releases/releases
 echo "Installing aProve"

@@ -56,7 +56,7 @@ jobs:
           #python -m pip install --upgrade pip
           #python -m pip install ruff pytest cvc5
           #python -m pip install -e .[dev,yosys,pypcode,rust]
-          bash ./src/kdrag/solvers/install.sh
+          SKIP_PROVER9=1 SKIP_GAPPA=1 bash ./src/kdrag/solvers/install.sh
       - name: Install the project and make sure imports without extras
         run: |
           uv sync --locked
