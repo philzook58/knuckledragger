@@ -130,73 +130,80 @@ class _Infix(NamedTuple):
     breaks: bool = False
 
 
-_INFIX = {
-    "implies": _Infix("→", 1, "right", True),
-    "or": _Infix("∨", 2, "left", True),
-    "and": _Infix("∧", 3, "left", True),
-    "eq": _Infix("=", 4),
-    "lt": _Infix("<", 4),
-    "le": _Infix("≤", 4),
-    "gt": _Infix(">", 4),
-    "ge": _Infix("≥", 4),
-    "add": _Infix("+", 5, "left"),
-    "sub": _Infix("-", 5, "left"),
-    "mul": _Infix("*", 6, "left"),
-    "div": _Infix("/", 6, "left"),
-    "int_div": _Infix("div", 6, "left"),
-    "mod": _Infix("mod", 6, "left"),
-    "power": _Infix("^", 8, "right"),
-    "set_union": _Infix("∪", 5, "right", True),
-    "set_intersect": _Infix("∩", 6, "right", True),
-    "set_difference": _Infix("∖", 5),
-    "set_subset": _Infix("⊆", 4),
-    "bv_add": _Infix("+", 5, "left"),
-    "bv_sub": _Infix("-", 5, "left"),
-    "bv_mul": _Infix("*", 6, "left"),
-    "bv_and": _Infix("&", 3),
-    "bv_xor": _Infix("⊕", 3),
-    "bv_or": _Infix("|", 3),
-    "bv_shl": _Infix("<<", 4),
-    "bv_lshr": _Infix(">>ᵤ", 4),
-    "bv_ashr": _Infix(">>ₛ", 4),
-    "bv_sdiv": _Infix("/ₛ", 6, "left"),
-    "bv_udiv": _Infix("/ᵤ", 6, "left"),
-    "bv_slt": _Infix("<ₛ", 4),
-    "bv_sle": _Infix("≤ₛ", 4),
-    "bv_sgt": _Infix(">ₛ", 4),
-    "bv_sge": _Infix("≥ₛ", 4),
-    "bv_ult": _Infix("<ᵤ", 4),
-    "bv_ule": _Infix("≤ᵤ", 4),
-    "bv_ugt": _Infix(">ᵤ", 4),
-    "bv_uge": _Infix("≥ᵤ", 4),
-}
-_PREFIX = {
-    "not": ("¬", 4),
-    "neg": ("-", 7),
-    "bv_neg": ("-", 7),
-    "bv_not": ("~", 7),
-}
-_SORT_DISPATCH_INFIX = (
-    (notation.add, _INFIX["add"]),
-    (notation.radd, _INFIX["add"]),
-    (notation.sub, _INFIX["sub"]),
-    (notation.mul, _INFIX["mul"]),
-    (notation.rmul, _INFIX["mul"]),
-    (notation.matmul, _Infix("@", 6, "left")),
-    (notation.div, _INFIX["div"]),
-    (notation.and_, _INFIX["and"]),
-    (notation.or_, _INFIX["or"]),
-    (notation.lt, _INFIX["lt"]),
-    (notation.le, _INFIX["le"]),
-    (notation.gt, _INFIX["gt"]),
-    (notation.ge, _INFIX["ge"]),
-    (notation.eq, _INFIX["eq"]),
-    (notation.ne, _Infix("≠", 4)),
-)
-_SORT_DISPATCH_PREFIX = (
-    (notation.neg, _PREFIX["neg"]),
-    (notation.invert, _PREFIX["not"]),
-)
+# The compact printer uses the default SMT backend's AST inspection.
+_USE_COMPACT_PRINTER = smt.solver == smt.Z3SOLVER
+if _USE_COMPACT_PRINTER:
+    _INFIX = {
+        smt.Z3_OP_IMPLIES: _Infix("→", 1, "right", True),
+        smt.Z3_OP_OR: _Infix("∨", 2, "left", True),
+        smt.Z3_OP_AND: _Infix("∧", 3, "left", True),
+        smt.Z3_OP_EQ: _Infix("=", 4),
+        smt.Z3_OP_LT: _Infix("<", 4),
+        smt.Z3_OP_LE: _Infix("≤", 4),
+        smt.Z3_OP_GT: _Infix(">", 4),
+        smt.Z3_OP_GE: _Infix("≥", 4),
+        smt.Z3_OP_ADD: _Infix("+", 5, "left"),
+        smt.Z3_OP_SUB: _Infix("-", 5, "left"),
+        smt.Z3_OP_MUL: _Infix("*", 6, "left"),
+        smt.Z3_OP_DIV: _Infix("/", 6, "left"),
+        smt.Z3_OP_IDIV: _Infix("div", 6, "left"),
+        smt.Z3_OP_MOD: _Infix("mod", 6, "left"),
+        smt.Z3_OP_POWER: _Infix("^", 8, "right"),
+        smt.Z3_OP_SET_UNION: _Infix("∪", 5, "right", True),
+        smt.Z3_OP_SET_INTERSECT: _Infix("∩", 6, "right", True),
+        smt.Z3_OP_SET_DIFFERENCE: _Infix("∖", 5),
+        smt.Z3_OP_SET_SUBSET: _Infix("⊆", 4),
+        smt.Z3_OP_BADD: _Infix("+", 5, "left"),
+        smt.Z3_OP_BSUB: _Infix("-", 5, "left"),
+        smt.Z3_OP_BMUL: _Infix("*", 6, "left"),
+        smt.Z3_OP_BAND: _Infix("&", 3),
+        smt.Z3_OP_BXOR: _Infix("⊕", 3),
+        smt.Z3_OP_BOR: _Infix("|", 3),
+        smt.Z3_OP_BSHL: _Infix("<<", 4),
+        smt.Z3_OP_BLSHR: _Infix(">>ᵤ", 4),
+        smt.Z3_OP_BASHR: _Infix(">>ₛ", 4),
+        smt.Z3_OP_BSDIV: _Infix("/ₛ", 6, "left"),
+        smt.Z3_OP_BUDIV: _Infix("/ᵤ", 6, "left"),
+        smt.Z3_OP_SLT: _Infix("<ₛ", 4),
+        smt.Z3_OP_SLEQ: _Infix("≤ₛ", 4),
+        smt.Z3_OP_SGT: _Infix(">ₛ", 4),
+        smt.Z3_OP_SGEQ: _Infix("≥ₛ", 4),
+        smt.Z3_OP_ULT: _Infix("<ᵤ", 4),
+        smt.Z3_OP_ULEQ: _Infix("≤ᵤ", 4),
+        smt.Z3_OP_UGT: _Infix(">ᵤ", 4),
+        smt.Z3_OP_UGEQ: _Infix("≥ᵤ", 4),
+    }
+    _PREFIX = {
+        smt.Z3_OP_NOT: ("¬", 4),
+        smt.Z3_OP_UMINUS: ("-", 7),
+        smt.Z3_OP_BNEG: ("-", 7),
+        smt.Z3_OP_BNOT: ("~", 7),
+    }
+    _SORT_DISPATCH_INFIX = (
+        (notation.add, _INFIX[smt.Z3_OP_ADD]),
+        (notation.radd, _INFIX[smt.Z3_OP_ADD]),
+        (notation.sub, _INFIX[smt.Z3_OP_SUB]),
+        (notation.mul, _INFIX[smt.Z3_OP_MUL]),
+        (notation.rmul, _INFIX[smt.Z3_OP_MUL]),
+        (notation.matmul, _Infix("@", 6, "left")),
+        (notation.div, _INFIX[smt.Z3_OP_DIV]),
+        (notation.and_, _INFIX[smt.Z3_OP_AND]),
+        (notation.or_, _INFIX[smt.Z3_OP_OR]),
+        (notation.lt, _INFIX[smt.Z3_OP_LT]),
+        (notation.le, _INFIX[smt.Z3_OP_LE]),
+        (notation.gt, _INFIX[smt.Z3_OP_GT]),
+        (notation.ge, _INFIX[smt.Z3_OP_GE]),
+        (notation.eq, _INFIX[smt.Z3_OP_EQ]),
+        (notation.ne, _Infix("≠", 4)),
+    )
+    _SORT_DISPATCH_PREFIX = (
+        (notation.neg, _PREFIX[smt.Z3_OP_UMINUS]),
+        (notation.invert, _PREFIX[smt.Z3_OP_NOT]),
+    )
+    _POSTFIX = {smt.Z3_OP_SET_COMPLEMENT: "ᶜ"}
+else:
+    _INFIX = _PREFIX = _POSTFIX = {}
+    _SORT_DISPATCH_INFIX = _SORT_DISPATCH_PREFIX = ()
 
 _custom_infix: dict[smt.FuncDeclRef, _Infix] = {}
 # Theory modules can opt a specific declaration into paired delimiters.
@@ -320,7 +327,7 @@ class _Printer:
             return wrap(_Group((header, _Nest((_Break(), body)))), 0)
 
         decl = expr.decl()
-        kind = smt.builtin_op(decl)
+        kind = decl.kind()
         args = expr.children()
         if smt.is_if(expr):
             cases, default = ite_to_cases(expr)
@@ -335,7 +342,7 @@ class _Printer:
             symbol, prec, association, breaks = infix
             left_prec = prec if association == "left" else prec + 1
             right_prec = prec if association == "right" else prec + 1
-            if kind == "implies" and isinstance(args[-1], smt.QuantifierRef):
+            if smt.is_implies(expr) and isinstance(args[-1], smt.QuantifierRef):
                 right_prec = 0
             parts = [child(args[0], left_prec)]
             parts.extend(child(arg, prec + 1) for arg in args[1:-1])
@@ -349,8 +356,8 @@ class _Printer:
         if decl in _delimiters:
             left, right = _delimiters[decl]
             return (left, child(args[0], 1), right)
-        if kind == "set_complement":
-            return wrap((child(args[0], 9), "ᶜ"), 9)
+        if kind in _POSTFIX:
+            return wrap((child(args[0], 9), _POSTFIX[kind]), 9)
         if smt.is_accessor(decl):
             return (child(args[0], 9), ".", self.names[decl])
         if smt.is_select(expr):
@@ -372,14 +379,14 @@ class _Printer:
 
 def pretty_expr(expr: smt.ExprRef, *, width: int = 80) -> str:
     """Display an SMT expression using compact mathematical notation."""
-    if not smt.supports_builtin_ops:
+    if not _USE_COMPACT_PRINTER:
         return str(expr)
     return _layout(_Printer([expr]).expr(expr), width)
 
 
 def pretty_goal(goal: "Goal", *, width: int = 80) -> str:
     """Display locals, numbered hypotheses, and the conclusion."""
-    if not smt.supports_builtin_ops or goal.is_empty():
+    if not _USE_COMPACT_PRINTER or goal.is_empty():
         return repr(goal)
     printer = _Printer([*goal.sig, *goal.ctx, goal.goal])
     rows = _declarations(

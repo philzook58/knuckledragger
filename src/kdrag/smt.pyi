@@ -8391,10 +8391,6 @@ def is_func(f: ExprRef) -> TypeGuard[FuncRef]:
     """
     ...
 
-supports_builtin_ops: bool
-
-def builtin_op(decl: FuncDeclRef) -> str | None: ...
-
 def domains(f: FuncRef | ArraySortRef) -> list[SortRef]:
     """
     Get the domain sorts of a lambda or an array.
