@@ -1,5 +1,14 @@
-from kdrag import FreshVars, Lemma, QExists, QForAll, define, prove
-from kdrag.smt import Const, FreshConst, Implies, Lambda, RealSort, RealVal, Reals  # noqa: F401
+from kdrag import FreshVars, QExists, Theorem, define, prove
+from kdrag.smt import (
+    Const,
+    ForAll,
+    FreshConst,
+    Implies,
+    Lambda,
+    RealSort,
+    RealVal,
+    Reals,  # noqa: F401 (used in the Ball doctest)
+)
 import kdrag.theories.real as real
 import kdrag.theories.set as set_
 
@@ -28,23 +37,24 @@ ball = define("ball", [x, r], Ball(x, r))
 is_open = define(
     "is_open",
     [S],
-    QForAll([x], S[x], QExists([r], r > RealVal(0), ball(x, r) <= S)),
+    ForAll([x], S[x], QExists([r], r > RealVal(0), ball(x, r) <= S)),
 )
 is_open_full = prove(is_open(RSet.full), unfold=1)
 is_open_empty = prove(is_open(RSet.empty), unfold=1)
 
-l = Lemma(is_open(ball(0, 1)))
-l.unfold()
-_x = l.fix()
-l.intros()
-l.exists(1 - real.abs(_x))
-l.auto(unfold=2)
-is_open_unit_ball = l.qed()
+
+@Theorem(is_open(ball(0, 1)))
+def is_open_unit_ball(l):
+    l.unfold()
+    x = l.fix()
+    l.intros()
+    l.exists(1 - real.abs(x))
+    l.auto(unfold=2)
 
 
 dist = define("R.dist", [x, y], real.abs(x - y))
-dist_refl = prove(QForAll([x], dist(x, x) == 0), unfold=2)
+dist_refl = prove(ForAll([x], dist(x, x) == 0), unfold=2)
 dist_pos = prove(Implies(x != y, dist(x, y) > 0), unfold=2).forall([x, y])
 dist_pos2 = prove(dist(x, y) >= 0, unfold=2).forall([x, y])
-dist_sym = prove(QForAll([x, y], dist(x, y) == dist(y, x)), unfold=2)
+dist_sym = prove(ForAll([x, y], dist(x, y) == dist(y, x)), unfold=2)
 dist_tri = prove(dist(x, z) <= dist(x, y) + dist(y, z), unfold=2).forall([x, y, z])

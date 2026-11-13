@@ -6,8 +6,6 @@ import kdrag as kd
 from kdrag import (  # noqa: F401
     FreshVar,
     FreshVars,
-    Lemma,
-    QForAll,
     Struct,
     Theorem,
     axiom,
@@ -47,7 +45,7 @@ def induct_nat(x, P):
     n = FreshConst(Z, prefix="n")
     return axiom(
         Implies(
-            And(P(0), QForAll([n], n >= 0, P(n), P(n + 1)), x >= 0),
+            And(P(0), ForAll([n], n >= 0, P(n), P(n + 1)), x >= 0),
             # ---------------------------------------------------
             P(x),
         )
@@ -56,21 +54,23 @@ def induct_nat(x, P):
 
 n, x, N = Ints("n x N")
 P = Array("P", Z, BoolSort())
-_l = Lemma(
-    QForAll(
+
+
+@Theorem(
+    ForAll(
         [P],
         P(0),
-        QForAll([n], n >= 0, P(n), P(n + 1)),
-        QForAll([x], x >= 0, P(x)),
-    ),
+        ForAll([n], n >= 0, P(n), P(n + 1)),
+        ForAll([x], x >= 0, P(x)),
+    )
 )
-_P = _l.fix()
-_l.intros()
-_l.intros()
-_x = _l.fix()
-_l.intros()
-_l.induct(_x, using=induct_nat)
-induct_nat_ax = _l.qed()
+def induct_nat_ax(l):
+    l.fix()
+    l.intros()
+    l.intros()
+    x = l.fix()
+    l.intros()
+    l.induct(x, using=induct_nat)
 
 
 def induct_nat_strong(x, P):
@@ -79,7 +79,7 @@ def induct_nat_strong(x, P):
     return axiom(
         Implies(
             And(
-                QForAll([n], n >= 0, QForAll([m], m >= 0, m < n, P(m)), P(n)),
+                ForAll([n], n >= 0, ForAll([m], m >= 0, m < n, P(m)), P(n)),
                 x >= 0,
             ),
             # ---------------------------------------------------
@@ -131,22 +131,22 @@ add_assoc = prove(ForAll([n, m, k], n + (m + k) == (n + m) + k))
 add_zero = prove(ForAll([n], n + 0 == n))
 add_inv = prove(ForAll([n], n + -n == 0))
 
-add_monotone = prove(QForAll([n, m, k], n <= m, n + k <= m + k))
+add_monotone = prove(ForAll([n, m, k], n <= m, n + k <= m + k))
 
 mul_comm = prove(ForAll([n, m], n * m == m * n))
 mul_assoc = prove(ForAll([n, m, k], n * (m * k) == (n * m) * k))
 mul_one = prove(ForAll([n], n * 1 == n))
 mul_zero = prove(ForAll([n], n * 0 == 0))
 
-mul_monotone = prove(QForAll([n, m, k], n <= m, k >= 0, n * k <= m * k))
+mul_monotone = prove(ForAll([n, m, k], n <= m, k >= 0, n * k <= m * k))
 
 
 le_refl = prove(ForAll([n], n <= n))
-le_trans = prove(QForAll([n, m, k], n <= m, m <= k, n <= k))
+le_trans = prove(ForAll([n, m, k], n <= m, m <= k, n <= k))
 
 
-lt_trans = prove(QForAll([n, m, k], n < m, m < k, n < k))
-lt_total = prove(QForAll([n, m], Or(n < m, n == m, m < n)))
+lt_trans = prove(ForAll([n, m, k], n < m, m < k, n < k))
+lt_total = prove(ForAll([n, m], Or(n < m, n == m, m < n)))
 
 
 distrib_left = prove(ForAll([n, m, k], n * (m + k) == n * m + n * k))
@@ -175,56 +175,68 @@ fact = Function("fact", IntSort(), IntSort())
 fact = define("fact", [n], If(n <= 0, 1, n * fact(n - 1)))
 
 n, k = FreshVars("n k", Z)
-prime_nat = prove(Implies(prime(n), n >= 0), by=prime.defn(n)).forall([n])
-
-prime_gt_1 = prove(Implies(prime(n), n > 1), by=prime.defn(n)).forall([n])
 
 
-dvd_imp_le = prove(Implies(And(dvd(k, n), k >= 0, n > 0), k <= n), unfold=1).forall(
-    [k, n]
-)
+@Theorem(ForAll(n, prime(n), n >= 0))
+def prime_nat(l):
+    n = l.fix()
+    l.auto(by=prime.defn(n))
 
 
-_l = Lemma(fact(n) >= 1)
-_l.induct(n)
-_l.unfold(fact)
-_l.auto()
-_l.auto(unfold=1)
-_n = _l.fix()
-_l.intros()
-_l.intros()
-_l.simp()
-_l.unfold(fact)
-_l.simp()
-_l.auto()
-fact_ge_1 = _l.qed().forall([n])
+@Theorem(ForAll(n, prime(n), n > 1))
+def prime_gt_1(l):
+    n = l.fix()
+    l.auto(by=prime.defn(n))
+
+
+dvd_imp_le = prove(ForAll([k, n], dvd(k, n), k >= 0, n > 0, k <= n), unfold=1)
+
+
+@Theorem(ForAll(n, fact(n) >= 1))
+def fact_ge_1(l):
+    n = l.fix()
+    l.induct(n)
+    l.unfold(fact)
+    l.auto()
+    l.auto(unfold=1)
+    l.fix()
+    l.intros()
+    l.intros()
+    l.simp()
+    l.unfold(fact)
+    l.simp()
+    l.auto()
+
 
 m = FreshVar("m", IntSort())
 
-_l = Lemma(Implies(And(1 <= m, m <= n), dvd(m, fact(n))))
-_l.induct(n)
-# inductive case n < 0 is vacuous
-_l.auto()
-# inductive case n == 0
-_l.auto(by=[fact.defn(IntVal(0))])
-# inductive case n > 0
-_l.unfold(dvd)
-_n = _l.fix()
-_l.intros()
-_l.intros()
-_l.unfold(fact)
-_l.simp()
-_l.intros()
-_l.simp(at=1)
-_l.cases(m == _n + 1)
-# case m == 1 + _n
-_l.auto()
-# case m != 1 + _n
-witness = _l.have(Exists([p], fact(_n) == m * p), by=[])
-_p = _l.obtain(witness)
-_l.exists(_p * (_n + 1))
-_l.auto()
-dvd_fact = _l.qed().forall([m, n])
+
+@Theorem(ForAll([m, n], 1 <= m, m <= n, dvd(m, fact(n))))
+def dvd_fact(l):
+    m, n = l.fixes()
+    l.induct(n)
+    # inductive case n < 0 is vacuous
+    l.auto()
+    # inductive case n == 0
+    l.auto(by=[fact.defn(IntVal(0))])
+    # inductive case n > 0
+    l.unfold(dvd)
+    n1 = l.fix()
+    l.intros()
+    l.intros()
+    l.intros()
+    l.intros()
+    l.unfold(fact)
+    l.simp()
+    l.simp(at=1)
+    l.cases(m == n1 + 1)
+    # case m == 1 + n1
+    l.auto()
+    # case m != 1 + n1
+    witness = l.have(Exists([p], fact(n1) == m * p), by=[])
+    p1 = l.obtain(witness)
+    l.exists(p1 * (n1 + 1))
+    l.auto()
 
 
 P = Const("P", ZSet)  # smt.Array("P", Z, smt.BoolSort())
@@ -252,13 +264,13 @@ bexists = define("bexists", [P, N], P[bchoose(P, N)])
 
 
 A = Const("A", ZSet)
-has_ub = define("ZSet.has_ub", [A, y], QForAll([x], A[x], x <= y))
+has_ub = define("ZSet.has_ub", [A, y], ForAll([x], A[x], x <= y))
 # closed under union,inter,etc.
 # closed upward has_ub_le
 
 
 is_ub = define("ZSet.is_ub", [A], Exists([x], has_ub(A, x)))
-has_lb = define("ZSet.has_lb", [A, y], QForAll([x], A[x], y <= x))
+has_lb = define("ZSet.has_lb", [A, y], ForAll([x], A[x], y <= x))
 is_lb = define("ZSet.is_lb", [A], Exists([x], has_lb(A, x)))
 # has_bounds = kd.define("has_bounds", [A,x,y], smt.And(has_ub(A,x), has_lb(A,y)))
 finite = define("ZSet.finite", [A], And(is_ub(A), is_lb(A)))

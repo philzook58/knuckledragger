@@ -34,7 +34,7 @@ from kdrag.smt import (
 )
 import kdrag.theories.set as set_
 import kdrag as kd
-from kdrag import Lemma, NewType, QExists, QForAll, Theorem, axiom, cond, define, prove
+from kdrag import NewType, QExists, Theorem, axiom, cond, define, prove
 
 T = RealSort()
 
@@ -64,8 +64,8 @@ fdiv = kd.notation.div.define([f, g], Lambda([x], f[x] / g[x]))
 poly = Function("poly", RFun, BoolSort())
 axiom(ForAll([x], poly(K(RealSort(), x))))
 axiom(poly(Lambda([x], x)))
-axiom(QForAll([f, g], poly(f), poly(g), poly(f + g)))
-axiom(QForAll([f, g], poly(f), poly(g), poly(f * g)))
+axiom(ForAll([f, g], poly(f), poly(g), poly(f + g)))
+axiom(ForAll([f, g], poly(f), poly(g), poly(f * g)))
 
 
 # NReal = kd.NewType("NReal", R)
@@ -103,14 +103,16 @@ one = define("one", [], RealVal(1))
 mul_one = prove(ForAll([x], mul(x, one) == x), by=[mul.defn, one.defn])
 one_mul = prove(ForAll([x], mul(one, x) == x), by=[mul.defn, one.defn])
 mul_comm = prove(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
+
+
 # mul_assoc = kd.prove(
 #    ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)), by=[mul.defn]
 # )
-_l = Lemma(ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)))
-_x, _y, _z = _l.fixes()
-_l.unfold()
-_l.auto()
-mul_assoc = _l.qed()
+@Theorem(ForAll([x, y, z], mul(x, mul(y, z)) == mul(mul(x, y), z)))
+def mul_assoc(l):
+    x, y, z = l.fixes()
+    l.unfold()
+    l.auto()
 
 
 class Mul:
@@ -171,27 +173,27 @@ abs_triangle = prove(
     ForAll([x, y, z], abs(x - y) <= abs(x - z) + abs(z - y)), by=[abs.defn]
 )
 abs_eq_zero = prove(
-    QForAll([x], (abs(x) == 0) == (x == 0)),
+    ForAll([x], (abs(x) == 0) == (x == 0)),
     by=[abs.defn],
 )
 
 abs_pos_iff = prove(
-    QForAll([x], (abs(x) > 0) == (x != 0)),
+    ForAll([x], (abs(x) > 0) == (x != 0)),
     by=[abs_eq_zero, abs_pos],
 )
 # TODO: abs_convex
 
 aeq = define("aeq", [x, y, eps], Abs(x - y) <= eps)
-aeq_pos = prove(QForAll([x, y, eps], aeq(x, y, eps), eps >= 0), by=[aeq.defn])
-aeq_refl = prove(QForAll([x], aeq(x, x, 0)), by=[aeq.defn])
-aeq_symm = prove(QForAll([x, y, eps], aeq(x, y, eps) == aeq(y, x, eps)), by=[aeq.defn])
+aeq_pos = prove(ForAll([x, y, eps], aeq(x, y, eps), eps >= 0), by=[aeq.defn])
+aeq_refl = prove(ForAll([x], aeq(x, x, 0)), by=[aeq.defn])
+aeq_symm = prove(ForAll([x, y, eps], aeq(x, y, eps) == aeq(y, x, eps)), by=[aeq.defn])
 eps1, eps2 = Reals("eps1 eps2")
 aeq_trans = prove(
-    QForAll([x, y, z, eps], aeq(x, y, eps1), aeq(y, z, eps2), aeq(x, z, eps1 + eps2)),
+    ForAll([x, y, z, eps], aeq(x, y, eps1), aeq(y, z, eps2), aeq(x, z, eps1 + eps2)),
     by=[aeq.defn],
 )
 aeq_weak = prove(
-    QForAll([x, y, eps1, eps2], eps1 <= eps2, aeq(x, y, eps1), aeq(x, y, eps2)),
+    ForAll([x, y, eps1, eps2], eps1 <= eps2, aeq(x, y, eps1), aeq(x, y, eps2)),
     by=[aeq.defn],
 )
 
@@ -249,13 +251,13 @@ ceil_gt = prove(ForAll([x], ceil(x) - 1 < x), by=[ceil.defn, floor_gt])
 
 
 pow = define("pow", [x, y], x**y)
-pow_add = axiom(QForAll([x, y, z], x >= 0, pow(x, y + z) == pow(x, y) * pow(x, z)))
-pow_one = prove(QForAll([x], pow(x, 1) == x), by=[pow.defn])
-pow_two = prove(QForAll([x], pow(x, 2) == x * x), by=[pow.defn])
-pow_three = prove(QForAll([x], pow(x, 3) == x * x * x), by=[pow.defn])
-# pow_zero = kd.kernel.prove(kd.QForAll([x], x > 0, pow(x, 0) == 1), by=[pow.defn])
+pow_add = axiom(ForAll([x, y, z], x >= 0, pow(x, y + z) == pow(x, y) * pow(x, z)))
+pow_one = prove(ForAll([x], pow(x, 1) == x), by=[pow.defn])
+pow_two = prove(ForAll([x], pow(x, 2) == x * x), by=[pow.defn])
+pow_three = prove(ForAll([x], pow(x, 3) == x * x * x), by=[pow.defn])
+# pow_zero = kd.kernel.prove(ForAll([x], x > 0, pow(x, 0) == 1), by=[pow.defn])
 kd.kernel.prove(Implies(x > 0, x**0 == 1))
-# pow_pos = kd.prove(kd.QForAll([x, y], x > 0, pow(x, y) > 0), by=[pow.defn])
+# pow_pos = kd.prove(ForAll([x, y], x > 0, pow(x, y) > 0), by=[pow.defn])
 
 pownat = Function("pownat", RealSort(), IntSort(), RealSort())
 pownat = define(
@@ -270,7 +272,7 @@ pownat_zero = prove(
     by=[pownat.defn],
 )
 pownat_succ = prove(
-    QForAll([x, n], n >= 0, pownat(x, n + 1) == x * pownat(x, n)),
+    ForAll([x, n], n >= 0, pownat(x, n + 1) == x * pownat(x, n)),
     by=[pownat.defn],
 )
 
@@ -284,13 +286,16 @@ sqr_neg = prove(ForAll([x], sqr(-x) == sqr(x)), by=[sqr.defn])
 
 # Note that guarding under Real prefix prevents clash with cvc5 built-ins. For better and worse
 sqrt = define("Real.sqrt", [x], x ** "1/2")
+
+
 # sqrt = kd.define("sqrt", [x], smt.If(x >= 0, x ** "1/2", kd.Undef(smt.RealSort(), x)))
 # sqrt
-_l = Lemma(QForAll([x], x >= 0, sqrt(x) >= 0))
-_ = _l.fix()
-_l.unfold()
-_l.auto()
-sqrt_pos = _l.qed()
+@Theorem(ForAll([x], x >= 0, sqrt(x) >= 0))
+def sqrt_pos(l):
+    _ = l.fix()
+    l.unfold()
+    l.auto()
+
 
 # kd.contract(sqrt, [x], x >= 0, sqrt(x) >= 0, by=[sqrt_pos])
 
@@ -298,34 +303,39 @@ sqrt_define = prove(ForAll([x], sqrt(x) == x**0.5), by=[sqrt.defn, pow.defn])
 
 sqrt_one = prove(sqrt(1) == 1, by=[sqrt.defn])
 sqrt_zero = prove(sqrt(0) == 0, by=[sqrt.defn])
-_l = Lemma(QForAll([x], x >= 0, sqrt(x) ** 2 == x))
-_ = _l.fix()
-_l.unfold()
-_l.auto()
-sqrt_square = _l.qed()
 
-sqr_sqrt = prove(QForAll([x], x >= 0, sqr(sqrt(x)) == x), by=[sqrt_square, sqr.defn])
+
+@Theorem(ForAll([x], x >= 0, sqrt(x) ** 2 == x))
+def sqrt_square(l):
+    _ = l.fix()
+    l.unfold()
+    l.auto()
+
+
+sqr_sqrt = prove(ForAll([x], x >= 0, sqr(sqrt(x)) == x), by=[sqrt_square, sqr.defn])
 
 
 sqrt_mul = prove(
-    QForAll([x, y], x >= 0, y >= 0, sqrt(x * y) == sqrt(x) * sqrt(y)),
+    ForAll([x, y], x >= 0, y >= 0, sqrt(x * y) == sqrt(x) * sqrt(y)),
     by=[sqrt.defn, mul.defn],
 )
 sqrt_mono = prove(
-    QForAll([x, y], x >= 0, y >= 0, x <= y, sqrt(x) <= sqrt(y)),
+    ForAll([x, y], x >= 0, y >= 0, x <= y, sqrt(x) <= sqrt(y)),
     by=[sqrt.defn],
 )
 
-_l = Lemma(QForAll([x], x >= 0, sqrt(sqr(x)) == x))
-_ = _l.fix()
-_l.unfold()
-_l.auto()
-sqrt_sqr = _l.qed()
 
-sqrt_sqr_neg = prove(QForAll([x], x <= 0, sqrt(sqr(x)) == -x), by=[sqrt_sqr, sqr_neg])
+@Theorem(ForAll([x], x >= 0, sqrt(sqr(x)) == x))
+def sqrt_sqr(l):
+    _ = l.fix()
+    l.unfold()
+    l.auto()
+
+
+sqrt_sqr_neg = prove(ForAll([x], x <= 0, sqrt(sqr(x)) == -x), by=[sqrt_sqr, sqr_neg])
 
 sqrt_sqr_abs = prove(
-    QForAll([x], sqrt(sqr(x)) == abs(x)),
+    ForAll([x], sqrt(sqr(x)) == abs(x)),
     by=[abs.defn, sqrt_sqr, sqrt_sqr_neg, sqr_pos],
 )
 
@@ -348,7 +358,7 @@ exp_inv = prove(ForAll([x], exp(-x) == 1 / exp(x)), by=[exp_div])
 def exp_mono(l):
     # exp(x) <= exp(x) * exp(y-x) == exp(y)
     x, y = l.fixes()
-    _x_ge_y = l.intros()
+    l.intros()
     l.have(exp(y) == exp(y - x) * exp(x), by=[exp_add(y - x, x)])
     l.have(exp(y - x) >= 1, by=[exp_pos_ge_one(y - x)])
     l.auto(by=[exp_pos])
@@ -359,10 +369,10 @@ exp_neg_le_1 = prove(ForAll([x], x <= 0, exp(x) <= 1), by=[exp_mono, exp_zero])
 ln = Function("Real.ln", kd.R, kd.R)
 ln_exp = axiom(ForAll([x], ln(exp(x)) == x))
 # TODO. some of these are redundant depending on the range of ln being R.
-ln_mul = axiom(QForAll([x, y], x > 0, y > 0, ln(x * y) == ln(x) + ln(y)))
+ln_mul = axiom(ForAll([x, y], x > 0, y > 0, ln(x * y) == ln(x) + ln(y)))
 ln_one = prove(ForAll([x], ln(1) == 0), by=[ln_exp, exp_zero])
 
-exp_ln = axiom(QForAll([x], x > 0, exp(ln(x)) == x))
+exp_ln = axiom(ForAll([x], x > 0, exp(ln(x)) == x))
 
 
 cos = Function("Real.cos", R, R)  # smt.Const("cos", kd.R >> kd.R)
@@ -394,26 +404,28 @@ sin_neg = axiom(ForAll([x], sin(-x) == -sin(x)))
 cos_add = axiom(ForAll([x, y], cos(x + y) == cos(x) * cos(y) - sin(x) * sin(y)))
 sin_add = axiom(ForAll([x, y], sin(x + y) == sin(x) * cos(y) + cos(x) * sin(y)))
 
-_l = Lemma(ForAll([x, y], cos(x - y) == cos(x) * cos(y) + sin(x) * sin(y)))
-_x, _y = _l.fixes()
-assert isinstance(_y, smt.ArithRef)  # make typechecker stop complaining
-_l.symm()
-_l.eq(cos(_x + (-_y)))
-_l.rw(cos_add(_x, -_y))
-_l.auto(by=[cos_neg(_y), sin_neg(_y)])
-_l.lemmas
-cos_diff = _l.qed()
+
+@Theorem(ForAll([x, y], cos(x - y) == cos(x) * cos(y) + sin(x) * sin(y)))
+def cos_diff(l):
+    x, y = l.fixes()
+    assert isinstance(y, smt.ArithRef)  # make typechecker stop complaining
+    l.have(
+        cos(x - y) == cos(x) * cos(-y) - sin(x) * sin(-y),
+        by=[cos_add(x, -y)],
+    )
+    l.auto(by=[cos_neg(y), sin_neg(y)])
+
 
 tan = define("tan", [x], sin(x) / cos(x))
 atan = Function("atan", R, R)  # smt.Const("atan", kd.R >> kd.R)
 
 acos = Function("acos", R, R)
-acos_cos = axiom(QForAll([x], x >= -1, x <= 1, cos(acos(x)) == x))
-acos_range = axiom(QForAll([x], x >= -1, x <= 1, And(acos(x) >= 0, acos(x) <= pi)))
+acos_cos = axiom(ForAll([x], x >= -1, x <= 1, cos(acos(x)) == x))
+acos_range = axiom(ForAll([x], x >= -1, x <= 1, And(acos(x) >= 0, acos(x) <= pi)))
 asin = Function("asin", R, R)
-asin_sin = axiom(QForAll([x], x >= -1, x <= 1, sin(asin(x)) == x))
+asin_sin = axiom(ForAll([x], x >= -1, x <= 1, sin(asin(x)) == x))
 asin_range = axiom(
-    QForAll([x], x >= -1, x <= 1, And(asin(x) >= -pi / 2, asin(x) <= pi / 2))
+    ForAll([x], x >= -1, x <= 1, And(asin(x) >= -pi / 2, asin(x) <= pi / 2))
 )
 
 comp = define("comp", [f, g], Lambda([x], f(g(x))))
@@ -433,13 +445,13 @@ delta, p, L = Reals("delta p L")
 has_lim_at = define(
     "has_lim_at",
     [f, p, L],
-    QForAll(
+    ForAll(
         [eps],
         eps > RealVal(0),
         QExists(
             [delta],
             delta > 0,
-            QForAll(
+            ForAll(
                 [x],
                 RealVal(0) < abs(x - p),
                 abs(x - p) < delta,
@@ -449,7 +461,7 @@ has_lim_at = define(
     ),
 )
 lim = Function("lim", RFun, R, R)
-lim_def = axiom(QForAll([f, x, y], has_lim_at(f, x, y), lim(f, x) == y))
+lim_def = axiom(ForAll([f, x, y], has_lim_at(f, x, y), lim(f, x) == y))
 
 
 has_diff_at = Function("has_diff_at", RFun, R, R, BoolSort())
@@ -457,13 +469,13 @@ diff_at = define("diff_at", [f, x], Exists([y], has_diff_at(f, x, y)))
 cont_at = define(
     "cont_at",
     [f, x],
-    QForAll(
+    ForAll(
         [eps],
         eps > 0,
         QExists(
             [delta],
             delta > 0,
-            QForAll([y], abs(x - y) < delta, abs(f[x] - f[y]) < eps),
+            ForAll([y], abs(x - y) < delta, abs(f[x] - f[y]) < eps),
         ),
     ),
 )
@@ -497,7 +509,7 @@ def archimedes(l):
 is_diff = define("is_diff", [f], ForAll([x], diff_at(f, x)))
 is_cont = define("is_cont", [f], ForAll([x], cont_at(f, x)))
 
-diff_cont = axiom(QForAll([f], is_diff(f), is_cont(f)))
+diff_cont = axiom(ForAll([f], is_diff(f), is_cont(f)))
 
 sin_diff = axiom(is_diff(Lambda([x], sin(x))))
 sin_cont = prove(is_cont(Lambda([x], sin(x))), by=[sin_diff, diff_cont])
@@ -545,7 +557,7 @@ def sqrt_lower(n, x):
 def sqrt_bnd(n):
     x = Real("x")
     return axiom(
-        QForAll(
+        ForAll(
             [x],
             x >= 0,
             And(sqrt_lower(x, n) <= sqrt(x), sqrt(x) <= sqrt_upper(x, n)),
