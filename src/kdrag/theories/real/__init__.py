@@ -508,6 +508,7 @@ def archimedes(l):
 
 is_diff = define("is_diff", [f], ForAll([x], diff_at(f, x)))
 is_cont = define("is_cont", [f], ForAll([x], cont_at(f, x)))
+
 diff_cont = axiom(QForAll([f], is_diff(f), is_cont(f)))
 
 sin_diff = axiom(is_diff(Lambda([x], sin(x))))

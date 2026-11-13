@@ -236,6 +236,7 @@ def sum_append(pf):
 - **Formatting**: Follow PEP 8 guidelines; ruff handles formatting
 - **Docstrings**: Include for public functions and classes
 - **Function Names**: snake_case for functions, CamelCase for classes
+- **Lemma Names**: Follow mathlib names where practical, adapting to snake_case and existing predicates. Prefer `const`, `id`, and `conclusion_of_hypothesis`.
 - **Error Handling**: Use exceptions for failure conditions with clear messages
 - **Test Names**: Prefix with `test_` and descriptively name the behavior
 
@@ -244,3 +245,5 @@ def sum_append(pf):
 - For quantified witness proofs, fix the outer parameters and instantiate the defining theorem before `auto`.
 - Check free schema variables on the original theorem before opening binders; Z3 may recycle collected schema-variable IDs.
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.
+
+- When restating nested quantified witnesses, match the definition's binder names and comparison direction (`RealVal(0) < t` versus `t > 0`) to avoid unstable equivalence searches.
