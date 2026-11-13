@@ -10,7 +10,8 @@ Theorem search
      <input id="theorem-query" type="search" placeholder="e.g. absR or cont_at" autocomplete="off">
      <p>Separate terms with spaces to require all of them.</p>
      <p id="theorem-count" role="status"></p>
-     <ul id="theorem-results"></ul>
    </div>
 
-.. theorem-index::
+.. container:: theorem-results
+
+   .. theorem-index::

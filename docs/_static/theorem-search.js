@@ -4,14 +4,14 @@
 
   const query = document.getElementById("theorem-query");
   const count = document.getElementById("theorem-count");
-  const results = document.getElementById("theorem-results");
-  const entries = Array.from(document.querySelectorAll("[data-theorem]"), (node) => {
+  const results = document.querySelector(".theorem-results");
+  const entries = Array.from(results.querySelectorAll("[data-theorem]"), (node) => {
     const [name, symbols] = JSON.parse(node.dataset.theorem);
     const fullName = name.toLowerCase();
     const shortName = fullName.split(".").at(-1);
     return {
       name,
-      anchor: node.closest(".theorem-entry").id,
+      element: node.closest(".theorem-entry"),
       names: [fullName, shortName],
       symbols: symbols.map((symbol) => symbol.toLowerCase()),
     };
@@ -27,10 +27,6 @@
 
   function update() {
     const terms = query.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    results.replaceChildren();
-    count.textContent = "";
-    if (!terms.length) return;
-
     const matches = [];
     for (const entry of entries) {
       const scores = terms.map((term) => rank(entry, term));
@@ -39,14 +35,11 @@
       }
     }
     matches.sort((a, b) => b.score - a.score || a.entry.name.localeCompare(b.entry.name));
-    count.textContent = matches.length ? `${matches.length} matches` : "No matches.";
+    count.textContent = terms.length ? `${matches.length} matches` : "";
+    for (const entry of entries) entry.element.hidden = true;
     for (const { entry } of matches) {
-      const item = document.createElement("li");
-      const link = document.createElement("a");
-      link.href = `#${entry.anchor}`;
-      link.textContent = entry.name;
-      item.append(link);
-      results.append(item);
+      entry.element.hidden = false;
+      results.append(entry.element);
     }
   }
 

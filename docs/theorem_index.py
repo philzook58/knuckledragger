@@ -1,12 +1,16 @@
 """Render theorem statements and attach symbol search data."""
 
+import ast
 import json
 from html import escape
 from importlib import import_module
+from pathlib import Path
 
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 
+_SOURCE = "https://github.com/philzook58/knuckledragger/blob/main"
+_ROOT = Path(__file__).resolve().parents[1]
 _STATEMENT_MODULES = {"int", "nat", "real", "real.analysis", "real.cont", "real.seq"}
 
 
@@ -30,7 +34,19 @@ class TheoremIndex(SphinxDirective):
         from kdrag.utils import decls
 
         module = import_module(module_name)
-        self.env.note_dependency(module.__file__)
+        source = Path(module.__file__)
+        self.env.note_dependency(str(source))
+        source_url = f"{_SOURCE}/{source.relative_to(_ROOT).as_posix()}"
+        lines = {}
+        for stmt in ast.parse(source.read_bytes()).body:
+            if isinstance(stmt, ast.FunctionDef):
+                lines[stmt.name] = stmt.lineno
+            elif isinstance(stmt, ast.Assign):
+                for target in stmt.targets:
+                    if isinstance(target, ast.Name):
+                        lines[target.id] = stmt.lineno
+            elif isinstance(stmt, ast.AnnAssign) and isinstance(stmt.target, ast.Name):
+                lines[stmt.target.id] = stmt.lineno
         entries = []
         for name, proof in sorted(vars(module).items()):
             if name.startswith("_") or not isinstance(proof, Proof):
@@ -40,7 +56,8 @@ class TheoremIndex(SphinxDirective):
                 ids=[nodes.make_id(qualified_name)], classes=["theorem-entry"]
             )
             title = nodes.paragraph()
-            title += nodes.literal(text=name)
+            url = f"{source_url}#L{lines[name]}" if name in lines else source_url
+            title += nodes.reference("", "", nodes.literal(text=name), refuri=url)
             if proof.admit:
                 title += nodes.Text(" (admitted)")
             entry += title

@@ -12,3 +12,26 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
 }
+
+.rst-content .theorem-entry:not([hidden]) {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(0, 3fr);
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.rst-content .theorem-entry > div.highlight-default {
+  min-width: 0;
+}
+
+.rst-content .theorem-entry pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .rst-content .theorem-entry:not([hidden]) {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
