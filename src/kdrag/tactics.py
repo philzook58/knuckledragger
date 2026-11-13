@@ -2186,9 +2186,9 @@ class ProofState:
             else:
                 kwargs["by"] = list(self.lemmas[-1].values())
             pf = kd.kernel.prove(thm, **kwargs)
-            kdrag.config.perf_event(
-                "ProofState", self.thm, time.perf_counter() - self.start_time
-            )
+        kdrag.config.perf_event(
+            "ProofState", self.thm, time.perf_counter() - self.start_time
+        )
         if self._parent is not None:
             self._parent.exact(pf)
         return pf
