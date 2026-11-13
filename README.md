@@ -33,100 +33,98 @@ uv pip install -e .[solvers,rust,pypcode,dev]
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/philzook58/knuckledragger/blob/master/examples/short_talk.ipynb) [youtube](https://youtu.be/ENwKBC8dN4M)
 
 ```python
-import kdrag as kd
-import kdrag.smt as smt # smt is literally a reexporting of z3
+from kdrag import Calc, Inductive, Proof, Theorem, axiom, cond, define, prove
+from kdrag.kernel import LemmaError
+import kdrag.notation as notation
+# smt is literally a reexporting of z3
+from kdrag.smt import (
+    And, BitVec, Bools, Const, Consts, DeclareSort, ExprRef,
+    ForAll, Function, Implies, Or, Real,
+)
 
-# Anything Z3 can do on it's own, we can "prove" with no extra work
-p,q = smt.Bools("p q")
-simple_taut = kd.prove(smt.Implies(p, smt.Or(p, q)))
+# Anything Z3 can do on its own, we can "prove" with no extra work
+p, q = Bools("p q")
+simple_taut = prove(Implies(p, Or(p, q)))
 
-# The returned objects are `Proof`, not smt.ExprRef` formulas
-assert isinstance(simple_taut, kd.Proof)
-assert not isinstance(simple_taut, smt.ExprRef)
+# The returned objects are Proofs, not ExprRef formulas
+assert isinstance(simple_taut, Proof)
+assert not isinstance(simple_taut, ExprRef)
 
-# kd.prove will throw an error if the theorem is not provable
+# prove will throw an error if the theorem is not provable
 try:
-    false_lemma = kd.prove(smt.Implies(p, smt.And(p, q)))
+    false_lemma = prove(Implies(p, And(p, q)))
     print("This will not be reached")
-except kd.kernel.LemmaError as e:
+except LemmaError:
     pass
 
 # Z3 also supports things like Reals, Ints, BitVectors and strings
-x = smt.Real("x")
-real_trich = kd.prove(smt.ForAll([x], smt.Or(x < 0, x == 0, 0 < x)))
+x = Real("x")
+real_trich = prove(ForAll(x, Or(x < 0, x == 0, 0 < x)))
 
-x = smt.BitVec("x", 32)
-or_idem = kd.prove(smt.ForAll([x], x | x == x))
+x = BitVec("x", 32)
+or_idem = prove(ForAll(x, x | x == x))
 
 ###################################################################
 ###################################################################
 
 # But the point of Knuckledragger is really for the things Z3 can't do in one shot
 
-# Knuckledragger support algebraic datatypes and induction
-Nat = kd.Inductive("MyNat")
+# Knuckledragger supports algebraic datatypes and induction
+Nat = Inductive("MyNat")
 Zero = Nat.declare("Zero")
 Succ = Nat.declare("Succ", ("pred", Nat))
 Nat = Nat.create()
 
 # We can define an addition function by cases
-n,m = smt.Consts("n m", Nat)
-add = smt.Function("add", Nat, Nat, Nat)
-add = kd.define("add", [n,m], 
-    kd.cond(
+n, m = Consts("n m", Nat)
+add = Function("add", Nat, Nat, Nat)
+add = define("add", [n, m],
+    cond(
         (n.is_Zero, m),
-        (n.is_Succ, Nat.Succ(add(n.pred, m)))
-))
+        (n.is_Succ, Nat.Succ(add(n.pred, m))),
+    ),
+)
 
 # There is a notation overloading mechanism modelled after python's singledispatch
-kd.notation.add.register(Nat, add)
+notation.add.register(Nat, add)
 
 # The definitional lemma is not available to the solver unless you give it
-add_zero_x = kd.prove(smt.ForAll([n], Nat.Zero + n == n), by=[add.defn])
-add_succ_x = kd.prove(smt.ForAll([n,m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=[add.defn])
+add_zero_x = prove(ForAll(n, Nat.Zero + n == n), by=[add.defn])
+add_succ_x = prove(ForAll([n, m], Nat.Succ(n) + m == Nat.Succ(n + m)), by=[add.defn])
+
 
 # More involved proofs can be more easily done in an interactive tactic
-# Under the hood, this boils down to calls to kd.prove
+# Under the hood, this boils down to calls to prove
 # These proofs are best understood by seeing the interactive output in a Jupyter notebook
-l = kd.Lemma(smt.ForAll([n], n + Nat.Zero == n))
-# Output: [] ?|= ForAll(n, add(n, Zero) == n)
+@Theorem(ForAll(n, n + Nat.Zero == n))
+def add_x_zero(l):
+    n = l.fix()
+    l.induct(n)
+    # Base case: Zero + Zero == Zero.
+    l.auto(by=[add.defn])
+    # Inductive case: the predecessor satisfies the theorem.
+    l.auto(by=[add.defn])
 
-_n = l.fix()            
-# Output: [] ?|= add(n!0, Zero) == n!2213
-
-l.induct(_n)              
-# Output: [] ?|= add(Zero, Zero) == Zero
-
-# Base case
-l.auto(by=[add.defn])
-# Output: [] ?|= ForAll(a!0, Implies(add(a!0, Zero) == a!0, add(Succ(a!0), Zero) == Succ(a!0)))
-
-# Inductive case
-l.auto(by=[add.defn])
-# Output: Nothing to do!
-
-# Finally the actual Proof is built
-add_x_zero = l.qed()
 
 ###################################################################
 ###################################################################
 
 # But we can also build our own sorts and axiomatic theories.
 # https://en.wikipedia.org/wiki/Group_(mathematics)
-G = smt.DeclareSort("G")
-mul = smt.Function("mul", G, G, G)
-e = smt.Const("e", G)
-inv = smt.Function("inv", G, G)
+G = DeclareSort("G")
+mul = Function("mul", G, G, G)
+e = Const("e", G)
+inv = Function("inv", G, G)
 
-kd.notation.mul.register(G, mul)
+notation.mul.register(G, mul)
 
-x, y, z = smt.Consts("x y z", G)
-mul_assoc = kd.axiom(smt.ForAll([x, y, z], x * (y * z) == (x * y) * z))
-id_left = kd.axiom(smt.ForAll([x], e * x == x))
-inv_left = kd.axiom(smt.ForAll([x], inv(x) * x == e))
+x, y, z = Consts("x y z", G)
+mul_assoc = axiom(ForAll([x, y, z], x * (y * z) == (x * y) * z))
+id_left = axiom(ForAll(x, e * x == x))
+inv_left = axiom(ForAll(x, inv(x) * x == e))
 
 # The Calc tactic can allow one to write explicit equational proofs
-c = kd.Calc([x], x * inv(x))
+c = Calc([x], x * inv(x))
 c.eq(e * (x * inv(x)), by=[id_left])
 c.eq((inv(inv(x)) * inv(x)) * (x * inv(x)), by=[inv_left])
 c.eq(inv(inv(x)) * ((inv(x) * x) * inv(x)), by=[mul_assoc])

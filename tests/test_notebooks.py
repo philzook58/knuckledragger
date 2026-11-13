@@ -71,5 +71,6 @@ def test_readme():
     if not python_code_blocks:
         raise ValueError("No Python code blocks found in the README.md file.")
 
-    for i, block in enumerate(python_code_blocks, 1):
-        exec(block)
+    for block in python_code_blocks:
+        # Use one namespace for both top-level definitions and nested functions.
+        exec(block, {})
