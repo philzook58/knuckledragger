@@ -231,6 +231,8 @@ class _Printer:
             for decl in dispatch.methods.values()
             if isinstance(decl, smt.FuncDeclRef) and decl.arity() == 1
         }
+        # Collect binder and declaration names across the whole display. This lets
+        # us rank fresh suffixes per base and avoid collisions with existing names.
         decls = {}
         binder_names = set()
         seen = set()
