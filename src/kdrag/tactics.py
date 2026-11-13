@@ -13,6 +13,7 @@ from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
 from functools import cache
 import traceback
+import linecache
 import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
@@ -2313,17 +2314,15 @@ def PTheorem(
             f(l)
         except _AutoFailure as failure:
             code = getattr(f, "__code__", None)
-            frames = traceback.walk_tb(failure.__traceback__)
-            proof_frames = (
-                (frame, lineno) for frame, lineno in frames if frame.f_code is code
-            )
-            for frame in traceback.StackSummary.extract(proof_frames):
-                print(f"auto failed in {frame.name} at line {frame.lineno}")
-                if frame.line:
-                    print(f"    {frame.line}")
-                break
-            else:
-                print("auto failed")
+            headline = "auto failed"
+            for frame, line in traceback.walk_tb(failure.__traceback__):
+                if frame.f_code is code:
+                    headline += f" in {frame.f_code.co_name} at line {line}"
+                    source = linecache.getline(frame.f_code.co_filename, line).strip()
+                    if source:
+                        headline += f"\n    {source}"
+                    break
+            print(headline)
             error = failure.error
             if isinstance(error, TimeoutError):
                 print(error)
@@ -2331,14 +2330,12 @@ def PTheorem(
                 print("Solver found a countermodel.")
             else:
                 print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
-            print("Goal:")
-            print(pretty_goal(failure.goal))
+            print("Goal:", pretty_goal(failure.goal), sep="\n")
             return
         if len(l.goals) == 0:
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
-            print("Next Goal:")
-            print(pretty_goal(l.top_goal()))
+            print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
 
     return res
