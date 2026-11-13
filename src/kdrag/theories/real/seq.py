@@ -611,7 +611,7 @@ has_lim = define(
     QForAll(
         [eps],
         eps > 0,
-        QExists([N], QForAll([n], n > N, real.abs(a[n] - y) < eps)),
+        QExists([N], N >= 0, QForAll([n], n > N, real.abs(a[n] - y) < eps)),
     ),
 )
 
@@ -619,10 +619,10 @@ has_lim = define(
 is_conv = define("is_conv", [a], Exists([y], has_lim(a, y)))
 
 # skolemize and define
-(sk,), pf = kd.kernel.obtain(Exists([y], has_lim(A, y)))
+(sk,), _pf = kd.kernel.obtain(Exists([y], has_lim(A, y)))
 lim = define("lim", [A], sk)
 lim_defn = prove(
-    Implies(is_conv(A), has_lim(A, lim(A))), by=[lim.defn, pf, is_conv.defn]
+    Implies(is_conv(A), has_lim(A, lim(A))), by=[lim.defn, _pf, is_conv.defn]
 )
 
 
@@ -636,9 +636,12 @@ def has_lim_inv(l):
     l.unfold(has_lim)
     eps = l.fix()
     l.assumes(eps > 0)
-    l.exists(ToInt(1 / eps) + 1)
-    n = l.fix()
-    l.assumes(n > ToInt(1 / eps) + 1)
+    N = ToInt(1 / eps) + 1
+    l.exists(N)
+    l.split()
+    l.auto()
+    l.fix()
+    l.intros()
     l.unfold(real.abs)
     l.auto()
 

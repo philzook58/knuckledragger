@@ -47,6 +47,10 @@
    {% endif %}
    {% endblock %}
 
+{% if fullname.startswith("kdrag.theories.") %}
+.. theorem-index:: {{ fullname }}
+
+{% endif %}
 {% block modules %}
 {% if modules %}
 .. rubric:: Modules

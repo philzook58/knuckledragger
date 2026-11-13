@@ -7,6 +7,8 @@ def test_precedence_and_width():
     a, b, c = smt.Ints("a b c")
     p, q, r = smt.Bools("p q r")
     assert pretty_expr(a - (b - c)) == "a - (b - c)"
+    assert pretty_expr(a + b != c) == "a + b ≠ c"
+    assert pretty_expr(smt.Distinct(a, b, c)) == "distinct(a, b, c)"
     assert pretty_expr(smt.Implies(smt.Implies(p, q), r)) == "(p → q) → r"
     assert pretty_expr(smt.Implies(p, smt.Implies(q, r))) == "p → q → r"
     f = smt.Function("long_call", smt.IntSort(), smt.IntSort(), smt.IntSort())

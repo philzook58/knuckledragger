@@ -1848,22 +1848,22 @@ class ProofState:
             )
         return self.top_goal()
 
-    def contra(self):
-        """
-        Prove the goal by contradiction.
+    def contra(self) -> smt.BoolRef:
+        """Prove by contradiction and return the negated goal as a hypothesis.
 
         >>> p = smt.Bool("p")
         >>> l = Lemma(p)
         >>> l.contra()
+        Not(p)
+        >>> l
         [Not(p)] ?|= False
         """
         goalctx = self.pop_goal()
+        negated = smt.Not(goalctx.goal)
         self.goals.append(
-            goalctx._replace(
-                ctx=goalctx.ctx + [smt.Not(goalctx.goal)], goal=smt.BoolVal(False)
-            )
+            goalctx._replace(ctx=goalctx.ctx + [negated], goal=smt.BoolVal(False))
         )
-        return self.top_goal()
+        return negated
 
     def clear(self, n: int | smt.BoolRef):
         """
