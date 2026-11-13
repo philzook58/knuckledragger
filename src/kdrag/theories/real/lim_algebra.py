@@ -218,6 +218,7 @@ def has_lim_div(l):
     l.split()
     l.auto()
     l.unfold(div)
+    l.beta()
     m = l.fix()
     l.intros()
 
