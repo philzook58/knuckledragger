@@ -4,7 +4,7 @@
 
   const query = document.getElementById("theorem-query");
   const count = document.getElementById("theorem-count");
-  const results = document.querySelector(".theorem-results tbody");
+  const results = document.querySelector(".theorem-results .theorem-list");
   const entries = Array.from(results.querySelectorAll("[data-theorem]"), (node) => {
     const [name, symbols] = JSON.parse(node.dataset.theorem);
     const fullName = name.toLowerCase();

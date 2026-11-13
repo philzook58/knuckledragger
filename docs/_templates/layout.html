@@ -3,6 +3,6 @@
 {% block sidebartitle %}
 {{ super() }}
 <form action="{{ pathto('theorems') }}" method="get" role="search" aria-label="Theorem search">
-  <input type="text" name="theorem" placeholder="Find theorems by symbol" aria-label="Theorem name or symbol" />
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
 </form>
 {% endblock %}
