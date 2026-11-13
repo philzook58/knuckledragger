@@ -4,6 +4,7 @@ import subprocess
 import kdrag as kd
 import kdrag.smt as smt
 from kdrag.printers._layout import _Break, _Doc, _Group, _Nest, _join, _layout
+from kdrag.printers._operators import _LEAN_INFIX
 
 
 def decl_sig(f: smt.FuncDeclRef) -> str:
@@ -184,24 +185,6 @@ def of_expr(e: smt.ExprRef):
 def run_lean(filename: str):
     return subprocess.run(["lean", filename], check=True, capture_output=True)
 
-
-# Lean precedence and associativity from Init.Notation. Arrow binds below Or.
-_PROP_INFIX = (
-    {
-        smt.Z3_OP_IMPLIES: ("→", 25, "right"),
-        smt.Z3_OP_OR: ("∨", 30, "right"),
-        smt.Z3_OP_AND: ("∧", 35, "right"),
-        smt.Z3_OP_LT: ("<", 50, "none"),
-        smt.Z3_OP_LE: ("≤", 50, "none"),
-        smt.Z3_OP_GT: (">", 50, "none"),
-        smt.Z3_OP_GE: ("≥", 50, "none"),
-        smt.Z3_OP_ADD: ("+", 65, "left"),
-        smt.Z3_OP_SUB: ("-", 65, "left"),
-        smt.Z3_OP_MUL: ("*", 70, "left"),
-    }
-    if smt.solver == smt.Z3SOLVER
-    else {}
-)
 
 _IDENT = re.compile(r"[a-zA-Z_][a-zA-Z0-9_']*")
 _KEYWORDS = frozenset(
@@ -408,10 +391,8 @@ class _PropPrinter:
                 ),
                 0,
             )
-        if smt.is_eq(expr):
-            if smt.is_bool(args[0]):
-                return infix("↔", 20, "none", args)
-            return infix("=", 50, "none", args)
+        if smt.is_eq(expr) and smt.is_bool(args[0]):
+            return infix("↔", 20, "none", args)
         if smt.is_distinct(expr) and len(args) == 2:
             return infix("≠", 50, "none", args)
         if smt.is_not(expr):
@@ -421,7 +402,7 @@ class _PropPrinter:
             return wrap(("-", child(args[0], 76)), 75)
         if smt.is_to_real(expr):
             return ("((", child(args[0]), " : Int) : ℝ)")
-        if rule := _PROP_INFIX.get(kind):
+        if rule := _LEAN_INFIX.get(kind):
             if not args:
                 return "True" if smt.is_and(expr) else "False"
             if len(args) == 1:

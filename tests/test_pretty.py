@@ -9,6 +9,10 @@ def test_precedence_and_width():
     assert pretty_expr(a - (b - c)) == "a - (b - c)"
     assert pretty_expr(smt.Implies(smt.Implies(p, q), r)) == "(p → q) → r"
     assert pretty_expr(smt.Implies(p, smt.Implies(q, r))) == "p → q → r"
+    for op, symbol in ((smt.And, "∧"), (smt.Or, "∨")):
+        assert pretty_expr(op(op(p, q), r)) == f"(p {symbol} q) {symbol} r"
+        assert pretty_expr(op(p, op(q, r))) == f"p {symbol} q {symbol} r"
+        assert pretty_expr(op(p, q, r)) == f"p {symbol} q {symbol} r"
     f = smt.Function("long_call", smt.IntSort(), smt.IntSort(), smt.IntSort())
     assert pretty_expr(f(a, b)) == "long_call(a, b)"
     assert pretty_expr(f(a, b), width=12) == "long_call(a,\n  b)"

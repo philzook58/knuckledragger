@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Literal, NamedTuple
 
 from kdrag import notation, smt
 from kdrag.printers._layout import _Break, _Doc, _Group, _Nest, _join, _layout
+from kdrag.printers._operators import _LEAN_INFIX
 from kdrag.utils import ite_to_cases
 
 if TYPE_CHECKING:
@@ -58,46 +59,43 @@ class _Infix(NamedTuple):
 # The compact printer uses the default SMT backend's AST inspection.
 _USE_COMPACT_PRINTER = smt.solver == smt.Z3SOLVER
 if _USE_COMPACT_PRINTER:
+    # Keep display-only operators and prefixes on the existing precedence scale.
+    _DISPLAY_PRECEDENCE = {25: 1, 30: 2, 35: 3, 50: 4, 65: 5, 70: 6}
     _INFIX = {
-        smt.Z3_OP_IMPLIES: _Infix("→", 1, "right", True),
-        smt.Z3_OP_OR: _Infix("∨", 2, "left", True),
-        smt.Z3_OP_AND: _Infix("∧", 3, "left", True),
-        smt.Z3_OP_EQ: _Infix("=", 4),
-        smt.Z3_OP_LT: _Infix("<", 4),
-        smt.Z3_OP_LE: _Infix("≤", 4),
-        smt.Z3_OP_GT: _Infix(">", 4),
-        smt.Z3_OP_GE: _Infix("≥", 4),
-        smt.Z3_OP_ADD: _Infix("+", 5, "left"),
-        smt.Z3_OP_SUB: _Infix("-", 5, "left"),
-        smt.Z3_OP_MUL: _Infix("*", 6, "left"),
-        smt.Z3_OP_DIV: _Infix("/", 6, "left"),
-        smt.Z3_OP_IDIV: _Infix("div", 6, "left"),
-        smt.Z3_OP_MOD: _Infix("mod", 6, "left"),
-        smt.Z3_OP_POWER: _Infix("^", 8, "right"),
-        smt.Z3_OP_SET_UNION: _Infix("∪", 5, "right", True),
-        smt.Z3_OP_SET_INTERSECT: _Infix("∩", 6, "right", True),
-        smt.Z3_OP_SET_DIFFERENCE: _Infix("∖", 5),
-        smt.Z3_OP_SET_SUBSET: _Infix("⊆", 4),
-        smt.Z3_OP_BADD: _Infix("+", 5, "left"),
-        smt.Z3_OP_BSUB: _Infix("-", 5, "left"),
-        smt.Z3_OP_BMUL: _Infix("*", 6, "left"),
-        smt.Z3_OP_BAND: _Infix("&", 3),
-        smt.Z3_OP_BXOR: _Infix("⊕", 3),
-        smt.Z3_OP_BOR: _Infix("|", 3),
-        smt.Z3_OP_BSHL: _Infix("<<", 4),
-        smt.Z3_OP_BLSHR: _Infix(">>ᵤ", 4),
-        smt.Z3_OP_BASHR: _Infix(">>ₛ", 4),
-        smt.Z3_OP_BSDIV: _Infix("/ₛ", 6, "left"),
-        smt.Z3_OP_BUDIV: _Infix("/ᵤ", 6, "left"),
-        smt.Z3_OP_SLT: _Infix("<ₛ", 4),
-        smt.Z3_OP_SLEQ: _Infix("≤ₛ", 4),
-        smt.Z3_OP_SGT: _Infix(">ₛ", 4),
-        smt.Z3_OP_SGEQ: _Infix("≥ₛ", 4),
-        smt.Z3_OP_ULT: _Infix("<ᵤ", 4),
-        smt.Z3_OP_ULEQ: _Infix("≤ᵤ", 4),
-        smt.Z3_OP_UGT: _Infix(">ᵤ", 4),
-        smt.Z3_OP_UGEQ: _Infix("≥ᵤ", 4),
+        kind: _Infix(symbol, _DISPLAY_PRECEDENCE[prec], association, prec <= 35)
+        for kind, (symbol, prec, association) in _LEAN_INFIX.items()
     }
+    _INFIX.update(
+        {
+            smt.Z3_OP_DIV: _Infix("/", 6, "left"),
+            smt.Z3_OP_IDIV: _Infix("div", 6, "left"),
+            smt.Z3_OP_MOD: _Infix("mod", 6, "left"),
+            smt.Z3_OP_POWER: _Infix("^", 8, "right"),
+            smt.Z3_OP_SET_UNION: _Infix("∪", 5, "right", True),
+            smt.Z3_OP_SET_INTERSECT: _Infix("∩", 6, "right", True),
+            smt.Z3_OP_SET_DIFFERENCE: _Infix("∖", 5),
+            smt.Z3_OP_SET_SUBSET: _Infix("⊆", 4),
+            smt.Z3_OP_BADD: _Infix("+", 5, "left"),
+            smt.Z3_OP_BSUB: _Infix("-", 5, "left"),
+            smt.Z3_OP_BMUL: _Infix("*", 6, "left"),
+            smt.Z3_OP_BAND: _Infix("&", 3),
+            smt.Z3_OP_BXOR: _Infix("⊕", 3),
+            smt.Z3_OP_BOR: _Infix("|", 3),
+            smt.Z3_OP_BSHL: _Infix("<<", 4),
+            smt.Z3_OP_BLSHR: _Infix(">>ᵤ", 4),
+            smt.Z3_OP_BASHR: _Infix(">>ₛ", 4),
+            smt.Z3_OP_BSDIV: _Infix("/ₛ", 6, "left"),
+            smt.Z3_OP_BUDIV: _Infix("/ᵤ", 6, "left"),
+            smt.Z3_OP_SLT: _Infix("<ₛ", 4),
+            smt.Z3_OP_SLEQ: _Infix("≤ₛ", 4),
+            smt.Z3_OP_SGT: _Infix(">ₛ", 4),
+            smt.Z3_OP_SGEQ: _Infix("≥ₛ", 4),
+            smt.Z3_OP_ULT: _Infix("<ᵤ", 4),
+            smt.Z3_OP_ULEQ: _Infix("≤ᵤ", 4),
+            smt.Z3_OP_UGT: _Infix(">ᵤ", 4),
+            smt.Z3_OP_UGEQ: _Infix("≥ᵤ", 4),
+        }
+    )
     _PREFIX = {
         smt.Z3_OP_NOT: ("¬", 4),
         smt.Z3_OP_UMINUS: ("-", 7),
