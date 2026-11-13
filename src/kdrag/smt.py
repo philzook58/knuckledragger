@@ -578,6 +578,66 @@ def is_func(f: ExprRef) -> TypeGuard[FuncRef]:
     return is_array(f) or (isinstance(f, QuantifierRef) and f.is_lambda())
 
 
+# The default AST backend provides operator inspection and the predicates above.
+supports_builtin_ops = solver == Z3SOLVER
+_builtin_ops = (
+    {
+        z3.Z3_OP_IMPLIES: "implies",
+        z3.Z3_OP_OR: "or",
+        z3.Z3_OP_AND: "and",
+        z3.Z3_OP_EQ: "eq",
+        z3.Z3_OP_LT: "lt",
+        z3.Z3_OP_LE: "le",
+        z3.Z3_OP_GT: "gt",
+        z3.Z3_OP_GE: "ge",
+        z3.Z3_OP_ADD: "add",
+        z3.Z3_OP_SUB: "sub",
+        z3.Z3_OP_MUL: "mul",
+        z3.Z3_OP_DIV: "div",
+        z3.Z3_OP_IDIV: "int_div",
+        z3.Z3_OP_MOD: "mod",
+        z3.Z3_OP_POWER: "power",
+        z3.Z3_OP_SET_UNION: "set_union",
+        z3.Z3_OP_SET_INTERSECT: "set_intersect",
+        z3.Z3_OP_SET_DIFFERENCE: "set_difference",
+        z3.Z3_OP_SET_SUBSET: "set_subset",
+        z3.Z3_OP_BADD: "bv_add",
+        z3.Z3_OP_BSUB: "bv_sub",
+        z3.Z3_OP_BMUL: "bv_mul",
+        z3.Z3_OP_BAND: "bv_and",
+        z3.Z3_OP_BXOR: "bv_xor",
+        z3.Z3_OP_BOR: "bv_or",
+        z3.Z3_OP_BSHL: "bv_shl",
+        z3.Z3_OP_BLSHR: "bv_lshr",
+        z3.Z3_OP_BASHR: "bv_ashr",
+        z3.Z3_OP_BSDIV: "bv_sdiv",
+        z3.Z3_OP_BUDIV: "bv_udiv",
+        z3.Z3_OP_SLT: "bv_slt",
+        z3.Z3_OP_SLEQ: "bv_sle",
+        z3.Z3_OP_SGT: "bv_sgt",
+        z3.Z3_OP_SGEQ: "bv_sge",
+        z3.Z3_OP_ULT: "bv_ult",
+        z3.Z3_OP_ULEQ: "bv_ule",
+        z3.Z3_OP_UGT: "bv_ugt",
+        z3.Z3_OP_UGEQ: "bv_uge",
+        z3.Z3_OP_NOT: "not",
+        z3.Z3_OP_UMINUS: "neg",
+        z3.Z3_OP_BNEG: "bv_neg",
+        z3.Z3_OP_BNOT: "bv_not",
+        z3.Z3_OP_SET_COMPLEMENT: "set_complement",
+    }
+    if supports_builtin_ops
+    else {}
+)
+
+
+def builtin_op(decl: FuncDeclRef) -> str | None:
+    """Return a backend-independent name for a recognized built-in operator."""
+    if supports_builtin_ops:
+        return _builtin_ops.get(decl.kind())
+    return None
+
+
 def domains(f: FuncRef | ArraySortRef) -> list[SortRef]:
     """
     Get the domain sorts of a lambda or an array.
