@@ -1,68 +1,43 @@
-.rst-content .theorem-table {
+.rst-content table.theorem-table {
   width: 100%;
   table-layout: fixed;
 }
 
-.rst-content .theorem-table td,
-.rst-content .theorem-table th {
+.rst-content table.theorem-table td,
+.rst-content table.theorem-table th {
   padding: 0.2rem 0.4rem;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  font-size: 0.8rem;
-}
-
-.rst-content .theorem-table .highlight,
-.rst-content .theorem-table div[class^="highlight"],
-.rst-content .theorem-table pre {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font-size: 0.75rem;
-}
-
-.rst-content .theorem-table tr[hidden] {
-  display: none;
+  vertical-align: middle;
 }
 
 .rst-content .theorem-table th:first-child {
   width: 35%;
 }
 
-.rst-content .theorem-table tbody p {
+.rst-content .theorem-table tr[hidden] {
+  display: none;
+}
+
+.rst-content .theorem-table td > p {
   margin: 0;
-  font-size: inherit;
+  font-size: 0.8rem;
   line-height: 1.3;
-}
-
-.rst-content table.theorem-table tbody td {
-  padding-block: 0.1rem;
-  vertical-align: middle;
-}
-
-.rst-content .theorem-table pre,
-.rst-content .theorem-table pre span {
-  white-space: pre-wrap;
-  overflow: visible;
-  line-height: 1.3;
-}
-
-.rst-content .theorem-table tbody td > p,
-.rst-content .theorem-table tbody td > div {
-  margin: 0;
-}
-
-.rst-content .theorem-table tbody td pre {
-  padding: 0;
 }
 
 .rst-content .theorem-table td code,
 .rst-content .theorem-table td code .pre {
-  white-space: normal;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-.rst-content .theorem-table tbody td .highlight {
-  margin: 0;
+#theorem-search-controls input {
+  width: 100%;
+  margin-block: 0.25rem;
+}
+
+#theorem-search-controls p {
+  margin-bottom: 0.5rem;
 }

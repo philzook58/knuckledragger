@@ -82,7 +82,16 @@ class TheoremIndex(SphinxDirective):
                 "", f'<span hidden data-theorem="{data}"></span>', format="html"
             )
             entry += nodes.entry(
-                "", nodes.literal_block(text=pretty_expr(proof.thm, width=60)), metadata
+                "",
+                nodes.paragraph(
+                    "",
+                    "",
+                    nodes.literal(
+                        text=pretty_expr(proof.thm, width=60),
+                        classes=["theorem-formula"],
+                    ),
+                ),
+                metadata,
             )
             self.state.document.note_explicit_target(entry)
             entries.append(entry)

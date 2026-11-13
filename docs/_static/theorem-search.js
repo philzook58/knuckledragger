@@ -1,5 +1,5 @@
 (() => {
-  const search = document.getElementById("theorem-search");
+  const search = document.getElementById("theorem-search-controls");
   if (!search) return;
 
   const query = document.getElementById("theorem-query");
