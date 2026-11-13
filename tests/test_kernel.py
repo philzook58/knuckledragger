@@ -59,42 +59,39 @@ def test_proof_call_ellipsis_forall():
     assert pf(..., ...).thm.body().eq(pf.thm.body())
 
 
-def test_proof_call_ellipsis_implies():
+def test_proof_call_ellipsis_with_implication():
+    x, y = smt.Ints("x y")
     p = smt.Bool("p")
-    truth = kd.prove(smt.BoolVal(True))
-    pf = kd.prove(smt.Implies(p, smt.Implies(smt.BoolVal(True), p)))
-    assert pf(..., truth).thm.eq(smt.Implies(p, p))
-    assert pf(..., ...).thm.eq(pf.thm)
-    skipped = kd.prove(smt.Implies(smt.BoolVal(True), smt.Implies(p, p)))(..., ...)
-    assert skipped(truth).thm.eq(smt.Implies(p, p))
-    # Retain scope information from both the theorem and supplied proofs.
+    premise = kd.axiom(p)
+    pf = kd.prove(smt.ForAll([x], smt.Implies(p, smt.ForAll([y], x + y == y + x))))
+    result = pf(..., premise, 3)
+    expected = smt.ForAll([x], x + 3 == 3 + x)
+    assert result.thm.num_vars() == 1
+    assert result.thm.body().eq(expected.body())
+    with pytest.raises(TypeError, match="implication premise"):
+        pf(..., ..., 3)
     scope = smt.Int("ellipsis_scope")
-    scoped = kd.kernel.weaken(pf, [scope])
-    assert scoped(..., truth).fvs == scoped.fvs
-    scoped_truth = kd.kernel.weaken(truth, [scope])
-    assert pf(..., scoped_truth).fvs == scoped_truth.fvs
+    for theorem, reason in (
+        (kd.kernel.weaken(pf, [scope]), premise),
+        (pf, kd.kernel.weaken(premise, [scope])),
+    ):
+        with pytest.raises(ValueError, match="empty fvs"):
+            theorem(..., reason, 3)
 
 
 def test_proof_call_ellipsis_preserves_binder_order():
-    p = smt.Bool("p")
     x, y = smt.Ints("x y")
-    truth = kd.prove(smt.BoolVal(True))
-    pf = kd.prove(smt.Implies(p, smt.ForAll([x], smt.Implies(
-        smt.BoolVal(True), smt.ForAll([y], x + y == y + x)))))
-    result = pf(..., ..., truth, 3)
-    expected = smt.ForAll([x], x + 3 == 3 + x)
-    assert result.thm.arg(0).eq(p)
-    assert result.thm.arg(1).num_vars() == 1
-    assert result.thm.arg(1).body().eq(expected.body())
-    assert pf(..., 2, ..., 3).thm.eq(smt.Implies(p, smt.Implies(
-        smt.BoolVal(True), smt.IntVal(2) + 3 == smt.IntVal(3) + 2)))
+    pf = kd.prove(smt.ForAll([x], smt.ForAll([y], x + y == y + x)))
+    result = pf(..., ...).thm
+    assert result.num_vars() == 1
+    assert result.body().num_vars() == 1
+    assert result.body().body().eq(pf.thm.body().body())
 
 
 def test_proof_call_ellipsis_preserves_dependent_premise():
     x, y = smt.Ints("x y")
-    pf = kd.prove(smt.ForAll([x], smt.Implies(
-        x > 0, smt.ForAll([y], x + y == y + x))))
-    result = pf(..., ..., x)
+    pf = kd.prove(smt.ForAll([x, y], smt.Implies(x > 0, x + y == y + x)))
+    result = pf(..., x)
     expected = smt.ForAll([y], smt.Implies(y > 0, y + x == x + y))
     assert result.thm.num_vars() == 1
     assert result.thm.body().eq(expected.body())
@@ -114,9 +111,9 @@ def test_proof_call_ellipsis_rejects_mismatched_proof():
     x = smt.Int("x")
     pf = kd.prove(smt.ForAll([x], smt.Implies(x > 0, x >= 0)))
     # A proof about 1 cannot discharge a premise about every retained x.
-    with pytest.raises(AssertionError, match="does not match"):
+    with pytest.raises(AssertionError):
         pf(..., kd.prove(smt.IntVal(1) > 0))
-    with pytest.raises(AssertionError, match="kd.Proof"):
+    with pytest.raises(TypeError, match="kd.Proof"):
         pf(..., smt.BoolVal(True))
 
 

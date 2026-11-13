@@ -80,14 +80,12 @@ class Proof(Judgement):
         >>> ab(a,a)
         |= a
 
-        Use ``...`` to skip one variable or premise, leaving its binder in place.
+        Use ``...`` to leave a quantified variable open.
         No inference or proof search is performed for skipped arguments.
 
         >>> q = prove(smt.ForAll([x, y], x + y == y + x))
         >>> q(..., 3)
         |= ForAll(x!..., x!... + 3 == 3 + x!...)
-        >>> ab(..., a)
-        |= Implies(a, a)
         """
         if any(arg is Ellipsis for arg in args):
             return partial_apply(self, args)
@@ -119,81 +117,50 @@ class Proof(Judgement):
         return acc
 
 
-@dataclass(frozen=True)
-class _Var:
-    variables: tuple[smt.ExprRef, ...]
-
-
-@dataclass(frozen=True)
-class _Hyp:
-    premise: smt.BoolRef
-
-
 def partial_apply(
     pf: Proof, args: Sequence[smt.ExprRef | Proof | EllipsisType]
 ) -> Proof:
-    """Apply arguments under skipped quantifiers and implication premises.
+    """Apply arguments and generalize the quantified variables left open."""
+    if pf.fvs or any(isinstance(arg, Proof) and arg.fvs for arg in args):
+        raise ValueError("Partial application requires proofs with empty fvs")
 
-    Supplied proofs must prove their premises outright; skipped premises are
-    retained as implications, never introduced as unconditional assumptions.
-    Fresh constants keep retained binders from capturing supplied arguments.
-    """
-    assert isinstance(pf, Proof)
-
-    trail: list[_Var | _Hyp] = []
-    result = pf.thm
+    retained_blocks: list[list[smt.ExprRef]] = []
     pos = 0
     while pos < len(args):
-        if isinstance(result, smt.QuantifierRef) and result.is_forall():
-            terms: list[smt.ExprRef] = []
-            retained: list[smt.ExprRef] = []
-            count = min(result.num_vars(), len(args) - pos)
-            for i in range(result.num_vars()):
-                sort = result.var_sort(i)
+        thm = pf.thm
+        if isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+            terms = []
+            retained = []
+            count = min(thm.num_vars(), len(args) - pos)
+            for i in range(thm.num_vars()):
                 arg = args[pos + i] if i < count else Ellipsis
+                sort = thm.var_sort(i)
                 if arg is Ellipsis:
-                    prefix = result.var_name(i).split("!")[0]
-                    variable = smt.FreshConst(sort, prefix=prefix)
+                    variable = FreshVar(thm.var_name(i).split("!")[0], sort)
                     terms.append(variable)
                     retained.append(variable)
+                elif isinstance(arg, Proof):
+                    raise TypeError("Expected a term for a quantified variable", arg)
                 else:
-                    if isinstance(arg, Proof):
-                        raise TypeError("Expected a term for a quantified variable", arg)
                     terms.append(sort.cast(arg))
+            pf = instan(terms, pf)
             if retained:
-                trail.append(_Var(tuple(retained)))
-            result = smt.substitute_vars(result.body(), *reversed(terms))
+                retained_blocks.append(retained)
             pos += count
-        elif smt.is_implies(result):
-            premise, result = result.children()
+        elif smt.is_implies(thm):
             arg = args[pos]
-            if arg is Ellipsis:
-                trail.append(_Hyp(premise))
-            else:
-                assert isinstance(arg, Proof), "Can only apply implication to kd.Proof"
-                assert premise.eq(arg.thm), "Proof does not match implication premise"
+            if not isinstance(arg, Proof):
+                raise TypeError("Expected a kd.Proof for an implication premise", arg)
+            pf = modus(pf, arg)
             pos += 1
         else:
             raise TypeError(
-                "Only implications and forall quantifier Proofs can be called", result
+                "Only implications and forall quantifier Proofs can be called", thm
             )
 
-    for entry in reversed(trail):
-        if isinstance(entry, _Var):
-            result = smt.RawForAll(entry.variables, result)
-        else:
-            result = smt.Implies(entry.premise, result)
-
-    reasons = [pf, *(arg for arg in args if isinstance(arg, Proof))]
-    fvs = frozenset().union(*(reason.fvs for reason in reasons))
-    if fvs == pf.fvs and result.eq(pf.thm):
-        return pf
-    # The trail computes a candidate. Check it using the original proofs.
-    reasons = [
-        weaken(reason, list(fvs - reason.fvs)) if reason.fvs != fvs else reason
-        for reason in reasons
-    ]
-    return prove(result, by=reasons, fvs=fvs, solver=smt.Z3Solver)
+    for retained in reversed(retained_blocks):
+        pf = generalize(retained, pf)
+    return pf
 
 
 def is_proof(p: Proof) -> bool:
