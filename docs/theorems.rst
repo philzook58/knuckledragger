@@ -1,0 +1,59 @@
+Theorem index
+=============
+
+These statements come from public ``Proof`` objects in the modules below.
+The docs build formats them with Knuckledragger's pretty printer.
+The index includes named axioms alongside proved lemmas and labels entries
+whose proof is marked admitted.
+
+.. contents::
+   :local:
+   :depth: 1
+
+Real numbers
+------------
+
+``kdrag.theories.real``
+
+.. theorem-index:: kdrag.theories.real
+
+.. _cont-statements:
+
+Continuity and pointwise limits
+-------------------------------
+
+``kdrag.theories.real.cont``
+
+.. theorem-index:: kdrag.theories.real.cont
+
+.. _seq-statements:
+
+Real sequences
+--------------
+
+``kdrag.theories.real.seq``
+
+.. theorem-index:: kdrag.theories.real.seq
+
+.. _analysis-statements:
+
+Distance and open sets
+----------------------
+
+``kdrag.theories.real.analysis``
+
+.. theorem-index:: kdrag.theories.real.analysis
+
+Integers
+--------
+
+``kdrag.theories.int``
+
+.. theorem-index:: kdrag.theories.int
+
+Natural numbers
+---------------
+
+``kdrag.theories.nat``
+
+.. theorem-index:: kdrag.theories.nat
