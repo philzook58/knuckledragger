@@ -1,0 +1,6 @@
+kdrag.smt.expr\_kind
+====================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: expr_kind

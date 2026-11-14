@@ -1,0 +1,6 @@
+kdrag.property.Assoc
+====================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: Assoc

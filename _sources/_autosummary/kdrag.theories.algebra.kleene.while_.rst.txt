@@ -1,0 +1,6 @@
+kdrag.theories.algebra.kleene.while\_
+=====================================
+
+.. currentmodule:: kdrag.theories.algebra.kleene
+
+.. autofunction:: while_

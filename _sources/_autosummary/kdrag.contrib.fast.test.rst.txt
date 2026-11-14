@@ -1,0 +1,6 @@
+kdrag.contrib.fast.test
+=======================
+
+.. currentmodule:: kdrag.contrib.fast
+
+.. autofunction:: test

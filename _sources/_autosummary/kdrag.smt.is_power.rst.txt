@@ -1,0 +1,6 @@
+kdrag.smt.is\_power
+===================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: is_power

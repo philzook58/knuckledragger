@@ -1,0 +1,6 @@
+kdrag.trans
+===========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: trans

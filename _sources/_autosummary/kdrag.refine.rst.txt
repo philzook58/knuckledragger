@@ -1,0 +1,35 @@
+kdrag.refine
+============
+
+.. automodule:: kdrag.refine
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      OpenDefn
+      RefinedDefn
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/refine.py
+   :language: python

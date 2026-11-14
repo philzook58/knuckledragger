@@ -1,0 +1,6 @@
+kdrag.printers.latex.to\_latex\_proof\_state
+============================================
+
+.. currentmodule:: kdrag.printers.latex
+
+.. autofunction:: to_latex_proof_state

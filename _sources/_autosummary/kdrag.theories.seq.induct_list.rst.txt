@@ -1,0 +1,6 @@
+kdrag.theories.seq.induct\_list
+===============================
+
+.. currentmodule:: kdrag.theories.seq
+
+.. autofunction:: induct_list

@@ -1,0 +1,6 @@
+kdrag.solvers.prolog.prolog
+===========================
+
+.. currentmodule:: kdrag.solvers.prolog
+
+.. autofunction:: prolog

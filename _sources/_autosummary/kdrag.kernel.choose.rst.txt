@@ -1,0 +1,6 @@
+kdrag.kernel.choose
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: choose

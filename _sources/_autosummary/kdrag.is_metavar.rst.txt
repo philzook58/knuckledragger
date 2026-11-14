@@ -1,0 +1,6 @@
+kdrag.is\_metavar
+=================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: is_metavar

@@ -1,0 +1,6 @@
+kdrag.solvers.ljt.prove
+=======================
+
+.. currentmodule:: kdrag.solvers.ljt
+
+.. autofunction:: prove

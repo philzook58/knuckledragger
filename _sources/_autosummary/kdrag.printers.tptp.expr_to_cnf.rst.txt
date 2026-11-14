@@ -1,0 +1,6 @@
+kdrag.printers.tptp.expr\_to\_cnf
+=================================
+
+.. currentmodule:: kdrag.printers.tptp
+
+.. autofunction:: expr_to_cnf

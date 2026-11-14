@@ -1,0 +1,6 @@
+kdrag.kernel.define\_simple
+===========================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: define_simple

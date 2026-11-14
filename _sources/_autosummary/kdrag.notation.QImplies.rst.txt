@@ -1,0 +1,6 @@
+kdrag.notation.QImplies
+=======================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: QImplies

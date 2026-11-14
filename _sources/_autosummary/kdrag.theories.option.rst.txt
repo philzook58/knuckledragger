@@ -1,0 +1,40 @@
+kdrag.theories.option
+=====================
+
+.. automodule:: kdrag.theories.option
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      None_
+      get
+      is_option
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.option
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/option.py
+   :language: python

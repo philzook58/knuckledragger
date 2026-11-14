@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.update\_write\_and\_num\_insn
+=========================================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: update_write_and_num_insn

@@ -1,0 +1,6 @@
+kdrag.reflect.namedtuple\_of\_constructor
+=========================================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: namedtuple_of_constructor

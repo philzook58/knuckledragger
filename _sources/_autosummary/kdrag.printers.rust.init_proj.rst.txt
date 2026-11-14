@@ -1,0 +1,6 @@
+kdrag.printers.rust.init\_proj
+==============================
+
+.. currentmodule:: kdrag.printers.rust
+
+.. autofunction:: init_proj

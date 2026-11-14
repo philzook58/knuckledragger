@@ -1,0 +1,6 @@
+kdrag.tactics.PTheorem
+======================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: PTheorem

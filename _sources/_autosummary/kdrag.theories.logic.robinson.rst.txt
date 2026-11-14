@@ -1,0 +1,31 @@
+kdrag.theories.logic.robinson
+=============================
+
+.. automodule:: kdrag.theories.logic.robinson
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.logic.robinson
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/robinson.py
+   :language: python

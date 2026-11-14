@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.popcounts
+===============================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: popcounts

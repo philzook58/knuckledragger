@@ -1,0 +1,6 @@
+kdrag.contrib.ir.pp\_sort
+=========================
+
+.. currentmodule:: kdrag.contrib.ir
+
+.. autofunction:: pp_sort

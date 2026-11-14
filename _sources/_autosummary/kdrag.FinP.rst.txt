@@ -1,0 +1,6 @@
+kdrag.FinP
+==========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: FinP

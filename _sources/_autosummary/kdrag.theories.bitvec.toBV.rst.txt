@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.toBV
+==========================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: toBV

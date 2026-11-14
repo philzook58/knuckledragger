@@ -1,0 +1,6 @@
+kdrag.AStruct
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: AStruct

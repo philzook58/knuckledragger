@@ -1,0 +1,6 @@
+kdrag.reflect.struct
+====================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: struct

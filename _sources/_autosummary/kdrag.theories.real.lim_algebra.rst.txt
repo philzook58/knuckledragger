@@ -1,0 +1,31 @@
+kdrag.theories.real.lim\_algebra
+================================
+
+.. automodule:: kdrag.theories.real.lim_algebra
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.lim_algebra
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/lim_algebra.py
+   :language: python

@@ -1,0 +1,6 @@
+kdrag.kernel.trigger
+====================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: trigger

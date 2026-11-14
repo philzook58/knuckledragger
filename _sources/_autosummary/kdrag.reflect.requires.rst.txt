@@ -1,0 +1,6 @@
+kdrag.reflect.requires
+======================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: requires

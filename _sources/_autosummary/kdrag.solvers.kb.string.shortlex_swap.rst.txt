@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.shortlex\_swap
+======================================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: shortlex_swap

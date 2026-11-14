@@ -1,0 +1,6 @@
+kdrag.tele.TExists
+==================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: TExists

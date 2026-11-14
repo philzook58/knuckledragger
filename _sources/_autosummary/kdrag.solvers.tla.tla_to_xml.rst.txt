@@ -1,0 +1,6 @@
+kdrag.solvers.tla.tla\_to\_xml
+==============================
+
+.. currentmodule:: kdrag.solvers.tla
+
+.. autofunction:: tla_to_xml

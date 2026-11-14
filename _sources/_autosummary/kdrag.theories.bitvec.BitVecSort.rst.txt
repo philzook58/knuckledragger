@@ -1,0 +1,6 @@
+kdrag.theories.bitvec.BitVecSort
+================================
+
+.. currentmodule:: kdrag.theories.bitvec
+
+.. autofunction:: BitVecSort

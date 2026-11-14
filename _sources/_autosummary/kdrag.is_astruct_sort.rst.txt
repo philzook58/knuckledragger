@@ -1,0 +1,6 @@
+kdrag.is\_astruct\_sort
+=======================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: is_astruct_sort

@@ -1,0 +1,6 @@
+kdrag.property.CommSemiRing
+===========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: CommSemiRing

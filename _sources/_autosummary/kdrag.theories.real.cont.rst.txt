@@ -1,0 +1,31 @@
+kdrag.theories.real.cont
+========================
+
+.. automodule:: kdrag.theories.real.cont
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.cont
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/cont.py
+   :language: python

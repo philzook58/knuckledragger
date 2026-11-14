@@ -1,0 +1,38 @@
+kdrag.theories.fixed
+====================
+
+.. automodule:: kdrag.theories.fixed
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      FixedSort
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.fixed
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/fixed.py
+   :language: python

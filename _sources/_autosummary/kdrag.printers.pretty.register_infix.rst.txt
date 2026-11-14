@@ -1,0 +1,6 @@
+kdrag.printers.pretty.register\_infix
+=====================================
+
+.. currentmodule:: kdrag.printers.pretty
+
+.. autofunction:: register_infix

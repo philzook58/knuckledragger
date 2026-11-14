@@ -1,0 +1,6 @@
+kdrag.rewrite.beta
+==================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: beta

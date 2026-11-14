@@ -1,0 +1,6 @@
+kdrag.utils.ite\_to\_cases
+==========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: ite_to_cases

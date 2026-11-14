@@ -1,0 +1,35 @@
+kdrag.solvers.ljt
+=================
+
+.. automodule:: kdrag.solvers.ljt
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      prove
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/ljt.py
+   :language: python

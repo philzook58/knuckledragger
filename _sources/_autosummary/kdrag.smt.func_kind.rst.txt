@@ -1,0 +1,6 @@
+kdrag.smt.func\_kind
+====================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: func_kind

@@ -1,0 +1,6 @@
+kdrag.contrib.absint.knownbit.Knowns
+====================================
+
+.. currentmodule:: kdrag.contrib.absint.knownbit
+
+.. autofunction:: Knowns

@@ -1,0 +1,34 @@
+kdrag.solvers.egraph
+====================
+
+.. automodule:: kdrag.solvers.egraph
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      EGraph
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/egraph.py
+   :language: python

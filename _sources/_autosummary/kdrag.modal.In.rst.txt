@@ -1,0 +1,6 @@
+kdrag.modal.In
+==============
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: In

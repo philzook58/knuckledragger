@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.Eventually
+========================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: Eventually

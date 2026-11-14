@@ -1,0 +1,6 @@
+kdrag.property.PartialOrder
+===========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: PartialOrder

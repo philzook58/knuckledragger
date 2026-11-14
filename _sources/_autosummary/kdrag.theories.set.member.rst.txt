@@ -1,0 +1,6 @@
+kdrag.theories.set.member
+=========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: member

@@ -1,0 +1,6 @@
+kdrag.utils.occurs
+==================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: occurs

@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.real.cseq &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=4b0197fc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.real.extended" href="kdrag.theories.real.extended.html" />
+    <link rel="prev" title="kdrag.theories.real.cont" href="kdrag.theories.real.cont.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.abstract_arith.html">kdrag.theories.real.abstract_arith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rlemma.html">kdrag.theories.real.rlemma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sin_lower.html">kdrag.theories.real.sin_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_bnd.html">kdrag.theories.real.sqrt_bnd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_lower.html">kdrag.theories.real.sqrt_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_upper.html">kdrag.theories.real.sqrt_upper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.Add"><code class="docutils literal notranslate"><span class="pre">Add</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.Mul"><code class="docutils literal notranslate"><span class="pre">Mul</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.abstract_arith"><code class="docutils literal notranslate"><span class="pre">abstract_arith()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.rlemma"><code class="docutils literal notranslate"><span class="pre">rlemma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sin_lower"><code class="docutils literal notranslate"><span class="pre">sin_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_bnd"><code class="docutils literal notranslate"><span class="pre">sqrt_bnd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_lower"><code class="docutils literal notranslate"><span class="pre">sqrt_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_upper"><code class="docutils literal notranslate"><span class="pre">sqrt_upper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.analysis.html">kdrag.theories.real.analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.arb.html">kdrag.theories.real.arb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.complex.html">kdrag.theories.real.complex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.cont.html">kdrag.theories.real.cont</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.real.cseq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.extended.html">kdrag.theories.real.extended</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.fun.html">kdrag.theories.real.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.geometry.html">kdrag.theories.real.geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.interval.html">kdrag.theories.real.interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.lim_algebra.html">kdrag.theories.real.lim_algebra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.measure.html">kdrag.theories.real.measure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.ndarray.html">kdrag.theories.real.ndarray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rset.html">kdrag.theories.real.rset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.seq.html">kdrag.theories.real.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec.html">kdrag.theories.real.vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec2.html">kdrag.theories.real.vec2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec3.html">kdrag.theories.real.vec3</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.real.cseq</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.real.cseq.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.real.cseq">
+<span id="kdrag-theories-real-cseq"></span><h1>kdrag.theories.real.cseq<a class="headerlink" href="#module-kdrag.theories.real.cseq" title="Link to this heading"></a></h1>
+<table class="theorem-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Theorem</p></th>
+<th class="head"><p>Statement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-cseq-add-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/cseq.py#L24"><code class="docutils literal notranslate"><span class="pre">real.cseq.add_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">c</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">C,</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span> <span class="pre">+</span> <span class="pre">c</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">(b</span> <span class="pre">+</span> <span class="pre">c)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cseq.add_assoc&quot;, [&quot;(Array Int C).add&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-cseq-add-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/cseq.py#L23"><code class="docutils literal notranslate"><span class="pre">real.cseq.add_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">C,</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span> <span class="pre">=</span> <span class="pre">b</span> <span class="pre">+</span> <span class="pre">a</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cseq.add_comm&quot;, [&quot;(Array Int C).add&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-cseq-mul-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/cseq.py#L34"><code class="docutils literal notranslate"><span class="pre">real.cseq.mul_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">c</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">C,</span> <span class="pre">a</span> <span class="pre">*</span> <span class="pre">b</span> <span class="pre">*</span> <span class="pre">c</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">*</span> <span class="pre">(b</span> <span class="pre">*</span> <span class="pre">c)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cseq.mul_assoc&quot;, [&quot;(Array Int C).mul&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-cseq-mul-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/cseq.py#L33"><code class="docutils literal notranslate"><span class="pre">real.cseq.mul_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">C,</span> <span class="pre">a</span> <span class="pre">*</span> <span class="pre">b</span> <span class="pre">=</span> <span class="pre">b</span> <span class="pre">*</span> <span class="pre">a</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cseq.mul_comm&quot;, [&quot;(Array Int C).mul&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-cseq-rezip-unzip"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/cseq.py#L43"><code class="docutils literal notranslate"><span class="pre">real.cseq.rezip_unzip</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">C,</span> <span class="pre">C.rezip(C.unzip(a))</span> <span class="pre">=</span> <span class="pre">a</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cseq.rezip_unzip&quot;, [&quot;=&quot;, &quot;C.rezip&quot;, &quot;C.unzip&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-cseq-unzip-rezip"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/cseq.py#L44"><code class="docutils literal notranslate"><span class="pre">real.cseq.unzip_rezip</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀ab</span> <span class="pre">:</span> <span class="pre">Tuple_Array_Array,</span> <span class="pre">C.unzip(C.rezip(ab))</span> <span class="pre">=</span> <span class="pre">ab</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cseq.unzip_rezip&quot;, [&quot;=&quot;, &quot;C.rezip&quot;, &quot;C.unzip&quot;]]"></span></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.real.cont.html" class="btn btn-neutral float-left" title="kdrag.theories.real.cont" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.real.extended.html" class="btn btn-neutral float-right" title="kdrag.theories.real.extended" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

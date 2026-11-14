@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.deduce
+==============================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: deduce

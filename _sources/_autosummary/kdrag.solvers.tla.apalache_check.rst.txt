@@ -1,0 +1,6 @@
+kdrag.solvers.tla.apalache\_check
+=================================
+
+.. currentmodule:: kdrag.solvers.tla
+
+.. autofunction:: apalache_check

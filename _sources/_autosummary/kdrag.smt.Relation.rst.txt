@@ -1,0 +1,6 @@
+kdrag.smt.Relation
+==================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: Relation

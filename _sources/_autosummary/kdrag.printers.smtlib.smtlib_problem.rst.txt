@@ -1,0 +1,6 @@
+kdrag.printers.smtlib.smtlib\_problem
+=====================================
+
+.. currentmodule:: kdrag.printers.smtlib
+
+.. autofunction:: smtlib_problem

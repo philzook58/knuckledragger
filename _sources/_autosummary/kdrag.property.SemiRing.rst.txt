@@ -1,0 +1,6 @@
+kdrag.property.SemiRing
+=======================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: SemiRing

@@ -1,0 +1,6 @@
+kdrag.contrib.fast.ctxptr
+=========================
+
+.. currentmodule:: kdrag.contrib.fast
+
+.. autofunction:: ctxptr

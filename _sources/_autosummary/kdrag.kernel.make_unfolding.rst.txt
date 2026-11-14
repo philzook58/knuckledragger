@@ -1,0 +1,6 @@
+kdrag.kernel.make\_unfolding
+============================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: make_unfolding

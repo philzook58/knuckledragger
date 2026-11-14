@@ -1,0 +1,6 @@
+kdrag.utils.antipattern
+=======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: antipattern

@@ -1,0 +1,6 @@
+kdrag.utils.curry\_arrays
+=========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: curry_arrays

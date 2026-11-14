@@ -1,0 +1,6 @@
+kdrag.utils.search\_decl
+========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: search_decl

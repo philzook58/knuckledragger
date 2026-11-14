@@ -1,0 +1,6 @@
+kdrag.contrib.nand2tetris.init\_state
+=====================================
+
+.. currentmodule:: kdrag.contrib.nand2tetris
+
+.. autofunction:: init_state

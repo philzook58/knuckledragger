@@ -1,0 +1,6 @@
+kdrag.printers.tptp.sort\_to\_tptp
+==================================
+
+.. currentmodule:: kdrag.printers.tptp
+
+.. autofunction:: sort_to_tptp

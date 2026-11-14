@@ -1,0 +1,6 @@
+kdrag.theories.real.interval.Min
+================================
+
+.. currentmodule:: kdrag.theories.real.interval
+
+.. autofunction:: Min

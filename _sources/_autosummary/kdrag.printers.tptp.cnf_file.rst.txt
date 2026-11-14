@@ -1,0 +1,6 @@
+kdrag.printers.tptp.cnf\_file
+=============================
+
+.. currentmodule:: kdrag.printers.tptp
+
+.. autofunction:: cnf_file

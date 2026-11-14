@@ -1,0 +1,38 @@
+kdrag.theories.logic.nominal
+============================
+
+.. automodule:: kdrag.theories.logic.nominal
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      test
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.logic.nominal
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/nominal.py
+   :language: python

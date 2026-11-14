@@ -1,0 +1,6 @@
+kdrag.theories.real.interval.test
+=================================
+
+.. currentmodule:: kdrag.theories.real.interval
+
+.. autofunction:: test

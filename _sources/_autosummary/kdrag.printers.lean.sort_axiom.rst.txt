@@ -1,0 +1,6 @@
+kdrag.printers.lean.sort\_axiom
+===============================
+
+.. currentmodule:: kdrag.printers.lean
+
+.. autofunction:: sort_axiom

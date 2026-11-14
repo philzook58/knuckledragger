@@ -1,0 +1,6 @@
+kdrag.theories.logic.intuitionistic.Implies
+===========================================
+
+.. currentmodule:: kdrag.theories.logic.intuitionistic
+
+.. autofunction:: Implies

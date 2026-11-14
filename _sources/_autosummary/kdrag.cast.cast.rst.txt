@@ -1,0 +1,6 @@
+kdrag.cast.cast
+===============
+
+.. currentmodule:: kdrag.cast
+
+.. autofunction:: cast

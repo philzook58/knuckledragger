@@ -1,0 +1,6 @@
+kdrag.tele.Pi
+=============
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: Pi

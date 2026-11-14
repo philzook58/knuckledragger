@@ -1,0 +1,6 @@
+kdrag.solvers.tla.check
+=======================
+
+.. currentmodule:: kdrag.solvers.tla
+
+.. autofunction:: check

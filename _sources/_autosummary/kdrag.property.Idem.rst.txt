@@ -1,0 +1,6 @@
+kdrag.property.Idem
+===================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: Idem

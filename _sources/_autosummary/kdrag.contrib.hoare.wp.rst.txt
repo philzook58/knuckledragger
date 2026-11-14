@@ -1,0 +1,6 @@
+kdrag.contrib.hoare.wp
+======================
+
+.. currentmodule:: kdrag.contrib.hoare
+
+.. autofunction:: wp

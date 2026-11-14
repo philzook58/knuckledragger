@@ -1,0 +1,6 @@
+kdrag.theories.univ.poly\_ax
+============================
+
+.. currentmodule:: kdrag.theories.univ
+
+.. autofunction:: poly_ax

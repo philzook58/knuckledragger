@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.neg\_ext
+====================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: neg_ext

@@ -1,0 +1,6 @@
+kdrag.hypothesis.compares
+=========================
+
+.. currentmodule:: kdrag.hypothesis
+
+.. autofunction:: compares

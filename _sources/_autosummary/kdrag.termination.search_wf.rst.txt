@@ -1,0 +1,6 @@
+kdrag.termination.search\_wf
+============================
+
+.. currentmodule:: kdrag.termination
+
+.. autofunction:: search_wf

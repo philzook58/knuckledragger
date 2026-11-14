@@ -1,0 +1,6 @@
+kdrag.utils.search
+==================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: search

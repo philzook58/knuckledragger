@@ -1,0 +1,6 @@
+kdrag.theories.set.Closed
+=========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: Closed

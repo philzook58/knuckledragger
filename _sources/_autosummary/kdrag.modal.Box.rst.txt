@@ -1,0 +1,6 @@
+kdrag.modal.Box
+===============
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: Box

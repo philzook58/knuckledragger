@@ -1,0 +1,6 @@
+kdrag.theories.algebra.filter.Filter
+====================================
+
+.. currentmodule:: kdrag.theories.algebra.filter
+
+.. autofunction:: Filter

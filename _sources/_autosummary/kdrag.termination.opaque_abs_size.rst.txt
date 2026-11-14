@@ -1,0 +1,6 @@
+kdrag.termination.opaque\_abs\_size
+===================================
+
+.. currentmodule:: kdrag.termination
+
+.. autofunction:: opaque_abs_size

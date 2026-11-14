@@ -1,0 +1,6 @@
+kdrag.theories.logic.intuitionistic.Sort
+========================================
+
+.. currentmodule:: kdrag.theories.logic.intuitionistic
+
+.. autofunction:: Sort

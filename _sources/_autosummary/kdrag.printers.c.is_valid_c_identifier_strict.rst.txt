@@ -1,0 +1,6 @@
+kdrag.printers.c.is\_valid\_c\_identifier\_strict
+=================================================
+
+.. currentmodule:: kdrag.printers.c
+
+.. autofunction:: is_valid_c_identifier_strict

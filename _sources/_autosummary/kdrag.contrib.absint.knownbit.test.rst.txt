@@ -1,0 +1,6 @@
+kdrag.contrib.absint.knownbit.test
+==================================
+
+.. currentmodule:: kdrag.contrib.absint.knownbit
+
+.. autofunction:: test

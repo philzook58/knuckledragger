@@ -1,0 +1,6 @@
+kdrag.theories.option.None\_
+============================
+
+.. currentmodule:: kdrag.theories.option
+
+.. autofunction:: None_

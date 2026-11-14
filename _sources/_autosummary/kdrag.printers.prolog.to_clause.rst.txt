@@ -1,0 +1,6 @@
+kdrag.printers.prolog.to\_clause
+================================
+
+.. currentmodule:: kdrag.printers.prolog
+
+.. autofunction:: to_clause

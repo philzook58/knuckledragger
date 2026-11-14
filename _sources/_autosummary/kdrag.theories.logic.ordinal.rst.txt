@@ -1,0 +1,31 @@
+kdrag.theories.logic.ordinal
+============================
+
+.. automodule:: kdrag.theories.logic.ordinal
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.logic.ordinal
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/ordinal.py
+   :language: python

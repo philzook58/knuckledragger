@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.Bool
+==================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: Bool

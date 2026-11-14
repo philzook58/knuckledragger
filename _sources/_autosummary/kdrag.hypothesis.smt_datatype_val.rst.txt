@@ -1,0 +1,6 @@
+kdrag.hypothesis.smt\_datatype\_val
+===================================
+
+.. currentmodule:: kdrag.hypothesis
+
+.. autofunction:: smt_datatype_val

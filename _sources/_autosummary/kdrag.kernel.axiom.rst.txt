@@ -1,0 +1,6 @@
+kdrag.kernel.axiom
+==================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: axiom

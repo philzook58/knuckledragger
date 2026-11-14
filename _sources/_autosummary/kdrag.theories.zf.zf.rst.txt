@@ -1,0 +1,40 @@
+kdrag.theories.zf.zf
+====================
+
+.. automodule:: kdrag.theories.zf.zf
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      FinSet
+      slemma
+      test
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.zf.zf
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/zf/zf.py
+   :language: python

@@ -1,0 +1,31 @@
+kdrag.theories.real.ndarray
+===========================
+
+.. automodule:: kdrag.theories.real.ndarray
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.ndarray
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/ndarray.py
+   :language: python

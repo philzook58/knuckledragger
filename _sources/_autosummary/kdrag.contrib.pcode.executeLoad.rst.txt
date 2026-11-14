@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executeLoad
+===============================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executeLoad

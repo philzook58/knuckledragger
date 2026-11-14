@@ -1,0 +1,6 @@
+kdrag.theories.set.Set
+======================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: Set

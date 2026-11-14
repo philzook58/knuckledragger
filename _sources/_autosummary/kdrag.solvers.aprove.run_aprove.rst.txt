@@ -1,0 +1,6 @@
+kdrag.solvers.aprove.run\_aprove
+================================
+
+.. currentmodule:: kdrag.solvers.aprove
+
+.. autofunction:: run_aprove

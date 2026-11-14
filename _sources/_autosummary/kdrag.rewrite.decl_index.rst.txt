@@ -1,0 +1,6 @@
+kdrag.rewrite.decl\_index
+=========================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: decl_index

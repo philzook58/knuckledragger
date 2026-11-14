@@ -1,0 +1,6 @@
+kdrag.rewrite.rewrite\_of\_expr\_exact
+======================================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: rewrite_of_expr_exact

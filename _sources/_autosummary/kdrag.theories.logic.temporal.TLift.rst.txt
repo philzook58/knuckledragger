@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.TLift
+===================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: TLift

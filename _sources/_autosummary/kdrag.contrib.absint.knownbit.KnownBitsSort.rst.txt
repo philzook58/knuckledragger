@@ -1,0 +1,6 @@
+kdrag.contrib.absint.knownbit.KnownBitsSort
+===========================================
+
+.. currentmodule:: kdrag.contrib.absint.knownbit
+
+.. autofunction:: KnownBitsSort

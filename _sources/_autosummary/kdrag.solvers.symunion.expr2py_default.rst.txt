@@ -1,0 +1,6 @@
+kdrag.solvers.symunion.expr2py\_default
+=======================================
+
+.. currentmodule:: kdrag.solvers.symunion
+
+.. autofunction:: expr2py_default

@@ -1,0 +1,6 @@
+kdrag.contrib.yosys.call\_yosys\_functional
+===========================================
+
+.. currentmodule:: kdrag.contrib.yosys
+
+.. autofunction:: call_yosys_functional

@@ -1,0 +1,6 @@
+kdrag.printers.pretty.pretty\_goal
+==================================
+
+.. currentmodule:: kdrag.printers.pretty
+
+.. autofunction:: pretty_goal

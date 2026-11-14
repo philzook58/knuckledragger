@@ -1,0 +1,6 @@
+kdrag.tactics.prove
+===================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: prove

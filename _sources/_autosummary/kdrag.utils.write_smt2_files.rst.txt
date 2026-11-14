@@ -1,0 +1,6 @@
+kdrag.utils.write\_smt2\_files
+==============================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: write_smt2_files

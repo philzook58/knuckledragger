@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.Eq
+================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: Eq

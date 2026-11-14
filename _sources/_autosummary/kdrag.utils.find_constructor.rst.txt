@@ -1,0 +1,6 @@
+kdrag.utils.find\_constructor
+=============================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: find_constructor

@@ -1,0 +1,6 @@
+kdrag.solvers.verus.run\_verus
+==============================
+
+.. currentmodule:: kdrag.solvers.verus
+
+.. autofunction:: run_verus

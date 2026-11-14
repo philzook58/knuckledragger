@@ -1,0 +1,51 @@
+kdrag.theories.logic.intuitionistic
+===================================
+
+.. automodule:: kdrag.theories.logic.intuitionistic
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      Prop
+      or_intro2
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      And
+      Const
+      Implies
+      Not
+      Or
+      Sort
+      Valid
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.logic.intuitionistic
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/intuitionistic.py
+   :language: python

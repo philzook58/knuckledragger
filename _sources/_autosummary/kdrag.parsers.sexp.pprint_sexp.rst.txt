@@ -1,0 +1,6 @@
+kdrag.parsers.sexp.pprint\_sexp
+===============================
+
+.. currentmodule:: kdrag.parsers.sexp
+
+.. autofunction:: pprint_sexp

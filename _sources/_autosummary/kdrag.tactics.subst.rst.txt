@@ -1,0 +1,6 @@
+kdrag.tactics.subst
+===================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: subst

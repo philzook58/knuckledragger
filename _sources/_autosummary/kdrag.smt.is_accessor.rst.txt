@@ -1,0 +1,6 @@
+kdrag.smt.is\_accessor
+======================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: is_accessor

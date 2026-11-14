@@ -1,0 +1,31 @@
+kdrag.theories.logic.sear
+=========================
+
+.. automodule:: kdrag.theories.logic.sear
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.logic.sear
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/sear.py
+   :language: python

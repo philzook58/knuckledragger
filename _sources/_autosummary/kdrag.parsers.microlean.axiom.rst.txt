@@ -1,0 +1,6 @@
+kdrag.parsers.microlean.axiom
+=============================
+
+.. currentmodule:: kdrag.parsers.microlean
+
+.. autofunction:: axiom

@@ -1,0 +1,6 @@
+kdrag.property.SemiGroup
+========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: SemiGroup

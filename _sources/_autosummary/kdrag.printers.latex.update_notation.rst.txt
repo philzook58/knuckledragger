@@ -1,0 +1,6 @@
+kdrag.printers.latex.update\_notation
+=====================================
+
+.. currentmodule:: kdrag.printers.latex
+
+.. autofunction:: update_notation

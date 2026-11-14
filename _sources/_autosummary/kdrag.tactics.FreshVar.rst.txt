@@ -1,0 +1,6 @@
+kdrag.tactics.FreshVar
+======================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: FreshVar

@@ -1,0 +1,6 @@
+kdrag.printers.lean.run\_lean
+=============================
+
+.. currentmodule:: kdrag.printers.lean
+
+.. autofunction:: run_lean

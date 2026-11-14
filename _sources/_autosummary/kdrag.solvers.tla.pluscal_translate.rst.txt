@@ -1,0 +1,6 @@
+kdrag.solvers.tla.pluscal\_translate
+====================================
+
+.. currentmodule:: kdrag.solvers.tla
+
+.. autofunction:: pluscal_translate

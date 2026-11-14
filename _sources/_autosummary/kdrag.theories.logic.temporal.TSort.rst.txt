@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.TSort
+===================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: TSort

@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.eqtrans
+===================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: eqtrans

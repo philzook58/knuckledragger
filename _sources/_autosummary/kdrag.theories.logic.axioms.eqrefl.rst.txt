@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.eqrefl
+==================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: eqrefl

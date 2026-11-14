@@ -1,0 +1,6 @@
+kdrag.theories.real.arb.arb\_ge
+===============================
+
+.. currentmodule:: kdrag.theories.real.arb
+
+.. autofunction:: arb_ge

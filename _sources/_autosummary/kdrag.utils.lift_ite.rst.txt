@@ -1,0 +1,6 @@
+kdrag.utils.lift\_ite
+=====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: lift_ite

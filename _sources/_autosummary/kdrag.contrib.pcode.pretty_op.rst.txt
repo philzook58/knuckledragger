@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.pretty\_op
+==============================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: pretty_op

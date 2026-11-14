@@ -1,0 +1,6 @@
+kdrag.Tail
+==========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Tail

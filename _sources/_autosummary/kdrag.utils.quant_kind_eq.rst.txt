@@ -1,0 +1,6 @@
+kdrag.utils.quant\_kind\_eq
+===========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: quant_kind_eq

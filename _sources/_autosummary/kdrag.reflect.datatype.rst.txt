@@ -1,0 +1,6 @@
+kdrag.reflect.datatype
+======================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: datatype

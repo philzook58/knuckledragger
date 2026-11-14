@@ -1,0 +1,6 @@
+kdrag.theories.seq.Nil
+======================
+
+.. currentmodule:: kdrag.theories.seq
+
+.. autofunction:: Nil

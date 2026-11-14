@@ -1,0 +1,64 @@
+kdrag.solvers.tla
+=================
+
+.. automodule:: kdrag.solvers.tla
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      consts
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      apalache_check
+      assoc_list
+      check
+      domain
+      install_apalache
+      pluscal_translate
+      prime
+      run_apalache
+      run_tools
+      tla_to_xml
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      App
+      Module
+      StringLit
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      SortInference
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/solvers/tla.py
+   :language: python

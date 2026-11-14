@@ -1,0 +1,31 @@
+kdrag.theories.real.cseq
+========================
+
+.. automodule:: kdrag.theories.real.cseq
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.cseq
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/cseq.py
+   :language: python

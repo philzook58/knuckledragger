@@ -1,0 +1,6 @@
+kdrag.tactics.vprove
+====================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: vprove

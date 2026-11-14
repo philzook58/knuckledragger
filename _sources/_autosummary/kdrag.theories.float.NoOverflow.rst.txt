@@ -1,0 +1,6 @@
+kdrag.theories.float.NoOverflow
+===============================
+
+.. currentmodule:: kdrag.theories.float
+
+.. autofunction:: NoOverflow

@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.run\_all\_paths
+===========================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: run_all_paths

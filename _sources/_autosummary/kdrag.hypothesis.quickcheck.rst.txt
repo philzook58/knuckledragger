@@ -1,0 +1,6 @@
+kdrag.hypothesis.quickcheck
+===========================
+
+.. currentmodule:: kdrag.hypothesis
+
+.. autofunction:: quickcheck

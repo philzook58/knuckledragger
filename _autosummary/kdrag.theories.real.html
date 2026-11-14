@@ -1,0 +1,941 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.real &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=4b0197fc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.real.abstract_arith" href="kdrag.theories.real.abstract_arith.html" />
+    <link rel="prev" title="kdrag.theories.option.is_option" href="kdrag.theories.option.is_option.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.theories.real</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.abstract_arith.html">kdrag.theories.real.abstract_arith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rlemma.html">kdrag.theories.real.rlemma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sin_lower.html">kdrag.theories.real.sin_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_bnd.html">kdrag.theories.real.sqrt_bnd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_lower.html">kdrag.theories.real.sqrt_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_upper.html">kdrag.theories.real.sqrt_upper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.Add"><code class="docutils literal notranslate"><span class="pre">Add</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Add.assoc"><code class="docutils literal notranslate"><span class="pre">Add.assoc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Add.comm"><code class="docutils literal notranslate"><span class="pre">Add.comm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Add.e"><code class="docutils literal notranslate"><span class="pre">Add.e</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Add.f"><code class="docutils literal notranslate"><span class="pre">Add.f</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Add.left_id"><code class="docutils literal notranslate"><span class="pre">Add.left_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Add.right_id"><code class="docutils literal notranslate"><span class="pre">Add.right_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.Mul"><code class="docutils literal notranslate"><span class="pre">Mul</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Mul.assoc"><code class="docutils literal notranslate"><span class="pre">Mul.assoc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Mul.comm"><code class="docutils literal notranslate"><span class="pre">Mul.comm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Mul.e"><code class="docutils literal notranslate"><span class="pre">Mul.e</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Mul.f"><code class="docutils literal notranslate"><span class="pre">Mul.f</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Mul.left_id"><code class="docutils literal notranslate"><span class="pre">Mul.left_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.Mul.right_id"><code class="docutils literal notranslate"><span class="pre">Mul.right_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.abstract_arith"><code class="docutils literal notranslate"><span class="pre">abstract_arith()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.rlemma"><code class="docutils literal notranslate"><span class="pre">rlemma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.sin_lower"><code class="docutils literal notranslate"><span class="pre">sin_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.sqrt_bnd"><code class="docutils literal notranslate"><span class="pre">sqrt_bnd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.sqrt_lower"><code class="docutils literal notranslate"><span class="pre">sqrt_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.real.sqrt_upper"><code class="docutils literal notranslate"><span class="pre">sqrt_upper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.analysis.html">kdrag.theories.real.analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.arb.html">kdrag.theories.real.arb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.complex.html">kdrag.theories.real.complex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.cont.html">kdrag.theories.real.cont</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.cseq.html">kdrag.theories.real.cseq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.extended.html">kdrag.theories.real.extended</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.fun.html">kdrag.theories.real.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.geometry.html">kdrag.theories.real.geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.interval.html">kdrag.theories.real.interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.lim_algebra.html">kdrag.theories.real.lim_algebra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.measure.html">kdrag.theories.real.measure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.ndarray.html">kdrag.theories.real.ndarray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rset.html">kdrag.theories.real.rset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.seq.html">kdrag.theories.real.seq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec.html">kdrag.theories.real.vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec2.html">kdrag.theories.real.vec2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec3.html">kdrag.theories.real.vec3</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.real</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.real.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.real">
+<span id="kdrag-theories-real"></span><h1>kdrag.theories.real<a class="headerlink" href="#module-kdrag.theories.real" title="Link to this heading"></a></h1>
+<p>Definitions about the reals.</p>
+<p>Transcendental functions and bounds.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.abstract_arith.html#kdrag.theories.real.abstract_arith" title="kdrag.theories.real.abstract_arith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abstract_arith</span></code></a>(t)</p></td>
+<td><p>Z3 has difficult ematching over arithmetic expressions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.rlemma.html#kdrag.theories.real.rlemma" title="kdrag.theories.real.rlemma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rlemma</span></code></a>(thm[, by])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sin_lower.html#kdrag.theories.real.sin_lower" title="kdrag.theories.real.sin_lower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sin_lower</span></code></a>(n, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sqrt_bnd.html#kdrag.theories.real.sqrt_bnd" title="kdrag.theories.real.sqrt_bnd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqrt_bnd</span></code></a>(n)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.sqrt_lower.html#kdrag.theories.real.sqrt_lower" title="kdrag.theories.real.sqrt_lower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqrt_lower</span></code></a>(n, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.sqrt_upper.html#kdrag.theories.real.sqrt_upper" title="kdrag.theories.real.sqrt_upper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqrt_upper</span></code></a>(x, n)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.real.Add" title="kdrag.theories.real.Add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Add</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.theories.real.Mul" title="kdrag.theories.real.Mul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Mul</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.theories.real.Add">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">Add</span></span><a class="headerlink" href="#kdrag.theories.real.Add" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Add.assoc">
+<span class="sig-name descname"><span class="pre">assoc</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll([x,</span> <span class="pre">y,</span> <span class="pre">z],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">R.add(x,</span> <span class="pre">R.add(y,</span> <span class="pre">z))</span> <span class="pre">==</span> <span class="pre">R.add(R.add(x,</span> <span class="pre">y),</span> <span class="pre">z))</span></span><a class="headerlink" href="#kdrag.theories.real.Add.assoc" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Add.comm">
+<span class="sig-name descname"><span class="pre">comm</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll([x,</span> <span class="pre">y],</span> <span class="pre">R.add(x,</span> <span class="pre">y)</span> <span class="pre">==</span> <span class="pre">R.add(y,</span> <span class="pre">x))</span></span><a class="headerlink" href="#kdrag.theories.real.Add.comm" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Add.e">
+<span class="sig-name descname"><span class="pre">e</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#kdrag.theories.real.Add.e" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Add.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">R.add</span></span><a class="headerlink" href="#kdrag.theories.real.Add.f" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Add.left_id">
+<span class="sig-name descname"><span class="pre">left_id</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(x,</span> <span class="pre">R.add(0,</span> <span class="pre">x)</span> <span class="pre">==</span> <span class="pre">x)</span></span><a class="headerlink" href="#kdrag.theories.real.Add.left_id" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Add.right_id">
+<span class="sig-name descname"><span class="pre">right_id</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(x,</span> <span class="pre">R.add(x,</span> <span class="pre">0)</span> <span class="pre">==</span> <span class="pre">x)</span></span><a class="headerlink" href="#kdrag.theories.real.Add.right_id" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.theories.real.Mul">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">Mul</span></span><a class="headerlink" href="#kdrag.theories.real.Mul" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Mul.assoc">
+<span class="sig-name descname"><span class="pre">assoc</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll([x,</span> <span class="pre">y,</span> <span class="pre">z],</span> <span class="pre">mul(x,</span> <span class="pre">mul(y,</span> <span class="pre">z))</span> <span class="pre">==</span> <span class="pre">mul(mul(x,</span> <span class="pre">y),</span> <span class="pre">z))</span></span><a class="headerlink" href="#kdrag.theories.real.Mul.assoc" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Mul.comm">
+<span class="sig-name descname"><span class="pre">comm</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll([x,</span> <span class="pre">y],</span> <span class="pre">mul(x,</span> <span class="pre">y)</span> <span class="pre">==</span> <span class="pre">mul(y,</span> <span class="pre">x))</span></span><a class="headerlink" href="#kdrag.theories.real.Mul.comm" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Mul.e">
+<span class="sig-name descname"><span class="pre">e</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#kdrag.theories.real.Mul.e" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Mul.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">mul</span></span><a class="headerlink" href="#kdrag.theories.real.Mul.f" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Mul.left_id">
+<span class="sig-name descname"><span class="pre">left_id</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(x,</span> <span class="pre">mul(1,</span> <span class="pre">x)</span> <span class="pre">==</span> <span class="pre">x)</span></span><a class="headerlink" href="#kdrag.theories.real.Mul.left_id" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.Mul.right_id">
+<span class="sig-name descname"><span class="pre">right_id</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(x,</span> <span class="pre">mul(x,</span> <span class="pre">1)</span> <span class="pre">==</span> <span class="pre">x)</span></span><a class="headerlink" href="#kdrag.theories.real.Mul.right_id" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.abstract_arith">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">abstract_arith</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExprRef</span></span></span><a class="headerlink" href="#kdrag.theories.real.abstract_arith" title="Link to this definition"></a></dt>
+<dd><p>Z3 has difficult ematching over arithmetic expressions.
+Abstracting them to uninterpreted functions can help.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>ExprRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ExprRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.rlemma">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">rlemma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.rlemma" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sin_lower">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">sin_lower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sin_lower" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sqrt_bnd">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">sqrt_bnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sqrt_bnd" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sqrt_lower">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">sqrt_lower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sqrt_lower" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.sqrt_upper">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.</span></span><span class="sig-name descname"><span class="pre">sqrt_upper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.sqrt_upper" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<table class="theorem-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Theorem</p></th>
+<th class="head"><p>Statement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-abs-lipschitz"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L171"><code class="docutils literal notranslate"><span class="pre">real.abs_Lipschitz</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">||x|</span> <span class="pre">-</span> <span class="pre">|y||</span> <span class="pre">≤</span> <span class="pre">|x</span> <span class="pre">-</span> <span class="pre">y|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_Lipschitz&quot;, [&quot;-&quot;, &quot;&lt;=&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-abs-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L165"><code class="docutils literal notranslate"><span class="pre">real.abs_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|x</span> <span class="pre">+</span> <span class="pre">y|</span> <span class="pre">≤</span> <span class="pre">|x|</span> <span class="pre">+</span> <span class="pre">|y|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_add&quot;, [&quot;+&quot;, &quot;&lt;=&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-abs-div"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L167"><code class="docutils literal notranslate"><span class="pre">real.abs_div</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">y</span> <span class="pre">≠</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">|x</span> <span class="pre">/</span> <span class="pre">y|</span> <span class="pre">=</span> <span class="pre">|x|</span> <span class="pre">/</span> <span class="pre">|y|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_div&quot;, [&quot;/&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;absR&quot;, &quot;distinct&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-abs-eq-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L175"><code class="docutils literal notranslate"><span class="pre">real.abs_eq_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">(|x|</span> <span class="pre">=</span> <span class="pre">0)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">=</span> <span class="pre">0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_eq_zero&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-abs-idem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L161"><code class="docutils literal notranslate"><span class="pre">real.abs_idem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">||x||</span> <span class="pre">=</span> <span class="pre">|x|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_idem&quot;, [&quot;=&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-abs-if-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L158"><code class="docutils literal notranslate"><span class="pre">real.abs_if_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">|x|</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_if_pos&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-abs-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L160"><code class="docutils literal notranslate"><span class="pre">real.abs_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">(|x|</span> <span class="pre">≤</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">(-y</span> <span class="pre">≤</span> <span class="pre">x</span> <span class="pre">∧</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_le&quot;, [&quot;-&quot;, &quot;&lt;=&quot;, &quot;=&quot;, &quot;absR&quot;, &quot;and&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-abs-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L166"><code class="docutils literal notranslate"><span class="pre">real.abs_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|x</span> <span class="pre">*</span> <span class="pre">y|</span> <span class="pre">=</span> <span class="pre">|x|</span> <span class="pre">*</span> <span class="pre">|y|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_mul&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-abs-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L162"><code class="docutils literal notranslate"><span class="pre">real.abs_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|-x|</span> <span class="pre">=</span> <span class="pre">|x|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-abs-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L163"><code class="docutils literal notranslate"><span class="pre">real.abs_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|x|</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_pos&quot;, [&quot;&gt;=&quot;, &quot;Real&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-abs-pos-iff"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L180"><code class="docutils literal notranslate"><span class="pre">real.abs_pos_iff</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">(|x|</span> <span class="pre">&gt;</span> <span class="pre">0)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">≠</span> <span class="pre">0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_pos_iff&quot;, [&quot;=&quot;, &quot;&gt;&quot;, &quot;Real&quot;, &quot;absR&quot;, &quot;distinct&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-abs-triangle"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L172"><code class="docutils literal notranslate"><span class="pre">real.abs_triangle</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|x</span> <span class="pre">-</span> <span class="pre">y|</span> <span class="pre">≤</span> <span class="pre">|x</span> <span class="pre">-</span> <span class="pre">z|</span> <span class="pre">+</span> <span class="pre">|z</span> <span class="pre">-</span> <span class="pre">y|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.abs_triangle&quot;, [&quot;+&quot;, &quot;-&quot;, &quot;&lt;=&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-acos-cos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L423"><code class="docutils literal notranslate"><span class="pre">real.acos_cos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">-1</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">1</span> <span class="pre">→</span> <span class="pre">Real.cos(acos(x))</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.acos_cos&quot;, [&quot;&lt;=&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;, &quot;acos&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-acos-range"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L424"><code class="docutils literal notranslate"><span class="pre">real.acos_range</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">-1</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">1</span> <span class="pre">→</span> <span class="pre">acos(x)</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">∧</span> <span class="pre">acos(x)</span> <span class="pre">≤</span> <span class="pre">π</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.acos_range&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;acos&quot;, &quot;and&quot;, &quot;pi&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-add-0"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L78"><code class="docutils literal notranslate"><span class="pre">real.add_0</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.add(x,</span> <span class="pre">0)</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.add_0&quot;, [&quot;=&quot;, &quot;R.add&quot;, &quot;Real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-add-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L80"><code class="docutils literal notranslate"><span class="pre">real.add_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.add(x,</span> <span class="pre">R.add(y,</span> <span class="pre">z))</span> <span class="pre">=</span> <span class="pre">R.add(R.add(x,</span> <span class="pre">y),</span> <span class="pre">z)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.add_assoc&quot;, [&quot;=&quot;, &quot;R.add&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-add-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L79"><code class="docutils literal notranslate"><span class="pre">real.add_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.add(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">R.add(y,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.add_comm&quot;, [&quot;=&quot;, &quot;R.add&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-aeq-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L187"><code class="docutils literal notranslate"><span class="pre">real.aeq_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">ε</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">aeq(x,</span> <span class="pre">y,</span> <span class="pre">ε)</span> <span class="pre">→</span> <span class="pre">ε</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.aeq_pos&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;aeq&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-aeq-refl"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L188"><code class="docutils literal notranslate"><span class="pre">real.aeq_refl</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">aeq(x,</span> <span class="pre">x,</span> <span class="pre">0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.aeq_refl&quot;, [&quot;Real&quot;, &quot;aeq&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-aeq-symm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L189"><code class="docutils literal notranslate"><span class="pre">real.aeq_symm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">ε</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">aeq(x,</span> <span class="pre">y,</span> <span class="pre">ε)</span> <span class="pre">=</span> <span class="pre">aeq(y,</span> <span class="pre">x,</span> <span class="pre">ε)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.aeq_symm&quot;, [&quot;=&quot;, &quot;aeq&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-aeq-trans"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L191"><code class="docutils literal notranslate"><span class="pre">real.aeq_trans</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">ε</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">aeq(x,</span> <span class="pre">y,</span> <span class="pre">eps1)</span> <span class="pre">→</span> <span class="pre">aeq(y,</span> <span class="pre">z,</span> <span class="pre">eps2)</span> <span class="pre">→</span> <span class="pre">aeq(x,</span> <span class="pre">z,</span> <span class="pre">eps1</span> <span class="pre">+</span> <span class="pre">eps2)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.aeq_trans&quot;, [&quot;+&quot;, &quot;=&gt;&quot;, &quot;aeq&quot;, &quot;eps1&quot;, &quot;eps2&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-aeq-weak"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L195"><code class="docutils literal notranslate"><span class="pre">real.aeq_weak</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">eps1</span> <span class="pre">eps2</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">eps1</span> <span class="pre">≤</span> <span class="pre">eps2</span> <span class="pre">→</span> <span class="pre">aeq(x,</span> <span class="pre">y,</span> <span class="pre">eps1)</span> <span class="pre">→</span> <span class="pre">aeq(x,</span> <span class="pre">y,</span> <span class="pre">eps2)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.aeq_weak&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;aeq&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-archimedes"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L497"><code class="docutils literal notranslate"><span class="pre">real.archimedes</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">∧</span> <span class="pre">y</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">∃N</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">y</span> <span class="pre">&lt;</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">to_real(N)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.archimedes&quot;, [&quot;*&quot;, &quot;&lt;&quot;, &quot;=&gt;&quot;, &quot;&gt;&quot;, &quot;Real&quot;, &quot;and&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-asin-range"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L427"><code class="docutils literal notranslate"><span class="pre">real.asin_range</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">-1</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">1</span> <span class="pre">→</span> <span class="pre">asin(x)</span> <span class="pre">≥</span> <span class="pre">-π</span> <span class="pre">/</span> <span class="pre">2</span> <span class="pre">∧</span> <span class="pre">asin(x)</span> <span class="pre">≤</span> <span class="pre">π</span> <span class="pre">/</span> <span class="pre">2</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.asin_range&quot;, [&quot;-&quot;, &quot;/&quot;, &quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;and&quot;, &quot;asin&quot;, &quot;pi&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-asin-sin"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L426"><code class="docutils literal notranslate"><span class="pre">real.asin_sin</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">-1</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">1</span> <span class="pre">→</span> <span class="pre">Real.sin(asin(x))</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.asin_sin&quot;, [&quot;&lt;=&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.sin&quot;, &quot;asin&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-ceil-gt"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L246"><code class="docutils literal notranslate"><span class="pre">real.ceil_gt</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">ceil(x)</span> <span class="pre">-</span> <span class="pre">1</span> <span class="pre">&lt;</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.ceil_gt&quot;, [&quot;-&quot;, &quot;&lt;&quot;, &quot;Real&quot;, &quot;ceil&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-ceil-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L245"><code class="docutils literal notranslate"><span class="pre">real.ceil_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">ceil(x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.ceil_le&quot;, [&quot;&lt;=&quot;, &quot;ceil&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-cos-0"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L392"><code class="docutils literal notranslate"><span class="pre">real.cos_0</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">Real.cos(0)</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cos_0&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-cos-abs-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L389"><code class="docutils literal notranslate"><span class="pre">real.cos_abs_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|Real.cos(x)|</span> <span class="pre">≤</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cos_abs_le&quot;, [&quot;&lt;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-cos-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L404"><code class="docutils literal notranslate"><span class="pre">real.cos_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">Real.cos(x</span> <span class="pre">+</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">Real.cos(x)</span> <span class="pre">*</span> <span class="pre">Real.cos(y)</span> <span class="pre">-</span> <span class="pre">Real.sin(x)</span> <span class="pre">*</span> <span class="pre">Real.sin(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cos_add&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;-&quot;, &quot;=&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-cos-diff"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L409"><code class="docutils literal notranslate"><span class="pre">real.cos_diff</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">Real.cos(x</span> <span class="pre">-</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">Real.cos(x)</span> <span class="pre">*</span> <span class="pre">Real.cos(y)</span> <span class="pre">+</span> <span class="pre">Real.sin(x)</span> <span class="pre">*</span> <span class="pre">Real.sin(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cos_diff&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;-&quot;, &quot;=&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-cos-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L401"><code class="docutils literal notranslate"><span class="pre">real.cos_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.cos(-x)</span> <span class="pre">=</span> <span class="pre">Real.cos(x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cos_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;Real.cos&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-cos-pi"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L398"><code class="docutils literal notranslate"><span class="pre">real.cos_pi</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">Real.cos(π)</span> <span class="pre">=</span> <span class="pre">-1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cos_pi&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;, &quot;pi&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-cos-range"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L387"><code class="docutils literal notranslate"><span class="pre">real.cos_range</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.cos(x)</span> <span class="pre">≥</span> <span class="pre">-1</span> <span class="pre">∧</span> <span class="pre">Real.cos(x)</span> <span class="pre">≤</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.cos_range&quot;, [&quot;&lt;=&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;, &quot;and&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-deriv-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L525"><code class="docutils literal notranslate"><span class="pre">real.deriv_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀f</span> <span class="pre">g</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">deriv(f</span> <span class="pre">+</span> <span class="pre">g)</span> <span class="pre">=</span> <span class="pre">deriv(f)</span> <span class="pre">+</span> <span class="pre">deriv(g)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.deriv_add&quot;, [&quot;(Array Real Real).add&quot;, &quot;=&quot;, &quot;deriv&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-deriv-const"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L520"><code class="docutils literal notranslate"><span class="pre">real.deriv_const</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">deriv(RFun.const(x))</span> <span class="pre">=</span> <span class="pre">RFun.const(0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.deriv_const&quot;, [&quot;=&quot;, &quot;RFun.const&quot;, &quot;Real&quot;, &quot;deriv&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-deriv-cos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L523"><code class="docutils literal notranslate"><span class="pre">real.deriv_cos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">deriv(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.cos(x))</span> <span class="pre">=</span> <span class="pre">(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">-Real.sin(x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.deriv_cos&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;, &quot;deriv&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-deriv-exp"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L524"><code class="docutils literal notranslate"><span class="pre">real.deriv_exp</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">deriv(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x))</span> <span class="pre">=</span> <span class="pre">(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.deriv_exp&quot;, [&quot;=&quot;, &quot;Real.exp&quot;, &quot;deriv&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-deriv-ident"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L521"><code class="docutils literal notranslate"><span class="pre">real.deriv_ident</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">deriv(RFun.ident)</span> <span class="pre">=</span> <span class="pre">RFun.const(1)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.deriv_ident&quot;, [&quot;=&quot;, &quot;RFun.const&quot;, &quot;RFun.ident&quot;, &quot;Real&quot;, &quot;deriv&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-deriv-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L526"><code class="docutils literal notranslate"><span class="pre">real.deriv_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀f</span> <span class="pre">g</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">deriv(f</span> <span class="pre">*</span> <span class="pre">g)</span> <span class="pre">=</span> <span class="pre">deriv(f)</span> <span class="pre">*</span> <span class="pre">g</span> <span class="pre">+</span> <span class="pre">f</span> <span class="pre">*</span> <span class="pre">deriv(g)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.deriv_mul&quot;, [&quot;(Array Real Real).add&quot;, &quot;(Array Real Real).mul&quot;, &quot;=&quot;, &quot;deriv&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-deriv-sin"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L522"><code class="docutils literal notranslate"><span class="pre">real.deriv_sin</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">deriv(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.sin(x))</span> <span class="pre">=</span> <span class="pre">(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.cos(x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.deriv_sin&quot;, [&quot;=&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;, &quot;deriv&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-diff-cont"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L512"><code class="docutils literal notranslate"><span class="pre">real.diff_cont</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀f</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">is_diff(f)</span> <span class="pre">→</span> <span class="pre">is_cont(f)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.diff_cont&quot;, [&quot;=&gt;&quot;, &quot;is_cont&quot;, &quot;is_diff&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-exp-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L343"><code class="docutils literal notranslate"><span class="pre">real.exp_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x</span> <span class="pre">+</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">Real.exp(x)</span> <span class="pre">*</span> <span class="pre">Real.exp(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_add&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;=&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-exp-div"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L352"><code class="docutils literal notranslate"><span class="pre">real.exp_div</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x)</span> <span class="pre">*</span> <span class="pre">Real.exp(-x)</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_div&quot;, [&quot;*&quot;, &quot;-&quot;, &quot;=&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-exp-inv"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L354"><code class="docutils literal notranslate"><span class="pre">real.exp_inv</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(-x)</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">Real.exp(x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_inv&quot;, [&quot;-&quot;, &quot;/&quot;, &quot;=&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-exp-ln"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L375"><code class="docutils literal notranslate"><span class="pre">real.exp_ln</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.exp(Real.ln(x))</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_ln&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;&quot;, &quot;Real&quot;, &quot;Real.exp&quot;, &quot;Real.ln&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-exp-lower"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L344"><code class="docutils literal notranslate"><span class="pre">real.exp_lower</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x)</span> <span class="pre">≥</span> <span class="pre">1</span> <span class="pre">+</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_lower&quot;, [&quot;+&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-exp-mono"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L358"><code class="docutils literal notranslate"><span class="pre">real.exp_mono</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">y</span> <span class="pre">→</span> <span class="pre">Real.exp(x)</span> <span class="pre">≤</span> <span class="pre">Real.exp(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_mono&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-exp-neg-le-1"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L367"><code class="docutils literal notranslate"><span class="pre">real.exp_neg_le_1</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.exp(x)</span> <span class="pre">≤</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_neg_le_1&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-exp-nzero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L353"><code class="docutils literal notranslate"><span class="pre">real.exp_nzero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x)</span> <span class="pre">≠</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_nzero&quot;, [&quot;Real&quot;, &quot;Real.exp&quot;, &quot;distinct&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-exp-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L345"><code class="docutils literal notranslate"><span class="pre">real.exp_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x)</span> <span class="pre">&gt;</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_pos&quot;, [&quot;&gt;&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-exp-pos-ge-one"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L348"><code class="docutils literal notranslate"><span class="pre">real.exp_pos_ge_one</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.exp(x)</span> <span class="pre">≥</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_pos_ge_one&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-exp-range"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L346"><code class="docutils literal notranslate"><span class="pre">real.exp_range</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(x)</span> <span class="pre">&gt;</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_range&quot;, [&quot;&gt;&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-exp-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L350"><code class="docutils literal notranslate"><span class="pre">real.exp_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.exp(0)</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.exp_zero&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.exp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-floor-gt"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L241"><code class="docutils literal notranslate"><span class="pre">real.floor_gt</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">floor(x)</span> <span class="pre">+</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.floor_gt&quot;, [&quot;+&quot;, &quot;&lt;&quot;, &quot;Real&quot;, &quot;floor&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-floor-idem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L239"><code class="docutils literal notranslate"><span class="pre">real.floor_idem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">floor(floor(x))</span> <span class="pre">=</span> <span class="pre">floor(x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.floor_idem&quot;, [&quot;=&quot;, &quot;floor&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-floor-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L240"><code class="docutils literal notranslate"><span class="pre">real.floor_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">floor(x)</span> <span class="pre">≤</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.floor_le&quot;, [&quot;&lt;=&quot;, &quot;floor&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-int-real-galois-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L236"><code class="docutils literal notranslate"><span class="pre">real.int_real_galois_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">(to_real(n)</span> <span class="pre">≤</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">(n</span> <span class="pre">≤</span> <span class="pre">to_int(x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.int_real_galois_le&quot;, [&quot;&lt;=&quot;, &quot;=&quot;, &quot;to_int&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-int-real-galois-lt"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L235"><code class="docutils literal notranslate"><span class="pre">real.int_real_galois_lt</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">(x</span> <span class="pre">&lt;</span> <span class="pre">to_real(n))</span> <span class="pre">=</span> <span class="pre">(to_int(x)</span> <span class="pre">&lt;</span> <span class="pre">n)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.int_real_galois_lt&quot;, [&quot;&lt;&quot;, &quot;=&quot;, &quot;to_int&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-lim-def"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L464"><code class="docutils literal notranslate"><span class="pre">real.lim_def</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀f</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">has_lim_at(f,</span> <span class="pre">x,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">lim(f,</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">y</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.lim_def&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;has_lim_at&quot;, &quot;lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-ln-exp"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L370"><code class="docutils literal notranslate"><span class="pre">real.ln_exp</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.ln(Real.exp(x))</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.ln_exp&quot;, [&quot;=&quot;, &quot;Real.exp&quot;, &quot;Real.ln&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-ln-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L372"><code class="docutils literal notranslate"><span class="pre">real.ln_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">y</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.ln(x</span> <span class="pre">*</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">Real.ln(x)</span> <span class="pre">+</span> <span class="pre">Real.ln(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.ln_mul&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;&quot;, &quot;Real&quot;, &quot;Real.ln&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-ln-one"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L373"><code class="docutils literal notranslate"><span class="pre">real.ln_one</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.ln(1)</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.ln_one&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.ln&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-max-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L207"><code class="docutils literal notranslate"><span class="pre">real.max_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.max(x,</span> <span class="pre">R.max(y,</span> <span class="pre">z))</span> <span class="pre">=</span> <span class="pre">R.max(R.max(x,</span> <span class="pre">y),</span> <span class="pre">z)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.max_assoc&quot;, [&quot;=&quot;, &quot;R.max&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-max-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L206"><code class="docutils literal notranslate"><span class="pre">real.max_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.max(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">R.max(y,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.max_comm&quot;, [&quot;=&quot;, &quot;R.max&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-max-ge"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L211"><code class="docutils literal notranslate"><span class="pre">real.max_ge</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.max(x,</span> <span class="pre">y)</span> <span class="pre">≥</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.max_ge&quot;, [&quot;&gt;=&quot;, &quot;R.max&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-max-ge-2"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L212"><code class="docutils literal notranslate"><span class="pre">real.max_ge_2</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.max(x,</span> <span class="pre">y)</span> <span class="pre">≥</span> <span class="pre">y</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.max_ge_2&quot;, [&quot;&gt;=&quot;, &quot;R.max&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-max-idem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L210"><code class="docutils literal notranslate"><span class="pre">real.max_idem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.max(x,</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.max_idem&quot;, [&quot;=&quot;, &quot;R.max&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-max-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L205"><code class="docutils literal notranslate"><span class="pre">real.max_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">(x</span> <span class="pre">≤</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">(R.max(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.max_le&quot;, [&quot;&lt;=&quot;, &quot;=&quot;, &quot;R.max&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-min-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L217"><code class="docutils literal notranslate"><span class="pre">real.min_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">min(x,</span> <span class="pre">min(y,</span> <span class="pre">z))</span> <span class="pre">=</span> <span class="pre">min(min(x,</span> <span class="pre">y),</span> <span class="pre">z)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.min_assoc&quot;, [&quot;=&quot;, &quot;min&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-min-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L216"><code class="docutils literal notranslate"><span class="pre">real.min_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">min(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">min(y,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.min_comm&quot;, [&quot;=&quot;, &quot;min&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-min-idem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L220"><code class="docutils literal notranslate"><span class="pre">real.min_idem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">min(x,</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.min_idem&quot;, [&quot;=&quot;, &quot;min&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-min-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L215"><code class="docutils literal notranslate"><span class="pre">real.min_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">(x</span> <span class="pre">≤</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">(min(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.min_le&quot;, [&quot;&lt;=&quot;, &quot;=&quot;, &quot;min&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-min-le-2"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L221"><code class="docutils literal notranslate"><span class="pre">real.min_le_2</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">min(x,</span> <span class="pre">y)</span> <span class="pre">≤</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.min_le_2&quot;, [&quot;&lt;=&quot;, &quot;min&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-min-le-3"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L222"><code class="docutils literal notranslate"><span class="pre">real.min_le_3</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">min(x,</span> <span class="pre">y)</span> <span class="pre">≤</span> <span class="pre">y</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.min_le_3&quot;, [&quot;&lt;=&quot;, &quot;min&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-mul-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L112"><code class="docutils literal notranslate"><span class="pre">real.mul_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">mul(x,</span> <span class="pre">mul(y,</span> <span class="pre">z))</span> <span class="pre">=</span> <span class="pre">mul(mul(x,</span> <span class="pre">y),</span> <span class="pre">z)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.mul_assoc&quot;, [&quot;=&quot;, &quot;mul&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-mul-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L105"><code class="docutils literal notranslate"><span class="pre">real.mul_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">mul(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">mul(y,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.mul_comm&quot;, [&quot;=&quot;, &quot;mul&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-mul-distrib"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L127"><code class="docutils literal notranslate"><span class="pre">real.mul_distrib</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">mul(x,</span> <span class="pre">R.add(y,</span> <span class="pre">z))</span> <span class="pre">=</span> <span class="pre">R.add(mul(x,</span> <span class="pre">y),</span> <span class="pre">mul(x,</span> <span class="pre">z))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.mul_distrib&quot;, [&quot;=&quot;, &quot;R.add&quot;, &quot;mul&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-mul-one"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L103"><code class="docutils literal notranslate"><span class="pre">real.mul_one</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">mul(x,</span> <span class="pre">one)</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.mul_one&quot;, [&quot;=&quot;, &quot;mul&quot;, &quot;one&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-mul-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L101"><code class="docutils literal notranslate"><span class="pre">real.mul_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">mul(x,</span> <span class="pre">0)</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.mul_zero&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;mul&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-nonneg-ge-0"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L202"><code class="docutils literal notranslate"><span class="pre">real.nonneg_ge_0</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">nonneg(x)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">≥</span> <span class="pre">0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.nonneg_ge_0&quot;, [&quot;=&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;nonneg&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-one-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L104"><code class="docutils literal notranslate"><span class="pre">real.one_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">mul(one,</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.one_mul&quot;, [&quot;=&quot;, &quot;mul&quot;, &quot;one&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-pi-bnd"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L396"><code class="docutils literal notranslate"><span class="pre">real.pi_bnd</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">π</span> <span class="pre">&gt;</span> <span class="pre">314159/100000</span> <span class="pre">∧</span> <span class="pre">π</span> <span class="pre">&lt;</span> <span class="pre">3927/1250</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pi_bnd&quot;, [&quot;&lt;&quot;, &quot;&gt;&quot;, &quot;Real&quot;, &quot;and&quot;, &quot;pi&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-pow-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L254"><code class="docutils literal notranslate"><span class="pre">real.pow_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">pow(x,</span> <span class="pre">y</span> <span class="pre">+</span> <span class="pre">z)</span> <span class="pre">=</span> <span class="pre">pow(x,</span> <span class="pre">y)</span> <span class="pre">*</span> <span class="pre">pow(x,</span> <span class="pre">z)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pow_add&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;pow&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-pow-one"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L255"><code class="docutils literal notranslate"><span class="pre">real.pow_one</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">pow(x,</span> <span class="pre">1)</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pow_one&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;pow&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-pow-three"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L257"><code class="docutils literal notranslate"><span class="pre">real.pow_three</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">pow(x,</span> <span class="pre">3)</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pow_three&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;Real&quot;, &quot;pow&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-pow-two"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L256"><code class="docutils literal notranslate"><span class="pre">real.pow_two</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">pow(x,</span> <span class="pre">2)</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pow_two&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;Real&quot;, &quot;pow&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-pownat-succ"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L274"><code class="docutils literal notranslate"><span class="pre">real.pownat_succ</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">pownat(x,</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">pownat(x,</span> <span class="pre">n)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pownat_succ&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;pownat&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-pownat-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L270"><code class="docutils literal notranslate"><span class="pre">real.pownat_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">pownat(x,</span> <span class="pre">0)</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pownat_zero&quot;, [&quot;=&quot;, &quot;Int&quot;, &quot;Real&quot;, &quot;pownat&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-pythag"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L383"><code class="docutils literal notranslate"><span class="pre">real.pythag</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.cos(x)</span> <span class="pre">^</span> <span class="pre">2</span> <span class="pre">+</span> <span class="pre">Real.sin(x)</span> <span class="pre">^</span> <span class="pre">2</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pythag&quot;, [&quot;+&quot;, &quot;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;, &quot;^&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-pythag-1"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L384"><code class="docutils literal notranslate"><span class="pre">real.pythag_1</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">Real.sin(x)</span> <span class="pre">^</span> <span class="pre">2</span> <span class="pre">=</span> <span class="pre">Real.cos(x)</span> <span class="pre">^</span> <span class="pre">2</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pythag_1&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;, &quot;^&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-pythag-2"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L385"><code class="docutils literal notranslate"><span class="pre">real.pythag_2</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">Real.cos(x)</span> <span class="pre">^</span> <span class="pre">2</span> <span class="pre">=</span> <span class="pre">Real.sin(x)</span> <span class="pre">^</span> <span class="pre">2</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.pythag_2&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;Real&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;, &quot;^&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sgn-abs"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L159"><code class="docutils literal notranslate"><span class="pre">real.sgn_abs</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|x|</span> <span class="pre">*</span> <span class="pre">to_real(sgn(x))</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sgn_abs&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;absR&quot;, &quot;sgn&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sin-0"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L393"><code class="docutils literal notranslate"><span class="pre">real.sin_0</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">Real.sin(0)</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_0&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.sin&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sin-abs-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L390"><code class="docutils literal notranslate"><span class="pre">real.sin_abs_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">|Real.sin(x)|</span> <span class="pre">≤</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_abs_le&quot;, [&quot;&lt;=&quot;, &quot;Real&quot;, &quot;Real.sin&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sin-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L405"><code class="docutils literal notranslate"><span class="pre">real.sin_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">Real.sin(x</span> <span class="pre">+</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">Real.sin(x)</span> <span class="pre">*</span> <span class="pre">Real.cos(y)</span> <span class="pre">+</span> <span class="pre">Real.cos(x)</span> <span class="pre">*</span> <span class="pre">Real.sin(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_add&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;=&quot;, &quot;Real.cos&quot;, &quot;Real.sin&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sin-cont"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L515"><code class="docutils literal notranslate"><span class="pre">real.sin_cont</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">is_cont(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.sin(x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_cont&quot;, [&quot;Real.sin&quot;, &quot;is_cont&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sin-diff"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L514"><code class="docutils literal notranslate"><span class="pre">real.sin_diff</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">is_diff(λx</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.sin(x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_diff&quot;, [&quot;Real.sin&quot;, &quot;is_diff&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sin-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L402"><code class="docutils literal notranslate"><span class="pre">real.sin_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.sin(-x)</span> <span class="pre">=</span> <span class="pre">-Real.sin(x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;Real.sin&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sin-pi"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L399"><code class="docutils literal notranslate"><span class="pre">real.sin_pi</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">Real.sin(π)</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_pi&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.sin&quot;, &quot;pi&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sin-range"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L388"><code class="docutils literal notranslate"><span class="pre">real.sin_range</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.sin(x)</span> <span class="pre">≥</span> <span class="pre">-1</span> <span class="pre">∧</span> <span class="pre">Real.sin(x)</span> <span class="pre">≤</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sin_range&quot;, [&quot;&lt;=&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.sin&quot;, &quot;and&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sqr-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L285"><code class="docutils literal notranslate"><span class="pre">real.sqr_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.sqr(-x)</span> <span class="pre">=</span> <span class="pre">R.sqr(x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqr_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;R.sqr&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sqr-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L280"><code class="docutils literal notranslate"><span class="pre">real.sqr_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">R.sqr(x)</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqr_pos&quot;, [&quot;&gt;=&quot;, &quot;R.sqr&quot;, &quot;Real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sqr-sqrt"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L315"><code class="docutils literal notranslate"><span class="pre">real.sqr_sqrt</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">R.sqr(Real.sqrt(x))</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqr_sqrt&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;R.sqr&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sqrt-define"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L302"><code class="docutils literal notranslate"><span class="pre">real.sqrt_define</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.sqrt(x)</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">^</span> <span class="pre">(1/2)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_define&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;, &quot;^&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sqrt-mono"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L322"><code class="docutils literal notranslate"><span class="pre">real.sqrt_mono</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">y</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">y</span> <span class="pre">→</span> <span class="pre">Real.sqrt(x)</span> <span class="pre">≤</span> <span class="pre">Real.sqrt(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_mono&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sqrt-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L318"><code class="docutils literal notranslate"><span class="pre">real.sqrt_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span>
+&#160; <span class="pre">y</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.sqrt(x</span> <span class="pre">*</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">Real.sqrt(x)</span> <span class="pre">*</span> <span class="pre">Real.sqrt(y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_mul&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sqrt-one"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L304"><code class="docutils literal notranslate"><span class="pre">real.sqrt_one</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">Real.sqrt(1)</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_one&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sqrt-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L294"><code class="docutils literal notranslate"><span class="pre">real.sqrt_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.sqrt(x)</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_pos&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sqrt-sqr"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L329"><code class="docutils literal notranslate"><span class="pre">real.sqrt_sqr</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.sqrt(R.sqr(x))</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_sqr&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;R.sqr&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sqrt-sqr-abs"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L337"><code class="docutils literal notranslate"><span class="pre">real.sqrt_sqr_abs</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">Real.sqrt(R.sqr(x))</span> <span class="pre">=</span> <span class="pre">|x|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_sqr_abs&quot;, [&quot;=&quot;, &quot;R.sqr&quot;, &quot;Real.sqrt&quot;, &quot;absR&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sqrt-sqr-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L335"><code class="docutils literal notranslate"><span class="pre">real.sqrt_sqr_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.sqrt(R.sqr(x))</span> <span class="pre">=</span> <span class="pre">-x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_sqr_neg&quot;, [&quot;-&quot;, &quot;&lt;=&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;R.sqr&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sqrt-square"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L309"><code class="docutils literal notranslate"><span class="pre">real.sqrt_square</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">Real.sqrt(x)</span> <span class="pre">^</span> <span class="pre">2</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_square&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;, &quot;^&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sqrt-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L305"><code class="docutils literal notranslate"><span class="pre">real.sqrt_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">Real.sqrt(0)</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sqrt_zero&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;Real.sqrt&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-sub-0"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L95"><code class="docutils literal notranslate"><span class="pre">real.sub_0</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">sub(x,</span> <span class="pre">0)</span> <span class="pre">=</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sub_0&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;sub&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-sub-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L96"><code class="docutils literal notranslate"><span class="pre">real.sub_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">(R.add(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">z)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">=</span> <span class="pre">sub(z,</span> <span class="pre">y))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.sub_add&quot;, [&quot;=&quot;, &quot;R.add&quot;, &quot;sub&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-to-real-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L226"><code class="docutils literal notranslate"><span class="pre">real.to_real_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">to_real(n</span> <span class="pre">+</span> <span class="pre">m)</span> <span class="pre">=</span> <span class="pre">to_real(n)</span> <span class="pre">+</span> <span class="pre">to_real(m)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.to_real_add&quot;, [&quot;+&quot;, &quot;=&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-to-real-inj"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L230"><code class="docutils literal notranslate"><span class="pre">real.to_real_inj</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">(to_real(n)</span> <span class="pre">=</span> <span class="pre">to_real(m))</span> <span class="pre">=</span> <span class="pre">(n</span> <span class="pre">=</span> <span class="pre">m)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.to_real_inj&quot;, [&quot;=&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-to-real-mono"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L231"><code class="docutils literal notranslate"><span class="pre">real.to_real_mono</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">(n</span> <span class="pre">&lt;</span> <span class="pre">m)</span> <span class="pre">=</span> <span class="pre">(to_real(n)</span> <span class="pre">&lt;</span> <span class="pre">to_real(m))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.to_real_mono&quot;, [&quot;&lt;&quot;, &quot;=&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-to-real-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L228"><code class="docutils literal notranslate"><span class="pre">real.to_real_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">to_real(n</span> <span class="pre">*</span> <span class="pre">m)</span> <span class="pre">=</span> <span class="pre">to_real(n)</span> <span class="pre">*</span> <span class="pre">to_real(m)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.to_real_mul&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-to-real-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L229"><code class="docutils literal notranslate"><span class="pre">real.to_real_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">to_real(-n)</span> <span class="pre">=</span> <span class="pre">-to_real(n)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.to_real_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-to-real-sub"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/__init__.py#L227"><code class="docutils literal notranslate"><span class="pre">real.to_real_sub</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">to_real(n</span> <span class="pre">-</span> <span class="pre">m)</span> <span class="pre">=</span> <span class="pre">to_real(n)</span> <span class="pre">-</span> <span class="pre">to_real(m)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.to_real_sub&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Modules</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.analysis.html#module-kdrag.theories.real.analysis" title="kdrag.theories.real.analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.arb.html#module-kdrag.theories.real.arb" title="kdrag.theories.real.arb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arb</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.complex.html#module-kdrag.theories.real.complex" title="kdrag.theories.real.complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">complex</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.cont.html#module-kdrag.theories.real.cont" title="kdrag.theories.real.cont"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cont</span></code></a></p></td>
+<td><p>Continuity and limit lemmas for real functions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.cseq.html#module-kdrag.theories.real.cseq" title="kdrag.theories.real.cseq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cseq</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.extended.html#module-kdrag.theories.real.extended" title="kdrag.theories.real.extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.fun.html#module-kdrag.theories.real.fun" title="kdrag.theories.real.fun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fun</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.geometry.html#module-kdrag.theories.real.geometry" title="kdrag.theories.real.geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.interval.html#module-kdrag.theories.real.interval" title="kdrag.theories.real.interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interval</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.lim_algebra.html#module-kdrag.theories.real.lim_algebra" title="kdrag.theories.real.lim_algebra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lim_algebra</span></code></a></p></td>
+<td><p>Algebra of real sequence limits.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.measure.html#module-kdrag.theories.real.measure" title="kdrag.theories.real.measure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">measure</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.ndarray.html#module-kdrag.theories.real.ndarray" title="kdrag.theories.real.ndarray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.rset.html#module-kdrag.theories.real.rset" title="kdrag.theories.real.rset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rset</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.seq.html#module-kdrag.theories.real.seq" title="kdrag.theories.real.seq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seq</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.vec.html#module-kdrag.theories.real.vec" title="kdrag.theories.real.vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vec</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.vec2.html#module-kdrag.theories.real.vec2" title="kdrag.theories.real.vec2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vec2</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.vec3.html#module-kdrag.theories.real.vec3" title="kdrag.theories.real.vec3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vec3</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.option.is_option.html" class="btn btn-neutral float-left" title="kdrag.theories.option.is_option" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.real.abstract_arith.html" class="btn btn-neutral float-right" title="kdrag.theories.real.abstract_arith" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

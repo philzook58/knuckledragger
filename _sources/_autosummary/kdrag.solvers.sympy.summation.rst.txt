@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.summation
+=============================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: summation

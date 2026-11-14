@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.zf.zf &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=4b0197fc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.zf.zf.FinSet" href="kdrag.theories.zf.zf.FinSet.html" />
+    <link rel="prev" title="kdrag.theories.zf.prod_lemmas" href="kdrag.theories.zf.prod_lemmas.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.zf.axioms.html">kdrag.theories.zf.axioms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.zf.prod_lemmas.html">kdrag.theories.zf.prod_lemmas</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.zf.zf</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.zf.zf.FinSet.html">kdrag.theories.zf.zf.FinSet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.zf.zf.slemma.html">kdrag.theories.zf.zf.slemma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.zf.zf.test.html">kdrag.theories.zf.zf.test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.zf.zf.FinSet"><code class="docutils literal notranslate"><span class="pre">FinSet()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.zf.zf.slemma"><code class="docutils literal notranslate"><span class="pre">slemma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.zf.zf.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.zf.zf</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.zf.zf.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.zf.zf">
+<span id="kdrag-theories-zf-zf"></span><h1>kdrag.theories.zf.zf<a class="headerlink" href="#module-kdrag.theories.zf.zf" title="Link to this heading"></a></h1>
+<p>ZF style set theory</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory">https://en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory</a></p></li>
+<li><p>Naive Set Theory by Paul Halmos</p></li>
+<li><p><a class="reference external" href="https://www.isa-afp.org/entries/ZFC_in_HOL.html">https://www.isa-afp.org/entries/ZFC_in_HOL.html</a></p></li>
+</ul>
+<p>There are multiple specific ways to go about roughly the same thing.</p>
+<p>Some versions, such as in Suppes’ text have a predicate <cite>is_set</cite> to distinguish
+sets from classes. This is not done here.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.zf.zf.FinSet.html#kdrag.theories.zf.zf.FinSet" title="kdrag.theories.zf.zf.FinSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FinSet</span></code></a>(*xs)</p></td>
+<td><p>A helper for sets of the form {x1, x2, ..., xn}</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.zf.zf.slemma.html#kdrag.theories.zf.zf.slemma" title="kdrag.theories.zf.zf.slemma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slemma</span></code></a>(thm[, by])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.zf.zf.test.html#kdrag.theories.zf.zf.test" title="kdrag.theories.zf.zf.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.zf.zf.FinSet">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.zf.zf.</span></span><span class="sig-name descname"><span class="pre">FinSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">xs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.zf.zf.FinSet" title="Link to this definition"></a></dt>
+<dd><p>A helper for sets of the form {x1, x2, …, xn}</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.zf.zf.slemma">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.zf.zf.</span></span><span class="sig-name descname"><span class="pre">slemma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.zf.zf.slemma" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.zf.zf.test">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.zf.zf.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.zf.zf.test" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kc">True</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<table class="theorem-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Theorem</p></th>
+<th class="head"><p>Statement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-biginter-upair-inter"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L402"><code class="docutils literal notranslate"><span class="pre">zf.zf.biginter_upair_inter</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">B</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">biginter(upair(A,</span> <span class="pre">B))</span> <span class="pre">=</span> <span class="pre">A</span> <span class="pre">∩</span> <span class="pre">B</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.biginter_upair_inter&quot;, [&quot;=&quot;, &quot;biginter&quot;, &quot;inter&quot;, &quot;upair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-bigunion-ax"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L251"><code class="docutils literal notranslate"><span class="pre">zf.zf.bigunion_ax</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">bigunion(A))</span> <span class="pre">=</span> <span class="pre">(∃B</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">B</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∧</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">B)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.bigunion_ax&quot;, [&quot;=&quot;, &quot;and&quot;, &quot;bigunion&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-bigunion-upair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L343"><code class="docutils literal notranslate"><span class="pre">zf.zf.bigunion_upair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">bigunion(upair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">a₀</span> <span class="pre">∪</span> <span class="pre">b₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.bigunion_upair&quot;, [&quot;=&quot;, &quot;bigunion&quot;, &quot;union&quot;, &quot;upair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-biginter"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L367"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_biginter</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">A</span> <span class="pre">≠</span> <span class="pre">∅</span> <span class="pre">→</span> <span class="pre">(∀b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">b₀</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">biginter(A))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_biginter&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;biginter&quot;, &quot;distinct&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-bigunion-upair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L272"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_bigunion_upair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">A</span> <span class="pre">B</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">bigunion(upair(A,</span> <span class="pre">B)))</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∨</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">B)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_bigunion_upair&quot;, [&quot;=&quot;, &quot;bigunion&quot;, &quot;or&quot;, &quot;upair&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-emp"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L81"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_emp</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">∅)</span> <span class="pre">=</span> <span class="pre">false</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_emp&quot;, [&quot;=&quot;, &quot;false&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-inter"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L394"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_inter</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">A</span> <span class="pre">B</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∩</span> <span class="pre">B)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∧</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">B)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_inter&quot;, [&quot;=&quot;, &quot;and&quot;, &quot;inter&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-pair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L670"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_pair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">pair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">=</span> <span class="pre">ZF.sing(a₀)</span> <span class="pre">∨</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">upair(a₀,</span> <span class="pre">b₀))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_pair&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;or&quot;, &quot;pair&quot;, &quot;upair&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-pick"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L117"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_pick</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">≠</span> <span class="pre">∅</span> <span class="pre">→</span> <span class="pre">pick(a₀)</span> <span class="pre">∈</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_pick&quot;, [&quot;=&gt;&quot;, &quot;distinct&quot;, &quot;pick&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-pick0"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_pick0</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">a₀</span> <span class="pre">≠</span> <span class="pre">∅</span> <span class="pre">→</span> <span class="pre">f₀(a₀)</span> <span class="pre">∈</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_pick0&quot;, [&quot;=&gt;&quot;, &quot;a!2386&quot;, &quot;distinct&quot;, &quot;f!2410&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-pow"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L568"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_pow</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">pow(A))</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">⊆</span> <span class="pre">A)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_pow&quot;, [&quot;=&quot;, &quot;ZFSet.le&quot;, &quot;pow&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-prod"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L721"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_prod</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">B</span> <span class="pre">p₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(p₀</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">×</span> <span class="pre">B)</span> <span class="pre">=</span> <span class="pre">(fst(p₀)</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∧</span>
+&#160; <span class="pre">snd(p₀)</span> <span class="pre">∈</span> <span class="pre">B</span> <span class="pre">∧</span>
+&#160; <span class="pre">p₀</span> <span class="pre">=</span> <span class="pre">pair(fst(p₀),</span> <span class="pre">snd(p₀)))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_prod&quot;, [&quot;=&quot;, &quot;and&quot;, &quot;fst&quot;, &quot;pair&quot;, &quot;prod&quot;, &quot;snd&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-prod-def"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L703"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_prod_def</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">B</span> <span class="pre">p₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(p₀</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">×</span> <span class="pre">B)</span> <span class="pre">=</span> <span class="pre">((∃x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160;&#160;&#160; <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∧</span> <span class="pre">y</span> <span class="pre">∈</span> <span class="pre">B</span> <span class="pre">∧</span> <span class="pre">p₀</span> <span class="pre">=</span> <span class="pre">pair(x,</span> <span class="pre">y))</span> <span class="pre">∧</span>
+&#160; <span class="pre">p₀</span> <span class="pre">∈</span> <span class="pre">pow(pow(A</span> <span class="pre">∪</span> <span class="pre">B)))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_prod_def&quot;, [&quot;=&quot;, &quot;and&quot;, &quot;pair&quot;, &quot;pow&quot;, &quot;prod&quot;, &quot;union&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-sep"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L213"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_sep</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">:</span> <span class="pre">ZFSet</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">A</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">sep(A,</span> <span class="pre">P))</span> <span class="pre">=</span> <span class="pre">(P[x]</span> <span class="pre">∧</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">A)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_sep&quot;, [&quot;=&quot;, &quot;and&quot;, &quot;select&quot;, &quot;sep&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-sing"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L191"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_sing</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(a₀</span> <span class="pre">∈</span> <span class="pre">ZF.sing(b₀))</span> <span class="pre">=</span> <span class="pre">(a₀</span> <span class="pre">=</span> <span class="pre">b₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_sing&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-union"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L294"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_union</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">A</span> <span class="pre">B</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∪</span> <span class="pre">B)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">A</span> <span class="pre">∨</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">B)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_union&quot;, [&quot;=&quot;, &quot;or&quot;, &quot;union&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-upair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L123"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_upair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(z</span> <span class="pre">∈</span> <span class="pre">upair(x,</span> <span class="pre">y))</span> <span class="pre">=</span> <span class="pre">(z</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">∨</span> <span class="pre">z</span> <span class="pre">=</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_upair&quot;, [&quot;=&quot;, &quot;or&quot;, &quot;upair&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-elem-upair-1"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L146"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_upair_1</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(a₀</span> <span class="pre">∈</span> <span class="pre">upair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">true</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_upair_1&quot;, [&quot;=&quot;, &quot;true&quot;, &quot;upair&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-elem-upair-2"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L149"><code class="docutils literal notranslate"><span class="pre">zf.zf.elem_upair_2</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(b₀</span> <span class="pre">∈</span> <span class="pre">upair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">true</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.elem_upair_2&quot;, [&quot;=&quot;, &quot;true&quot;, &quot;upair&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-emp-exists-elem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L85"><code class="docutils literal notranslate"><span class="pre">zf.zf.emp_exists_elem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(A</span> <span class="pre">=</span> <span class="pre">∅)</span> <span class="pre">=</span> <span class="pre">(¬(∃x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">A))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.emp_exists_elem&quot;, [&quot;=&quot;, &quot;not&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-ext-ax"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L76"><code class="docutils literal notranslate"><span class="pre">zf.zf.ext_ax</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">B</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(A</span> <span class="pre">=</span> <span class="pre">B)</span> <span class="pre">=</span> <span class="pre">(∀x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">A)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">∈</span> <span class="pre">B))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.ext_ax&quot;, [&quot;=&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-fst-pair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L615"><code class="docutils literal notranslate"><span class="pre">zf.zf.fst_pair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">fst(pair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.fst_pair&quot;, [&quot;=&quot;, &quot;fst&quot;, &quot;pair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-inter-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L423"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(a₀</span> <span class="pre">∩</span> <span class="pre">b₀)</span> <span class="pre">∩</span> <span class="pre">c₀</span> <span class="pre">=</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">b₀</span> <span class="pre">∩</span> <span class="pre">c₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_assoc&quot;, [&quot;=&quot;, &quot;inter&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-inter-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L413"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">B</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">A</span> <span class="pre">∩</span> <span class="pre">B</span> <span class="pre">=</span> <span class="pre">B</span> <span class="pre">∩</span> <span class="pre">A</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_comm&quot;, [&quot;=&quot;, &quot;inter&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-inter-emp"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L475"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_emp</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">x</span> <span class="pre">∩</span> <span class="pre">∅</span> <span class="pre">=</span> <span class="pre">∅</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_emp&quot;, [&quot;=&quot;, &quot;inter&quot;, &quot;\u2205&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-inter-idem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L435"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_idem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">a₀</span> <span class="pre">=</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_idem&quot;, [&quot;=&quot;, &quot;inter&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-inter-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L457"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">b₀</span> <span class="pre">⊆</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_le&quot;, [&quot;ZFSet.le&quot;, &quot;inter&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-inter-union-distr"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L444"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_union_distr</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">(b₀</span> <span class="pre">∪</span> <span class="pre">c₀)</span> <span class="pre">=</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">b₀</span> <span class="pre">∪</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">c₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_union_distr&quot;, [&quot;=&quot;, &quot;inter&quot;, &quot;union&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-inter-upair-1"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L535"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_upair_1</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">upair(b₀,</span> <span class="pre">c₀)</span> <span class="pre">∩</span>
+&#160; <span class="pre">a₀</span> <span class="pre">=</span> <span class="pre">(if</span> <span class="pre">b₀</span> <span class="pre">∈</span> <span class="pre">a₀</span> <span class="pre">then</span> <span class="pre">(if</span> <span class="pre">c₀</span> <span class="pre">∈</span> <span class="pre">a₀</span> <span class="pre">then</span> <span class="pre">upair(b₀,</span> <span class="pre">c₀)</span>
+&#160; <span class="pre">else</span> <span class="pre">ZF.sing(b₀))</span>
+&#160; <span class="pre">else</span> <span class="pre">if</span> <span class="pre">c₀</span> <span class="pre">∈</span> <span class="pre">a₀</span> <span class="pre">then</span> <span class="pre">ZF.sing(c₀)</span>
+&#160; <span class="pre">else</span> <span class="pre">∅)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_upair_1&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;if&quot;, &quot;inter&quot;, &quot;upair&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-inter-upair-2"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L501"><code class="docutils literal notranslate"><span class="pre">zf.zf.inter_upair_2</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">a₀</span> <span class="pre">∩</span>
+&#160; <span class="pre">upair(b₀,</span>
+&#160;&#160;&#160; <span class="pre">c₀)</span> <span class="pre">=</span> <span class="pre">(if</span> <span class="pre">b₀</span> <span class="pre">∈</span> <span class="pre">a₀</span> <span class="pre">then</span> <span class="pre">(if</span> <span class="pre">c₀</span> <span class="pre">∈</span> <span class="pre">a₀</span> <span class="pre">then</span> <span class="pre">upair(b₀,</span> <span class="pre">c₀)</span>
+&#160; <span class="pre">else</span> <span class="pre">ZF.sing(b₀))</span>
+&#160; <span class="pre">else</span> <span class="pre">if</span> <span class="pre">c₀</span> <span class="pre">∈</span> <span class="pre">a₀</span> <span class="pre">then</span> <span class="pre">ZF.sing(c₀)</span>
+&#160; <span class="pre">else</span> <span class="pre">∅)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.inter_upair_2&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;if&quot;, &quot;inter&quot;, &quot;upair&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-is-pair-pair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L593"><code class="docutils literal notranslate"><span class="pre">zf.zf.is_pair_pair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">is_pair(pair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">true</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.is_pair_pair&quot;, [&quot;=&quot;, &quot;is_pair&quot;, &quot;pair&quot;, &quot;true&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-le-inter-2"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L466"><code class="docutils literal notranslate"><span class="pre">zf.zf.le_inter_2</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(x</span> <span class="pre">⊆</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">⊆</span> <span class="pre">a₀</span> <span class="pre">∧</span> <span class="pre">x</span> <span class="pre">⊆</span> <span class="pre">b₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.le_inter_2&quot;, [&quot;=&quot;, &quot;ZFSet.le&quot;, &quot;and&quot;, &quot;inter&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-le-union"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L323"><code class="docutils literal notranslate"><span class="pre">zf.zf.le_union</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">⊆</span> <span class="pre">a₀</span> <span class="pre">∪</span> <span class="pre">b₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.le_union&quot;, [&quot;ZFSet.le&quot;, &quot;union&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-not-emp-exists-elem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L106"><code class="docutils literal notranslate"><span class="pre">zf.zf.not_emp_exists_elem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">A</span> <span class="pre">≠</span> <span class="pre">∅</span> <span class="pre">→</span> <span class="pre">∃x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">A</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.not_emp_exists_elem&quot;, [&quot;=&gt;&quot;, &quot;distinct&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-pair-inj"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L602"><code class="docutils literal notranslate"><span class="pre">zf.zf.pair_inj</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">d₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(pair(a₀,</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">pair(c₀,</span> <span class="pre">d₀))</span> <span class="pre">=</span> <span class="pre">(a₀</span> <span class="pre">=</span> <span class="pre">c₀</span> <span class="pre">∧</span> <span class="pre">b₀</span> <span class="pre">=</span> <span class="pre">d₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.pair_inj&quot;, [&quot;=&quot;, &quot;and&quot;, &quot;pair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-pf1"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L111"><code class="docutils literal notranslate"><span class="pre">zf.zf.pf1</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∃x</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">≠</span> <span class="pre">∅</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">∈</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.pf1&quot;, [&quot;=&gt;&quot;, &quot;a!2386&quot;, &quot;distinct&quot;, &quot;\u2205&quot;, &quot;\u2208&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-pick-sing"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L201"><code class="docutils literal notranslate"><span class="pre">zf.zf.pick_sing</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">pick(ZF.sing(a₀))</span> <span class="pre">=</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.pick_sing&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;pick&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-pick-upair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L174"><code class="docutils literal notranslate"><span class="pre">zf.zf.pick_upair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">pick(upair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">a₀</span> <span class="pre">∨</span> <span class="pre">pick(upair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">b₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.pick_upair&quot;, [&quot;=&quot;, &quot;or&quot;, &quot;pick&quot;, &quot;upair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-pow-inter"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L572"><code class="docutils literal notranslate"><span class="pre">zf.zf.pow_inter</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">pow(a₀</span> <span class="pre">∩</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">pow(a₀)</span> <span class="pre">∩</span> <span class="pre">pow(b₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.pow_inter&quot;, [&quot;=&quot;, &quot;inter&quot;, &quot;pow&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-russell"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L58"><code class="docutils literal notranslate"><span class="pre">zf.zf.russell</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">¬(∀P</span> <span class="pre">:</span> <span class="pre">ZFSet</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">is_set(P))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.russell&quot;, [&quot;is_set&quot;, &quot;not&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-sep-upair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L223"><code class="docutils literal notranslate"><span class="pre">zf.zf.sep_upair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">P</span> <span class="pre">:</span> <span class="pre">ZFSet</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">sep(upair(a₀,</span> <span class="pre">b₀),</span>
+&#160;&#160;&#160; <span class="pre">P)</span> <span class="pre">=</span> <span class="pre">(if</span> <span class="pre">P[a₀]</span> <span class="pre">then</span> <span class="pre">(if</span> <span class="pre">P[b₀]</span> <span class="pre">then</span> <span class="pre">upair(a₀,</span> <span class="pre">b₀)</span>
+&#160; <span class="pre">else</span> <span class="pre">ZF.sing(a₀))</span>
+&#160; <span class="pre">else</span> <span class="pre">if</span> <span class="pre">P[b₀]</span> <span class="pre">then</span> <span class="pre">ZF.sing(b₀)</span>
+&#160; <span class="pre">else</span> <span class="pre">∅)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.sep_upair&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;if&quot;, &quot;select&quot;, &quot;sep&quot;, &quot;upair&quot;, &quot;\u2205&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-sing-not-emp"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L197"><code class="docutils literal notranslate"><span class="pre">zf.zf.sing_not_emp</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">¬(ZF.sing(a₀)</span> <span class="pre">=</span> <span class="pre">∅)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.sing_not_emp&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;not&quot;, &quot;\u2205&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-sing-union-upair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L332"><code class="docutils literal notranslate"><span class="pre">zf.zf.sing_union_upair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">ZF.sing(a₀)</span> <span class="pre">∪</span> <span class="pre">upair(a₀,</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">upair(a₀,</span> <span class="pre">b₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.sing_union_upair&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;union&quot;, &quot;upair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-snd-pair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L638"><code class="docutils literal notranslate"><span class="pre">zf.zf.snd_pair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">snd(pair(a₀,</span> <span class="pre">b₀))</span> <span class="pre">=</span> <span class="pre">b₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.snd_pair&quot;, [&quot;=&quot;, &quot;pair&quot;, &quot;snd&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-union-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L302"><code class="docutils literal notranslate"><span class="pre">zf.zf.union_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(a₀</span> <span class="pre">∪</span> <span class="pre">b₀)</span> <span class="pre">∪</span> <span class="pre">c₀</span> <span class="pre">=</span> <span class="pre">a₀</span> <span class="pre">∪</span> <span class="pre">b₀</span> <span class="pre">∪</span> <span class="pre">c₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.union_assoc&quot;, [&quot;=&quot;, &quot;union&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-union-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L263"><code class="docutils literal notranslate"><span class="pre">zf.zf.union_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">∪</span> <span class="pre">b₀</span> <span class="pre">=</span> <span class="pre">b₀</span> <span class="pre">∪</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.union_comm&quot;, [&quot;=&quot;, &quot;union&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-union-idem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L314"><code class="docutils literal notranslate"><span class="pre">zf.zf.union_idem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">a₀</span> <span class="pre">∪</span> <span class="pre">a₀</span> <span class="pre">=</span> <span class="pre">a₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.union_idem&quot;, [&quot;=&quot;, &quot;union&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-union-inter-distr"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L485"><code class="docutils literal notranslate"><span class="pre">zf.zf.union_inter_distr</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">(a₀</span> <span class="pre">∪</span> <span class="pre">b₀)</span> <span class="pre">∩</span> <span class="pre">c₀</span> <span class="pre">=</span> <span class="pre">a₀</span> <span class="pre">∩</span> <span class="pre">c₀</span> <span class="pre">∪</span> <span class="pre">b₀</span> <span class="pre">∩</span> <span class="pre">c₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.union_inter_distr&quot;, [&quot;=&quot;, &quot;inter&quot;, &quot;union&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-upair-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L137"><code class="docutils literal notranslate"><span class="pre">zf.zf.upair_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">upair(a₀,</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">upair(b₀,</span> <span class="pre">a₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.upair_comm&quot;, [&quot;=&quot;, &quot;upair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-upair-inj"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L160"><code class="docutils literal notranslate"><span class="pre">zf.zf.upair_inj</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">c₀</span> <span class="pre">d₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">(upair(a₀,</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">upair(c₀,</span> <span class="pre">d₀))</span> <span class="pre">=</span> <span class="pre">(a₀</span> <span class="pre">=</span> <span class="pre">c₀</span> <span class="pre">∧</span> <span class="pre">b₀</span> <span class="pre">=</span> <span class="pre">d₀</span> <span class="pre">∨</span>
+&#160; <span class="pre">a₀</span> <span class="pre">=</span> <span class="pre">d₀</span> <span class="pre">∧</span> <span class="pre">b₀</span> <span class="pre">=</span> <span class="pre">c₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.upair_inj&quot;, [&quot;=&quot;, &quot;and&quot;, &quot;or&quot;, &quot;upair&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-zf-zf-upair-not-emp"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L127"><code class="docutils literal notranslate"><span class="pre">zf.zf.upair_not_emp</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span> <span class="pre">¬(upair(a₀,</span> <span class="pre">b₀)</span> <span class="pre">=</span> <span class="pre">∅)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.upair_not_emp&quot;, [&quot;=&quot;, &quot;not&quot;, &quot;upair&quot;, &quot;\u2205&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-zf-zf-upair-sub-sing"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/zf/zf.py#L554"><code class="docutils literal notranslate"><span class="pre">zf.zf.upair_sub_sing</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a₀</span> <span class="pre">b₀</span> <span class="pre">:</span> <span class="pre">ZFSet,</span>
+&#160; <span class="pre">upair(a₀,</span> <span class="pre">b₀)</span> <span class="pre">∖</span> <span class="pre">ZF.sing(a₀)</span> <span class="pre">=</span> <span class="pre">(if</span> <span class="pre">a₀</span> <span class="pre">=</span> <span class="pre">b₀</span> <span class="pre">then</span> <span class="pre">∅</span>
+&#160; <span class="pre">else</span> <span class="pre">ZF.sing(b₀))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.zf.zf.upair_sub_sing&quot;, [&quot;=&quot;, &quot;ZF.sing&quot;, &quot;ZFSet.sub&quot;, &quot;if&quot;, &quot;upair&quot;, &quot;\u2205&quot;]]"></span></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.zf.prod_lemmas.html" class="btn btn-neutral float-left" title="kdrag.theories.zf.prod_lemmas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.zf.zf.FinSet.html" class="btn btn-neutral float-right" title="kdrag.theories.zf.zf.FinSet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

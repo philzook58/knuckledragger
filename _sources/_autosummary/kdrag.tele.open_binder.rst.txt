@@ -1,0 +1,6 @@
+kdrag.tele.open\_binder
+=======================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: open_binder

@@ -1,0 +1,6 @@
+kdrag.tactics.Theorem
+=====================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: Theorem
