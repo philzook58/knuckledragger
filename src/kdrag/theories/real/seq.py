@@ -618,6 +618,67 @@ has_lim = define(
     ),
 )
 
+# Eventually: a predicate on indices holds for every index past some cutoff.
+P, Q, R_ = smt.Consts("P Q R", smt.ArraySort(IntSort(), BoolSort()))
+eventually = define("eventually", [P], Exists([N], N >= 0, ForAll([n], n > N, P[n])))
+
+
+def near(a: smt.ExprRef, y: smt.ExprRef, eps: smt.ExprRef) -> smt.QuantifierRef:
+    """The index predicate `|a[n] - y| < eps`."""
+    return Lambda([n], real.abs(a[n] - y) < eps)
+
+
+@Theorem(
+    ForAll(
+        [a, y],
+        smt.Eq(has_lim(a, y), ForAll([eps], eps > 0, eventually(near(a, y, eps)))),
+    )
+)
+def has_lim_iff(l):
+    l.fixes()
+    l.unfold(has_lim)
+    l.unfold(eventually)
+    l.beta()
+    l.auto()
+
+
+@Theorem(ForAll([a, y, eps], has_lim(a, y), eps > 0, eventually(near(a, y, eps))))
+def eventually_near(l):
+    a, y, eps = l.fixes()
+    l.auto(by=[has_lim_iff(a, y)])
+
+
+@Theorem(ForAll([P, Q], eventually(P), ForAll([n], n >= 0, P[n], Q[n]), eventually(Q)))
+def eventually_mono(l):
+    l.fixes()
+    l.unfold(eventually)
+    hp = l.intros()
+    l.intros()
+    N1 = l.obtain(hp)
+    l.exists(N1)
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [P, Q, R_],
+        eventually(P),
+        eventually(Q),
+        ForAll([n], n >= 0, P[n], Q[n], R_[n]),
+        eventually(R_),
+    )
+)
+def eventually_mono2(l):
+    l.fixes()
+    l.unfold(eventually)
+    hp, hq = l.intros(), l.intros()
+    l.intros()
+    N1 = l.obtain(hp)
+    N2 = l.obtain(hq)
+    l.exists(If(N1 > N2, N1, N2))
+    l.auto()
+
+
 # convergent
 is_conv = define("is_conv", [a], Exists([y], has_lim(a, y)))
 
