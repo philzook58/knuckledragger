@@ -101,11 +101,13 @@ def has_lim_smul(l):
     l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
     # Pointwise: |c a[m] - c x| = |c| |a[m] - x| < eps.
     l.have(ForAll([n], abs(a[n] - x) < eta, abs(smul(c, a)[n] - c * x) < eps))
+    l.unfold(smul)
+    l.beta()
     m = l.fix()
     l.intros()
     l.have(abs(c) * eta < eps, by=[abs_pos(c)])
-    l.have(c * a[m] - c * x == c * (a[m] - x), by=[])
-    l.auto(by=[smul.defn(c, a), abs_mul(c, a[m] - x), abs_pos(c)])
+    l.have(abs(c * a[m] - c * x) == abs(c) * abs(a[m] - x), by=[abs_mul(c, a[m] - x)])
+    l.auto(by=[abs_pos(c)])
     l.auto(by=[eventually_mono(near(a, x, eta), near(smul(c, a), c * x, eps))])
 
 
@@ -261,7 +263,7 @@ def has_lim_squeeze(l):
     l.auto(by=[eventually_mono(trapped, near(b, x, eps))])
 
 
-da, db, X, Y, eta, eps = Reals("da db X Y eta eps")
+da, db, X, Y, B, eta, eps = Reals("da db X Y B eta eps")
 
 
 @Theorem(
@@ -360,6 +362,22 @@ def div_decomp(l):
 
 
 @Theorem(
+    ForAll(
+        [da, db, X, Y, B, eps],
+        And(0 <= da, 0 <= db, 0 <= X, 0 < Y, Y / 2 < B),
+        da < eps * Y / 4,
+        db < eps * Y * Y / (4 * (X + 1)),
+        da / B + X * (db / (B * Y)) < eps,
+    )
+)
+def div_error_lt(l):
+    """Errors da, db with |b| = B > Y/2 keep the quotient error below eps."""
+    l.fixes()
+    l.intros(), l.intros(), l.intros()
+    l.auto()
+
+
+@Theorem(
     ForAll([a, b, x, y], has_lim(a, x), has_lim(b, y), y != 0, has_lim(a / b, x / y))
 )
 def has_lim_div(l):
@@ -395,7 +413,7 @@ def has_lim_div(l):
 
     am, bm = a[m], b[m]
     da, db, B = abs(am - x), abs(bm - y), abs(bm)
-    l.have(And(db < Y / 2, db * (4 * (X + 1)) < eps * Y * Y), by=[min.defn, abs_pos(x)])
+    l.have(And(db < Y / 2, db < eps * Y * Y / (4 * (X + 1))), by=[min.defn])
     l.have(abs(y - bm) == db, by=[abs_neg(bm - y)])
     l.have(Y <= db + B, by=[abs_triangle(y, RealVal(0), bm)])
     l.have(B > Y / 2, by=[])
@@ -404,12 +422,20 @@ def has_lim_div(l):
     t2 = x * ((y - bm) / (bm * y))
     decomp = l.have(am / bm - x / y == t1 + t2, by=[div_decomp(am, bm, x, y)])
     l.have(abs(t1) == da / B, by=[abs_div(am - x, bm)])
+    q = (y - bm) / (bm * y)
+    l.have(abs(bm * y) == B * Y, by=[abs_mul(bm, y)])
+    l.have(abs(q) == db / (B * Y), by=[abs_div(y - bm, bm * y)])
+    l.have(abs(t2) == X * (db / (B * Y)), by=[abs_mul(x, q)])
+    # The nonlinear error budget, proved once in div_error_lt.
     l.have(
-        abs(t2) == X * (db / (B * Y)),
-        by=[abs_mul(x, (y - bm) / (bm * y)), abs_div(y - bm, bm * y), abs_mul(bm, y)],
+        da / B + X * (db / (B * Y)) < eps,
+        by=[
+            div_error_lt(da, db, X, Y, B, eps),
+            abs_pos(am - x),
+            abs_pos(bm - y),
+            abs_pos(x),
+        ],
     )
-    l.have(da / B < eps / 2, by=[])
-    l.have(X * (db / (B * Y)) < eps / 2, by=[abs_pos(x), abs_pos(bm - y)])
     bound = l.have(abs(t1 + t2) < eps, by=[abs_add(t1, t2)])
     # Discharge congruence with just the equality and the scalar bound.
     result = abs(am / bm - x / y) < eps
