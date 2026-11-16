@@ -1,10 +1,15 @@
 """Algebra of real sequence limits."""
 
+from typing import Optional
+
 from kdrag import FreshVar, Proof, Theorem, prove
+from kdrag.utils import alpha_eq, occurs
+import kdrag.smt as smt
 from kdrag.smt import (
     And,
     BoolRef,
     Consts,
+    Eq,
     ExprRef,
     ForAll,
     If,
@@ -14,8 +19,15 @@ from kdrag.smt import (
     RealSort,
     RealVal,
     Reals,
+    is_add,
     is_app,
+    is_div,
     is_implies,
+    is_mul,
+    is_neg,
+    is_power,
+    is_select,
+    is_sub,
 )
 from kdrag.theories.real import (
     RSeq,
@@ -41,6 +53,7 @@ from kdrag.theories.real.seq import (
     has_lim,
     has_lim_const,
     has_lim_iff,
+    has_lim_inv,
     mul,
     near,
     neg,
@@ -416,21 +429,80 @@ lim_rules = {
     const: has_lim_const,
 }
 
+# Known limits `has_lim(seq, value)` of particular sequences, used for atoms.
+lim_facts = [has_lim_inv]
 
-def lim_lemma(e: ExprRef) -> Proof:
+# z3 arithmetic on reals, as binary sequence operations folded over arguments.
+_arith_ops = [(is_add, add), (is_sub, sub), (is_mul, mul), (is_div, div)]
+
+
+def _known_lim(t: ExprRef) -> Optional[Proof]:
+    return next((f for f in lim_facts if alpha_eq(f.thm.arg(0), t)), None)
+
+
+def _nat_exponent(p: ExprRef) -> Optional[int]:
+    if isinstance(p, smt.IntNumRef):
+        k = p.as_long()
+    elif isinstance(p, smt.RatNumRef) and p.denominator_as_long() == 1:
+        k = p.numerator_as_long()
+    else:
+        return None
+    return k if k >= 1 else None
+
+
+def _to_seq(e: ExprRef, n: ExprRef) -> ExprRef:
+    """A sequence term equal to Lambda(n, e), built from the sequence operations."""
+    if not occurs(n, e):
+        return const(e)
+    if _known_lim(Lambda([n], e)) is not None:
+        return Lambda([n], e)
+    if is_select(e) and e.arg(1).eq(n) and not occurs(n, e.arg(0)):
+        return e.arg(0)  # a[n] is the sequence a
+    cs = e.children()
+    for is_op, op in _arith_ops:
+        if is_op(e):
+            acc = _to_seq(cs[0], n)
+            for c in cs[1:]:
+                acc = op(acc, _to_seq(c, n))
+            return acc
+    if is_neg(e):
+        return neg(_to_seq(cs[0], n))
+    if is_power(e) and (p := _nat_exponent(cs[1])) is not None:
+        base = _to_seq(cs[0], n)
+        acc = base
+        for _ in range(p - 1):
+            acc = mul(acc, base)
+        return acc
+    return Lambda([n], e)  # Anything else is an atom.
+
+
+def lim_lemma(e: ExprRef, n: Optional[ExprRef] = None) -> Proof:
     """
     Prove the limit of a sequence expression from limits of its atoms.
 
-    Recurse through the sequence operations in `lim_rules`. Every other
-    subterm is an atom, assumed to converge to a fresh limit. Side conditions
-    of the rules, such as a nonzero denominator limit, become premises.
+    Recurse through the sequence operations in `lim_rules`. Atoms with a
+    limit in `lim_facts` use it. Every other atom is assumed to converge to a
+    fresh limit, in order of first occurrence. Side conditions of the rules,
+    such as a nonzero denominator limit, become premises.
+
+    With an index `n`, `e` is a real term in `n` and the result is about
+    `Lambda(n, e)`.
 
     >>> a, b = Consts("a b", RSeq)
     >>> lim_lemma(a * b + smul(2, a))
     |= ForAll([L!..., L!...],
            Implies(And(has_lim(a, L!...), has_lim(b, L!...)),
                    has_lim(... L!...*L!... + 2*L!...)))
+    >>> lim_lemma(2 * a[n] + RealVal(1) / n, n)
+    |= ForAll(L!...,
+           Implies(has_lim(a, L!...),
+                   has_lim(Lambda(n, 2*a[n] + 1/ToReal(n)), 2*L!... + 0)))
     """
+    target, eqs = e, []
+    if n is not None:
+        target, e = Lambda([n], e), _to_seq(e, n)
+        defns = [f.defn for f in (add, const, div, mul, neg, sub)]
+        eqs = [prove(Eq(target, e), by=defns)]
     leaves: dict[ExprRef, ExprRef] = {}
     lemmas: list[Proof] = []
     hyps: list[BoolRef] = []
@@ -438,6 +510,10 @@ def lim_lemma(e: ExprRef) -> Proof:
     def worker(t: ExprRef) -> ExprRef:
         rule = lim_rules.get(t.decl()) if is_app(t) else None
         if rule is None:
+            known = _known_lim(t)
+            if known is not None:
+                lemmas.append(known)
+                return known.thm.arg(1)
             # An atom: assume it converges, once per distinct atom.
             if not any(t.eq(u) for u in leaves):
                 leaves[t] = FreshVar("L", RealSort())
@@ -455,6 +531,9 @@ def lim_lemma(e: ExprRef) -> Proof:
 
     lim_e = worker(e)
     prems = [has_lim(t, y) for t, y in leaves.items()] + hyps
+    concl = has_lim(target, lim_e)
+    if prems:
+        concl = Implies(prems[0] if len(prems) == 1 else And(prems), concl)
     # Chaining the instantiated lemmas is propositional.
-    pf = prove(Implies(And(prems), has_lim(e, lim_e)), by=lemmas)
+    pf = prove(concl, by=lemmas + eqs)
     return pf.forall(list(leaves.values()))

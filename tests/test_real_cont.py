@@ -66,3 +66,22 @@ def test_lim_lemma_composes_limit_rules():
     # Side conditions of the rules become premises.
     quot = lim_lemma(a / (c + seq.const(1)))
     assert "!= 0" in str(quot.thm)
+
+
+def test_lim_lemma_on_real_terms_in_index():
+    import kdrag.theories.real.seq as seq
+    from kdrag.theories.real.lim_algebra import lim_lemma
+
+    a = smt.Const("lim_a", real.RSeq)
+    n = smt.Int("lim_n")
+    e = 1 + 2 * a[n] / (1 + 3 * a[n] - 4 * a[n] ** 2)
+    pf = lim_lemma(e, n)(smt.RealVal(0))
+    kd.prove(
+        smt.Implies(seq.has_lim(a, 0), seq.has_lim(smt.Lambda([n], e), 1)), by=[pf]
+    )
+    # 1/n has a known limit, so only a needs a premise.
+    inv = lim_lemma(a[n] + smt.RealVal(1) / n, n)
+    assert inv.thm.num_vars() == 1
+    # Unrecognized terms in n, such as a shifted sequence, are atoms.
+    shifted = lim_lemma(a[n + 1] - a[n], n)
+    assert "Lambda" in str(shifted.thm.body().arg(0))
