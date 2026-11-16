@@ -14,7 +14,7 @@ from kdrag.theories.real import (
     abs_triangle,
     min,
 )
-from kdrag.theories.real.seq import add, div, has_lim, mul, smul
+from kdrag.theories.real.seq import add, div, has_lim, mul, neg, smul, sub
 
 
 a, b = Consts("a b", RSeq)
@@ -110,6 +110,50 @@ def has_lim_add(l):
         by=[abs_add(a[m] - x, b[m] - y)],
     )
     l.auto(by=[add.defn(a, b)])
+
+
+sub_add_neg = prove(ForAll([a, b], a - b == a + -b), by=[sub.defn, add.defn, neg.defn])
+
+
+@Theorem(ForAll([a, x], has_lim(a, x), has_lim(-a, -x)))
+def has_lim_neg(l):
+    l.fixes()
+    l.unfold(has_lim)
+    l.unfold(neg)
+    l.intros()
+    l.auto(by=[abs.defn])
+
+
+@Theorem(
+    ForAll(
+        [a, b, x, y],
+        has_lim(a, x),
+        has_lim(b, y),
+        has_lim(a - b, x - y),
+    ),
+)
+def has_lim_sub(l):
+    a, b, x, y = l.fixes()
+    l.rw(sub_add_neg)
+    l.auto(by=[has_lim_add(a, -b, x, -y), has_lim_neg(b, y)])
+
+
+@Theorem(
+    ForAll(
+        [a, b, x, y],
+        has_lim(a, x),
+        has_lim(b, y),
+        ForAll(n, n >= 0, a[n] >= b[n]),
+        x >= y,
+    ),
+)
+def lim_le(l):
+    """Limits preserve non-strict inequalities between sequences."""
+    a, b, x, y = l.fixes()
+    l.intros(), l.intros(), l.intros()
+    l.have(ForAll(n, n >= 0, (a - b)[n] >= 0), by=[sub.defn(a, b)])
+    l.have(has_lim(a - b, x - y), by=[has_lim_sub(a, b, x, y)])
+    l.auto(by=[lim_of_nonneg_seq(a - b, x - y)])
 
 
 @Theorem(
