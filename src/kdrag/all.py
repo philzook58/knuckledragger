@@ -22,15 +22,3 @@ import kdrag.theories.seq as seq_
 import kdrag.printers.latex as latex
 
 config.strict_define = False
-
-
-try:
-    # get_ipython()
-    from IPython.display import display, Math
-
-    def pprint(x):
-        return Math(latex.to_latex(x))
-except NameError:
-
-    def pprint(x):
-        return x
