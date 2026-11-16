@@ -112,7 +112,9 @@ def has_lim_add(l):
     l.auto(by=[add.defn(a, b)])
 
 
-sub_add_neg = prove(ForAll([a, b], a - b == a + -b), by=[sub.defn, add.defn, neg.defn])
+sub_eq_add_neg = prove(
+    ForAll([a, b], a - b == a + -b), by=[sub.defn, add.defn, neg.defn]
+)
 
 
 @Theorem(ForAll([a, x], has_lim(a, x), has_lim(-a, -x)))
@@ -134,7 +136,7 @@ def has_lim_neg(l):
 )
 def has_lim_sub(l):
     a, b, x, y = l.fixes()
-    l.rw(sub_add_neg)
+    l.rw(sub_eq_add_neg)
     l.auto(by=[has_lim_add(a, -b, x, -y), has_lim_neg(b, y)])
 
 
@@ -144,10 +146,10 @@ def has_lim_sub(l):
         has_lim(a, x),
         has_lim(b, y),
         ForAll(n, n >= 0, a[n] >= b[n]),
-        x >= y,
+        y <= x,
     ),
 )
-def lim_le(l):
+def le_of_has_lim_of_has_lim(l):
     """Limits preserve non-strict inequalities between sequences."""
     a, b, x, y = l.fixes()
     l.intros(), l.intros(), l.intros()
