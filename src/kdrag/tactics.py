@@ -9,7 +9,7 @@ import kdrag.rewrite
 import kdrag.solvers as solvers
 from enum import IntEnum
 import operator as op
-from typing import NamedTuple, Optional, Sequence, Callable, Any, Iterator, cast
+from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
 from functools import cache
 import traceback
@@ -375,95 +375,6 @@ def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
             if kd.utils.alpha_eq(result.thm, thm):
                 return result
     raise ValueError("Exact theorem mismatch. Expected:", thm, "Given:", pf.thm)
-
-
-def _beta_normal(e: smt.ExprRef) -> smt.ExprRef:
-    """Beta reduce to a fixed point."""
-    while True:
-        e1 = kd.rewrite.beta(e)
-        if e1.eq(e):
-            return e
-        e = e1
-
-
-def _match(
-    vs: list[smt.ExprRef],
-    pat: smt.ExprRef,
-    t: smt.ExprRef,
-    subst: Optional[dict[smt.ExprRef, smt.ExprRef]] = None,
-) -> Optional[dict[smt.ExprRef, smt.ExprRef]]:
-    """Prefer first-order matches: higher-order ones may abstract too much."""
-    s = kd.utils.pmatch_fo(vs, pat, t, None if subst is None else dict(subst))
-    return s if s is not None else kd.utils.pmatch(vs, pat, t, subst)
-
-
-def _premise_substs(
-    vs: list[smt.ExprRef],
-    hyps: list[smt.BoolRef],
-    ctx: list[smt.BoolRef],
-    subst: dict[smt.ExprRef, smt.ExprRef],
-) -> Iterator[dict[smt.ExprRef, smt.ExprRef]]:
-    """Yield substitutions for `vs`, matching premises against the context."""
-    todo = [v for v in vs if v not in subst]
-    if not todo:
-        yield subst
-        return
-    if not hyps:
-        return
-    h, rest = hyps[0], hyps[1:]
-    if not kd.utils.free_in(todo, h):
-        for c in ctx:
-            s = _match(vs, h, c, dict(subst))
-            if s is not None:
-                yield from _premise_substs(vs, rest, ctx, s)
-    yield from _premise_substs(vs, rest, ctx, subst)
-
-
-def _exact_from_context(goalctx: "Goal", pf: kd.kernel.Proof) -> kd.kernel.Proof:
-    """Prove `goalctx` from `pf` by discharging its premises from the context.
-
-    Peel premises off `pf` until its conclusion matches the goal. Universal
-    arguments are inferred from the goal, then by matching premises against
-    the context. Every premise must appear in the context up to bound names
-    and beta reduction.
-    """
-    goal, ctx = goalctx.goal, goalctx.ctx
-    normal_ctx = [_beta_normal(c) for c in ctx]
-
-    def in_ctx(h: smt.ExprRef) -> bool:
-        h = _beta_normal(h)
-        return any(kd.utils.alpha_eq(h, c) for c in normal_ctx)
-
-    vs = []
-    body = pf.thm
-    while isinstance(body, smt.QuantifierRef) and body.is_forall():
-        binders, body = kd.utils.open_binder(body)
-        vs.extend(binders)
-    hyps: list[smt.BoolRef] = []
-    missing = None
-    while True:
-        subst = _match(vs, body, goal)
-        if subst is not None:
-            for s in _premise_substs(vs, hyps, ctx, subst):
-                inst = pf(*(s[v] for v in vs))
-                thm = inst.thm
-                for _ in hyps:
-                    if not in_ctx(thm.arg(0)):
-                        missing = thm.arg(0)
-                        break
-                    thm = thm.arg(1)
-                else:
-                    # pmatch may bind eta-expanded lambdas, so compare beta normal forms.
-                    if kd.utils.alpha_eq(_beta_normal(thm), _beta_normal(goal)):
-                        # Propositional: each premise is literally in the context.
-                        return kd.kernel.prove(goalctx.to_expr(), by=[inst])
-        if not smt.is_implies(body):
-            break
-        hyps.append(body.arg(0))
-        body = body.arg(1)
-    if missing is not None:
-        raise ValueError("Exact premise not in context:", missing, "Context:", ctx)
-    raise ValueError("Exact theorem mismatch. Expected:", goal, "Given:", pf.thm)
 
 
 def vprove(thm: smt.BoolRef, **kwargs) -> kd.kernel.Proof:
@@ -2097,10 +2008,12 @@ class ProofState:
 
     def exact(self, pf: kd.kernel.Proof):
         """
-        Close the goal with `pf`, inferring universal arguments.
+        Close the goal with `pf`, discharging its premises from the context.
 
-        `pf` may prove the goal together with its whole context, or prove the
-        goal from premises that each appear in the context.
+        `pf` must match the goal after peeling off premises that are
+        hypotheses in the context. Instantiate universals with `pf(...)`,
+        except when `pf` matches the goal together with its whole context, in
+        which case the arguments are inferred.
 
         >>> p = smt.Bool("p")
         >>> l = Lemma(smt.Implies(p, p))
@@ -2114,15 +2027,27 @@ class ProofState:
         >>> succ_pos = kd.prove(smt.ForAll([x], x > 0, x + 1 > 0))
         >>> l = Lemma(smt.Implies(y == 3, smt.Implies(y > 0, y + 1 > 0)))
         >>> _ = l.intros(), l.intros()
-        >>> l.exact(succ_pos)
+        >>> l.exact(succ_pos(y))
         Nothing to do!
         """
         goalctx = self.top_goal()
         try:
-            pf = exact(goalctx.to_expr(), pf)
+            pf1 = exact(goalctx.to_expr(), pf)
         except ValueError:
-            pf = _exact_from_context(goalctx, pf)
-        self.add_lemma(pf)
+            # Peel off premises that are hypotheses in the context.
+            goal, ctx, thm = goalctx.goal, goalctx.ctx, pf.thm
+            while not kd.utils.alpha_eq(thm, goal):
+                if not smt.is_implies(thm):
+                    msg = "Exact theorem mismatch. Expected:"
+                    raise ValueError(msg, goal, "Given:", pf.thm)
+                if not any(kd.utils.alpha_eq(thm.arg(0), h) for h in ctx):
+                    msg = "Exact premise not in context:"
+                    raise ValueError(msg, thm.arg(0), "Context:", ctx)
+                thm = thm.arg(1)
+            # The context hypotheses are not Proofs, so combine them with one
+            # propositional solver call.
+            pf1 = kd.kernel.prove(goalctx.to_expr(), by=[pf])
+        self.add_lemma(pf1)
         self.pop_goal()
         return self.top_goal()
 

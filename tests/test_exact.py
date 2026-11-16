@@ -98,7 +98,7 @@ def test_exact_tactic_discharges_premises_from_context():
     target = smt.Implies(y == 3, smt.Implies(y > 0, y + 1 > 0))
     l = kd.Lemma(target)
     l.intros(), l.intros()
-    assert l.exact(pf).is_empty()
+    assert l.exact(pf(y)).is_empty()
     assert l.qed().thm.eq(target)
 
 
@@ -108,16 +108,7 @@ def test_exact_tactic_weakens_by_unused_context():
     pf = kd.prove(smt.ForAll([x], x + 0 == x))
     l = kd.Lemma(smt.Implies(p, smt.IntVal(2) + 0 == 2))
     l.intros()
-    assert l.exact(pf).is_empty()
-
-
-def test_exact_tactic_infers_premise_only_arguments_from_context():
-    x, y, z = smt.Ints("exact_ctx_x exact_ctx_y exact_ctx_z")
-    a, b = smt.Ints("exact_ctx_a exact_ctx_b")
-    lt_trans = kd.prove(smt.ForAll([x, y, z], x < y, y < z, x < z))
-    l = kd.Lemma(smt.Implies(a < b, smt.Implies(b < 10, a < 10)))
-    l.intros(), l.intros()
-    assert l.exact(lt_trans).is_empty()
+    assert l.exact(pf(2)).is_empty()
 
 
 def test_exact_tactic_reports_missing_premise():
@@ -125,21 +116,7 @@ def test_exact_tactic_reports_missing_premise():
     pf = kd.prove(smt.ForAll([x], x > 0, x + 1 > 0))
     l = kd.Lemma(smt.Implies(y == 3, y + 1 > 0))
     l.intros()
+    before = l.top_goal()
     with pytest.raises(ValueError, match="premise not in context"):
-        l.exact(pf)
-
-
-def test_exact_tactic_backtracks_and_matches_up_to_beta():
-    x = smt.Int("exact_ctx_x")
-    IntPred = smt.ArraySort(smt.IntSort(), smt.BoolSort())
-    P, Q = smt.Consts("exact_ctx_P exact_ctx_Q", IntPred)
-    # P only occurs in premises, so it is found by matching the context.
-    mono = kd.prove(smt.ForAll([P, Q], P[0], smt.ForAll([x], P[x], Q[x]), Q[0]))
-    big, pos, nonneg = (smt.Lambda([x], e) for e in (x > 5, x > 0, x >= 0))
-    pointwise = smt.ForAll([x], x > 0, x >= 0)
-    l = kd.Lemma(
-        smt.Implies(big[0], smt.Implies(pos[0], smt.Implies(pointwise, nonneg[0])))
-    )
-    l.intros(), l.intros(), l.intros()
-    # P := big matches first but its pointwise premise is missing; P := pos works.
-    assert l.exact(mono).is_empty()
+        l.exact(pf(y))
+    assert l.top_goal() == before
