@@ -1,7 +1,7 @@
 """Algebra of real sequence limits."""
 
 from kdrag import Theorem, prove
-from kdrag.smt import And, Consts, ForAll, Implies, Int, RealVal, Reals
+from kdrag.smt import And, Consts, ForAll, If, Implies, Int, RealVal, Reals
 from kdrag.theories.real import (
     RSeq,
     abs,
@@ -47,7 +47,7 @@ def lim_of_nonneg_seq(l):
     l.contra()
     positive = l.have(-y > 0, by=[])
     cutoff = l.obtain(l.specialize(0, -y, positive))
-    m = cutoff + 1
+    m = If(cutoff > 0, cutoff, 0) + 1
     l.specialize(nonneg, m)
     l.auto(by=[abs.defn(a[m] - y)])
 
