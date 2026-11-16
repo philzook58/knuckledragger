@@ -128,7 +128,6 @@ def has_lim_neg(l):
     l.fixes()
     l.unfold(has_lim)
     l.unfold(neg)
-    l.intros()
     l.auto(by=[abs_neg])
 
 
@@ -158,19 +157,18 @@ def has_lim_sub(l):
 def le_of_has_lim_of_has_lim(l):
     """Limits preserve non-strict inequalities between sequences."""
     a, b, x, y = l.fixes()
-    l.intros()
-    l.intros()
-    l.intros()
-    l.have(ForAll(n, n >= 0, (b - a)[n] >= 0), by=[sub.defn(b, a)])
-    l.have(has_lim(b - a, y - x), by=[has_lim_sub(b, a, y, x)])
-    l.auto(by=[lim_of_nonneg_seq(b - a, y - x)])
+    l.auto(
+        by=[
+            sub.defn(b, a),
+            has_lim_sub(b, a, y, x),
+            lim_of_nonneg_seq(b - a, y - x),
+        ]
+    )
 
 
 @Theorem(ForAll([a, x, c], has_lim(a, x), ForAll(n, n >= 0, a[n] <= c), x <= c))
 def le_of_has_lim(l):
     a, x, c = l.fixes()
-    l.intros()
-    l.intros()
     l.auto(
         by=[
             le_of_has_lim_of_has_lim(a, const(c), x, c),
@@ -183,8 +181,6 @@ def le_of_has_lim(l):
 @Theorem(ForAll([a, x, c], has_lim(a, x), ForAll(n, n >= 0, c <= a[n]), c <= x))
 def ge_of_has_lim(l):
     a, x, c = l.fixes()
-    l.intros()
-    l.intros()
     l.auto(
         by=[
             le_of_has_lim_of_has_lim(const(c), a, c, x),
