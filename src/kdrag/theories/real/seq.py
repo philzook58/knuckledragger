@@ -625,7 +625,7 @@ P, Q = smt.Consts("P Q", smt.ArraySort(IntSort(), BoolSort()))
 eventually = define("eventually", [P], Exists([N], ForAll([n], n > N, P[n])))
 
 
-def near(a: smt.ExprRef, y: smt.ExprRef, eps: smt.ExprRef) -> smt.QuantifierRef:
+def near(a: smt.ArrayRef, y: smt.ExprRef, eps: smt.ExprRef) -> smt.QuantifierRef:
     """The index predicate `|a[n] - y| < eps`."""
     return Lambda([n], real.abs(a[n] - y) < eps)
 
