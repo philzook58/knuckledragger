@@ -18,6 +18,7 @@ from kdrag.theories.real.seq import (
     add,
     const,
     div,
+    eventually,
     eventually_mono,
     eventually_mono2,
     eventually_near,
@@ -68,17 +69,15 @@ def has_lim_smul(l):
     # A positive denominator handles zero and nonzero scalars uniformly.
     eta = eps / (abs(c) + 1)
     l.have(eta > 0, by=[abs_pos(c)])
-    l.apply(eventually_mono(near(a, x, eta), near(smul(c, a), c * x, eps)))
-    l.split()
-    l.auto(by=[eventually_near(a, x, eta)])
+    l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
     # Pointwise: |c a[m] - c x| = |c| |a[m] - x| < eps.
-    l.beta()
+    l.have(ForAll([n], n >= 0, abs(a[n] - x) < eta, abs(smul(c, a)[n] - c * x) < eps))
     m = l.fix()
-    l.intros()
-    l.intros()
+    l.intros(), l.intros()
     l.have(abs(c) * eta < eps, by=[abs_pos(c)])
     l.have(c * a[m] - c * x == c * (a[m] - x), by=[])
     l.auto(by=[smul.defn(c, a), abs_mul(c, a[m] - x), abs_pos(c)])
+    l.auto(by=[eventually_mono(near(a, x, eta), near(smul(c, a), c * x, eps))])
 
 
 @Theorem(
@@ -97,15 +96,22 @@ def has_lim_add(l):
     l.intros()
     # Each sequence contributes half the error budget.
     e = eps / 2
-    l.apply(eventually_mono2(near(a, x, e), near(b, y, e), near(a + b, x + y, eps)))
-    l.split()
-    l.auto(by=[eventually_near(a, x, e)])
-    l.auto(by=[eventually_near(b, y, e)])
-    # Pointwise: triangle inequality.
-    l.beta()
+    l.have(eventually(near(a, x, e)), by=[eventually_near(a, x, e)])
+    l.have(eventually(near(b, y, e)), by=[eventually_near(b, y, e)])
+    # Pointwise: the triangle inequality.
+    l.have(
+        ForAll(
+            [n],
+            n >= 0,
+            abs(a[n] - x) < e,
+            abs(b[n] - y) < e,
+            abs((a + b)[n] - (x + y)) < eps,
+        )
+    )
     m = l.fix()
     l.intros(), l.intros(), l.intros()
     l.auto(by=[add.defn(a, b), abs_add(a[m] - x, b[m] - y)])
+    l.auto(by=[eventually_mono2(near(a, x, e), near(b, y, e), near(a + b, x + y, eps))])
 
 
 @Theorem(ForAll([a, x], has_lim(a, x), has_lim(-a, -x)))
@@ -115,15 +121,15 @@ def has_lim_neg(l):
     l.rw(has_lim_iff)
     eps = l.fix()
     l.intros()
-    l.apply(eventually_mono(near(a, x, eps), near(-a, -x, eps)))
-    l.split()
-    l.auto(by=[eventually_near(a, x, eps)])
+    l.have(eventually(near(a, x, eps)), by=[eventually_near(a, x, eps)])
     # Pointwise: |-a[m] - -x| = |a[m] - x|.
+    l.have(ForAll([n], n >= 0, abs(a[n] - x) < eps, abs((-a)[n] - -x) < eps))
     l.unfold(neg)
     l.beta()
     m = l.fix()
     l.intros(), l.intros()
     l.auto(by=[abs_neg(a[m] - x)])
+    l.auto(by=[eventually_mono(near(a, x, eps), near(-a, -x, eps))])
 
 
 @Theorem(
@@ -202,16 +208,23 @@ def has_lim_squeeze(l):
     l.rw(has_lim_iff)
     eps = l.fix()
     l.intros()
-    l.apply(eventually_mono2(near(a, x, eps), near(d, x, eps), near(b, x, eps)))
-    l.split()
-    l.auto(by=[eventually_near(a, x, eps)])
-    l.auto(by=[eventually_near(d, x, eps)])
+    l.have(eventually(near(a, x, eps)), by=[eventually_near(a, x, eps)])
+    l.have(eventually(near(d, x, eps)), by=[eventually_near(d, x, eps)])
     # Pointwise: b[m] lies between a[m] and d[m], both within eps of x.
-    l.beta()
+    l.have(
+        ForAll(
+            [n],
+            n >= 0,
+            abs(a[n] - x) < eps,
+            abs(d[n] - x) < eps,
+            abs(b[n] - x) < eps,
+        )
+    )
     m = l.fix()
     l.intros(), l.intros(), l.intros()
     l.specialize(between, m)
     l.auto(by=[abs.defn(a[m] - x), abs.defn(d[m] - x), abs.defn(b[m] - x)])
+    l.auto(by=[eventually_mono2(near(a, x, eps), near(d, x, eps), near(b, x, eps))])
 
 
 @Theorem(
@@ -231,12 +244,18 @@ def has_lim_mul(l):
     # Keep both errors below one and small enough for the product estimate.
     eta = min(1, eps / (2 * (abs(x) + abs(y) + 1)))
     l.have(eta > 0, by=[abs_pos(x), abs_pos(y), min.defn])
-    l.apply(eventually_mono2(near(a, x, eta), near(b, y, eta), near(a * b, x * y, eps)))
-    l.split()
-    l.auto(by=[eventually_near(a, x, eta)])
-    l.auto(by=[eventually_near(b, y, eta)])
+    l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
+    l.have(eventually(near(b, y, eta)), by=[eventually_near(b, y, eta)])
     # Pointwise: expand a[m] b[m] - x y and bound each term.
-    l.beta()
+    l.have(
+        ForAll(
+            [n],
+            n >= 0,
+            abs(a[n] - x) < eta,
+            abs(b[n] - y) < eta,
+            abs((a * b)[n] - x * y) < eps,
+        )
+    )
     m = l.fix()
     l.intros(), l.intros(), l.intros()
     l.have(
@@ -259,6 +278,9 @@ def has_lim_mul(l):
     )
     l.have(error_bound < eps, by=[abs_pos(u), abs_pos(v), abs_pos(x), abs_pos(y)])
     l.auto(by=[mul.defn(a, b)])
+    l.auto(
+        by=[eventually_mono2(near(a, x, eta), near(b, y, eta), near(a * b, x * y, eps))]
+    )
 
 
 @Theorem(
@@ -290,11 +312,18 @@ def has_lim_div(l):
     l.have(Y > 0, by=[abs_pos_iff(y)])
     l.have(ea > 0, by=[])
     l.have(eb > 0, by=[abs_pos(x), min.defn])
-    l.apply(eventually_mono2(near(a, x, ea), near(b, y, eb), near(a / b, x / y, eps)))
-    l.split()
-    l.auto(by=[eventually_near(a, x, ea)])
-    l.auto(by=[eventually_near(b, y, eb)])
+    l.have(eventually(near(a, x, ea)), by=[eventually_near(a, x, ea)])
+    l.have(eventually(near(b, y, eb)), by=[eventually_near(b, y, eb)])
     # Pointwise: split a[m]/b[m] - x/y into a numerator and a denominator error.
+    l.have(
+        ForAll(
+            [n],
+            n >= 0,
+            abs(a[n] - x) < ea,
+            abs(b[n] - y) < eb,
+            abs((a / b)[n] - x / y) < eps,
+        )
+    )
     l.unfold(div)
     l.beta()
     m = l.fix()
@@ -321,3 +350,6 @@ def has_lim_div(l):
     # Discharge congruence with just the equality and the scalar bound.
     result = abs(am / bm - x / y) < eps
     l.auto(by=[prove(Implies(And(decomp, bound), result))])
+    l.auto(
+        by=[eventually_mono2(near(a, x, ea), near(b, y, eb), near(a / b, x / y, eps))]
+    )
