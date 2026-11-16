@@ -1,7 +1,7 @@
 """Algebra of real sequence limits."""
 
 from kdrag import Theorem, prove
-from kdrag.smt import And, Consts, ForAll, If, Implies, Int, RealVal, Reals
+from kdrag.smt import And, Consts, ForAll, If, Implies, Int, Lambda, RealVal, Reals
 from kdrag.theories.real import (
     RSeq,
     abs,
@@ -19,8 +19,9 @@ from kdrag.theories.real.seq import (
     const,
     div,
     eventually,
+    eventually_and,
     eventually_mono,
-    eventually_mono2,
+    eventually_of_forall_nonneg,
     eventually_near,
     has_lim,
     has_lim_const,
@@ -71,9 +72,9 @@ def has_lim_smul(l):
     l.have(eta > 0, by=[abs_pos(c)])
     l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
     # Pointwise: |c a[m] - c x| = |c| |a[m] - x| < eps.
-    l.have(ForAll([n], n >= 0, abs(a[n] - x) < eta, abs(smul(c, a)[n] - c * x) < eps))
+    l.have(ForAll([n], abs(a[n] - x) < eta, abs(smul(c, a)[n] - c * x) < eps))
     m = l.fix()
-    l.intros(), l.intros()
+    l.intros()
     l.have(abs(c) * eta < eps, by=[abs_pos(c)])
     l.have(c * a[m] - c * x == c * (a[m] - x), by=[])
     l.auto(by=[smul.defn(c, a), abs_mul(c, a[m] - x), abs_pos(c)])
@@ -96,22 +97,23 @@ def has_lim_add(l):
     l.intros()
     # Each sequence contributes half the error budget.
     e = eps / 2
-    l.have(eventually(near(a, x, e)), by=[eventually_near(a, x, e)])
-    l.have(eventually(near(b, y, e)), by=[eventually_near(b, y, e)])
+    Pa, Pb = near(a, x, e), near(b, y, e)
+    both = Lambda([n], And(Pa[n], Pb[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, e)])
+    l.have(eventually(Pb), by=[eventually_near(b, y, e)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pb)])
     # Pointwise: the triangle inequality.
     l.have(
         ForAll(
             [n],
-            n >= 0,
-            abs(a[n] - x) < e,
-            abs(b[n] - y) < e,
+            And(abs(a[n] - x) < e, abs(b[n] - y) < e),
             abs((a + b)[n] - (x + y)) < eps,
         )
     )
     m = l.fix()
-    l.intros(), l.intros(), l.intros()
+    l.intros()
     l.auto(by=[add.defn(a, b), abs_add(a[m] - x, b[m] - y)])
-    l.auto(by=[eventually_mono2(near(a, x, e), near(b, y, e), near(a + b, x + y, eps))])
+    l.auto(by=[eventually_mono(both, near(a + b, x + y, eps))])
 
 
 @Theorem(ForAll([a, x], has_lim(a, x), has_lim(-a, -x)))
@@ -123,11 +125,11 @@ def has_lim_neg(l):
     l.intros()
     l.have(eventually(near(a, x, eps)), by=[eventually_near(a, x, eps)])
     # Pointwise: |-a[m] - -x| = |a[m] - x|.
-    l.have(ForAll([n], n >= 0, abs(a[n] - x) < eps, abs((-a)[n] - -x) < eps))
+    l.have(ForAll([n], abs(a[n] - x) < eps, abs((-a)[n] - -x) < eps))
     l.unfold(neg)
     l.beta()
     m = l.fix()
-    l.intros(), l.intros()
+    l.intros()
     l.auto(by=[abs_neg(a[m] - x)])
     l.auto(by=[eventually_mono(near(a, x, eps), near(-a, -x, eps))])
 
@@ -203,28 +205,32 @@ def ge_of_has_lim(l):
 def has_lim_squeeze(l):
     """Squeeze theorem: a sequence trapped between two with limit x has limit x."""
     a, b, d, x = l.fixes()
-    l.intros(), l.intros()
-    between = l.intros()
+    l.intros(), l.intros(), l.intros()
     l.rw(has_lim_iff)
     eps = l.fix()
     l.intros()
-    l.have(eventually(near(a, x, eps)), by=[eventually_near(a, x, eps)])
-    l.have(eventually(near(d, x, eps)), by=[eventually_near(d, x, eps)])
+    Pa, Pd = near(a, x, eps), near(d, x, eps)
+    between = Lambda([n], And(a[n] <= b[n], b[n] <= d[n]))
+    both = Lambda([n], And(Pa[n], Pd[n]))
+    trapped = Lambda([n], And(both[n], between[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, eps)])
+    l.have(eventually(Pd), by=[eventually_near(d, x, eps)])
+    l.have(eventually(between), by=[eventually_of_forall_nonneg(between)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pd)])
+    l.have(eventually(trapped), by=[eventually_and(both, between)])
     # Pointwise: b[m] lies between a[m] and d[m], both within eps of x.
     l.have(
         ForAll(
             [n],
-            n >= 0,
-            abs(a[n] - x) < eps,
-            abs(d[n] - x) < eps,
+            And(abs(a[n] - x) < eps, abs(d[n] - x) < eps),
+            And(a[n] <= b[n], b[n] <= d[n]),
             abs(b[n] - x) < eps,
         )
     )
     m = l.fix()
-    l.intros(), l.intros(), l.intros()
-    l.specialize(between, m)
+    l.intros(), l.intros()
     l.auto(by=[abs.defn(a[m] - x), abs.defn(d[m] - x), abs.defn(b[m] - x)])
-    l.auto(by=[eventually_mono2(near(a, x, eps), near(d, x, eps), near(b, x, eps))])
+    l.auto(by=[eventually_mono(trapped, near(b, x, eps))])
 
 
 @Theorem(
@@ -244,20 +250,21 @@ def has_lim_mul(l):
     # Keep both errors below one and small enough for the product estimate.
     eta = min(1, eps / (2 * (abs(x) + abs(y) + 1)))
     l.have(eta > 0, by=[abs_pos(x), abs_pos(y), min.defn])
-    l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
-    l.have(eventually(near(b, y, eta)), by=[eventually_near(b, y, eta)])
+    Pa, Pb = near(a, x, eta), near(b, y, eta)
+    both = Lambda([n], And(Pa[n], Pb[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, eta)])
+    l.have(eventually(Pb), by=[eventually_near(b, y, eta)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pb)])
     # Pointwise: expand a[m] b[m] - x y and bound each term.
     l.have(
         ForAll(
             [n],
-            n >= 0,
-            abs(a[n] - x) < eta,
-            abs(b[n] - y) < eta,
+            And(abs(a[n] - x) < eta, abs(b[n] - y) < eta),
             abs((a * b)[n] - x * y) < eps,
         )
     )
     m = l.fix()
-    l.intros(), l.intros(), l.intros()
+    l.intros()
     l.have(
         And(eta <= 1, 2 * eta * (abs(x) + abs(y) + 1) <= eps),
         by=[abs_pos(x), abs_pos(y), min.defn],
@@ -278,9 +285,7 @@ def has_lim_mul(l):
     )
     l.have(error_bound < eps, by=[abs_pos(u), abs_pos(v), abs_pos(x), abs_pos(y)])
     l.auto(by=[mul.defn(a, b)])
-    l.auto(
-        by=[eventually_mono2(near(a, x, eta), near(b, y, eta), near(a * b, x * y, eps))]
-    )
+    l.auto(by=[eventually_mono(both, near(a * b, x * y, eps))])
 
 
 @Theorem(
@@ -312,22 +317,23 @@ def has_lim_div(l):
     l.have(Y > 0, by=[abs_pos_iff(y)])
     l.have(ea > 0, by=[])
     l.have(eb > 0, by=[abs_pos(x), min.defn])
-    l.have(eventually(near(a, x, ea)), by=[eventually_near(a, x, ea)])
-    l.have(eventually(near(b, y, eb)), by=[eventually_near(b, y, eb)])
+    Pa, Pb = near(a, x, ea), near(b, y, eb)
+    both = Lambda([n], And(Pa[n], Pb[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, ea)])
+    l.have(eventually(Pb), by=[eventually_near(b, y, eb)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pb)])
     # Pointwise: split a[m]/b[m] - x/y into a numerator and a denominator error.
     l.have(
         ForAll(
             [n],
-            n >= 0,
-            abs(a[n] - x) < ea,
-            abs(b[n] - y) < eb,
+            And(abs(a[n] - x) < ea, abs(b[n] - y) < eb),
             abs((a / b)[n] - x / y) < eps,
         )
     )
     l.unfold(div)
     l.beta()
     m = l.fix()
-    l.intros(), l.intros(), l.intros()
+    l.intros()
 
     am, bm = a[m], b[m]
     da, db, B = abs(am - x), abs(bm - y), abs(bm)
@@ -350,6 +356,4 @@ def has_lim_div(l):
     # Discharge congruence with just the equality and the scalar bound.
     result = abs(am / bm - x / y) < eps
     l.auto(by=[prove(Implies(And(decomp, bound), result))])
-    l.auto(
-        by=[eventually_mono2(near(a, x, ea), near(b, y, eb), near(a / b, x / y, eps))]
-    )
+    l.auto(by=[eventually_mono(both, near(a / b, x / y, eps))])
