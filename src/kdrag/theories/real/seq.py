@@ -614,13 +614,13 @@ has_lim = define(
     QForAll(
         [eps],
         eps > 0,
-        QExists([N], N >= 0, QForAll([n], n > N, real.abs(a[n] - y) < eps)),
+        Exists([N], QForAll([n], n > N, real.abs(a[n] - y) < eps)),
     ),
 )
 
 # Eventually: a predicate on indices holds for every index past some cutoff.
 P, Q, R_ = smt.Consts("P Q R", smt.ArraySort(IntSort(), BoolSort()))
-eventually = define("eventually", [P], Exists([N], N >= 0, ForAll([n], n > N, P[n])))
+eventually = define("eventually", [P], Exists([N], ForAll([n], n > N, P[n])))
 
 
 def near(a: smt.ExprRef, y: smt.ExprRef, eps: smt.ExprRef) -> smt.QuantifierRef:
@@ -655,7 +655,8 @@ def eventually_mono(l):
     hp = l.intros()
     l.intros()
     N1 = l.obtain(hp)
-    l.exists(N1)
+    # Past a nonnegative cutoff, so the pointwise premise applies.
+    l.exists(If(N1 > 0, N1, 0))
     l.auto()
 
 
@@ -675,7 +676,9 @@ def eventually_mono2(l):
     l.intros()
     N1 = l.obtain(hp)
     N2 = l.obtain(hq)
-    l.exists(If(N1 > N2, N1, N2))
+    # Past both cutoffs and zero, so the pointwise premise applies.
+    M = If(N1 > N2, N1, N2)
+    l.exists(If(M > 0, M, 0))
     l.auto()
 
 
@@ -705,8 +708,6 @@ def has_lim_inv(l):
     l.assumes(eps > 0)
     N = ToInt(1 / eps) + 1
     l.exists(N)
-    l.split()
-    l.auto()
     l.fix()
     l.intros()
     l.unfold(real.abs)
