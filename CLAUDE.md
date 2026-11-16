@@ -87,7 +87,7 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 
 - `l.auto(**kwargs)` - call Z3 on current goal with context
 - `l.show(thm, by=[...])` - prove goal equals `thm` using lemmas
-- `l.exact(pf)` - close goal with proof `pf`
+- `l.exact(pf)` - close goal with proof `pf`, inferring universal arguments. Premises of `pf` are discharged from the context when they appear there (up to bound names and beta reduction)
 
 **Manipulating context/goal:**
 
@@ -247,3 +247,4 @@ def sum_append(pf):
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.
 
 - When restating nested quantified witnesses, match the definition's binder names and comparison direction (`RealVal(0) < t` versus `t > 0`) to avoid unstable equivalence searches.
+- `kd.utils.pmatch` is higher-order and may abstract too much: matching `Q[0]` against `(λx. x >= 0)[0]` can bind `Q := λi. (λx. x >= i)[i]`. Try `kd.utils.pmatch_fo` first when a first-order match is intended.
