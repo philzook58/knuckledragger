@@ -525,7 +525,27 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
     >>> f.implicits = ["x", None, "y"]
     >>> f(RealVal(1), y=BoolVal(True))
     f(?x!..., 1, True)
+
+    A full positional argument list may use `...` to bind lambda parameters.
     """
+    if any(arg is Ellipsis for arg in args):
+        if kwargs or len(args) != self.arity():
+            raise TypeError("Lambda holes require a full positional argument list")
+        if self.subdomain is not None or self.subrange is not None:
+            raise TypeError(
+                "Lambda holes are unsupported on declarations with contracts"
+            )
+        if solver == CVC5SOLVER:
+            raise NotImplementedError("Lambda holes require the Z3 AST backend")
+        params = []
+        applied = list(args)
+        for i, arg in enumerate(args):
+            if arg is Ellipsis:
+                param = FreshConst(self.domain(i), prefix="arg")
+                params.append(param)
+                applied[i] = param
+        return Lambda(params, old_call(self, *applied))
+
     if self.subdomain is not None:
         required = self.subdomain(*args)
         supplied = [arg.assumes for arg in args if arg.assumes is not None]
