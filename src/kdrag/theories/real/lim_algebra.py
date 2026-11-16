@@ -247,6 +247,25 @@ def has_lim_squeeze(l):
     l.auto(by=[eventually_mono(trapped, near(b, x, eps))])
 
 
+da, db, X, Y, eta, eps = Reals("da db X Y eta eps")
+
+
+@Theorem(
+    ForAll(
+        [da, db, X, Y, eta, eps],
+        And(0 <= da, da < eta, 0 <= db, db < eta, eta <= 1, 0 <= X, 0 <= Y),
+        2 * eta * (X + Y + 1) <= eps,
+        da * db + Y * da + X * db < eps,
+    )
+)
+def mul_error_lt(l):
+    """Errors below eta <= 1 keep the product error da db + Y da + X db below eps."""
+    l.fixes()
+    l.intros()
+    l.intros()
+    l.auto()
+
+
 @Theorem(
     ForAll(
         [a, b, x, y],
@@ -277,6 +296,8 @@ def has_lim_mul(l):
             abs((a * b)[n] - x * y) < eps,
         )
     )
+    l.unfold(mul)
+    l.beta()
     m = l.fix()
     l.intros()
     l.have(
@@ -297,8 +318,17 @@ def has_lim_mul(l):
             abs_mul(x, v),
         ],
     )
-    l.have(error_bound < eps, by=[abs_pos(u), abs_pos(v), abs_pos(x), abs_pos(y)])
-    l.auto(by=[mul.defn(a, b)])
+    l.have(
+        error_bound < eps,
+        by=[
+            mul_error_lt(da, db, abs(x), abs(y), eta, eps),
+            abs_pos(u),
+            abs_pos(v),
+            abs_pos(x),
+            abs_pos(y),
+        ],
+    )
+    l.auto()
     l.auto(by=[eventually_mono(both, near(a * b, x * y, eps))])
 
 
