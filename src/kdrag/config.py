@@ -2,7 +2,14 @@
 Global configuration of Knuckledragger
 """
 
+import os
+
 solver = None
+cache: bool = os.environ.get("KDRAG_CACHE") == "1"
+"""Reuse z3 results from earlier runs (see `kdrag.proof_cache`). Set KDRAG_CACHE=1 before import to cover library proofs."""
+cache_dir: str = os.environ.get("KDRAG_CACHE_DIR") or os.path.join(
+    os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"), "kdrag"
+)
 admit_enabled = True
 # timeout = 1000
 admit_level = 50

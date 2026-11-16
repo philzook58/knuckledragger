@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an opt-in proof cache (`KDRAG_CACHE=1` or `kdrag.config.cache`) that skips z3 for queries already proved in an earlier run. See `kdrag.proof_cache`.
+
 ### Changed
 
 ### Removed
