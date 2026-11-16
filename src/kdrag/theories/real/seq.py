@@ -3,6 +3,7 @@ import kdrag as kd
 from kdrag import FreshVars, QExists, QForAll, Theorem, define, prove
 import kdrag.smt as smt
 from kdrag.smt import (
+    And,
     Array,
     ArraySort,
     BoolSort,
@@ -16,6 +17,7 @@ from kdrag.smt import (
     Int,
     IntSort,
     Ints,
+    IntVal,
     K,
     Lambda,
     Map,
@@ -614,9 +616,79 @@ has_lim = define(
     QForAll(
         [eps],
         eps > 0,
-        QExists([N], N >= 0, QForAll([n], n > N, real.abs(a[n] - y) < eps)),
+        Exists([N], QForAll([n], n > N, real.abs(a[n] - y) < eps)),
     ),
 )
+
+# Eventually: a predicate on indices holds for every index past some cutoff.
+P, Q = smt.Consts("P Q", smt.ArraySort(IntSort(), BoolSort()))
+eventually = define("eventually", [P], Exists([N], ForAll([n], n > N, P[n])))
+
+
+def near(a: smt.ArrayRef, y: smt.ExprRef, eps: smt.ExprRef) -> smt.QuantifierRef:
+    """The index predicate `|a[n] - y| < eps`."""
+    return Lambda([n], real.abs(a[n] - y) < eps)
+
+
+@Theorem(
+    ForAll(
+        [a, y],
+        smt.Eq(has_lim(a, y), ForAll([eps], eps > 0, eventually(near(a, y, eps)))),
+    )
+)
+def has_lim_iff(l):
+    l.fixes()
+    l.unfold(has_lim)
+    l.unfold(eventually)
+    l.beta()
+    l.auto()
+
+
+@Theorem(ForAll([a, y, eps], has_lim(a, y), eps > 0, eventually(near(a, y, eps))))
+def eventually_near(l):
+    a, y, eps = l.fixes()
+    l.auto(by=[has_lim_iff(a, y)])
+
+
+@Theorem(ForAll([P, Q], eventually(P), ForAll([n], P[n], Q[n]), eventually(Q)))
+def eventually_mono(l):
+    l.fixes()
+    l.unfold(eventually)
+    hp = l.intros()
+    l.intros()
+    N1 = l.obtain(hp)
+    l.exists(N1)
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [P, Q],
+        eventually(P),
+        eventually(Q),
+        eventually(Lambda([n], And(P[n], Q[n]))),
+    )
+)
+def eventually_and(l):
+    l.fixes()
+    l.unfold(eventually)
+    hp, hq = l.intros(), l.intros()
+    N1 = l.obtain(hp)
+    N2 = l.obtain(hq)
+    # Past both cutoffs.
+    l.exists(If(N1 > N2, N1, N2))
+    l.beta()
+    l.auto()
+
+
+@Theorem(ForAll([P], ForAll([n], n >= 0, P[n]), eventually(P)))
+def eventually_of_forall_nonneg(l):
+    l.fixes()
+    l.unfold(eventually)
+    l.intros()
+    l.exists(IntVal(0))
+    l.auto()
+
 
 # convergent
 is_conv = define("is_conv", [a], Exists([y], has_lim(a, y)))
@@ -644,8 +716,6 @@ def has_lim_inv(l):
     l.assumes(eps > 0)
     N = ToInt(1 / eps) + 1
     l.exists(N)
-    l.split()
-    l.auto()
     l.fix()
     l.intros()
     l.unfold(real.abs)
