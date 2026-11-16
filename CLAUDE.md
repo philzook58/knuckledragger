@@ -247,3 +247,5 @@ def sum_append(pf):
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.
 
 - When restating nested quantified witnesses, match the definition's binder names and comparison direction (`RealVal(0) < t` versus `t > 0`) to avoid unstable equivalence searches.
+- `p == ForAll(...)` builds `ForAll(...) == p`, because `QuantifierRef`'s reflected `__eq__` wins. Use `smt.Eq(p, q)` when the orientation matters, such as a lemma meant for `rw`.
+- For sequence limit proofs, rewrite the goal with `has_lim_iff` and combine `eventually_near` facts using `eventually_mono`/`eventually_mono2` instead of choosing the larger N by hand. One-shot `auto` over unfolded `has_lim` is fragile: adding unrelated declarations can make it time out.
