@@ -3,6 +3,7 @@ import kdrag as kd
 from kdrag import FreshVars, QExists, QForAll, Theorem, define, prove
 import kdrag.smt as smt
 from kdrag.smt import (
+    And,
     Array,
     ArraySort,
     BoolSort,
@@ -16,6 +17,7 @@ from kdrag.smt import (
     Int,
     IntSort,
     Ints,
+    IntVal,
     K,
     Lambda,
     Map,
@@ -619,7 +621,7 @@ has_lim = define(
 )
 
 # Eventually: a predicate on indices holds for every index past some cutoff.
-P, Q, R_ = smt.Consts("P Q R", smt.ArraySort(IntSort(), BoolSort()))
+P, Q = smt.Consts("P Q", smt.ArraySort(IntSort(), BoolSort()))
 eventually = define("eventually", [P], Exists([N], ForAll([n], n > N, P[n])))
 
 
@@ -648,37 +650,43 @@ def eventually_near(l):
     l.auto(by=[has_lim_iff(a, y)])
 
 
-@Theorem(ForAll([P, Q], eventually(P), ForAll([n], n >= 0, P[n], Q[n]), eventually(Q)))
+@Theorem(ForAll([P, Q], eventually(P), ForAll([n], P[n], Q[n]), eventually(Q)))
 def eventually_mono(l):
     l.fixes()
     l.unfold(eventually)
     hp = l.intros()
     l.intros()
     N1 = l.obtain(hp)
-    # Past a nonnegative cutoff, so the pointwise premise applies.
-    l.exists(If(N1 > 0, N1, 0))
+    l.exists(N1)
     l.auto()
 
 
 @Theorem(
     ForAll(
-        [P, Q, R_],
+        [P, Q],
         eventually(P),
         eventually(Q),
-        ForAll([n], n >= 0, P[n], Q[n], R_[n]),
-        eventually(R_),
+        eventually(Lambda([n], And(P[n], Q[n]))),
     )
 )
-def eventually_mono2(l):
+def eventually_and(l):
     l.fixes()
     l.unfold(eventually)
     hp, hq = l.intros(), l.intros()
-    l.intros()
     N1 = l.obtain(hp)
     N2 = l.obtain(hq)
-    # Past both cutoffs and zero, so the pointwise premise applies.
-    M = If(N1 > N2, N1, N2)
-    l.exists(If(M > 0, M, 0))
+    # Past both cutoffs.
+    l.exists(If(N1 > N2, N1, N2))
+    l.beta()
+    l.auto()
+
+
+@Theorem(ForAll([P], ForAll([n], n >= 0, P[n]), eventually(P)))
+def eventually_of_forall_nonneg(l):
+    l.fixes()
+    l.unfold(eventually)
+    l.intros()
+    l.exists(IntVal(0))
     l.auto()
 
 
