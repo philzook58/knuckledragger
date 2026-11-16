@@ -14,6 +14,7 @@ from kdrag.smt import (
     RealSort,
     RealVal,
     Reals,
+    is_app,
     is_implies,
 )
 from kdrag.theories.real import (
@@ -435,7 +436,7 @@ def lim_lemma(e: ExprRef) -> Proof:
     hyps: list[BoolRef] = []
 
     def worker(t: ExprRef) -> ExprRef:
-        rule = lim_rules.get(t.decl())
+        rule = lim_rules.get(t.decl()) if is_app(t) else None
         if rule is None:
             # An atom: assume it converges, once per distinct atom.
             if not any(t.eq(u) for u in leaves):
