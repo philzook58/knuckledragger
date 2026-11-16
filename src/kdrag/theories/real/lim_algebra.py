@@ -70,13 +70,13 @@ def lim_of_nonneg_seq(l):
 
 @Theorem(
     ForAll(
-        [a, x, c],
+        [c, a, x],
         has_lim(a, x),
         has_lim(smul(c, a), c * x),
     ),
 )
 def has_lim_smul(l):
-    a, x, c = l.fixes()
+    c, a, x = l.fixes()
     l.intros()
     l.rw(has_lim_iff)
     eps = l.fix()
@@ -373,16 +373,16 @@ def has_lim_div(l):
     l.auto(by=[eventually_mono(both, near(a / b, x / y, eps))])
 
 
-# Each rule takes a term and the limits of its sequence children, and returns
-# the instantiated limit lemma `... -> has_lim(term, limit)`.
+# Limit rule for each sequence operation. A rule's binders are the operation's
+# arguments in order, followed by the limits of its sequence arguments.
 lim_rules = {
-    neg: lambda t, ys: has_lim_neg(t.arg(0), *ys),
-    add: lambda t, ys: has_lim_add(t.arg(0), t.arg(1), *ys),
-    sub: lambda t, ys: has_lim_sub(t.arg(0), t.arg(1), *ys),
-    mul: lambda t, ys: has_lim_mul(t.arg(0), t.arg(1), *ys),
-    div: lambda t, ys: has_lim_div(t.arg(0), t.arg(1), *ys),
-    smul: lambda t, ys: has_lim_smul(t.arg(1), *ys, t.arg(0)),
-    const: lambda t, ys: has_lim_const(t.arg(0)),
+    neg: has_lim_neg,
+    add: has_lim_add,
+    sub: has_lim_sub,
+    mul: has_lim_mul,
+    div: has_lim_div,
+    smul: has_lim_smul,
+    const: has_lim_const,
 }
 
 
@@ -402,28 +402,28 @@ def lim_lemma(e: ExprRef) -> Proof:
     """
     leaves: dict[ExprRef, ExprRef] = {}
     lemmas: list[Proof] = []
-    side: list[BoolRef] = []
+    hyps: list[BoolRef] = []
 
-    def go(t: ExprRef) -> ExprRef:
+    def worker(t: ExprRef) -> ExprRef:
         rule = lim_rules.get(t.decl())
         if rule is None:
             # An atom: assume it converges, once per distinct atom.
             if not any(t.eq(u) for u in leaves):
                 leaves[t] = FreshVar("L", RealSort())
             return next(y for u, y in leaves.items() if t.eq(u))
-        ys = [go(c) for c in t.children() if c.sort() == RSeq]
-        pf = rule(t, ys)
+        ys = [worker(c) for c in t.children() if c.sort() == RSeq]
+        pf = rule(*t.children(), *ys)
         lemmas.append(pf)
         # Premises that are not limits of children are side conditions.
         concl = pf.thm
         while is_implies(concl):
             if concl.arg(0).decl() != has_lim:
-                side.append(concl.arg(0))
+                hyps.append(concl.arg(0))
             concl = concl.arg(1)
         return concl.arg(1)
 
-    lim_e = go(e)
-    prems = [has_lim(t, y) for t, y in leaves.items()] + side
+    lim_e = worker(e)
+    prems = [has_lim(t, y) for t, y in leaves.items()] + hyps
     # Chaining the instantiated lemmas is propositional.
     pf = prove(Implies(And(prems), has_lim(e, lim_e)), by=lemmas)
     return pf.forall(list(leaves.values()))
