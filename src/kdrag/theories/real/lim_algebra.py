@@ -1,7 +1,21 @@
 """Algebra of real sequence limits."""
 
-from kdrag import Theorem, prove
-from kdrag.smt import And, Consts, ForAll, If, Implies, Int, Lambda, RealVal, Reals
+from kdrag import FreshVar, Proof, Theorem, prove
+from kdrag.smt import (
+    And,
+    BoolRef,
+    Consts,
+    ExprRef,
+    ForAll,
+    If,
+    Implies,
+    Int,
+    Lambda,
+    RealSort,
+    RealVal,
+    Reals,
+    is_implies,
+)
 from kdrag.theories.real import (
     RSeq,
     abs,
@@ -357,3 +371,59 @@ def has_lim_div(l):
     result = abs(am / bm - x / y) < eps
     l.auto(by=[prove(Implies(And(decomp, bound), result))])
     l.auto(by=[eventually_mono(both, near(a / b, x / y, eps))])
+
+
+# Each rule takes a term and the limits of its sequence children, and returns
+# the instantiated limit lemma `... -> has_lim(term, limit)`.
+lim_rules = {
+    neg: lambda t, ys: has_lim_neg(t.arg(0), *ys),
+    add: lambda t, ys: has_lim_add(t.arg(0), t.arg(1), *ys),
+    sub: lambda t, ys: has_lim_sub(t.arg(0), t.arg(1), *ys),
+    mul: lambda t, ys: has_lim_mul(t.arg(0), t.arg(1), *ys),
+    div: lambda t, ys: has_lim_div(t.arg(0), t.arg(1), *ys),
+    smul: lambda t, ys: has_lim_smul(t.arg(1), *ys, t.arg(0)),
+    const: lambda t, ys: has_lim_const(t.arg(0)),
+}
+
+
+def lim_lemma(e: ExprRef) -> Proof:
+    """
+    Prove the limit of a sequence expression from limits of its atoms.
+
+    Recurse through the sequence operations in `lim_rules`. Every other
+    subterm is an atom, assumed to converge to a fresh limit. Side conditions
+    of the rules, such as a nonzero denominator limit, become premises.
+
+    >>> a, b = Consts("a b", RSeq)
+    >>> lim_lemma(a * b + smul(2, a))
+    |= ForAll([L!..., L!...],
+           Implies(And(has_lim(a, L!...), has_lim(b, L!...)),
+                   has_lim(... L!...*L!... + 2*L!...)))
+    """
+    leaves: dict[ExprRef, ExprRef] = {}
+    lemmas: list[Proof] = []
+    side: list[BoolRef] = []
+
+    def go(t: ExprRef) -> ExprRef:
+        rule = lim_rules.get(t.decl())
+        if rule is None:
+            # An atom: assume it converges, once per distinct atom.
+            if not any(t.eq(u) for u in leaves):
+                leaves[t] = FreshVar("L", RealSort())
+            return next(y for u, y in leaves.items() if t.eq(u))
+        ys = [go(c) for c in t.children() if c.sort() == RSeq]
+        pf = rule(t, ys)
+        lemmas.append(pf)
+        # Premises that are not limits of children are side conditions.
+        concl = pf.thm
+        while is_implies(concl):
+            if concl.arg(0).decl() != has_lim:
+                side.append(concl.arg(0))
+            concl = concl.arg(1)
+        return concl.arg(1)
+
+    lim_e = go(e)
+    prems = [has_lim(t, y) for t, y in leaves.items()] + side
+    # Chaining the instantiated lemmas is propositional.
+    pf = prove(Implies(And(prems), has_lim(e, lim_e)), by=lemmas)
+    return pf.forall(list(leaves.values()))

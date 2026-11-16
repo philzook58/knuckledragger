@@ -49,3 +49,20 @@ def test_analysis_proofs(module):
     )
     for thm, elapsed in solves:
         assert elapsed < 0.5, ("solver.check", thm, elapsed)
+
+
+def test_lim_lemma_composes_limit_rules():
+    import kdrag.theories.real.seq as seq
+    from kdrag.theories.real.lim_algebra import lim_lemma
+
+    a, b, c = smt.Consts("lim_a lim_b lim_c", real.RSeq)
+    e = a * b + seq.smul(2, a)
+    # Leaves get limits in order of first occurrence.
+    pf = lim_lemma(e)(smt.RealVal(1), smt.RealVal(2))
+    kd.prove(
+        smt.Implies(smt.And(seq.has_lim(a, 1), seq.has_lim(b, 2)), seq.has_lim(e, 4)),
+        by=[pf],
+    )
+    # Side conditions of the rules become premises.
+    quot = lim_lemma(a / (c + seq.const(1)))
+    assert "!= 0" in str(quot.thm)
