@@ -14,10 +14,21 @@ from kdrag.theories.real import (
     abs_triangle,
     min,
 )
-from kdrag.theories.real.seq import add, div, has_lim, mul, neg, smul, sub
+from kdrag.theories.real.seq import (
+    add,
+    const,
+    div,
+    has_lim,
+    has_lim_const,
+    mul,
+    neg,
+    smul,
+    sub,
+    sub_eq_add_neg,
+)
 
 
-a, b = Consts("a b", RSeq)
+a, b, d = Consts("a b d", RSeq)
 x, y, c = Reals("x y c")
 u, v, w, z = Reals("u v w z")
 n = Int("n")
@@ -112,18 +123,13 @@ def has_lim_add(l):
     l.auto(by=[add.defn(a, b)])
 
 
-sub_eq_add_neg = prove(
-    ForAll([a, b], a - b == a + -b), by=[sub.defn, add.defn, neg.defn]
-)
-
-
 @Theorem(ForAll([a, x], has_lim(a, x), has_lim(-a, -x)))
 def has_lim_neg(l):
     l.fixes()
     l.unfold(has_lim)
     l.unfold(neg)
     l.intros()
-    l.auto(by=[abs.defn])
+    l.auto(by=[abs_neg])
 
 
 @Theorem(
@@ -145,17 +151,87 @@ def has_lim_sub(l):
         [a, b, x, y],
         has_lim(a, x),
         has_lim(b, y),
-        ForAll(n, n >= 0, a[n] >= b[n]),
-        y <= x,
+        ForAll(n, n >= 0, a[n] <= b[n]),
+        x <= y,
     ),
 )
 def le_of_has_lim_of_has_lim(l):
     """Limits preserve non-strict inequalities between sequences."""
     a, b, x, y = l.fixes()
-    l.intros(), l.intros(), l.intros()
-    l.have(ForAll(n, n >= 0, (a - b)[n] >= 0), by=[sub.defn(a, b)])
-    l.have(has_lim(a - b, x - y), by=[has_lim_sub(a, b, x, y)])
-    l.auto(by=[lim_of_nonneg_seq(a - b, x - y)])
+    l.intros()
+    l.intros()
+    l.intros()
+    l.have(ForAll(n, n >= 0, (b - a)[n] >= 0), by=[sub.defn(b, a)])
+    l.have(has_lim(b - a, y - x), by=[has_lim_sub(b, a, y, x)])
+    l.auto(by=[lim_of_nonneg_seq(b - a, y - x)])
+
+
+@Theorem(ForAll([a, x, c], has_lim(a, x), ForAll(n, n >= 0, a[n] <= c), x <= c))
+def le_of_has_lim(l):
+    a, x, c = l.fixes()
+    l.intros()
+    l.intros()
+    l.auto(
+        by=[
+            le_of_has_lim_of_has_lim(a, const(c), x, c),
+            has_lim_const(c),
+            const.defn(c),
+        ]
+    )
+
+
+@Theorem(ForAll([a, x, c], has_lim(a, x), ForAll(n, n >= 0, c <= a[n]), c <= x))
+def ge_of_has_lim(l):
+    a, x, c = l.fixes()
+    l.intros()
+    l.intros()
+    l.auto(
+        by=[
+            le_of_has_lim_of_has_lim(const(c), a, c, x),
+            has_lim_const(c),
+            const.defn(c),
+        ]
+    )
+
+
+@Theorem(
+    ForAll(
+        [a, b, d, x],
+        has_lim(a, x),
+        has_lim(d, x),
+        ForAll(n, n >= 0, And(a[n] <= b[n], b[n] <= d[n])),
+        has_lim(b, x),
+    ),
+)
+def has_lim_squeeze(l):
+    """Squeeze theorem: a sequence trapped between two with limit x has limit x."""
+    a, b, d, x = l.fixes()
+    l.unfold(has_lim)
+    ha, hd, between = l.intros(), l.intros(), l.intros()
+    eps = l.fix()
+    l.intros()
+    ha = l.specialize(ha, eps)
+    hd = l.specialize(hd, eps)
+    bound, n = Ints("N n")
+    tail_a = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(a[n] - x) < eps)), by=[]
+    )
+    l.clear(ha)
+    N1 = l.obtain(tail_a)
+    tail_d = l.have(
+        Exists(bound, bound >= 0, ForAll(n, n > bound, abs(d[n] - x) < eps)), by=[]
+    )
+    l.clear(hd)
+    N2 = l.obtain(tail_d)
+    l.exists(If(N1 > N2, N1, N2))
+    l.split()
+    l.auto()
+    m = l.fix()
+    l.intros()
+    l.have(abs(a[m] - x) < eps, by=[])
+    l.have(abs(d[m] - x) < eps, by=[])
+    l.specialize(between, m)
+    l.auto(by=[abs.defn(a[m] - x), abs.defn(d[m] - x), abs.defn(b[m] - x)])
 
 
 @Theorem(

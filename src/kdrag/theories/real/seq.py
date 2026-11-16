@@ -116,6 +116,9 @@ mul_add = prove(A * (B + C) == A * B + A * C, by=[add.defn, mul.defn]).forall([A
 
 div = kd.notation.div.define([a, b], Lambda([i], a[i] / b[i]))
 neg = kd.notation.neg.define([a], Lambda([i], -a[i]))
+sub_eq_add_neg = prove(A - B == A + -B, by=[sub.defn, add.defn, neg.defn]).forall(
+    [A, B]
+)
 
 smul = define("RSeq.smul", [x, a], Lambda([n], x * a[n]))
 
@@ -629,6 +632,9 @@ lim_defn = prove(
 # kd.Lemma(has_lim(zero, 0)).unfold(has_lim).unfold(zero).unfold(real.abs)
 lim_zero = prove(has_lim(zero, 0), by=[has_lim.defn, zero.defn, real.abs.defn])
 lim_const = prove(has_lim(const(x), x), by=[has_lim.defn, const.defn, real.abs.defn])
+has_lim_const = prove(
+    ForAll([x], has_lim(const(x), x)), by=[has_lim.defn, const.defn, real.abs.defn]
+)
 
 
 @Theorem(has_lim(Lambda([n], RealVal(1) / n), RealVal(0)))
