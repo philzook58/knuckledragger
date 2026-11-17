@@ -1,7 +1,8 @@
+"""Legacy real-set experiments; basic set definitions live in the real module."""
+
 from kdrag import QForAll, Theorem, axiom, define, prove
 from kdrag.smt import (
     And,
-    ArraySort,
     Const,
     Consts,
     Exists,
@@ -10,11 +11,17 @@ from kdrag.smt import (
     IntSort,
     Lambda,
     RealSort,
-    SetSort,
 )
-# import kdrag.theories.real as real
+import kdrag.theories.real as real
 
-RSet = SetSort(RealSort())
+# Keep the old names as aliases, including the nonnegative-index convention.
+RSet = real.RSet
+SetSeq = real.RSetSeq
+closed_int = real.icc
+open_int = real.ioo
+cinter = real.iinter
+cunion = real.iunion
+
 x, y, z, M, c = Consts("x y z M c", RealSort())
 A, B, C = Consts("A B C", RSet)
 
@@ -63,11 +70,6 @@ def sup_ge(l):
 
 has_max = define("has_max", [A, x], And(A[x], sup(A) == x))
 
-# Union and intersection theorems
-
-open_int = define("open_int", [x, y], Lambda([z], And(x < z, z < y)))
-closed_int = define("closed_int", [x, y], Lambda([z], And(x <= z, z <= y)))
-
 shift = define(
     "shift",
     [A, c],
@@ -103,21 +105,6 @@ lb_le_ub = prove(
     by=[has_lb.defn, has_ub.defn],
 )
 
-"""
-@kd.PTheorem(smt.ForAll([A, x, y, z], A[x], has_lb(A, y), has_ub(A, z), y <= z))
-def lb_le_ub(l):
-    A, x, y, z = l.fixes()
-    l.unfold(has_lb)
-    l.unfold(has_ub)
-    l.intros()
-    l.split(at=0)
-    l.specialize(1, x)
-    l.specialize(2, x)
-    l.have(y <= x, by=[])
-    l.have(x <= z, by=[])
-    l.auto()
-"""
-
 
 @Theorem(ForAll([A, M], has_lb(A, M), has_lb(A, inf(A))))
 def lb_inf(l):
@@ -138,37 +125,8 @@ def lb_inf(l):
     l.intros()
     l.auto()
 
-    # l.have(sup_ax(A, M))
-    # l.auto(by=[sup_ax])
-    # l.simp()
 
-
-"""
-@kd.PTheorem(smt.ForAll([A, M, x], A[x], has_lb(A, M), M <= inf(A)))
-def inf_least(l):
-    A, M, x = l.fixes()
-    # l.unfold(has_lb)
-    l.unfold(inf)
-    l.intros()
-    # l.have(has_ub())
-    # l.apply(sup_ge)
-
-    # l.split(at=0)
-    # l.specialize(1, x)
-    # l.have(M <= x, by=[])
-    # l.unfold(has_lb)
-
-    # l.auto()
-"""
-
-SetSeq = ArraySort(IntSort(), RSet)
 An = Const("An", SetSeq)
 n = Const("n", IntSort())
-cinter = define("cinter", [An], Lambda([x], QForAll([n], An[n][x])))
-cunion = define("cunion", [An], Lambda([x], Exists([n], An[n][x])))
 
-a, b = Consts("a b", ArraySort(IntSort(), RealSort()))
-nested = define("nested", [An], QForAll([n], An[n + 1] <= An[n]))
-# intseq = kd.define("intseq", [a, b], smt.lambda([n], closed_int(a[n], b[n])))
-
-# nested interval, forall a b, a <= b, nested(intseq(a,b)),  smt.Exists([x], cinter(intseq(a, b))[x])
+nested = define("nested", [An], ForAll(n, n >= 0, An[n + 1] <= An[n]))
