@@ -3,8 +3,8 @@ A persistent cache of z3 queries already proved unsat, used by `kernel.prove` wh
 This module is part of the trusted kernel. Turn the cache off to recheck everything.
 
 The key of a query `Implies(And(by), thm)` is a keyed hash of its structure, read directly from z3's AST
-without printing. Each distinct node gets a row in a table, whose entries are strings, ints and the row numbers
-of its children, so the table determines the term. Not hashed: bound variable names (variables are de Bruijn
+without printing. Each distinct term, sort and declaration becomes a node, numbered in order of first visit.
+A node holds strings, ints and the numbers of its children, so the nodes determine the term. Not hashed: bound variable names (variables are de Bruijn
 indices), quantifier patterns and weights (they do not change satisfiability), and the numbers of fresh names
 `x!12`, which are renumbered in order of first occurrence. Equal keys therefore mean equal queries up to
 alpha-renaming and a bijective renaming of fresh names, which preserves unsat.
@@ -52,21 +52,21 @@ class Refuse(Exception):
 class _Table:
     """
     Number the distinct terms, sorts and declarations of a term in order of first visit.
-    Each row holds strings, ints and the numbers of earlier rows, so the rows determine the term.
+    Each node holds strings, ints and the numbers of earlier nodes, so the nodes determine the term.
     """
 
     def __init__(self, ctx):
         self.ctx = ctx
-        self.rows: list[tuple] = []
+        self.nodes: list[tuple] = []
         # Keyed by raw pointer, without incrementing reference counts. This is safe because every pointer
         # is a part of the term (or of a datatype definition, which z3 keeps), the caller keeps the term
         # alive during the walk, and the table is discarded afterwards.
         self.memo: dict[tuple[str, int], int] = {}
         self.fresh: dict[tuple, int] = {}
 
-    def row(self, *entry) -> int:
-        self.rows.append(entry)
-        return len(self.rows) - 1
+    def node(self, *entry) -> int:
+        self.nodes.append(entry)
+        return len(self.nodes) - 1
 
     def symbol(self, sym) -> str | int:
         if c.Z3_get_symbol_kind(self.ctx, sym) == z3.Z3_INT_SYMBOL:
@@ -78,9 +78,9 @@ class _Table:
 
     def sort(self, s) -> int:
         """
-        A sort is identified by its kind, name, printed form (`(_ BitVec 8)`) and the rows of its component sorts.
+        A sort is identified by its kind, name, printed form (`(_ BitVec 8)`) and the nodes of its component sorts.
         Printed forms alone are ambiguous: the int symbol 3 and the string "k!3" both print as `k!3`.
-        Datatypes also get a row with their definition. Sorts with parts we do not visit are refused.
+        Datatypes also get a node with their definition. Sorts with parts we do not visit are refused.
         """
         if ("s", s.value) in self.memo:
             return self.memo["s", s.value]
@@ -90,7 +90,7 @@ class _Table:
         printed = c.Z3_sort_to_string(ctx, s)
         if k == z3.Z3_DATATYPE_SORT:
             # Memoized before visiting the fields, so recursive datatypes terminate.
-            r = self.memo["s", s.value] = self.row("sort", k, name, printed)
+            r = self.memo["s", s.value] = self.node("sort", k, name, printed)
             ctors = []
             for i in range(c.Z3_get_datatype_sort_num_constructors(ctx, s)):
                 ctor = c.Z3_get_datatype_sort_constructor(ctx, s, i)
@@ -103,7 +103,7 @@ class _Table:
                     (self.name(a), self.sort(c.Z3_get_range(ctx, a))) for a in accs
                 )
                 ctors.append((self.name(ctor), fields))
-            self.row("datatype", r, tuple(ctors))
+            self.node("datatype", r, tuple(ctors))
             return r
         if k == z3.Z3_ARRAY_SORT:
             n = c.Z3_get_array_arity(ctx, s)
@@ -122,7 +122,7 @@ class _Table:
         # A parametric uninterpreted sort such as `(List Int)` has parts we do not visit.
         if k == z3.Z3_UNINTERPRETED_SORT and printed.startswith("("):
             raise Refuse("sort", printed)
-        r = self.memo["s", s.value] = self.row("sort", k, name, printed, tuple(parts))
+        r = self.memo["s", s.value] = self.node("sort", k, name, printed, tuple(parts))
         return r
 
     def decl(self, d) -> int:
@@ -167,7 +167,7 @@ class _Table:
                 )
             else:
                 raise Refuse("parameter", name)
-        r = self.memo["d", d.value] = self.row(
+        r = self.memo["d", d.value] = self.node(
             "decl", k, name, tuple(sig), tuple(params)
         )
         return r
@@ -182,11 +182,11 @@ class _Table:
             if c.Z3_get_decl_kind(ctx, d) == z3.Z3_OP_INTERNAL and c.Z3_is_string(
                 ctx, e
             ):
-                r = self.row("str", c.Z3_get_string(ctx, e))
+                r = self.node("str", c.Z3_get_string(ctx, e))
             else:
                 n = c.Z3_get_app_num_args(ctx, e)
                 args = [self.term(c.Z3_get_app_arg(ctx, e, j)) for j in range(n)]
-                r = self.row("app", self.decl(d), *args)
+                r = self.node("app", self.decl(d), *args)
         elif k == z3.Z3_NUMERAL_AST:
             s = c.Z3_get_sort(ctx, e)
             if c.Z3_get_sort_kind(ctx, s) not in (
@@ -195,10 +195,10 @@ class _Table:
                 z3.Z3_BV_SORT,
             ):
                 raise Refuse("numeral", k)
-            r = self.row("num", c.Z3_get_numeral_string(ctx, e), self.sort(s))
+            r = self.node("num", c.Z3_get_numeral_string(ctx, e), self.sort(s))
         elif k == z3.Z3_VAR_AST:
             # A de Bruijn index.
-            r = self.row(
+            r = self.node(
                 "var", c.Z3_get_index_value(ctx, e), self.sort(c.Z3_get_sort(ctx, e))
             )
         elif k == z3.Z3_QUANTIFIER_AST:
@@ -211,7 +211,7 @@ class _Table:
             vs = tuple(
                 self.sort(c.Z3_get_quantifier_bound_sort(ctx, e, j)) for j in range(n)
             )
-            r = self.row(q, vs, self.term(c.Z3_get_quantifier_body(ctx, e)))
+            r = self.node(q, vs, self.term(c.Z3_get_quantifier_body(ctx, e)))
         else:
             raise Refuse("ast", k)
         self.memo["t", e.value] = r
@@ -261,7 +261,7 @@ def key(fml: z3.BoolRef) -> str | None:
     except (Refuse, z3.Z3Exception):  # z3 errors mean we misread the term
         return None
     h = hashlib.blake2b(key=_secret, digest_size=32)
-    h.update(f"{FORMAT}\n{z3.get_full_version()}\n{table.rows!r}".encode())
+    h.update(f"{FORMAT}\n{z3.get_full_version()}\n{table.nodes!r}".encode())
     return h.hexdigest()
 
 
