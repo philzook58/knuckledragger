@@ -84,7 +84,10 @@ jobs:
           #KNUCKLE_SOLVER=cvc5 pytest
       - name: Run perf
         run: |
-          time uv run python tests/perf.py
+          time KDRAG_CACHE=0 uv run python tests/perf.py
+      - name: Check the proof cache speeds up imports
+        run: |
+          uv run python tests/cache_check.py
       - name: Upload /tmp/kdrag artifact
         if: always()
         uses: actions/upload-artifact@v4

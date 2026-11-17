@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a proof cache that skips z3 for queries already proved in an earlier run. `import kdrag.all` turns it on (set `KDRAG_CACHE=0` to recheck everything); otherwise use `KDRAG_CACHE=1` or `kdrag.config.cache`. See `kdrag.proof_cache`.
+
 ### Changed
 
 ### Removed

@@ -1,6 +1,14 @@
 """
-A convenience module to import commonly needed other modules as shorthands
+A convenience module to import commonly needed other modules as shorthands.
+It also turns on the proof cache (`kdrag.proof_cache`). Set KDRAG_CACHE=0 to recheck everything.
 """
+
+import os
+
+import kdrag.config as config
+
+if os.environ.get("KDRAG_CACHE") != "0":
+    config.cache = True
 
 import kdrag as kd
 import kdrag.smt as smt
@@ -13,7 +21,6 @@ import kdrag.solvers as solvers
 import kdrag.theories as thy
 import kdrag.rewrite as rw
 import kdrag.tele as tele
-import kdrag.config as config
 
 import kdrag.theories.option as option
 import kdrag.theories.list as list_

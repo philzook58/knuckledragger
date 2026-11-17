@@ -1,0 +1,164 @@
+import pytest
+
+import kdrag as kd
+import kdrag.config as config
+import kdrag.proof_cache as proof_cache
+import kdrag.smt as smt
+
+
+@pytest.fixture
+def cache(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "cache", True)
+    monkeypatch.setattr(config, "cache_dir", str(tmp_path / "cache"))
+    monkeypatch.setattr(proof_cache, "_dir", None)
+    monkeypatch.setattr(proof_cache, "hits", 0)
+    monkeypatch.setattr(proof_cache, "misses", 0)
+    return tmp_path / "cache"
+
+
+def no_solving(monkeypatch):
+    def check(self, *args):
+        raise AssertionError("solver called on a cache hit")
+
+    monkeypatch.setattr(smt.Z3Solver, "check", check)
+
+
+def key(by, thm):
+    return proof_cache.key(smt.Implies(smt.And(by), thm))
+
+
+def test_cache_miss_then_hit(cache, monkeypatch):
+    x = smt.Int("x")
+    kd.prove(x + 1 > x)
+    assert (proof_cache.hits, proof_cache.misses) == (0, 1)
+    assert (cache / "proofs.txt").exists()
+    no_solving(monkeypatch)
+    kd.prove(x + 1 > x)
+    assert proof_cache.hits == 1
+
+
+def test_cache_reload_from_disk(cache, monkeypatch):
+    x = smt.Int("x")
+    kd.prove(x * x >= 0)
+    monkeypatch.setattr(proof_cache, "_dir", None)
+    monkeypatch.setattr(proof_cache, "_digests", set())
+    no_solving(monkeypatch)
+    kd.prove(x * x >= 0)
+    assert proof_cache.hits == 1
+
+
+def test_cache_fresh_names_shared_between_by_and_goal(cache):
+    x5 = smt.FreshConst(smt.IntSort(), prefix="x")
+    x7 = smt.FreshConst(smt.IntSort(), prefix="x")
+    hyp = kd.axiom(x5 > 0)
+    kd.prove(x5 > -1, by=[hyp])
+    assert key([x5 > 0], x5 > -1) != key([x5 > 0], x7 > -1)
+    with pytest.raises(kd.kernel.SolverFailure):
+        kd.prove(x7 > -1, by=[hyp])
+
+
+def test_cache_fresh_names_renumbered(cache, monkeypatch):
+    x1 = smt.FreshConst(smt.IntSort(), prefix="x")
+    kd.prove(x1 * x1 >= 0)
+    _junk = [smt.FreshConst(smt.IntSort(), prefix="x") for _ in range(5)]
+    x2 = smt.FreshConst(smt.IntSort(), prefix="x")
+    no_solving(monkeypatch)
+    kd.prove(x2 * x2 >= 0)
+    assert proof_cache.hits == 1
+
+
+def test_cache_strings_not_renamed(cache):
+    s = smt.String("s")
+    assert key([], smt.StringVal("a!1") == s) != key([], smt.StringVal("a!2") == s)
+
+
+def test_cache_overloads_kept_apart(cache):
+    xi, xr = smt.Int("x"), smt.Real("x")
+    assert key([xr > 0], xi > 0) != key([smt.Real("y") > 0], xi > 0)
+    L1 = smt.Datatype("CacheL1")
+    L1.declare("nil")
+    L1 = L1.create()
+    L2 = smt.Datatype("CacheL2")
+    L2.declare("nil")
+    L2 = L2.create()
+    assert key([], L1.nil == L1.nil) != key([], L2.nil == L2.nil)
+    abs_ = smt.Function("abs", smt.RealSort(), smt.RealSort())
+    assert key([], abs_(xr) >= 0) != key([], smt.Abs(xr) >= 0)
+
+
+def test_cache_captured_variables(cache):
+    # Instantiating `ForAll y, ForAll x, R(x, y)` with the constant `x` prints like `ForAll x, R(x, x)`.
+    x, y, z = smt.Ints("x y z")
+    R = smt.Function("R", smt.IntSort(), smt.IntSort(), smt.BoolSort())
+    S = smt.Function("S", smt.IntSort(), smt.BoolSort())
+    refl = kd.axiom(smt.ForAll([z], R(z, z)))
+    sx = kd.axiom(S(x))
+    kd.kernel.prove(smt.ForAll([x], R(x, x)), by=[refl, sx])
+    captured = kd.axiom(smt.ForAll([y], smt.ForAll([x], R(x, y))))(x).thm
+    assert key([refl.thm, sx.thm], captured) != key(
+        [refl.thm, sx.thm], smt.ForAll([x], R(x, x))
+    )
+    with pytest.raises(kd.kernel.SolverFailure):
+        kd.kernel.prove(captured, by=[refl, sx])
+
+
+def test_cache_bound_names_ignored(cache):
+    x, y = smt.Ints("x y")
+    assert key([], smt.ForAll([x], x * x >= 0)) == key([], smt.ForAll([y], y * y >= 0))
+
+
+def test_cache_sorts(cache):
+    a = smt.Array("a", smt.IntSort(), smt.BitVecSort(8))
+    b = smt.Array("a", smt.IntSort(), smt.BitVecSort(4))
+    assert key([], a[0] == a[1]) != key([], b[0] == b[1])
+    s = smt.BitVec("s", 8)
+    assert key([], smt.Extract(3, 0, s) == 0) != key([], smt.Extract(4, 1, s) == 0)
+    F = smt.FiniteDomainSort("CacheF", 3)
+    assert key([], smt.Const("f", F) == smt.Const("f", F)) is None
+
+
+def test_cache_same_printed_sorts_kept_apart(cache):
+    # The int symbol 3 and the string "k!3" name distinct sorts that both print as `k!3`.
+    ctx = smt.main_ctx()
+    sym = smt.Z3_mk_int_symbol(ctx.ref(), 3)
+    U1 = smt.SortRef(smt.Z3_mk_uninterpreted_sort(ctx.ref(), sym), ctx)
+    U3 = smt.DeclareSort("k!3")
+    c1, y = smt.Const("c", U1), smt.Const("y", U1)
+    d3, e3 = smt.Consts("d e", U3)
+    common = smt.And(smt.ForAll([y], y == c1), d3 != e3)
+
+    def query(dom):
+        # At most two arrays from a one element sort to Bool exist, but four from a larger one.
+        a, b, c = smt.Consts("a b c", smt.ArraySort(dom, smt.BoolSort()))
+        return smt.And(common, smt.Distinct(a, b, c))
+
+    assert proof_cache.key(query(U1)) != proof_cache.key(query(U3))
+
+
+def test_cache_refuses_recursive_functions(cache):
+    x = smt.Int("x")
+    f = smt.RecFunction("cache_f", smt.IntSort(), smt.IntSort())
+    smt.RecAddDefinition(f, [x], x + 1)
+    assert key([], f(x) > x) is None
+
+
+def test_cache_ignores_malformed_lines(cache, monkeypatch):
+    x = smt.Int("x")
+    kd.prove(x + 2 > x)
+    with open(cache / "proofs.txt", "a") as f:
+        f.write("not a digest\n" + "0" * 63 + "\n")
+    monkeypatch.setattr(proof_cache, "_dir", None)
+    no_solving(monkeypatch)
+    kd.prove(x + 2 > x)
+    assert proof_cache.hits == 1
+    assert len(proof_cache._digests) == 1
+
+
+def test_cache_bypassed(cache):
+    x = smt.Int("x")
+    kd.prove(x + 3 > x, solver=lambda: smt.Z3Solver())
+    kd.prove(x + 3 > x, admit=True)
+    assert not cache.exists()
+    config.cache = False
+    kd.prove(x + 3 > x)
+    assert not cache.exists()
