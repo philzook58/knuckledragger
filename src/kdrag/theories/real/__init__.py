@@ -49,7 +49,6 @@ RSetSeq = ArraySort(IntSort(), RSet)
 RSetSet = SetSort(RSet)
 empty = EmptySet(R)
 univ = FullSet(R)
-S = univ
 
 real_db = []
 real_simp = []
