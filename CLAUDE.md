@@ -242,6 +242,7 @@ def sum_append(pf):
 
 ## Test Reliability Notes
 
+- `cases(p, q, ...)` checks coverage under the current context before mutating the state; branches follow argument order. A single argument retains Boolean or datatype case splitting.
 - For quantified witness proofs, fix the outer parameters and instantiate the defining theorem before `auto`.
 - Check free schema variables on the original theorem before opening binders; Z3 may recycle collected schema-variable IDs.
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.

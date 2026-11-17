@@ -956,11 +956,25 @@ class ProofState:
             self.goals[-1] = goalctx._replace(goal=newgoal)
             return self
 
-    def cases(self, t):
+    def cases(self, t, *options, timeout=1000):
         """
         `cases` let's us consider an object by cases.
         We consider whether Bools are True or False
         We consider the different constructors for datatypes
+
+        With multiple Boolean arguments, prove that they cover the current
+        context, then open one branch per condition in argument order.
+        Conditions may overlap. Failed coverage leaves the state unchanged.
+        ``timeout`` bounds the coverage check in milliseconds.
+
+        >>> n = smt.Int("n")
+        >>> l = Lemma(smt.BoolVal(True))
+        >>> _ = l.cases(n < 0, n == 0, n > 0)
+        >>> l.auto()
+        [n == 0] ?|= True
+        >>> l.auto()
+        [n > 0] ?|= True
+        >>> _ = l.auto()
 
         >>> import kdrag.theories.nat as nat
         >>> x = smt.Const("x", nat.Nat)
@@ -973,6 +987,20 @@ class ProofState:
         goalctx = self.top_goal()
         ctx = goalctx.ctx
         goal = goalctx.goal
+        if options:
+            conditions = (t, *options)
+            if not all(isinstance(c, smt.BoolRef) for c in conditions):
+                raise TypeError("Multiple cases require Boolean conditions")
+            coverage = kd.prove(
+                smt.Implies(smt.And(ctx), smt.Or(*conditions)), timeout=timeout
+            )
+            self.add_lemma(coverage)
+            self.pop_goal()
+            self.goals.extend(
+                goalctx._replace(ctx=ctx + [condition], goal=goal)
+                for condition in reversed(conditions)
+            )
+            return self.top_goal()
         if t.sort() == smt.BoolSort():
             self.pop_goal()
             self.goals.append(
