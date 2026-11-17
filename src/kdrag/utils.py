@@ -1295,12 +1295,12 @@ def calling_globals_locals():
     """
     A fiendish function for getting the globals and locals of the calling site.
     """
-    stack = inspect.stack()
-    if len(stack) > 2:
-        caller_frame = stack[2]
-        frame = caller_frame.frame
-        return frame.f_locals, frame.f_globals
-    raise ValueError("No calling site found")
+    # Frame 0 is this function and frame 1 its caller. inspect.stack() would also read every frame's source.
+    try:
+        frame = sys._getframe(2)
+    except ValueError:
+        raise ValueError("No calling site found")
+    return frame.f_locals, frame.f_globals
 
 
 def lemma_db() -> dict[str, kd.kernel.Proof]:
