@@ -20,7 +20,6 @@ import re
 
 import z3
 from z3 import z3core as c
-from z3.z3 import _symbol2py, _to_sort_ref
 
 from . import config
 
@@ -43,15 +42,14 @@ class _Table:
     """
     Number the distinct terms, sorts and declarations of a term in order of first visit.
     Each row holds strings, ints and the numbers of earlier rows, so the rows determine the term.
-    Arguments are raw z3 pointers, memoized before wrapping them in z3py objects, which is slow.
     """
 
-    def __init__(self, ctx: z3.Context):
+    def __init__(self, ctx):
         self.ctx = ctx
         self.rows: list[tuple] = []
         # Keyed by raw pointer, without incrementing reference counts. This is safe because every pointer
         # is a part of the term (or of a datatype definition, which z3 keeps), the caller keeps the term
-        # alive during the walk, and the table is discarded afterwards. z3py wrappers count their own references.
+        # alive during the walk, and the table is discarded afterwards.
         self.memo: dict[tuple[str, int], int] = {}
         self.fresh: dict[tuple, int] = {}
 
@@ -59,74 +57,93 @@ class _Table:
         self.rows.append(entry)
         return len(self.rows) - 1
 
-    def sort(self, ptr) -> int:
+    def name(self, d) -> str | int:
+        sym = c.Z3_get_decl_name(self.ctx, d)
+        if c.Z3_get_symbol_kind(self.ctx, sym) == z3.Z3_INT_SYMBOL:
+            return c.Z3_get_symbol_int(self.ctx, sym)
+        return c.Z3_get_symbol_string(self.ctx, sym)
+
+    def sort(self, s) -> int:
         """
         A sort is identified by its printed name, which includes its parameters (`(Array Int (_ BitVec 8))`).
         Datatypes also get a row with their definition. Component sorts are visited for their definitions.
         """
-        if ("s", ptr.value) in self.memo:
-            return self.memo["s", ptr.value]
-        s = _to_sort_ref(ptr, self.ctx)
+        if ("s", s.value) in self.memo:
+            return self.memo["s", s.value]
+        ctx = self.ctx
+        k = c.Z3_get_sort_kind(ctx, s)
         # These sorts' names hide their parameters.
-        if s.kind() in (
-            z3.Z3_FINITE_DOMAIN_SORT,
-            z3.Z3_RELATION_SORT,
-            z3.Z3_UNKNOWN_SORT,
-        ):
-            raise Refuse("sort", s)
+        if k in (z3.Z3_FINITE_DOMAIN_SORT, z3.Z3_RELATION_SORT, z3.Z3_UNKNOWN_SORT):
+            raise Refuse("sort", k)
         # Memoized before visiting components, so recursive datatypes terminate.
-        r = self.memo["s", ptr.value] = self.row("sort", s.kind(), s.sexpr())
-        if isinstance(s, z3.ArraySortRef):
-            for j in range(c.Z3_get_array_arity(s.ctx_ref(), ptr)):
-                self.sort(s.domain_n(j).ast)
-            self.sort(s.range().ast)
-        elif isinstance(s, (z3.SeqSortRef, z3.ReSortRef)):
-            self.sort(s.basis().ast)
-        elif isinstance(s, z3.DatatypeSortRef):
+        r = self.memo["s", s.value] = self.row("sort", k, c.Z3_sort_to_string(ctx, s))
+        if k == z3.Z3_ARRAY_SORT:
+            for j in range(c.Z3_get_array_arity(ctx, s)):
+                self.sort(c.Z3_get_array_sort_domain_n(ctx, s, j))
+            self.sort(c.Z3_get_array_sort_range(ctx, s))
+        elif k == z3.Z3_SEQ_SORT:
+            self.sort(c.Z3_get_seq_sort_basis(ctx, s))
+        elif k == z3.Z3_RE_SORT:
+            self.sort(c.Z3_get_re_sort_basis(ctx, s))
+        elif k == z3.Z3_DATATYPE_SORT:
             ctors = []
-            for i in range(s.num_constructors()):
-                accs = [s.accessor(i, j) for j in range(s.constructor(i).arity())]
-                fields = tuple((a.name(), self.sort(a.range().ast)) for a in accs)
-                ctors.append((s.constructor(i).name(), fields))
+            for i in range(c.Z3_get_datatype_sort_num_constructors(ctx, s)):
+                ctor = c.Z3_get_datatype_sort_constructor(ctx, s, i)
+                n = c.Z3_get_domain_size(ctx, ctor)
+                accs = [
+                    c.Z3_get_datatype_sort_constructor_accessor(ctx, s, i, j)
+                    for j in range(n)
+                ]
+                fields = tuple(
+                    (self.name(a), self.sort(c.Z3_get_range(ctx, a))) for a in accs
+                )
+                ctors.append((self.name(ctor), fields))
             self.row("datatype", r, tuple(ctors))
         return r
 
-    def decl(self, ptr) -> int:
+    def decl(self, d) -> int:
         """A declaration is identified by its kind, name, signature and parameters (`extract 3 0`)."""
-        if ("d", ptr.value) in self.memo:
-            return self.memo["d", ptr.value]
-        ctx = self.ctx.ref()
-        k = c.Z3_get_decl_kind(ctx, ptr)
-        name = _symbol2py(self.ctx, c.Z3_get_decl_name(ctx, ptr))
+        if ("d", d.value) in self.memo:
+            return self.memo["d", d.value]
+        ctx = self.ctx
+        k, name = c.Z3_get_decl_kind(ctx, d), self.name(d)
         # Recursive definitions are not part of the term.
         if k in (z3.Z3_OP_RECURSIVE, z3.Z3_OP_INTERNAL):
             raise Refuse("declaration", name)
-        n = c.Z3_get_domain_size(ctx, ptr)
-        sig = [self.sort(c.Z3_get_domain(ctx, ptr, j)) for j in range(n)]
-        sig.append(self.sort(c.Z3_get_range(ctx, ptr)))
+        sig = [
+            self.sort(c.Z3_get_domain(ctx, d, j))
+            for j in range(c.Z3_get_domain_size(ctx, d))
+        ]
+        sig.append(self.sort(c.Z3_get_range(ctx, d)))
         if k == z3.Z3_OP_UNINTERPRETED and isinstance(name, str):
             if m := _FRESH.fullmatch(name):
                 i = self.fresh.setdefault((name, tuple(sig)), len(self.fresh))
                 name = f"{m.group(1)}!{i}"
         params = []
-        if c.Z3_get_decl_num_parameters(ctx, ptr):
-            ps = z3.FuncDeclRef(ptr, self.ctx).params()
-        else:
-            ps = []
-        for p in ps:
-            if isinstance(p, z3.SortRef):
-                params.append(("sort", self.sort(p.ast)))
-            elif isinstance(p, z3.FuncDeclRef):
-                params.append(("decl", self.decl(p.ast)))
-            elif isinstance(p, z3.ExprRef):
-                params.append(("term", self.term(p.as_ast())))
-            elif p in ("internal parameter", "internal string"):
-                # What z3py returns for opaque parameters.
-                raise Refuse("parameter", name)
+        for j in range(c.Z3_get_decl_num_parameters(ctx, d)):
+            pk = c.Z3_get_decl_parameter_kind(ctx, d, j)
+            if pk == z3.Z3_PARAMETER_INT:
+                params.append(("int", c.Z3_get_decl_int_parameter(ctx, d, j)))
+            elif pk == z3.Z3_PARAMETER_RATIONAL:
+                params.append(("rat", c.Z3_get_decl_rational_parameter(ctx, d, j)))
+            elif pk == z3.Z3_PARAMETER_SYMBOL:
+                sym = c.Z3_get_decl_symbol_parameter(ctx, d, j)
+                params.append(("sym", c.Z3_get_symbol_string(ctx, sym)))
+            elif pk == z3.Z3_PARAMETER_SORT:
+                params.append(
+                    ("sort", self.sort(c.Z3_get_decl_sort_parameter(ctx, d, j)))
+                )
+            elif pk == z3.Z3_PARAMETER_FUNC_DECL:
+                params.append(
+                    ("decl", self.decl(c.Z3_get_decl_func_decl_parameter(ctx, d, j)))
+                )
+            elif pk == z3.Z3_PARAMETER_AST:
+                params.append(
+                    ("term", self.term(c.Z3_get_decl_ast_parameter(ctx, d, j)))
+                )
             else:
-                # An int, a float, or a str for rationals and symbols.
-                params.append(p)
-        r = self.memo["d", ptr.value] = self.row(
+                raise Refuse("parameter", name)
+        r = self.memo["d", d.value] = self.row(
             "decl", k, name, tuple(sig), tuple(params)
         )
         return r
@@ -134,7 +151,7 @@ class _Table:
     def term(self, e) -> int:
         if ("t", e.value) in self.memo:
             return self.memo["t", e.value]
-        ctx = self.ctx.ref()
+        ctx = self.ctx
         k = c.Z3_get_ast_kind(ctx, e)
         if k == z3.Z3_APP_AST:
             d = c.Z3_get_app_decl(ctx, e)
@@ -162,12 +179,15 @@ class _Table:
             )
         elif k == z3.Z3_QUANTIFIER_AST:
             # Bound names, patterns and weights are not hashed.
-            q = z3.QuantifierRef(e, self.ctx)
-            kind = (
-                "lambda" if q.is_lambda() else "forall" if q.is_forall() else "exists"
+            if c.Z3_is_lambda(ctx, e):
+                q = "lambda"
+            else:
+                q = "forall" if c.Z3_is_quantifier_forall(ctx, e) else "exists"
+            n = c.Z3_get_quantifier_num_bound(ctx, e)
+            vs = tuple(
+                self.sort(c.Z3_get_quantifier_bound_sort(ctx, e, j)) for j in range(n)
             )
-            vs = tuple(self.sort(q.var_sort(j).ast) for j in range(q.num_vars()))
-            r = self.row(kind, vs, self.term(q.body().as_ast()))
+            r = self.row(q, vs, self.term(c.Z3_get_quantifier_body(ctx, e)))
         else:
             raise Refuse("ast", k)
         self.memo["t", e.value] = r
@@ -211,7 +231,7 @@ def key(fml: z3.BoolRef) -> str | None:
     """The cache key of `fml`, or None if it contains something the hash does not cover."""
     if _dir != config.cache_dir:
         _load()
-    table = _Table(fml.ctx)
+    table = _Table(fml.ctx_ref())
     try:
         table.term(fml.as_ast())
     except Refuse:
