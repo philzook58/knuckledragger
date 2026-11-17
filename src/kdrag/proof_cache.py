@@ -7,8 +7,10 @@ without printing. Each distinct term, sort and declaration becomes a node, numbe
 A node holds strings, ints and the numbers of its children, so the nodes determine the term.
 Not hashed: bound variable names (variables are de Bruijn indices), quantifier patterns and weights
 (they do not change satisfiability), and the numbers of fresh names `x!12`, which are renumbered in order of first
-occurrence. Equal keys therefore mean equal queries up to
-alpha-renaming and a bijective renaming of fresh names, which preserves unsat.
+occurrence. Equal keys therefore mean equal queries up to alpha-renaming and a bijective renaming of fresh names,
+which preserves unsat. The converse does not always hold, so this is not a full canonical form: nodes follow
+z3's own hash-consing (one node per z3 AST), and z3 stores two subterms that differ only in a binder name as
+two ASTs. Equal queries that z3 shares differently get different keys. That costs cache hits, not soundness.
 Uninterpreted declarations are identified by name and signature, which is how z3 identifies them,
 so `Int x` and `Real x` stay distinct. Anything not understood (such as `RecFunction`) is never cached.
 
@@ -53,6 +55,7 @@ class _Canonicalizer:
     """
     Number the distinct terms, sorts and declarations of a term in order of first visit.
     Each node holds strings, ints and the numbers of earlier nodes, so the nodes determine the term.
+    Distinctness is z3's (one node per z3 AST), not structural, so the result is canonical only up to z3's sharing.
     """
 
     def __init__(self, ctx):
