@@ -213,7 +213,7 @@ def prove(
             raise SolverFailure("prove", thm, res, smtfile.name)
         else:
             if key is not None:
-                proof_cache.record(key)
+                proof_cache.cache_check(key)
             reason: list[object] = ["prove"]
             reason.extend(by)
             return Proof(fvs, thm, reason, False)

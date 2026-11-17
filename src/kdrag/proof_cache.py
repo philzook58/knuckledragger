@@ -2,16 +2,17 @@
 A persistent cache of z3 queries already proved unsat, used by `kernel.prove` when `config.cache` is set.
 This module is part of the trusted kernel. Turn the cache off to recheck everything.
 
-The key of a query `Implies(And(by), thm)` is a keyed hash of its structure, read directly from z3's AST
+The key of a query `Implies(And(by), thm)` is a hash of its structure, read directly from z3's AST
 without printing. Each distinct term, sort and declaration becomes a node, numbered in order of first visit.
-A node holds strings, ints and the numbers of its children, so the nodes determine the term. Not hashed: bound variable names (variables are de Bruijn
-indices), quantifier patterns and weights (they do not change satisfiability), and the numbers of fresh names
-`x!12`, which are renumbered in order of first occurrence. Equal keys therefore mean equal queries up to
+A node holds strings, ints and the numbers of its children, so the nodes determine the term.
+Not hashed: bound variable names (variables are de Bruijn indices), quantifier patterns and weights
+(they do not change satisfiability), and the numbers of fresh names `x!12`, which are renumbered in order of first
+occurrence. Equal keys therefore mean equal queries up to
 alpha-renaming and a bijective renaming of fresh names, which preserves unsat.
 Uninterpreted declarations are identified by name and signature, which is how z3 identifies them,
 so `Int x` and `Real x` stay distinct. Anything not understood (such as `RecFunction`) is never cached.
 
-The hash is keyed by a random secret in `config.cache_dir`, so a copied or edited cache file only causes misses.
+The cache file is trusted like source code: a digest in it is taken as a proof. Do not use cache files you did not make.
 """
 
 import hashlib
@@ -29,7 +30,6 @@ hits = 0
 misses = 0
 
 _dir: str | None = None
-_secret = b""
 _digests: set[str] = set()
 _FRESH = re.compile(r"(.*)!([0-9]+)")
 # Sorts without component sorts. Their printed form includes their parameters (`(_ FloatingPoint 8 24)`).
@@ -219,27 +219,8 @@ class _Canonicalizer:
 
 
 def _load():
-    """Load the secret and the digests of `config.cache_dir`, creating them if needed."""
-    global _dir, _secret, _digests
-    os.makedirs(config.cache_dir, exist_ok=True)
-    secret_path = os.path.join(config.cache_dir, "secret")
-    if not os.path.exists(secret_path):
-        tmp = f"{secret_path}.{os.getpid()}"
-        with open(
-            os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "wb"
-        ) as f:
-            f.write(os.urandom(32))
-        try:
-            os.link(tmp, secret_path)  # atomic: another process may have won the race
-        except FileExistsError:
-            pass
-        os.unlink(tmp)
-    with open(secret_path, "rb") as f:
-        _secret = f.read()
-    if len(_secret) != 32:
-        raise ValueError(
-            "Corrupt proof cache secret. Delete it to start over", secret_path
-        )
+    """Load the digests of `config.cache_dir`."""
+    global _dir, _digests
     path = os.path.join(config.cache_dir, "proofs.txt")
     if os.path.exists(path) and os.path.getsize(path) > MAX_BYTES:
         os.unlink(path)
@@ -253,20 +234,21 @@ def _load():
 
 def key(fml: z3.BoolRef) -> str | None:
     """The cache key of `fml`, or None if it contains something the hash does not cover."""
-    if _dir != config.cache_dir:
-        _load()
     canon = _Canonicalizer(fml.ctx_ref())
     try:
         canon.term(fml.as_ast())
     except (Refuse, z3.Z3Exception):  # z3 errors mean we misread the term
         return None
-    h = hashlib.blake2b(key=_secret, digest_size=32)
+    h = hashlib.blake2b(digest_size=32)
     h.update(f"{FORMAT}\n{z3.get_full_version()}\n{canon.nodes!r}".encode())
     return h.hexdigest()
 
 
 def lookup(k: str) -> bool:
+    """Whether the query with key `k` was proved unsat before."""
     global hits, misses
+    if _dir != config.cache_dir:
+        _load()
     if k in _digests:
         hits += 1
         return True
@@ -274,9 +256,10 @@ def lookup(k: str) -> bool:
     return False
 
 
-def record(k: str):
-    """Record that the query with key `k` is unsat."""
+def cache_check(k: str):
+    """Cache that checking the query with key `k` gave unsat."""
     _digests.add(k)
+    os.makedirs(config.cache_dir, exist_ok=True)
     path = os.path.join(config.cache_dir, "proofs.txt")
     fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
     try:

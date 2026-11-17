@@ -1,5 +1,3 @@
-import shutil
-
 import pytest
 
 import kdrag as kd
@@ -33,7 +31,7 @@ def test_cache_miss_then_hit(cache, monkeypatch):
     x = smt.Int("x")
     kd.prove(x + 1 > x)
     assert (proof_cache.hits, proof_cache.misses) == (0, 1)
-    assert (cache / "proofs.txt").exists() and (cache / "secret").exists()
+    assert (cache / "proofs.txt").exists()
     no_solving(monkeypatch)
     kd.prove(x + 1 > x)
     assert proof_cache.hits == 1
@@ -144,17 +142,16 @@ def test_cache_refuses_recursive_functions(cache):
     assert key([], f(x) > x) is None
 
 
-def test_cache_other_secret_misses(cache, tmp_path, monkeypatch):
+def test_cache_ignores_malformed_lines(cache, monkeypatch):
     x = smt.Int("x")
     kd.prove(x + 2 > x)
-    other = tmp_path / "other"
-    other.mkdir()
-    shutil.copy(cache / "proofs.txt", other / "proofs.txt")
-    with open(other / "proofs.txt", "a") as f:
+    with open(cache / "proofs.txt", "a") as f:
         f.write("not a digest\n" + "0" * 63 + "\n")
-    monkeypatch.setattr(config, "cache_dir", str(other))
+    monkeypatch.setattr(proof_cache, "_dir", None)
+    no_solving(monkeypatch)
     kd.prove(x + 2 > x)
-    assert proof_cache.hits == 0
+    assert proof_cache.hits == 1
+    assert len(proof_cache._digests) == 1
 
 
 def test_cache_bypassed(cache):
