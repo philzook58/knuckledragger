@@ -109,6 +109,16 @@ def test_cache_bound_names_ignored(cache):
     assert key([], smt.ForAll([x], x * x >= 0)) == key([], smt.ForAll([y], y * y >= 0))
 
 
+def test_cache_sorts(cache):
+    a = smt.Array("a", smt.IntSort(), smt.BitVecSort(8))
+    b = smt.Array("a", smt.IntSort(), smt.BitVecSort(4))
+    assert key([], a[0] == a[1]) != key([], b[0] == b[1])
+    s = smt.BitVec("s", 8)
+    assert key([], smt.Extract(3, 0, s) == 0) != key([], smt.Extract(4, 1, s) == 0)
+    F = smt.FiniteDomainSort("CacheF", 3)
+    assert key([], smt.Const("f", F) == smt.Const("f", F)) is None
+
+
 def test_cache_refuses_recursive_functions(cache):
     x = smt.Int("x")
     f = smt.RecFunction("cache_f", smt.IntSort(), smt.IntSort())
