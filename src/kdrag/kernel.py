@@ -170,7 +170,8 @@ def prove(
                     f"Unknown solver {solver!r}; expected one of {', '.join(solvers)}"
                 )
             solver = solvers[solver]
-        factory = config.solver if solver is None else solver
+        if solver is None:
+            solver = config.solver
         by = list(by)
         for p in by:
             if not isinstance(p, Proof):
@@ -185,12 +186,12 @@ def prove(
                     fvs,
                 )
         key = None
-        if config.cache and not dump and factory is getattr(smt, "Z3Solver", None):
+        if config.cache and not dump and solver is getattr(smt, "Z3Solver", None):
             key = proof_cache.key(smt.Implies(smt.And([p.thm for p in by]), thm))
             if key is not None and proof_cache.lookup(key):
                 config.perf_event("solver.cache_hit", thm, 0.0)
                 return Proof(fvs, thm, ["prove", *by])
-        s = factory()  # type: ignore
+        s = solver()  # type: ignore
         s.set("timeout", timeout)
         for p in by:
             s.add(p.thm)
