@@ -2,14 +2,14 @@
 A persistent cache of z3 queries already proved unsat, used by `kernel.prove` when `config.cache` is set.
 This module is part of the trusted kernel. Turn the cache off to recheck everything.
 
-The key of a query `Implies(And(by), thm)` is a keyed hash of its SMT-LIB text, with let names (`?x12`)
-and fresh names (`x!12`) renumbered in order of first occurrence across the whole query.
-That is a bijective renaming of the query's own symbols, so equal keys mean equisatisfiable queries
-as long as the printed text is unambiguous.
-The printer introduces lets for subterms with several references (including Python's), so the same query
-can print differently and miss. That costs hits, never soundness.
-z3 prints symbols by name only, so overloaded symbols (`Int x` and `Real x`, two datatypes with a `nil`,
-a user `abs`) and captured variables print identically. Such queries are never cached (see `ambiguous`).
+The key of a query `Implies(And(by), thm)` is a keyed hash of its structure, read directly from z3's AST
+without printing. Each distinct node gets a row in a table, whose entries are strings, ints and the row numbers
+of its children, so the table determines the term. Not hashed: bound variable names (variables are de Bruijn
+indices), quantifier patterns and weights (they do not change satisfiability), and the numbers of fresh names
+`x!12`, which are renumbered in order of first occurrence. Equal keys therefore mean equal queries up to
+alpha-renaming and a bijective renaming of fresh names, which preserves unsat.
+Uninterpreted declarations are identified by name and signature, which is how z3 identifies them,
+so `Int x` and `Real x` stay distinct. Anything not understood (such as `RecFunction`) is never cached.
 
 The hash is keyed by a random secret in `config.cache_dir`, so a copied or edited cache file only causes misses.
 """
@@ -19,158 +19,203 @@ import os
 import re
 
 import z3
+from z3 import z3core as c
 
 from . import config
 
-FORMAT = "kdrag-proof-cache-1"
+FORMAT = "kdrag-proof-cache-2"
 MAX_BYTES = 50_000_000
 hits = 0
 misses = 0
 
-# Builtin names from z3's `builtin_name("...")` tables and reserved words.
-# Dotted builtins (`seq.len`, `fp.add`, ...) are covered by their prefixes instead.
-BUILTIN_PREFIXES = frozenset(
-    {"seq", "str", "re", "char", "fp", "ff", "complex", "int", "set", "pb"}
-)
-_BUILTIN_NAMES = """
-    _ - ! * ** / && ^ + +oo +zero < <= = => -> > >= || ~ /0 abs acos acosh and arctan2
-    array-ext as as-array asin asinh atan atan2 atanh atom bit0 bit1 bit2bool BitVec
-    bool Bool bv bv2int bv2nat bvadd bvand bvashr bvcomp bvlshr bvmul bvnand bvneg
-    bvnego bvnor bvnot bvor bvredand bvredor bvsaddo bvsdiv bvsdiv0 bvsdiv_i bvsdivo
-    bvsge bvsgt bvshl bvsle bvslt bvsmod bvsmod0 bvsmod_i bvsmul_noovfl bvsmul_noudfl
-    bvsmulo bvsrem bvsrem0 bvsrem_i bvssubo bvsub bvuaddo bvudiv bvudiv0 bvudiv_i bvuge
-    bvugt bvule bvult bvumul_noovfl bvumulo bvurem bvurem0 bvurem_i bvusubo bvxnor
-    bvxor card case-def cell char Char choice complement Complex concat cons const cos
-    cosh default distinct div div0 divisible equals equiv euler exists exp extract
-    ext_rotate_left ext_rotate_right false FiniteField FiniteSet Float128 Float16
-    Float32 Float64 FloatingPoint forall fp if iff if_then_else implies Int int2bv
-    intersection int_to_bv is is_int ite lambda let ln log map match mkbv mod mod0 NaN
-    nil not -oo or par pi Proof Real recfun-num-rounds RegEx RegLan rem repeat RNA RNE
-    rotate_left rotate_right RoundingMode roundNearestTiesToAway roundNearestTiesToEven
-    roundTowardNegative roundTowardPositive roundTowardZero RTN RTP RTZ sbv_to_int
-    select Seq Set set-has-size setminus sign_extend sin sinh store String
-    StringSequence subset tan tanh to_fp to_fp_unsigned to_ieee_bv to_int to_real true
-    ubv_to_int Unicode union update-field xor -zero zero_extend
-"""
-BUILTINS = frozenset(_BUILTIN_NAMES.split())
-
-_SYM = r'[^\s()|";]'
-# Strings, quoted symbols and comments are matched first so their contents are never renamed.
-# The renamed tokens are whole symbols: let names `?x12`/`$x12` and fresh names `x!12` (not keywords `:k!1`).
-_RENAME = re.compile(
-    rf'"(?:[^"]|"")*"|\|[^|]*\||;[^\n]*|(?<!{_SYM})(?:[?$]x\d+|(?!:){_SYM}*![0-9]+)(?!{_SYM})'
-)
-_TOKEN = re.compile(rf"\|[^|]*\||[()]|{_SYM}+")
-_LET = re.compile(r"[?$]x\d+")
-
 _dir: str | None = None
 _secret = b""
 _digests: set[str] = set()
+_FRESH = re.compile(r"(.*)!([0-9]+)")
+_SIMPLE_SORTS = (
+    z3.Z3_BOOL_SORT,
+    z3.Z3_INT_SORT,
+    z3.Z3_REAL_SORT,
+    z3.Z3_CHAR_SORT,
+    z3.Z3_ROUNDING_MODE_SORT,
+)
 
 
-def canon(text: str) -> str:
-    """
-    Renumber let names and fresh names in order of first occurrence.
-
-    >>> canon('(declare-fun x!7 () Int) (assert (let ((?x41 (f x!7 y!3))) (= ?x41 "x!7")))')
-    '(declare-fun x!0 () Int) (assert (let ((?x1 (f x!0 y!2))) (= ?x1 "x!7")))'
-    """
-    names: dict[str, str] = {}
-
-    def rename(m: re.Match) -> str:
-        t = m.group(0)
-        if t[0] in '"|;':
-            return t
-        if t not in names:
-            prefix = t[:2] if t[0] in "?$" else t[: t.rindex("!") + 1]
-            names[t] = prefix + str(len(names))
-        return names[t]
-
-    return _RENAME.sub(rename, text)
+class Refuse(Exception):
+    """The term contains something the hash does not cover."""
 
 
-def _read(text: str) -> list:
-    """Read SMT-LIB text into nested lists. Quoted symbols lose their bars and comments are dropped."""
-    stack: list[list] = [[]]
-    for t in _TOKEN.findall(text):
-        if t == "(":
-            stack.append([])
-        elif t == ")":
-            sexp = stack.pop()
-            stack[-1].append(sexp)
-        elif t[0] != ";":
-            stack[-1].append(t.strip("|"))
-    return stack[0]
+class _Table:
+    """Number the distinct nodes, sorts and declarations of a term in order of first visit."""
 
+    def __init__(self, ctx):
+        self.ctx = ctx
+        self.rows: list[tuple] = []
+        self.memo: dict[
+            tuple[str, int], int
+        ] = {}  # keyed by pointer, unique while the term is alive
+        self.fresh: dict[tuple, int] = {}
+        self.datatypes: list[
+            int
+        ] = []  # datatype sorts being visited, for recursive references
 
-def _reserved(name: str) -> bool:
-    return (
-        name in BUILTINS
-        or ("." in name and name.partition(".")[0] in BUILTIN_PREFIXES)
-        or _LET.fullmatch(name) is not None  # would clash with the printer's let names
-    )
+    def row(self, *entry) -> int:
+        self.rows.append(entry)
+        return len(self.rows) - 1
 
+    def name(self, sym) -> str:
+        if c.Z3_get_symbol_kind(self.ctx, sym) == z3.Z3_INT_SYMBOL:
+            return "#" + str(c.Z3_get_symbol_int(self.ctx, sym))
+        return c.Z3_get_symbol_string(self.ctx, sym)
 
-def declared(cmds: list) -> list[str] | None:
-    """
-    Names declared by the commands, or None for a command we do not recognize.
+    def sort(self, s) -> int:
+        ctx = self.ctx
+        if ("s", s.value) in self.memo:
+            return self.memo["s", s.value]
+        if (
+            s.value in self.datatypes
+        ):  # recursive occurrence: refer to the enclosing datatype by depth
+            return self.row("rec", len(self.datatypes) - self.datatypes.index(s.value))
+        k = c.Z3_get_sort_kind(ctx, s)
+        if k in _SIMPLE_SORTS:
+            r = self.row("s", k)
+        elif k == z3.Z3_UNINTERPRETED_SORT:
+            r = self.row("s", k, self.name(c.Z3_get_sort_name(ctx, s)))
+        elif k == z3.Z3_BV_SORT:
+            r = self.row("s", k, c.Z3_get_bv_sort_size(ctx, s))
+        elif k == z3.Z3_ARRAY_SORT:
+            dom = [
+                c.Z3_get_array_sort_domain_n(ctx, s, j)
+                for j in range(c.Z3_get_array_arity(ctx, s))
+            ]
+            r = self.row(
+                "s",
+                k,
+                *map(self.sort, dom),
+                self.sort(c.Z3_get_array_sort_range(ctx, s)),
+            )
+        elif k == z3.Z3_SEQ_SORT:
+            r = self.row("s", k, self.sort(c.Z3_get_seq_sort_basis(ctx, s)))
+        elif k == z3.Z3_RE_SORT:
+            r = self.row("s", k, self.sort(c.Z3_get_re_sort_basis(ctx, s)))
+        elif k == z3.Z3_DATATYPE_SORT:
+            self.datatypes.append(s.value)
+            ctors = []
+            for i in range(c.Z3_get_datatype_sort_num_constructors(ctx, s)):
+                ctor = c.Z3_get_datatype_sort_constructor(ctx, s, i)
+                n = c.Z3_get_domain_size(ctx, ctor)
+                accs = [
+                    c.Z3_get_datatype_sort_constructor_accessor(ctx, s, i, j)
+                    for j in range(n)
+                ]
+                fields = tuple(
+                    (
+                        self.name(c.Z3_get_decl_name(ctx, a)),
+                        self.sort(c.Z3_get_range(ctx, a)),
+                    )
+                    for a in accs
+                )
+                ctors.append((self.name(c.Z3_get_decl_name(ctx, ctor)), fields))
+            self.datatypes.pop()
+            r = self.row("s", k, self.name(c.Z3_get_sort_name(ctx, s)), tuple(ctors))
+            if (
+                self.datatypes
+            ):  # may refer to enclosing datatypes by depth, so do not memoize
+                return r
+        else:
+            raise Refuse("sort", k)
+        self.memo["s", s.value] = r
+        return r
 
-    >>> declared(_read("(declare-datatypes ((N 0)) (((z) (s (p N))))) (declare-fun f (N) Int) (assert true)"))
-    ['N', 'z', 'is-z', 's', 'is-s', 'p', 'f']
-    """
-    names = []
-    for cmd in cmds:
-        match cmd:
-            case ["declare-fun" | "declare-const" | "declare-sort", name, *_]:
-                names.append(name)
-            case ["declare-datatypes", dts, bodies]:
-                names += [dt[0] for dt in dts]
-                for body in bodies:
-                    if body[0] == "par":
-                        body = body[2]
-                    for ctor in body:
-                        names += [ctor[0], "is-" + ctor[0]] + [
-                            acc[0] for acc in ctor[1:]
-                        ]
-            case ["define-funs-rec", sigs, _]:
-                names += [sig[0] for sig in sigs]
-            case ["set-info", *_] | ["assert", _] | ["check-sat"]:
-                pass
-            case _:
-                return None
-    return names
+    def decl(self, d) -> int:
+        ctx = self.ctx
+        if ("d", d.value) in self.memo:
+            return self.memo["d", d.value]
+        k = c.Z3_get_decl_kind(ctx, d)
+        if k in (
+            z3.Z3_OP_RECURSIVE,
+            z3.Z3_OP_INTERNAL,
+        ):  # recursive definitions are not part of the term
+            raise Refuse("declaration", k)
+        dom = [c.Z3_get_domain(ctx, d, j) for j in range(c.Z3_get_domain_size(ctx, d))]
+        sig = (tuple(map(self.sort, dom)), self.sort(c.Z3_get_range(ctx, d)))
+        name = self.name(c.Z3_get_decl_name(ctx, d))
+        params = []
+        for j in range(c.Z3_get_decl_num_parameters(ctx, d)):
+            pk = c.Z3_get_decl_parameter_kind(ctx, d, j)
+            if pk == z3.Z3_PARAMETER_INT:
+                params.append(("i", c.Z3_get_decl_int_parameter(ctx, d, j)))
+            elif pk == z3.Z3_PARAMETER_RATIONAL:
+                params.append(("q", c.Z3_get_decl_rational_parameter(ctx, d, j)))
+            elif pk == z3.Z3_PARAMETER_SYMBOL:
+                params.append(
+                    ("y", self.name(c.Z3_get_decl_symbol_parameter(ctx, d, j)))
+                )
+            elif pk == z3.Z3_PARAMETER_SORT:
+                params.append(("s", self.sort(c.Z3_get_decl_sort_parameter(ctx, d, j))))
+            elif pk == z3.Z3_PARAMETER_FUNC_DECL:
+                params.append(
+                    ("f", self.decl(c.Z3_get_decl_func_decl_parameter(ctx, d, j)))
+                )
+            else:
+                raise Refuse("parameter", pk)
+        if k == z3.Z3_OP_UNINTERPRETED and (m := _FRESH.fullmatch(name)):
+            name = (
+                m.group(1)
+                + "!"
+                + str(self.fresh.setdefault((name, sig), len(self.fresh)))
+            )
+        r = self.row("d", k, name, sig, tuple(params))
+        self.memo["d", d.value] = r
+        return r
 
-
-def ambiguous(text: str) -> bool:
-    """
-    Whether z3's printed query may denote more than one formula. z3 prints by name only, so this is the case when
-    a name is declared twice or is a builtin, or a bound variable shadows a declared name, a builtin or an enclosing
-    binder (instantiating `ForAll y, ForAll x, R(x, y)` with a constant `x` prints like `ForAll x, R(x, x)`).
-
-    >>> ambiguous("(declare-fun x () Int) (assert (forall ((x Int)) (R x x)))")
-    True
-    >>> ambiguous("(declare-fun y () Int) (assert (and (forall ((x Int)) (> x y)) (exists ((x Int)) (= x y))))")
-    False
-    """
-    cmds = _read(text)
-    names = declared(cmds)
-    if names is None or len(set(names)) != len(names) or any(map(_reserved, names)):
-        return True
-    todo = [(cmd, frozenset(names)) for cmd in cmds]
-    while todo:
-        e, scope = todo.pop()
-        if isinstance(e, list) and e:
-            if e[0] in ("forall", "exists", "lambda"):
-                vs = [v[0] for v in e[1]]
-                if len(set(vs)) != len(vs) or scope.intersection(vs):
-                    return True
-                if any(map(_reserved, vs)):
-                    return True
-                scope = scope.union(vs)
-            elif e[0] == "match":  # binds pattern variables, which we do not track
-                return True
-            todo.extend((c, scope) for c in e)
-    return False
+    def term(self, e) -> int:
+        ctx = self.ctx
+        if ("t", e.value) in self.memo:
+            return self.memo["t", e.value]
+        k = c.Z3_get_ast_kind(ctx, e)
+        if k == z3.Z3_APP_AST:
+            d = c.Z3_get_app_decl(ctx, e)
+            if c.Z3_get_decl_kind(ctx, d) == z3.Z3_OP_INTERNAL and c.Z3_is_string(
+                ctx, e
+            ):
+                r = self.row("str", c.Z3_get_string(ctx, e))
+            else:
+                args = [
+                    c.Z3_get_app_arg(ctx, e, j)
+                    for j in range(c.Z3_get_app_num_args(ctx, e))
+                ]
+                r = self.row("a", self.decl(d), *map(self.term, args))
+        elif k == z3.Z3_NUMERAL_AST:
+            s = c.Z3_get_sort(ctx, e)
+            if c.Z3_get_sort_kind(ctx, s) not in (
+                z3.Z3_INT_SORT,
+                z3.Z3_REAL_SORT,
+                z3.Z3_BV_SORT,
+            ):
+                raise Refuse("numeral")
+            r = self.row("n", c.Z3_get_numeral_string(ctx, e), self.sort(s))
+        elif k == z3.Z3_VAR_AST:
+            r = self.row(
+                "v", c.Z3_get_index_value(ctx, e), self.sort(c.Z3_get_sort(ctx, e))
+            )
+        elif k == z3.Z3_QUANTIFIER_AST:
+            q = (
+                "lambda"
+                if c.Z3_is_lambda(ctx, e)
+                else "forall"
+                if c.Z3_is_quantifier_forall(ctx, e)
+                else "exists"
+            )
+            n = c.Z3_get_quantifier_num_bound(ctx, e)
+            vs = tuple(
+                self.sort(c.Z3_get_quantifier_bound_sort(ctx, e, j)) for j in range(n)
+            )
+            r = self.row("q", q, vs, self.term(c.Z3_get_quantifier_body(ctx, e)))
+        else:
+            raise Refuse("ast", k)
+        self.memo["t", e.value] = r
+        return r
 
 
 def _load():
@@ -207,19 +252,16 @@ def _load():
 
 
 def key(fml: z3.BoolRef) -> str | None:
-    """The cache key of `fml`, or None if its printed form may be ambiguous."""
+    """The cache key of `fml`, or None if it contains something the hash does not cover."""
     if _dir != config.cache_dir:
         _load()
-    text = z3.Z3_benchmark_to_smtlib_string(
-        fml.ctx_ref(), "", "", "unknown", "", 0, (z3.Ast * 1)(), fml.as_ast()
-    )
+    table = _Table(fml.ctx_ref())
     try:
-        if ambiguous(text):
-            return None
-    except (IndexError, TypeError):  # unexpected shape
+        table.term(fml.as_ast())
+    except Refuse:
         return None
     h = hashlib.blake2b(key=_secret, digest_size=32)
-    h.update(f"{FORMAT}\n{z3.get_full_version()}\n{canon(text)}".encode())
+    h.update(f"{FORMAT}\n{z3.get_full_version()}\n{table.rows!r}".encode())
     return h.hexdigest()
 
 

@@ -243,7 +243,7 @@ def sum_append(pf):
 ## Test Reliability Notes
 
 - The proof cache (`KDRAG_CACHE=1`) hides solver instability and timeouts. Check timing and stability with it unset.
-- z3 prints symbols by name only, so SMT-LIB text from z3 (`Solver.sexpr()`, `proofstep_to_smt2`) can be ambiguous: overloaded names (two sorts named `Tuple_Int_Int`) and bound variables that capture a constant of the same name. `kdrag.proof_cache.ambiguous` detects these.
+- z3 prints symbols by name only, so SMT-LIB text from z3 (`Solver.sexpr()`, `proofstep_to_smt2`) can be ambiguous: overloaded names (two sorts named `Tuple_Int_Int`) and bound variables that capture a constant of the same name. `kdrag.proof_cache` hashes z3's AST instead of printed text for this reason.
 - For quantified witness proofs, fix the outer parameters and instantiate the defining theorem before `auto`.
 - Check free schema variables on the original theorem before opening binders; Z3 may recycle collected schema-variable IDs.
 - CFFI compilation should use `compile(tmpdir=...)` rather than change the process working directory.

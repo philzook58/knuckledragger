@@ -74,25 +74,21 @@ def test_cache_strings_not_renamed(cache):
     assert key([], smt.StringVal("a!1") == s) != key([], smt.StringVal("a!2") == s)
 
 
-def test_cache_refuses_ambiguous_text(cache):
+def test_cache_overloads_kept_apart(cache):
     xi, xr = smt.Int("x"), smt.Real("x")
-    assert key([xr > 0], xi == xi) is None
+    assert key([xr > 0], xi > 0) != key([smt.Real("y") > 0], xi > 0)
     L1 = smt.Datatype("CacheL1")
     L1.declare("nil")
     L1 = L1.create()
     L2 = smt.Datatype("CacheL2")
     L2.declare("nil")
     L2 = L2.create()
-    assert key([], smt.And(L1.nil == L1.nil, L2.nil == L2.nil)) is None
+    assert key([], L1.nil == L1.nil) != key([], L2.nil == L2.nil)
     abs_ = smt.Function("abs", smt.RealSort(), smt.RealSort())
-    assert key([abs_(xr) >= 0], smt.Abs(xr) >= 0) is None
-    seq_len = smt.Function("seq.len", smt.IntSort(), smt.IntSort())
-    assert key([], seq_len(1) == seq_len(1)) is None
-    let_name = smt.Int("?x3")
-    assert key([], let_name == let_name) is None
+    assert key([], abs_(xr) >= 0) != key([], smt.Abs(xr) >= 0)
 
 
-def test_cache_refuses_captured_variables(cache):
+def test_cache_captured_variables(cache):
     # Instantiating `ForAll y, ForAll x, R(x, y)` with the constant `x` prints like `ForAll x, R(x, x)`.
     x, y, z = smt.Ints("x y z")
     R = smt.Function("R", smt.IntSort(), smt.IntSort(), smt.BoolSort())
@@ -101,9 +97,23 @@ def test_cache_refuses_captured_variables(cache):
     sx = kd.axiom(S(x))
     kd.kernel.prove(smt.ForAll([x], R(x, x)), by=[refl, sx])
     captured = kd.axiom(smt.ForAll([y], smt.ForAll([x], R(x, y))))(x).thm
-    assert key([refl.thm, sx.thm], captured) is None
+    assert key([refl.thm, sx.thm], captured) != key(
+        [refl.thm, sx.thm], smt.ForAll([x], R(x, x))
+    )
     with pytest.raises(kd.kernel.SolverFailure):
         kd.kernel.prove(captured, by=[refl, sx])
+
+
+def test_cache_bound_names_ignored(cache):
+    x, y = smt.Ints("x y")
+    assert key([], smt.ForAll([x], x * x >= 0)) == key([], smt.ForAll([y], y * y >= 0))
+
+
+def test_cache_refuses_recursive_functions(cache):
+    x = smt.Int("x")
+    f = smt.RecFunction("cache_f", smt.IntSort(), smt.IntSort())
+    smt.RecAddDefinition(f, [x], x + 1)
+    assert key([], f(x) > x) is None
 
 
 def test_cache_other_secret_misses(cache, tmp_path, monkeypatch):
@@ -127,16 +137,3 @@ def test_cache_bypassed(cache):
     config.cache = False
     kd.prove(x + 3 > x)
     assert not cache.exists()
-
-
-def test_cache_key_ignores_print_settings(cache):
-    # The printer's lets depend on reference counts, so reuse one formula.
-    x = smt.Int("x")
-    fml = smt.Implies(x > 0, x * x > 0)
-    k = proof_cache.key(fml)
-    old = smt.get_param("pp.max_depth")
-    smt.set_param("pp.max_depth", 2)
-    try:
-        assert proof_cache.key(fml) == k
-    finally:
-        smt.set_param("pp.max_depth", old)
