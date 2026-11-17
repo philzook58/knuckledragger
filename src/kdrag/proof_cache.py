@@ -49,7 +49,7 @@ class Refuse(Exception):
     """The term contains something the hash does not cover."""
 
 
-class _Table:
+class _Canonicalizer:
     """
     Number the distinct terms, sorts and declarations of a term in order of first visit.
     Each node holds strings, ints and the numbers of earlier nodes, so the nodes determine the term.
@@ -60,7 +60,7 @@ class _Table:
         self.nodes: list[tuple] = []
         # Keyed by raw pointer, without incrementing reference counts. This is safe because every pointer
         # is a part of the term (or of a datatype definition, which z3 keeps), the caller keeps the term
-        # alive during the walk, and the table is discarded afterwards.
+        # alive during the walk, and the canonicalizer is discarded afterwards.
         self.memo: dict[tuple[str, int], int] = {}
         self.fresh: dict[tuple, int] = {}
 
@@ -255,13 +255,13 @@ def key(fml: z3.BoolRef) -> str | None:
     """The cache key of `fml`, or None if it contains something the hash does not cover."""
     if _dir != config.cache_dir:
         _load()
-    table = _Table(fml.ctx_ref())
+    canon = _Canonicalizer(fml.ctx_ref())
     try:
-        table.term(fml.as_ast())
+        canon.term(fml.as_ast())
     except (Refuse, z3.Z3Exception):  # z3 errors mean we misread the term
         return None
     h = hashlib.blake2b(key=_secret, digest_size=32)
-    h.update(f"{FORMAT}\n{z3.get_full_version()}\n{table.nodes!r}".encode())
+    h.update(f"{FORMAT}\n{z3.get_full_version()}\n{canon.nodes!r}".encode())
     return h.hexdigest()
 
 
