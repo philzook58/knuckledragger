@@ -14,7 +14,7 @@ from kdrag.smt import (
 )
 
 # import kdrag.theories.real as real
-from kdrag.theories.real import R, RSet
+from kdrag.theories.real import R, RSet, empty
 from kdrag.theories.real.rset import closed_int
 
 """
@@ -39,7 +39,7 @@ omu_interval = axiom(
 )
 
 # Theorem from empty set
-omu_emp_zero = axiom(omu(RSet.empty) == 0, by="omu empty")
+omu_emp_zero = axiom(omu(empty) == 0, by="omu empty")
 
 # Option<Real> basically. But nice overloading
 PosEReal0 = Inductive("PosEReal0")

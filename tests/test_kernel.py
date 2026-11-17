@@ -22,6 +22,15 @@ from kdrag import Calc
 import kdrag.utils as utils
 
 
+def test_define_single_argument():
+    x = smt.Int("single_define_x")
+    f = kd.define("single_argument_definition", x, x + 1)
+    assert f.arity() == 1
+    assert f.domain(0) == smt.IntSort()
+    assert f.defn(x).thm.eq(f(x) == x + 1)
+    kd.prove(f(3) == 4, by=[f.defn])
+
+
 def test_true_infer():
     kd.prove(smt.BoolVal(True))
 
