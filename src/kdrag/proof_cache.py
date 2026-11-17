@@ -49,7 +49,9 @@ class _Table:
     def __init__(self, ctx: z3.Context):
         self.ctx = ctx
         self.rows: list[tuple] = []
-        # Keyed by pointer, which is unique while the term is alive.
+        # Keyed by raw pointer, without incrementing reference counts. This is safe because every pointer
+        # is a part of the term (or of a datatype definition, which z3 keeps), the caller keeps the term
+        # alive during the walk, and the table is discarded afterwards. z3py wrappers count their own references.
         self.memo: dict[tuple[str, int], int] = {}
         self.fresh: dict[tuple, int] = {}
 
