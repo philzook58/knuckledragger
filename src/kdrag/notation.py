@@ -12,6 +12,7 @@ Importing this module will add some syntactic sugar to smt.
 
 - Expr overload by single dispatch
 - Bool supports `&`, `|`, `~`
+- Sets support `|`, `&`, `~`, `-`, `<=`, `>=`
 - Sorts supports `>>` for ArraySort
 """
 
@@ -63,7 +64,10 @@ smt.QuantifierRef.__call__ = quantifier_call
 class SortDispatch:
     """
     Sort dispatch is modeled after functools.singledispatch
-    It allows for dispatching on the sort of the first argument
+    It allows for dispatching on the sort of the first argument.
+
+    Registered methods, default, and default_factory take precedence over
+    set_default, which handles unary Boolean arrays before pointwise lifting.
 
     >>> my_func = SortDispatch(name="my_func")
     >>> my_func.register(smt.IntSort(), lambda x: x + 1)
@@ -74,12 +78,15 @@ class SortDispatch:
     Not(True)
     """
 
-    def __init__(self, name=None, default=None, pointwise=False, default_factory=None):
+    def __init__(
+        self, name=None, default=None, pointwise=False, default_factory=None, set_default=None
+    ):
         self.methods = {}
         self.default = default
         self.name = name
         self.pointwise = pointwise
         self.default_factory = default_factory
+        self.set_default = set_default
 
     def register(self, sort, func):
         self.methods[sort] = func
@@ -105,9 +112,6 @@ class SortDispatch:
 
     def __call__(self, *args, **kwargs):
         """
-
-        TODO: Overloading in theories.set is interfering. Which to keep?
-        # >>> _ = smt.Lambda([x], x > 0) & smt.BoolVal(False)
 
         >>> x = smt.Int("x")
         >>> _ = smt.Lambda([x], x > 0) & smt.Lambda([x], x > 1)
@@ -136,6 +140,15 @@ class SortDispatch:
             res = self.default_factory(sort)
             self.register(sort, res)
             return res(*args, **kwargs)
+        elif (
+            self.set_default is not None
+            and isinstance(sort, smt.ArraySortRef)
+            and smt.is_bool_sort(sort.range())
+            and len(smt.domains(sort)) == 1
+        ):
+            # Sets are unary Boolean arrays. Prefer native set operations to
+            # lifting through membership, while preserving explicit overrides.
+            return self.set_default(*args, **kwargs)
         elif self.pointwise and smt.is_func(x0):
             doms = smt.domains(x0)
             vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
@@ -228,7 +241,7 @@ radd.register(smt.RealSort(), (_x + _y).decl())
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
 
 
-sub = SortDispatch(name="sub", pointwise=True)
+sub = SortDispatch(name="sub", pointwise=True, set_default=smt.SetDifference)
 """Sort based dispatch for `-` syntax"""
 sub.register(smt.IntSort(), lambda x, y: x - y)
 sub.register(smt.RealSort(), lambda x, y: x - y)
@@ -261,19 +274,19 @@ div = SortDispatch(name="div_", pointwise=True)
 """Sort based dispatch for `/` syntax"""
 smt.ExprRef.__truediv__ = lambda x, y: div(x, y)  # type: ignore
 
-and_ = SortDispatch(name="and_", pointwise=True)
+and_ = SortDispatch(name="and_", pointwise=True, set_default=smt.SetIntersect)
 """Sort based dispatch for `&` syntax"""
 smt.ExprRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
 smt.QuantifierRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
 and_.register(smt.BoolSort(), smt.And)
 
-or_ = SortDispatch(name="or_", pointwise=True)
+or_ = SortDispatch(name="or_", pointwise=True, set_default=smt.SetUnion)
 """Sort based dispatch for `|` syntax"""
 smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore[ty:invalid-assignment]
 smt.QuantifierRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
 or_.register(smt.BoolSort(), smt.Or)
 
-invert = SortDispatch(name="invert", pointwise=True)
+invert = SortDispatch(name="invert", pointwise=True, set_default=smt.SetComplement)
 """Sort based dispatch for `~` syntax"""
 smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore[ty:invalid-assignment]
 smt.QuantifierRef.__invert__ = lambda x: invert(x)  # type: ignore
@@ -288,14 +301,16 @@ lt.register(smt.RealSort(), lambda x, y: x < y)
 # lt.register(smt.BoolSort(), lambda x, y: smt.And(smt.Not(x), y))
 
 
-le = SortDispatch(name="le", pointwise=True)
+le = SortDispatch(name="le", pointwise=True, set_default=smt.IsSubset)
 """Sort based dispatch for `<=` syntax"""
 smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore[ty:invalid-assignment]
 le.register(smt.IntSort(), lambda x, y: x <= y)
 le.register(smt.RealSort(), lambda x, y: x <= y)
 # le.register(smt.BoolSort(), lambda x, y: smt.Implies(x, y))
 
-ge = SortDispatch(name="ge", pointwise=True)
+ge = SortDispatch(
+    name="ge", pointwise=True, set_default=lambda x, y: smt.IsSubset(y, x)
+)
 """Sort based dispatch for `>=` syntax"""
 smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore[ty:invalid-assignment]
 ge.register(smt.IntSort(), lambda x, y: x >= y)
