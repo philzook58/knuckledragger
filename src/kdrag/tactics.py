@@ -9,7 +9,7 @@ import kdrag.rewrite
 import kdrag.solvers as solvers
 from enum import IntEnum
 import operator as op
-from typing import NamedTuple, Optional, Sequence, Callable, Any, cast
+from typing import TYPE_CHECKING, NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
 from functools import cache
 import traceback
@@ -18,8 +18,9 @@ import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
-import kdrag.solvers.sympy as kdsympy
-import sympy
+
+if TYPE_CHECKING:
+    import sympy  # imported lazily: it is slow to import
 
 
 def FreshVar(name: str, sort: smt.SortRef, assume=None) -> smt.ExprRef:
@@ -1108,7 +1109,7 @@ class ProofState:
                 self.add_lemma(kd.kernel.prove(self.top_goal().to_expr(), admit=True))
             return self
 
-    def symp(self) -> sympy.Expr:
+    def symp(self) -> "sympy.Expr":
         """
         Use sympy to simplify the current goal.
         Does not mutate the goal. Returns the sympy expression.
@@ -1119,6 +1120,10 @@ class ProofState:
         >>> l.symp()
         True
         """
+        import sympy
+
+        import kdrag.solvers.sympy as kdsympy
+
         goalctx = self.top_goal()
         return sympy.simplify(
             kdsympy.sympify(
@@ -1127,7 +1132,7 @@ class ProofState:
             )
         )
 
-    def esolve(self) -> dict[sympy.Expr, sympy.Expr]:
+    def esolve(self) -> "dict[sympy.Expr, sympy.Expr]":
         """
         Solve an exists goal using sympy.
         Returns a dictionary mapping from variables to solutions.
@@ -1137,6 +1142,10 @@ class ProofState:
         >>> l.esolve()
         {X!...: 1 - y**2}
         """
+        import sympy
+
+        import kdrag.solvers.sympy as kdsympy
+
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if not (isinstance(goal, smt.QuantifierRef) and goal.is_exists()):
@@ -1156,7 +1165,7 @@ class ProofState:
             *[kdsympy.sympy_const(v) for v in vs],
         )
 
-    def solve(self, *vs) -> dict[sympy.Expr, sympy.Expr]:
+    def solve(self, *vs) -> "dict[sympy.Expr, sympy.Expr]":
         """
         Solve for variables using the context
 
@@ -1167,6 +1176,10 @@ class ProofState:
         >>> l.solve(x,z)
         {x: 10 - y, z: 4 - y}
         """
+        import sympy
+
+        import kdrag.solvers.sympy as kdsympy
+
         goalctx = self.top_goal()
         locals = {
             v.decl().name(): kdsympy.sympy_const(v) for v in goalctx.sig + list(vs)
