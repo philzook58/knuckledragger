@@ -119,6 +119,24 @@ def test_cache_sorts(cache):
     assert key([], smt.Const("f", F) == smt.Const("f", F)) is None
 
 
+def test_cache_same_printed_sorts_kept_apart(cache):
+    # The int symbol 3 and the string "k!3" name distinct sorts that both print as `k!3`.
+    ctx = smt.main_ctx()
+    sym = smt.Z3_mk_int_symbol(ctx.ref(), 3)
+    U1 = smt.SortRef(smt.Z3_mk_uninterpreted_sort(ctx.ref(), sym), ctx)
+    U3 = smt.DeclareSort("k!3")
+    c1, y = smt.Const("c", U1), smt.Const("y", U1)
+    d3, e3 = smt.Consts("d e", U3)
+    common = smt.And(smt.ForAll([y], y == c1), d3 != e3)
+
+    def query(dom):
+        # At most two arrays from a one element sort to Bool exist, but four from a larger one.
+        a, b, c = smt.Consts("a b c", smt.ArraySort(dom, smt.BoolSort()))
+        return smt.And(common, smt.Distinct(a, b, c))
+
+    assert proof_cache.key(query(U1)) != proof_cache.key(query(U3))
+
+
 def test_cache_refuses_recursive_functions(cache):
     x = smt.Int("x")
     f = smt.RecFunction("cache_f", smt.IntSort(), smt.IntSort())

@@ -23,7 +23,7 @@ from z3 import z3core as c
 
 from . import config
 
-FORMAT = "kdrag-proof-cache-2"
+FORMAT = "kdrag-proof-cache-3"
 MAX_BYTES = 50_000_000
 hits = 0
 misses = 0
@@ -32,6 +32,17 @@ _dir: str | None = None
 _secret = b""
 _digests: set[str] = set()
 _FRESH = re.compile(r"(.*)!([0-9]+)")
+# Sorts without component sorts. Their printed form includes their parameters (`(_ FloatingPoint 8 24)`).
+_LEAF_SORTS = (
+    z3.Z3_BOOL_SORT,
+    z3.Z3_INT_SORT,
+    z3.Z3_REAL_SORT,
+    z3.Z3_CHAR_SORT,
+    z3.Z3_ROUNDING_MODE_SORT,
+    z3.Z3_BV_SORT,
+    z3.Z3_FLOATING_POINT_SORT,
+    z3.Z3_UNINTERPRETED_SORT,
+)
 
 
 class Refuse(Exception):
@@ -57,35 +68,29 @@ class _Table:
         self.rows.append(entry)
         return len(self.rows) - 1
 
-    def name(self, d) -> str | int:
-        sym = c.Z3_get_decl_name(self.ctx, d)
+    def symbol(self, sym) -> str | int:
         if c.Z3_get_symbol_kind(self.ctx, sym) == z3.Z3_INT_SYMBOL:
             return c.Z3_get_symbol_int(self.ctx, sym)
         return c.Z3_get_symbol_string(self.ctx, sym)
 
+    def name(self, d) -> str | int:
+        return self.symbol(c.Z3_get_decl_name(self.ctx, d))
+
     def sort(self, s) -> int:
         """
-        A sort is identified by its printed name, which includes its parameters (`(Array Int (_ BitVec 8))`).
-        Datatypes also get a row with their definition. Component sorts are visited for their definitions.
+        A sort is identified by its kind, name, printed form (`(_ BitVec 8)`) and the rows of its component sorts.
+        Printed forms alone are ambiguous: the int symbol 3 and the string "k!3" both print as `k!3`.
+        Datatypes also get a row with their definition. Sorts with parts we do not visit are refused.
         """
         if ("s", s.value) in self.memo:
             return self.memo["s", s.value]
         ctx = self.ctx
         k = c.Z3_get_sort_kind(ctx, s)
-        # These sorts' names hide their parameters.
-        if k in (z3.Z3_FINITE_DOMAIN_SORT, z3.Z3_RELATION_SORT, z3.Z3_UNKNOWN_SORT):
-            raise Refuse("sort", k)
-        # Memoized before visiting components, so recursive datatypes terminate.
-        r = self.memo["s", s.value] = self.row("sort", k, c.Z3_sort_to_string(ctx, s))
-        if k == z3.Z3_ARRAY_SORT:
-            for j in range(c.Z3_get_array_arity(ctx, s)):
-                self.sort(c.Z3_get_array_sort_domain_n(ctx, s, j))
-            self.sort(c.Z3_get_array_sort_range(ctx, s))
-        elif k == z3.Z3_SEQ_SORT:
-            self.sort(c.Z3_get_seq_sort_basis(ctx, s))
-        elif k == z3.Z3_RE_SORT:
-            self.sort(c.Z3_get_re_sort_basis(ctx, s))
-        elif k == z3.Z3_DATATYPE_SORT:
+        name = self.symbol(c.Z3_get_sort_name(ctx, s))
+        printed = c.Z3_sort_to_string(ctx, s)
+        if k == z3.Z3_DATATYPE_SORT:
+            # Memoized before visiting the fields, so recursive datatypes terminate.
+            r = self.memo["s", s.value] = self.row("sort", k, name, printed)
             ctors = []
             for i in range(c.Z3_get_datatype_sort_num_constructors(ctx, s)):
                 ctor = c.Z3_get_datatype_sort_constructor(ctx, s, i)
@@ -99,6 +104,25 @@ class _Table:
                 )
                 ctors.append((self.name(ctor), fields))
             self.row("datatype", r, tuple(ctors))
+            return r
+        if k == z3.Z3_ARRAY_SORT:
+            n = c.Z3_get_array_arity(ctx, s)
+            parts = [
+                self.sort(c.Z3_get_array_sort_domain_n(ctx, s, j)) for j in range(n)
+            ]
+            parts.append(self.sort(c.Z3_get_array_sort_range(ctx, s)))
+        elif k == z3.Z3_SEQ_SORT:
+            parts = [self.sort(c.Z3_get_seq_sort_basis(ctx, s))]
+        elif k == z3.Z3_RE_SORT:
+            parts = [self.sort(c.Z3_get_re_sort_basis(ctx, s))]
+        elif k in _LEAF_SORTS:
+            parts = []
+        else:
+            raise Refuse("sort", printed)
+        # A parametric uninterpreted sort such as `(List Int)` has parts we do not visit.
+        if k == z3.Z3_UNINTERPRETED_SORT and printed.startswith("("):
+            raise Refuse("sort", printed)
+        r = self.memo["s", s.value] = self.row("sort", k, name, printed, tuple(parts))
         return r
 
     def decl(self, d) -> int:
@@ -234,7 +258,7 @@ def key(fml: z3.BoolRef) -> str | None:
     table = _Table(fml.ctx_ref())
     try:
         table.term(fml.as_ast())
-    except Refuse:
+    except (Refuse, z3.Z3Exception):  # z3 errors mean we misread the term
         return None
     h = hashlib.blake2b(key=_secret, digest_size=32)
     h.update(f"{FORMAT}\n{z3.get_full_version()}\n{table.rows!r}".encode())
