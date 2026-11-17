@@ -13,8 +13,11 @@ from kdrag.smt import (
     BoolSort,
     Const,
     Consts,
+    EmptySet,
     Exists,
     ForAll,
+    FreshReal,
+    FullSet,
     Function,
     If,
     Implies,
@@ -27,12 +30,12 @@ from kdrag.smt import (
     RealSort,
     RealVal,
     Reals,
+    SetSort,
     ToInt,
     ToReal,
     is_app,
     is_var,
 )
-import kdrag.theories.set as set_
 import kdrag as kd
 from kdrag import NewType, QExists, Theorem, axiom, cond, define, prove
 
@@ -41,8 +44,11 @@ T = RealSort()
 R = RealSort()
 RFun = ArraySort(R, R)
 RSeq = ArraySort(IntSort(), R)
-RSet = set_.Set(R)
-S = RSet.full
+RSet = SetSort(R)
+RSetSeq = ArraySort(IntSort(), RSet)
+RSetSet = SetSort(RSet)
+empty = EmptySet(R)
+univ = FullSet(R)
 
 real_db = []
 real_simp = []
@@ -568,3 +574,44 @@ def sqrt_bnd(n):
 def sin_lower(n, x):
     assert n >= 0
     sum(x**n)
+
+
+# Sets of reals
+
+A, B = Consts("A B", RSet)
+F = Const("F", RSetSeq)
+C = Const("C", RSetSet)
+a, b, r, u, v = Reals("a b r u v")
+i = Int("i")
+
+icc = define("RSet.icc", [a, b], Lambda(x, And(a <= x, x <= b)))
+ioo = define("RSet.ioo", [a, b], Lambda(x, And(a < x, x < b)))
+ball = define("RSet.ball", [x, r], Lambda(y, And(x - r < y, y < x + r)))
+
+# Sequences use nonnegative integer indices.
+iunion = define("RSet.iunion", F, Lambda(x, Exists(i, i >= 0, F[i][x])))
+iinter = define("RSet.iinter", F, Lambda(x, ForAll(i, i >= 0, F[i][x])))
+sunion = define("RSet.sunion", C, Lambda(x, Exists(A, C[A], A[x])))
+sinter = define("RSet.sinter", C, Lambda(x, ForAll(A, C[A], A[x])))
+
+
+def interior_point(A: smt.ArrayRef, x: smt.ArithRef) -> smt.BoolRef:
+    """Expand the condition that some positive-radius ball at x lies in A."""
+    eps = FreshReal("eps")
+    return Exists(eps, eps > 0, ball(x, eps) <= A)
+
+
+is_open = define("RSet.is_open", A, ForAll(x, A[x], interior_point(A, x)))
+is_closed = define("RSet.is_closed", A, is_open(~A))
+interior = define("RSet.interior", A, Lambda(x, interior_point(A, x)))
+closure = define("RSet.closure", A,
+    Lambda(x, ForAll(eps, eps > 0, Exists(y, A[y], ball(x, eps)[y]))))
+
+upper_bounds = define("RSet.upper_bounds", A, Lambda(u, ForAll(x, A[x], x <= u)))
+lower_bounds = define("RSet.lower_bounds", A, Lambda(u, ForAll(x, A[x], u <= x)))
+bdd_above = define("RSet.bdd_above", A, upper_bounds(A) != empty)
+bdd_below = define("RSet.bdd_below", A, lower_bounds(A) != empty)
+is_lub = define("RSet.is_lub", [A, u],
+    And(upper_bounds(A)[u], ForAll(v, upper_bounds(A)[v], u <= v)))
+is_glb = define("RSet.is_glb", [A, u],
+    And(lower_bounds(A)[u], ForAll(v, lower_bounds(A)[v], v <= u)))

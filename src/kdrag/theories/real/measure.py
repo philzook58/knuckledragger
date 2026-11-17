@@ -14,8 +14,7 @@ from kdrag.smt import (
 )
 
 # import kdrag.theories.real as real
-from kdrag.theories.real import R, RSet
-from kdrag.theories.real.rset import closed_int
+from kdrag.theories.real import R, RSet, empty, icc
 
 """
 Outer measure
@@ -33,13 +32,13 @@ x, y = Reals("x y")
 omu_interval = axiom(
     ForAll(
         [x, y],
-        omu(closed_int(x, y)) == If(x <= y, If(y - x >= 1, 1, y - x), 0),
+        omu(icc(x, y)) == If(x <= y, If(y - x >= 1, 1, y - x), 0),
     ),
     by="omu interval",
 )
 
 # Theorem from empty set
-omu_emp_zero = axiom(omu(RSet.empty) == 0, by="omu empty")
+omu_emp_zero = axiom(omu(empty) == 0, by="omu empty")
 
 # Option<Real> basically. But nice overloading
 PosEReal0 = Inductive("PosEReal0")

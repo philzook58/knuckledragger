@@ -647,7 +647,10 @@ def has_lim_iff(l):
 @Theorem(ForAll([a, y, eps], has_lim(a, y), eps > 0, eventually(near(a, y, eps))))
 def eventually_near(l):
     a, y, eps = l.fixes()
-    l.auto(by=[has_lim_iff(a, y)])
+    l.rw(has_lim_iff(a, y))
+    h = l.intros()
+    l.specialize(h, eps)
+    l.auto()
 
 
 @Theorem(ForAll([P, Q], eventually(P), ForAll([n], P[n], Q[n]), eventually(Q)))

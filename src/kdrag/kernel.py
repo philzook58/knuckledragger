@@ -394,19 +394,23 @@ def make_unfolding(pf: Proof) -> Unfolding:
 # declare + axiom of definition + make_defn.
 
 
-def define(name: str, args: list[smt.ExprRef], body: smt.ExprRef) -> smt.FuncDeclRef:
+def define(
+    name: str, args: smt.ExprRef | list[smt.ExprRef], body: smt.ExprRef
+) -> smt.FuncDeclRef:
     """
     Define a non recursive definition. Useful for shorthand and abstraction. Does not currently defend against ill formed definitions.
     TODO: Check for bad circularity, record dependencies
 
     Args:
         name: The name of the term to define.
-        args: The arguments of the term.
+        args: A single argument or a list of arguments (empty for a constant).
         defn: The definition of the term.
 
     Returns:
         tuple[smt.FuncDeclRef, Proof]: A tuple of the defined term and the proof of the definition.
     """
+    if isinstance(args, smt.ExprRef):
+        args = [args]
     sorts = [arg.sort() for arg in args] + [body.sort()]
     f = smt.Function(name, *sorts)
     # TODO: enable this. Currently it causes to many libraries to break
