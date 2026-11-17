@@ -12,15 +12,7 @@ from kdrag.smt import (
     Lambda,
     RealSort,
 )
-import kdrag.theories.real as real
-
-# Keep the old names as aliases, including the nonnegative-index convention.
-RSet = real.RSet
-SetSeq = real.RSetSeq
-closed_int = real.icc
-open_int = real.ioo
-cinter = real.iinter
-cunion = real.iunion
+from kdrag.theories.real import RSet, RSetSeq
 
 x, y, z, M, c = Consts("x y z M c", RealSort())
 A, B, C = Consts("A B C", RSet)
@@ -126,7 +118,7 @@ def lb_inf(l):
     l.auto()
 
 
-An = Const("An", SetSeq)
+An = Const("An", RSetSeq)
 n = Const("n", IntSort())
 
 nested = define("nested", [An], ForAll(n, n >= 0, An[n + 1] <= An[n]))
