@@ -1,5 +1,3 @@
-"""Legacy real-set experiments; basic set definitions live in the real module."""
-
 from kdrag import QForAll, Theorem, axiom, define, prove
 from kdrag.smt import (
     And,
