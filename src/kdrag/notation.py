@@ -12,7 +12,7 @@ Importing this module will add some syntactic sugar to smt.
 
 - Expr overload by single dispatch
 - Bool supports `&`, `|`, `~`
-- Sets support `|`, `&`, `~`, `-`, `<=`, `>=` without importing theories.set
+- Sets support `|`, `&`, `~`, `-`, `<=`, `>=`
 - Sorts supports `>>` for ArraySort
 """
 
