@@ -82,14 +82,17 @@ def test_explicit_registration_overrides_set_default():
 
 
 def test_non_set_arrays_still_lift_pointwise():
-    f, g = smt.Consts("f g", smt.ArraySort(smt.IntSort(), smt.RealSort()))
-    i = smt.Int("i")
+    # The real-sequence theory registers subtraction on Int -> Real arrays.
+    # Use a private index sort to exercise the fallback, not that override.
+    index = smt.DeclareSort("NotationPointwiseIndex")
+    f, g = smt.Consts("f g", smt.ArraySort(index, smt.RealSort()))
+    i = smt.Const("i", index)
     kd.prove((f - g)[i] == f[i] - g[i])
     kd.prove((f <= g)[i] == (f[i] <= g[i]))
 
     # Multi-domain Boolean arrays are predicates, not Z3 sets.
     p, q = smt.Consts(
-        "p q", smt.ArraySort(smt.IntSort(), smt.RealSort(), smt.BoolSort())
+        "p q", smt.ArraySort(index, smt.RealSort(), smt.BoolSort())
     )
     x = smt.Real("x")
     kd.prove((p | q)[i, x] == smt.Or(p[i, x], q[i, x]))
