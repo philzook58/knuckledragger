@@ -239,6 +239,8 @@ radd = SortDispatch(name="radd", pointwise=True)
 """Sort based dispatch for `+` syntax"""
 radd.register(smt.IntSort(), (_n + _m).decl())
 radd.register(smt.RealSort(), (_x + _y).decl())
+# TODO: Revisit add/radd dispatch: Z3 scalar __add__ methods can raise before
+# reflected dispatch runs, so x + xs misses the sequence singleton hint.
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
 
 
@@ -264,29 +266,6 @@ def _seq_concat(xs: smt.SeqRef, other, prepend=False):
 
 smt.SeqRef.__add__ = lambda xs, other: _seq_concat(xs, other)  # type: ignore
 smt.SeqRef.__radd__ = lambda xs, other: _seq_concat(xs, other, prepend=True)  # type: ignore
-
-
-def _defer_seq_add(original):
-    # This only improves the error for invalid x + seq; it does not allow it.
-    # Native scalar addition raises a sort mismatch before SeqRef.__radd__ can
-    # suggest [x] + seq. Return NotImplemented to let that diagnostic run.
-    def scalar_add(x, y):
-        if isinstance(y, smt.SeqRef):
-            return NotImplemented
-        return original(x, y)
-
-    return scalar_add
-
-
-for _scalar in (
-    smt.ExprRef,
-    smt.QuantifierRef,
-    smt.ArithRef,
-    smt.BoolRef,
-    smt.BitVecRef,
-    smt.FPRef,
-):
-    _scalar.__add__ = _defer_seq_add(_scalar.__add__)
 
 
 sub = SortDispatch(name="sub", pointwise=True, set_default=smt.SetDifference)
