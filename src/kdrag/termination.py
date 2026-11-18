@@ -231,6 +231,8 @@ def check_int_recursion(
             walk(antecedent, guard, recursive_allowed=False, bound=bound)
             walk(consequent, smt.And(guard, antecedent), recursive_allowed, bound)
         else:
+            # TODO: Add left-to-right And/Or guards when an example needs them.
+            # Symmetric sibling guards can justify recursive calls circularly.
             if (
                 smt.is_uninterp(t)
                 and t.decl() not in kd.kernel.defns
