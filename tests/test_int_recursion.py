@@ -6,7 +6,6 @@ from kdrag.smt import (
     Empty,
     ForAll,
     FreshFunction,
-    Function,
     If,
     Int,
     IntSort,
@@ -63,8 +62,6 @@ def test_failure_leaves_no_definition_or_reservation(body):
         lambda f, n: If(f(n) > 0, 0, f(n - 1)),
         lambda f, n: If(n <= 0, 0, f(f(n - 1))),
         lambda f, n: If(ForAll([Int("bound")], Int("bound") >= n), 0, f(n - 1)),
-        lambda f, n: n + Int("extra"),
-        lambda f, n: Function("external", IntSort(), IntSort())(n),
     ],
 )
 def test_unsupported_syntax(body):
@@ -113,3 +110,36 @@ def test_sequence_codomain():
     prove(
         countdown(2) == [2, 1] + Empty(sort), by=[countdown.defn(i) for i in range(3)]
     )
+
+
+def test_helpers_and_free_constants():
+    f, n = fresh()
+    g = FreshFunction(IntSort(), IntSort())
+    initial = Int("rec_initial")
+    define_rec(f, n, If(n <= 0, initial, g(f(n - 1))))
+    prove(f(2) == g(g(initial)), by=[f.defn(i) for i in range(3)])
+
+
+def test_previously_defined_helper():
+    f, n = fresh()
+    g = FreshFunction(IntSort(), IntSort())
+    kernel.define(g.name(), [n], n + 1)
+    define_rec(f, n, If(n <= 0, 0, g(f(n - 1))))
+    prove(f(2) == 2, by=[f.defn(i) for i in range(3)] + [g.defn])
+
+
+def test_helper_in_decreasing_argument_with_explicit_guard():
+    f, n = fresh()
+    g = FreshFunction(IntSort(), IntSort())
+    define_rec(f, n, If((n > 0) & (g(n) >= 0) & (g(n) < n), f(g(n)), 0))
+
+
+def test_helpers_do_not_hide_recursive_calls():
+    f, n = fresh()
+    g = FreshFunction(IntSort(), IntSort())
+    for body in [g(f(n)), If(n > 0, f(g(n)), 0)]:
+        with pytest.raises(ValueError, match="decrease obligation"):
+            define_rec(f, n, body)
+        assert f not in kernel.defns
+    with pytest.raises(ValueError, match="nested recursive"):
+        define_rec(f, n, If(n <= 0, 0, f(g(f(n - 1)))))

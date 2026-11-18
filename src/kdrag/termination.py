@@ -164,8 +164,8 @@ def check_int_recursion(
 ) -> list[kd.Proof]:
     """Prototype: certify guarded calls using the fixed measure ``Abs(n)``.
 
-    Only unary Int -> T definitions with no free parameters or other
-    uninterpreted functions are supported. Binders, recursive conditions and
+    Unary Int -> T definitions may use other functions and free constants.
+    Helper arguments are traversed normally. Binders, recursive conditions and
     nested recursive calls are deliberately rejected. No definition is installed.
     """
     Z = smt.IntSort()
@@ -204,11 +204,6 @@ def check_int_recursion(
             walk(condition, guard, recursive_allowed=False)
             walk(yes, smt.And(guard, condition), recursive_allowed)
             walk(no, smt.And(guard, smt.Not(condition)), recursive_allowed)
-        elif smt.is_uninterp(t):
-            if not t.eq(n):
-                raise ValueError(
-                    "Only the integer argument and recursive function may be free", t
-                )
         else:
             for child in t.children():
                 walk(child, guard, recursive_allowed)
