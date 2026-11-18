@@ -18,6 +18,7 @@ Importing this module will add some syntactic sugar to smt.
 
 import kdrag.smt as smt
 import kdrag as kd
+from kdrag.cast import cast
 
 
 smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[ty:missing-attribute]
@@ -198,7 +199,7 @@ def GenericDispatch(default_factory) -> SortDispatch:
 
 call = SortDispatch(name="call")
 """Sort based dispatch for `()` call syntax"""
-smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)
+smt.ExprRef.__call__ = lambda self, *args, **kwargs: call(self, *args, **kwargs)
 
 
 def default_getitem(self: smt.ExprRef, ind: int) -> smt.ExprRef:
@@ -239,6 +240,55 @@ radd = SortDispatch(name="radd", pointwise=True)
 radd.register(smt.IntSort(), (_n + _m).decl())
 radd.register(smt.RealSort(), (_x + _y).decl())
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
+
+
+def _seq_element_error(prepend):
+    hint = "[x] + xs" if prepend else "xs + [x]"
+    return TypeError(
+        f"Cannot concatenate a sequence and a bare element; use {hint} "
+        "for a singleton, or concatenate two sequences"
+    )
+
+
+def _seq_concat(xs: smt.SeqRef, other, prepend=False):
+    """Concatenate sequences or a Python list of elements of the sequence sort."""
+    if isinstance(other, list):
+        other = cast(xs.sort(), other)
+    if isinstance(other, smt.SeqRef) and other.sort() != xs.sort():
+        if other.sort() == xs.sort().basis():
+            raise _seq_element_error(prepend)
+        if xs.sort() == other.sort().basis():
+            raise _seq_element_error(not prepend)
+    if not isinstance(other, (smt.SeqRef, str)):
+        raise _seq_element_error(prepend)
+    return smt.Concat(other, xs) if prepend else smt.Concat(xs, other)
+
+
+smt.SeqRef.__add__ = lambda xs, other: _seq_concat(xs, other)  # type: ignore
+smt.SeqRef.__radd__ = lambda xs, other: _seq_concat(xs, other, prepend=True)  # type: ignore
+
+
+def _defer_seq_add(original):
+    # This only improves the error for invalid x + seq; it does not allow it.
+    # Native scalar addition raises a sort mismatch before SeqRef.__radd__ can
+    # suggest [x] + seq. Return NotImplemented to let that diagnostic run.
+    def scalar_add(x, y):
+        if isinstance(y, smt.SeqRef):
+            return NotImplemented
+        return original(x, y)
+
+    return scalar_add
+
+
+for _scalar in (
+    smt.ExprRef,
+    smt.QuantifierRef,
+    smt.ArithRef,
+    smt.BoolRef,
+    smt.BitVecRef,
+    smt.FPRef,
+):
+    _scalar.__add__ = _defer_seq_add(_scalar.__add__)
 
 
 sub = SortDispatch(name="sub", pointwise=True, set_default=smt.SetDifference)
@@ -387,8 +437,10 @@ trans = SortDispatch("trans", default_factory=trans_factory)
 
 def induct_seq(a: smt.SeqRef, P) -> kd.kernel.Proof:
     """
+    Empty/singleton/concatenation induction, available explicitly.
+
     >>> x = smt.Const("x", smt.SeqSort(smt.IntSort()))
-    >>> induct(x, lambda s: smt.Length(s) >= 0)
+    >>> induct_seq(x, lambda s: smt.Length(s) >= 0)
     |= Implies(And(Length(Empty(Seq(Int))) >= 0,
                 ForAll(z!..., Length(Unit(z!...)) >= 0),
                 ForAll([x!..., y!...],
@@ -416,9 +468,34 @@ def induct_seq(a: smt.SeqRef, P) -> kd.kernel.Proof:
     )
 
 
+def induct_seq_list(x: smt.SeqRef, P) -> kd.kernel.Proof:
+    """Empty/cons induction for any sequence element sort.
+
+    >>> xs = smt.Const("xs", smt.SeqSort(smt.IntSort()))
+    >>> induct(xs, lambda s: smt.Length(s) >= 0)
+    |= Implies(And(Length(Empty(Seq(Int))) >= 0,
+                ForAll([hd!..., tl!...],
+                       Implies(Length(tl!...) >= 0,
+                               Length(Concat(Unit(hd!...), tl!...)) >= 0))),
+            Length(xs) >= 0)
+    """
+    assert isinstance(x, smt.SeqRef)
+    hd = smt.FreshConst(x.sort().basis(), prefix="hd")
+    tl = smt.FreshConst(x.sort(), prefix="tl")
+    return kd.axiom(
+        smt.Implies(
+            smt.And(
+                P(smt.Empty(x.sort())),
+                QForAll([hd, tl], P(tl), P(smt.Unit(hd) + tl)),
+            ),
+            P(x),
+        )
+    )
+
+
 def induct_default(x, P):
     if isinstance(x, smt.SeqRef):
-        return induct_seq(x, P)
+        return induct_seq_list(x, P)
     else:
         raise NotImplementedError("No default induct implementation for sort", x.sort())
 

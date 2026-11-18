@@ -9,6 +9,7 @@ from typing import Callable, Optional
 import operator
 from functools import singledispatch
 import kdrag as kd
+from kdrag.cast import cast
 
 
 @dataclass(frozen=True)
@@ -353,7 +354,17 @@ def _(x: tuple) -> smt.ExprRef:
 
 @py2expr.register
 def _(x: list) -> smt.ExprRef:
-    return kd.seq(*[py2expr(e) for e in x])
+    if not x:
+        raise ValueError(
+            "Cannot infer an empty list's element sort; use cast(SeqSort(...), [])"
+        )
+    elements = [py2expr(e) for e in x]
+    element_sort = elements[0].sort()
+    if any(e.sort() != element_sort for e in elements):
+        raise TypeError(
+            "Cannot infer one list element sort; use an explicit sequence cast"
+        )
+    return cast(smt.SeqSort(element_sort), elements)
 
 
 @py2expr.register
