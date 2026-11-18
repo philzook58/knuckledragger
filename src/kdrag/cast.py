@@ -5,6 +5,10 @@ cast_table = {}
 
 
 def cast(s: smt.SortRef, e: object) -> smt.ExprRef:
+    """Convert to an expected sort, honoring registered casts first.
+
+    Lists cast to sequences recursively, including empty and nested lists.
+    """
     if isinstance(e, smt.ExprRef):
         s1 = e.sort()
         if s1.eq(s):
@@ -16,6 +20,21 @@ def cast(s: smt.SortRef, e: object) -> smt.ExprRef:
     coerce = cast_table.get(key)
     if coerce is not None:
         return coerce(e)
+    elif isinstance(s, smt.SeqSortRef) and isinstance(e, list):
+        element_sort = s.basis()
+        units = []
+        for i, value in enumerate(e):
+            try:
+                units.append(smt.Unit(cast(element_sort, value)))
+            except (smt.Z3Exception, TypeError) as error:
+                raise TypeError(
+                    f"Sequence cast: list element {i} must have sort {element_sort}"
+                ) from error
+        if not units:
+            return smt.Empty(s)
+        if len(units) == 1:
+            return units[0]
+        return smt.Concat(*units)
     else:
         # if isinstance(e, smt.SeqRef):
         # elif isinstance(e, smt.ArraySortRef):

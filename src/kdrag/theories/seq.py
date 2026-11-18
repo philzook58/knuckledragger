@@ -3,7 +3,7 @@ Built in smtlib theory of finite sequences.
 """
 
 import kdrag as kd
-from kdrag import QForAll, axiom, prove
+from kdrag import QForAll, prove
 import kdrag.smt as smt
 from kdrag.smt import (  # noqa: F401
     And,
@@ -33,30 +33,7 @@ from kdrag.smt import (  # noqa: F401
 # Strong induction
 
 
-def induct_list(x: smt.SeqRef, P):
-    """
-
-    >>> x = Const("x", Seq(IntSort()))
-    >>> P = Function("P", Seq(IntSort()), BoolSort())
-    >>> induct_list(x, P)
-    |= Implies(And(P(Empty(Seq(Int))),
-                ForAll([hd!..., tl!...],
-                      Implies(P(tl!...),
-                              P(Concat(Unit(hd!...), tl!...))))),
-            P(x))
-    """
-    assert isinstance(x, smt.SeqRef)
-    hd = FreshConst(x.sort().basis(), prefix="hd")
-    tl = FreshConst(x.sort(), prefix="tl")
-    return axiom(
-        Implies(
-            And(
-                P(Empty(x.sort())),
-                QForAll([hd, tl], P(tl), P(smt.Unit(hd) + tl)),
-            ),
-            P(x),
-        )
-    )
+induct_list = kd.notation.induct_seq_list
 
 
 """

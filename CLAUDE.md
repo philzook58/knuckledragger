@@ -242,6 +242,8 @@ def sum_append(pf):
 
 ## Test Reliability Notes
 
+- Sequence concatenation accepts Python lists (`[x] + xs`, `xs + [x]`), delegating typed literal conversion to `cast.cast`. Bare elements are rejected with a singleton hint; native scalar additions must defer sequence RHS operands so that diagnostic can run.
+- Default induction on a sequence uses empty/cons cases through `notation.induct`. Explicit `notation.induct_seq` retains empty/singleton/concatenation induction; no sequence-theory import is needed for the default.
 - `cases(p, q, ...)` checks coverage under the current context before mutating the state; branches follow argument order. A single argument retains Boolean or datatype case splitting.
 - For quantified witness proofs, fix the outer parameters and instantiate the defining theorem before `auto`.
 - Check free schema variables on the original theorem before opening binders; Z3 may recycle collected schema-variable IDs.

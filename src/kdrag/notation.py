@@ -18,6 +18,7 @@ Importing this module will add some syntactic sugar to smt.
 
 import kdrag.smt as smt
 import kdrag as kd
+from kdrag.cast import cast
 
 
 smt.SortRef.__rshift__ = lambda self, other: smt.ArraySort(self, other)  # type: ignore[ty:missing-attribute]
@@ -198,7 +199,7 @@ def GenericDispatch(default_factory) -> SortDispatch:
 
 call = SortDispatch(name="call")
 """Sort based dispatch for `()` call syntax"""
-smt.ExprRef.__call__ = lambda x, *y, **kwargs: call(x, *y, **kwargs)
+smt.ExprRef.__call__ = lambda self, *args, **kwargs: call(self, *args, **kwargs)
 
 
 def default_getitem(self: smt.ExprRef, ind: int) -> smt.ExprRef:
@@ -238,7 +239,33 @@ radd = SortDispatch(name="radd", pointwise=True)
 """Sort based dispatch for `+` syntax"""
 radd.register(smt.IntSort(), (_n + _m).decl())
 radd.register(smt.RealSort(), (_x + _y).decl())
+# TODO: Revisit add/radd dispatch: Z3 scalar __add__ methods can raise before
+# reflected dispatch runs, so x + xs misses the sequence singleton hint.
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
+
+
+def _seq_concat(xs: smt.SeqRef, other, prepend=False):
+    """Concatenate sequences or a Python list of elements of the sequence sort."""
+    seq_sort = xs.sort()
+    if isinstance(other, list):
+        other = cast(seq_sort, other)
+    bare_element = not isinstance(other, (smt.SeqRef, str))
+    if isinstance(other, smt.SeqRef):
+        other_sort = other.sort()
+        if other_sort != seq_sort:
+            bare_element = (
+                other_sort == seq_sort.basis() or seq_sort == other_sort.basis()
+            )
+    if bare_element:
+        raise TypeError(
+            "Cannot concatenate a sequence and a bare element; "
+            "use [x] + xs or xs + [x] for a singleton"
+        )
+    return smt.Concat(other, xs) if prepend else smt.Concat(xs, other)
+
+
+smt.SeqRef.__add__ = lambda xs, other: _seq_concat(xs, other)  # type: ignore
+smt.SeqRef.__radd__ = lambda xs, other: _seq_concat(xs, other, prepend=True)  # type: ignore
 
 
 sub = SortDispatch(name="sub", pointwise=True, set_default=smt.SetDifference)
@@ -387,8 +414,10 @@ trans = SortDispatch("trans", default_factory=trans_factory)
 
 def induct_seq(a: smt.SeqRef, P) -> kd.kernel.Proof:
     """
+    Empty/singleton/concatenation induction, available explicitly.
+
     >>> x = smt.Const("x", smt.SeqSort(smt.IntSort()))
-    >>> induct(x, lambda s: smt.Length(s) >= 0)
+    >>> induct_seq(x, lambda s: smt.Length(s) >= 0)
     |= Implies(And(Length(Empty(Seq(Int))) >= 0,
                 ForAll(z!..., Length(Unit(z!...)) >= 0),
                 ForAll([x!..., y!...],
@@ -416,9 +445,34 @@ def induct_seq(a: smt.SeqRef, P) -> kd.kernel.Proof:
     )
 
 
+def induct_seq_list(x: smt.SeqRef, P) -> kd.kernel.Proof:
+    """Empty/cons induction for any sequence element sort.
+
+    >>> xs = smt.Const("xs", smt.SeqSort(smt.IntSort()))
+    >>> induct(xs, lambda s: smt.Length(s) >= 0)
+    |= Implies(And(Length(Empty(Seq(Int))) >= 0,
+                ForAll([hd!..., tl!...],
+                       Implies(Length(tl!...) >= 0,
+                               Length(Concat(Unit(hd!...), tl!...)) >= 0))),
+            Length(xs) >= 0)
+    """
+    assert isinstance(x, smt.SeqRef)
+    hd = smt.FreshConst(x.sort().basis(), prefix="hd")
+    tl = smt.FreshConst(x.sort(), prefix="tl")
+    return kd.axiom(
+        smt.Implies(
+            smt.And(
+                P(smt.Empty(x.sort())),
+                QForAll([hd, tl], P(tl), P(smt.Unit(hd) + tl)),
+            ),
+            P(x),
+        )
+    )
+
+
 def induct_default(x, P):
     if isinstance(x, smt.SeqRef):
-        return induct_seq(x, P)
+        return induct_seq_list(x, P)
     else:
         raise NotImplementedError("No default induct implementation for sort", x.sort())
 
