@@ -1,23 +1,33 @@
 import pytest
 
-import kdrag as kd
-import kdrag.smt as smt
+from kdrag import Lemma, prove
+from kdrag.notation import induct_seq
+from kdrag.smt import (
+    Const,
+    DeclareSort,
+    ForAll,
+    IntSort,
+    Length,
+    RealSort,
+    SeqSort,
+    StringSort,
+)
 
 
 @pytest.mark.parametrize(
     "sort",
     [
-        smt.SeqSort(smt.IntSort()),
-        smt.SeqSort(smt.RealSort()),
-        smt.SeqSort(smt.DeclareSort("SeqInductElement")),
-        smt.SeqSort(smt.SeqSort(smt.IntSort())),
-        smt.StringSort(),
+        SeqSort(IntSort()),
+        SeqSort(RealSort()),
+        SeqSort(DeclareSort("SeqInductElement")),
+        SeqSort(SeqSort(IntSort())),
+        StringSort(),
     ],
 )
 def test_default_sequence_induction_has_empty_cons_cases(sort):
-    xs = smt.Const("xs", sort)
-    goal = smt.ForAll([xs], smt.Length(xs) >= 0)
-    pf = kd.Lemma(goal)
+    xs = Const("xs", sort)
+    goal = ForAll([xs], Length(xs) >= 0)
+    pf = Lemma(goal)
     xs = pf.fix()
     pf.induct(xs)
     pf.auto()
@@ -30,7 +40,7 @@ def test_default_sequence_induction_has_empty_cons_cases(sort):
 
 
 def test_explicit_concatenation_induction_is_preserved():
-    xs = smt.Const("xs", smt.SeqSort(smt.IntSort()))
-    schema = kd.notation.induct_seq(xs, lambda s: smt.Length(s) >= 0)
+    xs = Const("xs", SeqSort(IntSort()))
+    schema = induct_seq(xs, lambda s: Length(s) >= 0)
     assert len(schema.thm.arg(0).children()) == 3
-    kd.prove(smt.Length(xs) >= 0, by=[schema])
+    prove(Length(xs) >= 0, by=[schema])
