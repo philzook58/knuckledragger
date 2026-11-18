@@ -160,24 +160,36 @@ def search_wf(
 
 
 def check_int_recursion(
-    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ExprRef
+    f: smt.FuncDeclRef, args: smt.ExprRef | list[smt.ExprRef], body: smt.ExprRef
 ) -> list[kd.Proof]:
     """Prototype: certify guarded calls using the fixed measure ``Abs(n)``.
 
-    Unary Int -> T definitions may use other functions and free constants.
-    Helper arguments are traversed normally. Binders, recursive conditions and
-    nested recursive calls are deliberately rejected. No definition is installed.
+    The first argument is an integer; further arguments and the codomain may
+    have arbitrary sorts. Parameters may change at recursive calls. Lambda
+    variables are opened freshly and quantified in decrease obligations.
+    Recursive conditions, nested recursive calls and logical quantifiers remain
+    unsupported. No definition is installed.
     """
+    args = [args] if isinstance(args, smt.ExprRef) else list(args)
     Z = smt.IntSort()
     if (
         not isinstance(f, smt.FuncDeclRef)
         or not smt.is_uninterp(f)
-        or f.arity() != 1
+        or not args
+        or f.arity() != len(args)
         or f.domain(0) != Z
     ):
-        raise TypeError("Expected a unary function with integer domain")
-    if not smt.is_const(n) or n.sort() != Z or not smt.is_uninterp(n):
-        raise TypeError("Expected an integer variable")
+        raise TypeError("Expected matching function arguments with first domain Int")
+    for i, arg in enumerate(args):
+        if (
+            not smt.is_const(arg)
+            or not smt.is_uninterp(arg)
+            or arg.sort() != f.domain(i)
+        ):
+            raise TypeError("Expected distinct variables matching function domains")
+    if len({arg.get_id() for arg in args}) != len(args):
+        raise TypeError("Expected distinct argument variables")
+    n = args[0]
     if not isinstance(body, smt.ExprRef) or body.sort() != f.range():
         raise TypeError("Body must match the function codomain", f.range())
     if f in kd.kernel.defns:
@@ -187,9 +199,15 @@ def check_int_recursion(
         raise ValueError("Function already occurs in a registered definition", f)
     calls = []
 
-    def walk(t, guard, recursive_allowed=True):
+    def walk(t, guard, recursive_allowed=True, bound=()):
         if smt.is_quantifier(t):
-            raise ValueError("Binders are unsupported in integer recursion")
+            if not t.is_lambda():
+                raise ValueError(
+                    "Logical quantifiers are unsupported in integer recursion"
+                )
+            variables, inner = kd.kernel.open_binder(t)
+            walk(inner, guard, recursive_allowed, (*bound, *variables))
+            return
         if not smt.is_app(t):
             raise ValueError("Unsupported term in integer recursion", t)
         if t.decl() == f:
@@ -197,21 +215,24 @@ def check_int_recursion(
                 raise ValueError(
                     "Recursive conditions and nested recursive calls are unsupported", t
                 )
-            calls.append((guard, t))
-            walk(t.arg(0), guard, recursive_allowed=False)
+            calls.append((guard, t, bound))
+            for child in t.children():
+                walk(child, guard, recursive_allowed=False, bound=bound)
         elif smt.is_if(t):
             condition, yes, no = t.children()
-            walk(condition, guard, recursive_allowed=False)
-            walk(yes, smt.And(guard, condition), recursive_allowed)
-            walk(no, smt.And(guard, smt.Not(condition)), recursive_allowed)
+            walk(condition, guard, recursive_allowed=False, bound=bound)
+            walk(yes, smt.And(guard, condition), recursive_allowed, bound)
+            walk(no, smt.And(guard, smt.Not(condition)), recursive_allowed, bound)
         else:
             for child in t.children():
-                walk(child, guard, recursive_allowed)
+                walk(child, guard, recursive_allowed, bound)
 
     walk(body, smt.BoolVal(True))
     proofs = []
-    for guard, call in calls:
-        goal = smt.RawForAll([n], smt.Implies(guard, smt.Abs(call.arg(0)) < smt.Abs(n)))
+    for guard, call, bound in calls:
+        goal = smt.RawForAll(
+            [*args, *bound], smt.Implies(guard, smt.Abs(call.arg(0)) < smt.Abs(n))
+        )
         try:
             # No unfolding, user assumptions or definition of f may justify decrease.
             proofs.append(kd.kernel.prove(goal))
@@ -225,9 +246,9 @@ def check_int_recursion(
 
 
 def define_rec(
-    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ExprRef
+    f: smt.FuncDeclRef, args: smt.ExprRef | list[smt.ExprRef], body: smt.ExprRef
 ) -> smt.FuncDeclRef:
-    """Experimental trusted unary integer recursion rule; not a derived existence proof.
+    """Experimental trusted first-argument integer recursion rule; not a derived existence proof.
 
     >>> n = smt.Int("rec_example_n")
     >>> fact = smt.Function("rec_example_fact", smt.IntSort(), smt.IntSort())
@@ -241,12 +262,13 @@ def define_rec(
     before reserving its name or registering its equation. Ordinary ``define``
     is unchanged. The proof reason records this rule and its certificates.
     """
-    proofs = check_int_recursion(f, n, body)
+    args = [args] if isinstance(args, smt.ExprRef) else list(args)
+    proofs = check_int_recursion(f, args, body)
     # Reserve the declaration only after every obligation has passed. This also
     # rejects names already reserved by another kernel declaration.
-    kd.kernel.declare(f.name(), smt.IntSort(), f.range())
+    kd.kernel.declare(f.name(), *[arg.sort() for arg in args], f.range())
     equation = kd.kernel.axiom(
-        smt.RawForAll([n], smt.Eq(f(n), body), patterns=[f(n)]),
+        smt.RawForAll(args, smt.Eq(f(*args), body), patterns=[f(*args)]),
         by=["integer_recursion", proofs],
     )
     kd.kernel.register_definition(kd.kernel.make_unfolding(equation))

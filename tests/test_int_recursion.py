@@ -2,6 +2,7 @@ import pytest
 
 from kdrag import kernel, prove
 from kdrag.smt import (
+    ArraySort,
     BoolSort,
     Empty,
     ForAll,
@@ -9,6 +10,7 @@ from kdrag.smt import (
     If,
     Int,
     IntSort,
+    Lambda,
     Real,
     SeqSort,
 )
@@ -78,10 +80,10 @@ def test_signature_and_redefinition():
     define_rec(f, n, n + 1)
     with pytest.raises(ValueError, match="already defined"):
         define_rec(f, n, n + 1)
-    with pytest.raises(TypeError, match="unary"):
+    with pytest.raises(TypeError, match="arguments"):
         define_rec((-n).decl(), n, n)
     binary = FreshFunction(IntSort(), IntSort(), IntSort())
-    with pytest.raises(TypeError, match="unary"):
+    with pytest.raises(TypeError, match="arguments"):
         define_rec(binary, n, n)
 
 
@@ -143,3 +145,66 @@ def test_helpers_do_not_hide_recursive_calls():
         assert f not in kernel.defns
     with pytest.raises(ValueError, match="nested recursive"):
         define_rec(f, n, If(n <= 0, 0, f(g(f(n - 1)))))
+
+
+def test_changing_parameters():
+    n, a, b = Int("param_n"), Int("param_a"), Int("param_b")
+    Z = IntSort()
+    f = FreshFunction(Z, Z, Z, Z)
+    define_rec(f, [n, a, b], If(n <= 0, a, f(n - 1, b, a + b)))
+    prove(f(2, 1, 1) == 2, by=[f.defn(2, 1, 1), f.defn(1, 1, 2), f.defn(0, 2, 3)])
+    bad = FreshFunction(Z, Z, Z)
+    with pytest.raises(ValueError, match="decrease obligation"):
+        define_rec(bad, [n, a], If(n <= 0, 0, bad(n, a - 1)))
+    with pytest.raises(TypeError, match="distinct"):
+        define_rec(bad, [n, n], n)
+
+
+def test_lambda_variables_are_quantified_and_do_not_shadow_rank():
+    Z = IntSort()
+    n, x = Int("lambda_rank"), Int("lambda_arg")
+    T = ArraySort(Z, Z)
+    f = FreshFunction(Z, T)
+    certificates = check_int_recursion(
+        f, n, If(n <= 0, Lambda([x], x), Lambda([x], f(n - 1)[x] + 1))
+    )
+    assert certificates[0].thm.num_vars() == 2
+    define_rec(f, n, If(n <= 0, Lambda([x], x), Lambda([x], f(n - 1)[x] + 1)))
+    prove(f(1)[7] == 8, by=[f.defn(0), f.defn(1)])
+    for bound in [x, n]:
+        bad = FreshFunction(Z, T)
+        with pytest.raises(ValueError, match="decrease obligation"):
+            define_rec(
+                bad,
+                n,
+                If(n <= 0, Lambda([x], x), Lambda([bound], bad(bound - 1)[bound])),
+            )
+
+
+def test_nested_recursion_in_parameter_is_rejected():
+    Z = IntSort()
+    n, a = Int("nested_rank"), Int("nested_param")
+    f = FreshFunction(Z, Z, Z)
+    with pytest.raises(ValueError, match="nested recursive"):
+        define_rec(f, [n, a], If(n <= 0, a, f(n - 1, f(n - 2, a))))
+
+
+def test_ackermann_example():
+    import runpy
+
+    example = runpy.run_path("examples/recursion/ackermann.py")
+    assert example["A"].defn.reason[0] == "integer_recursion"
+    assert len(example["row"].defn.reason[1]) == 1
+    assert len(example["A"].defn.reason[1]) == 1
+
+
+def test_gassed_sequence_reverse():
+    import runpy
+
+    example = runpy.run_path("examples/recursion/reverse.py")
+    rev = example["rev"]
+    aux = example["rev_aux"]
+    S = example["S"]
+    # The public equation is derived; the gas recursion alone uses the new rule.
+    assert aux.defn.reason[0] == "integer_recursion"
+    prove(rev(Empty(S)) == Empty(S), by=[example["rev_eq"]])
