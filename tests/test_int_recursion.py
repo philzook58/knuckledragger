@@ -10,6 +10,7 @@ from kdrag.smt import (
     If,
     Int,
     IntSort,
+    IntVal,
     Lambda,
     Real,
     SeqSort,
@@ -114,10 +115,11 @@ def test_sequence_codomain():
     )
 
 
-def test_helpers_and_free_constants():
+def test_defined_helpers_and_constants():
     f, n = fresh()
     g = FreshFunction(IntSort(), IntSort())
-    initial = Int("rec_initial")
+    kernel.define(g.name(), [n], n + 1)
+    initial = kernel.define("rec_initial", [], IntVal(7))
     define_rec(f, n, If(n <= 0, initial, g(f(n - 1))))
     prove(f(2) == g(g(initial)), by=[f.defn(i) for i in range(3)])
 
@@ -133,12 +135,14 @@ def test_previously_defined_helper():
 def test_helper_in_decreasing_argument_with_explicit_guard():
     f, n = fresh()
     g = FreshFunction(IntSort(), IntSort())
+    kernel.define(g.name(), [n], n - 1)
     define_rec(f, n, If((n > 0) & (g(n) >= 0) & (g(n) < n), f(g(n)), 0))
 
 
 def test_helpers_do_not_hide_recursive_calls():
     f, n = fresh()
     g = FreshFunction(IntSort(), IntSort())
+    kernel.define(g.name(), [n], n)
     for body in [g(f(n)), If(n > 0, f(g(n)), 0)]:
         with pytest.raises(ValueError, match="decrease obligation"):
             define_rec(f, n, body)
@@ -208,3 +212,32 @@ def test_gassed_sequence_reverse():
     # The public equation is derived; the gas recursion alone uses the new rule.
     assert aux.defn.reason[0] == "integer_recursion"
     prove(rev(Empty(S)) == Empty(S), by=[example["rev_eq"]])
+
+
+def test_undefined_helpers_are_rejected_even_in_guards():
+    f, n = fresh()
+    g = FreshFunction(IntSort(), IntSort())
+    # A declaration by itself is not a definition.
+    kernel.declare(g.name(), IntSort(), IntSort())
+    for body in [If(n <= 0, 0, g(f(n - 1))), If(g(n) > 0, 0, n)]:
+        with pytest.raises(ValueError, match="must be defined"):
+            define_rec(f, n, body)
+        assert f not in kernel.defns
+    kernel.define(g.name(), [n], n + 1)
+    define_rec(f, n, If(n <= 0, 0, g(f(n - 1))))
+
+
+def test_undefined_constants_are_rejected_but_formal_parameters_are_allowed():
+    f, n = fresh()
+    external = Int("rec_external_constant")
+    with pytest.raises(ValueError, match="must be defined"):
+        define_rec(f, n, If(n <= 0, external, f(n - 1)))
+    assert f not in kernel.defns
+    parameterized = FreshFunction(IntSort(), IntSort(), IntSort())
+    define_rec(
+        parameterized,
+        [n, external],
+        If(n <= 0, external, parameterized(n - 1, external)),
+    )
+    kernel.define(external.decl().name(), [], IntVal(3))
+    define_rec(f, n, If(n <= 0, external, f(n - 1)))
