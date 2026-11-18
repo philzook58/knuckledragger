@@ -157,3 +157,103 @@ def search_wf(
         except kd.kernel.LemmaError:
             pass
     raise ValueError("No well founded ordering found", head, ">", calls)
+
+
+def check_int_recursion(
+    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ArithRef
+) -> list[kd.Proof]:
+    """Prototype: certify guarded calls using the fixed measure ``Abs(n)``.
+
+    Only unary Int -> Int definitions with no free parameters or other
+    uninterpreted functions are supported. Binders, recursive conditions and
+    nested recursive calls are deliberately rejected. No definition is installed.
+    """
+    Z = smt.IntSort()
+    if (
+        not isinstance(f, smt.FuncDeclRef)
+        or not smt.is_uninterp(f)
+        or f.arity() != 1
+        or f.domain(0) != Z
+        or f.range() != Z
+    ):
+        raise TypeError("Expected a unary Int -> Int function")
+    if not smt.is_const(n) or n.sort() != Z or not smt.is_uninterp(n):
+        raise TypeError("Expected an integer variable")
+    if not isinstance(body, smt.ArithRef) or body.sort() != Z:
+        raise TypeError("Expected an integer body")
+    if f in kd.kernel.defns:
+        raise ValueError("Function is already defined", f)
+    # A previously installed wrapper could otherwise hide a cycle through f.
+    if any(kd.kernel.decl_occurs(f, d.body) for d in kd.kernel.defns.values()):
+        raise ValueError("Function already occurs in a registered definition", f)
+    calls = []
+
+    def walk(t, guard, recursive_allowed=True):
+        if smt.is_quantifier(t):
+            raise ValueError("Binders are unsupported in integer recursion")
+        if not smt.is_app(t):
+            raise ValueError("Unsupported term in integer recursion", t)
+        if t.decl() == f:
+            if not recursive_allowed:
+                raise ValueError(
+                    "Recursive conditions and nested recursive calls are unsupported", t
+                )
+            calls.append((guard, t))
+            walk(t.arg(0), guard, recursive_allowed=False)
+        elif smt.is_if(t):
+            condition, yes, no = t.children()
+            walk(condition, guard, recursive_allowed=False)
+            walk(yes, smt.And(guard, condition), recursive_allowed)
+            walk(no, smt.And(guard, smt.Not(condition)), recursive_allowed)
+        elif smt.is_uninterp(t):
+            if not t.eq(n):
+                raise ValueError(
+                    "Only the integer argument and recursive function may be free", t
+                )
+        else:
+            for child in t.children():
+                walk(child, guard, recursive_allowed)
+
+    walk(body, smt.BoolVal(True))
+    proofs = []
+    for guard, call in calls:
+        goal = smt.RawForAll([n], smt.Implies(guard, smt.Abs(call.arg(0)) < smt.Abs(n)))
+        try:
+            # No unfolding, user assumptions or definition of f may justify decrease.
+            proofs.append(kd.kernel.prove(goal))
+        except kd.kernel.SolverFailure as error:
+            raise ValueError(
+                f"Cannot certify recursive call {call}\n"
+                f"under {guard}\n"
+                f"decrease obligation: {goal}"
+            ) from error
+    return proofs
+
+
+def define_rec(
+    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ArithRef
+) -> smt.FuncDeclRef:
+    """Experimental trusted unary integer recursion rule; not a derived existence proof.
+
+    >>> n = smt.Int("rec_example_n")
+    >>> fact = smt.Function("rec_example_fact", smt.IntSort(), smt.IntSort())
+    >>> define_rec(fact, n, smt.If(n <= 0, 1, n * fact(n - 1)))
+    rec_example_fact
+    >>> kd.prove(fact(3) == 6, by=[fact.defn(i) for i in range(4)])
+    |= rec_example_fact(3) == 6
+
+    The caller must supply a fresh function symbol, as with other kernel
+    definition rules. The supported syntax and all decrease proofs are checked
+    before reserving its name or registering its equation. Ordinary ``define``
+    is unchanged. The proof reason records this rule and its certificates.
+    """
+    proofs = check_int_recursion(f, n, body)
+    # Reserve the declaration only after every obligation has passed. This also
+    # rejects names already reserved by another kernel declaration.
+    kd.kernel.declare(f.name(), smt.IntSort(), smt.IntSort())
+    equation = kd.kernel.axiom(
+        smt.RawForAll([n], smt.Eq(f(n), body), patterns=[f(n)]),
+        by=["integer_recursion", proofs],
+    )
+    kd.kernel.register_definition(kd.kernel.make_unfolding(equation))
+    return f
