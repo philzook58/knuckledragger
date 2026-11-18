@@ -242,28 +242,23 @@ radd.register(smt.RealSort(), (_x + _y).decl())
 smt.ExprRef.__radd__ = lambda x, y: radd(x, y)  # type: ignore
 
 
-def _seq_element_error(prepend):
-    hint = "[x] + xs" if prepend else "xs + [x]"
-    return TypeError(
-        f"Cannot concatenate a sequence and a bare element; use {hint} "
-        "for a singleton, or concatenate two sequences"
-    )
-
-
 def _seq_concat(xs: smt.SeqRef, other, prepend=False):
     """Concatenate sequences or a Python list of elements of the sequence sort."""
     seq_sort = xs.sort()
     if isinstance(other, list):
         other = cast(seq_sort, other)
+    bare_element = not isinstance(other, (smt.SeqRef, str))
     if isinstance(other, smt.SeqRef):
         other_sort = other.sort()
         if other_sort != seq_sort:
-            if other_sort == seq_sort.basis():
-                raise _seq_element_error(prepend)
-            if seq_sort == other_sort.basis():
-                raise _seq_element_error(not prepend)
-    if not isinstance(other, (smt.SeqRef, str)):
-        raise _seq_element_error(prepend)
+            bare_element = (
+                other_sort == seq_sort.basis() or seq_sort == other_sort.basis()
+            )
+    if bare_element:
+        raise TypeError(
+            "Cannot concatenate a sequence and a bare element; "
+            "use [x] + xs or xs + [x] for a singleton"
+        )
     return smt.Concat(other, xs) if prepend else smt.Concat(xs, other)
 
 
