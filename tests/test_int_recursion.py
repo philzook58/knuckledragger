@@ -1,7 +1,18 @@
 import pytest
 
 from kdrag import kernel, prove
-from kdrag.smt import ForAll, FreshFunction, Function, If, Int, IntSort, Real
+from kdrag.smt import (
+    BoolSort,
+    Empty,
+    ForAll,
+    FreshFunction,
+    Function,
+    If,
+    Int,
+    IntSort,
+    Real,
+    SeqSort,
+)
 from kdrag.termination import check_int_recursion, define_rec
 
 
@@ -84,3 +95,21 @@ def test_guarded_branch_context_and_hidden_dependency():
     kernel.define("recursion_wrapper_test", [n], f(n))
     with pytest.raises(ValueError, match="registered definition"):
         define_rec(f, n, If(n <= 0, 0, f(n - 1)))
+
+
+def test_boolean_codomain():
+    n = Int("rec_bool_n")
+    even = FreshFunction(IntSort(), BoolSort())
+    define_rec(even, n, If(n <= 0, True, ~even(n - 1)))
+    prove(even(4), by=[even.defn(i) for i in range(5)])
+    prove(~even(3), by=[even.defn(i) for i in range(4)])
+
+
+def test_sequence_codomain():
+    n = Int("rec_seq_n")
+    sort = SeqSort(IntSort())
+    countdown = FreshFunction(IntSort(), sort)
+    define_rec(countdown, n, If(n <= 0, Empty(sort), [n] + countdown(n - 1)))
+    prove(
+        countdown(2) == [2, 1] + Empty(sort), by=[countdown.defn(i) for i in range(3)]
+    )

@@ -160,11 +160,11 @@ def search_wf(
 
 
 def check_int_recursion(
-    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ArithRef
+    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ExprRef
 ) -> list[kd.Proof]:
     """Prototype: certify guarded calls using the fixed measure ``Abs(n)``.
 
-    Only unary Int -> Int definitions with no free parameters or other
+    Only unary Int -> T definitions with no free parameters or other
     uninterpreted functions are supported. Binders, recursive conditions and
     nested recursive calls are deliberately rejected. No definition is installed.
     """
@@ -174,13 +174,12 @@ def check_int_recursion(
         or not smt.is_uninterp(f)
         or f.arity() != 1
         or f.domain(0) != Z
-        or f.range() != Z
     ):
-        raise TypeError("Expected a unary Int -> Int function")
+        raise TypeError("Expected a unary function with integer domain")
     if not smt.is_const(n) or n.sort() != Z or not smt.is_uninterp(n):
         raise TypeError("Expected an integer variable")
-    if not isinstance(body, smt.ArithRef) or body.sort() != Z:
-        raise TypeError("Expected an integer body")
+    if not isinstance(body, smt.ExprRef) or body.sort() != f.range():
+        raise TypeError("Body must match the function codomain", f.range())
     if f in kd.kernel.defns:
         raise ValueError("Function is already defined", f)
     # A previously installed wrapper could otherwise hide a cycle through f.
@@ -231,7 +230,7 @@ def check_int_recursion(
 
 
 def define_rec(
-    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ArithRef
+    f: smt.FuncDeclRef, n: smt.ArithRef, body: smt.ExprRef
 ) -> smt.FuncDeclRef:
     """Experimental trusted unary integer recursion rule; not a derived existence proof.
 
@@ -250,7 +249,7 @@ def define_rec(
     proofs = check_int_recursion(f, n, body)
     # Reserve the declaration only after every obligation has passed. This also
     # rejects names already reserved by another kernel declaration.
-    kd.kernel.declare(f.name(), smt.IntSort(), smt.IntSort())
+    kd.kernel.declare(f.name(), smt.IntSort(), f.range())
     equation = kd.kernel.axiom(
         smt.RawForAll([n], smt.Eq(f(n), body), patterns=[f(n)]),
         by=["integer_recursion", proofs],
