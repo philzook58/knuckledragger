@@ -1,22 +1,26 @@
-# SBV theorem-proving examples
+# SBV case-splitting prototype
 
-Adapted from [Levent Erkok’s SBV examples](https://github.com/LeventErkok/sbv/tree/0e9b17044cbdbf0d2395a43d0de37aaddf9be84b/Documentation/SBV/Examples/TP).
+[case_split.py](case_split.py) adapts Levent Erkok's
+[SBV CaseSplit example](https://github.com/LeventErkok/sbv/blob/0e9b17044cbdbf0d2395a43d0de37aaddf9be84b/Documentation/SBV/Examples/TP/CaseSplit.hs).
 The upstream copyright and BSD license are retained in [LICENSE](LICENSE).
 
-- [CaseSplit](case_split.py): prove `2*n*n + n + 1` is never divisible by 3.
-  Splitting into the three possible remainders makes the solver’s job much easier.
-- [RevAcc](rev_acc.py): prove accumulator reverse agrees with ordinary reverse.
-  The key is the stronger invariant `rev_acc(acc, xs) = reverse(xs) ++ acc`:
-  keep `acc` quantified during induction, then specialize it to the empty list.
+The polynomial is written directly in the theorem statement. Its proof uses:
 
-These use finite SMT sequences, default empty/cons induction, and `[x] + xs`
-notation. `pf.eq` handles the calculation using the existing proof context.
-SBV’s list patterns and automatic termination checks remain useful features
-for comparison; knuckledragger’s `define` does not check termination.
+```python
+pf.cases(n % 3 == 0, n % 3 == 1, n % 3 == 2, timeout=100)
+```
+
+With two or more Boolean conditions, `cases` first proves their disjunction
+under the current context, then opens branches in argument order. Overlapping
+conditions are allowed. Failed or timed-out coverage checks preserve the proof
+state. The timeout is in milliseconds and applies to the coverage check.
+
+One argument retains the existing behavior: Boolean true/false cases or
+datatype constructor cases. This branch prototypes only that extension and
+this example.
 
 Run from the repository root with dependencies installed:
 
 ```sh
 PYTHONPATH=src python examples/sbv/case_split.py
-PYTHONPATH=src python examples/sbv/rev_acc.py
 ```
