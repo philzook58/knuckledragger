@@ -252,13 +252,16 @@ def _seq_element_error(prepend):
 
 def _seq_concat(xs: smt.SeqRef, other, prepend=False):
     """Concatenate sequences or a Python list of elements of the sequence sort."""
+    seq_sort = xs.sort()
     if isinstance(other, list):
-        other = cast(xs.sort(), other)
-    if isinstance(other, smt.SeqRef) and other.sort() != xs.sort():
-        if other.sort() == xs.sort().basis():
-            raise _seq_element_error(prepend)
-        if xs.sort() == other.sort().basis():
-            raise _seq_element_error(not prepend)
+        other = cast(seq_sort, other)
+    if isinstance(other, smt.SeqRef):
+        other_sort = other.sort()
+        if other_sort != seq_sort:
+            if other_sort == seq_sort.basis():
+                raise _seq_element_error(prepend)
+            if seq_sort == other_sort.basis():
+                raise _seq_element_error(not prepend)
     if not isinstance(other, (smt.SeqRef, str)):
         raise _seq_element_error(prepend)
     return smt.Concat(other, xs) if prepend else smt.Concat(xs, other)
