@@ -8,6 +8,7 @@ from kdrag.smt import (
     ForAll,
     FreshFunction,
     If,
+    Implies,
     Int,
     IntSort,
     IntVal,
@@ -241,3 +242,29 @@ def test_undefined_constants_are_rejected_but_formal_parameters_are_allowed():
     )
     kernel.define(external.decl().name(), [], IntVal(3))
     define_rec(f, n, If(n <= 0, external, f(n - 1)))
+
+
+def test_implication_guards_consequent():
+    n = Int("implies_n")
+    f = FreshFunction(IntSort(), BoolSort())
+    define_rec(f, n, Implies(n > 0, ~f(n - 1)))
+    prove(~f(3), by=[f.defn(i) for i in range(4)])
+
+
+def test_implication_combines_with_enclosing_and_nested_guards():
+    n = Int("nested_implies_n")
+    f = FreshFunction(IntSort(), BoolSort())
+    define_rec(f, n, If(n >= 0, Implies(n > 1, f(n - 2)), Implies(n < 0, f(n + 1))))
+    impossible = FreshFunction(IntSort(), BoolSort())
+    define_rec(impossible, n, Implies(n > 0, Implies(n <= 0, impossible(n))))
+    prove(impossible(n), by=[impossible.defn(n)])
+
+
+def test_implication_does_not_allow_recursive_conditions_or_increasing_calls():
+    n = Int("bad_implies_n")
+    f = FreshFunction(IntSort(), BoolSort())
+    with pytest.raises(ValueError, match="Recursive conditions"):
+        define_rec(f, n, Implies(f(n - 1), True))
+    with pytest.raises(ValueError, match="decrease obligation"):
+        define_rec(f, n, Implies(n > 0, f(n + 1)))
+    assert f not in kernel.defns

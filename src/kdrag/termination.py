@@ -167,6 +167,7 @@ def check_int_recursion(
     The first argument is an integer; further arguments and the codomain may
     have arbitrary sorts. Parameters may change at recursive calls. Lambda
     variables are opened freshly and quantified in decrease obligations.
+    If branches and implication consequents contribute reaching conditions.
     Apart from arguments, lambda variables and self-calls, uninterpreted symbols
     must already have registered definitions. Built-in operations are allowed.
     Recursive conditions, nested recursive calls and logical quantifiers remain
@@ -225,6 +226,10 @@ def check_int_recursion(
             walk(condition, guard, recursive_allowed=False, bound=bound)
             walk(yes, smt.And(guard, condition), recursive_allowed, bound)
             walk(no, smt.And(guard, smt.Not(condition)), recursive_allowed, bound)
+        elif smt.is_implies(t):
+            antecedent, consequent = t.children()
+            walk(antecedent, guard, recursive_allowed=False, bound=bound)
+            walk(consequent, smt.And(guard, antecedent), recursive_allowed, bound)
         else:
             if (
                 smt.is_uninterp(t)
