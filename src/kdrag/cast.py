@@ -21,13 +21,14 @@ def cast(s: smt.SortRef, e: object) -> smt.ExprRef:
     if coerce is not None:
         return coerce(e)
     elif isinstance(s, smt.SeqSortRef) and isinstance(e, list):
+        element_sort = s.basis()
         units = []
         for i, value in enumerate(e):
             try:
-                units.append(smt.Unit(cast(s.basis(), value)))
+                units.append(smt.Unit(cast(element_sort, value)))
             except (smt.Z3Exception, TypeError) as error:
                 raise TypeError(
-                    f"Sequence cast: list element {i} must have sort {s.basis()}"
+                    f"Sequence cast: list element {i} must have sort {element_sort}"
                 ) from error
         if not units:
             return smt.Empty(s)
