@@ -1,6 +1,14 @@
 import pytest
 
-from kdrag import Lemma, define, indrel, prove
+from kdrag import (
+    Lemma,
+    define,
+    define_least,
+    indrel,
+    prove,
+    prove_monotone,
+    prove_unfolding,
+)
 from kdrag import kernel
 from kdrag.smt import (
     And,
@@ -93,10 +101,17 @@ def test_quantified_recursion_and_mono_by():
     law = helper.defn
     rel = Function("indrel_helper_rel", IntSort(), BoolSort())
     body = helper(Lambda(x, rel(x)), x)
+    rel = define_least("indrel_helper_rel", x, body)
+    original = rel.defn
     with pytest.raises(ValueError, match="monotonicity"):
-        indrel("indrel_helper_rel", x, body)
-    assert rel not in kernel.defns
-    rel = indrel("indrel_helper_rel", x, body, mono_by=[law])
+        prove_monotone(rel)
+    assert rel.defn is original
+    mono = prove_monotone(rel, by=[law])
+    equation = prove_unfolding(rel, mono)
+    assert rel.defn is original
+    kernel.register_definition(kernel.make_unfolding(equation))
+    assert prove_unfolding(rel, mono).thm.eq(equation.thm)
+    assert rel.defn is equation
     prove(Not(rel(0)), by=[rel.induct(Lambda(x, x != x)), law])
 
 
@@ -105,7 +120,8 @@ def test_rejections():
     bad = Function("indrel_bad", BoolSort(), BoolSort())
     with pytest.raises(ValueError, match="monotonicity"):
         indrel("indrel_bad", x, Not(bad(Not(x))))
-    assert bad not in kernel.defns
+    assert bad in kernel.defns
+    assert not kernel.decl_occurs(bad, kernel.defns[bad].body)
     with pytest.raises(ValueError, match="distinct"):
         indrel("indrel_duplicate", [x, x], x)
     with pytest.raises(TypeError, match="Boolean"):
@@ -116,3 +132,19 @@ def test_rejections():
     with pytest.raises(ValueError, match="already defined"):
         indrel("indrel_defined", x, x)
     assert f in kernel.defns
+
+
+def test_intersection_without_monotonicity():
+    x = Const("nonmono_x", BoolSort())
+    rel = Function("nonmono_intersection", BoolSort(), BoolSort())
+    rel = define_least("nonmono_intersection", x, Not(rel(Not(x))))
+    # Each singleton is closed; their intersection is empty, and not closed.
+    prove(Not(rel(False)), by=[rel.induct(Lambda(x, x))])
+    prove(Not(rel(True)), by=[rel.induct(Lambda(x, Not(x)))])
+    prove(
+        ForAll(x, Not(rel(x))),
+        by=[rel.induct(Lambda(x, x)), rel.induct(Lambda(x, Not(x)))],
+    )
+    assert not kernel.decl_occurs(rel, kernel.defns[rel].body)
+    with pytest.raises(ValueError, match="monotonicity"):
+        prove_monotone(rel)

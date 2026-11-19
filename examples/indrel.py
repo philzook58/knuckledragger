@@ -3,14 +3,20 @@
 Run: PYTHONPATH=src python examples/indrel.py
 """
 
-from kdrag import Lemma, indrel, prove
+from kdrag import Lemma, define_least, prove, prove_monotone, prove_unfolding
+from kdrag.kernel import make_unfolding, register_definition
 from kdrag.smt import And, BoolSort, ForAll, Function, Ints, IntSort, Lambda
 
 x, y = Ints("indrel_x indrel_y")
 lt = Function("indrel_lt", IntSort(), IntSort(), BoolSort())
-lt = indrel(
+lt = define_least(
     "indrel_lt", [x, y], And(x >= 0, x == 0, y > 0), And(x >= 0, lt(x - 1, y - 1))
 )
+# The intersection and induction theorem exist before proving monotonicity.
+mono = prove_monotone(lt)
+unfolding = prove_unfolding(lt, mono)
+register_definition(make_unfolding(unfolding))
+
 prove(lt(0, 1), by=[lt.defn])
 prove(lt(1, 2), by=[lt.defn])
 invariant = Lambda([x, y], And(x >= 0, x < y))

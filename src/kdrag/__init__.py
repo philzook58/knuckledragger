@@ -17,7 +17,7 @@ from . import rewrite
 from . import contracts
 from . import tactics
 from . import reflect
-from .inductive import indrel
+from .inductive import define_least, indrel, prove_monotone, prove_unfolding
 import functools
 from .parsers import microlean
 from .printers.pretty import pretty_expr, register_infix
@@ -601,6 +601,9 @@ __all__ = [
     "axiom",
     "define",
     "indrel",
+    "define_least",
+    "prove_monotone",
+    "prove_unfolding",
     "Proof",
     "FreshVar",
     "FreshVars",
