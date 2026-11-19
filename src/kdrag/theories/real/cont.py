@@ -39,9 +39,9 @@ cont_at_of_is_cont = prove(
 def has_lim_at_of_cont_at(l):
     f, x = l.fixes()
     l.unfold(cont_at, has_lim_at)
-    continuity = l.intros()
+    continuity = l.intro()
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Reuse continuity's delta for the punctured neighborhood.
     continuity = l.specialize(continuity, eps)
     d, y = Reals("delta y")
@@ -58,10 +58,10 @@ def has_lim_at_of_cont_at(l):
 def cont_at_add(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
-    hf, hg = l.intros(), l.intros()
+    hf, hg = l.intro(), l.intro()
     l.unfold(fadd)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Each summand gets half the error budget.
     hf = l.specialize(hf, eps / 2)
     hg = l.specialize(hg, eps / 2)
@@ -84,10 +84,10 @@ def cont_at_add(l):
 def cont_at_mul(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
-    hf, hg = l.intros(), l.intros()
+    hf, hg = l.intro(), l.intro()
     l.unfold(fmul)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Keep both errors below one and control the product error.
     eta = min(1, eps / (2 * (abs(f[p]) + abs(g[p]) + 1)))
     l.have(eta > 0, by=[abs.defn, min.defn])
@@ -108,7 +108,7 @@ def cont_at_mul(l):
     l.split()
     l.auto(by=[min.defn])
     y = l.fix()
-    l.intros()
+    l.intro()
     l.have(And(abs(p - y) < d1, abs(p - y) < d2), by=[min.defn])
     l.have(abs(f[p] - f[y]) < eta, by=[])
     l.have(abs(g[p] - g[y]) < eta, by=[])
@@ -135,9 +135,9 @@ is_cont_mul = prove(
 def cont_at_update_of_has_lim_at(l):
     f, p, L = l.fixes()
     l.unfold(has_lim_at, cont_at)
-    limit = l.intros()
+    limit = l.intro()
     eps = l.fix()
-    l.intros()
+    l.intro()
     limit = l.specialize(limit, eps)
     d, x = Reals("delta x")
     witness = l.have(
@@ -158,9 +158,9 @@ def cont_at_update_of_has_lim_at(l):
 def has_lim_at_of_cont_at_update(l):
     f, p, L = l.fixes()
     l.unfold(cont_at, has_lim_at)
-    continuity = l.intros()
+    continuity = l.intro()
     eps = l.fix()
-    l.intros()
+    l.intro()
     continuity = l.specialize(continuity, eps)
     d, y = Reals("delta y")
     updated = Store(f, p, L)
@@ -178,7 +178,6 @@ def has_lim_at_of_cont_at_update(l):
 
     # Instantiate continuity at the point in the punctured neighborhood.
     x = l.fix()
-    l.intros()
     l.intros()
     l.specialize(tail, x)
     l.auto(
@@ -202,7 +201,6 @@ def has_lim_at_of_cont_at_update(l):
 def has_lim_at_add(l):
     f, g, p, L, M = l.fixes()
     l.intros()
-    l.intros()
     f1, g1 = Store(f, p, L), Store(g, p, M)
     l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
     l.have(cont_at(g1, p), by=[cont_at_update_of_has_lim_at(g, p, M)])
@@ -221,7 +219,6 @@ def has_lim_at_add(l):
 )
 def has_lim_at_mul(l):
     f, g, p, L, M = l.fixes()
-    l.intros()
     l.intros()
     f1, g1 = Store(f, p, L), Store(g, p, M)
     l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])

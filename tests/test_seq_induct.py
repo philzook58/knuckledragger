@@ -34,7 +34,7 @@ def test_default_sequence_induction_has_empty_cons_cases(sort):
     head, tail = pf.fixes()
     assert head.sort() == sort.basis()
     assert tail.sort() == sort
-    pf.intros()
+    pf.intro()
     pf.auto()
     assert pf.qed().thm.eq(goal)
 

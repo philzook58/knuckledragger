@@ -44,7 +44,7 @@ n = Int("n")
 @Theorem(ForAll([a, y], has_lim(a, y), ForAll(n, n >= 0, a[n] >= 0), y >= 0))
 def lim_of_nonneg_seq(l):
     a, y = l.fixes()
-    limit, nonneg = l.intros(), l.intros()
+    limit, nonneg = l.intro(), l.intro()
     l.unfold(has_lim, at=limit)
     l.contra()
     positive = l.have(-y > 0, by=[])
@@ -63,10 +63,10 @@ def lim_of_nonneg_seq(l):
 )
 def has_lim_smul(l):
     a, x, c = l.fixes()
-    l.intros()
+    l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # A positive denominator handles zero and nonzero scalars uniformly.
     eta = eps / (abs(c) + 1)
     l.have(eta > 0, by=[abs_pos(c)])
@@ -74,7 +74,7 @@ def has_lim_smul(l):
     # Pointwise: |c a[m] - c x| = |c| |a[m] - x| < eps.
     l.have(ForAll([n], abs(a[n] - x) < eta, abs(smul(c, a)[n] - c * x) < eps))
     m = l.fix()
-    l.intros()
+    l.intro()
     l.have(abs(c) * eta < eps, by=[abs_pos(c)])
     l.have(c * a[m] - c * x == c * (a[m] - x), by=[])
     l.auto(by=[smul.defn(c, a), abs_mul(c, a[m] - x), abs_pos(c)])
@@ -91,10 +91,10 @@ def has_lim_smul(l):
 )
 def has_lim_add(l):
     a, b, x, y = l.fixes()
-    l.intros(), l.intros()
+    l.intro(), l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Each sequence contributes half the error budget.
     e = eps / 2
     Pa, Pb = near(a, x, e), near(b, y, e)
@@ -111,7 +111,7 @@ def has_lim_add(l):
         )
     )
     m = l.fix()
-    l.intros()
+    l.intro()
     l.auto(by=[add.defn(a, b), abs_add(a[m] - x, b[m] - y)])
     l.auto(by=[eventually_mono(both, near(a + b, x + y, eps))])
 
@@ -119,17 +119,17 @@ def has_lim_add(l):
 @Theorem(ForAll([a, x], has_lim(a, x), has_lim(-a, -x)))
 def has_lim_neg(l):
     a, x = l.fixes()
-    l.intros()
+    l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     l.have(eventually(near(a, x, eps)), by=[eventually_near(a, x, eps)])
     # Pointwise: |-a[m] - -x| = |a[m] - x|.
     l.have(ForAll([n], abs(a[n] - x) < eps, abs((-a)[n] - -x) < eps))
     l.unfold(neg)
     l.beta()
     m = l.fix()
-    l.intros()
+    l.intro()
     l.auto(by=[abs_neg(a[m] - x)])
     l.auto(by=[eventually_mono(near(a, x, eps), near(-a, -x, eps))])
 
@@ -205,10 +205,10 @@ def ge_of_has_lim(l):
 def has_lim_squeeze(l):
     """Squeeze theorem: a sequence trapped between two with limit x has limit x."""
     a, b, d, x = l.fixes()
-    l.intros(), l.intros(), l.intros()
+    l.intro(), l.intro(), l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     Pa, Pd = near(a, x, eps), near(d, x, eps)
     between = Lambda([n], And(a[n] <= b[n], b[n] <= d[n]))
     both = Lambda([n], And(Pa[n], Pd[n]))
@@ -228,7 +228,7 @@ def has_lim_squeeze(l):
         )
     )
     m = l.fix()
-    l.intros(), l.intros()
+    l.intro(), l.intro()
     l.auto(by=[abs.defn(a[m] - x), abs.defn(d[m] - x), abs.defn(b[m] - x)])
     l.auto(by=[eventually_mono(trapped, near(b, x, eps))])
 
@@ -243,10 +243,10 @@ def has_lim_squeeze(l):
 )
 def has_lim_mul(l):
     a, b, x, y = l.fixes()
-    l.intros(), l.intros()
+    l.intro(), l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Keep both errors below one and small enough for the product estimate.
     eta = min(1, eps / (2 * (abs(x) + abs(y) + 1)))
     l.have(eta > 0, by=[abs_pos(x), abs_pos(y), min.defn])
@@ -264,7 +264,7 @@ def has_lim_mul(l):
         )
     )
     m = l.fix()
-    l.intros()
+    l.intro()
     l.have(
         And(eta <= 1, 2 * eta * (abs(x) + abs(y) + 1) <= eps),
         by=[abs_pos(x), abs_pos(y), min.defn],
@@ -297,7 +297,7 @@ def has_lim_mul(l):
 )
 def div_decomp(l):
     u, v, w, z = l.fixes()
-    l.intros()
+    l.intro()
     l.auto()
 
 
@@ -306,10 +306,10 @@ def div_decomp(l):
 )
 def has_lim_div(l):
     a, b, x, y = l.fixes()
-    l.intros(), l.intros(), l.intros()
+    l.intro(), l.intro(), l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Keep the denominator away from zero and split the quotient error.
     Y, X = abs(y), abs(x)
     ea = eps * Y / 4
@@ -333,7 +333,7 @@ def has_lim_div(l):
     l.unfold(div)
     l.beta()
     m = l.fix()
-    l.intros()
+    l.intro()
 
     am, bm = a[m], b[m]
     da, db, B = abs(am - x), abs(bm - y), abs(bm)

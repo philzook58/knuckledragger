@@ -41,7 +41,7 @@ m, n = Consts("m n", nat.Nat)
 @Theorem(ForAll([n, m], n == m, n == m))
 def silly1(l):
     n, m = l.fixes()
-    l.intros()
+    l.intro()
 
     # %%
     # (** Here, we could finish with "[rewrite -> eq.  reflexivity.]" as we
@@ -86,7 +86,6 @@ n, m, o, p = Consts("n m o p", nat.Nat)
 def silly2(l):
     n, m, o, p = l.fixes()
     l.intros()
-    l.intros()
     l.apply(1)
     l.apply(0)
 
@@ -123,7 +122,6 @@ q, r = Consts("q r", nat.Nat)
 )
 def silly2a(l):
     n, m = l.fixes()
-    l.intros()
     l.intros()
     l.apply(1)
     l.apply(0)
@@ -168,7 +166,7 @@ def silly2a(l):
 @Theorem(ForAll([n, m], n == m, m == n))
 def silly3(l):
     n, m = l.fixes()
-    l.intros()
+    l.intro()
     l.symm()
     l.apply(0)
 
@@ -227,7 +225,6 @@ a, b, c, d, e, f = Consts("a b c d e f", nat.Nat)
 )
 def trans_eq_example(l):
     a, b, c, d, e, f = l.fixes()
-    l.intros()
     l.intros()
     l.rw(0)
     l.rw(1)

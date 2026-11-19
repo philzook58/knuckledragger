@@ -47,9 +47,7 @@ def fib_shift(pf: ProofState):
 
     n = pf.fix()
     pf.intros()
-    pf.intros()
     k = pf.fix()
-    pf.intros()
     pf.intros()
     pf.symm()
     pf.eq(fib(fibonacci(k + 1), fibonacci(k) + fibonacci(k + 1), n), by=[fib.defn])
@@ -62,7 +60,7 @@ def fib_shift(pf: ProofState):
 def fib_correct(pf: ProofState):
     """Start the shifted invariant at k = 0, with accumulators 1 and 1."""
     n = pf.fix()
-    pf.intros()
+    pf.intro()
     pf.auto(
         by=[fib_shift(n, 0), fibonacci.defn(0), fibonacci.defn(1), fib_tail.defn(n)]
     )

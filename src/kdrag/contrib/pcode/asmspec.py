@@ -613,7 +613,7 @@ class VCProofState(kd.tactics.ProofState):
         super().__init__(
             kd.tactics.Goal(sig=[], ctx=[], goal=vc.vc(ctx)), _parent=_parent
         )
-        # self.intros()
+        # self.intro()
         # self.split(at=0)
 
     def auto(self, **kwargs):

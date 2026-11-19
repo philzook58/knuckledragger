@@ -21,7 +21,7 @@ def test_multiple_cases_use_context_and_allow_overlap():
     n = smt.Int("n")
     goal = smt.Implies(n >= 0, n + 1 > 0)
     l = kd.Lemma(goal)
-    l.intros()
+    l.intro()
     l.cases(n <= 1, n >= 1)
     l.auto()
     l.auto()
@@ -31,7 +31,7 @@ def test_multiple_cases_use_context_and_allow_overlap():
 def test_coverage_must_hold_in_context():
     n = smt.Int("n")
     l = kd.Lemma(smt.Implies(n >= 0, n >= 0))
-    l.intros()
+    l.intro()
     l.cases(n == 0, n > 0)
     l.auto()
     l.auto()

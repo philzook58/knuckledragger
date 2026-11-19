@@ -140,7 +140,7 @@ def _is_dir1(l):
 @PTheorem(ForAll(p, p != origin, is_dir(dir(p))))
 def unit_dir(l):
     p = l.fix()
-    l.intros()
+    l.intro()
     l.unfold(is_dir)
     l.exists(vec2.smul(1 / vec2.norm(p), p))
     l.unfold(vec2.norm)
@@ -220,14 +220,14 @@ def is_line_iff_linep(l):
     l.unfold(vec2.sub)
     # l.split()
     # -> implication
-    l.intros()
+    l.intro()
     p, q = l.obtain(0)
     l.exists(p.y - q.y, q.x - p.x, p.x * q.y - p.y * q.x)
     l.auto()
 """
 """
         # <- implication
-        l.intros()
+        l.intro()
         x, y, z = l.obtain(0)
         l.cases(x == 0)
 

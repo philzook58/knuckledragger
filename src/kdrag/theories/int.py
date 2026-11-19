@@ -67,9 +67,8 @@ P = Array("P", Z, BoolSort())
 def induct_nat_ax(l):
     l.fix()
     l.intros()
-    l.intros()
     x = l.fix()
-    l.intros()
+    l.intro()
     l.induct(x, using=induct_nat)
 
 
@@ -201,7 +200,6 @@ def fact_ge_1(l):
     l.auto(unfold=1)
     l.fix()
     l.intros()
-    l.intros()
     l.simp()
     l.unfold(fact)
     l.simp()
@@ -222,9 +220,6 @@ def dvd_fact(l):
     # inductive case n > 0
     l.unfold(dvd)
     n1 = l.fix()
-    l.intros()
-    l.intros()
-    l.intros()
     l.intros()
     l.unfold(fact)
     l.simp()
@@ -365,8 +360,8 @@ def natpair_unpair(l):
     l.auto(by=[natpair_to_tuple.defn, natpair.defn])  # k == 0
 
     k = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.case(k >= 0)
     l.unfold(natpair_to_tuple)
     l.have((k + 1 == 0) == BoolVal(False), by=[])
@@ -378,12 +373,12 @@ def natpair_unpair(l):
     l.autocases()
     l.rw(-1)
     l.simp()
-    l.intros()
+    l.intro()
     l.auto(by=[natpair_to_tuple.defn, natpair.defn])
 
     l.rw(-1)
     l.simp()
-    l.intros()
+    l.intro()
     l.auto(by=[natpair_to_tuple.defn, natpair.defn])
 
 
