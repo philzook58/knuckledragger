@@ -37,7 +37,7 @@ HCtrans = mod.PEq(Next(hr), mod.PIf(hr < 12, hr + 1, 0))  # todo stutter
 
 @Theorem(Valid(mod.PImplies(HCini & Always(HCtrans), Always(HCini))))
 def clock_inv(l):
-    l.intros()
+    l.intro()
     _t = l.fix()
     l.induct(_t)
     l.auto()  # neg t

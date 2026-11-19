@@ -172,7 +172,7 @@ def ev_4(pf):
 )
 def evSS_ev(pf):
     ev, n = pf.fixes()
-    pf.intros()
+    pf.intro()
     pf.cases(ev)
     # EvenZ case: contradiction by unfolding even_wf.
     pf.auto(by=[even_wf.defn])
@@ -184,7 +184,7 @@ def evSS_ev(pf):
 @Theorem("forall (ev : Even), even_wf ev (S Z) -> False")
 def one_not_even(pf):
     ev = pf.fix()
-    pf.intros()
+    pf.intro()
     pf.cases(ev)
     pf.auto(by=[even_wf.defn])
     pf.auto(by=[even_wf.defn])
@@ -195,7 +195,7 @@ def one_not_even(pf):
 )
 def even_SS(pf):
     ev, n = pf.fixes()
-    pf.intros()
+    pf.intro()
     # Unfold even_wf and let Z3 discharge the constructor case.
     pf.auto(by=[even_wf.defn])
 
@@ -206,7 +206,7 @@ def even_SS(pf):
 )
 def even_plus4(pf):
     ev, n = pf.fixes()
-    pf.intros()
+    pf.intro()
     # Two applications of the EvenSS constructor.
     pf.auto(by=[even_wf.defn])
 
@@ -225,7 +225,7 @@ def le_refl(pf):
 @Theorem("forall (ev : Le) (n m : Nat), le_wf ev n m -> le_wf (Le.le_S ev) n (S m)")
 def le_step(pf):
     ev, n, m = pf.fixes()
-    pf.intros()
+    pf.intro()
     pf.auto(by=[le_wf.defn])
 
 
@@ -239,7 +239,7 @@ def le_step(pf):
 )
 def ev_inversion(pf):
     ev, n = pf.fixes()
-    pf.intros()
+    pf.intro()
     pf.cases(ev)
     # EvenZ: left branch.
     pf.left()
@@ -256,7 +256,7 @@ def ev_inversion(pf):
 )
 def le_inversion(pf):
     ev, n, m = pf.fixes()
-    pf.intros()
+    pf.intro()
     pf.cases(ev)
     # le_n case.
     pf.left()

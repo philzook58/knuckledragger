@@ -154,7 +154,7 @@ Group.register(
 @Theorem(ForAll([x], ForAll([y], x * y == y), x == e))
 def id_unique2(l):
     x = l.fix()
-    l.intros()
+    l.intro()
     l.eq(x * e)
     l.eq(x, by=[id_right(x)])
 

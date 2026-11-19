@@ -47,7 +47,7 @@ is_open_empty = prove(is_open(RSet.empty), unfold=1)
 def is_open_unit_ball(l):
     l.unfold()
     x = l.fix()
-    l.intros()
+    l.intro()
     l.exists(1 - real.abs(x))
     l.auto(unfold=2)
 

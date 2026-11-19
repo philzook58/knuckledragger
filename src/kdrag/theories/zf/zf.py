@@ -86,12 +86,12 @@ def emp_exists_elem(l):
     A = l.fix()
     l.split()
     with l.sub() as l1:
-        l1.intros()
-        l1.intros()
+        l1.intro()
+        l1.intro()
         x = l1.obtain(-1)
         l1.show(BoolVal(False), by=[ext_ax, elem_emp])
     with l.sub() as l2:
-        l2.intros()
+        l2.intro()
         l2.rw(ext_ax)
         x = l2.fix()
         l2.apply(0)
@@ -127,7 +127,7 @@ elem_upair = axiom(ForAll([x, y, z], elem(z, upair(x, y)) == Or(z == x, z == y))
 def upair_not_emp(l):
     a, b = l.fixes()
     l.rw(ext_ax)
-    l.intros()
+    l.intro()
     l.have(elem(a, upair(a, b)), by=[elem_upair(a, b, a)])
     l.have(Not(elem(a, emp)), by=[elem_emp(a)])
     l.auto()
@@ -160,14 +160,14 @@ elem_upair_2 = prove(
 def upair_inj(l):
     a, b, c, d = l.fixes()
     l.split()
-    l.intros()
+    l.intro()
     l.rw(ext_ax, at=0)
     l.have(elem(a, upair(a, b)), by=elem_upair_1)
     l.have(elem(b, upair(a, b)), by=elem_upair_2)
     l.have(elem(c, upair(c, d)), by=elem_upair_1)
     l.have(elem(d, upair(c, d)), by=elem_upair_2)
     l.auto(by=[elem_upair])
-    l.intros()
+    l.intro()
     l.auto(by=[upair_comm])
 
 
@@ -274,12 +274,12 @@ def elem_bigunion_upair(l):
     l.rw(bigunion_ax)
     l.split()
     with l.sub() as c1:
-        c1.intros()
+        c1.intro()
         c1.obtain(0)
         c1.rw(elem_upair, at=0)
         c1.auto()
     with l.sub() as c2:
-        c2.intros()
+        c2.intro()
         c2.cases(elem(x, A))
         c2.exists(A)
         c2.rw(elem_upair)
@@ -366,20 +366,20 @@ biginter = define(
 )
 def elem_biginter(l):
     A, x = l.fixes()
-    l.intros()
+    l.intro()
     l.unfold(biginter)
     l.rw(elem_sep)
     l.simp()
     l.split()
-    l.intros()
+    l.intro()
     l.split()
     l.auto()
     l.have(elem(pick(A), A), by=[elem_pick])
     l.auto()
 
-    l.intros()
+    l.intro()
     l.fix()
-    l.intros()
+    l.intro()
     l.have(elem(pick(A), A), by=[elem_pick])
     l.auto()
 
@@ -604,10 +604,10 @@ def pair_inj(l):
     l.unfold(pair)
     l.unfold(sing)
     l.split()
-    l.intros()
+    l.intro()
     l.rw(upair_inj, at=0)
     l.auto(by=[upair_inj])
-    l.intros()
+    l.intro()
     l.auto(by=[upair_comm])
 
 
@@ -723,7 +723,7 @@ def elem_prod(l):
     l.split()
 
     # -> direction: extract witnesses from the product definition.
-    l.intros()
+    l.intro()
     l.rw(elem_prod_def, at=0)
     l.split(at=0)
     x1, y1 = l.obtain(0)
@@ -741,7 +741,7 @@ def elem_prod(l):
     l.auto()
 
     # <- direction: use fst/snd as witnesses and show the pair lives in pow(pow(A | B)).
-    l.intros()
+    l.intro()
     l.split(at=0)
     l.rw(elem_prod_def)
     l.split()
@@ -751,7 +751,7 @@ def elem_prod(l):
     l.rw(-1)
     l.unfold(le)
     l.fix()
-    l.intros()
+    l.intro()
     l.rw(elem_pair, at=-1)
     l.split(at=-1)
 
@@ -760,7 +760,7 @@ def elem_prod(l):
     l.rw(elem_pow)
     l.unfold(le)
     l.fix()
-    l.intros()
+    l.intro()
     l.rw(elem_upair, at=-1)
     l.split(at=-1)
     l.rw(-1)
@@ -775,7 +775,7 @@ def elem_prod(l):
     l.rw(elem_pow)
     l.unfold(le)
     l.fix()
-    l.intros()
+    l.intro()
     l.rw(elem_sing, at=-1)
     l.rw(elem_union)
     l.rw(-1)

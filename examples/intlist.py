@@ -262,7 +262,7 @@ def main():
     def mem_append_left(pf):
         """If x is in l1, then x is in append(l1, l2) - using helper lemma"""
         _x, _l1, _l2 = pf.fixes()
-        pf.intros()
+        pf.intro()
         # Just use mem_append_tactic which already proved the equivalence
         pf.show(mem(_x, append(_l1, _l2)), by=[mem_append_tactic])
 
@@ -742,7 +742,7 @@ def main():
         Qed.
         """
         _l = pf.fix()
-        pf.intros()
+        pf.intro()
         # Z3 can handle this directly with definition unfolding
         pf.auto(by=[length.defn])
 

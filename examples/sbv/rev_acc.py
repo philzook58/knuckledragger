@@ -48,7 +48,7 @@ def rev_acc_correct(pf: ProofState):
     pf.auto(by=[rev_acc.defn, reverse.defn])
 
     x, xs = pf.fixes()
-    pf.intros()
+    pf.intro()
     acc = pf.fix()
     # eq advances the RHS; swap sides to follow SBV's calculation forwards.
     pf.symm()

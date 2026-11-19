@@ -52,8 +52,8 @@ sup_ub = prove(
 @Theorem(ForAll([A, M, x], A[x], has_ub(A, M), x <= sup(A)))
 def sup_ge(l):
     A, M, x = l.fixes()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.have(has_ub(A, sup(A)), by=[sup_ub(A, M)])
     l.auto(by=[has_ub.defn])
 
@@ -101,18 +101,18 @@ def lb_inf(l):
     A, M = l.fixes()
     l.unfold(has_lb)
     l.unfold(inf)
-    l.intros()
+    l.intro()
 
     x = l.fix()
     l.specialize(0, x)
-    l.intros()
+    l.intro()
     l.have(M <= x, by=[])
     l.apply(sup_least)
     l.unfold(has_ub)
     _y = l.fix()
     l.simp()
     l.unfold(has_lb)
-    l.intros()
+    l.intro()
     l.auto()
 
 

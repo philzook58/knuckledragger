@@ -69,7 +69,7 @@ def test_exact_tactic_infers_arguments(with_context):
     pf = kd.prove(smt.ForAll(x, body))
     l = kd.Lemma(target)
     if with_context:
-        l.intros()
+        l.intro()
     assert l.exact(pf).is_empty()
     assert l.qed().thm.eq(target)
 
