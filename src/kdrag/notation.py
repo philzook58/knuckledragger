@@ -502,33 +502,6 @@ def induct_int(x, P):
 induct.register(smt.IntSort(), induct_int)
 
 
-def induct_int_strong(x: smt.ArithRef, P) -> kd.kernel.Proof:
-    """Strong integer induction on absolute value, with no domain side condition.
-
-    To establish P(n), assume P(m) for every integer m with Abs(m) < Abs(n).
-    This is an axiom schema, like ordinary integer induction; real-valued
-    arguments are rejected because absolute-value descent is not well-founded
-    on the reals.
-    """
-    if not smt.is_int(x):
-        raise TypeError("Strong integer induction requires an integer argument")
-    n = smt.FreshConst(smt.IntSort(), prefix="n")
-    m = smt.FreshConst(smt.IntSort(), prefix="m")
-    return kd.kernel.axiom(
-        smt.Implies(
-            smt.RawForAll(
-                [n],
-                smt.Implies(
-                    smt.RawForAll([m], smt.Implies(smt.Abs(m) < smt.Abs(n), P(m))),
-                    P(n),
-                ),
-            ),
-            P(x),
-        ),
-        by="integer_strong_induction",
-    )
-
-
 to_int = SortDispatch(name="to_int")
 """Sort based dispatch for `to_int`"""
 smt.ExprRef.to_int = lambda x: to_int(x)  # type: ignore

@@ -14,7 +14,9 @@ from kdrag import (  # noqa: F401
     tuple_,
 )
 from kdrag.smt import (  # noqa: F401
+    Abs,
     And,
+    ArithRef,
     Array,
     ArraySort,
     BoolSort,
@@ -33,7 +35,9 @@ from kdrag.smt import (  # noqa: F401
     Ints,
     Not,
     Or,
+    RawForAll,
     SetSort,
+    is_int,
 )
 
 Z = IntSort()
@@ -88,7 +92,34 @@ def induct_nat_strong(x, P):
 
 
 induct = kd.notation.induct_int
-induct_strong = kd.notation.induct_int_strong
+
+
+def induct_strong(x: ArithRef, P) -> kd.Proof:
+    """Strong integer induction on absolute value, with no domain side condition.
+
+    To establish P(n), assume P(m) for every integer m with Abs(m) < Abs(n).
+    This is an axiom schema, like ordinary integer induction; real-valued
+    arguments are rejected because absolute-value descent is not well-founded
+    on the reals.
+    """
+    if not is_int(x):
+        raise TypeError("Strong integer induction requires an integer argument")
+    n = FreshConst(Z, prefix="n")
+    m = FreshConst(Z, prefix="m")
+    return axiom(
+        Implies(
+            RawForAll(
+                [n],
+                Implies(
+                    RawForAll([m], Implies(Abs(m) < Abs(n), P(m))),
+                    P(n),
+                ),
+            ),
+            P(x),
+        ),
+        by="integer_strong_induction",
+    )
+
 
 t = Int("t")
 
