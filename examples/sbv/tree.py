@@ -37,21 +37,21 @@ nil = Empty(List)
 # Constructor handlers receive recursive results for the subtree fields.
 mirror = define_primrec(
     "SBV.Tree.mirror",
-    [t],
+    t,
     Tree,
     Leaf=lambda: Tree.Leaf,
     Node=lambda left, x, right: Tree.Node(right, x, left),
 )
 flatten = define_primrec(
     "SBV.Tree.flatten",
-    [t],
+    t,
     List,
     Leaf=lambda: nil,
     Node=lambda left, x, right: left + [x] + right,
 )
 tree_size = define_primrec(
     "SBV.Tree.tree_size",
-    [t],
+    t,
     IntSort(),
     Leaf=lambda: IntVal(0),
     Node=lambda left, x, right: 1 + left + right,

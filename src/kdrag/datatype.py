@@ -232,13 +232,22 @@ def multipattern_match(
     return constraints, subst
 
 
-def define_primrec(fun_name, vs: list[smt.ExprRef], res_type: smt.SortRef, **cases):
+def define_primrec(
+    fun_name, vs: list[smt.ExprRef] | smt.ExprRef, res_type: smt.SortRef, **cases
+):
     """
     Define a function by primitive recursion. https://en.wikipedia.org/wiki/Primitive_recursive_function
     This is the analog of a fold.
+    Recurse on the first argument; any remaining arguments are parameters
+    passed unchanged to recursive calls and available in the case handlers
+    through their Python closures. Handlers receive recursive results for
+    fields of the recursive sort, and the original values of other fields.
 
     >>> import kdrag.theories.nat as nat
     >>> n, m = smt.Consts("n m", nat.Nat)
+    >>> myid = define_primrec("primrec_id", n, nat.Nat, Z=lambda: nat.Z, S=nat.S)
+    >>> kd.prove(myid(nat.S(nat.Z)) == nat.S(nat.Z), by=[myid.defn])
+    |= primrec_id(S(Z)) == S(Z)
     >>> myadd2 = define_primrec("myadd2", [n, m], nat.Nat, \
                                 Z = lambda: m,\
                                 S = lambda a: nat.S(a))
@@ -246,6 +255,8 @@ def define_primrec(fun_name, vs: list[smt.ExprRef], res_type: smt.SortRef, **cas
     |= ForAll([n, m],
         myadd2(n, m) == If(is(S, n), S(myadd2(pred(n), m)), m))
     """
+    if isinstance(vs, smt.ExprRef):
+        vs = [vs]
     l = vs[0]
     assert isinstance(l, smt.DatatypeRef)
     params = vs[1:]
