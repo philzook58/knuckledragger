@@ -58,7 +58,7 @@ tree_size = define_primrec(
 )
 
 
-@Theorem(ForAll([t], tree_size(t) >= 0))
+@Theorem(ForAll(t, tree_size(t) >= 0))
 def tree_size_nonneg(pf: ProofState):
     t = pf.fix()
     pf.induct(t)
@@ -79,7 +79,7 @@ tree_size_smaller = prove(
 )
 
 
-@Theorem(ForAll([t], mirror(mirror(t)) == t))
+@Theorem(ForAll(t, mirror(mirror(t)) == t))
 def mirror_involution(pf: ProofState):
     # Structural induction supplies both subtree IHs, without a size measure.
     t = pf.fix()
@@ -89,7 +89,7 @@ def mirror_involution(pf: ProofState):
     pf.auto(by=[mirror.defn])
 
 
-@Theorem(ForAll([t], tree_size(mirror(t)) == tree_size(t)))
+@Theorem(ForAll(t, tree_size(mirror(t)) == tree_size(t)))
 def size_mirror(pf: ProofState):
     t = pf.fix()
     pf.induct(t)
@@ -118,7 +118,7 @@ def reverse_append(pf: ProofState):
     pf.auto(by=[reverse.defn])
 
 
-@Theorem(ForAll([t], flatten(mirror(t)) == reverse(flatten(t))))
+@Theorem(ForAll(t, flatten(mirror(t)) == reverse(flatten(t))))
 def flatten_mirror(pf: ProofState):
     t = pf.fix()
     pf.induct(t)
