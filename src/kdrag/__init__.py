@@ -17,6 +17,7 @@ from . import rewrite
 from . import contracts
 from . import tactics
 from . import reflect
+from .inductive import indrel
 import functools
 from .parsers import microlean
 from .printers.pretty import pretty_expr, register_infix
@@ -599,6 +600,7 @@ __all__ = [
     "exact",
     "axiom",
     "define",
+    "indrel",
     "Proof",
     "FreshVar",
     "FreshVars",
