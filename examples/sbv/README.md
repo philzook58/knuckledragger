@@ -11,6 +11,9 @@ The upstream copyright and BSD license are retained in [LICENSE](LICENSE).
 - [Fibonacci](fibonacci.py): prove tail-recursive and textbook Fibonacci agree.
   Describe the accumulators as consecutive Fibonacci numbers, keeping their
   starting index quantified so the induction hypothesis can shift it.
+- [Tree](tree.py): mirroring is involutive, preserves size, and reverses traversal.
+  Structural induction supplies both subtree hypotheses directly; SBV instead
+  uses strong induction on tree size.
 
 RevAcc uses finite SMT sequences, default empty/cons induction, and `[x] + xs`
 notation. Fibonacci uses integer induction. `pf.eq` handles both calculations
@@ -24,4 +27,5 @@ Run from the repository root with dependencies installed:
 PYTHONPATH=src python examples/sbv/case_split.py
 PYTHONPATH=src python examples/sbv/rev_acc.py
 PYTHONPATH=src python examples/sbv/fibonacci.py
+PYTHONPATH=src python examples/sbv/tree.py
 ```
