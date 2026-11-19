@@ -5,6 +5,8 @@ The upstream copyright and BSD license are retained in [LICENSE](LICENSE).
 
 - [CaseSplit](case_split.py): prove `2*n*n + n + 1` is never divisible by 3.
   Splitting into the three possible remainders makes the solver’s job much easier.
+- [Coins](coins.py): make every amount at least 8 with 3- and 5-unit coins.
+  Three consecutive base amounts support strong induction with a step of 3.
 - [RevAcc](rev_acc.py): prove accumulator reverse agrees with ordinary reverse.
   The key is the stronger invariant `rev_acc(acc, xs) = reverse(xs) ++ acc`:
   keep `acc` quantified during induction, then specialize it to the empty list.
@@ -26,6 +28,7 @@ Run from the repository root with dependencies installed:
 
 ```sh
 PYTHONPATH=src python examples/sbv/case_split.py
+PYTHONPATH=src python examples/sbv/coins.py
 PYTHONPATH=src python examples/sbv/rev_acc.py
 PYTHONPATH=src python examples/sbv/fibonacci.py
 PYTHONPATH=src python examples/sbv/pigeon_hole.py
