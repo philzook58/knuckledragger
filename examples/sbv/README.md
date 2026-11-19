@@ -12,8 +12,9 @@ The upstream copyright and BSD license are retained in [LICENSE](LICENSE).
   Describe the accumulators as consecutive Fibonacci numbers, keeping their
   starting index quantified so the induction hypothesis can shift it.
 - [PigeonHole](pigeon_hole.py): if an integer list sums to more than its length,
-  some entry exceeds 1. A head at most 1 leaves the same inequality on the tail;
-  linear arithmetic supplies the induction hypothesis's premise.
+  some entry exceeds 1. Compare native left folds with cons induction (requiring
+  an accumulator lemma) and snoc induction (using the append equations directly).
+  The snoc principle is derived from cons induction.
 
 RevAcc uses finite SMT sequences, default empty/cons induction, and `[x] + xs`
 notation. Fibonacci uses integer induction. `pf.eq` handles both calculations
