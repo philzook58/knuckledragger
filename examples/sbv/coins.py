@@ -10,7 +10,7 @@ Run from the repository root: PYTHONPATH=src python examples/sbv/coins.py
 from kdrag import OptionSort, Struct, Theorem, cond, define
 from kdrag.smt import Const, ForAll, Function, If, Int, IntSort
 from kdrag.tactics import ProofState
-from kdrag.theories.int import induct_nat_strong
+from kdrag.theories.int import induct_strong
 
 Z = IntSort()
 Pocket = Struct("SBV.Coins.Pocket", ("num3s", Z), ("num5s", Z))
@@ -47,10 +47,9 @@ eval_pocket = define(
 def mk_change_correct(pf: ProofState):
     """Three consecutive base amounts let the recursive case subtract 3."""
     n = pf.fix()
-    pf.cases(n >= 8)
-    pf.induct(n, using=induct_nat_strong)
+    pf.induct(n, using=induct_strong)
     k = pf.fix()
-    _, ih, _ = pf.intros()  # k >= 0, IH at smaller nonnegative amounts, k >= 8
+    ih, _ = pf.intros()  # IH at smaller absolute values, k >= 8
     pf.cases(k == 8, k == 9, k == 10, k > 10)
     pf.auto(by=[mk_change.defn(k), eval_pocket.defn])
     pf.auto(by=[mk_change.defn(k), eval_pocket.defn])
@@ -58,8 +57,6 @@ def mk_change_correct(pf: ProofState):
     pf.specialize(ih, k - 3)
     # Its value is k-3 >= 8, so the preceding result cannot be None.
     pf.auto(by=[mk_change.defn(k), eval_pocket.defn])
-    pf.auto()  # The induction principle also requires n >= 0.
-    pf.auto()  # Amounts below 8 make the theorem's premise false.
 
 
 if __name__ == "__main__":

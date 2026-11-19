@@ -88,6 +88,7 @@ def induct_nat_strong(x, P):
 
 
 induct = kd.notation.induct_int
+induct_strong = kd.notation.induct_int_strong
 
 t = Int("t")
 
