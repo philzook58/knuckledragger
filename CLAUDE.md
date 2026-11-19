@@ -231,6 +231,8 @@ def sum_append(pf):
 
 ## Code Style
 
+- SymPy distinguishes symbols with different assumptions. Reuse `sympify(x)` when passing variables to SymPy operations, and use scoped `Dummy` symbols for lambda binders.
+
 - **Imports**: Group standard library, third-party, and local imports
 - In theories and examples, import proof and SMT helpers explicitly (`from kdrag import prove, Theorem`; `from kdrag.smt import ForAll, Implies`). Keep qualification where names would clash.
 - **Types**: Use type annotations for function parameters and return values

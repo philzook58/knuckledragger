@@ -20,7 +20,7 @@ import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
 
 if TYPE_CHECKING:
-    import sympy  # imported lazily: it is slow to import
+    import sympy as sp  # imported lazily: it is slow to import
 
 
 def FreshVar(name: str, sort: smt.SortRef, assume=None) -> smt.ExprRef:
@@ -1155,7 +1155,27 @@ class ProofState:
                 self.add_lemma(kd.kernel.prove(self.top_goal().to_expr(), admit=True))
             return self
 
-    def symp(self) -> "sympy.Expr":
+    def sympy(self, expr: smt.ExprRef | None = None) -> "sp.Basic":
+        """Export the current goal, or an explicit expression, to SymPy.
+
+        Returns a native SymPy object without simplifying or changing proof
+        state. Open goal quantifiers with ``fixes`` before exporting them.
+
+        >>> import sympy
+        >>> x = smt.Real("x")
+        >>> l = Lemma(x + 1 == 2)
+        >>> l.sympy()
+        Eq(x + 1, 2)
+        >>> sympy.integrate(l.sympy(x**2), l.sympy(x))
+        x**3/3
+        """
+        import kdrag.solvers.sympy as kdsympy
+
+        if expr is None:
+            expr = self.top_goal().goal
+        return kdsympy.sympify(expr)
+
+    def symp(self) -> "sp.Basic":
         """
         Use sympy to simplify the current goal.
         Does not mutate the goal. Returns the sympy expression.
@@ -1168,17 +1188,9 @@ class ProofState:
         """
         import sympy
 
-        import kdrag.solvers.sympy as kdsympy
+        return sympy.simplify(self.sympy())
 
-        goalctx = self.top_goal()
-        return sympy.simplify(
-            kdsympy.sympify(
-                goalctx.goal,
-                locals={v.decl().name(): kdsympy.sympy_const(v) for v in goalctx.sig},
-            )
-        )
-
-    def esolve(self) -> "dict[sympy.Expr, sympy.Expr]":
+    def esolve(self) -> "dict[sp.Expr, sp.Expr]":
         """
         Solve an exists goal using sympy.
         Returns a dictionary mapping from variables to solutions.
@@ -1190,30 +1202,18 @@ class ProofState:
         """
         import sympy
 
-        import kdrag.solvers.sympy as kdsympy
-
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
         if not (isinstance(goal, smt.QuantifierRef) and goal.is_exists()):
             raise ValueError("solve tactic only works on exists goals", goal)
         vs, body = kd.utils.open_binder(goal)
         return sympy.solve(
-            [
-                kdsympy.sympify(
-                    expr,
-                    locals={
-                        v.decl().name(): kdsympy.sympy_const(v)
-                        for v in goalctx.sig + vs
-                    },
-                )
-                for expr in ctx + [body]
-            ],
-            *[kdsympy.sympy_const(v) for v in vs],
+            [self.sympy(expr) for expr in ctx + [body]],
+            *[self.sympy(v) for v in vs],
         )
 
-    def solve(self, *vs) -> "dict[sympy.Expr, sympy.Expr]":
-        """
-        Solve for variables using the context
+    def solve(self, *vs) -> "dict[sp.Expr, sp.Expr]":
+        """Solve for variables using the context, without changing proof state.
 
         >>> x,y,z = smt.Reals("x y z")
         >>> l = Lemma(smt.Implies(smt.And(x + y == 10, y + z == 4), True))
@@ -1224,21 +1224,9 @@ class ProofState:
         """
         import sympy
 
-        import kdrag.solvers.sympy as kdsympy
-
-        goalctx = self.top_goal()
-        locals = {
-            v.decl().name(): kdsympy.sympy_const(v) for v in goalctx.sig + list(vs)
-        }
         return sympy.solve(
-            [
-                kdsympy.sympify(
-                    expr,
-                    locals=locals,
-                )
-                for expr in goalctx.ctx
-            ],
-            *[kdsympy.sympy_const(v) for v in vs],
+            [self.sympy(expr) for expr in self.top_goal().ctx],
+            *[self.sympy(v) for v in vs],
         )
 
     def obtain(self, n: int | smt.BoolRef) -> smt.ExprRef | list[smt.ExprRef]:
