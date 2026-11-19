@@ -25,8 +25,8 @@ def test_integer_lt():
     lt = indrel(
         "indrel_lt", [x, y], And(x >= 0, x == 0, y > 0), And(x >= 0, lt(x - 1, y - 1))
     )
-    prove(lt(0, 1), by=[lt.case0])
-    prove(lt(1, 2), by=[lt.case0, lt.case1])
+    prove(lt(0, 1), by=[lt.defn])
+    prove(lt(1, 2), by=[lt.defn])
     invariant = Lambda([x, y], And(x >= 0, x < y))
     prove(ForAll([x, y], lt(x, y), And(x >= 0, x < y)), by=[lt.induct(invariant)])
     # Keep y general while inducting on x so it can decrease in the IH.
@@ -40,12 +40,12 @@ def test_integer_lt():
     pf.auto()
     _b = pf.fix()
     pf.intro()
-    pf.auto(by=[lt.case0])
+    pf.auto(by=[lt.defn])
     a = pf.fix()
     pf.intros()
     _b = pf.fix()
     pf.intro()
-    pf.auto(by=[lt.case1])
+    pf.auto(by=[lt.defn])
     complete = pf.qed()
     prove(
         ForAll([x, y], lt(x, y) == And(x >= 0, x < y)),
@@ -76,8 +76,8 @@ def test_mixed_sorts_and_existential():
         Exists(n, And(x == n + 1, n >= 0, b)),
         And(x > 1, rel(x - 1, b)),
     )
-    prove(rel(1, True), by=[rel.case0])
-    prove(rel(2, True), by=[rel.case0, rel.case1])
+    prove(rel(1, True), by=[rel.defn])
+    prove(rel(2, True), by=[rel.defn])
     prove(Not(rel(1, False)), by=[rel.induct(Lambda([x, b], b))])
 
 
