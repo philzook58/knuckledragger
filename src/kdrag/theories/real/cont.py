@@ -178,8 +178,7 @@ def has_lim_at_of_cont_at_update(l):
 
     # Instantiate continuity at the point in the punctured neighborhood.
     x = l.fix()
-    l.intro()
-    l.intro()
+    l.intros()
     l.specialize(tail, x)
     l.auto(
         by=[
@@ -201,8 +200,7 @@ def has_lim_at_of_cont_at_update(l):
 )
 def has_lim_at_add(l):
     f, g, p, L, M = l.fixes()
-    l.intro()
-    l.intro()
+    l.intros()
     f1, g1 = Store(f, p, L), Store(g, p, M)
     l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
     l.have(cont_at(g1, p), by=[cont_at_update_of_has_lim_at(g, p, M)])
@@ -221,8 +219,7 @@ def has_lim_at_add(l):
 )
 def has_lim_at_mul(l):
     f, g, p, L, M = l.fixes()
-    l.intro()
-    l.intro()
+    l.intros()
     f1, g1 = Store(f, p, L), Store(g, p, M)
     l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
     l.have(cont_at(g1, p), by=[cont_at_update_of_has_lim_at(g, p, M)])

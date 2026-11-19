@@ -9,8 +9,7 @@ def test_specialize_context_premise(keep):
     x, y = smt.Ints("x y")
     rule = smt.ForAll(x, x > 0, x >= 0)
     l = kd.Lemma(smt.Implies(rule, smt.Implies(y > 0, y >= 0)))
-    hyp = l.intro()
-    positive = l.intro()
+    hyp, positive = l.intros()
     result = l.specialize(hyp, y, positive, keep=keep)
     assert result.eq(y >= 0)
     assert any(h.eq(hyp) for h in l.ctx) == keep
