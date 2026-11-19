@@ -8,9 +8,13 @@ The upstream copyright and BSD license are retained in [LICENSE](LICENSE).
 - [RevAcc](rev_acc.py): prove accumulator reverse agrees with ordinary reverse.
   The key is the stronger invariant `rev_acc(acc, xs) = reverse(xs) ++ acc`:
   keep `acc` quantified during induction, then specialize it to the empty list.
+- [Fibonacci](fibonacci.py): prove tail-recursive and textbook Fibonacci agree.
+  Describe the accumulators as consecutive Fibonacci numbers, keeping their
+  starting index quantified so the induction hypothesis can shift it.
 
-These use finite SMT sequences, default empty/cons induction, and `[x] + xs`
-notation. `pf.eq` handles the calculation using the existing proof context.
+RevAcc uses finite SMT sequences, default empty/cons induction, and `[x] + xs`
+notation. Fibonacci uses integer induction. `pf.eq` handles both calculations
+using the existing proof context.
 SBV’s list patterns and automatic termination checks remain useful features
 for comparison; knuckledragger’s `define` does not check termination.
 
@@ -19,4 +23,5 @@ Run from the repository root with dependencies installed:
 ```sh
 PYTHONPATH=src python examples/sbv/case_split.py
 PYTHONPATH=src python examples/sbv/rev_acc.py
+PYTHONPATH=src python examples/sbv/fibonacci.py
 ```
