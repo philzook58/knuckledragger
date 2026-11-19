@@ -14,9 +14,9 @@ from kdrag.smt import (
     Bool,
     BoolSort,
     Const,
+    Consts,
     Empty,
     ForAll,
-    FreshConst,
     Ints,
     IntSort,
     Lambda,
@@ -29,7 +29,8 @@ from kdrag.smt import (
     ArithRef,
     BoolRef,
 )
-from kdrag.tactics import Lemma, ProofState
+from kdrag.rewrite import beta
+from kdrag.tactics import ProofState
 
 Z = IntSort()
 List = SeqSort(Z)
@@ -48,50 +49,55 @@ def overflow(xs: SeqRef) -> BoolRef:
     return SeqFoldLeft(any_step, False, xs)
 
 
-def induct_snoc(xs: SeqRef, P):
-    """Derive empty/snoc induction from cons induction, without a new axiom."""
-    sort = xs.sort()
-    predicate = FreshConst(ArraySort(sort, BoolSort()))
-    prefix, suffix, target = FreshConst(sort), FreshConst(sort), FreshConst(sort)
-    last = FreshConst(sort.basis())
-    empty = Empty(sort)
-    step = ForAll([prefix, last], predicate[prefix], predicate[prefix + [last]])
+# Prove the higher-order principle once, with the predicate kept abstract.
+predicate = Const("snoc_predicate", ArraySort(List, BoolSort()))
+prefix, suffix, target = Consts("prefix suffix target", List)
+last = Const("last", Z)
+snoc_step = ForAll([prefix, last], predicate[prefix], predicate[prefix + [last]])
 
-    # Keep the predicate abstract while deriving the principle. Expanding the
-    # fold-based predicate here makes quantifier instantiation much harder.
-    extension = Lemma(
-        ForAll(
-            [predicate, suffix],
-            step,
-            ForAll([prefix], predicate[prefix], predicate[prefix + suffix]),
-        )
+
+@Theorem(
+    ForAll(
+        [predicate, suffix],
+        snoc_step,
+        ForAll([prefix], predicate[prefix], predicate[prefix + suffix]),
     )
-    predicate1, suffix1 = extension.fixes()
-    step1 = extension.intro()
-    extension.induct(suffix1)
-    extension.auto()
-    last1, suffix1 = extension.fixes()
-    ih = extension.intro()
-    prefix1 = extension.fix()
-    premise = extension.intro()
-    next_premise = extension.specialize(step1, prefix1, last1, premise)
-    extension.specialize(ih, prefix1 + [last1], next_premise)
-    extension.auto()
-    append_preserves = extension.qed()
-
-    pf = Lemma(ForAll([predicate, target], predicate[empty], step, predicate[target]))
-    predicate1, target1 = pf.fixes()
-    base, step1 = pf.intros()
-    pf.specialize(append_preserves, predicate1, target1, step1, empty, base)
+)
+def snoc_append_preserves(pf: ProofState):
+    """Closure under snoc implies closure under appending any suffix."""
+    predicate, suffix = pf.fixes()
+    step = pf.intro()
+    pf.induct(suffix)
     pf.auto()
-    schema = pf.qed()
-    instance = schema(Lambda([prefix], P(prefix)), xs)
-    return prove(
-        Implies(
-            And(P(empty), ForAll([prefix, last], P(prefix), P(prefix + [last]))), P(xs)
-        ),
-        by=[instance],
+    last, suffix = pf.fixes()
+    ih = pf.intro()
+    prefix = pf.fix()
+    premise = pf.intro()
+    next_premise = pf.specialize(step, prefix, last, premise)
+    pf.specialize(ih, prefix + [last], next_premise)
+    pf.auto()
+
+
+@Theorem(
+    ForAll(
+        [predicate, target],
+        Implies(And(predicate[Empty(List)], snoc_step), predicate[target]),
     )
+)
+def snoc_induction(pf: ProofState):
+    """The higher-order empty/snoc principle, derived from cons induction."""
+    predicate, target = pf.fixes()
+    pf.intro()
+    pf.split(at=0)
+    base, step = pf.ctx
+    pf.specialize(snoc_append_preserves, predicate, target, step, Empty(List), base)
+    pf.auto()
+
+
+def induct_snoc(xs: SeqRef, P):
+    """Instantiate the proved snoc principle for these integer sequences."""
+    instance = snoc_induction(Lambda([prefix], P(prefix)), xs)
+    return prove(beta(instance.thm), by=[instance])
 
 
 @Theorem(
