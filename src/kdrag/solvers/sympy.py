@@ -5,6 +5,9 @@ Knuckledragger's. Legacy reverse translation helpers remain below for compatibil
 """
 
 import sys
+from typing import Callable, cast
+
+from z3 import z3consts
 
 import kdrag
 import kdrag.smt as smt
@@ -103,24 +106,24 @@ def sympify(e: smt.ExprRef, locals=None) -> sympy.Basic:
         real.atan: sympy.atan,
     }
     operators = {
-        smt.Z3_OP_ADD: sympy.Add,
-        smt.Z3_OP_SUB: lambda x, y: x - y,
-        smt.Z3_OP_UMINUS: lambda x: -x,
-        smt.Z3_OP_MUL: sympy.Mul,
-        smt.Z3_OP_DIV: lambda x, y: x / y,
-        smt.Z3_OP_POWER: sympy.Pow,
-        smt.Z3_OP_TO_REAL: lambda x: x,
-        smt.Z3_OP_EQ: lambda x, y: sympy.Eq(x, y, evaluate=False),
-        smt.Z3_OP_LE: sympy.Le,
-        smt.Z3_OP_LT: sympy.Lt,
-        smt.Z3_OP_GE: sympy.Ge,
-        smt.Z3_OP_GT: sympy.Gt,
-        smt.Z3_OP_AND: sympy.And,
-        smt.Z3_OP_OR: sympy.Or,
-        smt.Z3_OP_NOT: sympy.Not,
-        smt.Z3_OP_IMPLIES: sympy.Implies,
-        smt.Z3_OP_ITE: lambda c, t, f: sympy.Piecewise((t, c), (f, True)),
-        smt.Z3_OP_SELECT: lambda f, *xs: f(*xs),
+        z3consts.Z3_OP_ADD: sympy.Add,
+        z3consts.Z3_OP_SUB: lambda x, y: x - y,
+        z3consts.Z3_OP_UMINUS: lambda x: -x,
+        z3consts.Z3_OP_MUL: sympy.Mul,
+        z3consts.Z3_OP_DIV: lambda x, y: x / y,
+        z3consts.Z3_OP_POWER: sympy.Pow,
+        z3consts.Z3_OP_TO_REAL: lambda x: x,
+        z3consts.Z3_OP_EQ: lambda x, y: sympy.Eq(x, y, evaluate=False),
+        z3consts.Z3_OP_LE: sympy.Le,
+        z3consts.Z3_OP_LT: sympy.Lt,
+        z3consts.Z3_OP_GE: sympy.Ge,
+        z3consts.Z3_OP_GT: sympy.Gt,
+        z3consts.Z3_OP_AND: sympy.And,
+        z3consts.Z3_OP_OR: sympy.Or,
+        z3consts.Z3_OP_NOT: sympy.Not,
+        z3consts.Z3_OP_IMPLIES: sympy.Implies,
+        z3consts.Z3_OP_ITE: lambda c, t, f: sympy.Piecewise((t, c), (f, True)),
+        z3consts.Z3_OP_SELECT: lambda f, *xs: f(*xs),
     }
 
     def unsupported(t):
@@ -160,7 +163,7 @@ def sympify(e: smt.ExprRef, locals=None) -> sympy.Basic:
             return unsupported(t)
         decl = t.decl()
         args = [worker(c, bound) for c in t.children()]
-        if decl.kind() == smt.Z3_OP_UNINTERPRETED and decl.name() in locals:
+        if decl.kind() == z3consts.Z3_OP_UNINTERPRETED and decl.name() in locals:
             value = locals[decl.name()]
             return sympy.sympify(value(*args) if args else value)
         if decl in functions:
@@ -171,7 +174,7 @@ def sympify(e: smt.ExprRef, locals=None) -> sympy.Basic:
             return sympy.Ne(*args, evaluate=False)
         if decl.kind() in operators:
             return operators[decl.kind()](*args)
-        if decl == real.ident.decl():
+        if decl == cast(smt.ExprRef, real.ident).decl():
             x = sympy.Dummy("x", real=True)
             return sympy.Lambda(x, x)
         if decl == real.const:
@@ -200,14 +203,20 @@ def sympify(e: smt.ExprRef, locals=None) -> sympy.Basic:
             return sympy.Sum(body, (x, *args[1:]))
         if smt.is_const_array(t) and t.sort() in (real.RFun, real.RSeq):
             return sympy.Lambda(bound_symbol("x", t.sort().domain()), args[0])
-        if decl.kind() == smt.Z3_OP_UNINTERPRETED:
+        if decl.kind() == z3consts.Z3_OP_UNINTERPRETED:
             if not args and (smt.is_real(t) or smt.is_int(t)):
                 return sympy_const(t)
             if not args and t.sort() in (real.RFun, real.RSeq):
                 x = bound_symbol("x", t.sort().domain())
-                return sympy.Lambda(x, sympy.Function(decl.name(), real=True)(x))
+                f = cast(
+                    Callable[..., sympy.Expr], sympy.Function(decl.name(), real=True)
+                )
+                return sympy.Lambda(x, f(x))
             if decl.arity() == 1 and decl.domain(0) == R and decl.range() == R:
-                return sympy.Function(decl.name(), real=True)(*args)
+                f = cast(
+                    Callable[..., sympy.Expr], sympy.Function(decl.name(), real=True)
+                )
+                return f(*args)
         return unsupported(t)
 
     return worker(e)

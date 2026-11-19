@@ -20,7 +20,7 @@ import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
 
 if TYPE_CHECKING:
-    import sympy  # imported lazily: it is slow to import
+    import sympy as sp  # imported lazily: it is slow to import
 
 
 def FreshVar(name: str, sort: smt.SortRef, assume=None) -> smt.ExprRef:
@@ -1155,7 +1155,7 @@ class ProofState:
                 self.add_lemma(kd.kernel.prove(self.top_goal().to_expr(), admit=True))
             return self
 
-    def sympy(self, expr: smt.ExprRef | None = None) -> "sympy.Basic":
+    def sympy(self, expr: smt.ExprRef | None = None) -> "sp.Basic":
         """Export the current goal, or an explicit expression, to SymPy.
 
         Returns a native SymPy object without simplifying or changing proof
@@ -1175,7 +1175,7 @@ class ProofState:
             expr = self.top_goal().goal
         return kdsympy.sympify(expr)
 
-    def symp(self) -> "sympy.Basic":
+    def symp(self) -> "sp.Basic":
         """
         Use sympy to simplify the current goal.
         Does not mutate the goal. Returns the sympy expression.
@@ -1190,7 +1190,7 @@ class ProofState:
 
         return sympy.simplify(self.sympy())
 
-    def esolve(self) -> "dict[sympy.Expr, sympy.Expr]":
+    def esolve(self) -> "dict[sp.Expr, sp.Expr]":
         """
         Solve an exists goal using sympy.
         Returns a dictionary mapping from variables to solutions.
@@ -1212,7 +1212,7 @@ class ProofState:
             *[self.sympy(v) for v in vs],
         )
 
-    def solve(self, *vs) -> "dict[sympy.Expr, sympy.Expr]":
+    def solve(self, *vs) -> "dict[sp.Expr, sp.Expr]":
         """Solve for variables using the context, without changing proof state.
 
         >>> x,y,z = smt.Reals("x y z")
