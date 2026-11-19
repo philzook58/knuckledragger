@@ -11,6 +11,9 @@ The upstream copyright and BSD license are retained in [LICENSE](LICENSE).
 - [Fibonacci](fibonacci.py): prove tail-recursive and textbook Fibonacci agree.
   Describe the accumulators as consecutive Fibonacci numbers, keeping their
   starting index quantified so the induction hypothesis can shift it.
+- [PigeonHole](pigeon_hole.py): if an integer list sums to more than its length,
+  some entry exceeds 1. A head at most 1 leaves the same inequality on the tail;
+  linear arithmetic supplies the induction hypothesis's premise.
 
 RevAcc uses finite SMT sequences, default empty/cons induction, and `[x] + xs`
 notation. Fibonacci uses integer induction. `pf.eq` handles both calculations
@@ -24,4 +27,5 @@ Run from the repository root with dependencies installed:
 PYTHONPATH=src python examples/sbv/case_split.py
 PYTHONPATH=src python examples/sbv/rev_acc.py
 PYTHONPATH=src python examples/sbv/fibonacci.py
+PYTHONPATH=src python examples/sbv/pigeon_hole.py
 ```
