@@ -50,22 +50,22 @@ def overflow(xs: SeqRef) -> BoolRef:
 
 
 # Prove the higher-order principle once, with the predicate kept abstract.
-predicate = Const("snoc_predicate", ArraySort(List, BoolSort()))
+P = Const("P", ArraySort(List, BoolSort()))
 prefix, suffix, target = Consts("prefix suffix target", List)
 last = Const("last", Z)
-snoc_step = ForAll([prefix, last], predicate[prefix], predicate[prefix + [last]])
+snoc_step = ForAll([prefix, last], P[prefix], P[prefix + [last]])
 
 
 @Theorem(
     ForAll(
-        [predicate, suffix],
+        [P, suffix],
         snoc_step,
-        ForAll([prefix], predicate[prefix], predicate[prefix + suffix]),
+        ForAll([prefix], P[prefix], P[prefix + suffix]),
     )
 )
 def snoc_append_preserves(pf: ProofState):
     """Closure under snoc implies closure under appending any suffix."""
-    predicate, suffix = pf.fixes()
+    P, suffix = pf.fixes()
     step = pf.intro()
     pf.induct(suffix)
     pf.auto()
@@ -80,17 +80,17 @@ def snoc_append_preserves(pf: ProofState):
 
 @Theorem(
     ForAll(
-        [predicate, target],
-        Implies(And(predicate[Empty(List)], snoc_step), predicate[target]),
+        [P, target],
+        Implies(And(P[Empty(List)], snoc_step), P[target]),
     )
 )
 def snoc_induction(pf: ProofState):
     """The higher-order empty/snoc principle, derived from cons induction."""
-    predicate, target = pf.fixes()
+    P, target = pf.fixes()
     pf.intro()
     pf.split(at=0)
     base, step = pf.ctx
-    pf.specialize(snoc_append_preserves, predicate, target, step, Empty(List), base)
+    pf.specialize(snoc_append_preserves, P, target, step, Empty(List), base)
     pf.auto()
 
 
