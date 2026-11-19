@@ -17,6 +17,9 @@ The upstream copyright and BSD license are retained in [LICENSE](LICENSE).
   some entry exceeds 1. Compare native left folds with cons induction (requiring
   an accumulator lemma) and snoc induction (using the append equations directly).
   The snoc principle is derived from cons induction.
+- [Tree](tree.py): mirroring is involutive, preserves size, and reverses traversal.
+  Structural induction supplies both subtree hypotheses directly; SBV instead
+  uses strong induction on tree size.
 
 RevAcc uses finite SMT sequences, default empty/cons induction, and `[x] + xs`
 notation. Fibonacci uses integer induction. `pf.eq` handles both calculations
@@ -32,4 +35,5 @@ PYTHONPATH=src python examples/sbv/coins.py
 PYTHONPATH=src python examples/sbv/rev_acc.py
 PYTHONPATH=src python examples/sbv/fibonacci.py
 PYTHONPATH=src python examples/sbv/pigeon_hole.py
+PYTHONPATH=src python examples/sbv/tree.py
 ```
