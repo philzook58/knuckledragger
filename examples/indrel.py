@@ -4,7 +4,7 @@ Run: PYTHONPATH=src python examples/indrel.py
 """
 
 from kdrag import (
-    Lemma,
+    Theorem,
     define_least,
     prove,
     relation_operator,
@@ -37,19 +37,21 @@ monotone = prove(
     )
 )
 
+
 # Any closed relation contains the intersection: choose it in the definition.
-pf = Lemma(
+@Theorem(
     ForAll(R, ForAll([x, y], F(R)(x, y), R(x, y)), ForAll([x, y], lt(x, y), R(x, y)))
 )
-R = pf.fix()
-pf.intro()
-pf.fixes()
-h = pf.intro()
-pf.unfold(lt, at=h)
-h = pf.top_goal().ctx[-1]
-pf.specialize(h, R)
-pf.auto()
-least = pf.qed()
+def least(pf):
+    R = pf.fix()
+    pf.intro()
+    pf.fixes()
+    h = pf.intro()
+    pf.unfold(lt, at=h)
+    h = pf.top_goal().ctx[-1]
+    pf.specialize(h, R)
+    pf.auto()
+
 
 # The arithmetic relation is closed, so lt is contained in it.
 nonnegative_lt = Lambda([x, y], And(x >= 0, x < y))

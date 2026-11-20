@@ -6,7 +6,7 @@ Run: PYTHONPATH=src python examples/indrel_adt.py
 from kdrag import (
     Nat,
     ListSort,
-    Lemma,
+    Theorem,
     define_least,
     relation_operator,
     least_induct,
@@ -37,23 +37,26 @@ even_unfold = even_conditional(prove(even_conditional.thm.arg(0)))
 even_invariant = even_induct(Lambda(n, n != Nat.S(Nat.Z)))
 even_excludes_one = even_invariant(prove(even_invariant.thm.arg(0)))
 
+
 # Construct a positive instance by choosing arbitrary closed candidate R.
-pf = Lemma(even(Nat.S(Nat.S(Nat.Z))))
-pf.unfold(even)
-pf.fix()
-closed = pf.intro()
-pf.specialize(closed, Nat.Z, keep=True)
-pf.specialize(closed, Nat.S(Nat.S(Nat.Z)), keep=True)
-pf.auto()
-even_two = pf.qed()
+@Theorem(even(Nat.S(Nat.S(Nat.Z))))
+def even_two(pf):
+    pf.unfold(even)
+    pf.fix()
+    closed = pf.intro()
+    pf.specialize(closed, Nat.Z, keep=True)
+    pf.specialize(closed, Nat.S(Nat.S(Nat.Z)), keep=True)
+    pf.auto()
+
 
 # n != S(0) is closed under both rules; thus the intersection excludes S(0).
-pf = Lemma(Not(even(Nat.S(Nat.Z))))
-member = pf.intro()
-pf.unfold(even, at=member)
-pf.specialize(pf.top_goal().ctx[-1], Lambda(n, n != Nat.S(Nat.Z)))
-pf.auto()
-not_even_one = pf.qed()
+@Theorem(Not(even(Nat.S(Nat.Z))))
+def not_even_one(pf):
+    member = pf.intro()
+    pf.unfold(even, at=member)
+    pf.specialize(pf.top_goal().ctx[-1], Lambda(n, n != Nat.S(Nat.Z)))
+    pf.auto()
+
 
 # Member(x, Cons(x, xs)); Member(x, xs) -> Member(x, Cons(y, xs)).
 Element = DeclareSort("ADT.Member.Element")
@@ -73,21 +76,24 @@ member_unfold = member_conditional(prove(member_conditional.thm.arg(0)))
 member_invariant = member_induct(Lambda([x, xs], xs != List.Nil))
 member_nonempty = member_invariant(prove(member_invariant.thm.arg(0)))
 
-pf = Lemma(member(x, List.Cons(y, List.Cons(x, List.Nil))))
-pf.unfold(member)
-pf.fix()
-closed = pf.intro()
-pf.specialize(closed, x, List.Cons(x, List.Nil), keep=True)
-pf.specialize(closed, x, List.Cons(y, List.Cons(x, List.Nil)), keep=True)
-pf.auto()
-member_tail = pf.qed()
 
-pf = Lemma(Not(member(x, List.Nil)))
-h = pf.intro()
-pf.unfold(member, at=h)
-pf.specialize(pf.top_goal().ctx[-1], Lambda([x, xs], xs != List.Nil))
-pf.auto()
-member_nil = pf.qed()
+@Theorem(member(x, List.Cons(y, List.Cons(x, List.Nil))))
+def member_tail(pf):
+    pf.unfold(member)
+    pf.fix()
+    closed = pf.intro()
+    pf.specialize(closed, x, List.Cons(x, List.Nil), keep=True)
+    pf.specialize(closed, x, List.Cons(y, List.Cons(x, List.Nil)), keep=True)
+    pf.auto()
+
+
+@Theorem(Not(member(x, List.Nil)))
+def member_nil(pf):
+    h = pf.intro()
+    pf.unfold(member, at=h)
+    pf.specialize(pf.top_goal().ctx[-1], Lambda([x, xs], xs != List.Nil))
+    pf.auto()
+
 
 if __name__ == "__main__":
     print(even_two)
