@@ -37,7 +37,7 @@ is_glb = define(
     And(is_lb(A, u), ForAll(v, is_lb(A, v), v <= u)),
 )
 
-is_lub_of_bdd_above = axiom(
+exists_is_lub_of_bdd_above = axiom(
     ForAll(A, Exists(x, A[x]), bdd_above(A), Exists(u, is_lub(A, u)))
 )
 
@@ -60,7 +60,7 @@ def is_lb_neg(l):
 
 
 @Theorem(ForAll(A, bdd_below(-A), bdd_above(A)))
-def bdd_above_of_bdd_below(l):
+def bdd_above_of_bdd_below_neg(l):
     A = l.fix()
     l.unfold(bdd_above, bdd_below)
     h = l.intro()
@@ -70,7 +70,7 @@ def bdd_above_of_bdd_below(l):
 
 
 @Theorem(ForAll(A, bdd_above(-A), bdd_below(A)))
-def bdd_below_of_bdd_above(l):
+def bdd_below_of_bdd_above_neg(l):
     A = l.fix()
     l.unfold(bdd_above, bdd_below)
     h = l.intro()
@@ -111,13 +111,13 @@ def is_glb_of_is_lub_neg(l):
 
 
 @Theorem(ForAll(A, Exists(x, A[x]), bdd_below(A), Exists(u, is_glb(A, u))))
-def is_glb_of_bdd_below(l):
+def exists_is_glb_of_bdd_below(l):
     A = l.fix()
     l.intro()
     l.intro()
-    l.have(bdd_above(-A), by=[bdd_above_of_bdd_below(-A), rsetneg.defn])
+    l.have(bdd_above(-A), by=[bdd_above_of_bdd_below_neg(-A), rsetneg.defn])
     l.have(Exists(x, (-A)[x]), by=[rsetneg.defn])
-    h = l.have(Exists(u, is_lub(-A, u)), by=[is_lub_of_bdd_above(-A)])
+    h = l.have(Exists(u, is_lub(-A, u)), by=[exists_is_lub_of_bdd_above(-A)])
     lub = l.obtain(h)
     l.exists(-lub)
     l.auto(by=[is_glb_of_is_lub_neg(A, -lub)])
