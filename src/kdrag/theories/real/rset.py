@@ -1,3 +1,6 @@
+"""Bounds, completeness, and operations on sets of real numbers."""
+
+import kdrag as kd
 from kdrag import QForAll, Theorem, axiom, define, prove
 from kdrag.smt import (
     And,
@@ -5,59 +8,132 @@ from kdrag.smt import (
     Consts,
     Exists,
     ForAll,
-    Function,
     IntSort,
     Lambda,
-    RealSort,
+    Reals,
 )
 from kdrag.theories.real import RSet, RSetSeq
 
-x, y, z, M, c = Consts("x y z M c", RealSort())
+x, y, z, M, c, u, v = Reals("x y z M c u v")
 A, B, C = Consts("A B C", RSet)
 
-has_ub = define(
-    "has_ub",
-    [A, M],
-    QForAll(
-        [x],
-        A[x],
-        x <= M,
-    ),
-)
-is_ub = define("RSet.is_ub", [A], Exists([M], has_ub(A, M)))
+is_ub = define("RSet.is_ub", [A, u], ForAll(x, A[x], x <= u))
+is_lb = define("RSet.is_lb", [A, u], ForAll(x, A[x], u <= x))
 
-sup = Function("RSet.sup", RSet, RealSort())
-sup_ax = axiom(
-    ForAll(
-        [A, M],
-        has_ub(A, M),
-        And(
-            has_ub(A, sup(A)),
-            sup(A) <= M,
-        ),
-    ),
+upper_bounds = define("RSet.upper_bounds", A, Lambda(u, is_ub(A, u)))
+lower_bounds = define("RSet.lower_bounds", A, Lambda(u, is_lb(A, u)))
+
+
+bdd_above = define("RSet.bdd_above", A, Exists(u, is_ub(A, u)))
+bdd_below = define("RSet.bdd_below", A, Exists(u, is_lb(A, u)))
+is_lub = define(
+    "RSet.is_lub",
+    [A, u],
+    And(is_ub(A, u), ForAll(v, is_ub(A, v), u <= v)),
+)
+is_glb = define(
+    "RSet.is_glb",
+    [A, u],
+    And(is_lb(A, u), ForAll(v, is_lb(A, v), v <= u)),
 )
 
-sup_least = prove(
-    QForAll([A, M], has_ub(A, M), sup(A) <= M),
-    by=[sup_ax],
+is_lub_of_bdd_above = axiom(
+    ForAll(A, Exists(x, A[x]), bdd_above(A), Exists(u, is_lub(A, u)))
 )
 
-sup_ub = prove(
-    QForAll([A, M], has_ub(A, M), has_ub(A, sup(A))),
-    by=[sup_ax],
+rsetneg = kd.notation.neg.define([A], Lambda(u, A(-u)))
+
+
+@Theorem(ForAll(A, bdd_below(-A), bdd_above(A)))
+def bdd_above_of_bdd_below(l):
+    A = l.fix()
+    l.unfold(bdd_above, bdd_below)
+    l.unfold(is_lb, is_ub, rsetneg)
+    l.intro()
+    b = l.obtain(0)
+    l.exists(-b)
+    x = l.fix()
+    l.specialize(0, -x)
+    l.auto()
+
+
+@Theorem(ForAll(A, bdd_above(-A), bdd_below(A)))
+def bdd_below_of_bdd_above(l):
+    A = l.fix()
+    l.unfold(bdd_above, bdd_below)
+    l.unfold(is_lb, is_ub, rsetneg)
+    l.intro()
+    b = l.obtain(0)
+    l.exists(-b)
+    x = l.fix()
+    l.specialize(0, -x)
+    l.auto()
+
+
+@Theorem(ForAll([A, u], is_lb(-A, u) == is_ub(A, -u)))
+def is_lb_neg(l):
+    A, u = l.fixes()
+    l.unfold(is_lb, is_ub, rsetneg)
+    l.split()
+    h = l.intro()
+    x = l.fix()
+    l.specialize(h, -x)
+    l.auto()
+    h = l.intro()
+    x = l.fix()
+    l.specialize(h, -x)
+    l.auto()
+
+
+@Theorem(ForAll([A, x], is_glb(-A, -x), is_lub(A, x)))
+def is_lub_of_is_glb_neg(l):
+    A, x = l.fixes()
+    l.unfold(is_glb, is_lub)
+    l.intro()
+    l.split()
+
+    l.auto(by=[is_lb_neg(A, -x)])
+
+    v = l.fix()
+    l.intro()
+    l.have(is_lb(-A, -v), by=[is_lb_neg(A, -v)])
+    l.auto()
+
+
+@Theorem(ForAll([A, x], is_lub(-A, -x), is_glb(A, x)))
+def is_glb_of_is_lub_neg(l):
+    A, x = l.fixes()
+    l.have(-(-A) == A, by=[rsetneg.defn])
+    l.unfold(is_glb, is_lub)
+    l.intro()
+    l.split()
+
+    l.auto(by=[is_lb_neg(-A, x)])
+
+    v = l.fix()
+    l.intro()
+    l.have(is_ub(-A, -v), by=[is_lb_neg(-A, v)])
+    l.auto()
+
+
+@Theorem(ForAll(A, Exists(x, A[x]), bdd_below(A), Exists(u, is_glb(A, u))))
+def is_glb_of_bdd_below(l):
+    A = l.fix()
+    l.intro()
+    l.intro()
+    l.have(bdd_above(-A), by=[bdd_above_of_bdd_below(-A), rsetneg.defn])
+    l.have(Exists(x, (-A)[x]), by=[rsetneg.defn])
+    h = l.have(Exists(u, is_lub(-A, u)), by=[is_lub_of_bdd_above(-A)])
+    lub = l.obtain(h)
+    l.exists(-lub)
+    l.auto(by=[is_glb_of_is_lub_neg(A, -lub)])
+
+
+lb_le_ub = prove(
+    ForAll([A, x, y, z], A[x], is_lb(A, y), is_ub(A, z), y <= z),
+    by=[is_lb.defn, is_ub.defn],
 )
 
-
-@Theorem(ForAll([A, M, x], A[x], has_ub(A, M), x <= sup(A)))
-def sup_ge(l):
-    A, M, x = l.fixes()
-    l.intros()
-    l.have(has_ub(A, sup(A)), by=[sup_ub(A, M)])
-    l.auto(by=[has_ub.defn])
-
-
-has_max = define("has_max", [A, x], And(A[x], sup(A) == x))
 
 shift = define(
     "shift",
@@ -74,45 +150,6 @@ sing_elem = prove(
     QForAll([c, x], sing(c)[x] == (x == c)),
     by=[sing.defn],
 )
-
-
-has_lb = define(
-    "RSet.has_lb",
-    [A, M],
-    QForAll(
-        [x],
-        A[x],
-        M <= x,
-    ),
-)
-
-inf = define("RSet.inf", [A], sup(Lambda([x], has_lb(A, x))))
-
-
-lb_le_ub = prove(
-    ForAll([A, x, y, z], A[x], has_lb(A, y), has_ub(A, z), y <= z),
-    by=[has_lb.defn, has_ub.defn],
-)
-
-
-@Theorem(ForAll([A, M], has_lb(A, M), has_lb(A, inf(A))))
-def lb_inf(l):
-    A, M = l.fixes()
-    l.unfold(has_lb)
-    l.unfold(inf)
-    l.intro()
-
-    x = l.fix()
-    l.specialize(0, x)
-    l.intro()
-    l.have(M <= x, by=[])
-    l.apply(sup_least)
-    l.unfold(has_ub)
-    _y = l.fix()
-    l.simp()
-    l.unfold(has_lb)
-    l.intro()
-    l.auto()
 
 
 An = Const("An", RSetSeq)

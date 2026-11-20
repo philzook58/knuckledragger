@@ -604,14 +604,6 @@ def interior_point(A: smt.ArrayRef, x: smt.ArithRef) -> smt.BoolRef:
 is_open = define("RSet.is_open", A, ForAll(x, A[x], interior_point(A, x)))
 is_closed = define("RSet.is_closed", A, is_open(~A))
 interior = define("RSet.interior", A, Lambda(x, interior_point(A, x)))
-closure = define("RSet.closure", A,
-    Lambda(x, ForAll(eps, eps > 0, Exists(y, A[y], ball(x, eps)[y]))))
-
-upper_bounds = define("RSet.upper_bounds", A, Lambda(u, ForAll(x, A[x], x <= u)))
-lower_bounds = define("RSet.lower_bounds", A, Lambda(u, ForAll(x, A[x], u <= x)))
-bdd_above = define("RSet.bdd_above", A, upper_bounds(A) != empty)
-bdd_below = define("RSet.bdd_below", A, lower_bounds(A) != empty)
-is_lub = define("RSet.is_lub", [A, u],
-    And(upper_bounds(A)[u], ForAll(v, upper_bounds(A)[v], u <= v)))
-is_glb = define("RSet.is_glb", [A, u],
-    And(lower_bounds(A)[u], ForAll(v, lower_bounds(A)[v], v <= u)))
+closure = define(
+    "RSet.closure", A, Lambda(x, ForAll(eps, eps > 0, Exists(y, A[y], ball(x, eps)[y])))
+)

@@ -1,6 +1,7 @@
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.real as real
+from kdrag.theories.real import rset
 
 
 def expand(expr):
@@ -33,10 +34,14 @@ def test_indexed_set_operations():
 
 def test_bounds_definitions():
     singleton = smt.Lambda(real.x, real.x == 2)
-    assert expand(real.upper_bounds(singleton)[3]).eq(
+    assert expand(rset.is_ub(singleton, 3)).eq(
         smt.simplify(smt.ForAll(real.x, real.x == 2, real.x <= 3)))
-    assert expand(real.lower_bounds(singleton)[1]).eq(
+    assert expand(rset.is_lb(singleton, 1)).eq(
         smt.simplify(smt.ForAll(real.x, real.x == 2, 1 <= real.x)))
+    kd.prove(rset.upper_bounds(rset.A)[rset.u] == rset.is_ub(rset.A, rset.u),
+             by=[rset.upper_bounds.defn])
+    kd.prove(rset.lower_bounds(rset.A)[rset.u] == rset.is_lb(rset.A, rset.u),
+             by=[rset.lower_bounds.defn])
 
 
 def test_interior_point_does_not_capture_radius():
