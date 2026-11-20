@@ -59,14 +59,16 @@ def _least(F: smt.FuncRef):
     return args, Z
 
 
-def _subset(args, A, B):
-    return smt.ForAll(args, A(*args), B(*args))
-
-
 def _least_induct(F, args, Z):
     R = smt.FreshConst(F.sort().domain(), prefix="R")
     # forall R. (F(R) <= R) -> (Z <= R), where Z is the intersection.
-    pf = kd.Lemma(smt.ForAll(R, _subset(args, F(R), R), _subset(args, Z, R)))
+    pf = kd.Lemma(
+        smt.ForAll(
+            R,
+            smt.ForAll(args, F(R)(*args), R(*args)),
+            smt.ForAll(args, Z(*args), R(*args)),
+        )
+    )
     R = pf.fix()
     pf.intro()
     pf.fixes()
@@ -87,14 +89,18 @@ def least_unfold(F: smt.FuncRef) -> kd.Proof:
     """Derive unfolding of the intersection, conditional on monotonicity of F."""
     args, Z = _least(F)
     R, S = [smt.FreshConst(F.sort().domain(), prefix=p) for p in ("R", "S")]
-    mono = smt.ForAll([R, S], _subset(args, R, S), _subset(args, F(R), F(S)))
+    mono = smt.ForAll(
+        [R, S],
+        smt.ForAll(args, R(*args), S(*args)),
+        smt.ForAll(args, F(R)(*args), F(S)(*args)),
+    )
     least = _least_induct(F, args, Z)
     # mono(F) -> forall args. Z(args) == F(Z)(args).
     pf = kd.Lemma(smt.Implies(mono, smt.ForAll(args, smt.Eq(Z(*args), F(Z)(*args)))))
     monotone = pf.intro()
 
     # F(Z) <= Z: every closed candidate contains Z and hence F(Z).
-    closed = pf.have(_subset(args, F(Z), Z))
+    closed = pf.have(smt.ForAll(args, F(Z)(*args), Z(*args)))
     with pf.sub() as sub:
         points = sub.fixes()
         sub.intro()
@@ -102,16 +108,16 @@ def least_unfold(F: smt.FuncRef) -> kd.Proof:
         closure = sub.intro()
         sub.specialize(least, candidate, closure)
         sub.specialize(monotone, Z, candidate, keep=True)
-        mapped = sub.have(_subset(args, F(Z), F(candidate)), by=[])
+        mapped = sub.have(smt.ForAll(args, F(Z)(*args), F(candidate)(*args)), by=[])
         sub.specialize(mapped, *points)
         sub.specialize(closure, *points)
         sub.auto()
 
     # F(F(Z)) <= F(Z), so leastness with candidate F(Z) gives Z <= F(Z).
     pf.specialize(monotone, F(Z), Z, keep=True)
-    pf.have(_subset(args, F(F(Z)), F(Z)), by=[])
+    pf.have(smt.ForAll(args, F(F(Z))(*args), F(Z)(*args)), by=[])
     pf.specialize(least, F(Z))
-    back = pf.have(_subset(args, Z, F(Z)), by=[])
+    back = pf.have(smt.ForAll(args, Z(*args), F(Z)(*args)), by=[])
     points = pf.fixes()
     forward = pf.specialize(closed, *points)
     backward = pf.specialize(back, *points)
@@ -164,7 +170,9 @@ def indrel(
     intersection = smt.substitute(equation.arg(0), *zip(proof_args, args))
     f = kd.define(f.name(), args, intersection)
     R = smt.FreshConst(F.sort().domain(), prefix="R")
-    induction_goal = smt.ForAll(R, _subset(args, F(R), R), _subset(args, f, R))
+    induction_goal = smt.ForAll(
+        R, smt.ForAll(args, F(R)(*args), R(*args)), smt.ForAll(args, f(*args), R(*args))
+    )
     unfolding_goal = smt.ForAll(args, smt.Eq(f(*args), smt.Or(*clauses)))
 
     def transport(goal, proof):

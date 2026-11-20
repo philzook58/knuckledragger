@@ -55,7 +55,18 @@ def least(pf):
 
 # The arithmetic relation is closed, so lt is contained in it.
 nonnegative_lt = Lambda([x, y], And(x >= 0, x < y))
-sound = prove(ForAll([x, y], lt(x, y), And(x >= 0, x < y)), by=[least(nonnegative_lt)])
+
+
+@Theorem(ForAll([x, y], lt(x, y), And(x >= 0, x < y)))
+def sound(pf):
+    pf.specialize(least, nonnegative_lt)
+    pf.beta(at=-1)
+    pf.apply(-1)
+    pf.fixes()
+    pf.intro()
+    pf.auto()
+
+
 print(sound)
 
 # Optional generators consume F, with no changes to the named definition.

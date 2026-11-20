@@ -161,6 +161,7 @@ def test_adt_examples():
     example = Path(__file__).resolve().parents[1] / "examples/indrel_adt.py"
     results = runpy.run_path(str(example))
     for name in (
+        "even_is_double",
         "even_two",
         "not_even_one",
         "even_excludes_one",
