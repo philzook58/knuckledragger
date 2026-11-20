@@ -150,3 +150,20 @@ def test_abstract_operator():
     F = Const("abstract_relation_operator", ArraySort(relation, relation))
     assert isinstance(least_induct(F), kernel.Proof)
     assert smt.is_implies(least_unfold(F).thm)
+
+
+def test_adt_examples():
+    from pathlib import Path
+    import runpy
+
+    example = Path(__file__).resolve().parents[1] / "examples/indrel_adt.py"
+    results = runpy.run_path(str(example))
+    for name in (
+        "even_two",
+        "not_even_one",
+        "even_excludes_one",
+        "member_tail",
+        "member_nil",
+        "member_nonempty",
+    ):
+        assert isinstance(results[name], kernel.Proof)
