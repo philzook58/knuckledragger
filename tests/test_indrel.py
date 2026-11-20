@@ -1,5 +1,7 @@
 from kdrag import (
     Lemma,
+    IndRel,
+    indrel,
     define_least,
     prove,
     relation_operator,
@@ -167,3 +169,54 @@ def test_adt_examples():
         "member_nonempty",
     ):
         assert isinstance(results[name], kernel.Proof)
+
+
+def test_callable_wrapper_and_named_proofs():
+    x, y, n = Ints("wrapped_x wrapped_y wrapped_n")
+    decl = Function("wrapped_relation", IntSort(), IntSort(), BoolSort())
+    rel = indrel(
+        decl,
+        [x, y],
+        And(x == 0, y > 0),
+        Exists(n, And(x == n + 1, n >= 0, decl(n, y - 1))),
+    )
+    assert isinstance(rel, IndRel)
+    assert rel(x, y).eq(rel.decl(x, y))
+    assert rel.defn is rel.decl.defn
+    prove(rel(0, 1), by=[rel.unfold])
+    prove(rel(1, 2), by=[rel.unfold])
+    invariant = rel.induct(Lambda([x, y], x < y))
+    inclusion = invariant(prove(invariant.thm.arg(0)))
+    prove(ForAll([x, y], rel(x, y), x < y), by=[inclusion])
+    pf = Lemma(rel(0, 1))
+    pf.unfold(rel.decl)
+    pf.fix()
+    closed = pf.intro()
+    pf.specialize(closed, IntVal(0), IntVal(1))
+    pf.auto()
+    pf.qed()
+    # The ordinary defn remains the quantified intersection.
+    assert not kernel.decl_occurs(rel.decl, kernel.defns[rel.decl].body)
+
+
+def test_wrapper_rejects_negative_operator_before_definition():
+    import pytest
+
+    x = Const("wrapped_negative_x", BoolSort())
+    f = Function("wrapped_negative", BoolSort(), BoolSort())
+    with pytest.raises((kernel.LemmaError, TimeoutError)):
+        indrel(f, x, Not(f(Not(x))))
+    assert f not in kernel.defns
+    # The lower-level builder still accepts the same nonmonotone operator.
+    define_least(f, x, Not(f(Not(x))))
+
+
+def test_wrapper_mono_by():
+    from kdrag import define
+
+    x = Int("wrapped_helper_x")
+    R = Const("wrapped_helper_R", ArraySort(IntSort(), BoolSort()))
+    helper = define("wrapped_helper", [R, x], R(x))
+    f = Function("wrapped_helper_relation", IntSort(), BoolSort())
+    rel = indrel(f, x, x == 0, helper(Lambda(x, f(x)), x), mono_by=[helper.defn])
+    prove(rel(0), by=[rel.unfold])

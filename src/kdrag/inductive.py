@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Any, Sequence
+
 import kdrag as kd
 from kdrag import smt
 
@@ -121,3 +124,63 @@ def least_unfold(F: smt.FuncRef) -> kd.Proof:
     pf.specialize(antisym, Z(*points), F(Z)(*points), backward, forward)
     pf.assumption()
     return pf.qed()
+
+
+@dataclass(frozen=True)
+class IndRel:
+    """A callable relation with its defining and derived proofs."""
+
+    decl: smt.FuncDeclRef
+    operator: smt.QuantifierRef
+    monotone: kd.Proof
+    induct: kd.Proof
+    unfold: kd.Proof
+
+    def __call__(self, *args: Any) -> smt.BoolRef:
+        return self.decl(*args)
+
+    @property
+    def defn(self) -> kd.Proof:
+        return self.decl.defn
+
+
+def indrel(
+    f: smt.FuncDeclRef,
+    args: smt.ExprRef | list[smt.ExprRef],
+    *clauses: smt.BoolRef,
+    mono_by: Sequence[kd.Proof] = (),
+) -> IndRel:
+    """Build a least relation and its proofs; require provable monotonicity."""
+    if isinstance(args, smt.ExprRef):
+        args = [args]
+    F = relation_operator(f, args, *clauses)
+    conditional = least_unfold(F)
+    monotone = kd.prove(conditional.thm.arg(0), by=mono_by)
+    operator_induct = least_induct(F)
+    operator_unfold = conditional(monotone)
+    # Reuse the proof's intersection expression, including its binder names.
+    # This avoids asking Z3 to rediscover alpha equivalence inside quantifiers.
+    proof_args, equation = kd.kernel.open_binder(operator_unfold.thm)
+    intersection = smt.substitute(equation.arg(0), *zip(proof_args, args))
+    f = kd.define(f.name(), args, intersection)
+    R = smt.FreshConst(F.sort().domain(), prefix="R")
+    induction_goal = smt.ForAll(R, _subset(args, F(R), R), _subset(args, f, R))
+    unfolding_goal = smt.ForAll(args, smt.Eq(f(*args), smt.Or(*clauses)))
+
+    def transport(goal, proof):
+        pf = kd.Lemma(goal)
+        points = pf.fixes()
+        pf.unfold(f)
+        pf.simp()
+        instance = proof(*points)
+        simplified = kd.prove(smt.simplify(instance.thm), by=[instance])
+        pf.exact(simplified)
+        return pf.qed()
+
+    return IndRel(
+        f,
+        F,
+        monotone,
+        transport(induction_goal, operator_induct),
+        transport(unfolding_goal, operator_unfold),
+    )
