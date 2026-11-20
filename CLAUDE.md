@@ -6,6 +6,7 @@
 - Solver instability and solve time are ALWAYS a concern. Track them.
 - Recommend changes to improve clarity of error messages
 - Recommend changes to make more consistent with Lean/Rocq/Isabelle/ACL2 conventions
+- Proactively suggest definition and theorem renames that align with mathlib conventions, adapting to Python snake_case. Check the corresponding mathlib names when practical; include `exists_` for existence results and operation names such as `_neg` when needed to make the statement clear.
 - Recommend new features that this system is missing that Lean/Rocq/Isabelle/ACL2/Mizar might have
 - Record new learnings in this file to avoid repeating failures
 - Actually run the file using `time python` to make sure proofs go through. A file should not take longer than 0.5s
