@@ -44,32 +44,6 @@ is_lub_of_bdd_above = axiom(
 rsetneg = kd.notation.neg.define([A], Lambda(u, A(-u)))
 
 
-@Theorem(ForAll(A, bdd_below(-A), bdd_above(A)))
-def bdd_above_of_bdd_below(l):
-    A = l.fix()
-    l.unfold(bdd_above, bdd_below)
-    l.unfold(is_lb, is_ub, rsetneg)
-    l.intro()
-    b = l.obtain(0)
-    l.exists(-b)
-    x = l.fix()
-    l.specialize(0, -x)
-    l.auto()
-
-
-@Theorem(ForAll(A, bdd_above(-A), bdd_below(A)))
-def bdd_below_of_bdd_above(l):
-    A = l.fix()
-    l.unfold(bdd_above, bdd_below)
-    l.unfold(is_lb, is_ub, rsetneg)
-    l.intro()
-    b = l.obtain(0)
-    l.exists(-b)
-    x = l.fix()
-    l.specialize(0, -x)
-    l.auto()
-
-
 @Theorem(ForAll([A, u], is_lb(-A, u) == is_ub(A, -u)))
 def is_lb_neg(l):
     A, u = l.fixes()
@@ -83,6 +57,26 @@ def is_lb_neg(l):
     x = l.fix()
     l.specialize(h, -x)
     l.auto()
+
+
+@Theorem(ForAll(A, bdd_below(-A), bdd_above(A)))
+def bdd_above_of_bdd_below(l):
+    A = l.fix()
+    l.unfold(bdd_above, bdd_below)
+    h = l.intro()
+    b = l.obtain(h)
+    l.exists(-b)
+    l.auto(by=[is_lb_neg(A, b)])
+
+
+@Theorem(ForAll(A, bdd_above(-A), bdd_below(A)))
+def bdd_below_of_bdd_above(l):
+    A = l.fix()
+    l.unfold(bdd_above, bdd_below)
+    h = l.intro()
+    b = l.obtain(h)
+    l.exists(-b)
+    l.auto(by=[is_lb_neg(-A, -b), rsetneg.defn])
 
 
 @Theorem(ForAll([A, x], is_glb(-A, -x), is_lub(A, x)))
