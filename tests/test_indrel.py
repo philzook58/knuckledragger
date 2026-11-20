@@ -1,4 +1,11 @@
-from kdrag import Lemma, define_least, prove, relation_operator
+from kdrag import (
+    Lemma,
+    define_least,
+    prove,
+    relation_operator,
+    least_induct,
+    least_unfold,
+)
 from kdrag.smt import (
     And,
     ArraySort,
@@ -17,7 +24,7 @@ from kdrag.smt import (
     Or,
     Implies,
 )
-from kdrag import kernel
+from kdrag import kernel, smt
 
 
 def test_unary_operator_and_self_loop():
@@ -104,3 +111,42 @@ def test_integer_lt_and_manual_leastness():
             pf.specialize(closed, IntVal(a), IntVal(b), keep=True)
         pf.auto()
         pf.qed()
+
+
+def test_generated_induction_and_unfolding():
+    x, n = Ints("generated_x generated_n")
+    b = Const("generated_b", BoolSort())
+    f = Function("generated_relation", IntSort(), BoolSort(), BoolSort())
+    clauses = (Exists(n, And(x == n + 1, n >= 0, b)), And(x > 1, f(x - 1, b)))
+    F = relation_operator(f, [x, b], *clauses)
+    f = define_least(f, [x, b], *clauses)
+    original = f.defn
+    induction = least_induct(F)
+    invariant = induction(Lambda([x, b], b))
+    closed = prove(invariant.thm.arg(0))
+    inclusion = invariant(closed)
+    assert inclusion.thm.is_forall()
+    conditional = least_unfold(F)
+    mono = prove(conditional.thm.arg(0))
+    equation = conditional(mono)
+    assert equation.thm.is_forall()
+    assert smt.is_eq(equation.thm.body())
+    assert f.defn is original
+    assert not hasattr(f, "induct")
+
+
+def test_conditional_unfolding_for_negative_operator():
+    x = Const("generated_negative_x", BoolSort())
+    f = Function("generated_negative", BoolSort(), BoolSort())
+    F = relation_operator(f, x, Not(f(Not(x))))
+    rule = least_unfold(F)
+    # The generator does not assume monotonicity or assert an unconditional equation.
+    assert smt.is_implies(rule.thm)
+    prove(Not(rule.thm.arg(0)))
+
+
+def test_abstract_operator():
+    relation = ArraySort(IntSort(), BoolSort())
+    F = Const("abstract_relation_operator", ArraySort(relation, relation))
+    assert isinstance(least_induct(F), kernel.Proof)
+    assert smt.is_implies(least_unfold(F).thm)

@@ -3,7 +3,14 @@
 Run: PYTHONPATH=src python examples/indrel.py
 """
 
-from kdrag import Lemma, define_least, prove, relation_operator
+from kdrag import (
+    Lemma,
+    define_least,
+    prove,
+    relation_operator,
+    least_induct,
+    least_unfold,
+)
 from kdrag.smt import (
     And,
     ArraySort,
@@ -48,3 +55,8 @@ least = pf.qed()
 nonnegative_lt = Lambda([x, y], And(x >= 0, x < y))
 sound = prove(ForAll([x, y], lt(x, y), And(x >= 0, x < y)), by=[least(nonnegative_lt)])
 print(sound)
+
+# Optional generators consume F, with no changes to the named definition.
+induction = least_induct(F)
+unfolding_if_monotone = least_unfold(F)
+unfolding = unfolding_if_monotone(prove(unfolding_if_monotone.thm.arg(0)))

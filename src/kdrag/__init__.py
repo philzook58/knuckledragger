@@ -17,7 +17,7 @@ from . import rewrite
 from . import contracts
 from . import tactics
 from . import reflect
-from .inductive import define_least, relation_operator
+from .inductive import define_least, relation_operator, least_induct, least_unfold
 import functools
 from .parsers import microlean
 from .printers.pretty import pretty_expr, register_infix
@@ -602,6 +602,8 @@ __all__ = [
     "define",
     "define_least",
     "relation_operator",
+    "least_induct",
+    "least_unfold",
     "Proof",
     "FreshVar",
     "FreshVars",
