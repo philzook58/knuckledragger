@@ -1,19 +1,9 @@
-import pytest
-
-from kdrag import (
-    Lemma,
-    define,
-    define_least,
-    indrel,
-    prove,
-    prove_monotone,
-    prove_unfolding,
-)
-from kdrag import kernel
+from kdrag import Lemma, define_least, prove, relation_operator
 from kdrag.smt import (
     And,
     ArraySort,
     BoolSort,
+    BoolVal,
     Const,
     Exists,
     ForAll,
@@ -21,130 +11,96 @@ from kdrag.smt import (
     Int,
     IntSort,
     Ints,
+    IntVal,
     Lambda,
     Not,
-    Select,
+    Or,
+    Implies,
 )
+from kdrag import kernel
 
 
-def test_integer_lt():
-    x, y = Ints("indrel_x indrel_y")
-    lt = Function("indrel_lt", IntSort(), IntSort(), BoolSort())
-    lt = indrel(
-        "indrel_lt", [x, y], And(x >= 0, x == 0, y > 0), And(x >= 0, lt(x - 1, y - 1))
-    )
-    prove(lt(0, 1), by=[lt.defn])
-    prove(lt(1, 2), by=[lt.defn])
-    invariant = Lambda([x, y], And(x >= 0, x < y))
-    prove(ForAll([x, y], lt(x, y), And(x >= 0, x < y)), by=[lt.induct(invariant)])
-    # Keep y general while inducting on x so it can decrease in the IH.
-    pf = Lemma(ForAll(x, ForAll(y, And(x >= 0, x < y), lt(x, y))))
-    a = pf.fix()
-    pf.induct(a)
-    a = pf.fix()
-    pf.intros()
-    _b = pf.fix()
-    pf.intro()
-    pf.auto()
-    _b = pf.fix()
-    pf.intro()
-    pf.auto(by=[lt.defn])
-    a = pf.fix()
-    pf.intros()
-    _b = pf.fix()
-    pf.intro()
-    pf.auto(by=[lt.defn])
-    complete = pf.qed()
-    prove(
-        ForAll([x, y], lt(x, y) == And(x >= 0, x < y)),
-        by=[complete, lt.induct(invariant)],
-    )
-    pf = Lemma(lt(0, 1))
-    pf.unfold(lt)
+def test_unary_operator_and_self_loop():
+    x = Int("operator_x")
+    rel = Function("operator_loop", IntSort(), BoolSort())
+    F = relation_operator(rel, x, rel(x))
+    relation = ArraySort(IntSort(), BoolSort())
+    assert F.sort() == ArraySort(relation, relation)
+    R = Const("operator_R", relation)
+    assert F(R)(x).eq(Or(R(x)))
+    rel = define_least(rel, x, rel(x))
+    pf = Lemma(Implies(rel(x), False))
+    member = pf.intro()
+    pf.unfold(rel, at=member)
+    pf.specialize(pf.top_goal().ctx[-1], Lambda(x, BoolVal(False)))
     pf.auto()
     pf.qed()
 
 
-def test_empty_and_self_loop():
-    x = Int("indrel_empty_x")
-    empty = indrel("indrel_empty", x)
-    prove(ForAll(x, Not(empty(x))), by=[empty.induct(Lambda(x, x != x))])
-    loop = Function("indrel_loop", IntSort(), BoolSort())
-    loop = indrel("indrel_loop", x, loop(x))
-    prove(ForAll(x, Not(loop(x))), by=[loop.induct(Lambda(x, x != x))])
+def test_multi_argument_operator_and_binders():
+    x, n = Ints("operator_mix_x operator_mix_n")
+    b = Const("operator_mix_b", BoolSort())
+    rel = Function("operator_mix", IntSort(), BoolSort(), BoolSort())
+    body = Exists(n, And(n >= 0, rel(x - n, b)))
+    F = relation_operator(rel, [x, b], body)
+    R = Const("operator_mix_R", ArraySort(IntSort(), BoolSort(), BoolSort()))
+    assert F(R)(x, b).eq(Or(Exists(n, And(n >= 0, R(x - n, b)))))
+    assert not kernel.decl_occurs(rel, F)
+    # Applications inline both lambdas; no Select(Lambda(...), ...) is needed.
+    assert F(R).is_lambda()
+    assert F(R)(x, b).arg(0).is_exists()
 
 
-def test_mixed_sorts_and_existential():
-    x, n = Ints("indrel_mix_x indrel_mix_n")
-    b = Const("indrel_mix_b", BoolSort())
-    rel = Function("indrel_mixed", IntSort(), BoolSort(), BoolSort())
-    rel = indrel(
-        "indrel_mixed",
-        [x, b],
-        Exists(n, And(x == n + 1, n >= 0, b)),
-        And(x > 1, rel(x - 1, b)),
+def test_empty_and_nonmonotone_intersections():
+    x = Const("intersection_x", BoolSort())
+    for name, clauses in [("empty_intersection", ()), ("negative_intersection", None)]:
+        rel = Function(name, BoolSort(), BoolSort())
+        if clauses is None:
+            clauses = (Not(rel(Not(x))),)
+        rel = define_least(rel, x, *clauses)
+        assert not kernel.decl_occurs(rel, kernel.defns[rel].body)
+        assert not hasattr(rel, "induct")
+        # Either singleton is closed, hence the intersection contains neither point.
+        for point, candidate in [(False, Lambda(x, x)), (True, Lambda(x, Not(x)))]:
+            pf = Lemma(Implies(rel(point), False))
+            member = pf.intro()
+            pf.unfold(rel, at=member)
+            pf.specialize(pf.top_goal().ctx[-1], candidate)
+            pf.auto()
+            pf.qed()
+
+
+def test_integer_lt_and_manual_leastness():
+    x, y = Ints("intersection_lt_x intersection_lt_y")
+    rel = Function("intersection_lt", IntSort(), IntSort(), BoolSort())
+    clauses = (And(x >= 0, x == 0, y > 0), And(x >= 0, rel(x - 1, y - 1)))
+    F = relation_operator(rel, [x, y], *clauses)
+    rel = define_least(rel, [x, y], *clauses)
+    R = Const("intersection_lt_R", F.sort().domain())
+    pf = Lemma(
+        ForAll(
+            R, ForAll([x, y], F(R)(x, y), R(x, y)), ForAll([x, y], rel(x, y), R(x, y))
+        )
     )
-    prove(rel(1, True), by=[rel.defn])
-    prove(rel(2, True), by=[rel.defn])
-    prove(Not(rel(1, False)), by=[rel.induct(Lambda([x, b], b))])
-
-
-def test_quantified_recursion_and_mono_by():
-    x, n = Ints("indrel_all_x indrel_all_n")
-    rel = Function("indrel_all", IntSort(), BoolSort())
-    rel = indrel("indrel_all", x, ForAll(n, rel(n)))
-    prove(Not(rel(0)), by=[rel.induct(Lambda(x, x != x))])
-    sets = ArraySort(IntSort(), BoolSort())
-    helper = Function("indrel_helper", sets, IntSort(), BoolSort())
-    A = Const("indrel_helper_A", sets)
-    helper = define("indrel_helper", [A, x], Select(A, x))
-    law = helper.defn
-    rel = Function("indrel_helper_rel", IntSort(), BoolSort())
-    body = helper(Lambda(x, rel(x)), x)
-    rel = define_least("indrel_helper_rel", x, body)
-    original = rel.defn
-    with pytest.raises(ValueError, match="monotonicity"):
-        prove_monotone(rel)
-    assert rel.defn is original
-    mono = prove_monotone(rel, by=[law])
-    equation = prove_unfolding(rel, mono)
-    assert rel.defn is original
-    kernel.register_definition(kernel.make_unfolding(equation))
-    assert prove_unfolding(rel, mono).thm.eq(equation.thm)
-    assert rel.defn is equation
-    prove(Not(rel(0)), by=[rel.induct(Lambda(x, x != x)), law])
-
-
-def test_rejections():
-    x = Const("indrel_bad_x", BoolSort())
-    bad = Function("indrel_bad", BoolSort(), BoolSort())
-    with pytest.raises(ValueError, match="monotonicity"):
-        indrel("indrel_bad", x, Not(bad(Not(x))))
-    assert bad in kernel.defns
-    assert not kernel.decl_occurs(bad, kernel.defns[bad].body)
-    with pytest.raises(ValueError, match="distinct"):
-        indrel("indrel_duplicate", [x, x], x)
-    with pytest.raises(TypeError, match="Boolean"):
-        indrel("indrel_nonbool", x, Int("not_bool"))
-    with pytest.raises(ValueError, match="nonempty"):
-        indrel("indrel_nullary", [], x)
-    f = indrel("indrel_defined", x, x)
-    with pytest.raises(ValueError, match="already defined"):
-        indrel("indrel_defined", x, x)
-    assert f in kernel.defns
-
-
-def test_intersection_without_monotonicity():
-    x = Const("nonmono_x", BoolSort())
-    rel = Function("nonmono_intersection", BoolSort(), BoolSort())
-    rel = define_least("nonmono_intersection", x, Not(rel(Not(x))))
-    # Each singleton is closed; their intersection is empty, and not closed.
-    prove(Not(rel(False)), by=[rel.induct(Lambda(x, x))])
-    prove(Not(rel(True)), by=[rel.induct(Lambda(x, Not(x)))])
+    candidate = pf.fix()
+    pf.intro()
+    pf.fixes()
+    member = pf.intro()
+    pf.unfold(rel, at=member)
+    pf.specialize(pf.top_goal().ctx[-1], candidate)
+    pf.auto()
+    least = pf.qed()
     prove(
-        ForAll(x, Not(rel(x))),
-        by=[rel.induct(Lambda(x, x)), rel.induct(Lambda(x, Not(x)))],
+        ForAll([x, y], rel(x, y), And(x >= 0, x < y)),
+        by=[least(Lambda([x, y], And(x >= 0, x < y)))],
     )
-    assert not kernel.decl_occurs(rel, kernel.defns[rel].body)
-    with pytest.raises(ValueError, match="monotonicity"):
-        prove_monotone(rel)
+    for a, b in [(0, 1), (1, 2)]:
+        pf = Lemma(rel(a, b))
+        pf.unfold(rel)
+        pf.fix()
+        closed = pf.intro()
+        pf.specialize(closed, IntVal(0), IntVal(b - a), keep=True)
+        if a:
+            pf.specialize(closed, IntVal(a), IntVal(b), keep=True)
+        pf.auto()
+        pf.qed()

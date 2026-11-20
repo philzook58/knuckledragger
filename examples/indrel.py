@@ -1,51 +1,50 @@
-"""Integer less-than as a least inductive relation.
+"""Integer less-than as an intersection of closed relations.
 
 Run: PYTHONPATH=src python examples/indrel.py
 """
 
-from kdrag import Lemma, define_least, prove, prove_monotone, prove_unfolding
-from kdrag.kernel import make_unfolding, register_definition
-from kdrag.smt import And, BoolSort, ForAll, Function, Ints, IntSort, Lambda
-
-x, y = Ints("indrel_x indrel_y")
-lt = Function("indrel_lt", IntSort(), IntSort(), BoolSort())
-lt = define_least(
-    "indrel_lt", [x, y], And(x >= 0, x == 0, y > 0), And(x >= 0, lt(x - 1, y - 1))
+from kdrag import Lemma, define_least, prove, relation_operator
+from kdrag.smt import (
+    And,
+    ArraySort,
+    BoolSort,
+    Consts,
+    ForAll,
+    Function,
+    Ints,
+    IntSort,
+    Lambda,
 )
-# The intersection and induction theorem exist before proving monotonicity.
-mono = prove_monotone(lt)
-unfolding = prove_unfolding(lt, mono)
-register_definition(make_unfolding(unfolding))
 
-prove(lt(0, 1), by=[lt.defn])
-prove(lt(1, 2), by=[lt.defn])
-invariant = Lambda([x, y], And(x >= 0, x < y))
-prove(ForAll([x, y], lt(x, y), And(x >= 0, x < y)), by=[lt.induct(invariant)])
-# Keep y general while inducting on x so it can decrease in the IH.
-pf = Lemma(ForAll(x, ForAll(y, And(x >= 0, x < y), lt(x, y))))
-a = pf.fix()
-pf.induct(a)
-a = pf.fix()
-pf.intros()
-_b = pf.fix()
-pf.intro()
-pf.auto()
-_b = pf.fix()
-pf.intro()
-pf.auto(by=[lt.defn])
-a = pf.fix()
-pf.intros()
-_b = pf.fix()
-pf.intro()
-pf.auto(by=[lt.defn])
-complete = pf.qed()
-prove(
-    ForAll([x, y], lt(x, y) == And(x >= 0, x < y)),
-    by=[complete, lt.induct(invariant)],
+x, y = Ints("x y")
+lt = Function("example_lt", IntSort(), IntSort(), BoolSort())
+clauses = (And(x >= 0, x == 0, y > 0), And(x >= 0, lt(x - 1, y - 1)))
+F = relation_operator(lt, [x, y], *clauses)
+lt = define_least(lt, [x, y], *clauses)
+R, S = Consts("R S", ArraySort(IntSort(), IntSort(), BoolSort()))
+
+# Optional monotonicity proof, independent of constructing the intersection.
+monotone = prove(
+    ForAll(
+        [R, S], ForAll([x, y], R(x, y), S(x, y)), ForAll([x, y], F(R)(x, y), F(S)(x, y))
+    )
 )
-pf = Lemma(lt(0, 1))
-pf.unfold(lt)
-pf.auto()
-pf.qed()
 
-print(lt.defn)
+# Any closed relation contains the intersection: choose it in the definition.
+pf = Lemma(
+    ForAll(R, ForAll([x, y], F(R)(x, y), R(x, y)), ForAll([x, y], lt(x, y), R(x, y)))
+)
+R = pf.fix()
+pf.intro()
+pf.fixes()
+h = pf.intro()
+pf.unfold(lt, at=h)
+h = pf.top_goal().ctx[-1]
+pf.specialize(h, R)
+pf.auto()
+least = pf.qed()
+
+# The arithmetic relation is closed, so lt is contained in it.
+nonnegative_lt = Lambda([x, y], And(x >= 0, x < y))
+sound = prove(ForAll([x, y], lt(x, y), And(x >= 0, x < y)), by=[least(nonnegative_lt)])
+print(sound)
