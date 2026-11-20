@@ -1,0 +1,194 @@
+"""Relation operators and intersections of closed predicates."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Sequence
+
+import kdrag as kd
+from kdrag import smt
+
+
+def relation_operator(
+    f: smt.FuncDeclRef,
+    args: smt.ExprRef | list[smt.ExprRef],
+    *clauses: smt.BoolRef,
+) -> smt.QuantifierRef:
+    """Abstract calls to ``f`` into an SMT relation-to-relation lambda.
+
+    ``F(R)(*args)`` substitutes directly into both lambdas. No monotonicity or
+    fixed-point property is assumed or proved.
+    """
+    if isinstance(args, smt.ExprRef):
+        args = [args]
+    sorts = [x.sort() for x in args]
+    R = smt.FreshConst(smt.ArraySort(*sorts, smt.BoolSort()), prefix="R")
+    replacement = R(*[smt.Var(i, sort) for i, sort in enumerate(sorts)])
+    body_R = smt.substitute_funs(smt.Or(*clauses), (f, replacement))
+    return smt.Lambda(R, smt.Lambda(args, body_R))
+
+
+def define_least(
+    f: smt.FuncDeclRef,
+    args: smt.ExprRef | list[smt.ExprRef],
+    *clauses: smt.BoolRef,
+) -> smt.FuncDeclRef:
+    """Define the intersection of all predicates closed under the clauses.
+
+    This intersection is defined even for nonmonotone operators, but need not
+    itself be closed. Only the ordinary quantified ``defn`` is registered.
+    """
+    if isinstance(args, smt.ExprRef):
+        args = [args]
+    F = relation_operator(f, args, *clauses)
+    R = smt.FreshConst(F.sort().domain(), prefix="R")
+    return kd.define(
+        f.name(),
+        args,
+        smt.ForAll(R, smt.ForAll(args, F(R)(*args), R(*args)), R(*args)),
+    )
+
+
+def _least(F: smt.FuncRef):
+    relation = F.sort().domain()
+    args = [smt.FreshConst(s, prefix="x") for s in smt.domains(relation)]
+    R = smt.FreshConst(relation, prefix="R")
+    Z = smt.Lambda(
+        args, smt.ForAll(R, smt.ForAll(args, F(R)(*args), R(*args)), R(*args))
+    )
+    return args, Z
+
+
+def _least_induct(F, args, Z):
+    R = smt.FreshConst(F.sort().domain(), prefix="R")
+    # forall R. (F(R) <= R) -> (Z <= R), where Z is the intersection.
+    pf = kd.Lemma(
+        smt.ForAll(
+            R,
+            smt.ForAll(args, F(R)(*args), R(*args)),
+            smt.ForAll(args, Z(*args), R(*args)),
+        )
+    )
+    R = pf.fix()
+    pf.intro()
+    pf.fixes()
+    member = pf.intro()
+    pf.specialize(member, R)
+    pf.auto()
+    return pf.qed()
+
+
+def least_induct(F: smt.FuncRef) -> kd.Proof:
+    """Derive leastness for the relation operator F, without monotonicity."""
+    # forall R. (F(R) <= R) -> (Z <= R), Z = intersection of closed predicates.
+    args, Z = _least(F)
+    return _least_induct(F, args, Z)
+
+
+def least_unfold(F: smt.FuncRef) -> kd.Proof:
+    """Derive unfolding of the intersection, conditional on monotonicity of F."""
+    args, Z = _least(F)
+    R, S = [smt.FreshConst(F.sort().domain(), prefix=p) for p in ("R", "S")]
+    mono = smt.ForAll(
+        [R, S],
+        smt.ForAll(args, R(*args), S(*args)),
+        smt.ForAll(args, F(R)(*args), F(S)(*args)),
+    )
+    least = _least_induct(F, args, Z)
+    # mono(F) -> forall args. Z(args) == F(Z)(args).
+    pf = kd.Lemma(smt.Implies(mono, smt.ForAll(args, smt.Eq(Z(*args), F(Z)(*args)))))
+    monotone = pf.intro()
+
+    # F(Z) <= Z: every closed candidate contains Z and hence F(Z).
+    closed = pf.have(smt.ForAll(args, F(Z)(*args), Z(*args)))
+    with pf.sub() as sub:
+        points = sub.fixes()
+        sub.intro()
+        candidate = sub.fix()
+        closure = sub.intro()
+        sub.specialize(least, candidate, closure)
+        sub.specialize(monotone, Z, candidate, keep=True)
+        mapped = sub.have(smt.ForAll(args, F(Z)(*args), F(candidate)(*args)), by=[])
+        sub.specialize(mapped, *points)
+        sub.specialize(closure, *points)
+        sub.auto()
+
+    # F(F(Z)) <= F(Z), so leastness with candidate F(Z) gives Z <= F(Z).
+    pf.specialize(monotone, F(Z), Z, keep=True)
+    pf.have(smt.ForAll(args, F(F(Z))(*args), F(Z)(*args)), by=[])
+    pf.specialize(least, F(Z))
+    back = pf.have(smt.ForAll(args, Z(*args), F(Z)(*args)), by=[])
+    points = pf.fixes()
+    forward = pf.specialize(closed, *points)
+    backward = pf.specialize(back, *points)
+    # Direct equality search still times out for existential clauses.
+    # Instantiate propositional antisymmetry to close this final step.
+    a, b = smt.Bools("a b")
+    antisym = kd.prove(
+        smt.ForAll([a, b], smt.Implies(a, b), smt.Implies(b, a), smt.Eq(a, b))
+    )
+    pf.specialize(antisym, Z(*points), F(Z)(*points), backward, forward)
+    pf.assumption()
+    return pf.qed()
+
+
+@dataclass(frozen=True)
+class IndRel:
+    """A callable relation with its defining and derived proofs."""
+
+    decl: smt.FuncDeclRef
+    operator: smt.QuantifierRef
+    monotone: kd.Proof
+    induct: kd.Proof
+    unfold: kd.Proof
+
+    def __call__(self, *args: Any) -> smt.BoolRef:
+        return self.decl(*args)
+
+    @property
+    def defn(self) -> kd.Proof:
+        return self.decl.defn
+
+
+def indrel(
+    f: smt.FuncDeclRef,
+    args: smt.ExprRef | list[smt.ExprRef],
+    *clauses: smt.BoolRef,
+    mono_by: Sequence[kd.Proof] = (),
+) -> IndRel:
+    """Build a least relation and its proofs; require provable monotonicity."""
+    if isinstance(args, smt.ExprRef):
+        args = [args]
+    F = relation_operator(f, args, *clauses)
+    conditional = least_unfold(F)
+    monotone = kd.prove(conditional.thm.arg(0), by=mono_by)
+    operator_induct = least_induct(F)
+    operator_unfold = conditional(monotone)
+    # Reuse the proof's intersection expression, including its binder names.
+    # This avoids asking Z3 to rediscover alpha equivalence inside quantifiers.
+    proof_args, equation = kd.kernel.open_binder(operator_unfold.thm)
+    intersection = smt.substitute(equation.arg(0), *zip(proof_args, args))
+    f = kd.define(f.name(), args, intersection)
+    R = smt.FreshConst(F.sort().domain(), prefix="R")
+    induction_goal = smt.ForAll(
+        R, smt.ForAll(args, F(R)(*args), R(*args)), smt.ForAll(args, f(*args), R(*args))
+    )
+    unfolding_goal = smt.ForAll(args, smt.Eq(f(*args), smt.Or(*clauses)))
+
+    def transport(goal, proof):
+        pf = kd.Lemma(goal)
+        points = pf.fixes()
+        pf.unfold(f)
+        pf.simp()
+        instance = proof(*points)
+        simplified = kd.prove(smt.simplify(instance.thm), by=[instance])
+        pf.exact(simplified)
+        return pf.qed()
+
+    return IndRel(
+        f,
+        F,
+        monotone,
+        transport(induction_goal, operator_induct),
+        transport(unfolding_goal, operator_unfold),
+    )
