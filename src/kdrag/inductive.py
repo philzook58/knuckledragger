@@ -56,19 +56,8 @@ def _least(F: smt.FuncRef):
     return args, Z
 
 
-def _normal(term: smt.BoolRef) -> smt.BoolRef:
-    from kdrag.rewrite import beta
-
-    while True:
-        result = beta(term)
-        if result.eq(term):
-            return term
-        assert isinstance(result, smt.BoolRef)
-        term = result
-
-
 def _subset(args, A, B):
-    return _normal(smt.ForAll(args, A(*args), B(*args)))
+    return smt.ForAll(args, A(*args), B(*args))
 
 
 def _least_induct(F, args, Z):
@@ -98,51 +87,37 @@ def least_unfold(F: smt.FuncRef) -> kd.Proof:
     mono = smt.ForAll([R, S], _subset(args, R, S), _subset(args, F(R), F(S)))
     least = _least_induct(F, args, Z)
     # mono(F) -> forall args. Z(args) == F(Z)(args).
-    pf = kd.Lemma(
-        smt.Implies(mono, _normal(smt.ForAll(args, smt.Eq(Z(*args), F(Z)(*args)))))
-    )
+    pf = kd.Lemma(smt.Implies(mono, smt.ForAll(args, smt.Eq(Z(*args), F(Z)(*args)))))
     monotone = pf.intro()
 
-    def specialize(state, rule, *terms):
-        h = state.specialize(rule, *terms, keep=True)
-        normal = _normal(h)
-        if not normal.eq(h):
-            eq = kd.kernel.prove(
-                smt.Eq(h, normal), solver=lambda: smt.Then("simplify", "smt").solver()
-            )
-            state.rw(eq, at=h)
-            h = state.top_goal().ctx[-1]
-        return h
-
-    # First establish F(Z) <= Z, using Z <= every closed candidate R.
-    closure_goal = _subset(args, F(Z), Z)
-    pf.have(closure_goal)
+    # F(Z) <= Z: every closed candidate contains Z and hence F(Z).
+    closed = pf.have(_subset(args, F(Z), Z))
     with pf.sub() as sub:
         points = sub.fixes()
         sub.intro()
         candidate = sub.fix()
-        closed = sub.intro()
-        bound = sub.specialize(least, candidate, closed)
-        mapped = specialize(sub, monotone, Z, candidate)
-        sub.specialize(mapped, bound, *points)
-        sub.specialize(closed, *points)
+        closure = sub.intro()
+        sub.specialize(least, candidate, closure)
+        sub.specialize(monotone, Z, candidate, keep=True)
+        mapped = sub.have(_subset(args, F(Z), F(candidate)), by=[])
+        sub.specialize(mapped, *points)
+        sub.specialize(closure, *points)
         sub.auto()
-    closed = closure_goal
-    mapped = specialize(pf, monotone, F(Z), Z)
-    # F(Z) is closed: monotonicity turns F(Z) <= Z into F(F(Z)) <= F(Z).
-    fg_closed = pf.specialize(mapped, closed)
-    # Leastness with candidate F(Z) then gives Z <= F(Z).
-    back_rule = specialize(pf, least, F(Z))
-    back = pf.specialize(back_rule, fg_closed)
+
+    # F(F(Z)) <= F(Z), so leastness with candidate F(Z) gives Z <= F(Z).
+    pf.specialize(monotone, F(Z), Z, keep=True)
+    pf.have(_subset(args, F(F(Z)), F(Z)), by=[])
+    pf.specialize(least, F(Z))
+    back = pf.have(_subset(args, Z, F(Z)), by=[])
     points = pf.fixes()
-    forward_point = pf.specialize(closed, *points)
-    back_point = pf.specialize(back, *points)
+    forward = pf.specialize(closed, *points)
+    backward = pf.specialize(back, *points)
+    # Direct equality search still times out for existential clauses.
+    # Instantiate propositional antisymmetry to close this final step.
     a, b = smt.Bools("a b")
     antisym = kd.prove(
         smt.ForAll([a, b], smt.Implies(a, b), smt.Implies(b, a), smt.Eq(a, b))
     )
-    pf.specialize(
-        antisym, _normal(Z(*points)), _normal(F(Z)(*points)), back_point, forward_point
-    )
-    pf.auto()
+    pf.specialize(antisym, Z(*points), F(Z)(*points), backward, forward)
+    pf.assumption()
     return pf.qed()
