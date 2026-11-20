@@ -174,8 +174,11 @@ class SortDispatch:
     def define(self, args, body):
         """
         Shorthand to define a new function for this dispatch. Calls kdrag.define.
+        Accepts a single argument or a list of arguments.
         """
         assert isinstance(self.name, str)
+        if isinstance(args, smt.ExprRef):
+            args = [args]
         sort = args[0].sort()
         defn = kd.define(sort.sexpr() + "." + self.name, args, body)
         self.register(sort, defn)
