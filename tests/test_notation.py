@@ -116,11 +116,7 @@ def test_set_arithmetic_images():
     x, y, z = smt.Reals("x y z")
     for op in (operator.add, operator.mul, operator.truediv):
         kd.prove(op(a, b)[z] == smt.Exists([x, y], a[x], b[y], z == op(x, y)))
-    # The real-set theory explicitly overrides negation; exercise the fallback
-    # on integer sets even when that theory was imported during collection.
-    integers = smt.Const("integers", smt.SetSort(smt.IntSort()))
-    n = smt.Int("n")
-    kd.prove((-integers)[n] == integers[-n])
+    kd.prove((-a)[z] == a[-z])
     kd.prove((a + 2)[z] == a[z - 2])
     kd.prove((2 + a)[z] == a[z - 2])
     kd.prove((2 * a)[z] == smt.Exists(x, a[x], z == 2 * x))

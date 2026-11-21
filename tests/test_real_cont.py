@@ -19,7 +19,9 @@ def test_limits_at_removable_discontinuities():
     )
     sum_limit = has_lim_at_add(f, g, zero, two, three)(lf, lg)
     product_limit = has_lim_at_mul(f, g, zero, two, three)(lf, lg)
-    assert smt.simplify(sum_limit.thm).eq(smt.simplify(real.has_lim_at(f + g, zero, 5)))
+    # Pointwise addition creates fresh lambda binders on each call, so compare
+    # the proven proposition semantically rather than requiring identical ASTs.
+    kd.prove(real.has_lim_at(f + g, zero, 5), by=[sum_limit])
     assert smt.simplify(product_limit.thm).eq(
         smt.simplify(real.has_lim_at(f * g, zero, 6))
     )

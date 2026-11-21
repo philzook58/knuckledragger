@@ -1,6 +1,5 @@
 """Bounds, completeness, and operations on sets of real numbers."""
 
-import kdrag as kd
 from kdrag import QForAll, Theorem, axiom, define, prove
 from kdrag.smt import (
     And,
@@ -41,13 +40,27 @@ exists_is_lub_of_bdd_above = axiom(
     ForAll(A, Exists(x, A[x]), bdd_above(A), Exists(u, is_lub(A, u)))
 )
 
-rsetneg = kd.notation.neg.define([A], Lambda(u, A(-u)))
-
 
 @Theorem(ForAll([A, u], is_lb(-A, u) == is_ub(A, -u)))
 def is_lb_neg(l):
     A, u = l.fixes()
-    l.unfold(is_lb, is_ub, rsetneg)
+    l.unfold(is_lb, is_ub)
+    l.split()
+    h = l.intro()
+    x = l.fix()
+    l.specialize(h, -x)
+    l.auto()
+    h = l.intro()
+    x = l.fix()
+    l.specialize(h, -x)
+    l.auto()
+
+
+@Theorem(ForAll([A, u], is_ub(-A, u) == is_lb(A, -u)))
+def is_ub_neg(l):
+    A, u = l.fixes()
+    # Prove this direction directly to avoid matching through double images.
+    l.unfold(is_lb, is_ub)
     l.split()
     h = l.intro()
     x = l.fix()
@@ -76,7 +89,23 @@ def bdd_below_of_bdd_above_neg(l):
     h = l.intro()
     b = l.obtain(h)
     l.exists(-b)
-    l.auto(by=[is_lb_neg(-A, -b), rsetneg.defn])
+    l.auto(by=[is_ub_neg(A, b)])
+
+
+@Theorem(ForAll(A, bdd_above(-A) == bdd_below(A)))
+def bdd_above_neg(l):
+    A = l.fix()
+    l.unfold(bdd_above, bdd_below)
+    l.split()
+    h = l.intro()
+    b = l.obtain(h)
+    l.exists(-b)
+    l.auto(by=[is_ub_neg(A, b)])
+    h = l.intro()
+    b = l.obtain(h)
+    # A lower bound b of A gives an upper bound -b of its image under negation.
+    l.exists(-b)
+    l.auto(by=[is_ub_neg(A, -b)])
 
 
 @Theorem(ForAll([A, x], is_glb(-A, -x), is_lub(A, x)))
@@ -97,16 +126,15 @@ def is_lub_of_is_glb_neg(l):
 @Theorem(ForAll([A, x], is_lub(-A, -x), is_glb(A, x)))
 def is_glb_of_is_lub_neg(l):
     A, x = l.fixes()
-    l.have(-(-A) == A, by=[rsetneg.defn])
     l.unfold(is_glb, is_lub)
     l.intro()
     l.split()
 
-    l.auto(by=[is_lb_neg(-A, x)])
+    l.auto(by=[is_ub_neg(A, -x)])
 
     v = l.fix()
     l.intro()
-    l.have(is_ub(-A, -v), by=[is_lb_neg(-A, v)])
+    l.have(is_ub(-A, -v), by=[is_ub_neg(A, -v)])
     l.auto()
 
 
@@ -115,8 +143,8 @@ def exists_is_glb_of_bdd_below(l):
     A = l.fix()
     l.intro()
     l.intro()
-    l.have(bdd_above(-A), by=[bdd_above_of_bdd_below_neg(-A), rsetneg.defn])
-    l.have(Exists(x, (-A)[x]), by=[rsetneg.defn])
+    l.have(bdd_above(-A), by=[bdd_above_neg(A)])
+    l.have(Exists(x, (-A)[x]), by=[])
     h = l.have(Exists(u, is_lub(-A, u)), by=[exists_is_lub_of_bdd_above(-A)])
     lub = l.obtain(h)
     l.exists(-lub)

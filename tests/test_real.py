@@ -21,7 +21,6 @@ def test_abstract():
             const.defn,
             ident.defn,
             fmul.defn,
-            fadd.defn,
         ],
     )
     """
@@ -40,7 +39,7 @@ def test_deriv():
         solver=solvers.VampireTHFSolver,
     )
     c.eq(X + X, by=[const.defn, _1, fmul.defn])
-    c.eq(const(2) * X, by=[const.defn, fadd.defn, fmul.defn])
+    c.eq(const(2) * X, by=[const.defn, fmul.defn])
     derive_sq = c.qed()
     """
 
