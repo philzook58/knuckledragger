@@ -39,6 +39,15 @@ def test_goal_names_and_binders():
     assert pretty_expr(nested) == "∀α : ℝ, ∃β : ℝ, α < β"
 
 
+def test_goal_separator_with_locals_only():
+    x = smt.Int("x")
+    assert pretty_goal(Goal([x], [], x >= 0)).splitlines() == [
+        "x : ℤ",
+        "─" * len("⊢ x ≥ 0"),
+        "⊢ x ≥ 0",
+    ]
+
+
 def test_datatype_cases():
     color = smt.Datatype("Color")
     color.declare("red")
@@ -160,8 +169,8 @@ def test_deep_expression_uses_smtlib():
     target = term == x
     hyp = x >= 0
     assert pretty_expr(target) == target.sexpr()
-    assert pretty_goal(Goal([x], [hyp], target)) == (
-        f"x : Int\n0: {hyp.sexpr()}\n⊢ {target.sexpr()}"
+    assert pretty_goal(Goal([x], [hyp], target), width=8) == (
+        f"x : Int\n0: {hyp.sexpr()}\n" + "─" * 8 + f"\n⊢ {target.sexpr()}"
     )
 
 
