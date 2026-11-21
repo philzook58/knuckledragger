@@ -407,7 +407,9 @@ def subst(
     |= ForAll([y, z], And(z == z, y + 1 == y + 1))
     """
     assert isinstance(pf.thm, smt.QuantifierRef)
-    vs1, ab = kd.kernel.herb(smt.ForAll(vs, smt.substitute_body(pf.thm, *subst)))
+    vs1, ab = kd.kernel.herb(
+        smt.ForAll(vs, smt.substitute_body(pf.thm, *subst))
+    )
     a = kd.kernel.instan([smt.substitute(t, *zip(vs, vs1)) for t in subst], pf)
     return kd.kernel.modus(ab, a)
 
@@ -2302,16 +2304,6 @@ class ProofStateProxy(ProofState):
         return pf
 
 
-def _theorem_goal(
-    goal: smt.BoolRef | str, scope: tuple[dict[str, Any], dict[str, Any]] | None
-) -> smt.BoolRef:
-    if isinstance(goal, str):
-        assert scope is not None
-        goal = microlean.parse(goal, *scope)
-    assert isinstance(goal, smt.BoolRef)
-    return goal
-
-
 def Theorem(
     goal: smt.BoolRef | str, timing=False
 ) -> Callable[[Callable[[ProofState], None]], kd.kernel.Proof]:
@@ -2338,14 +2330,24 @@ def Theorem(
     >>> mytheorem3
     |= x + 1 > x
     """
-    scope = kd.utils.calling_globals_locals() if isinstance(goal, str) else None
-    goal1 = _theorem_goal(goal, scope)
+    if isinstance(goal, str):
+        l, g = kd.utils.calling_globals_locals()
+        goal1 = microlean.parse(goal, l, g)
+    else:
+        goal1 = goal
+    assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
         start = time.perf_counter()
         if timing:
             print("Starting theorem", cast(Any, f).__name__)
-            l = ProofStateProxy(Goal(sig=[], ctx=[], goal=goal1))
+            l = ProofStateProxy(
+                Goal(
+                    sig=[],
+                    ctx=[],
+                    goal=goal1,
+                )
+            )
         else:
             l = kd.Lemma(goal1)
         f(l)
@@ -2367,7 +2369,7 @@ def Theorem(
 
 def PTheorem(
     goal: smt.BoolRef | str,
-) -> Callable[[Callable[[ProofState], None]], None]:
+):
     """
     Display the next goal or a solver failure while developing a proof.
 
@@ -2387,8 +2389,12 @@ def PTheorem(
     ────
     ⊢ q
     """
-    scope = kd.utils.calling_globals_locals() if isinstance(goal, str) else None
-    goal1 = _theorem_goal(goal, scope)
+    if isinstance(goal, str):
+        l, g = kd.utils.calling_globals_locals()
+        goal1 = microlean.lean(goal, g)
+    else:
+        goal1 = goal
+    assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> None:
         from kdrag.printers.pretty import pretty_goal
@@ -2416,10 +2422,10 @@ def PTheorem(
                 print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
             print("Goal:", pretty_goal(failure.goal), sep="\n")
             return
-        if l.goals:
-            print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
-        else:
+        if len(l.goals) == 0:
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
+        else:
+            print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
 
     return res
