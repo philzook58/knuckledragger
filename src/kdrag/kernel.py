@@ -62,7 +62,7 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def __call__(self, *args: "smt.ExprRef | Proof"):
+    def __call__(self, *args: "smt.ExprRef | Proof | int | float"):
         """
 
         >>> x,y = smt.Ints("x y")
@@ -71,6 +71,9 @@ class Proof(Judgement):
         |= ForAll(x, x >= x - 1)
         >>> p(x, 7)
         |= 7 >= 7 - 1
+        >>> r = smt.Real("r")
+        >>> prove(smt.ForAll(r, r <= r))(42).thm.arg(0).sort()
+        Real
 
         >>> a,b,c = smt.Bools("a b c")
         >>> ab = prove(smt.Implies(a,smt.Implies(a, a)))
@@ -87,8 +90,8 @@ class Proof(Judgement):
             if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
                 i = acc.thm.num_vars()
                 subargs = [
-                    a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
-                    for a in args[n : n + i]
+                    a if isinstance(a, smt.ExprRef) else acc.thm.var_sort(j).cast(a)
+                    for j, a in enumerate(args[n : n + i])
                 ]
                 acc = instan(subargs, acc)
                 n += i
@@ -351,6 +354,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
         )
         for i in range(lam.num_vars())
     ]
+    _check_binder_sorts(vs, lam)
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
@@ -559,19 +563,32 @@ def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
     return t1, kd.axiom(smt.Eq(t, t1), by=["subst", t, eqs])
 
 
+def _check_binder_sorts(ts: Sequence[smt.ExprRef], q: smt.QuantifierRef):
+    """Check terms in binder order before reversing for de Bruijn substitution.
+
+    Z3's substitute_vars does not enforce sorts: a mismatch can silently leave
+    loose bound variables in a term that the kernel would otherwise admit.
+    """
+    if len(ts) != q.num_vars():
+        raise ValueError(f"Binder expects {q.num_vars()} terms, got {len(ts)}")
+    for i, t in enumerate(ts):
+        if not isinstance(t, smt.ExprRef) or t.sort() != q.var_sort(i):
+            actual = t.sort() if isinstance(t, smt.ExprRef) else type(t).__name__
+            raise TypeError(
+                f"Term {i + 1} for bound variable {q.var_name(i)} must have "
+                f"sort {q.var_sort(i)}, got {t!r} ({actual})"
+            )
+
+
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.
     This is forall elimination
     """
     # Note: modus + specialize easily derive this rule, but it is nice to have it directly.
-    assert (
-        is_proof(pf)
-        and isinstance(pf.thm, smt.QuantifierRef)
-        and pf.thm.is_forall()
-        and len(ts) == pf.thm.num_vars()
-    )
+    assert is_proof(pf) and isinstance(pf.thm, smt.QuantifierRef) and pf.thm.is_forall()
 
+    _check_binder_sorts(ts, pf.thm)
     return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), by=[pf])
 
 
@@ -581,12 +598,9 @@ def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     `forall xs, P(xs) -> P(ts)`
     This is forall elimination
     """
-    assert (
-        isinstance(thm, smt.QuantifierRef)
-        and thm.is_forall()
-        and len(ts) == thm.num_vars()
-    )
+    assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
 
+    _check_binder_sorts(ts, thm)
     return axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
         by=["forall_elim"],
@@ -601,7 +615,8 @@ def forget(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     forget easily follows.
     https://en.wikipedia.org/wiki/Existential_generalization
     """
-    assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
+    assert smt.is_quantifier(thm) and thm.is_exists()
+    _check_binder_sorts(ts, thm)
     return axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
         by=["exists_intro"],
@@ -635,6 +650,7 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
             smt.FreshFunction(*sorts, thm.var_sort(i))(*fvars)
             for i in range(thm.num_vars())
         ]
+    _check_binder_sorts(skolems, thm)
     return skolems, axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
         by=["obtain"],
@@ -687,6 +703,7 @@ def herb(thm: smt.QuantifierRef, prefixes=None) -> tuple[list[smt.ExprRef], Proo
     herbs = fresh_const(
         thm, prefixes=prefixes
     )  # We could mark these as schema variables? Useful?
+    _check_binder_sorts(herbs, thm)
     return herbs, axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
         by=["herbrand"],
@@ -978,6 +995,7 @@ def rename_vars2(
     thm = pf.thm
     assert isinstance(thm, smt.QuantifierRef)
     t_body = thm.body()
+    _check_binder_sorts(vs, thm)
     body = smt.substitute_vars(t_body, *reversed(vs))
     if thm.is_forall():
         t2 = smt.ForAll(vs, body, patterns=patterns, no_patterns=no_patterns)
@@ -1012,13 +1030,10 @@ def trigger(
     thm = pf.thm
     assert isinstance(thm, smt.QuantifierRef)
     # unhygienic open_binder. Later assert keeps hygiene
-    vs = [
-        smt.Const(thm.var_name(i), thm.var_sort(i))
-        for i in reversed(range(thm.num_vars()))
-    ]
+    vs = [smt.Const(thm.var_name(i), thm.var_sort(i)) for i in range(thm.num_vars())]
     body0 = thm.body()
-    body = smt.substitute_vars(body0, *vs)
-    vs.reverse()
+    _check_binder_sorts(vs, thm)
+    body = smt.substitute_vars(body0, *reversed(vs))
     if thm.is_forall():
         t2 = smt.ForAll(
             vs,

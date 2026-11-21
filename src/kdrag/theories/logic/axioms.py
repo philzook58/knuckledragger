@@ -224,6 +224,7 @@ def beta_conv(lam: smt.QuantifierRef, *args) -> kd.Proof:
     """
     assert len(args) == lam.num_vars()
     assert is_quantifier(lam) and lam.is_lambda()
+    kd.kernel._check_binder_sorts(args, lam)
     return axiom(Eq(lam[args], substitute_vars(lam.body(), *reversed(args))))
 
 
@@ -269,6 +270,7 @@ def rename_vars(
     """
     assert isinstance(t, smt.QuantifierRef)
     t_body = t.body()
+    kd.kernel._check_binder_sorts(vs, t)
     body = substitute_vars(t_body, *reversed(vs))
     if t.is_forall():
         t2 = ForAll(vs, body)

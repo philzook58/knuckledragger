@@ -32,6 +32,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
         kd.kernel.FreshVar(lam.var_name(i).upper().split("!")[0], lam.var_sort(i))
         for i in range(lam.num_vars())
     ]
+    kd.kernel._check_binder_sorts(vs, lam)
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
@@ -47,6 +48,7 @@ def open_binder_unhygienic(
     """
     # Open with capitalized names to match tptp conventions
     vs = [smt.Const(lam.var_name(i), lam.var_sort(i)) for i in range(lam.num_vars())]
+    kd.kernel._check_binder_sorts(vs, lam)
     return vs, smt.substitute_vars(lam.body(), *reversed(vs))
 
 
@@ -145,6 +147,7 @@ def pmatch(
                 return None
             vs1, patbody = open_binder(pat)
             no_escape.extend(vs1)
+            kd.kernel._check_binder_sorts(vs1, t)
             tbody = smt.substitute_vars(t.body(), *reversed(vs1))
             todo.append((patbody, tbody))
         else:
@@ -463,6 +466,7 @@ def alpha_norm(expr: smt.ExprRef) -> smt.ExprRef:
         body = alpha_norm(expr.body())
         vs = [smt.Const("x" + str(i), expr.var_sort(i)) for i in range(expr.num_vars())]
         assert kd.utils.free_in(vs, body)
+        kd.kernel._check_binder_sorts(vs, expr)
         body = smt.substitute_vars(body, *reversed(vs))
         if expr.is_forall():
             return smt.ForAll(vs, body)

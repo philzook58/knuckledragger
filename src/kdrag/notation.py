@@ -56,9 +56,12 @@ def quantifier_call(self, *args):
     """
     if self.num_vars() != len(args):
         raise TypeError("Wrong number of arguments", self, args)
-    return smt.substitute_vars(
-        self.body(), *(smt._py2expr(arg) for arg in reversed(args))
-    )
+    terms = [
+        arg if isinstance(arg, smt.ExprRef) else self.var_sort(i).cast(arg)
+        for i, arg in enumerate(args)
+    ]
+    kd.kernel._check_binder_sorts(terms, self)
+    return smt.substitute_vars(self.body(), *reversed(terms))
 
 
 smt.QuantifierRef.__call__ = quantifier_call
