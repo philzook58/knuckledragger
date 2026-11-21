@@ -74,6 +74,7 @@ def cont_at_add(l):
     )
     l.clear(hg)
     d2 = l.obtain(witness_g)
+    # The smaller radius satisfies both continuity bounds.
     l.exists(min(d1, d2))
     l.auto(by=[abs.defn, min.defn])
 
