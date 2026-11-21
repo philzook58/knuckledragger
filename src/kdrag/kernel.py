@@ -100,6 +100,8 @@ class Proof(Judgement):
                 subargs = []
                 for j, arg in enumerate(args[n : n + i]):
                     sort = acc.thm.var_sort(j)
+                    # TODO: Use the general casting mechanism in kdrag.cast
+                    # once it handles Python string literals.
                     try:
                         if isinstance(arg, str) and sort.eq(
                             smt.StringSort(ctx=sort.ctx)
