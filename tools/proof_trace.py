@@ -2,7 +2,7 @@
 
 import argparse
 import ast
-from collections import defaultdict
+from collections import Counter, defaultdict
 from contextlib import redirect_stdout
 from dataclasses import dataclass
 from functools import cache
@@ -119,7 +119,6 @@ def tactic_statement(filename, line, tactic):
 
 def record(targets):
     from kdrag import Proof, pretty_expr, tactics
-    from kdrag.printers.pretty import pretty_goal
 
     selected = {(target.module, target.name): target for target in targets}
     steps = defaultdict(list)
@@ -128,7 +127,7 @@ def record(targets):
     def snapshot(state):
         # top_goal() can run callbacks, so read the stack directly.
         return tuple(
-            pretty_goal(goal, width=COMMENT_WIDTH)
+            goal._replace(sig=list(goal.sig), ctx=list(goal.ctx))
             for goal in reversed(state.goals)
             if isinstance(goal, tactics.Goal)
         )
@@ -137,7 +136,7 @@ def record(targets):
         if event == "return" and frame in pending:
             target, label, line, source, before = pending.pop(frame)
             after = snapshot(frame.f_locals["self"])
-            if before != after:
+            if tuple(map(goal_key, before)) != tuple(map(goal_key, after)):
                 steps[target].append((label, line, source, before, after))
         elif event == "call" and frame.f_globals is vars(tactics):
             caller = frame.f_back
@@ -179,33 +178,139 @@ def code(value, language="text"):
     return f"{fence}{language}\n{value}\n{fence}"
 
 
-def math_block(value):
+def math_lines(value, width=COMMENT_WIDTH):
     # Some pretty-printer groups can still exceed the requested width.
     lines = []
     for line in value.splitlines():
-        if len(line) <= COMMENT_WIDTH:
+        if len(line) <= width:
             lines.append(line)
             continue
         indent = line[: len(line) - len(line.lstrip())]
         lines.extend(
             wrap(
                 line.lstrip(),
-                width=COMMENT_WIDTH,
+                width=width,
                 initial_indent=indent,
                 subsequent_indent=indent + "  ",
                 break_long_words=False,
                 break_on_hyphens=False,
             )
         )
-    return code("\n".join(lines))
+    return lines
+
+
+def math_block(value):
+    return code("\n".join(math_lines(value)))
+
+
+def goal_key(state):
+    return (
+        tuple(var.get_id() for var in state.sig),
+        tuple(hyp.get_id() for hyp in state.ctx),
+        state.goal.get_id(),
+    )
 
 
 def goals(states):
+    from kdrag.printers.pretty import pretty_goal
+
     if not states:
         return "No open goals."
     return "\n\n".join(
-        f"**Goal {number}**\n\n{math_block(state)}"
+        f"**Goal {number}**\n\n{math_block(pretty_goal(state, width=COMMENT_WIDTH))}"
         for number, state in enumerate(states, 1)
+    )
+
+
+def added_terms(before, after):
+    remaining = Counter(term.get_id() for term in before)
+    added = []
+    for term in after:
+        key = term.get_id()
+        if remaining[key]:
+            remaining[key] -= 1
+        else:
+            added.append(term)
+    return added
+
+
+def goal_fragment(before, after):
+    """Keep the nearest Boolean expression around a local rewrite."""
+    from kdrag import smt
+
+    while (
+        smt.is_app(before)
+        and smt.is_app(after)
+        and before.decl().eq(after.decl())
+        and before.num_args() == after.num_args()
+    ):
+        changed = [
+            (old, new)
+            for old, new in zip(before.children(), after.children())
+            if not old.eq(new)
+        ]
+        if len(changed) != 1 or not all(smt.is_bool(term) for term in changed[0]):
+            break
+        before, after = changed[0]
+    return before, after
+
+
+def proof_change(before, after):
+    full = goals(after)
+    if (
+        not before
+        or not after
+        or (tuple(map(goal_key, before[1:])) != tuple(map(goal_key, after[1:])))
+    ):
+        return full
+
+    from kdrag.printers.pretty import _Printer, _declarations, _layout
+
+    old, new = before[0], after[0]
+    if added_terms(new.sig, old.sig):
+        return full
+    printer = _Printer([*old.sig, *old.ctx, old.goal, *new.sig, *new.ctx, new.goal])
+    if printer.too_deep:
+        return full
+
+    def formula(term, width=COMMENT_WIDTH):
+        return _layout(printer.expr(term), width)
+
+    def diff(removed, added):
+        return code(
+            "\n".join(
+                prefix + line
+                for prefix, terms in (("- ", removed), ("+ ", added))
+                for term in terms
+                for line in math_lines(
+                    formula(term, COMMENT_WIDTH - 2), COMMENT_WIDTH - 2
+                )
+            ),
+            "diff",
+        )
+
+    changes = []
+    locals_added = added_terms(old.sig, new.sig)
+    if locals_added:
+        names = [formula(var) for var in locals_added]
+        decls = _declarations(names, [var.sort() for var in locals_added])
+        changes.append("**New locals**\n\n" + math_block("\n".join(decls)))
+
+    removed = added_terms(new.ctx, old.ctx)
+    added = added_terms(old.ctx, new.ctx)
+    if removed or added:
+        changes.append("**Hypotheses**\n\n" + diff(removed, added))
+    if not old.goal.eq(new.goal):
+        previous, current = goal_fragment(old.goal, new.goal)
+        label = "Goal" if previous.eq(old.goal) else "Goal fragment"
+        changes.append(f"**{label}**\n\n" + diff([previous], [current]))
+
+    summary = "\n\n".join(changes)
+    if not summary or len(summary) >= len(full):
+        return full
+    return (
+        f"{summary}\n\n<details>\n<summary>Full state after this step</summary>\n\n"
+        f"{full}\n\n</details>"
     )
 
 
@@ -223,11 +328,11 @@ def render(target, statement, steps):
         return "\n\n".join(parts)
 
     parts.append("**Starting state**\n\n" + goals(steps[0][3]))
-    for number, (tactic, line, source, _, after) in enumerate(steps, 1):
+    for number, (tactic, line, source, before, after) in enumerate(steps, 1):
         snippet = code(source or tactic, "python")
         parts.append(
             f"<details>\n<summary>Step {number} · line {line}</summary>\n\n"
-            f"{snippet}\n\n{goals(after)}\n\n</details>"
+            f"{snippet}\n\n{proof_change(before, after)}\n\n</details>"
         )
         if len("\n\n".join(parts).encode()) > COMMENT_LIMIT - 512:
             parts[-1] = "Remaining steps exceed the comment size limit."
