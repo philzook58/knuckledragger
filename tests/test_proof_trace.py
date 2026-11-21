@@ -3,7 +3,7 @@ from textwrap import dedent
 
 from kdrag import smt
 from kdrag.tactics import Goal
-from tools.proof_trace import Target, active_goal, record, render
+from tools.proof_trace import Step, Target, active_goal, record, render
 
 
 def test_record_multiline_proof_with_split_and_instantiated_lemma(
@@ -54,6 +54,7 @@ def test_record_multiline_proof_with_split_and_instantiated_lemma(
     assert "<p>Solve the two conjuncts.</p>" in markdown
     assert '<span title="trace_y ≤ trace_y">reflexive</span>(y)' in markdown
     assert "Goal 1" not in markdown
+    assert "**Starting state**" not in markdown
     assert "No open goals." in markdown
 
 
@@ -67,3 +68,11 @@ def test_active_goal_highlights_additions_only():
     replaced = active_goal((Goal([], [smt.Not(p), q], r),), before)
     assert "+ 0: ¬p" in replaced
     assert "\n- " not in replaced
+
+
+def test_render_keeps_starting_state_when_it_adds_context():
+    p, q = smt.Bools("p q")
+    step = Step(line=8, source="l.auto()", before=(Goal([], [p], q),))
+    markdown = render(Target("theory", "example"), q, [step])
+    assert "**Starting state**" in markdown
+    assert "0: p" in markdown

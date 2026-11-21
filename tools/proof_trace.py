@@ -515,7 +515,11 @@ def render(target, statement, steps):
             parts += ["No direct goal-changing tactic calls were recorded."]
         return "\n\n".join(parts)
 
-    parts.append("**Starting state**\n\n" + active_goal(steps[0].before))
+    initial = steps[0].before
+    if initial:
+        goal = initial[0]
+        if goal.sig or goal.ctx or not goal.goal.eq(statement):
+            parts.append("**Starting state**\n\n" + active_goal(initial))
     shown_comments = set()
     for number, step in enumerate(steps, 1):
         prose = ""
