@@ -559,7 +559,38 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
         assert len(new_args) == self.arity(), (
             "Something has gone wrong with implicit argument filling"
         )
-    res = old_call(self, *new_args)
+    try:
+        res = old_call(self, *new_args)
+    except (Z3Exception, AttributeError) as error:
+        # Diagnose only failures, using Z3's own casts so permitted coercions
+        # (e.g. Int to Real) are not reported as sort mismatches.
+        call_args = new_args
+        if len(call_args) == 1 and isinstance(
+            call_args[0], (list, tuple, set, AstVector)
+        ):
+            call_args = list(call_args[0])
+        if len(call_args) == self.arity():
+            for i, arg in enumerate(call_args):
+                expected = self.domain(i)
+                try:
+                    if expected.cast(arg).sort() == expected:
+                        continue
+                except (Z3Exception, AttributeError, TypeError, ValueError):
+                    pass
+                actual = (
+                    f"sort {arg.sort()}"
+                    if is_expr(arg)
+                    else f"type {type(arg).__name__}"
+                )
+                if is_expr(arg) and arg.ctx != self.ctx:
+                    actual += " in a different Z3 context"
+                raise Z3Exception(
+                    f"Cannot apply {self.sexpr()}: argument {i + 1} "
+                    f"{arg!r} has {actual}; expected sort {expected}."
+                ) from error
+        if isinstance(error, AttributeError):
+            raise
+        raise Z3Exception(f"Cannot apply {self.sexpr()}: {error}") from error
     if self.subrange is not None:
         res.assumes = self.subrange(res)
     return res
