@@ -5,13 +5,14 @@ import ast
 from collections import defaultdict
 from contextlib import redirect_stdout
 from dataclasses import dataclass
+from functools import cache
 from importlib import import_module
 import linecache
 from pathlib import Path
 import re
 import subprocess
 import sys
-from textwrap import wrap
+from textwrap import dedent, wrap
 
 
 THEORIES = "src/kdrag/theories"
@@ -81,6 +82,41 @@ def changed_targets(base, head):
                 yield target
 
 
+@cache
+def source_statements(filename):
+    source = "".join(linecache.getlines(filename))
+    statements = [
+        node
+        for node in ast.walk(ast.parse(source, filename))
+        if isinstance(
+            node, (ast.Expr, ast.Assign, ast.AnnAssign, ast.AugAssign, ast.Return)
+        )
+    ]
+    return source, statements
+
+
+def tactic_statement(filename, line, tactic):
+    source, statements = source_statements(filename)
+    statement = min(
+        (
+            node
+            for node in statements
+            if node.lineno <= line <= node.end_lineno
+            and any(
+                isinstance(call, ast.Call) and named(call, tactic)
+                for call in ast.walk(node)
+            )
+        ),
+        key=lambda node: (node.end_lineno - node.lineno, -node.col_offset),
+        default=None,
+    )
+    if statement is not None:
+        return statement.lineno, dedent(
+            ast.get_source_segment(source, statement, padded=True)
+        )
+    return line, linecache.getline(filename, line).strip()
+
+
 def record(targets):
     from kdrag import Proof, pretty_expr, tactics
     from kdrag.printers.pretty import pretty_goal
@@ -112,11 +148,13 @@ def record(targets):
             )
             state = frame.f_locals.get("self")
             if target is not None and isinstance(state, tactics.ProofState):
-                line = caller.f_lineno
-                source = linecache.getline(caller.f_code.co_filename, line).strip()
+                tactic = frame.f_code.co_name
+                line, source = tactic_statement(
+                    caller.f_code.co_filename, caller.f_lineno, tactic
+                )
                 pending[frame] = (
                     target,
-                    frame.f_code.co_name,
+                    tactic,
                     line,
                     source,
                     snapshot(state),
