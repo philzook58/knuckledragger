@@ -1,0 +1,102 @@
+name: Proof trace
+
+on:
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: proof-trace-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  trace:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      has-targets: ${{ steps.diff.outputs.has-targets }}
+    env:
+      BASE: ${{ github.event.pull_request.base.sha }}
+      HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Find changed proofs
+        id: diff
+        run: |
+          targets=$(python3 tools/proof_trace.py "$BASE" "$HEAD" --list)
+          if [[ -n "$targets" ]]; then
+            echo 'has-targets=true' >> "$GITHUB_OUTPUT"
+            printf '%s\n' "$targets"
+          fi
+      - uses: astral-sh/setup-uv@v5
+        if: steps.diff.outputs.has-targets == 'true'
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Generate proof traces
+        if: steps.diff.outputs.has-targets == 'true'
+        run: |
+          uv sync --locked --no-dev --extra pypcode --extra solvers \
+            --no-build-package egglog --no-build-package dd --no-build-package pypcode
+          uv run --no-sync python tools/proof_trace.py "$BASE" "$HEAD" > "$RUNNER_TEMP/proof-trace.md"
+      - uses: actions/upload-artifact@v4
+        if: steps.diff.outputs.has-targets == 'true'
+        with:
+          name: proof-trace
+          path: ${{ runner.temp }}/proof-trace.md
+          retention-days: 3
+
+  comment:
+    if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository }}
+    needs: trace
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v4
+        if: needs.trace.result == 'success' && needs.trace.outputs.has-targets == 'true'
+        with:
+          name: proof-trace
+          path: ${{ runner.temp }}
+      - uses: actions/github-script@v7
+        env:
+          TRACE_RESULT: ${{ needs.trace.result }}
+          HAS_TARGETS: ${{ needs.trace.outputs.has-targets }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const repo = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const sha = context.payload.pull_request.head.sha;
+            const {data: pr} = await github.rest.pulls.get({...repo, pull_number: issue_number});
+            if (pr.head.sha !== sha || pr.state !== 'open') return;
+
+            const marker = '<!-- knuckledragger-proof-trace -->';
+            const comments = await github.paginate(github.rest.issues.listComments, {...repo, issue_number});
+            const old = comments.find(c =>
+              c.user?.login === 'github-actions[bot]' && c.body?.startsWith(marker)
+            );
+            const hasTargets = process.env.HAS_TARGETS === 'true';
+            if (!old && !hasTargets) return;
+
+            let text = 'No directly changed proofs found.';
+            if (process.env.TRACE_RESULT !== 'success') {
+              const run = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${context.runId}`;
+              text = `[Trace generation failed](${run}).`;
+            } else if (hasTargets) {
+              text = fs.readFileSync(path.join(process.env.RUNNER_TEMP, 'proof-trace.md'), 'utf8').trim()
+                || 'No traces were produced for the changed declarations.';
+            }
+            const body = `${marker}\n## Proof trace\n\nCommit \`${sha.slice(0, 8)}\`\n\n${text}`;
+            if (old) {
+              await github.rest.issues.updateComment({...repo, comment_id: old.id, body});
+            } else {
+              await github.rest.issues.createComment({...repo, issue_number, body});
+            }
