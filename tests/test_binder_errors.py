@@ -9,9 +9,9 @@ def test_binder_error_reports_invalid_variables(binder):
     with pytest.raises(Z3Exception) as exc:
         binder([42], x > 0)
     message = str(exc.value)
-    assert f"Cannot construct {binder.__name__}" in message
+    assert f"{binder.__name__}:" in message
     assert "variables [42]" in message
-    assert "body [binder_x > 0 (Bool)]" in message
+    assert "binder_x > 0" in message
     assert isinstance(exc.value.__cause__, AttributeError)
 
 
@@ -20,7 +20,7 @@ def test_quantifier_error_reports_non_boolean_body(binder):
     x = Int("binder_x")
     with pytest.raises(Z3Exception) as exc:
         binder(x, x)
-    assert "variables binder_x and body [binder_x (Int)]" in str(exc.value)
+    assert "variables [binder_x], bodies (binder_x,)" in str(exc.value)
     assert isinstance(exc.value.__cause__, Z3Exception)
 
 
@@ -28,8 +28,8 @@ def test_lambda_error_reports_non_expression_body():
     x = Int("binder_x")
     with pytest.raises(Z3Exception) as exc:
         Lambda(x, None)
-    assert "Cannot construct Lambda" in str(exc.value)
-    assert "body [None (NoneType)]" in str(exc.value)
+    assert "Lambda:" in str(exc.value)
+    assert "body None" in str(exc.value)
 
 
 def test_binder_wrappers_preserve_valid_construction():

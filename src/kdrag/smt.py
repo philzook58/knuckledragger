@@ -6,7 +6,6 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 """
 
 import os
-from functools import wraps
 from . import config
 from typing import TypeAlias, Optional, Sequence, TypeGuard
 
@@ -199,25 +198,6 @@ RawForAll = ForAll
 RawExists = Exists
 
 
-def _binder_errors(constructor):
-    @wraps(constructor)
-    def wrapped(vs, *bodies, **kwargs):
-        try:
-            return constructor(vs, *bodies, **kwargs)
-        except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
-            bodies = ", ".join(
-                f"{body!r} ({body.sort() if is_expr(body) else type(body).__name__})"
-                for body in bodies
-            )
-            raise Z3Exception(
-                f"Cannot construct {constructor.__name__} with variables {vs!r} "
-                f"and body [{bodies}]: {error}"
-            ) from error
-
-    return wrapped
-
-
-@_binder_errors
 def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     """
     Quantified ForAll
@@ -233,21 +213,25 @@ def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     ForAll(x, Implies(x >= 0, x > 3))
 
     """
-    if isinstance(vs, ExprRef):
-        vs = [vs]
-    if any(v.assumes is not None for v in vs):
-        # fast path avoids this
-        hyp_conc0 = hyp_conc
-        hyp_conc = [v.assumes for v in vs if v.assumes is not None]
-        hyp_conc.extend(hyp_conc0)
-    assert hyp_conc
-    body = hyp_conc[-1]
-    for hyp in reversed(hyp_conc[:-1]):
-        body = Implies(hyp, body)
-    return RawForAll(vs, body, **kwargs)
+    try:
+        if isinstance(vs, ExprRef):
+            vs = [vs]
+        if any(v.assumes is not None for v in vs):
+            # fast path avoids this
+            hyp_conc0 = hyp_conc
+            hyp_conc = [v.assumes for v in vs if v.assumes is not None]
+            hyp_conc.extend(hyp_conc0)
+        assert hyp_conc
+        body = hyp_conc[-1]
+        for hyp in reversed(hyp_conc[:-1]):
+            body = Implies(hyp, body)
+        return RawForAll(vs, body, **kwargs)
+    except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
+        raise Z3Exception(
+            f"ForAll: variables {vs!r}, bodies {hyp_conc!r}: {error}"
+        ) from error
 
 
-@_binder_errors
 def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
     """
     Quantified Exists
@@ -261,20 +245,32 @@ def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
     >>> Exists([x], x > 3)
     Exists(x, And(x >= 0, x > 3))
     """
-    if isinstance(vs, ExprRef):
-        vs = [vs]
-    if any(v.assumes is not None for v in vs):
-        # fast path avoids this
-        concs0 = concs
-        concs = [v.assumes for v in vs if v.assumes is not None]
-        concs.extend(concs0)
-    if len(concs) == 1:
-        return RawExists(vs, concs[0], **kwargs)
-    else:
-        return RawExists(vs, And(concs), **kwargs)
+    try:
+        if isinstance(vs, ExprRef):
+            vs = [vs]
+        if any(v.assumes is not None for v in vs):
+            # fast path avoids this
+            concs0 = concs
+            concs = [v.assumes for v in vs if v.assumes is not None]
+            concs.extend(concs0)
+        if len(concs) == 1:
+            return RawExists(vs, concs[0], **kwargs)
+        else:
+            return RawExists(vs, And(concs), **kwargs)
+    except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
+        raise Z3Exception(
+            f"Exists: variables {vs!r}, bodies {concs!r}: {error}"
+        ) from error
 
 
-Lambda = _binder_errors(Lambda)
+RawLambda = Lambda
+
+
+def Lambda(vs, body):
+    try:
+        return RawLambda(vs, body)
+    except (Z3Exception, AttributeError, TypeError) as error:
+        raise Z3Exception(f"Lambda: variables {vs!r}, body {body!r}: {error}") from error
 
 
 # Shorthands
