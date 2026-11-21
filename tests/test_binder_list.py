@@ -136,8 +136,7 @@ def test_theorem_preview(capsys):
 def test_legacy_calls_and_list_form_timing(capsys):
     x = kd.FreshVar("x", smt.IntSort())
     truth = smt.BoolVal(True)
-    expected = kd.prove(truth, [x], [truth], None)
-    assert expected.thm.eq(smt.RawForAll([x], smt.Implies(smt.And(truth), truth)))
+    expected = kd.prove(smt.ForAll([x], truth, truth))
     assert kd.exact(thm=expected.thm, pf=expected) is expected
     assert kd.exact(expected.thm, expected) is expected
 

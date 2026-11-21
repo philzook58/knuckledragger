@@ -247,7 +247,17 @@ def _binder_statement(
     return list(binders), body, len(premises)
 
 
-def prove(thm: smt.BoolRef | list[smt.ExprRef], *args, **kwargs) -> kd.kernel.Proof:
+def prove(
+    thm: smt.BoolRef | list[smt.ExprRef],
+    *formulas: smt.BoolRef,
+    by: Optional[kd.kernel.Proof | Sequence[kd.kernel.Proof]] = None,
+    admit=False,
+    timeout=1000,
+    dump=False,
+    solver=None,
+    contracts=None,
+    unfold: Optional[int | list[smt.FuncDeclRef]] = None,
+) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
     In essence `prove(Implies(by, thm))`.
@@ -291,34 +301,12 @@ def prove(thm: smt.BoolRef | list[smt.ExprRef], *args, **kwargs) -> kd.kernel.Pr
     >>> kd.prove(smt.Implies(x >=0, succ(x) >= 0), contracts=True)
     |= Implies(x >= 0, succ(x) >= 0)
     """
-    if isinstance(thm, list):
-        binders, body, _ = _binder_statement(thm, args)
-        if "fixes" in kwargs or "assumes" in kwargs:
-            raise TypeError("Put binders and premises in the binder-list header")
-        return _prove(body, fixes=binders, **kwargs)
-    return _prove(thm, *args, **kwargs)
-
-
-def _prove(
-    thm: smt.BoolRef,
-    fixes: list[smt.ExprRef] = [],
-    assumes: list[smt.BoolRef] = [],
-    by: Optional[kd.kernel.Proof | Sequence[kd.kernel.Proof]] = None,
-    admit=False,
-    timeout=1000,
-    dump=False,
-    solver=None,
-    contracts=None,
-    # defns=True,
-    # induct=False,
-    # simps=simps,
-    # intros / fix / herb = False
-    unfold: Optional[int | list[smt.FuncDeclRef]] = None,
-) -> kd.kernel.Proof:
     start_time = time.perf_counter()
-
-    if assumes:
-        thm = smt.Implies(smt.And(assumes), thm)
+    binders = []
+    if isinstance(thm, list):
+        binders, thm, _ = _binder_statement(thm, formulas)
+    elif formulas:
+        raise TypeError("Additional formulas require a binder-list header")
 
     if by is None:
         by_list: list[kd.kernel.Proof] = []
@@ -359,8 +347,8 @@ def _prove(
         pf = kd.kernel.prove(
             thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
         )
-        if fixes:
-            pf = kd.kernel.generalize(fixes, pf)
+        if binders:
+            pf = pf.forall(binders)
         kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
         return pf
     except kd.kernel.LemmaError as e:
