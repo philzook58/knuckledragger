@@ -354,7 +354,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
         )
         for i in range(lam.num_vars())
     ]
-    return vs, substitute_vars(lam, *vs)
+    return vs, smt.substitute_body(lam, *vs)
 
 
 def make_unfolding(pf: Proof) -> Unfolding:
@@ -562,31 +562,6 @@ def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
     return t1, kd.axiom(smt.Eq(t, t1), by=["subst", t, eqs])
 
 
-def substitute_vars(q: smt.QuantifierRef, *ts: smt.ExprRef) -> smt.ExprRef:
-    """Substitute into a quantifier or lambda, checking arity and exact sorts.
-
-    Terms follow binder order, unlike smt.substitute_vars's de Bruijn order.
-    Python literals must be converted to expressions by the caller. Z3 itself
-    does not enforce sorts and can silently leave loose variables on mismatch.
-
-    >>> r, n = smt.Real("r"), smt.Int("n")
-    >>> substitute_vars(smt.Lambda([r, n], r + n), smt.RealVal(42), smt.IntVal(7))
-    42 + ToReal(7)
-    """
-    if not isinstance(q, smt.QuantifierRef):
-        raise TypeError(f"Expected QuantifierRef, got {type(q).__name__}")
-    if len(ts) != q.num_vars():
-        raise ValueError(f"Binder expects {q.num_vars()} terms, got {len(ts)}")
-    for i, t in enumerate(ts):
-        if not isinstance(t, smt.ExprRef) or t.sort() != q.var_sort(i):
-            actual = t.sort() if isinstance(t, smt.ExprRef) else type(t).__name__
-            raise TypeError(
-                f"Term {i + 1} for bound variable {q.var_name(i)} must have "
-                f"sort {q.var_sort(i)}, got {t!r} ({actual})"
-            )
-    return smt.substitute_vars(q.body(), *reversed(ts))
-
-
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.
@@ -595,7 +570,7 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     # Note: modus + specialize easily derive this rule, but it is nice to have it directly.
     assert is_proof(pf) and isinstance(pf.thm, smt.QuantifierRef) and pf.thm.is_forall()
 
-    body = substitute_vars(pf.thm, *ts)
+    body = smt.substitute_body(pf.thm, *ts)
     assert isinstance(body, smt.BoolRef)
     return axiom(body, by=[pf])
 
@@ -609,7 +584,7 @@ def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
 
     return axiom(
-        smt.Implies(thm, substitute_vars(thm, *ts)),
+        smt.Implies(thm, smt.substitute_body(thm, *ts)),
         by=["forall_elim"],
     )
 
@@ -624,7 +599,7 @@ def forget(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     """
     assert smt.is_quantifier(thm) and thm.is_exists()
     return axiom(
-        smt.Implies(substitute_vars(thm, *ts), thm),
+        smt.Implies(smt.substitute_body(thm, *ts), thm),
         by=["exists_intro"],
     )
 
@@ -657,7 +632,7 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
             for i in range(thm.num_vars())
         ]
     return skolems, axiom(
-        smt.Implies(thm, substitute_vars(thm, *skolems)),
+        smt.Implies(thm, smt.substitute_body(thm, *skolems)),
         by=["obtain"],
     )
 
@@ -709,7 +684,7 @@ def herb(thm: smt.QuantifierRef, prefixes=None) -> tuple[list[smt.ExprRef], Proo
         thm, prefixes=prefixes
     )  # We could mark these as schema variables? Useful?
     return herbs, axiom(
-        smt.Implies(substitute_vars(thm, *herbs), thm),
+        smt.Implies(smt.substitute_body(thm, *herbs), thm),
         by=["herbrand"],
     )
 
@@ -999,7 +974,7 @@ def rename_vars2(
     thm = pf.thm
     assert isinstance(thm, smt.QuantifierRef)
     t_body = thm.body()
-    body = substitute_vars(thm, *vs)
+    body = smt.substitute_body(thm, *vs)
     if thm.is_forall():
         t2 = smt.ForAll(vs, body, patterns=patterns, no_patterns=no_patterns)
     elif thm.is_exists():
@@ -1035,7 +1010,7 @@ def trigger(
     # unhygienic open_binder. Later assert keeps hygiene
     vs = [smt.Const(thm.var_name(i), thm.var_sort(i)) for i in range(thm.num_vars())]
     body0 = thm.body()
-    body = substitute_vars(thm, *vs)
+    body = smt.substitute_body(thm, *vs)
     if thm.is_forall():
         t2 = smt.ForAll(
             vs,

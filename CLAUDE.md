@@ -245,7 +245,7 @@ def sum_append(pf):
 
 ## Test Reliability Notes
 
-- Use `kernel.substitute_vars(q, *terms)` for binder substitution; it checks sorts and reverses binder-order arguments internally. Z3 can silently leave loose bound variables on sort mismatches. Convenience APIs should cast Python literals to the binder sort; kernel rules require already-sorted expressions.
+- Use `smt.substitute_body(q, *terms)` for binder substitution; it checks sorts and reverses binder-order arguments internally. Z3 can silently leave loose bound variables on sort mismatches. Convenience APIs should cast Python literals to the binder sort; kernel rules require already-sorted expressions.
 
 - Automatic lifting creates lambdas with fresh binder names. Compare results semantically rather than with AST `.eq`, and instantiate lemmas at concrete arguments when quantifier matching through lambda arguments is unstable.
 - Sequence concatenation accepts Python lists (`[x] + xs`, `xs + [x]`), delegating typed literal conversion to `cast.cast`. Bare elements are rejected with a singleton hint; native scalar additions must defer sequence RHS operands so that diagnostic can run.

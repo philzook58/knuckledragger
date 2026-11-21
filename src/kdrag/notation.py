@@ -60,7 +60,7 @@ def quantifier_call(self, *args):
         arg if isinstance(arg, smt.ExprRef) else self.var_sort(i).cast(arg)
         for i, arg in enumerate(args)
     ]
-    return kd.kernel.substitute_vars(self, *terms)
+    return smt.substitute_body(self, *terms)
 
 
 smt.QuantifierRef.__call__ = quantifier_call

@@ -291,7 +291,7 @@ def quickcheck(thm: smt.QuantifierRef, deadline=100, **hyp_settings):
     @hypothesis.given(**{str(i): sort for i, sort in enumerate(sorts)})
     def quickcheck(**kwargs):
         terms = [kwargs[str(i)] for i in range(N)]
-        t0 = kd.kernel.substitute_vars(thm, *terms)
+        t0 = smt.substitute_body(thm, *terms)
         hypothesis.note(("Starting point: ", t0))
         t1 = kd.rewrite.simp(t0, max_iter=1000000000)
         hypothesis.note(("Simplifies to: ", t1))
