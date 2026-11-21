@@ -213,18 +213,23 @@ def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     ForAll(x, Implies(x >= 0, x > 3))
 
     """
-    if isinstance(vs, ExprRef):
-        vs = [vs]
-    if any(v.assumes is not None for v in vs):
-        # fast path avoids this
-        hyp_conc0 = hyp_conc
-        hyp_conc = [v.assumes for v in vs if v.assumes is not None]
-        hyp_conc.extend(hyp_conc0)
-    assert hyp_conc
-    body = hyp_conc[-1]
-    for hyp in reversed(hyp_conc[:-1]):
-        body = Implies(hyp, body)
-    return RawForAll(vs, body, **kwargs)
+    try:
+        if isinstance(vs, ExprRef):
+            vs = [vs]
+        if any(v.assumes is not None for v in vs):
+            # fast path avoids this
+            hyp_conc0 = hyp_conc
+            hyp_conc = [v.assumes for v in vs if v.assumes is not None]
+            hyp_conc.extend(hyp_conc0)
+        assert hyp_conc
+        body = hyp_conc[-1]
+        for hyp in reversed(hyp_conc[:-1]):
+            body = Implies(hyp, body)
+        return RawForAll(vs, body, **kwargs)
+    except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
+        raise Z3Exception(
+            f"ForAll: variables {vs!r}, bodies {hyp_conc!r}: {error}"
+        ) from error
 
 
 def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
@@ -240,17 +245,32 @@ def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
     >>> Exists([x], x > 3)
     Exists(x, And(x >= 0, x > 3))
     """
-    if isinstance(vs, ExprRef):
-        vs = [vs]
-    if any(v.assumes is not None for v in vs):
-        # fast path avoids this
-        concs0 = concs
-        concs = [v.assumes for v in vs if v.assumes is not None]
-        concs.extend(concs0)
-    if len(concs) == 1:
-        return RawExists(vs, concs[0], **kwargs)
-    else:
-        return RawExists(vs, And(concs), **kwargs)
+    try:
+        if isinstance(vs, ExprRef):
+            vs = [vs]
+        if any(v.assumes is not None for v in vs):
+            # fast path avoids this
+            concs0 = concs
+            concs = [v.assumes for v in vs if v.assumes is not None]
+            concs.extend(concs0)
+        if len(concs) == 1:
+            return RawExists(vs, concs[0], **kwargs)
+        else:
+            return RawExists(vs, And(concs), **kwargs)
+    except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
+        raise Z3Exception(
+            f"Exists: variables {vs!r}, bodies {concs!r}: {error}"
+        ) from error
+
+
+RawLambda = Lambda
+
+
+def Lambda(vs, body):
+    try:
+        return RawLambda(vs, body)
+    except (Z3Exception, AttributeError, TypeError) as error:
+        raise Z3Exception(f"Lambda: variables {vs!r}, body {body!r}: {error}") from error
 
 
 # Shorthands
@@ -559,7 +579,19 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
         assert len(new_args) == self.arity(), (
             "Something has gone wrong with implicit argument filling"
         )
-    res = old_call(self, *new_args)
+    try:
+        res = old_call(self, *new_args)
+    except Z3Exception as error:
+        # Native errors that already show the declaration have enough context.
+        if self.sexpr() in str(error):
+            raise
+        arguments = ", ".join(
+            f"{arg!r} ({arg.sort() if is_expr(arg) else type(arg).__name__})"
+            for arg in new_args
+        )
+        raise Z3Exception(
+            f"Cannot apply {self.sexpr()} to arguments [{arguments}]: {error}"
+        ) from error
     if self.subrange is not None:
         res.assumes = self.subrange(res)
     return res
