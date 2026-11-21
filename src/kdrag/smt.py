@@ -6,6 +6,7 @@ This is controlled by setting the environment variable KNUCKLE_SOLVER to "cvc5" 
 """
 
 import os
+from functools import wraps
 from . import config
 from typing import TypeAlias, Optional, Sequence, TypeGuard
 
@@ -198,6 +199,25 @@ RawForAll = ForAll
 RawExists = Exists
 
 
+def _binder_errors(constructor):
+    @wraps(constructor)
+    def wrapped(vs, *bodies, **kwargs):
+        try:
+            return constructor(vs, *bodies, **kwargs)
+        except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
+            bodies = ", ".join(
+                f"{body!r} ({body.sort() if is_expr(body) else type(body).__name__})"
+                for body in bodies
+            )
+            raise Z3Exception(
+                f"Cannot construct {constructor.__name__} with variables {vs!r} "
+                f"and body [{bodies}]: {error}"
+            ) from error
+
+    return wrapped
+
+
+@_binder_errors
 def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     """
     Quantified ForAll
@@ -227,6 +247,7 @@ def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     return RawForAll(vs, body, **kwargs)
 
 
+@_binder_errors
 def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
     """
     Quantified Exists
@@ -251,6 +272,9 @@ def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
         return RawExists(vs, concs[0], **kwargs)
     else:
         return RawExists(vs, And(concs), **kwargs)
+
+
+Lambda = _binder_errors(Lambda)
 
 
 # Shorthands
