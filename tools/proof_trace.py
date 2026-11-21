@@ -298,7 +298,7 @@ def record(targets, revision):
         if event == "return" and frame in pending:
             target, line, snippet, before, comments = pending.pop(frame)
             after = snapshot(frame.f_locals["self"])
-            if tuple(map(goal_key, before)) != tuple(map(goal_key, after)):
+            if tuple(map(goal_key, before[:1])) != tuple(map(goal_key, after[:1])):
                 steps[target].append((line, snippet, before, after, comments))
         elif event == "call" and frame.f_globals is vars(tactics):
             caller = frame.f_back
@@ -387,24 +387,11 @@ def added_indices(before, after):
     return added
 
 
-def trace_goal_text(state, width):
+def highlighted_goal(state, previous):
     from kdrag.printers.pretty import pretty_goal
 
-    text = pretty_goal(state, width=width)
-    if not (state.sig or state.ctx):
-        return text
-    lines = text.splitlines()
-    for index, line in enumerate(lines):
-        if line.startswith("⊢ "):
-            if index and not lines[index - 1].startswith("─"):
-                lines.insert(index, "─" * min(width, max(map(len, lines))))
-            break
-    return "\n".join(lines)
-
-
-def highlighted_goal(state, previous):
     width = COMMENT_WIDTH - 2  # Leave room for the diff prefix.
-    text = trace_goal_text(state, width)
+    text = pretty_goal(state, width=width)
     lines = text.splitlines()
     first_formula = next(
         (i for i, line in enumerate(lines) if re.match(r"^(?:\d+: |⊢ |─)", line)),
@@ -473,11 +460,11 @@ def removal_plan(before, after):
 
 
 def goal_with_removals(state, previous, locals_removed, hypotheses_removed):
-    from kdrag.printers.pretty import _Printer, _sort
+    from kdrag.printers.pretty import _Printer, _sort, pretty_goal
 
     width = COMMENT_WIDTH - 2
-    text = trace_goal_text(state, width)
-    old_text = trace_goal_text(previous, width)
+    text = pretty_goal(state, width=width)
+    old_text = pretty_goal(previous, width=width)
     boundary = re.compile(r"^(?:(\d+): |(?=[─⊢]))", re.M)
     old_boundaries = list(boundary.finditer(old_text))
     current_boundaries = list(boundary.finditer(text))
@@ -528,23 +515,21 @@ def goal_with_removals(state, previous, locals_removed, hypotheses_removed):
     return code("\n".join(display), "diff")
 
 
-def goals(states, before=()):
+def active_goal(states, before=()):
+    from kdrag.printers.pretty import pretty_goal
+
     if not states:
         return "No open goals."
-    existing = {goal_key(state): state for state in before}
+    state = states[0]
+    if not before:
+        return math_block(pretty_goal(state, width=COMMENT_WIDTH))
     removals = removal_plan(before, states)
-    rendered = []
-    for index, state in enumerate(states):
-        if removals is not None and any(removals[index]):
-            block = goal_with_removals(state, before[index], *removals[index])
-        elif before:
-            # A pending goal that becomes active is still the same goal.
-            previous = existing.get(goal_key(state), before[0])
-            block = highlighted_goal(state, previous)
-        else:
-            block = math_block(trace_goal_text(state, COMMENT_WIDTH))
-        rendered.append(f"**Goal {index + 1}**\n\n{block}")
-    return "\n\n".join(rendered)
+    if removals is not None and any(removals[0]):
+        return goal_with_removals(state, before[0], *removals[0])
+    # If a pending goal becomes active, its existing contents are unchanged.
+    key = goal_key(state)
+    previous = next((goal for goal in before if goal_key(goal) == key), before[0])
+    return highlighted_goal(state, previous)
 
 
 def render(target, statement, steps):
@@ -560,7 +545,7 @@ def render(target, statement, steps):
             parts += ["No direct goal-changing tactic calls were recorded."]
         return "\n\n".join(parts)
 
-    parts.append("**Starting state**\n\n" + goals(steps[0][2]))
+    parts.append("**Starting state**\n\n" + active_goal(steps[0][2]))
     shown_comments = set()
     for number, (line, snippet, before, after, comments) in enumerate(steps, 1):
         prose = ""
@@ -569,7 +554,7 @@ def render(target, statement, steps):
             shown_comments.add(line)
         parts.append(
             f"{prose}<details>\n<summary>Step {number} · line {line}</summary>\n\n"
-            f"{snippet}\n\n{goals(after, before)}\n\n</details>"
+            f"{snippet}\n\n{active_goal(after, before)}\n\n</details>"
         )
         if len("\n\n".join(parts).encode()) > COMMENT_LIMIT - 512:
             parts[-1] = "Remaining steps exceed the comment size limit."
