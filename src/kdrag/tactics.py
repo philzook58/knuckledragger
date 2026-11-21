@@ -2330,46 +2330,16 @@ def Theorem(
     >>> mytheorem3
     |= x + 1 > x
     """
-    if isinstance(goal, str):
-        l, g = kd.utils.calling_globals_locals()
-        goal1 = microlean.parse(goal, l, g)
-    else:
-        goal1 = goal
-    assert isinstance(goal1, smt.BoolRef)
-
-    def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
-        start = time.perf_counter()
-        if timing:
-            print("Starting theorem", cast(Any, f).__name__)
-            l = ProofStateProxy(
-                Goal(
-                    sig=[],
-                    ctx=[],
-                    goal=goal1,
-                )
-            )
-        else:
-            l = kd.Lemma(goal1)
-        f(l)
-        pf = l.qed()
-        if timing:
-            end = time.perf_counter()
-            print(f"Theorem {cast(Any, f).__name__} took {end - start:.4f} seconds")
-        # To override metadata of the returned proof
-        # Proof is frozen, so this is a bit fishy
-        # @functools.update_wrapper had assumptions about return type being a function
-        object.__setattr__(pf, "__doc__", getattr(f, "__doc__", None))
-        object.__setattr__(pf, "__module__", getattr(f, "__module__", None))
-        object.__setattr__(pf, "__name__", getattr(f, "__name__", None))
-        object.__setattr__(pf, "__qualname__", getattr(f, "__qualname__", None))
-        return pf
-
-    return res
+    scope = kd.utils.calling_globals_locals() if isinstance(goal, str) else None
+    return cast(
+        Callable[[Callable[[ProofState], None]], kd.kernel.Proof],
+        _Theorem(goal, timing=timing, scope=scope),
+    )
 
 
 def PTheorem(
     goal: smt.BoolRef | str,
-):
+) -> Callable[[Callable[[ProofState], None]], None]:
     """
     Display the next goal or a solver failure while developing a proof.
 
@@ -2389,20 +2359,41 @@ def PTheorem(
     ────
     ⊢ q
     """
+    scope = kd.utils.calling_globals_locals() if isinstance(goal, str) else None
+    return cast(
+        Callable[[Callable[[ProofState], None]], None],
+        _Theorem(goal, interactive=True, scope=scope),
+    )
+
+
+def _Theorem(
+    goal: smt.BoolRef | str,
+    *,
+    interactive: bool = False,
+    timing: bool = False,
+    scope: tuple[dict[str, Any], dict[str, Any]] | None = None,
+) -> Callable[[Callable[[ProofState], None]], kd.kernel.Proof | None]:
     if isinstance(goal, str):
-        l, g = kd.utils.calling_globals_locals()
-        goal1 = microlean.lean(goal, g)
+        assert scope is not None
+        goal1 = microlean.parse(goal, *scope)
     else:
         goal1 = goal
     assert isinstance(goal1, smt.BoolRef)
 
-    def res(f: Callable[[ProofState], None]) -> None:
+    def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof | None:
         from kdrag.printers.pretty import pretty_goal
 
-        l = kd.Lemma(goal1)
+        start = time.perf_counter()
+        if timing:
+            print("Starting theorem", cast(Any, f).__name__)
+            l = ProofStateProxy(Goal(sig=[], ctx=[], goal=goal1))
+        else:
+            l = kd.Lemma(goal1)
         try:
             f(l)
         except _AutoFailure as failure:
+            if not interactive:
+                raise
             code = getattr(f, "__code__", None)
             headline = "auto failed"
             for frame, line in traceback.walk_tb(failure.__traceback__):
@@ -2422,10 +2413,23 @@ def PTheorem(
                 print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
             print("Goal:", pretty_goal(failure.goal), sep="\n")
             return
-        if len(l.goals) == 0:
-            l.qed()
-            print("Lemma Complete! Change PTheorem to Theorem")
-        else:
+        if interactive and l.goals:
             print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
+            return None
+        pf = l.qed()
+        if interactive:
+            print("Lemma Complete! Change PTheorem to Theorem")
+            return None
+        if timing:
+            end = time.perf_counter()
+            print(f"Theorem {cast(Any, f).__name__} took {end - start:.4f} seconds")
+        # To override metadata of the returned proof
+        # Proof is frozen, so this is a bit fishy
+        # @functools.update_wrapper had assumptions about return type being a function
+        object.__setattr__(pf, "__doc__", getattr(f, "__doc__", None))
+        object.__setattr__(pf, "__module__", getattr(f, "__module__", None))
+        object.__setattr__(pf, "__name__", getattr(f, "__name__", None))
+        object.__setattr__(pf, "__qualname__", getattr(f, "__qualname__", None))
+        return pf
 
     return res
