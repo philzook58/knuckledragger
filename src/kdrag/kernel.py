@@ -85,7 +85,7 @@ class Proof(Judgement):
             if not isinstance(arg, (smt.ExprRef, Proof, bool, int, float, complex, str)):
                 raise TypeError(
                     f"Proof argument {i}: expected ExprRef, Proof, or Python scalar, "
-                    f"got {type(arg).__name__}."
+                    f"got {arg!r} ({type(arg).__name__})."
                 )
         acc = self
         n = 0

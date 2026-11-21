@@ -80,12 +80,11 @@ def test_proof_call_reports_list_type_for_quantified_arguments():
     rule = prove(ForAll(q, Implies(q, q)))
     l = Lemma(Implies(p, p))
     lems = l.intros()
-    with pytest.raises(
-        TypeError, match="expected ExprRef, Proof, or Python scalar, got list"
-    ) as exc:
+    with pytest.raises(TypeError) as exc:
         rule(lems)
     message = str(exc.value)
     assert "Proof argument 1" in message
+    assert f"got {lems!r} (list)." in message
     assert "intros" not in message
     assert rule(*lems).thm.eq(Implies(p, p))
     l.auto()
@@ -97,10 +96,9 @@ def test_proof_call_reports_list_type_for_implication():
     rule = prove(Implies(p, p))
     l = Lemma(Implies(p, p))
     lems = l.intros()
-    with pytest.raises(
-        TypeError, match="expected ExprRef, Proof, or Python scalar, got list"
-    ):
+    with pytest.raises(TypeError) as exc:
         rule(lems)
+    assert f"got {lems!r} (list)." in str(exc.value)
     l.specialize(rule, *lems)
     l.auto()
     l.qed()
@@ -115,7 +113,7 @@ def test_proof_call_reports_other_unsupported_argument_types(arg):
     message = str(exc.value)
     assert "Proof argument 1" in message
     assert "expected ExprRef, Proof, or Python scalar" in message
-    assert f"got {type(arg).__name__}" in message
+    assert f"got {arg!r} ({type(arg).__name__})." in message
 
 
 @pytest.mark.parametrize(
