@@ -1,6 +1,6 @@
 import pytest
 
-from kdrag import Lemma
+from kdrag import Lemma, prove, smt
 from kdrag.smt import And, Bool, Bools, ForAll, Implies, Int, Not, Or, is_false
 
 
@@ -73,3 +73,58 @@ def test_intro_errors_without_mutating_an_atomic_goal():
     with pytest.raises(ValueError, match="Intro failed"):
         pf.intro()
     assert pf.top_goal() is before
+
+
+def test_proof_call_reports_list_type_for_quantified_arguments():
+    p, q = Bools("proof_list_p proof_list_q")
+    rule = prove(ForAll(q, Implies(q, q)))
+    l = Lemma(Implies(p, p))
+    lems = l.intros()
+    with pytest.raises(TypeError) as exc:
+        rule(lems)
+    message = str(exc.value)
+    assert "Proof argument 1" in message
+    assert f"got {lems!r} (list)." in message
+    assert "intros" not in message
+    assert rule(*lems).thm.eq(Implies(p, p))
+    l.auto()
+    l.qed()
+
+
+def test_proof_call_reports_list_type_for_implication():
+    p = Bool("proof_list_premise")
+    rule = prove(Implies(p, p))
+    l = Lemma(Implies(p, p))
+    lems = l.intros()
+    with pytest.raises(TypeError) as exc:
+        rule(lems)
+    assert f"got {lems!r} (list)." in str(exc.value)
+    l.specialize(rule, *lems)
+    l.auto()
+    l.qed()
+
+
+@pytest.mark.parametrize("arg", [(), {}, {1}, None, object()])
+def test_proof_call_reports_other_unsupported_argument_types(arg):
+    p = Bool("proof_argument_p")
+    rule = prove(ForAll(p, p == p))
+    with pytest.raises(TypeError) as exc:
+        rule(arg)
+    message = str(exc.value)
+    assert "Proof argument 1" in message
+    assert "expected ExprRef, Proof, or Python scalar" in message
+    assert f"got {arg!r} ({type(arg).__name__})." in message
+
+
+@pytest.mark.parametrize(
+    "var, literal, expected",
+    [
+        (Bool("literal_bool"), True, smt.BoolVal(True)),
+        (Int("literal_int"), 42, smt.IntVal(42)),
+        (smt.Real("literal_real"), 0.5, smt.RealVal(0.5)),
+        (smt.String("literal_string"), "hello", smt.StringVal("hello")),
+    ],
+)
+def test_proof_call_preserves_literal_conversion(var, literal, expected):
+    rule = prove(ForAll(var, var == var))
+    assert rule(literal).thm.eq(expected == expected)
