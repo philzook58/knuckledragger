@@ -6,7 +6,9 @@ from collections import Counter, defaultdict
 from contextlib import redirect_stdout
 from dataclasses import dataclass
 from functools import cache
+from html import escape
 from importlib import import_module
+from inspect import getattr_static
 from itertools import groupby
 import linecache
 from pathlib import Path
@@ -19,6 +21,8 @@ from textwrap import dedent, wrap
 THEORIES = "src/kdrag/theories"
 COMMENT_LIMIT = 55_000
 COMMENT_WIDTH = 36
+THEOREM_SEARCH = "https://www.philipzucker.com/knuckledragger/theorems.html"
+REPOSITORY = "https://github.com/philzook58/knuckledragger"
 
 
 @dataclass(frozen=True)
@@ -118,7 +122,141 @@ def tactic_statement(filename, line, tactic):
     return line, linecache.getline(filename, line).strip()
 
 
-def record(targets):
+def proof_arguments(node, value, proof_type):
+    if isinstance(value, proof_type):
+        yield node, value
+    elif isinstance(node, (ast.List, ast.Tuple)) and isinstance(value, (list, tuple)):
+        if len(node.elts) == len(value) and not any(
+            isinstance(element, ast.Starred) for element in node.elts
+        ):
+            for element, item in zip(node.elts, value):
+                yield from proof_arguments(element, item, proof_type)
+
+
+def tactic_proofs(source, tactic, frame, proof_type):
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return
+    calls = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and named(node, tactic)
+    ]
+    if len(calls) != 1:
+        return
+    call = calls[0]
+    names = frame.f_code.co_varnames[1 : frame.f_code.co_argcount]
+    for name, node in zip(names, call.args):
+        if isinstance(node, ast.Starred):
+            break
+        yield from proof_arguments(node, frame.f_locals.get(name), proof_type)
+    kwargs = frame.f_locals.get("kwargs", {})
+    for keyword in call.keywords:
+        if keyword.arg is not None:
+            value = kwargs.get(keyword.arg, frame.f_locals.get(keyword.arg))
+            yield from proof_arguments(keyword.value, value, proof_type)
+
+
+def reference_value(node, caller):
+    if isinstance(node, ast.Name):
+        return caller.f_locals.get(node.id, caller.f_globals.get(node.id))
+    if isinstance(node, ast.Attribute):
+        owner = reference_value(node.value, caller)
+        return getattr_static(owner, node.attr, None)
+    return None
+
+
+@cache
+def binding_lines(filename):
+    source = "".join(linecache.getlines(filename))
+    bindings = {}
+    for node in ast.parse(source, filename).body:
+        if isinstance(node, ast.FunctionDef):
+            bindings[node.name] = node.lineno
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            names = node.targets if isinstance(node, ast.Assign) else [node.target]
+            bindings.update(
+                (name.id, node.lineno) for name in names if isinstance(name, ast.Name)
+            )
+    return bindings
+
+
+def lemma_link(node, proof, caller, revision, selected):
+    definition = isinstance(node, ast.Attribute) and node.attr == "defn"
+    value = reference_value(node.value if definition else node, caller)
+    if value is None:
+        value = proof if not definition else None
+    if value is None:
+        return None
+    root = Path.cwd()
+    for module_name, module in tuple(sys.modules.items()):
+        if not module_name.startswith("kdrag.theories.") or module is None:
+            continue
+        filename = vars(module).get("__file__")
+        if not filename:
+            continue
+        relative = Path(filename).resolve()
+        if not relative.is_relative_to(root):
+            continue
+        for name, line in binding_lines(filename).items():
+            if name.startswith("_") or vars(module).get(name) is not value:
+                continue
+            qualified = f"{module_name}.{name}"
+            if (
+                not definition
+                and isinstance(value, type(proof))
+                and (module_name, name) not in selected
+                and qualified.isascii()
+            ):
+                anchor = re.sub(r"[^a-z0-9]+", "-", qualified.lower()).strip("-")
+                return f"{THEOREM_SEARCH}#{anchor}"
+            path = relative.relative_to(root).as_posix()
+            return f"{REPOSITORY}/blob/{revision}/{path}#L{line}"
+    return None
+
+
+def tactic_markup(source, tactic, frame, caller, revision, selected):
+    from kdrag import Proof, pretty_expr
+
+    annotations = {}
+    for node, proof in tactic_proofs(source, tactic, frame, Proof):
+        ref = node.func if isinstance(node, ast.Call) else node
+        if (
+            not isinstance(ref, (ast.Name, ast.Attribute))
+            or ref.lineno != ref.end_lineno
+        ):
+            continue
+        title = pretty_expr(proof.thm, width=COMMENT_WIDTH)
+        url = lemma_link(ref, proof, caller, revision, selected)
+        annotations[ref.lineno, ref.col_offset, ref.end_col_offset] = title, url
+    if not annotations:
+        return code(source, "python")
+
+    lines = source.splitlines()
+    for number, line in enumerate(lines, 1):
+        utf8 = line.encode()
+        cursor = 0
+        chunks = []
+        for (row, start, end), (title, url) in sorted(annotations.items()):
+            if row != number or start < cursor:
+                continue
+            chunks.append(escape(utf8[cursor:start].decode()))
+            label = escape(utf8[start:end].decode())
+            title = escape(title, quote=True)
+            if url:
+                chunks.append(
+                    f'<a href="{escape(url, quote=True)}" title="{title}">{label}</a>'
+                )
+            else:
+                chunks.append(f'<span title="{title}">{label}</span>')
+            cursor = end
+        chunks.append(escape(utf8[cursor:].decode()))
+        lines[number - 1] = "".join(chunks)
+    return "<pre><code>" + "\n".join(lines) + "</code></pre>"
+
+
+def record(targets, revision):
     from kdrag import Proof, pretty_expr, tactics
 
     selected = {(target.module, target.name): target for target in targets}
@@ -135,10 +273,10 @@ def record(targets):
 
     def profile(frame, event, _value):
         if event == "return" and frame in pending:
-            target, label, line, source, before = pending.pop(frame)
+            target, line, snippet, before = pending.pop(frame)
             after = snapshot(frame.f_locals["self"])
             if tuple(map(goal_key, before)) != tuple(map(goal_key, after)):
-                steps[target].append((label, line, source, before, after))
+                steps[target].append((line, snippet, before, after))
         elif event == "call" and frame.f_globals is vars(tactics):
             caller = frame.f_back
             if caller is None or frame.f_code.co_name.startswith("_"):
@@ -154,9 +292,10 @@ def record(targets):
                 )
                 pending[frame] = (
                     target,
-                    tactic,
                     line,
-                    source,
+                    tactic_markup(
+                        source or tactic, tactic, frame, caller, revision, selected
+                    ),
                     snapshot(state),
                 )
 
@@ -386,9 +525,8 @@ def render(target, statement, steps):
             parts += ["No direct goal-changing tactic calls were recorded."]
         return "\n\n".join(parts)
 
-    parts.append("**Starting state**\n\n" + goals(steps[0][3]))
-    for number, (tactic, line, source, before, after) in enumerate(steps, 1):
-        snippet = code(source or tactic, "python")
+    parts.append("**Starting state**\n\n" + goals(steps[0][2]))
+    for number, (line, snippet, before, after) in enumerate(steps, 1):
         parts.append(
             f"<details>\n<summary>Step {number} · line {line}</summary>\n\n"
             f"{snippet}\n\n{goals(after, before)}\n\n</details>"
@@ -413,9 +551,12 @@ def main():
             print(f"{target.module}.{target.name}")
         return
 
+    revision = subprocess.check_output(
+        ["git", "rev-parse", args.head], text=True
+    ).strip()
     parts = []
     size = 0
-    for target, statement, steps in record(targets):
+    for target, statement, steps in record(targets, revision):
         section = render(target, statement, steps)
         size += len(section.encode()) + 2
         if size > COMMENT_LIMIT:
