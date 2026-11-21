@@ -128,3 +128,13 @@ def test_proof_call_reports_other_unsupported_argument_types(arg):
 def test_proof_call_preserves_literal_conversion(var, literal, expected):
     rule = prove(ForAll(var, var == var))
     assert rule(literal).thm.eq(expected == expected)
+
+
+def test_proof_call_reports_literal_cast_failure():
+    flag = Bool("flag")
+    rule = prove(ForAll(flag, flag == flag))
+    with pytest.raises(
+        TypeError,
+        match=r"Proof argument 1 for bound variable flag must have sort Bool, got 42 \(int\)",
+    ):
+        rule(42)

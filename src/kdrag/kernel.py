@@ -62,7 +62,7 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def __call__(self, *args: "smt.ExprRef | Proof | int | float"):
+    def __call__(self, *args: "smt.ExprRef | Proof | int | float | complex | str"):
         """
 
         >>> x,y = smt.Ints("x y")
@@ -85,7 +85,9 @@ class Proof(Judgement):
         """
         # Note: Not trusted code. Trusted code is in `instan` and `modus`
         for i, arg in enumerate(args, start=1):
-            if not isinstance(arg, (smt.ExprRef, Proof, bool, int, float, complex, str)):
+            if not isinstance(
+                arg, (smt.ExprRef, Proof, bool, int, float, complex, str)
+            ):
                 raise TypeError(
                     f"Proof argument {i}: expected ExprRef, Proof, or Python scalar, "
                     f"got {arg!r} ({type(arg).__name__})."
@@ -95,10 +97,25 @@ class Proof(Judgement):
         while n < len(args):
             if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
                 i = acc.thm.num_vars()
-                subargs = [
-                    a if isinstance(a, smt.ExprRef) else acc.thm.var_sort(j).cast(a)
-                    for j, a in enumerate(args[n : n + i])
-                ]
+                subargs = []
+                for j, arg in enumerate(args[n : n + i]):
+                    sort = acc.thm.var_sort(j)
+                    try:
+                        if isinstance(arg, str) and sort.eq(
+                            smt.StringSort(ctx=sort.ctx)
+                        ):
+                            term = smt.StringVal(arg, ctx=sort.ctx)
+                        elif isinstance(arg, smt.ExprRef):
+                            term = arg
+                        else:
+                            term = sort.cast(arg)
+                    except (smt.Z3Exception, TypeError, ValueError) as error:
+                        raise TypeError(
+                            f"Proof argument {n + j + 1} for bound variable "
+                            f"{acc.thm.var_name(j)} must have sort {sort}, "
+                            f"got {arg!r} ({type(arg).__name__})"
+                        ) from error
+                    subargs.append(term)
                 acc = instan(subargs, acc)
                 n += i
             elif smt.is_implies(acc.thm):
