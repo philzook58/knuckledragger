@@ -1,5 +1,5 @@
 import kdrag as kd
-from kdrag import QForAll, Struct, define, prove
+from kdrag import QForAll, Struct, define, define_const, prove
 import kdrag.theories.real as R
 from kdrag.smt import (
     And,
@@ -42,7 +42,7 @@ join_union = prove(
 kd.notation.or_.register(Interval, join)
 
 is_empty = define("is_empty", [I], i.hi > i.lo)
-empty = define("empty", [], Interval.mk(RealVal(1), RealVal(0)))
+empty = define_const("empty", Interval.mk(RealVal(1), RealVal(0)))
 
 width = define("width", [i], i.hi - i.lo)
 mid = define("mid", [i], (i.lo + i.hi) / 2)

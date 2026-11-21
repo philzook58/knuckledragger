@@ -404,10 +404,11 @@ def define(
     Args:
         name: The name of the term to define.
         args: A single argument or a list of arguments (empty for a constant).
-        defn: The definition of the term.
+        body: The definition of the term.
 
     Returns:
-        tuple[smt.FuncDeclRef, Proof]: A tuple of the defined term and the proof of the definition.
+        smt.FuncDeclRef: The function declaration, including for zero arguments.
+            Apply it with `()` to obtain a constant expression.
     """
     if isinstance(args, smt.ExprRef):
         args = [args]
@@ -438,10 +439,7 @@ def define(
             )
         print("WARNING: Redefining function", f, "from", defns[f].ax, "to", def_ax.thm)
         defns[f] = defn
-    if len(args) == 0:
-        return f()  # Convenience. TODO: Remove
-    else:
-        return f
+    return f
 
 
 def decl_occurs(f: smt.FuncDeclRef, body: smt.ExprRef) -> bool:

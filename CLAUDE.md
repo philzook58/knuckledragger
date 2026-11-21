@@ -119,6 +119,7 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 ### Definitions and Axioms
 
 - `kd.define(name, vars, body)` - Define a function. Returns function with `.defn` attribute
+- `kd.define_const(name, body)` - Define a constant expression with `.defn`; `define(name, [], body)` returns a nullary function declaration.
 - `kd.axiom(thm)` - Assert axiom (use sparingly!)
 - `kd.FreshVar(name, sort)` or `kd.FreshVars("x y z", sort)` - Create schema variables
 

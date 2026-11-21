@@ -38,8 +38,8 @@ def test_sheffer():
     inf = kd.define("inf", [a, b], ~a | ~b)
     sup = kd.define("sup", [a, b], ~(a | b))
 
-    bot = kd.define("bot", [], a | ~a)
-    top = kd.define("top", [], ~bot)
+    bot = kd.define_const("bot", a | ~a)
+    top = kd.define_const("top", ~bot)
 
     inf_comm = kd.prove(
         smt.ForAll([a, b], inf(a, b) == inf(b, a)), by=[inf.defn, commut]

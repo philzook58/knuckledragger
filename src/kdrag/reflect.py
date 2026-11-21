@@ -1195,7 +1195,7 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
                 Implies(And,
                         And(And(And(test_set_notation(x) > x,
                                 test_set_notation(x) > 0))))))
-    >>> myconst = kd.define("myconst12345", [], smt.IntVal(42))
+    >>> myconst = kd.define_const("myconst12345", smt.IntVal(42))
     >>> @reflect
     ... def test_proof_call() -> "{y for y in int if y == myconst}":
     ...     if myconst != 42:
@@ -1295,12 +1295,12 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
         raise ValueError(
             f"Function {fun.name} has return type {_sort_of_annotation(fun.returns, globals=globals, locals=locals)} but body evaluates to {body.sort()}"
         )
-    z3fun1 = kd.define(fun.name, args, body)
+    z3fun1 = kd.define(fun.name, args, body) if args else kd.define_const(fun.name, body)
     decl = z3fun1.decl() if isinstance(z3fun1, smt.ExprRef) else z3fun1
     if not isinstance(ret_sort, smt.SortRef):
         ensures.append(ret_sort(decl(*args)))
     if ensures:
-        z3fun1.contract = kd.contracts.contract(
+        contract = kd.contracts.contract(
             decl,
             args,
             smt.And(
@@ -1309,6 +1309,7 @@ def reflect(f, globals=None, by=[]) -> smt.FuncDeclRef:
             smt.And(ensures),
             by=[z3fun1.defn] + by + pfs,
         )
+        setattr(z3fun1, "contract", contract)
     # This should never fail.
     assert z3fun.arity() == decl.arity() and all(
         z3fun.domain(i) == decl.domain(i) for i in range(z3fun.arity())

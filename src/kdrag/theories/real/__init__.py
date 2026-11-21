@@ -37,7 +37,7 @@ from kdrag.smt import (
     is_var,
 )
 import kdrag as kd
-from kdrag import NewType, QExists, Theorem, axiom, cond, define, prove
+from kdrag import NewType, QExists, Theorem, axiom, cond, define, define_const, prove
 
 T = RealSort()
 
@@ -75,7 +75,7 @@ axiom(ForAll([f, g], poly(f), poly(g), poly(f * g)))
 
 # NReal = kd.NewType("NReal", R)
 
-zero = define("R.zero", [], RealVal(0))
+zero = define_const("R.zero", RealVal(0))
 
 
 add = define("R.add", [x, y], x + y)
@@ -104,7 +104,7 @@ sub_add = prove(
 
 mul = define("mul", [x, y], x * y)
 mul_zero = prove(ForAll([x], mul(x, 0) == 0), by=[mul.defn])
-one = define("one", [], RealVal(1))
+one = define_const("one", RealVal(1))
 mul_one = prove(ForAll([x], mul(x, one) == x), by=[mul.defn, one.defn])
 one_mul = prove(ForAll([x], mul(one, x) == x), by=[mul.defn, one.defn])
 mul_comm = prove(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
@@ -437,7 +437,7 @@ comp = define("comp", [f, g], Lambda([x], f(g(x))))
 kd.notation.matmul.register(RFun, comp)
 
 
-ident = define("RFun.ident", [], Lambda([x], x))
+ident = define_const("RFun.ident", Lambda([x], x))
 const = define("RFun.const", [x], K(RealSort(), x))
 X = ident
 

@@ -31,6 +31,25 @@ def test_define_single_argument():
     kd.prove(f(3) == 4, by=[f.defn])
 
 
+def test_define_nullary():
+    f = kd.kernel.define("nullary_definition", [], smt.IntVal(42))
+    assert isinstance(f, smt.FuncDeclRef)
+    assert f.arity() == 0
+    kd.prove(f() == 42, by=[f.defn])
+
+
+@pytest.mark.parametrize(
+    "body",
+    [smt.IntVal(42), smt.BoolVal(True), smt.K(smt.IntSort(), smt.RealVal(0))],
+)
+def test_define_const(body):
+    c = kd.define_const("defined_constant_" + str(body.sort()), body)
+    assert isinstance(c, smt.ExprRef)
+    assert c.sort() == body.sort()
+    assert c.defn.thm.eq(smt.Eq(c, body))
+    assert kd.rewrite.unfold(c).eq(body)
+
+
 def test_true_infer():
     kd.prove(smt.BoolVal(True))
 
@@ -392,7 +411,7 @@ This is causing failure in vampire becausei tdoesn't support multiarity array
 def test_lambda_2():
     
 
-    test = kd.define("test2", [], smt.Lambda([z, x], z))
+    test = kd.define_const("test2", smt.Lambda([z, x], z))
     # print("body", test.defn.thm.body())
     # print("ax", smt.ForAll([z, x], test[z, x] == z).body())
     assert test.defn.thm.body().eq(smt.ForAll([z, x], test[z, x] == z).body())

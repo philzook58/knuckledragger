@@ -1,7 +1,7 @@
 # Imp: Simple Imperative Programs (partial translation from Imp.v)
 # Note: Using Int for arithmetic for now (Nat subtraction isn't in the library yet).
 
-from kdrag import Theorem, define, inductive, ldefine
+from kdrag import Theorem, define, define_const, inductive, ldefine
 import kdrag.smt as smt
 from kdrag.smt import (
     ArraySort,
@@ -207,7 +207,7 @@ st = Const("st", State)
 vx = String("x")
 vv = Int("v")
 
-empty_state = define("empty_state", [], K(Str, IntVal(0)))
+empty_state = define_const("empty_state", K(Str, IntVal(0)))
 lookup = define("lookup", [st, vx], Select(st, vx))
 update = define("update", [st, vx, vv], Store(st, vx, vv))
 
