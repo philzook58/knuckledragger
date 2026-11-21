@@ -563,8 +563,8 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
         res = old_call(self, *new_args)
     except Z3Exception as error:
         arguments = ", ".join(
-            f"{i}: {arg!r} ({arg.sort() if is_expr(arg) else type(arg).__name__})"
-            for i, arg in enumerate(new_args, start=1)
+            f"{arg!r} ({arg.sort() if is_expr(arg) else type(arg).__name__})"
+            for arg in new_args
         )
         raise Z3Exception(
             f"Cannot apply {self.sexpr()} to arguments [{arguments}]: {error}"

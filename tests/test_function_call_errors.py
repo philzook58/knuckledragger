@@ -19,8 +19,7 @@ def test_call_error_shows_declaration_and_typed_arguments():
         f(Real("bad_real"), 42)
     message = str(exc.value)
     assert "(declare-fun diagnostic_f (Int Real) Bool)" in message
-    assert "1: bad_real (Real)" in message
-    assert "2: 42 (int)" in message
+    assert "arguments [bad_real (Real), 42 (int)]" in message
     assert isinstance(exc.value.__cause__, smt.Z3Exception)
     assert str(exc.value.__cause__) in message
 
@@ -31,7 +30,7 @@ def test_python_type_and_later_argument():
         f(True, "bad-number")
     message = str(exc.value)
     assert "diagnostic_python (Bool Int) Bool" in message
-    assert "2: 'bad-number' (str)" in message
+    assert "arguments [True (bool), 'bad-number' (str)]" in message
 
 
 def test_bitvector_width_is_reported():
@@ -39,7 +38,7 @@ def test_bitvector_width_is_reported():
     with pytest.raises(smt.Z3Exception) as exc:
         f(BitVecVal(1, 16))
     assert "(_ BitVec 8)" in str(exc.value)
-    assert "1: 1 (BitVec(16))" in str(exc.value)
+    assert "arguments [1 (BitVec(16))]" in str(exc.value)
 
 
 def test_valid_coercions_and_implicit_arguments_are_preserved():
