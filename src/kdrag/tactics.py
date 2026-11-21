@@ -540,6 +540,24 @@ class _AutoFailure(ValueError):
         self.error = error
 
 
+@cache
+def _iff_intro() -> kd.kernel.Proof:
+    """Assemble an equivalence without searching inside its quantified operands."""
+    ctx, p, q = smt.Bools("ctx p q")
+    return kd.kernel.prove(
+        smt.RawForAll(
+            [ctx, p, q],
+            smt.Implies(
+                smt.Implies(ctx, smt.Implies(p, q)),
+                smt.Implies(
+                    smt.Implies(ctx, smt.Implies(q, p)),
+                    smt.Implies(ctx, smt.Eq(p, q)),
+                ),
+            ),
+        ),
+    )
+
+
 class ProofState:
     """
     A tactic class for interactive proofs.
@@ -1481,16 +1499,29 @@ class ProofState:
                 )
             elif smt.is_eq(goal):
                 self.pop_goal()
-                self.goals.append(
-                    goalctx._replace(
-                        ctx=ctx, goal=smt.Implies(goal.arg(1), goal.arg(0))
+                self.push_lemmas()
+                left, right = goal.children()
+                forward = smt.Implies(left, right)
+                backward = smt.Implies(right, left)
+                context = smt.And(ctx)
+
+                def cb():
+                    pf_forward = self.get_lemma(smt.Implies(context, forward))
+                    pf_backward = self.get_lemma(smt.Implies(context, backward))
+                    self.pop_lemmas()
+                    rule = kd.kernel.instan([context, left, right], _iff_intro())
+                    combined = kd.kernel.modus(
+                        kd.kernel.modus(rule, pf_forward), pf_backward
                     )
-                )
-                self.goals.append(
-                    goalctx._replace(
-                        ctx=ctx, goal=smt.Implies(goal.arg(0), goal.arg(1))
-                    )
-                )
+                    self.add_lemma(combined)
+                    if not ctx:
+                        self.add_lemma(
+                            kd.kernel.modus(combined, kd.kernel.prove(context))
+                        )
+
+                self.goals.append(LemmaCallback(cb, annot=("split", goal)))
+                self.goals.append(goalctx._replace(ctx=ctx, goal=backward))
+                self.goals.append(goalctx._replace(ctx=ctx, goal=forward))
             elif smt.is_distinct(goal):
                 self.pop_goal()
                 for i in range(goal.num_args()):

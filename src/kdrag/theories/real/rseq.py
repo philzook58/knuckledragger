@@ -30,6 +30,7 @@ from kdrag.smt import (
 
 import kdrag.theories.int as int_
 import kdrag.theories.real as real
+from kdrag.theories.real import rset
 
 
 RSeq = real.RSeq
@@ -152,19 +153,39 @@ def test():
     """
 
 
+# Oriented partial sums: S[0] = 0 and S[n + 1] - S[n] = a[n].
 cumsum = Function("cumsum", RSeq, RSeq)
 cumsum = define(
     "cumsum",
     [a],
     Lambda(
         [i],
-        If(  # Maybe this is a badly shifted definition
+        If(
             i == 0,
-            a[0],
-            If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i + 1]),
+            RealVal(0),
+            If(i > 0, cumsum(a)[i - 1] + a[i - 1], cumsum(a)[i + 1] - a[i]),
         ),
     ),
 )
+
+
+@Theorem(ForAll([a, n], cumsum(a)[n + 1] == cumsum(a)[n] + a[n]))
+def cumsum_succ(l):
+    a, n = l.fixes()
+    # Use the recurrence pointing toward zero on each side of the origin.
+    l.cases(n >= 0, n < 0)
+    _, step = kd.kernel.unfold(cumsum(a)[n + 1], [cumsum])
+    l.auto(by=[step])
+    _, step = kd.kernel.unfold(cumsum(a)[n], [cumsum])
+    l.auto(by=[step])
+
+
+@Theorem(ForAll(a, diff(cumsum(a)) == a))
+def diff_cumsum(l):
+    a = l.fix()
+    l.ext()
+    n = l.fix()
+    l.auto(by=[diff.defn(cumsum(a)), cumsum_succ(a, n)])
 
 
 @Theorem("forall (n : Int), cumsum zero n = 0")
@@ -190,79 +211,45 @@ def cumsum_zero(l):
     l.auto()
 
 
-@Theorem(
-    "forall (x : Real) (n : Int), n >= 0 -> cumsum (const x) n = (n + 1) * x"
-)  # TODO: fix for n < 0. Wrong definition?
+@Theorem("forall (x : Real) (n : Int), cumsum (const x) n = n * x")
 def cumsum_const(l):
     x, n = l.fixes()
     l.unfold(const)
     l.induct(n)
-
-    # n < 0
-    # l.fix()
-    # l.intro()
-    # l.unfold(cumsum)
-    # l.simp()
+    # Step down from zero, base case, and step up from zero.
+    l.fix()
+    l.intros()
+    l.unfold(cumsum)
     l.auto()
-
-    # n == 0
+    l.unfold(cumsum)
+    l.auto()
+    l.fix()
+    l.intros()
     l.unfold(cumsum)
     l.auto()
 
-    # n > 0
-    n = l.fix()
-    l.intro()
-    l.intro()
-    l.unfold(cumsum)
-    # l.boolsimp() # boolsimp is not working well
-    # l.simp()
-    # l.have((n == -1) == False, by=[])
-    # l.rw(-1)
-    # l.have((n <= -1) == False, by=[])
-    # l.rw(-1)
-    l.auto()
+
+# TODO: cumsum id_ = n * (n - 1) / 2
+# TODO: cumsum pownat = (1 - x^n) / (1 - x), when x != 1
 
 
-# TODO: cumsum id_ = n * (n + 1) / 2
-# cumsum pownat = 1 - x^(n + 1) / (1 - x)
-# cumsum_diff - the fundamental theorem of calculus for sequences
-
-
-cumsum_smul = prove(
-    ForAll([a, x], cumsum(smul(x, a)) == smul(x, cumsum(a))), admit=True
-)
-"""
-# TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
-
-# TODO: unstable
-@kd.Theorem(
-    "forall (a : RSeq) (x : Real) (n : Int), cumsum (smul x a) n = smul x (cumsum a) n"
-)
+@Theorem(ForAll([a, x], cumsum(smul(x, a)) == smul(x, cumsum(a))))
 def cumsum_smul(l):
-    a, x, n = l.fixes()
+    a, x = l.fixes()
+    l.ext()
+    n = l.fix()
     l.induct(n)
-
-    # n < 0
-    # TODO: These induction cases look disgusting with too many lambdas.
+    # Both directions use the same linearity argument for the recurrence.
     l.fix()
-    l.simp()
-    l.intro()
-    l.unfold(cumsum, smul)
-    l.simp()
-    l.auto(by=[smul.defn, cumsum.defn])
-
-    # n == 0
-    l.auto(by=[smul.defn, cumsum.defn])
-
-    # n > 0
+    l.intros()
+    l.unfold(cumsum)
+    l.auto(by=[smul.defn])
+    l.unfold(cumsum)
+    l.auto(by=[smul.defn])
     l.fix()
-    l.simp()
-    l.unfold(cumsum, smul)
-    l.simp()
-    l.unfold(cumsum, smul)
-    l.simp()
-    l.auto(by=[smul.defn, cumsum.defn])
-"""
+    l.intros()
+    l.unfold(cumsum)
+    l.auto(by=[smul.defn])
 
 
 @Theorem(
@@ -413,12 +400,10 @@ Sum = Function("Sum", RSeq, IntSort(), IntSort(), R)
 finsum = define("finsum", [a, n], cumsum(a)[n])
 
 
-@Theorem(QForAll([a, n], n >= 0, finsum(a, n + 1) == finsum(a, n) + a[n + 1]))
+@Theorem(ForAll([a, n], finsum(a, n + 1) == finsum(a, n) + a[n]))
 def finsum_succ(l):
     a, n = l.fixes()
-    # Use the recurrence at this index, rather than an equality of whole arrays.
-    _, step = kd.kernel.unfold(cumsum(a)[n + 1], [cumsum])
-    l.auto(by=[finsum.defn(a, n + 1), finsum.defn(a, n), step])
+    l.auto(by=[finsum.defn(a, n + 1), finsum.defn(a, n), cumsum_succ(a, n)])
 
 
 @Theorem(ForAll([a, x, n], finsum(smul(x, a), n) == x * finsum(a, n)))
@@ -504,55 +489,37 @@ abs_ge_0 = prove(
 
 
 @Theorem(
-    QForAll(
-        [a, N],
-        N >= 0,
-        QForAll([n], n >= 0, n <= N, abs(a)[n] <= finsum(abs(a), N)),
-    )
+    ForAll([a, n], ForAll(i, i >= 0, a[i] >= 0), n >= 0, finsum(a, n) >= 0)
+)
+def finsum_nonneg(l):
+    a, n = l.fixes()
+    l.intros()
+    l.auto(by=[cumsum_mono(zero, a, n), cumsum_zero(n),
+               finsum.defn(a, n), zero.defn])
+
+
+@Theorem(
+    QForAll([a, N], N >= 0,
+            QForAll([n], n >= 0, n < N, abs(a)[n] <= finsum(abs(a), N)))
 )
 def abs_le_finsum_abs(l):
     a, N = l.fixes()
-
-    l.induct(N, using=int_.induct_nat)
-    # base case: N = 0
     l.intro()
-    n = l.fix()
-    l.intros()
-    l.have(n == 0, by=[])
-    l.rw(-1)
-    l.unfold(finsum)
-    l.unfold(cumsum)
-    l.simp()
+    l.induct(N, using=int_.induct_nat)
+    # No index lies in the empty prefix [0, 0).
     l.auto()
-
-    # step: N >= 0, IH -> N + 1
     N = l.fix()
     l.intros()
-
     n = l.fix()
     l.intros()
-
-    # Establish the shared recurrence before splitting the two cases.
-    l.have(
-        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N + 1],
-        by=[finsum_succ(abs(a), N)],
-    )
-    l.have(abs(a)[N + 1] >= 0, by=[abs_ge_0(a, N + 1)])
-
-    # Case split: n <= N or n = N + 1
-    l.cases(n <= N)
-
-    # n <= N: use IH and monotonicity of finsum
+    l.have(finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N],
+           by=[finsum_succ(abs(a), N)])
+    l.have(abs(a)[N] >= 0, by=[abs_ge_0(a, N)])
+    l.cases(n < N, n == N)
     l.have(abs(a)[n] <= finsum(abs(a), N), by=[])
-    l.have(finsum(abs(a), N) <= finsum(abs(a), N + 1), by=[])
     l.auto()
-
-    # n > N: then n = N + 1
-    l.have(n == N + 1, by=[])
-    l.rw(-1)
-    l.have(abs(a)[0] <= finsum(abs(a), N), by=[])
-    l.have(abs(a)[0] >= 0, by=[abs_ge_0])
-    l.have(finsum(abs(a), N + 1) >= abs(a)[N + 1], by=[])
+    l.have(finsum(abs(a), N) >= 0, by=[finsum_nonneg(abs(a), N), abs_ge_0])
+    l.auto()
     l.auto()
 
 
@@ -561,6 +528,11 @@ is_bounded = define("is_bounded", [a], Exists([M], has_bound(a, M)))
 
 is_monotone = define("is_monotone", [a], QForAll([n, m], n <= m, a[n] <= a[m]))
 is_nonneg = define("is_nonneg", [a], QForAll([n], a[n] >= 0))
+
+# The range relevant to convergence as n tends to positive infinity.
+range_nonneg = define(
+    "RSeq.range_nonneg", a, Lambda(x, Exists(n, n >= 0, a[n] == x))
+)
 
 # https://en.wikipedia.org/wiki/Cauchy_sequence
 
@@ -1085,6 +1057,51 @@ def has_lim_div(l):
     result = real.abs(am / bm - x / y) < eps
     l.auto(by=[prove(Implies(And(decomp, bound), result))])
     l.auto(by=[eventually_mono(both, near(a / b, x / y, eps))])
+
+
+@Theorem(
+    ForAll([a, x], is_monotone(a), rset.is_lub(range_nonneg(a), x), has_lim(a, x))
+)
+def has_lim_of_monotone_of_is_lub(l):
+    a, s = l.fixes()
+    l.unfold(is_monotone)
+    monotone, _ = l.intros()
+    values = range_nonneg(a)
+    l.have(rset.is_ub(values, s), by=[rset.is_ub_of_is_lub(values, s)])
+    l.unfold(has_lim)
+    eps = l.fix()
+    l.intro()
+    # Anything strictly below the supremum fails to bound the range.
+    l.have(smt.Not(rset.is_ub(values, s - eps)),
+           by=[rset.le_of_is_lub_of_is_ub(values, s, s - eps)])
+    witness = l.have(Exists(n, n >= 0, s - eps < a[n]),
+                     by=[rset.is_ub.defn(values, s - eps), range_nonneg.defn(a)])
+    N = l.obtain(witness)
+    l.exists(N)
+    k = l.fix()
+    l.intro()
+    # The entire tail is trapped between a[N] > s-eps and the supremum s.
+    l.specialize(monotone, N, k)
+    l.have(values[a[k]], by=[range_nonneg.defn(a)])
+    l.have(a[k] <= s, by=[rset.le_of_mem_of_is_ub(values, a[k], s)])
+    l.auto(by=[real.abs.defn(a[k] - s)])
+
+
+@Theorem(
+    ForAll(a, is_monotone(a), rset.bdd_above(range_nonneg(a)),
+           Exists(x, has_lim(a, x)))
+)
+def exists_has_lim_of_monotone_of_bdd_above(l):
+    a = l.fix()
+    l.intros()
+    values = range_nonneg(a)
+    l.have(values[a[0]], by=[range_nonneg.defn(a)])
+    l.have(Exists(x, values[x]), by=[])
+    supremum = l.have(Exists(x, rset.is_lub(values, x)),
+                      by=[rset.exists_is_lub_of_bdd_above(values)])
+    s = l.obtain(supremum)
+    l.exists(s)
+    l.auto(by=[has_lim_of_monotone_of_is_lub(a, s)])
 
 
 has_sum = define("has_sum", [a, y], has_lim(cumsum(a), y))
