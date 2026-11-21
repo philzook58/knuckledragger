@@ -84,11 +84,8 @@ class Proof(Judgement):
         for i, arg in enumerate(args, start=1):
             if isinstance(arg, list):
                 raise TypeError(
-                    f"Proof argument {i} is a list; expected an individual term or Proof. "
-                    "intros() returns a list of hypotheses: use lem = l.intro() "
-                    "or lem, = l.intros() for one hypothesis. "
-                    "Pass multiple terms/proofs with pf(*lems); "
-                    "for context hypotheses use l.specialize(pf, *lems)."
+                    f"Proof argument {i}: expected ExprRef or Proof, "
+                    f"got {type(arg).__name__}."
                 )
         acc = self
         n = 0
