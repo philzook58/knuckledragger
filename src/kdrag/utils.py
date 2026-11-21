@@ -32,7 +32,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
         kd.kernel.FreshVar(lam.var_name(i).upper().split("!")[0], lam.var_sort(i))
         for i in range(lam.num_vars())
     ]
-    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+    return vs, smt.substitute_body(lam, *vs)
 
 
 def open_binder_unhygienic(
@@ -47,7 +47,7 @@ def open_binder_unhygienic(
     """
     # Open with capitalized names to match tptp conventions
     vs = [smt.Const(lam.var_name(i), lam.var_sort(i)) for i in range(lam.num_vars())]
-    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+    return vs, smt.substitute_body(lam, *vs)
 
 
 def pathmap(
@@ -145,7 +145,7 @@ def pmatch(
                 return None
             vs1, patbody = open_binder(pat)
             no_escape.extend(vs1)
-            tbody = smt.substitute_vars(t.body(), *reversed(vs1))
+            tbody = smt.substitute_body(t, *vs1)
             todo.append((patbody, tbody))
         else:
             raise Exception("Unexpected pattern", t, pat)
@@ -422,7 +422,7 @@ def alpha_eq(t1, t2):
         ):
             # It is ok to keep de bruijn indices here and not use open_binder?
             # vs, body1 = open_binder(t1)
-            # body2 = smt.substitute_vars(t2.body(), *reversed(vs))
+            # body2 = smt.substitute_body(t2, *vs)
             # return alpha_eq(body1, body2)
             return alpha_eq(t1.body(), t2.body())
         else:
@@ -460,10 +460,12 @@ def alpha_norm(expr: smt.ExprRef) -> smt.ExprRef:
     """
 
     if isinstance(expr, smt.QuantifierRef):
-        body = alpha_norm(expr.body())
+        # Fresh placeholders keep inner canonical names from capturing outer variables.
+        opened, body = kd.kernel.open_binder(expr)
+        body = alpha_norm(body)
         vs = [smt.Const("x" + str(i), expr.var_sort(i)) for i in range(expr.num_vars())]
         assert kd.utils.free_in(vs, body)
-        body = smt.substitute_vars(body, *reversed(vs))
+        body = smt.substitute(body, *zip(opened, vs))
         if expr.is_forall():
             return smt.ForAll(vs, body)
         elif expr.is_exists():

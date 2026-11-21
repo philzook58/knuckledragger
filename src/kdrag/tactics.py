@@ -408,7 +408,7 @@ def subst(
     """
     assert isinstance(pf.thm, smt.QuantifierRef)
     vs1, ab = kd.kernel.herb(
-        smt.ForAll(vs, smt.substitute_vars(pf.thm.body(), *reversed(subst)))
+        smt.ForAll(vs, smt.substitute_body(pf.thm, *subst))
     )
     a = kd.kernel.instan([smt.substitute(t, *zip(vs, vs1)) for t in subst], pf)
     return kd.kernel.modus(ab, a)

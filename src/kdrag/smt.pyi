@@ -6691,6 +6691,8 @@ def substitute_vars(
     """
     ...
 
+def substitute_body(q: QuantifierRef, *ts: ExprRef) -> ExprRef: ...
+
 def substitute_funs(
     t, *m
 ):  # -> PatternRef | QuantifierRef | BoolRef | IntNumRef | ArithRef | RatNumRef | AlgebraicNumRef | BitVecNumRef | BitVecRef | ArrayRef | DatatypeRef | FPNumRef | FPRef | FiniteDomainNumRef | FiniteDomainRef | FPRMRef | SeqRef | CharRef | ReRef | ExprRef:

@@ -191,6 +191,31 @@ def Eq(x, y):
     return RawEq(x, y)
 
 
+def substitute_body(q: QuantifierRef, *ts: ExprRef) -> ExprRef:
+    """Substitute into a quantifier or lambda, checking arity and exact sorts.
+
+    Terms follow binder order, unlike smt.substitute_vars's de Bruijn order.
+    Python literals must be converted to expressions by the caller. Z3 itself
+    does not enforce sorts and can silently leave loose variables on mismatch.
+
+    >>> r, n = Real("r"), Int("n")
+    >>> substitute_body(Lambda([r, n], r + n), RealVal(42), IntVal(7))
+    42 + ToReal(7)
+    """
+    if not isinstance(q, QuantifierRef):
+        raise TypeError(f"Expected QuantifierRef, got {type(q).__name__}")
+    if len(ts) != q.num_vars():
+        raise ValueError(f"Binder expects {q.num_vars()} terms, got {len(ts)}")
+    for i, t in enumerate(ts):
+        if not isinstance(t, ExprRef) or t.sort() != q.var_sort(i):
+            actual = t.sort() if isinstance(t, ExprRef) else type(t).__name__
+            raise TypeError(
+                f"Term {i + 1} for bound variable {q.var_name(i)} must have "
+                f"sort {q.var_sort(i)}, got {t!r} ({actual})"
+            )
+    return substitute_vars(q.body(), *reversed(ts))
+
+
 NEq = ExprRef.__ne__
 
 # TODO: Overload them?

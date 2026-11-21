@@ -31,7 +31,6 @@ from kdrag.smt import (  # noqa: F401
     is_var,
     substitute,
     substitute_funs,
-    substitute_vars,
 )
 from typing import Sequence
 
@@ -224,7 +223,7 @@ def beta_conv(lam: smt.QuantifierRef, *args) -> kd.Proof:
     """
     assert len(args) == lam.num_vars()
     assert is_quantifier(lam) and lam.is_lambda()
-    return axiom(Eq(lam[args], substitute_vars(lam.body(), *reversed(args))))
+    return axiom(Eq(lam[args], smt.substitute_body(lam, *args)))
 
 
 def substitute_fresh_vars(pf: kd.Proof, *subst) -> kd.Proof:
@@ -269,7 +268,7 @@ def rename_vars(
     """
     assert isinstance(t, smt.QuantifierRef)
     t_body = t.body()
-    body = substitute_vars(t_body, *reversed(vs))
+    body = smt.substitute_body(t, *vs)
     if t.is_forall():
         t2 = ForAll(vs, body)
     elif t.is_exists():

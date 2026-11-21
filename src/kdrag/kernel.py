@@ -62,7 +62,7 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def __call__(self, *args: "smt.ExprRef | Proof"):
+    def __call__(self, *args: "smt.ExprRef | Proof | int | float"):
         """
 
         >>> x,y = smt.Ints("x y")
@@ -71,6 +71,9 @@ class Proof(Judgement):
         |= ForAll(x, x >= x - 1)
         >>> p(x, 7)
         |= 7 >= 7 - 1
+        >>> r = smt.Real("r")
+        >>> prove(smt.ForAll(r, r <= r))(42).thm.arg(0).sort()
+        Real
 
         >>> a,b,c = smt.Bools("a b c")
         >>> ab = prove(smt.Implies(a,smt.Implies(a, a)))
@@ -93,8 +96,8 @@ class Proof(Judgement):
             if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
                 i = acc.thm.num_vars()
                 subargs = [
-                    a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
-                    for a in args[n : n + i]
+                    a if isinstance(a, smt.ExprRef) else acc.thm.var_sort(j).cast(a)
+                    for j, a in enumerate(args[n : n + i])
                 ]
                 acc = instan(subargs, acc)
                 n += i
@@ -357,7 +360,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
         )
         for i in range(lam.num_vars())
     ]
-    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+    return vs, smt.substitute_body(lam, *vs)
 
 
 def make_unfolding(pf: Proof) -> Unfolding:
@@ -571,14 +574,11 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     This is forall elimination
     """
     # Note: modus + specialize easily derive this rule, but it is nice to have it directly.
-    assert (
-        is_proof(pf)
-        and isinstance(pf.thm, smt.QuantifierRef)
-        and pf.thm.is_forall()
-        and len(ts) == pf.thm.num_vars()
-    )
+    assert is_proof(pf) and isinstance(pf.thm, smt.QuantifierRef) and pf.thm.is_forall()
 
-    return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), by=[pf])
+    body = smt.substitute_body(pf.thm, *ts)
+    assert isinstance(body, smt.BoolRef)
+    return axiom(body, by=[pf])
 
 
 def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
@@ -587,14 +587,10 @@ def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     `forall xs, P(xs) -> P(ts)`
     This is forall elimination
     """
-    assert (
-        isinstance(thm, smt.QuantifierRef)
-        and thm.is_forall()
-        and len(ts) == thm.num_vars()
-    )
+    assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
 
     return axiom(
-        smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
+        smt.Implies(thm, smt.substitute_body(thm, *ts)),
         by=["forall_elim"],
     )
 
@@ -607,9 +603,9 @@ def forget(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     forget easily follows.
     https://en.wikipedia.org/wiki/Existential_generalization
     """
-    assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
+    assert smt.is_quantifier(thm) and thm.is_exists()
     return axiom(
-        smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
+        smt.Implies(smt.substitute_body(thm, *ts), thm),
         by=["exists_intro"],
     )
 
@@ -642,7 +638,7 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
             for i in range(thm.num_vars())
         ]
     return skolems, axiom(
-        smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
+        smt.Implies(thm, smt.substitute_body(thm, *skolems)),
         by=["obtain"],
     )
 
@@ -694,7 +690,7 @@ def herb(thm: smt.QuantifierRef, prefixes=None) -> tuple[list[smt.ExprRef], Proo
         thm, prefixes=prefixes
     )  # We could mark these as schema variables? Useful?
     return herbs, axiom(
-        smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
+        smt.Implies(smt.substitute_body(thm, *herbs), thm),
         by=["herbrand"],
     )
 
@@ -984,7 +980,7 @@ def rename_vars2(
     thm = pf.thm
     assert isinstance(thm, smt.QuantifierRef)
     t_body = thm.body()
-    body = smt.substitute_vars(t_body, *reversed(vs))
+    body = smt.substitute_body(thm, *vs)
     if thm.is_forall():
         t2 = smt.ForAll(vs, body, patterns=patterns, no_patterns=no_patterns)
     elif thm.is_exists():
@@ -1018,13 +1014,9 @@ def trigger(
     thm = pf.thm
     assert isinstance(thm, smt.QuantifierRef)
     # unhygienic open_binder. Later assert keeps hygiene
-    vs = [
-        smt.Const(thm.var_name(i), thm.var_sort(i))
-        for i in reversed(range(thm.num_vars()))
-    ]
+    vs = [smt.Const(thm.var_name(i), thm.var_sort(i)) for i in range(thm.num_vars())]
     body0 = thm.body()
-    body = smt.substitute_vars(body0, *vs)
-    vs.reverse()
+    body = smt.substitute_body(thm, *vs)
     if thm.is_forall():
         t2 = smt.ForAll(
             vs,
