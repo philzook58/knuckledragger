@@ -57,7 +57,7 @@ def has_lim_at_of_cont_at(l):
 def cont_at_add(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
-    hf, hg = l.intro(), l.intro()
+    hf, hg = l.intros()
     eps = l.fix()
     l.intro()
     # Each summand gets half the error budget.
