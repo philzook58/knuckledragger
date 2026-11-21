@@ -30,17 +30,25 @@ jobs:
         id: diff
         run: |
           targets=$(python3 tools/proof_trace.py "$BASE" "$HEAD" --list)
-          if [[ -n "$targets" ]]; then
-            echo 'has-targets=true' >> "$GITHUB_OUTPUT"
+          if [[ -z "$targets" ]]; then
+            exit 0
+          fi
+          echo 'has-targets=true' >> "$GITHUB_OUTPUT"
+          count=$(wc -l <<< "$targets")
+          if (( count > 8 )); then
+            printf 'Found %s directly changed theorems. Detailed traces are skipped for bulk changes (limit: 8).\n' "$count" \
+              > "$RUNNER_TEMP/proof-trace.md"
+          else
+            echo 'record=true' >> "$GITHUB_OUTPUT"
             printf '%s\n' "$targets"
           fi
       - uses: astral-sh/setup-uv@v5
-        if: steps.diff.outputs.has-targets == 'true'
+        if: steps.diff.outputs.record == 'true'
         with:
           python-version: "3.13"
           enable-cache: true
       - name: Generate proof traces
-        if: steps.diff.outputs.has-targets == 'true'
+        if: steps.diff.outputs.record == 'true'
         run: |
           uv sync --locked --no-dev --extra pypcode --extra solvers \
             --no-build-package egglog --no-build-package dd --no-build-package pypcode
