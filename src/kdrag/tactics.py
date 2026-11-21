@@ -540,6 +540,7 @@ class _AutoFailure(ValueError):
         self.error = error
 
 
+@cache
 def _iff_intro() -> kd.kernel.Proof:
     """Assemble an equivalence without searching inside its quantified operands."""
     ctx, p, q = smt.Bools("ctx p q")
