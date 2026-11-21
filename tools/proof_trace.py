@@ -224,7 +224,7 @@ def added_indices(before, after):
     return added
 
 
-def highlighted_goal(state, previous, *, removed=False):
+def highlighted_goal(state, previous):
     from kdrag.printers.pretty import pretty_goal
 
     width = COMMENT_WIDTH - 2  # Leave room for the diff prefix.
@@ -235,7 +235,7 @@ def highlighted_goal(state, previous, *, removed=False):
         None,
     )
     if first_formula is None:
-        return "" if removed else math_block(text)
+        return math_block(text)
 
     new_locals = added_indices(previous.sig, state.sig)
     new_hypotheses = added_indices(previous.ctx, state.ctx)
@@ -253,37 +253,103 @@ def highlighted_goal(state, previous, *, removed=False):
 
     marked = False
     display = []
-    if removed and new_locals:
-        from kdrag.printers.pretty import _Printer, _sort
+    for i, line in enumerate(lines):
+        if i < first_formula:
+            marked = i < len(local_marks) and local_marks[i]
+        elif match := re.match(r"^(\d+): ", line):
+            marked = int(match[1]) in new_hypotheses
+        elif line.startswith("─"):
+            marked = False
+        elif line.startswith("⊢ "):
+            marked = conclusion_changed
+        prefix = "+ " if marked else "  "
+        display.extend(prefix + wrapped for wrapped in math_lines(line, width))
+    return code("\n".join(display), "diff")
 
-        printer = _Printer([*state.sig, *state.ctx, state.goal])
-        for i in sorted(new_locals):
-            var = state.sig[i]
+
+def removed_indices(before, after):
+    """Return deleted positions when after is a subsequence of before."""
+    position = 0
+    removed = set()
+    for index, term in enumerate(before):
+        if position < len(after) and term.eq(after[position]):
+            position += 1
+        else:
+            removed.add(index)
+    return removed if position == len(after) else None
+
+
+def removal_plan(before, after):
+    if len(before) != len(after):
+        return None
+    plan = []
+    for old, new in zip(before, after):
+        locals_removed = removed_indices(old.sig, new.sig)
+        hypotheses_removed = removed_indices(old.ctx, new.ctx)
+        if (
+            not old.goal.eq(new.goal)
+            or locals_removed is None
+            or hypotheses_removed is None
+        ):
+            return None
+        plan.append((locals_removed, hypotheses_removed))
+    return plan
+
+
+def goal_with_removals(state, previous, locals_removed, hypotheses_removed):
+    from kdrag.printers.pretty import _Printer, _sort, pretty_goal
+
+    width = COMMENT_WIDTH - 2
+    text = pretty_goal(state, width=width)
+    old_text = pretty_goal(previous, width=width)
+    boundary = re.compile(r"^(?:(\d+): |(?=[─⊢]))", re.M)
+    old_boundaries = list(boundary.finditer(old_text))
+    current_boundaries = list(boundary.finditer(text))
+    separator_or_goal = next(
+        (start for start in current_boundaries if start[1] is None), None
+    )
+    if not old_boundaries or separator_or_goal is None:
+        return math_block(text)
+
+    red_at = defaultdict(list)
+    deleted = 0
+    for index, (start, end) in enumerate(zip(old_boundaries, old_boundaries[1:])):
+        if start[1] is None:
+            break
+        if index in hypotheses_removed:
+            red_at[index - deleted].append(
+                old_text[start.end() : end.start()].rstrip("\n")
+            )
+            deleted += 1
+
+    display = []
+
+    def append(value, prefix):
+        display.extend(prefix + line for line in math_lines(value, width))
+
+    first = current_boundaries[0].start()
+    append(text[:first], "  ")
+    if locals_removed:
+        printer = _Printer([*previous.sig, *previous.ctx, previous.goal])
+        for i in sorted(locals_removed):
+            var = previous.sig[i]
             name = (
                 var.sexpr()
                 if printer.too_deep
                 else printer.names.get(var.decl(), str(var))
             )
-            decl = f"{name} : {_sort(var.sort())}"
-            display.extend("- " + line for line in math_lines(decl, width))
-    for i, line in enumerate(lines):
-        if i < first_formula:
-            if removed:
-                continue  # A grouped declaration may include locals that survived.
-            marked = i < len(local_marks) and local_marks[i]
-        elif match := re.match(r"^(\d+): ", line):
-            marked = int(match[1]) in new_hypotheses
-            if removed:
-                line = line[match.end() :]
-        elif line.startswith("─"):
-            marked = False
-        elif line.startswith("⊢ "):
-            marked = conclusion_changed
-        if removed and not marked:
-            continue
-        prefix = ("- " if removed else "+ ") if marked else "  "
-        display.extend(prefix + wrapped for wrapped in math_lines(line, width))
-    return code("\n".join(display), "diff") if display else ""
+            append(f"{name} : {_sort(var.sort())}", "- ")
+
+    for start, end in zip(current_boundaries, current_boundaries[1:]):
+        if start[1] is None:
+            break
+        for former in red_at.pop(int(start[1]), []):
+            append(former, "- ")
+        append(text[start.start() : end.start()], "  ")
+    for former in red_at.get(len(state.ctx), []):
+        append(former, "- ")
+    append(text[separator_or_goal.start() :], "  ")
+    return code("\n".join(display), "diff")
 
 
 def goals(states, before=()):
@@ -292,25 +358,18 @@ def goals(states, before=()):
     if not states:
         return "No open goals."
     existing = {goal_key(state): state for state in before}
-    removal_only = len(before) == len(states) and all(
-        old.goal.eq(state.goal)
-        and not added_indices(old.sig, state.sig)
-        and not added_indices(old.ctx, state.ctx)
-        for old, state in zip(before, states)
-    )
+    removals = removal_plan(before, states)
     rendered = []
-    for number, state in enumerate(states, 1):
-        if before:
+    for index, state in enumerate(states):
+        if removals is not None and any(removals[index]):
+            block = goal_with_removals(state, before[index], *removals[index])
+        elif before:
             # A pending goal that becomes active is still the same goal.
             previous = existing.get(goal_key(state), before[0])
             block = highlighted_goal(state, previous)
         else:
             block = math_block(pretty_goal(state, width=COMMENT_WIDTH))
-        if removal_only:
-            removed = highlighted_goal(before[number - 1], state, removed=True)
-            if removed:
-                block += f"\n\n**Removed**\n\n{removed}"
-        rendered.append(f"**Goal {number}**\n\n{block}")
+        rendered.append(f"**Goal {index + 1}**\n\n{block}")
     return "\n\n".join(rendered)
 
 
