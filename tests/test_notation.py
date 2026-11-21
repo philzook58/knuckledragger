@@ -15,6 +15,8 @@ SET_OPERATIONS = [
     (operator.sub, smt.SetDifference),
     (operator.le, smt.IsSubset),
     (operator.ge, lambda s, t: smt.IsSubset(t, s)),
+    (operator.lt, lambda s, t: smt.And(smt.IsSubset(s, t), s != t)),
+    (operator.gt, lambda s, t: smt.And(smt.IsSubset(t, s), s != t)),
 ]
 
 
@@ -75,7 +77,7 @@ def test_explicit_registration_overrides_set_default():
     sort = smt.SetSort(smt.DeclareSort("NotationOverrideElement"))
     s, t = smt.Consts("s t", sort)
     dispatch = notation.SortDispatch(
-        name="custom_union", pointwise=True, set_default=smt.SetUnion
+        name="custom_union", set_default=smt.SetUnion
     )
     dispatch.register(sort, lambda s, t: s)
     assert dispatch(s, t).eq(s)
@@ -107,3 +109,82 @@ def test_scalar_operations_still_work():
     x, y = smt.Reals("x y")
     kd.prove(x - y == x + -y)
     kd.prove((x <= y) == smt.Not(x > y))
+
+
+def test_set_arithmetic_images():
+    a, b = smt.Consts("a b", smt.SetSort(smt.RealSort()))
+    x, y, z = smt.Reals("x y z")
+    for op in (operator.add, operator.mul, operator.truediv):
+        kd.prove(op(a, b)[z] == smt.Exists([x, y], a[x], b[y], z == op(x, y)))
+    kd.prove((-a)[z] == a[-z])
+    kd.prove((a + 2)[z] == a[z - 2])
+    kd.prove((2 + a)[z] == a[z - 2])
+    kd.prove((2 * a)[z] == smt.Exists(x, a[x], z == 2 * x))
+    # Repeated operands must still contribute independent witnesses.
+    pair = smt.Lambda(x, smt.Or(x == 1, x == 2))
+    kd.prove((pair + pair)[3])
+    kd.prove(smt.Not((pair + pair)[5]))
+    kd.prove((a + smt.EmptySet(smt.RealSort())) == smt.EmptySet(smt.RealSort()))
+
+
+def test_set_lift_custom_operation_and_precedence():
+    index = smt.DeclareSort("NotationImageElement")
+    a = smt.Const("a", smt.SetSort(index))
+    x = smt.Const("x", index)
+    z = smt.Int("z")
+    image = smt.Function("notation_image", index, smt.IntSort())
+    dispatch = notation.SortDispatch(name="image")
+    dispatch.register(index, image)
+    kd.prove(dispatch(a)[z] == smt.Exists(x, a[x], z == image(x)))
+    dispatch.register(a.sort(), lambda a: a)
+    assert dispatch(a).eq(a)
+    native = notation.SortDispatch(
+        name="native_union", set_default=smt.SetUnion
+    )
+    assert native(a, a).eq(smt.SetUnion(a, a))
+
+
+def test_automatic_lifting_defaults_and_errors():
+    element = smt.DeclareSort("NotationAutomaticElement")
+    a = smt.Const("a", smt.SetSort(element))
+    f = smt.Const("f", smt.ArraySort(smt.IntSort(), element))
+    for term in (a, f):
+        default = notation.SortDispatch(name="default", default=lambda x: x)
+        assert default(term).eq(term)
+        factory = notation.SortDispatch(
+            name="factory", default_factory=lambda sort: lambda x: x
+        )
+        assert factory(term).eq(term)
+        # A missing scalar implementation should still terminate with its
+        # normal error after peeling the surrounding set or array layer.
+        with pytest.raises(NotImplementedError, match="NotationAutomaticElement"):
+            notation.SortDispatch(name="missing")(term)
+    # Generic dispatches lift predicates as images, not universal assertions.
+    predicate = notation.SortDispatch(name="predicate")
+    predicate.register(element, lambda x: smt.BoolVal(True))
+    result = predicate(a)
+    x = smt.Const("x", element)
+    assert result.sort() == smt.SetSort(smt.BoolSort())
+    kd.prove(result[True] == smt.Exists(x, a[x]))
+    kd.prove(smt.Not(result[False]))
+
+
+def test_image_with_multiple_sets_and_fixed_arguments():
+    a, b, c = smt.Consts("a b c", smt.SetSort(smt.IntSort()))
+    x, y, w, z, offset = smt.Ints("x y w z offset")
+    image = notation.Image(lambda x, y, w, n: x + y + w + n, a, b, c, offset)
+    kd.prove(image[z] == smt.Exists([x, y, w], a[x], b[y], c[w], z == x+y+w+offset))
+    # Calling the helper directly also permits a symbolic scalar on the left.
+    shifted = notation.Image(operator.add, offset, a)
+    kd.prove(shifted[z] == a[z - offset])
+    with pytest.raises(ValueError, match="at least one set operand"):
+        notation.Image(operator.add, x, y)
+
+
+def test_sequences_of_sets_lift_arithmetic():
+    index = smt.DeclareSort("NotationImageIndex")
+    set_sort = smt.SetSort(smt.IntSort())
+    f, g = smt.Consts("f g", smt.ArraySort(index, set_sort))
+    i = smt.Const("i", index)
+    x, y, z = smt.Ints("x y z")
+    kd.prove((f + g)[i][z] == smt.Exists([x, y], f[i][x], g[i][y], z == x + y))

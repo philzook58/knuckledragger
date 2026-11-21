@@ -13,7 +13,7 @@ from kdrag.smt import (  # noqa: F401
 )
 import kdrag as kd
 import kdrag.theories.real.complex as complex
-import kdrag.theories.real.seq as seq
+import kdrag.theories.real.rseq as rseq
 
 CSeq = ArraySort(Z, Complex)
 a, b, c = Consts("a b c", CSeq)
@@ -37,7 +37,7 @@ mul_assoc = prove(
 
 unzip = define("C.unzip", [a], tuple_(Lambda([i], a[i].re), Lambda([i], a[i].im)))
 
-ab = Const("ab", kd.TupleSort(seq.RSeq, seq.RSeq))
+ab = Const("ab", kd.TupleSort(rseq.RSeq, rseq.RSeq))
 rezip = define("C.rezip", [ab], Lambda([i], Complex(ab[0][i], ab[1][i])))
 
 rezip_unzip = prove(ForAll([a], rezip(unzip(a)) == a), by=[rezip.defn, unzip.defn])

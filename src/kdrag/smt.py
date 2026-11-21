@@ -578,6 +578,27 @@ def is_func(f: ExprRef) -> TypeGuard[FuncRef]:
     return is_array(f) or (isinstance(f, QuantifierRef) and f.is_lambda())
 
 
+def is_set(term: object) -> TypeGuard[FuncRef]:
+    """Check for a set represented by a unary Boolean array, including lambdas.
+
+    >>> x = Int("x")
+    >>> is_set(EmptySet(IntSort()))
+    True
+    >>> is_set(Lambda(x, x > 0))
+    True
+    >>> is_set(Array("relation", IntSort(), IntSort(), BoolSort()))
+    False
+    >>> is_set(x)
+    False
+    """
+    return (
+        isinstance(term, ExprRef)
+        and isinstance(term.sort(), ArraySortRef)
+        and is_bool_sort(term.sort().range())
+        and len(domains(term.sort())) == 1
+    )
+
+
 def domains(f: FuncRef | ArraySortRef) -> list[SortRef]:
     """
     Get the domain sorts of a lambda or an array.

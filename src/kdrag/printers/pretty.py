@@ -341,7 +341,7 @@ class _Printer:
         decl = expr.decl()
         kind = decl.kind()
         args = expr.children()
-        if smt.is_const_array(expr) and len(smt.domains(expr.sort())) == 1:
+        if smt.is_const_array(expr) and smt.is_set(expr):
             if smt.is_false(args[0]):
                 return "∅"
             if smt.is_true(args[0]):

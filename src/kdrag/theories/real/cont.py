@@ -19,7 +19,6 @@ from kdrag.theories.real import (
     RFun,
     abs,
     cont_at,
-    fadd,
     fmul,
     has_lim_at,
     is_cont,
@@ -59,7 +58,6 @@ def cont_at_add(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
     hf, hg = l.intro(), l.intro()
-    l.unfold(fadd)
     eps = l.fix()
     l.intro()
     # Each summand gets half the error budget.
@@ -119,10 +117,15 @@ def cont_at_mul(l):
     l.auto(by=[abs.defn])
 
 
-is_cont_add = prove(
-    ForAll([f, g], is_cont(f), is_cont(g), is_cont(f + g)),
-    by=[is_cont.defn, cont_at_add],
-)
+@Theorem(ForAll([f, g], is_cont(f), is_cont(g), is_cont(f + g)))
+def is_cont_add(l):
+    f, g = l.fixes()
+    l.unfold(is_cont)
+    l.intros()
+    p = l.fix()
+    # Instantiate closure at this point instead of matching lambda arguments.
+    l.auto(by=[cont_at_add(f, g, p)])
+
 
 is_cont_mul = prove(
     ForAll([f, g], is_cont(f), is_cont(g), is_cont(f * g)),
@@ -205,7 +208,7 @@ def has_lim_at_add(l):
     l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
     l.have(cont_at(g1, p), by=[cont_at_update_of_has_lim_at(g, p, M)])
     l.have(cont_at(f1 + g1, p), by=[cont_at_add(f1, g1, p)])
-    l.have(f1 + g1 == Store(f + g, p, L + M), by=[fadd.defn(f1, g1), fadd.defn(f, g)])
+    l.have(f1 + g1 == Store(f + g, p, L + M), by=[])
     l.auto(by=[has_lim_at_of_cont_at_update(f + g, p, L + M)])
 
 
@@ -247,7 +250,6 @@ def continuous_add_const(l):
     identity, constant = Lambda(x, x), Lambda(x, a)
     l.auto(
         by=[
-            fadd.defn(identity, constant),
             is_cont_add(identity, constant)(continuous_id, continuous_const(a)),
         ]
     )

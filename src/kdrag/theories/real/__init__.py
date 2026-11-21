@@ -62,7 +62,6 @@ x, y, z, eps = Reals("x y z eps")
 
 f, g = Consts("f g", RFun)
 
-fadd = kd.notation.add.define([f, g], Lambda([x], f[x] + g[x]))
 fsub = kd.notation.sub.define([f, g], Lambda([x], f[x] - g[x]))
 fmul = kd.notation.mul.define([f, g], Lambda([x], f[x] * g[x]))
 fdiv = kd.notation.div.define([f, g], Lambda([x], f[x] / g[x]))

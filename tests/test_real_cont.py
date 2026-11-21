@@ -1,4 +1,6 @@
 import pytest
+import subprocess
+import sys
 
 import kdrag as kd
 import kdrag.smt as smt
@@ -19,33 +21,34 @@ def test_limits_at_removable_discontinuities():
     )
     sum_limit = has_lim_at_add(f, g, zero, two, three)(lf, lg)
     product_limit = has_lim_at_mul(f, g, zero, two, three)(lf, lg)
-    assert smt.simplify(sum_limit.thm).eq(smt.simplify(real.has_lim_at(f + g, zero, 5)))
+    # Pointwise addition creates fresh lambda binders on each call, so compare
+    # the proven proposition semantically rather than requiring identical ASTs.
+    kd.prove(real.has_lim_at(f + g, zero, 5), by=[sum_limit])
     assert smt.simplify(product_limit.thm).eq(
         smt.simplify(real.has_lim_at(f * g, zero, 6))
     )
 
 
-@pytest.mark.parametrize("module", ["cont", "lim_algebra"])
+@pytest.mark.parametrize("module", ["cont", "rseq"])
 def test_analysis_proofs(module):
-    import runpy
-    import kdrag.config as config
-    import kdrag.theories.real.seq  # Load dependencies before measuring the lemmas.
+    # Import in a fresh process: re-executing rseq would redefine its chosen lim.
+    subprocess.run(
+        [sys.executable, "-c", """
+import importlib
+import sys
+import kdrag.config as config
+import kdrag.theories.real
+import kdrag.theories.int
 
-    was_timing = config.timing
-    start = len(config.perf_log)
-    try:
-        config.timing = True
-        runpy.run_path(f"src/kdrag/theories/real/{module}.py")
-        timings = config.perf_log[start:]
-    finally:
-        config.timing = was_timing
-        del config.perf_log[start:]
-
-    solves = [(thm, elapsed) for tag, thm, elapsed in timings if tag == "solver.check"]
-    assert solves
-    durations = [elapsed for _, elapsed in solves]
-    print(
-        f"Z3 checks: {len(solves)}, total {sum(durations):.4f}s, max {max(durations):.4f}s"
+config.timing = True
+importlib.import_module("kdrag.theories.real." + sys.argv[1])
+solves = [(thm, elapsed) for tag, thm, elapsed in config.perf_log
+          if tag == "solver.check"]
+assert solves
+durations = [elapsed for _, elapsed in solves]
+print(f"Z3 checks: {len(solves)}, total {sum(durations):.4f}s, max {max(durations):.4f}s")
+for thm, elapsed in solves:
+    assert elapsed < 0.5, ("solver.check", thm, elapsed)
+""", module],
+        check=True,
     )
-    for thm, elapsed in solves:
-        assert elapsed < 0.5, ("solver.check", thm, elapsed)
