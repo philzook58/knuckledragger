@@ -62,7 +62,7 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def __call__(self, *args: "smt.ExprRef | Proof"):
+    def __call__(self, *args: "smt.ExprRef | Proof | int | float"):
         """
 
         >>> x,y = smt.Ints("x y")
@@ -71,6 +71,10 @@ class Proof(Judgement):
         |= ForAll(x, x >= x - 1)
         >>> p(x, 7)
         |= 7 >= 7 - 1
+        >>> r = smt.Real("r")
+        >>> q = prove(smt.ForAll([r], smt.Implies(smt.ForAll([x], x == x), r <= r)))
+        >>> q(0)
+        |= Implies(ForAll(x, x == x), 0 <= 0)
 
         >>> a,b,c = smt.Bools("a b c")
         >>> ab = prove(smt.Implies(a,smt.Implies(a, a)))
@@ -86,9 +90,10 @@ class Proof(Judgement):
         while n < len(args):
             if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
                 i = acc.thm.num_vars()
+                # Cast Python values to the binder sorts, e.g. 0 to a real.
                 subargs = [
-                    a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
-                    for a in args[n : n + i]
+                    a if isinstance(a, smt.ExprRef) else acc.thm.var_sort(j).cast(a)
+                    for j, a in enumerate(args[n : n + i])
                 ]
                 acc = instan(subargs, acc)
                 n += i
@@ -559,6 +564,18 @@ def subst(t: smt.ExprRef, eqs: Sequence[Proof]) -> tuple[smt.ExprRef, Proof]:
     return t1, kd.axiom(smt.Eq(t, t1), by=["subst", t, eqs])
 
 
+def _check_binder_sorts(ts: Sequence[smt.ExprRef], q: smt.QuantifierRef):
+    """
+    `substitute_vars` does not check sorts, and ill-sorted terms can leave loose
+    bound variables in the result.
+    """
+    for i, t in enumerate(ts):
+        if not isinstance(t, smt.ExprRef) or t.sort() != q.var_sort(i):
+            raise TypeError(
+                f"Term {t} does not have sort {q.var_sort(i)} of bound variable {q.var_name(i)}"
+            )
+
+
 def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     """
     Instantiate a universally quantified formula.
@@ -571,6 +588,7 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
         and pf.thm.is_forall()
         and len(ts) == pf.thm.num_vars()
     )
+    _check_binder_sorts(ts, pf.thm)
 
     return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), by=[pf])
 
@@ -586,7 +604,7 @@ def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
         and thm.is_forall()
         and len(ts) == thm.num_vars()
     )
-
+    _check_binder_sorts(ts, thm)
     return axiom(
         smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
         by=["forall_elim"],
@@ -602,6 +620,7 @@ def forget(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     https://en.wikipedia.org/wiki/Existential_generalization
     """
     assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
+    _check_binder_sorts(ts, thm)
     return axiom(
         smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
         by=["exists_intro"],
