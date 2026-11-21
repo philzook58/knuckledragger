@@ -1,4 +1,6 @@
 """Real sequences, convergence, limit algebra, and series."""
+from typing import cast
+
 import kdrag as kd
 from kdrag import FreshVars, QExists, QForAll, Theorem, define, define_const, prove
 import kdrag.smt as smt
@@ -494,7 +496,7 @@ abs_ge_0 = prove(
 def finsum_nonneg(l):
     a, n = l.fixes()
     l.intros()
-    l.auto(by=[cumsum_mono(zero, a, n), cumsum_zero(n),
+    l.auto(by=[cumsum_mono(cast(smt.ExprRef, zero), a, n), cumsum_zero(n),
                finsum.defn(a, n), zero.defn])
 
 
