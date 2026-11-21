@@ -55,7 +55,7 @@ real_simp = []
 
 
 def rlemma(thm, by=[], **kwargs):
-    return prove(thm, by + real_db + real_simp, **kwargs)
+    return prove(thm, by=by + real_db + real_simp, **kwargs)
 
 
 x, y, z, eps = Reals("x y z eps")
