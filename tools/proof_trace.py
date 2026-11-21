@@ -1,10 +1,12 @@
 """Render goal changes for directly edited theory proofs as PR Markdown."""
 
+from __future__ import annotations
+
 import argparse
 import ast
 from collections import Counter, defaultdict
 from contextlib import redirect_stdout
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cache
 from html import escape
 from importlib import import_module
@@ -18,6 +20,11 @@ import subprocess
 import sys
 from textwrap import dedent, wrap
 import tokenize
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from kdrag import smt
+    from kdrag.tactics import Goal
 
 
 THEORIES = "src/kdrag/theories"
@@ -32,6 +39,36 @@ class Target:
     module: str
     name: str
     source: str | None = None
+
+
+@dataclass(frozen=True)
+class LemmaReference:
+    line: int
+    start: int
+    end: int
+    statement: smt.BoolRef
+    url: str | None
+
+
+@dataclass(frozen=True)
+class Step:
+    line: int
+    source: str
+    before: tuple[Goal, ...]
+    after: tuple[Goal, ...] = ()
+    comments: tuple[str, ...] = ()
+    references: tuple[LemmaReference, ...] = ()
+
+
+@cache
+def source_tree(filename):
+    source = "".join(linecache.getlines(filename))
+    return source, ast.parse(source, filename)
+
+
+def assignment_names(node):
+    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+    return [target.id for target in targets if isinstance(target, ast.Name)]
 
 
 def git_diff(*args):
@@ -64,8 +101,8 @@ def changed_targets(base, head):
             ranges.append((first, first + (length - 1 if length else 1)))
         module = ".".join(path.relative_to("src").with_suffix("").parts)
         module = module.removesuffix(".__init__")
-        source = path.read_text(encoding="utf-8")
-        for node in ast.parse(source, filename).body:
+        source, tree = source_tree(str(path.resolve()))
+        for node in tree.body:
             first = node.lineno
             if isinstance(node, ast.FunctionDef) and any(
                 named(decorator, "Theorem") for decorator in node.decorator_list
@@ -77,12 +114,12 @@ def changed_targets(base, head):
                 and isinstance(node.value, ast.Call)
                 and named(node.value.func, "prove")
             ):
-                names = node.targets if isinstance(node, ast.Assign) else [node.target]
-                if len(names) != 1 or not isinstance(names[0], ast.Name):
+                names = assignment_names(node)
+                if len(names) != 1 or (
+                    isinstance(node, ast.Assign) and len(node.targets) != 1
+                ):
                     continue
-                target = Target(
-                    module, names[0].id, ast.get_source_segment(source, node)
-                )
+                target = Target(module, names[0], ast.get_source_segment(source, node))
             else:
                 continue
             if any(start <= node.end_lineno and end >= first for start, end in ranges):
@@ -91,10 +128,10 @@ def changed_targets(base, head):
 
 @cache
 def source_statements(filename):
-    source = "".join(linecache.getlines(filename))
+    source, tree = source_tree(filename)
     statements = [
         node
-        for node in ast.walk(ast.parse(source, filename))
+        for node in ast.walk(tree)
         if isinstance(
             node, (ast.Expr, ast.Assign, ast.AnnAssign, ast.AugAssign, ast.Return)
         )
@@ -126,7 +163,7 @@ def tactic_statement(filename, line, tactic):
 
 @cache
 def standalone_comments(filename):
-    source = "".join(linecache.getlines(filename))
+    source, _ = source_tree(filename)
     return {
         token.start[0]: (token.start[1], token.string[1:].strip())
         for token in tokenize.generate_tokens(StringIO(source).readline)
@@ -145,18 +182,12 @@ def preceding_comments(filename, line):
     return list(reversed(result))
 
 
-def proof_arguments(node, value, proof_type):
-    if isinstance(value, proof_type):
-        yield node, value
-    elif isinstance(node, (ast.List, ast.Tuple)) and isinstance(value, (list, tuple)):
-        if len(node.elts) == len(value) and not any(
-            isinstance(element, ast.Starred) for element in node.elts
-        ):
-            for element, item in zip(node.elts, value):
-                yield from proof_arguments(element, item, proof_type)
-
-
 def tactic_proofs(source, tactic, frame, proof_type):
+    parameter = {"apply": "pf", "rw": "rule", "exact": "pf"}.get(tactic)
+    arguments = frame.f_locals
+    support = arguments.get("kwargs", {}).get("by", arguments.get("by"))
+    if support is None and parameter is None:
+        return
     try:
         tree = ast.parse(source)
     except SyntaxError:
@@ -168,17 +199,28 @@ def tactic_proofs(source, tactic, frame, proof_type):
     ]
     if len(calls) != 1:
         return
+
     call = calls[0]
-    names = frame.f_code.co_varnames[1 : frame.f_code.co_argcount]
-    for name, node in zip(names, call.args):
-        if isinstance(node, ast.Starred):
-            break
-        yield from proof_arguments(node, frame.f_locals.get(name), proof_type)
-    kwargs = frame.f_locals.get("kwargs", {})
-    for keyword in call.keywords:
-        if keyword.arg is not None:
-            value = kwargs.get(keyword.arg, frame.f_locals.get(keyword.arg))
-            yield from proof_arguments(keyword.value, value, proof_type)
+    keywords = {keyword.arg: keyword.value for keyword in call.keywords}
+    if parameter is not None and isinstance(
+        proof := arguments.get(parameter), proof_type
+    ):
+        arg = call.args[0] if call.args else keywords.get(parameter)
+        if arg is not None:
+            yield arg, proof
+
+    by = keywords.get("by")
+    if by is None:
+        return
+    if isinstance(support, proof_type):
+        yield by, support
+    elif isinstance(by, (ast.List, ast.Tuple)) and isinstance(support, (list, tuple)):
+        if len(by.elts) == len(support) and not any(
+            isinstance(item, ast.Starred) for item in by.elts
+        ):
+            for node, proof in zip(by.elts, support):
+                if isinstance(proof, proof_type):
+                    yield node, proof
 
 
 def reference_value(node, caller):
@@ -192,16 +234,13 @@ def reference_value(node, caller):
 
 @cache
 def binding_lines(filename):
-    source = "".join(linecache.getlines(filename))
+    _, tree = source_tree(filename)
     bindings = {}
-    for node in ast.parse(source, filename).body:
+    for node in tree.body:
         if isinstance(node, ast.FunctionDef):
             bindings[node.name] = node.lineno
         elif isinstance(node, (ast.Assign, ast.AnnAssign)):
-            names = node.targets if isinstance(node, ast.Assign) else [node.target]
-            bindings.update(
-                (name.id, node.lineno) for name in names if isinstance(name, ast.Name)
-            )
+            bindings.update((name, node.lineno) for name in assignment_names(node))
     return bindings
 
 
@@ -239,48 +278,23 @@ def lemma_link(node, proof, caller, revision, selected):
     return None
 
 
-def tactic_markup(source, tactic, frame, caller, revision, selected):
-    from kdrag import Proof, pretty_expr
+def lemma_references(source, tactic, frame, caller, revision, selected):
+    from kdrag import Proof
 
-    annotations = {}
     for node, proof in tactic_proofs(source, tactic, frame, Proof):
         ref = node.func if isinstance(node, ast.Call) else node
-        if (
-            not isinstance(ref, (ast.Name, ast.Attribute))
-            or ref.lineno != ref.end_lineno
-        ):
-            continue
-        title = pretty_expr(proof.thm, width=COMMENT_WIDTH)
-        url = lemma_link(ref, proof, caller, revision, selected)
-        annotations[ref.lineno, ref.col_offset, ref.end_col_offset] = title, url
-    if not annotations:
-        return code(source, "python")
-
-    lines = source.splitlines()
-    for number, line in enumerate(lines, 1):
-        utf8 = line.encode()
-        cursor = 0
-        chunks = []
-        for (row, start, end), (title, url) in sorted(annotations.items()):
-            if row != number or start < cursor:
-                continue
-            chunks.append(escape(utf8[cursor:start].decode()))
-            label = escape(utf8[start:end].decode())
-            title = escape(title, quote=True)
-            if url:
-                chunks.append(
-                    f'<a href="{escape(url, quote=True)}" title="{title}">{label}</a>'
-                )
-            else:
-                chunks.append(f'<span title="{title}">{label}</span>')
-            cursor = end
-        chunks.append(escape(utf8[cursor:].decode()))
-        lines[number - 1] = "".join(chunks)
-    return "<pre><code>" + "\n".join(lines) + "</code></pre>"
+        if isinstance(ref, (ast.Name, ast.Attribute)) and ref.lineno == ref.end_lineno:
+            yield LemmaReference(
+                ref.lineno,
+                ref.col_offset,
+                ref.end_col_offset,
+                proof.thm,
+                lemma_link(ref, proof, caller, revision, selected),
+            )
 
 
 def record(targets, revision):
-    from kdrag import Proof, pretty_expr, tactics
+    from kdrag import Proof, tactics
 
     selected = {(target.module, target.name): target for target in targets}
     steps = defaultdict(list)
@@ -295,33 +309,42 @@ def record(targets, revision):
         )
 
     def profile(frame, event, _value):
-        if event == "return" and frame in pending:
-            target, line, snippet, before, comments = pending.pop(frame)
-            after = snapshot(frame.f_locals["self"])
-            if tuple(map(goal_key, before[:1])) != tuple(map(goal_key, after[:1])):
-                steps[target].append((line, snippet, before, after, comments))
-        elif event == "call" and frame.f_globals is vars(tactics):
-            caller = frame.f_back
-            if caller is None or frame.f_code.co_name.startswith("_"):
-                return
-            target = selected.get(
-                (caller.f_globals.get("__name__"), caller.f_code.co_name)
-            )
-            state = frame.f_locals.get("self")
-            if target is not None and isinstance(state, tactics.ProofState):
-                tactic = frame.f_code.co_name
-                line, source = tactic_statement(
-                    caller.f_code.co_filename, caller.f_lineno, tactic
-                )
-                pending[frame] = (
-                    target,
-                    line,
-                    tactic_markup(
-                        source or tactic, tactic, frame, caller, revision, selected
-                    ),
-                    snapshot(state),
-                    preceding_comments(caller.f_code.co_filename, line),
-                )
+        if event == "return":
+            entry = pending.pop(frame, None)
+            if entry is not None:
+                target, step = entry
+                after = snapshot(frame.f_locals["self"])
+                if tuple(map(goal_key, step.before[:1])) != tuple(
+                    map(goal_key, after[:1])
+                ):
+                    steps[target].append(replace(step, after=after))
+            return
+        if event != "call" or frame.f_globals is not vars(tactics):
+            return
+
+        caller = frame.f_back
+        tactic = frame.f_code.co_name
+        if caller is None or tactic.startswith("_"):
+            return
+        target = selected.get((caller.f_globals.get("__name__"), caller.f_code.co_name))
+        state = frame.f_locals.get("self")
+        if target is None or not isinstance(state, tactics.ProofState):
+            return
+        filename = caller.f_code.co_filename
+        line, source = tactic_statement(filename, caller.f_lineno, tactic)
+        source = source or tactic
+        pending[frame] = (
+            target,
+            Step(
+                line=line,
+                source=source,
+                before=snapshot(state),
+                comments=tuple(preceding_comments(filename, line)),
+                references=tuple(
+                    lemma_references(source, tactic, frame, caller, revision, selected)
+                ),
+            ),
+        )
 
     # Install the hook before importing any selected theory, including dependencies.
     previous = sys.getprofile()
@@ -334,12 +357,45 @@ def record(targets, revision):
     for target in targets:
         proof = getattr(modules[target.module], target.name, None)
         if isinstance(proof, Proof):
-            yield target, pretty_expr(proof.thm, width=COMMENT_WIDTH), steps[target]
+            yield target, proof.thm, steps[target]
 
 
 def code(value, language="text"):
     fence = "`" * max([3, *(len(run) + 1 for run in re.findall(r"`+", value))])
     return f"{fence}{language}\n{value}\n{fence}"
+
+
+def render_tactic(step):
+    from kdrag import pretty_expr
+
+    if not step.references:
+        return code(step.source, "python")
+
+    references = defaultdict(list)
+    for ref in step.references:
+        references[ref.line].append(ref)
+    lines = []
+    for number, line in enumerate(step.source.splitlines(), 1):
+        # Python's AST columns count UTF-8 bytes.
+        utf8 = line.encode()
+        cursor = 0
+        chunks = []
+        for ref in sorted(references[number], key=lambda ref: ref.start):
+            if ref.start < cursor:
+                continue
+            chunks.append(escape(utf8[cursor : ref.start].decode()))
+            label = escape(utf8[ref.start : ref.end].decode())
+            title = escape(pretty_expr(ref.statement, width=COMMENT_WIDTH), quote=True)
+            if ref.url:
+                chunks.append(
+                    f'<a href="{escape(ref.url, quote=True)}" title="{title}">{label}</a>'
+                )
+            else:
+                chunks.append(f'<span title="{title}">{label}</span>')
+            cursor = ref.end
+        chunks.append(escape(utf8[cursor:].decode()))
+        lines.append("".join(chunks))
+    return "<pre><code>" + "\n".join(lines) + "</code></pre>"
 
 
 def math_lines(value, width=COMMENT_WIDTH):
@@ -430,91 +486,6 @@ def highlighted_goal(state, previous):
     return code("\n".join(display), "diff")
 
 
-def removed_indices(before, after):
-    """Return deleted positions when after is a subsequence of before."""
-    position = 0
-    removed = set()
-    for index, term in enumerate(before):
-        if position < len(after) and term.eq(after[position]):
-            position += 1
-        else:
-            removed.add(index)
-    return removed if position == len(after) else None
-
-
-def removal_plan(before, after):
-    if len(before) != len(after):
-        return None
-    plan = []
-    for old, new in zip(before, after):
-        locals_removed = removed_indices(old.sig, new.sig)
-        hypotheses_removed = removed_indices(old.ctx, new.ctx)
-        if (
-            not old.goal.eq(new.goal)
-            or locals_removed is None
-            or hypotheses_removed is None
-        ):
-            return None
-        plan.append((locals_removed, hypotheses_removed))
-    return plan
-
-
-def goal_with_removals(state, previous, locals_removed, hypotheses_removed):
-    from kdrag.printers.pretty import _Printer, _sort, pretty_goal
-
-    width = COMMENT_WIDTH - 2
-    text = pretty_goal(state, width=width)
-    old_text = pretty_goal(previous, width=width)
-    boundary = re.compile(r"^(?:(\d+): |(?=[─⊢]))", re.M)
-    old_boundaries = list(boundary.finditer(old_text))
-    current_boundaries = list(boundary.finditer(text))
-    separator_or_goal = next(
-        (start for start in current_boundaries if start[1] is None), None
-    )
-    if not old_boundaries or separator_or_goal is None:
-        return math_block(text)
-
-    red_at = defaultdict(list)
-    deleted = 0
-    for index, (start, end) in enumerate(zip(old_boundaries, old_boundaries[1:])):
-        if start[1] is None:
-            break
-        if index in hypotheses_removed:
-            red_at[index - deleted].append(
-                old_text[start.end() : end.start()].rstrip("\n")
-            )
-            deleted += 1
-
-    display = []
-
-    def append(value, prefix):
-        display.extend(prefix + line for line in math_lines(value, width))
-
-    first = current_boundaries[0].start()
-    append(text[:first], "  ")
-    if locals_removed:
-        printer = _Printer([*previous.sig, *previous.ctx, previous.goal])
-        for i in sorted(locals_removed):
-            var = previous.sig[i]
-            name = (
-                var.sexpr()
-                if printer.too_deep
-                else printer.names.get(var.decl(), str(var))
-            )
-            append(f"{name} : {_sort(var.sort())}", "- ")
-
-    for start, end in zip(current_boundaries, current_boundaries[1:]):
-        if start[1] is None:
-            break
-        for former in red_at.pop(int(start[1]), []):
-            append(former, "- ")
-        append(text[start.start() : end.start()], "  ")
-    for former in red_at.get(len(state.ctx), []):
-        append(former, "- ")
-    append(text[separator_or_goal.start() :], "  ")
-    return code("\n".join(display), "diff")
-
-
 def active_goal(states, before=()):
     from kdrag.printers.pretty import pretty_goal
 
@@ -523,9 +494,6 @@ def active_goal(states, before=()):
     state = states[0]
     if not before:
         return math_block(pretty_goal(state, width=COMMENT_WIDTH))
-    removals = removal_plan(before, states)
-    if removals is not None and any(removals[0]):
-        return goal_with_removals(state, before[0], *removals[0])
     # If a pending goal becomes active, its existing contents are unchanged.
     key = goal_key(state)
     previous = next((goal for goal in before if goal_key(goal) == key), before[0])
@@ -533,8 +501,10 @@ def active_goal(states, before=()):
 
 
 def render(target, statement, steps):
+    from kdrag import pretty_expr
+
     name = f"{target.module}.{target.name}".removeprefix("kdrag.theories.")
-    parts = [f"### `{name}`", math_block(statement)]
+    parts = [f"### `{name}`", math_block(pretty_expr(statement, width=COMMENT_WIDTH))]
     if not steps:
         if target.source:
             parts += [
@@ -545,16 +515,16 @@ def render(target, statement, steps):
             parts += ["No direct goal-changing tactic calls were recorded."]
         return "\n\n".join(parts)
 
-    parts.append("**Starting state**\n\n" + active_goal(steps[0][2]))
+    parts.append("**Starting state**\n\n" + active_goal(steps[0].before))
     shown_comments = set()
-    for number, (line, snippet, before, after, comments) in enumerate(steps, 1):
+    for number, step in enumerate(steps, 1):
         prose = ""
-        if any(comments) and line not in shown_comments:
-            prose = "<p>" + "<br>".join(map(escape, comments)) + "</p>\n\n"
-            shown_comments.add(line)
+        if any(step.comments) and step.line not in shown_comments:
+            prose = "<p>" + "<br>".join(map(escape, step.comments)) + "</p>\n\n"
+            shown_comments.add(step.line)
         parts.append(
-            f"{prose}<details>\n<summary>Step {number} · line {line}</summary>\n\n"
-            f"{snippet}\n\n{active_goal(after, before)}\n\n</details>"
+            f"{prose}<details>\n<summary>Step {number} · line {step.line}</summary>\n\n"
+            f"{render_tactic(step)}\n\n{active_goal(step.after, step.before)}\n\n</details>"
         )
         if len("\n\n".join(parts).encode()) > COMMENT_LIMIT - 512:
             parts[-1] = "Remaining steps exceed the comment size limit."
