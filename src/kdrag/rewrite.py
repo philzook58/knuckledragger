@@ -91,8 +91,7 @@ def beta(e: smt.ExprRef) -> smt.ExprRef:
     ):
         args = [beta(c) for c in e.children()[1:]]
         f = e.arg(0)
-        kd.kernel._check_binder_sorts(args, f)
-        return smt.substitute_vars(f.body(), *reversed(args))
+        return kd.kernel.substitute_vars(f, *args)
     elif smt.is_app(e):
         decl = e.decl()
         children = [beta(c) for c in e.children()]

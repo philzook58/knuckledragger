@@ -407,9 +407,8 @@ def subst(
     |= ForAll([y, z], And(z == z, y + 1 == y + 1))
     """
     assert isinstance(pf.thm, smt.QuantifierRef)
-    kd.kernel._check_binder_sorts(subst, pf.thm)
     vs1, ab = kd.kernel.herb(
-        smt.ForAll(vs, smt.substitute_vars(pf.thm.body(), *reversed(subst)))
+        smt.ForAll(vs, kd.kernel.substitute_vars(pf.thm, *subst))
     )
     a = kd.kernel.instan([smt.substitute(t, *zip(vs, vs1)) for t in subst], pf)
     return kd.kernel.modus(ab, a)

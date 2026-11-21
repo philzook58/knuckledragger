@@ -135,3 +135,33 @@ def test_tactic_specialize_casts_literal_and_failed_sort_check_preserves_state()
     l.specialize(rule, 42)
     l.auto()
     l.qed()
+
+
+@pytest.mark.parametrize("binder", [ForAll, Exists, Lambda])
+def test_substitute_vars_checks_quantifier_and_uses_binder_order(binder):
+    r, n = Real("wrapper_r"), Int("wrapper_n")
+    q = binder([r, n], r >= ToReal(n))
+    result = kernel.substitute_vars(q, RealVal(42), IntVal(7))
+    assert result.eq(RealVal(42) >= ToReal(IntVal(7)))
+    with pytest.raises(TypeError, match=r"bound variable wrapper_r.*sort Real.*Int"):
+        kernel.substitute_vars(q, IntVal(42), IntVal(7))
+    with pytest.raises(ValueError, match="Binder expects 2 terms"):
+        kernel.substitute_vars(q, RealVal(42))
+
+
+def test_substitute_vars_requires_a_quantifier_and_preserves_result_sort():
+    with pytest.raises(TypeError, match="Expected QuantifierRef"):
+        kernel.substitute_vars(IntVal(42), IntVal(7))
+    r = Real("wrapper_result_r")
+    assert kernel.substitute_vars(Lambda(r, r + 1), RealVal(42)).sort() == RealSort()
+
+
+def test_alpha_norm_preserves_nested_binders_and_free_constants():
+    r = Real("outer_r")
+    n, m, free = Int("outer_n"), Int("inner_m"), Int("free_constant")
+    for expr in [
+        ForAll(n, Exists(m, n + m == free)),
+        ForAll([r, n], Exists(m, r + ToReal(n + m) == ToReal(free))),
+        Lambda(n, Lambda(m, n + m + free)),
+    ]:
+        assert utils.alpha_eq(utils.alpha_norm(expr), expr)
