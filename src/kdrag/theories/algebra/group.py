@@ -1,5 +1,5 @@
 import kdrag as kd
-from kdrag import Calc, Theorem, axiom, define, prove
+from kdrag import Calc, Theorem, axiom, define_const, prove
 import kdrag.smt as smt
 from kdrag.smt import (
     Const,
@@ -168,4 +168,4 @@ c.eq(inv(x), by=[id_left])
 inv_unique1 = c.qed()
 
 
-abelian = define("abelian", [], ForAll([x, y], x * y == y * x))
+abelian = define_const("abelian", ForAll([x, y], x * y == y * x))

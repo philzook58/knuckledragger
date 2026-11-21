@@ -41,7 +41,7 @@ trigger = kernel.trigger
 
 def define_const(name: str, body: smt.ExprRef) -> smt.ExprRef:
     """
-    Define a constant.
+    Define a constant expression with a `.defn` proof of its definition.
 
     >>> x = define_const("define_const_example", smt.IntVal(42))
     >>> x
@@ -49,9 +49,7 @@ def define_const(name: str, body: smt.ExprRef) -> smt.ExprRef:
     >>> rewrite.unfold(x)
     42
     """
-    # TODO: Remove this type ignore and rename all uses of define to define_const where no constants expected
-    # arguably define is define_fun
-    return kernel.define(name, [], body)  # type: ignore
+    return kernel.define(name, [], body)()
 
 
 contract = contracts.contract

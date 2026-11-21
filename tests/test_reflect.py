@@ -12,7 +12,7 @@ def vapp1000(n : int, m : int,
          )->  "smt.ExprRef # kd.Vec(n + m, kd.Z)":
     return xs + ys
 
-foo = kd.define("foo342442", [], smt.IntVal(42))
+foo = kd.define_const("foo342442", smt.IntVal(42))
 @reflect
 def bar3424(x : "{x for x in int if x > 0}") -> "{y for y in int if y == x + 42}":
     () = foo.defn

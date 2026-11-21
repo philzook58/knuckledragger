@@ -13,7 +13,7 @@ sets from classes. This is not done here.
 """
 
 import kdrag as kd
-from kdrag import FreshVars, QExists, Theorem, axiom, define, prove
+from kdrag import FreshVars, QExists, Theorem, axiom, define, define_const, prove
 from kdrag.printers import pretty
 from kdrag.smt import (
     And,
@@ -805,11 +805,11 @@ ran = define(
 )
 
 
-false = define("zf.false", [], emp)
-true = define("zf.true", [], sing(emp))
+false = define_const("zf.false", emp)
+true = define_const("zf.true", sing(emp))
 Bool = upair(true, false)
 
-zero = define("zf.zero", [], emp)
+zero = define_const("zf.zero", emp)
 succ = define("zf.succ", [x], x | sing(x))
 
 

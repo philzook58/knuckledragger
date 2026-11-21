@@ -1,4 +1,4 @@
-from kdrag import QExists, QForAll, define, prove  # noqa: F401
+from kdrag import QExists, QForAll, define, define_const, prove  # noqa: F401
 import kdrag.theories.set as set_
 import kdrag.smt as smt
 from kdrag.smt import (  # noqa: F401
@@ -40,7 +40,7 @@ class Sep:
         h = Const("h", self.AllocSort)
         p, q, r = Consts("p q r", self.PropSort)
         self.Emp = Lambda([h], h == self.AllocSort.empty)
-        self.emp = define("emp", [], self.Emp)
+        self.emp = define_const("emp", self.Emp)
         self.sep = define("sep", [p, q], self.Sep(p, q))
         self.alloc = define("alloc", [key], self.Alloc(key))
         self.true = Lambda([h], BoolVal(True))

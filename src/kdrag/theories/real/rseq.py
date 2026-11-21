@@ -1,6 +1,6 @@
 """Real sequences, convergence, limit algebra, and series."""
 import kdrag as kd
-from kdrag import FreshVars, QExists, QForAll, Theorem, define, prove
+from kdrag import FreshVars, QExists, QForAll, Theorem, define, define_const, prove
 import kdrag.smt as smt
 from kdrag.smt import (
     And,
@@ -40,10 +40,9 @@ A, B, C = FreshVars("A B C", RSeq)
 i, j, k, n, m, N = Ints("i j k n m N")
 x, y, z, eps, delta, M = Reals("x y z eps delta M")
 
-zero = define("RSeq.zero", [], K(IntSort(), RealVal(0)))
+zero = define_const("RSeq.zero", K(IntSort(), RealVal(0)))
 const = define("RSeq.const", [x], Lambda([i], x))
-id_ = define("RSeq.id", [], Lambda([i], ToReal(i)))
-assert isinstance(id_, smt.ExprRef)  # for typechecker
+id_ = define_const("RSeq.id", Lambda([i], ToReal(i)))
 
 geom = define("geom", [x], Lambda([i], real.pownat(x, i)))
 

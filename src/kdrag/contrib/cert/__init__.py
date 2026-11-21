@@ -24,7 +24,7 @@ def serialize_proof(proof: kernel.Proof) -> str:
 
     >>> x = smt.Int("x")
     >>> assert "(assert (kd_export (kd_prove (= (+ x 1) (+ 1 x)) true)))" in serialize_proof(kernel.prove(x + 1 == 1 + x))
-    >>> z = kernel.define("z", [], smt.IntVal(42))
+    >>> z = kd.define_const("z", smt.IntVal(42))
     >>> _ = serialize_proof(kernel.prove(z > 0, by=[z.defn]))
     """
     assert isinstance(proof, kernel.Proof)
