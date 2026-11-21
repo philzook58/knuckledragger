@@ -414,23 +414,25 @@ def pretty_goal(goal: "Goal", *, width: int = 80) -> str:
     printer = _Printer([*goal.sig, *goal.ctx, goal.goal])
     if printer.too_deep:
         rows = [f"{local.sexpr()} : {local.sort().sexpr()}" for local in goal.sig]
-        rows.extend(f"{i}: {hyp.sexpr()}" for i, hyp in enumerate(goal.ctx))
-        rows.append(f"⊢ {goal.goal.sexpr()}")
-        return "\n".join(rows)
-    rows = _declarations(
-        [printer.names.get(local.decl(), str(local)) for local in goal.sig],
-        [local.sort() for local in goal.sig],
-    )
-    hypotheses = [
-        _layout((f"{index}: ", _Nest(printer.expr(hyp))), width)
-        for index, hyp in enumerate(goal.ctx)
-    ]
-    conclusion = _layout(("⊢ ", _Nest(printer.expr(goal.goal))), width)
-    if hypotheses:
-        rows.extend(hypotheses)
-        longest = max(
-            len(line) for row in [*hypotheses, conclusion] for line in row.splitlines()
+        hypotheses = [f"{i}: {hyp.sexpr()}" for i, hyp in enumerate(goal.ctx)]
+        conclusion = f"⊢ {goal.goal.sexpr()}"
+    else:
+        rows = _declarations(
+            [printer.names.get(local.decl(), str(local)) for local in goal.sig],
+            [local.sort() for local in goal.sig],
         )
+        hypotheses = [
+            _layout((f"{index}: ", _Nest(printer.expr(hyp))), width)
+            for index, hyp in enumerate(goal.ctx)
+        ]
+        conclusion = _layout(("⊢ ", _Nest(printer.expr(goal.goal))), width)
+    if rows or hypotheses:
+        longest = max(
+            len(line)
+            for row in [*(hypotheses or rows), conclusion]
+            for line in row.splitlines()
+        )
+        rows.extend(hypotheses)
         rows.append("─" * max(1, min(width, longest)))
     rows.append(conclusion)
     return "\n".join(rows)
