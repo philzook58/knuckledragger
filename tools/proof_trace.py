@@ -224,7 +224,7 @@ def added_indices(before, after):
     return added
 
 
-def highlighted_goal(state, previous):
+def highlighted_goal(state, previous, *, removed=False):
     from kdrag.printers.pretty import pretty_goal
 
     width = COMMENT_WIDTH - 2  # Leave room for the diff prefix.
@@ -235,7 +235,7 @@ def highlighted_goal(state, previous):
         None,
     )
     if first_formula is None:
-        return math_block(text)
+        return "" if removed else math_block(text)
 
     new_locals = added_indices(previous.sig, state.sig)
     new_hypotheses = added_indices(previous.ctx, state.ctx)
@@ -253,18 +253,37 @@ def highlighted_goal(state, previous):
 
     marked = False
     display = []
+    if removed and new_locals:
+        from kdrag.printers.pretty import _Printer, _sort
+
+        printer = _Printer([*state.sig, *state.ctx, state.goal])
+        for i in sorted(new_locals):
+            var = state.sig[i]
+            name = (
+                var.sexpr()
+                if printer.too_deep
+                else printer.names.get(var.decl(), str(var))
+            )
+            decl = f"{name} : {_sort(var.sort())}"
+            display.extend("- " + line for line in math_lines(decl, width))
     for i, line in enumerate(lines):
         if i < first_formula:
+            if removed:
+                continue  # A grouped declaration may include locals that survived.
             marked = i < len(local_marks) and local_marks[i]
         elif match := re.match(r"^(\d+): ", line):
             marked = int(match[1]) in new_hypotheses
+            if removed:
+                line = line[match.end() :]
         elif line.startswith("─"):
             marked = False
         elif line.startswith("⊢ "):
             marked = conclusion_changed
-        prefix = "+ " if marked else "  "
+        if removed and not marked:
+            continue
+        prefix = ("- " if removed else "+ ") if marked else "  "
         display.extend(prefix + wrapped for wrapped in math_lines(line, width))
-    return code("\n".join(display), "diff")
+    return code("\n".join(display), "diff") if display else ""
 
 
 def goals(states, before=()):
@@ -273,6 +292,12 @@ def goals(states, before=()):
     if not states:
         return "No open goals."
     existing = {goal_key(state): state for state in before}
+    removal_only = len(before) == len(states) and all(
+        old.goal.eq(state.goal)
+        and not added_indices(old.sig, state.sig)
+        and not added_indices(old.ctx, state.ctx)
+        for old, state in zip(before, states)
+    )
     rendered = []
     for number, state in enumerate(states, 1):
         if before:
@@ -281,6 +306,10 @@ def goals(states, before=()):
             block = highlighted_goal(state, previous)
         else:
             block = math_block(pretty_goal(state, width=COMMENT_WIDTH))
+        if removal_only:
+            removed = highlighted_goal(before[number - 1], state, removed=True)
+            if removed:
+                block += f"\n\n**Removed**\n\n{removed}"
         rendered.append(f"**Goal {number}**\n\n{block}")
     return "\n\n".join(rendered)
 
