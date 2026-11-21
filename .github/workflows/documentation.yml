@@ -10,17 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - name: Install knuckledragger
-        run: |
-          sudo apt-get install libflint-dev
-          pip install -e .[dev,yosys,pypcode,solvers]
-      - name: Install dependencies
-        run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
+      - uses: astral-sh/setup-uv@v5
+        with:
+          # The locked egglog and dd versions have Linux wheels through Python 3.13.
+          python-version: "3.13"
+          enable-cache: true
+      - name: Install system dependencies
+        run: sudo apt-get install libflint-dev
+      - name: Install docs dependencies
+        run: >-
+          uv sync --locked --no-dev --group docs
+          --extra dev --extra yosys --extra pypcode --extra solvers
+          --no-build-package egglog --no-build-package dd --no-build-package pypcode
       - name: Sphinx build
-        run: |
-          sphinx-build docs _build
+        run: uv run --no-sync sphinx-build docs _build
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
