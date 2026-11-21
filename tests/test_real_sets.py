@@ -49,3 +49,19 @@ def test_interior_point_does_not_capture_radius():
     condition = real.interior_point(real.ball(0, radius), radius)
     assert radius in kd.utils.free_vars(condition)
     assert smt.is_quantifier(condition) and condition.is_exists()
+
+
+def test_nested_intervals_ignore_negative_indices():
+    # Nonnegative intervals are the singleton {2}; interval -1 is empty.
+    a = smt.Store(smt.K(smt.IntSort(), smt.RealVal(2)), -1, 1000)
+    b = smt.K(smt.IntSort(), smt.RealVal(2))
+    intervals = smt.Lambda(rset.i, real.icc(a[rset.i], b[rset.i]))
+    decreasing = kd.prove(
+        rset.nested(intervals), by=[rset.nested.defn(intervals), real.icc.defn]
+    )
+    nonempty = kd.prove(
+        smt.ForAll(rset.n, rset.n >= 0, a[rset.n] <= b[rset.n]),
+    )
+    intersection = rset.nonempty_iinter_icc_of_nested(a, b)(decreasing, nonempty)
+    kd.prove(smt.Exists(real.x, real.iinter(intervals)[real.x]), by=[intersection])
+    kd.prove(real.iinter(intervals)[2], by=[real.iinter.defn, real.icc.defn])

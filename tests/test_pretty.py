@@ -63,12 +63,12 @@ def test_fresh_names_follow_numeric_order():
 
 def test_registered_notation():
     from kdrag.theories import nat
-    from kdrag.theories.real import seq
+    from kdrag.theories.real import rseq
 
     x, y = smt.Consts("x y", nat.Nat)
     assert pretty_expr(nat.add(x, y)) == "x + y"
     assert pretty_expr(nat.add(x, nat.add(y, x))) == "x + (y + x)"
-    a, b = smt.Consts("a b", seq.RSeq)
+    a, b = smt.Consts("a b", rseq.RSeq)
     assert pretty_expr((a + b)[0]) == "(a + b)[0]"
 
 
