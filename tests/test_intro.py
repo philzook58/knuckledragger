@@ -1,6 +1,6 @@
 import pytest
 
-from kdrag import Lemma
+from kdrag import Lemma, prove
 from kdrag.smt import And, Bool, Bools, ForAll, Implies, Int, Not, Or, is_false
 
 
@@ -73,3 +73,32 @@ def test_intro_errors_without_mutating_an_atomic_goal():
     with pytest.raises(ValueError, match="Intro failed"):
         pf.intro()
     assert pf.top_goal() is before
+
+
+def test_proof_call_explains_intros_list_for_quantified_arguments():
+    p, q = Bools("proof_list_p proof_list_q")
+    rule = prove(ForAll(q, Implies(q, q)))
+    l = Lemma(Implies(p, p))
+    lems = l.intros()
+    with pytest.raises(TypeError, match="Proof argument 1 is a list") as exc:
+        rule(lems)
+    message = str(exc.value)
+    assert "intros() returns a list" in message
+    assert "lem = l.intro()" in message
+    assert "lem, = l.intros()" in message
+    assert "pf(*lems)" in message
+    assert rule(*lems).thm.eq(Implies(p, p))
+    l.auto()
+    l.qed()
+
+
+def test_proof_call_explains_applying_context_hypotheses():
+    p = Bool("proof_list_premise")
+    rule = prove(Implies(p, p))
+    l = Lemma(Implies(p, p))
+    lems = l.intros()
+    with pytest.raises(TypeError, match=r"l.specialize\(pf, \*lems\)"):
+        rule(lems)
+    l.specialize(rule, *lems)
+    l.auto()
+    l.qed()

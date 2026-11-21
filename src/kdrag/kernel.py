@@ -81,6 +81,15 @@ class Proof(Judgement):
         |= a
         """
         # Note: Not trusted code. Trusted code is in `instan` and `modus`
+        for i, arg in enumerate(args, start=1):
+            if isinstance(arg, list):
+                raise TypeError(
+                    f"Proof argument {i} is a list; expected an individual term or Proof. "
+                    "intros() returns a list of hypotheses: use lem = l.intro() "
+                    "or lem, = l.intros() for one hypothesis. "
+                    "Pass multiple terms/proofs with pf(*lems); "
+                    "for context hypotheses use l.specialize(pf, *lems)."
+                )
         acc = self
         n = 0
         while n < len(args):
