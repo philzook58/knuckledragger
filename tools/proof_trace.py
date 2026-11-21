@@ -11,10 +11,12 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from textwrap import wrap
 
 
 THEORIES = "src/kdrag/theories"
 COMMENT_LIMIT = 55_000
+COMMENT_WIDTH = 36
 
 
 @dataclass(frozen=True)
@@ -90,7 +92,7 @@ def record(targets):
     def snapshot(state):
         # top_goal() can run callbacks, so read the stack directly.
         return tuple(
-            pretty_goal(goal)
+            pretty_goal(goal, width=COMMENT_WIDTH)
             for goal in reversed(state.goals)
             if isinstance(goal, tactics.Goal)
         )
@@ -131,7 +133,7 @@ def record(targets):
     for target in targets:
         proof = getattr(modules[target.module], target.name, None)
         if isinstance(proof, Proof):
-            yield target, pretty_expr(proof.thm), steps[target]
+            yield target, pretty_expr(proof.thm, width=COMMENT_WIDTH), steps[target]
 
 
 def code(value, language="text"):
@@ -139,17 +141,39 @@ def code(value, language="text"):
     return f"{fence}{language}\n{value}\n{fence}"
 
 
+def math_block(value):
+    # Some pretty-printer groups can still exceed the requested width.
+    lines = []
+    for line in value.splitlines():
+        if len(line) <= COMMENT_WIDTH:
+            lines.append(line)
+            continue
+        indent = line[: len(line) - len(line.lstrip())]
+        lines.extend(
+            wrap(
+                line.lstrip(),
+                width=COMMENT_WIDTH,
+                initial_indent=indent,
+                subsequent_indent=indent + "  ",
+                break_long_words=False,
+                break_on_hyphens=False,
+            )
+        )
+    return code("\n".join(lines))
+
+
 def goals(states):
     if not states:
         return "No open goals."
     return "\n\n".join(
-        f"**Goal {number}**\n\n{code(state)}" for number, state in enumerate(states, 1)
+        f"**Goal {number}**\n\n{math_block(state)}"
+        for number, state in enumerate(states, 1)
     )
 
 
 def render(target, statement, steps):
     name = f"{target.module}.{target.name}".removeprefix("kdrag.theories.")
-    parts = [f"### `{name}`", code(statement)]
+    parts = [f"### `{name}`", math_block(statement)]
     if not steps:
         if target.source:
             parts += [
