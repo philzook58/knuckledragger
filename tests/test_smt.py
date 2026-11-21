@@ -1,6 +1,24 @@
 import kdrag.smt as smt
 
 
+def test_is_set():
+    x, y = smt.Ints("x y")
+    assert smt.is_set(smt.Const("s", smt.SetSort(smt.IntSort())))
+    assert smt.is_set(smt.EmptySet(smt.IntSort()))
+    assert smt.is_set(smt.FullSet(smt.SetSort(smt.IntSort())))
+    assert smt.is_set(smt.Lambda(x, x > 0))
+    assert not smt.is_set(smt.Lambda([x, y], x > y))
+    assert not smt.is_set(smt.Array("p", smt.IntSort(), smt.IntSort(), smt.BoolSort()))
+    assert not smt.is_set(smt.Array("f", smt.IntSort(), smt.IntSort()))
+    assert not smt.is_set(smt.ForAll(x, x == x))
+    assert not smt.is_set(x)
+    assert not smt.is_set(smt.SetSort(smt.IntSort()))
+    assert not smt.is_set(None)
+    assert not smt.is_set(False)
+    ctx = smt.Context()
+    assert smt.is_set(smt.EmptySet(smt.IntSort(ctx)))
+
+
 def test_is_uninterp():
     x = smt.Int("x")
     f = smt.Function("field", smt.IntSort(), smt.IntSort())

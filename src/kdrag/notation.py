@@ -16,6 +16,8 @@ Importing this module will add some syntactic sugar to smt.
 - Sorts supports `>>` for ArraySort
 """
 
+from collections.abc import Callable
+
 import kdrag.smt as smt
 import kdrag as kd
 from kdrag.cast import cast
@@ -62,13 +64,48 @@ def quantifier_call(self, *args):
 smt.QuantifierRef.__call__ = quantifier_call
 
 
+def Image(f: Callable[..., smt.ExprRef], *args, **kwargs) -> smt.QuantifierRef:
+    """Image of f over set operands, holding scalar operands fixed.
+
+    Each set operand contributes an independent existential witness, even when
+    the same set is supplied twice. At least one operand must be a set.
+
+    >>> A, B = smt.Consts("A B", smt.SetSort(smt.IntSort()))
+    >>> x, y, z = smt.Ints("x y z")
+    >>> kd.prove(Image(lambda x, y: x + y, A, B)[z] ==
+    ...          smt.Exists([x, y], A[x], B[y], z == x + y))
+    |= ...
+    """
+    vs = []
+    members = []
+    elements = []
+    for arg in args:
+        if smt.is_set(arg):
+            x = smt.FreshConst(arg.sort().domain(), prefix="x")
+            vs.append(x)
+            members.append(arg(x))
+            elements.append(x)
+        else:
+            elements.append(arg)
+    if not vs:
+        raise ValueError("Image requires at least one set operand")
+    value = f(*elements, **kwargs)
+    z = smt.FreshConst(value.sort(), prefix="z")
+    return smt.Lambda(z, smt.Exists(vs, smt.And(*members, smt.Eq(z, value))))
+
+
 class SortDispatch:
     """
     Sort dispatch is modeled after functools.singledispatch
     It allows for dispatching on the sort of the first argument.
 
     Registered methods, default, and default_factory take precedence over
-    set_default, which handles unary Boolean arrays before pointwise lifting.
+    set_default, which handles unary Boolean arrays before automatic lifting.
+    Otherwise, operations on sets form the image of the element operation.
+    Each set operand contributes an independent existential witness; other
+    operands are held fixed. Non-set arrays still use pointwise lifting.
+    Lifting a predicate over sets produces a set of Booleans, not a quantified
+    assertion. Native set operations and comparisons use set_default instead.
 
     >>> my_func = SortDispatch(name="my_func")
     >>> my_func.register(smt.IntSort(), lambda x: x + 1)
@@ -80,12 +117,15 @@ class SortDispatch:
     """
 
     def __init__(
-        self, name=None, default=None, pointwise=False, default_factory=None, set_default=None
+        self,
+        name=None,
+        default=None,
+        default_factory=None,
+        set_default=None,
     ):
         self.methods = {}
         self.default = default
         self.name = name
-        self.pointwise = pointwise
         self.default_factory = default_factory
         self.set_default = set_default
 
@@ -116,7 +156,7 @@ class SortDispatch:
 
         >>> x = smt.Int("x")
         >>> _ = smt.Lambda([x], x > 0) & smt.Lambda([x], x > 1)
-        >>> foo = SortDispatch("foo", pointwise=True)
+        >>> foo = SortDispatch("foo")
         >>> foo.register(smt.IntSort(), lambda x: x + 1)
         >>> foo(x)
         x + 1
@@ -141,16 +181,13 @@ class SortDispatch:
             res = self.default_factory(sort)
             self.register(sort, res)
             return res(*args, **kwargs)
-        elif (
-            self.set_default is not None
-            and isinstance(sort, smt.ArraySortRef)
-            and smt.is_bool_sort(sort.range())
-            and len(smt.domains(sort)) == 1
-        ):
+        elif smt.is_set(x0):
             # Sets are unary Boolean arrays. Prefer native set operations to
             # lifting through membership, while preserving explicit overrides.
-            return self.set_default(*args, **kwargs)
-        elif self.pointwise and smt.is_func(x0):
+            if self.set_default is not None:
+                return self.set_default(*args, **kwargs)
+            return Image(self, *args, **kwargs)
+        elif smt.is_func(x0):
             doms = smt.domains(x0)
             vs = [smt.FreshConst(d, prefix=f"x{n}") for n, d in enumerate(doms)]
             # sorts are same or attempt coerce/lift
@@ -225,7 +262,7 @@ getitem = SortDispatch(name="getitem", default=default_getitem)
 smt.ExprRef.__getitem__ = lambda x, y: getitem(x, y)  # type: ignore
 
 
-add = SortDispatch(name="add", pointwise=True)
+add = SortDispatch(name="add")
 """Sort based dispatch for `+` syntax"""
 smt.ExprRef.__add__ = lambda x, y: add(x, y)  # type: ignore
 # BoolRef has an __add__ method, and QuantifierRef subclasses it even though this makes no sense.
@@ -238,7 +275,7 @@ add.register(smt.IntSort(), (_n + _m).decl())
 add.register(smt.RealSort(), (_x + _y).decl())
 
 
-radd = SortDispatch(name="radd", pointwise=True)
+radd = SortDispatch(name="radd")
 """Sort based dispatch for `+` syntax"""
 radd.register(smt.IntSort(), (_n + _m).decl())
 radd.register(smt.RealSort(), (_x + _y).decl())
@@ -271,58 +308,64 @@ smt.SeqRef.__add__ = lambda xs, other: _seq_concat(xs, other)  # type: ignore
 smt.SeqRef.__radd__ = lambda xs, other: _seq_concat(xs, other, prepend=True)  # type: ignore
 
 
-sub = SortDispatch(name="sub", pointwise=True, set_default=smt.SetDifference)
+sub = SortDispatch(name="sub", set_default=smt.SetDifference)
 """Sort based dispatch for `-` syntax"""
 sub.register(smt.IntSort(), lambda x, y: x - y)
 sub.register(smt.RealSort(), lambda x, y: x - y)
 smt.ExprRef.__sub__ = lambda x, y: sub(x, y)  # type: ignore
 smt.QuantifierRef.__sub__ = lambda x, y: sub(x, y)  # type: ignore
 
-mul = SortDispatch(name="mul", pointwise=True)
+mul = SortDispatch(name="mul")
 """Sort based dispatch for `*` syntax"""
 mul.register(smt.IntSort(), lambda x, y: x * y)
 mul.register(smt.RealSort(), lambda x, y: x * y)
 smt.ExprRef.__mul__ = lambda x, y: mul(x, y)  # type: ignore
 smt.QuantifierRef.__mul__ = lambda x, y: mul(x, y)  # type: ignore
 
-rmul = SortDispatch(name="rmul", pointwise=True)
+rmul = SortDispatch(name="rmul")
 """Sort based dispatch for `*` syntax"""
 smt.ExprRef.__rmul__ = lambda x, y: rmul(x, y)  # type: ignore
+rmul.register(smt.IntSort(), lambda x, y: y * x)
+rmul.register(smt.RealSort(), lambda x, y: y * x)
 
 
-matmul = SortDispatch(name="matmul", pointwise=True)
+matmul = SortDispatch(name="matmul")
 """Sort based dispatch for `@` syntax"""
 smt.ExprRef.__matmul__ = lambda x, y: matmul(x, y)  # type: ignore
 
-neg = SortDispatch(name="neg", pointwise=True)
+neg = SortDispatch(name="neg")
 """Sort based dispatch for `-` syntax"""
 neg.register(smt.IntSort(), lambda x: -x)
 neg.register(smt.RealSort(), lambda x: -x)
 smt.ExprRef.__neg__ = lambda x: neg(x)  # type: ignore
 
-div = SortDispatch(name="div_", pointwise=True)
+div = SortDispatch(name="div_")
 """Sort based dispatch for `/` syntax"""
 smt.ExprRef.__truediv__ = lambda x, y: div(x, y)  # type: ignore
+div.register(smt.IntSort(), lambda x, y: x / y)
+div.register(smt.RealSort(), lambda x, y: x / y)
 
-and_ = SortDispatch(name="and_", pointwise=True, set_default=smt.SetIntersect)
+and_ = SortDispatch(name="and_", set_default=smt.SetIntersect)
 """Sort based dispatch for `&` syntax"""
 smt.ExprRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
 smt.QuantifierRef.__and__ = lambda x, y: and_(x, y)  # type: ignore
 and_.register(smt.BoolSort(), smt.And)
 
-or_ = SortDispatch(name="or_", pointwise=True, set_default=smt.SetUnion)
+or_ = SortDispatch(name="or_", set_default=smt.SetUnion)
 """Sort based dispatch for `|` syntax"""
 smt.ExprRef.__or__ = lambda x, y: or_(x, y)  # type: ignore[ty:invalid-assignment]
 smt.QuantifierRef.__or__ = lambda x, y: or_(x, y)  # type: ignore
 or_.register(smt.BoolSort(), smt.Or)
 
-invert = SortDispatch(name="invert", pointwise=True, set_default=smt.SetComplement)
+invert = SortDispatch(name="invert", set_default=smt.SetComplement)
 """Sort based dispatch for `~` syntax"""
 smt.ExprRef.__invert__ = lambda x: invert(x)  # type: ignore[ty:invalid-assignment]
 smt.QuantifierRef.__invert__ = lambda x: invert(x)  # type: ignore
 invert.register(smt.BoolSort(), smt.Not)
 
-lt = SortDispatch(name="lt", pointwise=True)
+lt = SortDispatch(
+    name="lt", set_default=lambda x, y: smt.And(smt.IsSubset(x, y), x != y)
+)
 """Sort based dispatch for `<` syntax"""
 smt.ExprRef.__lt__ = lambda x, y: lt(x, y)  # type: ignore[ty:invalid-assignment]
 lt.register(smt.IntSort(), lambda x, y: x < y)
@@ -331,7 +374,7 @@ lt.register(smt.RealSort(), lambda x, y: x < y)
 # lt.register(smt.BoolSort(), lambda x, y: smt.And(smt.Not(x), y))
 
 
-le = SortDispatch(name="le", pointwise=True, set_default=smt.IsSubset)
+le = SortDispatch(name="le", set_default=smt.IsSubset)
 """Sort based dispatch for `<=` syntax"""
 smt.ExprRef.__le__ = lambda x, y: le(x, y)  # type: ignore[ty:invalid-assignment]
 le.register(smt.IntSort(), lambda x, y: x <= y)
@@ -339,7 +382,7 @@ le.register(smt.RealSort(), lambda x, y: x <= y)
 # le.register(smt.BoolSort(), lambda x, y: smt.Implies(x, y))
 
 ge = SortDispatch(
-    name="ge", pointwise=True, set_default=lambda x, y: smt.IsSubset(y, x)
+    name="ge", set_default=lambda x, y: smt.IsSubset(y, x)
 )
 """Sort based dispatch for `>=` syntax"""
 smt.ExprRef.__ge__ = lambda x, y: ge(x, y)  # type: ignore[ty:invalid-assignment]
@@ -347,7 +390,9 @@ ge.register(smt.IntSort(), lambda x, y: x >= y)
 ge.register(smt.RealSort(), lambda x, y: x >= y)
 # ge.register(smt.BoolSort(), lambda x, y: smt.Implies(y, x))
 
-gt = SortDispatch(name="gt", pointwise=True)
+gt = SortDispatch(
+    name="gt", set_default=lambda x, y: smt.And(smt.IsSubset(y, x), x != y)
+)
 """Sort based dispatch for `>` syntax"""
 smt.ExprRef.__gt__ = lambda x, y: gt(x, y)  # type: ignore[ty:invalid-assignment]
 gt.register(smt.IntSort(), lambda x, y: x > y)
