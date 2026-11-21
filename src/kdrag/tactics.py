@@ -239,12 +239,9 @@ def _binder_statement(
     if not all(smt.is_bool(formula) for formula in formulas):
         raise TypeError("Expected SMT Boolean formulas after the binder list")
 
-    premises = [v.assumes for v in binders if v.assumes is not None]
-    premises.extend(formulas[:-1])
-    body = formulas[-1]
-    for premise in reversed(premises):
-        body = smt.Implies(premise, body)
-    return list(binders), body, len(premises)
+    statement = smt.ForAll(binders, *formulas)
+    premise_count = sum(v.assumes is not None for v in binders) + len(formulas) - 1
+    return list(binders), statement(*binders), premise_count
 
 
 def prove(
@@ -361,6 +358,7 @@ def prove(
         elif isinstance(thm, smt.QuantifierRef):
             while isinstance(thm, smt.QuantifierRef) and thm.is_forall():
                 _, thm = kd.utils.open_binder_unhygienic(thm)  # type: ignore
+            assert isinstance(thm, smt.BoolRef)
             # We anticipate this failing with a better countermodel since we can now see the quantified variables
             pf = kd.kernel.prove(
                 thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
