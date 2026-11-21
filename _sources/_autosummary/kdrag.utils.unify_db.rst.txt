@@ -1,0 +1,6 @@
+kdrag.utils.unify\_db
+=====================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: unify_db

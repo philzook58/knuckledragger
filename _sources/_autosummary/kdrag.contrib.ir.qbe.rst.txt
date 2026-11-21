@@ -1,0 +1,28 @@
+kdrag.contrib.ir.qbe
+====================
+
+.. automodule:: kdrag.contrib.ir.qbe
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/ir/qbe.py
+   :language: python

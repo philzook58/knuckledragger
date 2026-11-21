@@ -1,0 +1,31 @@
+kdrag.theories.algebra.category
+===============================
+
+.. automodule:: kdrag.theories.algebra.category
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.algebra.category
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/category.py
+   :language: python

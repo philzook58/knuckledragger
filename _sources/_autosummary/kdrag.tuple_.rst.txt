@@ -1,0 +1,6 @@
+kdrag.tuple\_
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: tuple_

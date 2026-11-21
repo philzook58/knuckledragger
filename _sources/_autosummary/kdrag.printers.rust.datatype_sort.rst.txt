@@ -1,0 +1,6 @@
+kdrag.printers.rust.datatype\_sort
+==================================
+
+.. currentmodule:: kdrag.printers.rust
+
+.. autofunction:: datatype_sort

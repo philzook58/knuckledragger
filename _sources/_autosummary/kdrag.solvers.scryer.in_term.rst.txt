@@ -1,0 +1,6 @@
+kdrag.solvers.scryer.in\_term
+=============================
+
+.. currentmodule:: kdrag.solvers.scryer
+
+.. autofunction:: in_term

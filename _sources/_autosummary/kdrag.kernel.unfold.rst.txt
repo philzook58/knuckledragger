@@ -1,0 +1,6 @@
+kdrag.kernel.unfold
+===================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: unfold

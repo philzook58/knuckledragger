@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.float &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=4b0197fc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.float.IsFinite" href="kdrag.theories.float.IsFinite.html" />
+    <link rel="prev" title="kdrag.theories.fixed.FixedSort" href="kdrag.theories.fixed.FixedSort.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.theories.float</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.IsFinite.html">kdrag.theories.float.IsFinite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.NoOverflow.html">kdrag.theories.float.NoOverflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.in_range.html">kdrag.theories.float.in_range</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.is_finite.html">kdrag.theories.float.is_finite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.float.no_overflow.html">kdrag.theories.float.no_overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.float.IsFinite"><code class="docutils literal notranslate"><span class="pre">IsFinite()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.float.NoOverflow"><code class="docutils literal notranslate"><span class="pre">NoOverflow()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.float.in_range"><code class="docutils literal notranslate"><span class="pre">in_range()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.float.is_finite"><code class="docutils literal notranslate"><span class="pre">is_finite()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.float.min_float64"><code class="docutils literal notranslate"><span class="pre">min_float64</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.float.no_overflow"><code class="docutils literal notranslate"><span class="pre">no_overflow()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.float.round_up_neg"><code class="docutils literal notranslate"><span class="pre">round_up_neg</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.float</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.float.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.float">
+<span id="kdrag-theories-float"></span><h1>kdrag.theories.float<a class="headerlink" href="#module-kdrag.theories.float" title="Link to this heading"></a></h1>
+<p>Theory of built in floating point and connection to the reals</p>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.float.round_up_neg" title="kdrag.theories.float.round_up_neg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">round_up_neg</span></code></a></p></td>
+<td><p>round_idem_finite = kd.prove(</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kdrag.theories.float.min_float64" title="kdrag.theories.float.min_float64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_float64</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.float.IsFinite.html#kdrag.theories.float.IsFinite" title="kdrag.theories.float.IsFinite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IsFinite</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.float.NoOverflow.html#kdrag.theories.float.NoOverflow" title="kdrag.theories.float.NoOverflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoOverflow</span></code></a>(m, x, s)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.float.in_range.html#kdrag.theories.float.in_range" title="kdrag.theories.float.in_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">in_range</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.float.is_finite.html#kdrag.theories.float.is_finite" title="kdrag.theories.float.is_finite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_finite</span></code></a>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.float.no_overflow.html#kdrag.theories.float.no_overflow" title="kdrag.theories.float.no_overflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">no_overflow</span></code></a>(m, x)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.IsFinite">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">IsFinite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FPRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BoolRef</span></span></span><a class="headerlink" href="#kdrag.theories.float.IsFinite" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>FPRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>BoolRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.NoOverflow">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">NoOverflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArithRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.NoOverflow" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ArithRef</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.in_range">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">in_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.in_range" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.is_finite">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">is_finite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FPRef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.is_finite" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>FPRef</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.float.min_float64">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">min_float64</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(z,</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Implies(Or(fpIsNormal(z),</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">fpIsSubnormal(z),</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">fpIsZero(z)),</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">z</span> <span class="pre">&gt;=</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">fpToFP(RNE(),</span> <span class="pre">-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)))</span></span><a class="headerlink" href="#kdrag.theories.float.min_float64" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.float.no_overflow">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">no_overflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.float.no_overflow" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.float.round_up_neg">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.float.</span></span><span class="sig-name descname"><span class="pre">round_up_neg</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">|=</span> <span class="pre">ForAll(x,</span> <span class="pre">round32(RTP(),</span> <span class="pre">-x)</span> <span class="pre">==</span> <span class="pre">-round32(RTN(),</span> <span class="pre">x))</span></span><a class="headerlink" href="#kdrag.theories.float.round_up_neg" title="Link to this definition"></a></dt>
+<dd><dl>
+<dt>round_idem_finite = kd.prove(</dt><dd><dl class="simple">
+<dt>kd.QForAll(</dt><dd><p>[x, m1, m2],
+NoOverflow(m2, x, F32),
+round(m1, round(m2, x)) == round(m2, x),</p>
+</dd>
+</dl>
+<p>),
+by=round_def,</p>
+</dd>
+</dl>
+<p>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>smt.ExprRef</em><em> | </em><a class="reference internal" href="kdrag.html#kdrag.Proof" title="kdrag.Proof"><em>Proof</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<table class="theorem-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Theorem</p></th>
+<th class="head"><p>Statement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-bounded-no-overflow"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L114"><code class="docutils literal notranslate"><span class="pre">float.bounded_no_overflow</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀m</span> <span class="pre">:</span> <span class="pre">RoundingMode,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">-(624999962747097/312500000000000</span> <span class="pre">*</span> <span class="pre">170141183460469231731687303715884105728)</span> <span class="pre">≤</span> <span class="pre">x</span> <span class="pre">∧</span>
+&#160; <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">624999962747097/312500000000000</span> <span class="pre">*</span> <span class="pre">170141183460469231731687303715884105728</span> <span class="pre">→</span>
+&#160; <span class="pre">-(624999962747097/312500000000000</span> <span class="pre">*</span> <span class="pre">170141183460469231731687303715884105728)</span> <span class="pre">≤</span> <span class="pre">round32(m,</span>
+&#160;&#160;&#160; <span class="pre">x)</span> <span class="pre">∧</span>
+&#160; <span class="pre">round32(m,</span>
+&#160;&#160;&#160; <span class="pre">x)</span> <span class="pre">≤</span> <span class="pre">624999962747097/312500000000000</span> <span class="pre">*</span> <span class="pre">170141183460469231731687303715884105728</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.bounded_no_overflow&quot;, [&quot;*&quot;, &quot;-&quot;, &quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;and&quot;, &quot;round32&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-bounded-real-no-overflow"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L107"><code class="docutils literal notranslate"><span class="pre">float.bounded_real_no_overflow</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">-(624999962747097/312500000000000</span> <span class="pre">*</span> <span class="pre">170141183460469231731687303715884105728)</span> <span class="pre">≤</span> <span class="pre">x</span> <span class="pre">∧</span>
+<span class="pre">x</span> <span class="pre">≤</span> <span class="pre">624999962747097/312500000000000</span> <span class="pre">*</span> <span class="pre">170141183460469231731687303715884105728</span> <span class="pre">→</span>
+<span class="pre">fp.isNormal(to_fp[8,</span> <span class="pre">24](m,</span> <span class="pre">x))</span> <span class="pre">∨</span>
+<span class="pre">fp.isSubnormal(to_fp[8,</span> <span class="pre">24](m,</span> <span class="pre">x))</span> <span class="pre">∨</span>
+<span class="pre">fp.isZero(to_fp[8,</span> <span class="pre">24](m,</span> <span class="pre">x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.bounded_real_no_overflow&quot;, [&quot;*&quot;, &quot;-&quot;, &quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;and&quot;, &quot;fp.isNormal&quot;, &quot;fp.isSubnormal&quot;, &quot;fp.isZero&quot;, &quot;m&quot;, &quot;or&quot;, &quot;to_fp&quot;, &quot;x&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-max-real-thm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L143"><code class="docutils literal notranslate"><span class="pre">float.max_real_thm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀z</span> <span class="pre">:</span> <span class="pre">FPSort(11,</span> <span class="pre">53),</span>
+&#160; <span class="pre">fp.isNormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isSubnormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isZero(z)</span> <span class="pre">→</span>
+&#160; <span class="pre">fp.leq(z,</span>
+&#160;&#160;&#160; <span class="pre">to_fp[11,</span> <span class="pre">53](roundNearestTiesToEven,</span>
+&#160;&#160;&#160;&#160;&#160; <span class="pre">179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.max_real_thm&quot;, [&quot;=&gt;&quot;, &quot;Real&quot;, &quot;fp.isNormal&quot;, &quot;fp.isSubnormal&quot;, &quot;fp.isZero&quot;, &quot;fp.leq&quot;, &quot;or&quot;, &quot;roundNearestTiesToEven&quot;, &quot;to_fp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-min-float64"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L144"><code class="docutils literal notranslate"><span class="pre">float.min_float64</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀z</span> <span class="pre">:</span> <span class="pre">FPSort(11,</span> <span class="pre">53),</span>
+&#160; <span class="pre">fp.isNormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isSubnormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isZero(z)</span> <span class="pre">→</span>
+&#160; <span class="pre">fp.geq(z,</span>
+&#160;&#160;&#160; <span class="pre">to_fp[11,</span> <span class="pre">53](roundNearestTiesToEven,</span>
+&#160;&#160;&#160;&#160;&#160; <span class="pre">-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.min_float64&quot;, [&quot;-&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;fp.geq&quot;, &quot;fp.isNormal&quot;, &quot;fp.isSubnormal&quot;, &quot;fp.isZero&quot;, &quot;or&quot;, &quot;roundNearestTiesToEven&quot;, &quot;to_fp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-minfloat"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L79"><code class="docutils literal notranslate"><span class="pre">float.minfloat</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀z</span> <span class="pre">:</span> <span class="pre">FPSort(8,</span> <span class="pre">24),</span>
+&#160; <span class="pre">fp.isNormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isSubnormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isZero(z)</span> <span class="pre">→</span>
+&#160; <span class="pre">fp.geq(z,</span>
+&#160;&#160;&#160; <span class="pre">to_fp[8,</span> <span class="pre">24](roundNearestTiesToEven,</span>
+&#160;&#160;&#160;&#160;&#160; <span class="pre">-(624999962747097/312500000000000</span> <span class="pre">*</span> <span class="pre">170141183460469231731687303715884105728)))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.minfloat&quot;, [&quot;*&quot;, &quot;-&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;fp.geq&quot;, &quot;fp.isNormal&quot;, &quot;fp.isSubnormal&quot;, &quot;fp.isZero&quot;, &quot;or&quot;, &quot;roundNearestTiesToEven&quot;, &quot;to_fp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-round-def"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L65"><code class="docutils literal notranslate"><span class="pre">float.round_def</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀m</span> <span class="pre">:</span> <span class="pre">RoundingMode,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">fp.isNormal(to_fp[8,</span> <span class="pre">24](m,</span> <span class="pre">x))</span> <span class="pre">∨</span>
+&#160; <span class="pre">fp.isSubnormal(to_fp[8,</span> <span class="pre">24](m,</span> <span class="pre">x))</span> <span class="pre">∨</span>
+&#160; <span class="pre">fp.isZero(to_fp[8,</span> <span class="pre">24](m,</span> <span class="pre">x))</span> <span class="pre">→</span>
+&#160; <span class="pre">round32(m,</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">fp.to_real(to_fp[8,</span> <span class="pre">24](m,</span> <span class="pre">x))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_def&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;fp.isNormal&quot;, &quot;fp.isSubnormal&quot;, &quot;fp.isZero&quot;, &quot;fp.to_real&quot;, &quot;or&quot;, &quot;round32&quot;, &quot;to_fp&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-round-down-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L123"><code class="docutils literal notranslate"><span class="pre">float.round_down_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">round32(roundTowardNegative,</span> <span class="pre">x)</span> <span class="pre">≤</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_down_le&quot;, [&quot;&lt;=&quot;, &quot;round32&quot;, &quot;roundTowardNegative&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-round-down-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L125"><code class="docutils literal notranslate"><span class="pre">float.round_down_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">round32(roundTowardNegative,</span>
+&#160;&#160;&#160; <span class="pre">-x)</span> <span class="pre">=</span> <span class="pre">-round32(roundTowardPositive,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_down_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;round32&quot;, &quot;roundTowardNegative&quot;, &quot;roundTowardPositive&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-round-idem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L117"><code class="docutils literal notranslate"><span class="pre">float.round_idem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">m1</span> <span class="pre">m2</span> <span class="pre">:</span> <span class="pre">RoundingMode,</span>
+&#160; <span class="pre">round32(m1,</span> <span class="pre">round32(m2,</span> <span class="pre">x))</span> <span class="pre">=</span> <span class="pre">round32(m2,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_idem&quot;, [&quot;=&quot;, &quot;round32&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-round-monotonic"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L116"><code class="docutils literal notranslate"><span class="pre">float.round_monotonic</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">y</span> <span class="pre">→</span> <span class="pre">round32(m,</span> <span class="pre">x)</span> <span class="pre">≤</span> <span class="pre">round32(m,</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_monotonic&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;m&quot;, &quot;round32&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-round-to-real"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L119"><code class="docutils literal notranslate"><span class="pre">float.round_to_real</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀z</span> <span class="pre">:</span> <span class="pre">FPSort(8,</span> <span class="pre">24),</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">RoundingMode,</span>
+&#160; <span class="pre">fp.isNormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isSubnormal(z)</span> <span class="pre">∨</span> <span class="pre">fp.isZero(z)</span> <span class="pre">→</span>
+&#160; <span class="pre">round32(m,</span> <span class="pre">fp.to_real(z))</span> <span class="pre">=</span> <span class="pre">fp.to_real(z)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_to_real&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;fp.isNormal&quot;, &quot;fp.isSubnormal&quot;, &quot;fp.isZero&quot;, &quot;fp.to_real&quot;, &quot;or&quot;, &quot;round32&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-round-up-ge"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L124"><code class="docutils literal notranslate"><span class="pre">float.round_up_ge</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">round32(roundTowardPositive,</span> <span class="pre">x)</span> <span class="pre">≥</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_up_ge&quot;, [&quot;&gt;=&quot;, &quot;round32&quot;, &quot;roundTowardPositive&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-round-up-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L126"><code class="docutils literal notranslate"><span class="pre">float.round_up_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">round32(roundTowardPositive,</span>
+&#160;&#160;&#160; <span class="pre">-x)</span> <span class="pre">=</span> <span class="pre">-round32(roundTowardNegative,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.round_up_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;round32&quot;, &quot;roundTowardNegative&quot;, &quot;roundTowardPositive&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-special-cases"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L81"><code class="docutils literal notranslate"><span class="pre">float.special_cases</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀z</span> <span class="pre">:</span> <span class="pre">FPSort(8,</span> <span class="pre">24),</span>
+&#160; <span class="pre">fp.isNaN(z)</span> <span class="pre">∨</span>
+&#160; <span class="pre">fp.isInfinite(z)</span> <span class="pre">∨</span>
+&#160; <span class="pre">fp.isZero(z)</span> <span class="pre">∨</span>
+&#160; <span class="pre">fp.isNormal(z)</span> <span class="pre">∨</span>
+&#160; <span class="pre">fp.isSubnormal(z)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.special_cases&quot;, [&quot;fp.isInfinite&quot;, &quot;fp.isNaN&quot;, &quot;fp.isNormal&quot;, &quot;fp.isSubnormal&quot;, &quot;fp.isZero&quot;, &quot;or&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-float-zerof-is-negative"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L56"><code class="docutils literal notranslate"><span class="pre">float.zeroF_is_negative</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">fp.isNegative((_</span> <span class="pre">-zero</span> <span class="pre">8</span> <span class="pre">24))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.zeroF_is_negative&quot;, [&quot;-zero&quot;, &quot;fp.isNegative&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-float-zerof-is-positive"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/float.py#L55"><code class="docutils literal notranslate"><span class="pre">float.zeroF_is_positive</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">fp.isPositive((_</span> <span class="pre">+zero</span> <span class="pre">8</span> <span class="pre">24))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.float.zeroF_is_positive&quot;, [&quot;+zero&quot;, &quot;fp.isPositive&quot;]]"></span></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.fixed.FixedSort.html" class="btn btn-neutral float-left" title="kdrag.theories.fixed.FixedSort" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.float.IsFinite.html" class="btn btn-neutral float-right" title="kdrag.theories.float.IsFinite" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

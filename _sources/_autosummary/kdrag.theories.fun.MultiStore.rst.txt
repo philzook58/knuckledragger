@@ -1,0 +1,6 @@
+kdrag.theories.fun.MultiStore
+=============================
+
+.. currentmodule:: kdrag.theories.fun
+
+.. autofunction:: MultiStore

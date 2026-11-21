@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.forall\_cong
+========================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: forall_cong

@@ -1,0 +1,6 @@
+kdrag.guard
+===========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: guard

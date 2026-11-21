@@ -1,0 +1,43 @@
+.rst-content table.theorem-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.rst-content table.theorem-table td,
+.rst-content table.theorem-table th {
+  padding: 0.2rem 0.4rem;
+  vertical-align: middle;
+}
+
+.rst-content .theorem-table th:first-child {
+  width: 35%;
+}
+
+.rst-content .theorem-table tr[hidden] {
+  display: none;
+}
+
+.rst-content .theorem-table td > p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.rst-content .theorem-table td code,
+.rst-content .theorem-table td code .pre {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+#theorem-search-controls input {
+  width: 100%;
+  margin-block: 0.25rem;
+}
+
+#theorem-search-controls p {
+  margin-bottom: 0.5rem;
+}

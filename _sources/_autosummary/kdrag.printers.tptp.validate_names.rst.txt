@@ -1,0 +1,6 @@
+kdrag.printers.tptp.validate\_names
+===================================
+
+.. currentmodule:: kdrag.printers.tptp
+
+.. autofunction:: validate_names

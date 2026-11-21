@@ -1,0 +1,6 @@
+kdrag.theories.logic.sep.make\_sep
+==================================
+
+.. currentmodule:: kdrag.theories.logic.sep
+
+.. autofunction:: make_sep

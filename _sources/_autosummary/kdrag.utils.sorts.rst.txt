@@ -1,0 +1,6 @@
+kdrag.utils.sorts
+=================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: sorts

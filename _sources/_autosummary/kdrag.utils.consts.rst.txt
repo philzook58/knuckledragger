@@ -1,0 +1,6 @@
+kdrag.utils.consts
+==================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: consts

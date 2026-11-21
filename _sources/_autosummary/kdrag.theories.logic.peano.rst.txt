@@ -1,0 +1,38 @@
+kdrag.theories.logic.peano
+==========================
+
+.. automodule:: kdrag.theories.logic.peano
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      induct
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.logic.peano
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/peano.py
+   :language: python

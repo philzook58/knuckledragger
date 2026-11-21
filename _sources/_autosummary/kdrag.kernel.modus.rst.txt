@@ -1,0 +1,6 @@
+kdrag.kernel.modus
+==================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: modus

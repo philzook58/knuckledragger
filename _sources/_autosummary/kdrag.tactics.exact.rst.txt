@@ -1,0 +1,6 @@
+kdrag.tactics.exact
+===================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: exact

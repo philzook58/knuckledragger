@@ -1,0 +1,6 @@
+kdrag.notation.Image
+====================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: Image

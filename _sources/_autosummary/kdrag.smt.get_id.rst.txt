@@ -1,0 +1,6 @@
+kdrag.smt.get\_id
+=================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: get_id

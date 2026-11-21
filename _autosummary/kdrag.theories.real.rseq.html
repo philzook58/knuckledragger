@@ -1,0 +1,597 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.real.rseq &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=4b0197fc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.real.rseq.near" href="kdrag.theories.real.rseq.near.html" />
+    <link rel="prev" title="kdrag.theories.real.ndarray" href="kdrag.theories.real.ndarray.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.abstract_arith.html">kdrag.theories.real.abstract_arith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.interior_point.html">kdrag.theories.real.interior_point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rlemma.html">kdrag.theories.real.rlemma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sin_lower.html">kdrag.theories.real.sin_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_bnd.html">kdrag.theories.real.sqrt_bnd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_lower.html">kdrag.theories.real.sqrt_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_upper.html">kdrag.theories.real.sqrt_upper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.Add"><code class="docutils literal notranslate"><span class="pre">Add</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.Mul"><code class="docutils literal notranslate"><span class="pre">Mul</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.abstract_arith"><code class="docutils literal notranslate"><span class="pre">abstract_arith()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.interior_point"><code class="docutils literal notranslate"><span class="pre">interior_point()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.rlemma"><code class="docutils literal notranslate"><span class="pre">rlemma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sin_lower"><code class="docutils literal notranslate"><span class="pre">sin_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_bnd"><code class="docutils literal notranslate"><span class="pre">sqrt_bnd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_lower"><code class="docutils literal notranslate"><span class="pre">sqrt_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_upper"><code class="docutils literal notranslate"><span class="pre">sqrt_upper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.analysis.html">kdrag.theories.real.analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.arb.html">kdrag.theories.real.arb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.complex.html">kdrag.theories.real.complex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.cont.html">kdrag.theories.real.cont</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.cseq.html">kdrag.theories.real.cseq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.extended.html">kdrag.theories.real.extended</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.fun.html">kdrag.theories.real.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.geometry.html">kdrag.theories.real.geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.interval.html">kdrag.theories.real.interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.measure.html">kdrag.theories.real.measure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.ndarray.html">kdrag.theories.real.ndarray</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.real.rseq</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.rseq.near.html">kdrag.theories.real.rseq.near</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.real.rseq.test.html">kdrag.theories.real.rseq.test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.rseq.Series"><code class="docutils literal notranslate"><span class="pre">Series</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.rseq.cauchy_mod"><code class="docutils literal notranslate"><span class="pre">cauchy_mod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.rseq.near"><code class="docutils literal notranslate"><span class="pre">near()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kdrag.theories.real.rseq.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rset.html">kdrag.theories.real.rset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec.html">kdrag.theories.real.vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec2.html">kdrag.theories.real.vec2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec3.html">kdrag.theories.real.vec3</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.real.rseq</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.real.rseq.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.real.rseq">
+<span id="kdrag-theories-real-rseq"></span><h1>kdrag.theories.real.rseq<a class="headerlink" href="#module-kdrag.theories.real.rseq" title="Link to this heading"></a></h1>
+<p>Real sequences, convergence, limit algebra, and series.</p>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.real.rseq.cauchy_mod" title="kdrag.theories.real.rseq.cauchy_mod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cauchy_mod</span></code></a></p></td>
+<td><p>is_convergent = kd.define(</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.real.rseq.near.html#kdrag.theories.real.rseq.near" title="kdrag.theories.real.rseq.near"><code class="xref py py-obj docutils literal notranslate"><span class="pre">near</span></code></a>(a, y, eps)</p></td>
+<td><p>The index predicate <cite>|a[n] - y| &lt; eps</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.real.rseq.test.html#kdrag.theories.real.rseq.test" title="kdrag.theories.real.rseq.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.real.rseq.Series" title="kdrag.theories.real.rseq.Series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Series</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="kdrag.theories.real.rseq.Series">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.rseq.</span></span><span class="sig-name descname"><span class="pre">Series</span></span><a class="headerlink" href="#kdrag.theories.real.rseq.Series" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kdrag.theories.real.rseq.Series.powers">
+<span class="sig-name descname"><span class="pre">powers</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">powers</span></span><a class="headerlink" href="#kdrag.theories.real.rseq.Series.powers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.real.rseq.cauchy_mod">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.rseq.</span></span><span class="sig-name descname"><span class="pre">cauchy_mod</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">cauchy_mod</span></span><a class="headerlink" href="#kdrag.theories.real.rseq.cauchy_mod" title="Link to this definition"></a></dt>
+<dd><dl>
+<dt>is_convergent = kd.define(</dt><dd><p>“is_convergent”,
+[a],
+kd.QForAll(</p>
+<blockquote>
+<div><p>[eps],
+eps &gt; 0,
+smt.Exists(</p>
+<blockquote>
+<div><p>[N], kd.QForAll([m], m &gt; N, smt.Exists([x], real.abs(a[m] - x) &lt; eps))</p>
+</div></blockquote>
+<p>),</p>
+</div></blockquote>
+<p>),</p>
+</dd>
+</dl>
+<p>)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.rseq.near">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.rseq.</span></span><span class="sig-name descname"><span class="pre">near</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExprRef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">QuantifierRef</span></span></span><a class="headerlink" href="#kdrag.theories.real.rseq.near" title="Link to this definition"></a></dt>
+<dd><p>The index predicate <cite>|a[n] - y| &lt; eps</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>ArrayRef</em>)</p></li>
+<li><p><strong>y</strong> (<em>ExprRef</em>)</p></li>
+<li><p><strong>eps</strong> (<em>ExprRef</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>QuantifierRef</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.real.rseq.test">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.real.rseq.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.real.rseq.test" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kc">True</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<table class="theorem-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Theorem</p></th>
+<th class="head"><p>Statement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-abs-ext"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L484"><code class="docutils literal notranslate"><span class="pre">real.rseq.abs_ext</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">rseq.abs(a)[n]</span> <span class="pre">=</span> <span class="pre">|a[n]|</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.abs_ext&quot;, [&quot;=&quot;, &quot;absR&quot;, &quot;rseq.abs&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-abs-ge-0"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L485"><code class="docutils literal notranslate"><span class="pre">real.rseq.abs_ge_0</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">rseq.abs(a)[n]</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.abs_ge_0&quot;, [&quot;&gt;=&quot;, &quot;Real&quot;, &quot;rseq.abs&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-abs-le-finsum-abs"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L505"><code class="docutils literal notranslate"><span class="pre">real.rseq.abs_le_finsum_abs</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">N</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">N</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span>
+&#160; <span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160;&#160;&#160; <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">&lt;</span> <span class="pre">N</span> <span class="pre">→</span> <span class="pre">rseq.abs(a)[n]</span> <span class="pre">≤</span> <span class="pre">finsum(rseq.abs(a),</span> <span class="pre">N)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.abs_le_finsum_abs&quot;, [&quot;&lt;&quot;, &quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;finsum&quot;, &quot;rseq.abs&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-add-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L92"><code class="docutils literal notranslate"><span class="pre">real.rseq.add_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">B₀</span> <span class="pre">C₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">+</span> <span class="pre">B₀</span> <span class="pre">+</span> <span class="pre">C₀</span> <span class="pre">=</span> <span class="pre">A₀</span> <span class="pre">+</span> <span class="pre">(B₀</span> <span class="pre">+</span> <span class="pre">C₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.add_assoc&quot;, [&quot;(Array Int Real).add&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-add-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L89"><code class="docutils literal notranslate"><span class="pre">real.rseq.add_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">B₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">+</span> <span class="pre">B₀</span> <span class="pre">=</span> <span class="pre">B₀</span> <span class="pre">+</span> <span class="pre">A₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.add_comm&quot;, [&quot;(Array Int Real).add&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-add-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L116"><code class="docutils literal notranslate"><span class="pre">real.rseq.add_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">B₀</span> <span class="pre">C₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">(A₀</span> <span class="pre">+</span> <span class="pre">B₀)</span> <span class="pre">*</span> <span class="pre">C₀</span> <span class="pre">=</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">C₀</span> <span class="pre">+</span> <span class="pre">B₀</span> <span class="pre">*</span> <span class="pre">C₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.add_mul&quot;, [&quot;(Array Int Real).add&quot;, &quot;(Array Int Real).mul&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-add-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L98"><code class="docutils literal notranslate"><span class="pre">real.rseq.add_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">+</span> <span class="pre">RSeq.zero</span> <span class="pre">=</span> <span class="pre">A₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.add_zero&quot;, [&quot;(Array Int Real).add&quot;, &quot;=&quot;, &quot;RSeq.zero&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-cumsum-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L279"><code class="docutils literal notranslate"><span class="pre">real.rseq.cumsum_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">cumsum(a</span> <span class="pre">+</span> <span class="pre">b)[n]</span> <span class="pre">=</span> <span class="pre">cumsum(a)[n]</span> <span class="pre">+</span> <span class="pre">cumsum(b)[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.cumsum_add&quot;, [&quot;(Array Int Real).add&quot;, &quot;+&quot;, &quot;=&quot;, &quot;cumsum&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-cumsum-const"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L215"><code class="docutils literal notranslate"><span class="pre">real.rseq.cumsum_const</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">cumsum(RSeq.const(x))[n]</span> <span class="pre">=</span> <span class="pre">to_real(n)</span> <span class="pre">*</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.cumsum_const&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;RSeq.const&quot;, &quot;cumsum&quot;, &quot;select&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-cumsum-mono"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L258"><code class="docutils literal notranslate"><span class="pre">real.rseq.cumsum_mono</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">b[n])</span> <span class="pre">→</span>
+&#160; <span class="pre">m</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">cumsum(a)[m]</span> <span class="pre">≤</span> <span class="pre">cumsum(b)[m]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.cumsum_mono&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;cumsum&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-cumsum-smul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L237"><code class="docutils literal notranslate"><span class="pre">real.rseq.cumsum_smul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">cumsum(RSeq.smul(x,</span> <span class="pre">a))</span> <span class="pre">=</span> <span class="pre">RSeq.smul(x,</span> <span class="pre">cumsum(a))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.cumsum_smul&quot;, [&quot;=&quot;, &quot;RSeq.smul&quot;, &quot;cumsum&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-cumsum-succ"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L173"><code class="docutils literal notranslate"><span class="pre">real.rseq.cumsum_succ</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">cumsum(a)[n</span> <span class="pre">+</span> <span class="pre">1]</span> <span class="pre">=</span> <span class="pre">cumsum(a)[n]</span> <span class="pre">+</span> <span class="pre">a[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.cumsum_succ&quot;, [&quot;+&quot;, &quot;=&quot;, &quot;Int&quot;, &quot;cumsum&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-cumsum-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L192"><code class="docutils literal notranslate"><span class="pre">real.rseq.cumsum_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">cumsum(RSeq.zero)[n]</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.cumsum_zero&quot;, [&quot;=&quot;, &quot;RSeq.zero&quot;, &quot;Real&quot;, &quot;cumsum&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-diff-cumsum"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L184"><code class="docutils literal notranslate"><span class="pre">real.rseq.diff_cumsum</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">diff(cumsum(a))</span> <span class="pre">=</span> <span class="pre">a</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.diff_cumsum&quot;, [&quot;=&quot;, &quot;cumsum&quot;, &quot;diff&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-div-decomp"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L998"><code class="docutils literal notranslate"><span class="pre">real.rseq.div_decomp</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀u</span> <span class="pre">v</span> <span class="pre">w</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">v</span> <span class="pre">≠</span> <span class="pre">0</span> <span class="pre">∧</span> <span class="pre">z</span> <span class="pre">≠</span> <span class="pre">0</span> <span class="pre">→</span>
+&#160; <span class="pre">u</span> <span class="pre">/</span> <span class="pre">v</span> <span class="pre">+</span> <span class="pre">-1</span> <span class="pre">*</span> <span class="pre">(w</span> <span class="pre">/</span> <span class="pre">z)</span> <span class="pre">=</span> <span class="pre">(u</span> <span class="pre">-</span> <span class="pre">w)</span> <span class="pre">/</span> <span class="pre">v</span> <span class="pre">+</span> <span class="pre">w</span> <span class="pre">*</span> <span class="pre">((z</span> <span class="pre">-</span> <span class="pre">v)</span> <span class="pre">/</span> <span class="pre">(v</span> <span class="pre">*</span> <span class="pre">z))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.div_decomp&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;-&quot;, &quot;/&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;and&quot;, &quot;distinct&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-dot-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L442"><code class="docutils literal notranslate"><span class="pre">real.rseq.dot_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">c</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">rseq.dot(n,</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">b,</span> <span class="pre">c)</span> <span class="pre">=</span> <span class="pre">rseq.dot(n,</span> <span class="pre">a,</span> <span class="pre">c)</span> <span class="pre">+</span> <span class="pre">rseq.dot(n,</span>
+&#160;&#160;&#160; <span class="pre">b,</span>
+&#160;&#160;&#160; <span class="pre">c)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.dot_add&quot;, [&quot;(Array Int Real).add&quot;, &quot;+&quot;, &quot;=&quot;, &quot;rseq.dot&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-dot-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L430"><code class="docutils literal notranslate"><span class="pre">real.rseq.dot_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">rseq.dot(n,</span> <span class="pre">a,</span> <span class="pre">b)</span> <span class="pre">=</span> <span class="pre">rseq.dot(n,</span> <span class="pre">b,</span> <span class="pre">a)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.dot_comm&quot;, [&quot;=&quot;, &quot;rseq.dot&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-dot-smul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L435"><code class="docutils literal notranslate"><span class="pre">real.rseq.dot_smul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">rseq.dot(n,</span> <span class="pre">RSeq.smul(x,</span> <span class="pre">a),</span> <span class="pre">b)</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">rseq.dot(n,</span> <span class="pre">a,</span> <span class="pre">b)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.dot_smul&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;RSeq.smul&quot;, &quot;rseq.dot&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-dot-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L453"><code class="docutils literal notranslate"><span class="pre">real.rseq.dot_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">rseq.dot(n,</span> <span class="pre">RSeq.zero,</span> <span class="pre">a)</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.dot_zero&quot;, [&quot;=&quot;, &quot;RSeq.zero&quot;, &quot;Real&quot;, &quot;rseq.dot&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-eventually-and"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L634"><code class="docutils literal notranslate"><span class="pre">real.rseq.eventually_and</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">Q</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">eventually(P)</span> <span class="pre">→</span>
+&#160; <span class="pre">eventually(Q)</span> <span class="pre">→</span> <span class="pre">eventually(λn</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">P[n]</span> <span class="pre">∧</span> <span class="pre">Q[n])</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.eventually_and&quot;, [&quot;=&gt;&quot;, &quot;and&quot;, &quot;eventually&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-eventually-mono"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L617"><code class="docutils literal notranslate"><span class="pre">real.rseq.eventually_mono</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">Q</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">eventually(P)</span> <span class="pre">→</span> <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">P[n]</span> <span class="pre">→</span> <span class="pre">Q[n])</span> <span class="pre">→</span> <span class="pre">eventually(Q)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.eventually_mono&quot;, [&quot;=&gt;&quot;, &quot;eventually&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-eventually-near"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L608"><code class="docutils literal notranslate"><span class="pre">real.rseq.eventually_near</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">y</span> <span class="pre">ε</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">ε</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">eventually(λn</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">|a[n]</span> <span class="pre">-</span> <span class="pre">y|</span> <span class="pre">&lt;</span> <span class="pre">ε)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.eventually_near&quot;, [&quot;-&quot;, &quot;&lt;&quot;, &quot;=&gt;&quot;, &quot;&gt;&quot;, &quot;Real&quot;, &quot;absR&quot;, &quot;eventually&quot;, &quot;has_lim&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-eventually-of-forall-nonneg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L647"><code class="docutils literal notranslate"><span class="pre">real.rseq.eventually_of_forall_nonneg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">P[n])</span> <span class="pre">→</span> <span class="pre">eventually(P)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.eventually_of_forall_nonneg&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;eventually&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-exists-has-lim-of-monotone-of-bdd-above"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L1094"><code class="docutils literal notranslate"><span class="pre">real.rseq.exists_has_lim_of_monotone_of_bdd_above</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">is_monotone(a)</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.bdd_above(RSeq.range_nonneg(a))</span> <span class="pre">→</span>
+&#160; <span class="pre">∃x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">has_lim(a,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.exists_has_lim_of_monotone_of_bdd_above&quot;, [&quot;=&gt;&quot;, &quot;RSeq.range_nonneg&quot;, &quot;RSet.bdd_above&quot;, &quot;has_lim&quot;, &quot;is_monotone&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-finsum-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L418"><code class="docutils literal notranslate"><span class="pre">real.rseq.finsum_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">finsum(a</span> <span class="pre">+</span> <span class="pre">b,</span> <span class="pre">n)</span> <span class="pre">=</span> <span class="pre">finsum(a,</span> <span class="pre">n)</span> <span class="pre">+</span> <span class="pre">finsum(b,</span> <span class="pre">n)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.finsum_add&quot;, [&quot;(Array Int Real).add&quot;, &quot;+&quot;, &quot;=&quot;, &quot;finsum&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-finsum-nonneg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L494"><code class="docutils literal notranslate"><span class="pre">real.rseq.finsum_nonneg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">(∀i</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">i</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[i]</span> <span class="pre">≥</span> <span class="pre">0)</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">finsum(a,</span> <span class="pre">n)</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.finsum_nonneg&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;Real&quot;, &quot;finsum&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-finsum-smul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L410"><code class="docutils literal notranslate"><span class="pre">real.rseq.finsum_smul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">finsum(RSeq.smul(x,</span> <span class="pre">a),</span> <span class="pre">n)</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">finsum(a,</span> <span class="pre">n)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.finsum_smul&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;RSeq.smul&quot;, &quot;finsum&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-finsum-succ"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L404"><code class="docutils literal notranslate"><span class="pre">real.rseq.finsum_succ</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">finsum(a,</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">=</span> <span class="pre">finsum(a,</span> <span class="pre">n)</span> <span class="pre">+</span> <span class="pre">a[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.finsum_succ&quot;, [&quot;+&quot;, &quot;=&quot;, &quot;Int&quot;, &quot;finsum&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-finsum-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L423"><code class="docutils literal notranslate"><span class="pre">real.rseq.finsum_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">finsum(RSeq.zero,</span> <span class="pre">n)</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.finsum_zero&quot;, [&quot;=&quot;, &quot;RSeq.zero&quot;, &quot;Real&quot;, &quot;finsum&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-ge-of-has-lim"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L885"><code class="docutils literal notranslate"><span class="pre">real.rseq.ge_of_has_lim</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">r</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">r</span> <span class="pre">≤</span> <span class="pre">a[n])</span> <span class="pre">→</span> <span class="pre">r</span> <span class="pre">≤</span> <span class="pre">x</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.ge_of_has_lim&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;has_lim&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-has-lim-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L792"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">has_lim(b,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">has_lim(a</span> <span class="pre">+</span> <span class="pre">b,</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_add&quot;, [&quot;(Array Int Real).add&quot;, &quot;+&quot;, &quot;=&gt;&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-has-lim-const"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L669"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_const</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">has_lim(RSeq.const(x),</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_const&quot;, [&quot;RSeq.const&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-has-lim-div"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L1007"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_div</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span>
+&#160; <span class="pre">has_lim(b,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">y</span> <span class="pre">≠</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">has_lim(a</span> <span class="pre">/</span> <span class="pre">b,</span> <span class="pre">x</span> <span class="pre">/</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_div&quot;, [&quot;(Array Int Real).div_&quot;, &quot;/&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;distinct&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-has-lim-iff"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L599"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_iff</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">(∀ε</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160;&#160;&#160; <span class="pre">ε</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">eventually(λn</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">|a[n]</span> <span class="pre">-</span> <span class="pre">y|</span> <span class="pre">&lt;</span> <span class="pre">ε))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_iff&quot;, [&quot;-&quot;, &quot;&lt;&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;&quot;, &quot;Real&quot;, &quot;absR&quot;, &quot;eventually&quot;, &quot;has_lim&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-has-lim-inv"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L675"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_inv</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">has_lim(λn</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">to_real(n),</span> <span class="pre">0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_inv&quot;, [&quot;/&quot;, &quot;Real&quot;, &quot;has_lim&quot;, &quot;to_real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-has-lim-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L944"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">has_lim(b,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">has_lim(a</span> <span class="pre">*</span> <span class="pre">b,</span> <span class="pre">x</span> <span class="pre">*</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_mul&quot;, [&quot;(Array Int Real).mul&quot;, &quot;*&quot;, &quot;=&gt;&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-has-lim-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L820"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">has_lim(-a,</span> <span class="pre">-x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_neg&quot;, [&quot;(Array Int Real).neg&quot;, &quot;-&quot;, &quot;=&gt;&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-has-lim-of-monotone-of-is-lub"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L1065"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_of_monotone_of_is_lub</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">is_monotone(a)</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.is_lub(RSeq.range_nonneg(a),</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">has_lim(a,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_of_monotone_of_is_lub&quot;, [&quot;=&gt;&quot;, &quot;RSeq.range_nonneg&quot;, &quot;RSet.is_lub&quot;, &quot;has_lim&quot;, &quot;is_monotone&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-has-lim-smul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L764"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_smul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">r</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">has_lim(RSeq.smul(r,</span> <span class="pre">a),</span> <span class="pre">r</span> <span class="pre">*</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_smul&quot;, [&quot;*&quot;, &quot;=&gt;&quot;, &quot;RSeq.smul&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-has-lim-squeeze"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L905"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_squeeze</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">d</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span>
+&#160; <span class="pre">has_lim(d,</span> <span class="pre">x)</span> <span class="pre">→</span>
+&#160; <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">b[n]</span> <span class="pre">∧</span> <span class="pre">b[n]</span> <span class="pre">≤</span> <span class="pre">d[n])</span> <span class="pre">→</span>
+&#160; <span class="pre">has_lim(b,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_squeeze&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;and&quot;, &quot;has_lim&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-has-lim-sub"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L845"><code class="docutils literal notranslate"><span class="pre">real.rseq.has_lim_sub</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">has_lim(b,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">has_lim(a</span> <span class="pre">-</span> <span class="pre">b,</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.has_lim_sub&quot;, [&quot;(Array Int Real).sub&quot;, &quot;-&quot;, &quot;=&gt;&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-kron-diff"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L73"><code class="docutils literal notranslate"><span class="pre">real.rseq.kron_diff</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≠</span> <span class="pre">m</span> <span class="pre">→</span> <span class="pre">krondelta(n)[m]</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.kron_diff&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;Real&quot;, &quot;distinct&quot;, &quot;krondelta&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-kron-same"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L72"><code class="docutils literal notranslate"><span class="pre">real.rseq.kron_same</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">krondelta(n)[n]</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.kron_same&quot;, [&quot;=&quot;, &quot;Real&quot;, &quot;krondelta&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-le-of-has-lim"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L873"><code class="docutils literal notranslate"><span class="pre">real.rseq.le_of_has_lim</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">r</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">r)</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">r</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.le_of_has_lim&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;has_lim&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-le-of-has-lim-of-has-lim"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L860"><code class="docutils literal notranslate"><span class="pre">real.rseq.le_of_has_lim_of_has_lim</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span>
+&#160; <span class="pre">has_lim(b,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">b[n])</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">y</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.le_of_has_lim_of_has_lim&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;has_lim&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-lim-const"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L668"><code class="docutils literal notranslate"><span class="pre">real.rseq.lim_const</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">has_lim(RSeq.const(x),</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.lim_const&quot;, [&quot;RSeq.const&quot;, &quot;has_lim&quot;, &quot;x&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-lim-defn"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L661"><code class="docutils literal notranslate"><span class="pre">real.rseq.lim_defn</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">is_conv(A₀)</span> <span class="pre">→</span> <span class="pre">has_lim(A₀,</span> <span class="pre">lim(A₀))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.lim_defn&quot;, [&quot;=&gt;&quot;, &quot;A!1912&quot;, &quot;has_lim&quot;, &quot;is_conv&quot;, &quot;lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-lim-of-nonneg-seq"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L745"><code class="docutils literal notranslate"><span class="pre">real.rseq.lim_of_nonneg_seq</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">has_lim(a,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≥</span> <span class="pre">0)</span> <span class="pre">→</span> <span class="pre">y</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.lim_of_nonneg_seq&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;Real&quot;, &quot;has_lim&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-lim-unique"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L688"><code class="docutils literal notranslate"><span class="pre">real.rseq.lim_unique</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">has_lim(a,</span> <span class="pre">x)</span> <span class="pre">→</span> <span class="pre">has_lim(a,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">y</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.lim_unique&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-lim-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L667"><code class="docutils literal notranslate"><span class="pre">real.rseq.lim_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">has_lim(RSeq.zero,</span> <span class="pre">0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.lim_zero&quot;, [&quot;RSeq.zero&quot;, &quot;Real&quot;, &quot;has_lim&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-max-bound"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L356"><code class="docutils literal notranslate"><span class="pre">real.rseq.max_bound</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">i</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">i</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">i</span> <span class="pre">≤</span> <span class="pre">n</span> <span class="pre">→</span> <span class="pre">a[i]</span> <span class="pre">≤</span> <span class="pre">max(a)[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.max_bound&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;max&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-max-ge-self"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L321"><code class="docutils literal notranslate"><span class="pre">real.rseq.max_ge_self</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">i</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">max(a)[i]</span> <span class="pre">≥</span> <span class="pre">a[i]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.max_ge_self&quot;, [&quot;&gt;=&quot;, &quot;max&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-max-prefix-bound"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L334"><code class="docutils literal notranslate"><span class="pre">real.rseq.max_prefix_bound</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">∀i</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">i</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">i</span> <span class="pre">≤</span> <span class="pre">n</span> <span class="pre">→</span> <span class="pre">a[i]</span> <span class="pre">≤</span> <span class="pre">max(a)[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.max_prefix_bound&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;max&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-max-suffix-bound"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L369"><code class="docutils literal notranslate"><span class="pre">real.rseq.max_suffix_bound</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">n</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">∀i</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">i</span> <span class="pre">→</span> <span class="pre">i</span> <span class="pre">≤</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[i]</span> <span class="pre">≤</span> <span class="pre">max(a)[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.max_suffix_bound&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;Int&quot;, &quot;max&quot;, &quot;select&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-mul-add"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L117"><code class="docutils literal notranslate"><span class="pre">real.rseq.mul_add</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">B₀</span> <span class="pre">C₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">(B₀</span> <span class="pre">+</span> <span class="pre">C₀)</span> <span class="pre">=</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">B₀</span> <span class="pre">+</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">C₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.mul_add&quot;, [&quot;(Array Int Real).add&quot;, &quot;(Array Int Real).mul&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-mul-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L107"><code class="docutils literal notranslate"><span class="pre">real.rseq.mul_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">B₀</span> <span class="pre">C₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">B₀</span> <span class="pre">*</span> <span class="pre">C₀</span> <span class="pre">=</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">(B₀</span> <span class="pre">*</span> <span class="pre">C₀)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.mul_assoc&quot;, [&quot;(Array Int Real).mul&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-mul-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L104"><code class="docutils literal notranslate"><span class="pre">real.rseq.mul_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">B₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">B₀</span> <span class="pre">=</span> <span class="pre">B₀</span> <span class="pre">*</span> <span class="pre">A₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.mul_comm&quot;, [&quot;(Array Int Real).mul&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-mul-one"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L114"><code class="docutils literal notranslate"><span class="pre">real.rseq.mul_one</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">RSeq.const(1)</span> <span class="pre">=</span> <span class="pre">A₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.mul_one&quot;, [&quot;(Array Int Real).mul&quot;, &quot;=&quot;, &quot;RSeq.const&quot;, &quot;Real&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-mul-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L113"><code class="docutils literal notranslate"><span class="pre">real.rseq.mul_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">*</span> <span class="pre">RSeq.zero</span> <span class="pre">=</span> <span class="pre">RSeq.zero</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.mul_zero&quot;, [&quot;(Array Int Real).mul&quot;, &quot;=&quot;, &quot;RSeq.zero&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-rev-const"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L145"><code class="docutils literal notranslate"><span class="pre">real.rseq.rev_const</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSeq.rev(RSeq.const(x))</span> <span class="pre">=</span> <span class="pre">RSeq.const(x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.rev_const&quot;, [&quot;=&quot;, &quot;RSeq.const&quot;, &quot;RSeq.rev&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-rev-id"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L146"><code class="docutils literal notranslate"><span class="pre">real.rseq.rev_id</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">RSeq.rev(RSeq.id)</span> <span class="pre">=</span> <span class="pre">-RSeq.id</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.rev_id&quot;, [&quot;(Array Int Real).neg&quot;, &quot;=&quot;, &quot;RSeq.id&quot;, &quot;RSeq.rev&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-rev-rev"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L137"><code class="docutils literal notranslate"><span class="pre">real.rseq.rev_rev</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">RSeq.rev(RSeq.rev(A₀))</span> <span class="pre">=</span> <span class="pre">A₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.rev_rev&quot;, [&quot;=&quot;, &quot;RSeq.rev&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-rev-shift"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L141"><code class="docutils literal notranslate"><span class="pre">real.rseq.rev_shift</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSeq.rev(RSeq.shift(a,</span> <span class="pre">n))</span> <span class="pre">=</span> <span class="pre">RSeq.shift(RSeq.rev(a),</span> <span class="pre">-n)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.rev_shift&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;RSeq.rev&quot;, &quot;RSeq.shift&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-rev-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L144"><code class="docutils literal notranslate"><span class="pre">real.rseq.rev_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">RSeq.rev(RSeq.zero)</span> <span class="pre">=</span> <span class="pre">RSeq.zero</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.rev_zero&quot;, [&quot;=&quot;, &quot;RSeq.rev&quot;, &quot;RSeq.zero&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-shift-shit"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L138"><code class="docutils literal notranslate"><span class="pre">real.rseq.shift_shit</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">a</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSeq.shift(RSeq.shift(a,</span> <span class="pre">n),</span> <span class="pre">m)</span> <span class="pre">=</span> <span class="pre">RSeq.shift(a,</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">m)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.shift_shit&quot;, [&quot;+&quot;, &quot;=&quot;, &quot;RSeq.shift&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rseq-smul-mul"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L129"><code class="docutils literal notranslate"><span class="pre">real.rseq.smul_mul</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSeq.smul(x,</span> <span class="pre">a)</span> <span class="pre">*</span> <span class="pre">b</span> <span class="pre">=</span> <span class="pre">RSeq.smul(x,</span> <span class="pre">a</span> <span class="pre">*</span> <span class="pre">b)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.smul_mul&quot;, [&quot;(Array Int Real).mul&quot;, &quot;=&quot;, &quot;RSeq.smul&quot;]]"></span></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rseq-sub-eq-add-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rseq.py#L121"><code class="docutils literal notranslate"><span class="pre">real.rseq.sub_eq_add_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A₀</span> <span class="pre">B₀</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span> <span class="pre">A₀</span> <span class="pre">-</span> <span class="pre">B₀</span> <span class="pre">=</span> <span class="pre">A₀</span> <span class="pre">+</span> <span class="pre">-B₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rseq.sub_eq_add_neg&quot;, [&quot;(Array Int Real).add&quot;, &quot;(Array Int Real).neg&quot;, &quot;(Array Int Real).sub&quot;, &quot;=&quot;]]"></span></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.real.ndarray.html" class="btn btn-neutral float-left" title="kdrag.theories.real.ndarray" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.real.rseq.near.html" class="btn btn-neutral float-right" title="kdrag.theories.real.rseq.near" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

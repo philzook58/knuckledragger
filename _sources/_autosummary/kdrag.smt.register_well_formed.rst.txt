@@ -1,0 +1,6 @@
+kdrag.smt.register\_well\_formed
+================================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: register_well_formed

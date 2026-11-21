@@ -1,0 +1,6 @@
+kdrag.solvers.kb.is\_trivial
+============================
+
+.. currentmodule:: kdrag.solvers.kb
+
+.. autofunction:: is_trivial

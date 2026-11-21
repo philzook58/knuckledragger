@@ -1,0 +1,6 @@
+kdrag.printers.prolog.to\_prolog
+================================
+
+.. currentmodule:: kdrag.printers.prolog
+
+.. autofunction:: to_prolog

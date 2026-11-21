@@ -1,0 +1,6 @@
+kdrag.solvers.kb.huet
+=====================
+
+.. currentmodule:: kdrag.solvers.kb
+
+.. autofunction:: huet

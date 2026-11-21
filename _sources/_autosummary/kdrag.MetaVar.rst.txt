@@ -1,0 +1,6 @@
+kdrag.MetaVar
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: MetaVar

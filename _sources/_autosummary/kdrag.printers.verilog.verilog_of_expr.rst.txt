@@ -1,0 +1,6 @@
+kdrag.printers.verilog.verilog\_of\_expr
+========================================
+
+.. currentmodule:: kdrag.printers.verilog
+
+.. autofunction:: verilog_of_expr

@@ -1,0 +1,28 @@
+kdrag.contrib.ir.mlir
+=====================
+
+.. automodule:: kdrag.contrib.ir.mlir
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/ir/mlir.py
+   :language: python

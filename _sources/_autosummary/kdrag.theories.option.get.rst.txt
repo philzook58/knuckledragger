@@ -1,0 +1,6 @@
+kdrag.theories.option.get
+=========================
+
+.. currentmodule:: kdrag.theories.option
+
+.. autofunction:: get

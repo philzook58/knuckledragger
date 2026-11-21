@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.subseq
+==============================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: subseq

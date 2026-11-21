@@ -1,0 +1,6 @@
+kdrag.notation.QExists
+======================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: QExists

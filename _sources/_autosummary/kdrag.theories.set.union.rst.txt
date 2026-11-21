@@ -1,0 +1,6 @@
+kdrag.theories.set.union
+========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: union

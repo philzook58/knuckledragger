@@ -1,0 +1,6 @@
+kdrag.cast.subsort
+==================
+
+.. currentmodule:: kdrag.cast
+
+.. autofunction:: subsort

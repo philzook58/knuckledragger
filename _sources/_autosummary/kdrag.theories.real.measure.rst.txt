@@ -1,0 +1,38 @@
+kdrag.theories.real.measure
+===========================
+
+.. automodule:: kdrag.theories.real.measure
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      is_zero
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.measure
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/measure.py
+   :language: python

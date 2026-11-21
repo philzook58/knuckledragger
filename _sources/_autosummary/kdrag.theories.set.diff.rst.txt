@@ -1,0 +1,6 @@
+kdrag.theories.set.diff
+=======================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: diff

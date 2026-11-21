@@ -1,0 +1,6 @@
+kdrag.theories.real.interval.Max
+================================
+
+.. currentmodule:: kdrag.theories.real.interval
+
+.. autofunction:: Max

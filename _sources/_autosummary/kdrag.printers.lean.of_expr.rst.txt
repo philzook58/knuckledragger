@@ -1,0 +1,6 @@
+kdrag.printers.lean.of\_expr
+============================
+
+.. currentmodule:: kdrag.printers.lean
+
+.. autofunction:: of_expr

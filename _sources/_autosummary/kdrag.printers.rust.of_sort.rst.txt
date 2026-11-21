@@ -1,0 +1,6 @@
+kdrag.printers.rust.of\_sort
+============================
+
+.. currentmodule:: kdrag.printers.rust
+
+.. autofunction:: of_sort

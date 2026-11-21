@@ -1,0 +1,6 @@
+kdrag.theories.set.PowerSet
+===========================
+
+.. currentmodule:: kdrag.theories.set
+
+.. autofunction:: PowerSet

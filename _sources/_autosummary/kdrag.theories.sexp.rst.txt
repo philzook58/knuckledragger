@@ -1,0 +1,42 @@
+kdrag.theories.sexp
+===================
+
+.. automodule:: kdrag.theories.sexp
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Quote
+      Truth
+      Unquote
+      of_sexp
+      parse
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.sexp
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/sexp.py
+   :language: python

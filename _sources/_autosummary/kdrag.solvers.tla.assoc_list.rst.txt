@@ -1,0 +1,6 @@
+kdrag.solvers.tla.assoc\_list
+=============================
+
+.. currentmodule:: kdrag.solvers.tla
+
+.. autofunction:: assoc_list

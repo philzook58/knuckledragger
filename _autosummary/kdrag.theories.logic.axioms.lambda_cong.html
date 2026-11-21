@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.logic.axioms.lambda_cong &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=4b0197fc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.logic.axioms.neg_ext" href="kdrag.theories.logic.axioms.neg_ext.html" />
+    <link rel="prev" title="kdrag.theories.logic.axioms.forall_cong" href="kdrag.theories.logic.axioms.forall_cong.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.GAT.html">kdrag.theories.logic.GAT</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="kdrag.theories.logic.axioms.html">kdrag.theories.logic.axioms</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.beta_conv.html">kdrag.theories.logic.axioms.beta_conv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.cong.html">kdrag.theories.logic.axioms.cong</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.consider.html">kdrag.theories.logic.axioms.consider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.eqrefl.html">kdrag.theories.logic.axioms.eqrefl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.eqsym.html">kdrag.theories.logic.axioms.eqsym</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.eqtrans.html">kdrag.theories.logic.axioms.eqtrans</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.exists_cong.html">kdrag.theories.logic.axioms.exists_cong</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.forall_cong.html">kdrag.theories.logic.axioms.forall_cong</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">kdrag.theories.logic.axioms.lambda_cong</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.neg_ext.html">kdrag.theories.logic.axioms.neg_ext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.proj.html">kdrag.theories.logic.axioms.proj</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.rename_vars.html">kdrag.theories.logic.axioms.rename_vars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.substitute_fresh_vars.html">kdrag.theories.logic.axioms.substitute_fresh_vars</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.unfold.html">kdrag.theories.logic.axioms.unfold</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.beta_conv"><code class="docutils literal notranslate"><span class="pre">beta_conv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.cong"><code class="docutils literal notranslate"><span class="pre">cong()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.consider"><code class="docutils literal notranslate"><span class="pre">consider()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.eqrefl"><code class="docutils literal notranslate"><span class="pre">eqrefl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.eqsym"><code class="docutils literal notranslate"><span class="pre">eqsym()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.eqtrans"><code class="docutils literal notranslate"><span class="pre">eqtrans()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.exists_cong"><code class="docutils literal notranslate"><span class="pre">exists_cong()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.forall_cong"><code class="docutils literal notranslate"><span class="pre">forall_cong()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.lambda_cong"><code class="docutils literal notranslate"><span class="pre">lambda_cong()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.neg_ext"><code class="docutils literal notranslate"><span class="pre">neg_ext()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.proj"><code class="docutils literal notranslate"><span class="pre">proj()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.rename_vars"><code class="docutils literal notranslate"><span class="pre">rename_vars()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.substitute_fresh_vars"><code class="docutils literal notranslate"><span class="pre">substitute_fresh_vars()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="kdrag.theories.logic.axioms.html#kdrag.theories.logic.axioms.unfold"><code class="docutils literal notranslate"><span class="pre">unfold()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.computable.html">kdrag.theories.logic.computable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.intuitionistic.html">kdrag.theories.logic.intuitionistic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.nominal.html">kdrag.theories.logic.nominal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.ordinal.html">kdrag.theories.logic.ordinal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.peano.html">kdrag.theories.logic.peano</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.robinson.html">kdrag.theories.logic.robinson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.sear.html">kdrag.theories.logic.sear</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.sep.html">kdrag.theories.logic.sep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.logic.temporal.html">kdrag.theories.logic.temporal</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.logic.axioms.html">kdrag.theories.logic.axioms</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.logic.axioms.lambda_cong</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.logic.axioms.lambda_cong.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kdrag-theories-logic-axioms-lambda-cong">
+<h1>kdrag.theories.logic.axioms.lambda_cong<a class="headerlink" href="#kdrag-theories-logic-axioms-lambda-cong" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.logic.axioms.lambda_cong">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.logic.axioms.</span></span><span class="sig-name descname"><span class="pre">lambda_cong</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ExprRef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.theories.logic.axioms.lambda_cong" title="Link to this definition"></a></dt>
+<dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lambda_cong</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">prove</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">x</span><span class="p">))</span>
+<span class="go">|= (Lambda(x, x + 1)) == (Lambda(x, 1 + x))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vs</strong> (<em>list</em><em>[</em><em>ExprRef</em><em>]</em>)</p></li>
+<li><p><strong>pf</strong> (<a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.logic.axioms.forall_cong.html" class="btn btn-neutral float-left" title="kdrag.theories.logic.axioms.forall_cong" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.logic.axioms.neg_ext.html" class="btn btn-neutral float-right" title="kdrag.theories.logic.axioms.neg_ext" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

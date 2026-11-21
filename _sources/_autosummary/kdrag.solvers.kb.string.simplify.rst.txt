@@ -1,0 +1,6 @@
+kdrag.solvers.kb.string.simplify
+================================
+
+.. currentmodule:: kdrag.solvers.kb.string
+
+.. autofunction:: simplify

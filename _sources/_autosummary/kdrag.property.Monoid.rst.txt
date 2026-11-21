@@ -1,0 +1,6 @@
+kdrag.property.Monoid
+=====================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: Monoid

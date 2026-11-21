@@ -1,0 +1,6 @@
+kdrag.solvers.scryer.subterms
+=============================
+
+.. currentmodule:: kdrag.solvers.scryer
+
+.. autofunction:: subterms

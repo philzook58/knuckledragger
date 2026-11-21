@@ -1,0 +1,6 @@
+kdrag.rewrite.esimp
+===================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: esimp

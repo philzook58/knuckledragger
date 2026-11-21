@@ -1,0 +1,6 @@
+kdrag.theories.logic.temporal.lift\_binop
+=========================================
+
+.. currentmodule:: kdrag.theories.logic.temporal
+
+.. autofunction:: lift_binop

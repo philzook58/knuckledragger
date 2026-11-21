@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.substitute\_fresh\_vars
+===================================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: substitute_fresh_vars

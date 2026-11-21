@@ -1,0 +1,6 @@
+kdrag.property.SemiLattice
+==========================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: SemiLattice

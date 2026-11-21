@@ -1,0 +1,6 @@
+kdrag.theories.logic.axioms.lambda\_cong
+========================================
+
+.. currentmodule:: kdrag.theories.logic.axioms
+
+.. autofunction:: lambda_cong

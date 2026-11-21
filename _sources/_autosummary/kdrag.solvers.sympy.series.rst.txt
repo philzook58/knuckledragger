@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.series
+==========================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: series

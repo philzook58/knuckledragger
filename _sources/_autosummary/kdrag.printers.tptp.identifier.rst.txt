@@ -1,0 +1,6 @@
+kdrag.printers.tptp.identifier
+==============================
+
+.. currentmodule:: kdrag.printers.tptp
+
+.. autofunction:: identifier

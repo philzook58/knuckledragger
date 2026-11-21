@@ -1,0 +1,6 @@
+kdrag.theories.fixed.FixedSort
+==============================
+
+.. currentmodule:: kdrag.theories.fixed
+
+.. autofunction:: FixedSort

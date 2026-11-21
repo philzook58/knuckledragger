@@ -1,0 +1,6 @@
+kdrag.modal.coerce
+==================
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: coerce

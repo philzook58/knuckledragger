@@ -1,0 +1,6 @@
+kdrag.solvers.gappa.gappa\_of\_real
+===================================
+
+.. currentmodule:: kdrag.solvers.gappa
+
+.. autofunction:: gappa_of_real

@@ -1,0 +1,6 @@
+kdrag.is\_complex
+=================
+
+.. currentmodule:: kdrag
+
+.. autofunction:: is_complex

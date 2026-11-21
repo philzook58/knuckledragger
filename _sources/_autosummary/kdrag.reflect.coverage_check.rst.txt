@@ -1,0 +1,6 @@
+kdrag.reflect.coverage\_check
+=============================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: coverage_check

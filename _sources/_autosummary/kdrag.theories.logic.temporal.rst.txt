@@ -1,0 +1,61 @@
+kdrag.theories.logic.temporal
+=============================
+
+.. automodule:: kdrag.theories.logic.temporal
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Always
+      And
+      Bool
+      Bools
+      Eq
+      Eventually
+      F
+      G
+      If
+      Implies
+      Int
+      Ints
+      NEq
+      Next
+      Not
+      Or
+      TLift
+      TSort
+      UNCHANGED
+      Valid
+      X
+      is_T
+      lift_binop
+      lift_unop
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.logic.temporal
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/logic/temporal.py
+   :language: python

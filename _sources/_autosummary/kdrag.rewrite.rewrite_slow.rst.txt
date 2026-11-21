@@ -1,0 +1,6 @@
+kdrag.rewrite.rewrite\_slow
+===========================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: rewrite_slow

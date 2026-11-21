@@ -1,0 +1,6 @@
+kdrag.modal.PIf
+===============
+
+.. currentmodule:: kdrag.modal
+
+.. autofunction:: PIf

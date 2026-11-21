@@ -1,0 +1,6 @@
+kdrag.rewrite.all\_narrow
+=========================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: all_narrow

@@ -1,0 +1,6 @@
+kdrag.utils.sanity\_check\_consistency
+======================================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: sanity_check_consistency
