@@ -562,6 +562,9 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
     try:
         res = old_call(self, *new_args)
     except Z3Exception as error:
+        # Native errors that already show the declaration have enough context.
+        if self.sexpr() in str(error):
+            raise
         arguments = ", ".join(
             f"{arg!r} ({arg.sort() if is_expr(arg) else type(arg).__name__})"
             for arg in new_args

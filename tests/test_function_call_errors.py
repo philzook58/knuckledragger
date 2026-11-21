@@ -33,12 +33,16 @@ def test_python_type_and_later_argument():
     assert "arguments [True (bool), 'bad-number' (str)]" in message
 
 
-def test_bitvector_width_is_reported():
+@pytest.mark.parametrize("wrong_arity", [False, True])
+def test_detailed_native_errors_are_unchanged(wrong_arity):
     f = Function("diagnostic_bv", BitVecSort(8), BoolSort())
+    args = () if wrong_arity else (BitVecVal(1, 16),)
+    with pytest.raises(smt.Z3Exception) as original:
+        smt.old_call(f, *args)
     with pytest.raises(smt.Z3Exception) as exc:
-        f(BitVecVal(1, 16))
-    assert "(_ BitVec 8)" in str(exc.value)
-    assert "arguments [1 (BitVec(16))]" in str(exc.value)
+        f(*args)
+    assert str(exc.value) == str(original.value)
+    assert exc.value.__cause__ is None
 
 
 def test_valid_coercions_and_implicit_arguments_are_preserved():
