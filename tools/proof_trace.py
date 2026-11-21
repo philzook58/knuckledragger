@@ -9,6 +9,7 @@ from functools import cache
 from html import escape
 from importlib import import_module
 from inspect import getattr_static
+from io import StringIO
 from itertools import groupby
 import linecache
 from pathlib import Path
@@ -16,6 +17,7 @@ import re
 import subprocess
 import sys
 from textwrap import dedent, wrap
+import tokenize
 
 
 THEORIES = "src/kdrag/theories"
@@ -120,6 +122,27 @@ def tactic_statement(filename, line, tactic):
             ast.get_source_segment(source, statement, padded=True)
         )
     return line, linecache.getline(filename, line).strip()
+
+
+@cache
+def standalone_comments(filename):
+    source = "".join(linecache.getlines(filename))
+    return {
+        token.start[0]: (token.start[1], token.string[1:].strip())
+        for token in tokenize.generate_tokens(StringIO(source).readline)
+        if token.type == tokenize.COMMENT and not token.line[: token.start[1]].strip()
+    }
+
+
+def preceding_comments(filename, line):
+    comments = standalone_comments(filename)
+    source = linecache.getline(filename, line)
+    indent = len(source) - len(source.lstrip())
+    result = []
+    while (comment := comments.get(line - 1)) is not None and comment[0] == indent:
+        result.append(comment[1])
+        line -= 1
+    return list(reversed(result))
 
 
 def proof_arguments(node, value, proof_type):
@@ -273,10 +296,10 @@ def record(targets, revision):
 
     def profile(frame, event, _value):
         if event == "return" and frame in pending:
-            target, line, snippet, before = pending.pop(frame)
+            target, line, snippet, before, comments = pending.pop(frame)
             after = snapshot(frame.f_locals["self"])
             if tuple(map(goal_key, before)) != tuple(map(goal_key, after)):
-                steps[target].append((line, snippet, before, after))
+                steps[target].append((line, snippet, before, after, comments))
         elif event == "call" and frame.f_globals is vars(tactics):
             caller = frame.f_back
             if caller is None or frame.f_code.co_name.startswith("_"):
@@ -297,6 +320,7 @@ def record(targets, revision):
                         source or tactic, tactic, frame, caller, revision, selected
                     ),
                     snapshot(state),
+                    preceding_comments(caller.f_code.co_filename, line),
                 )
 
     # Install the hook before importing any selected theory, including dependencies.
@@ -526,9 +550,14 @@ def render(target, statement, steps):
         return "\n\n".join(parts)
 
     parts.append("**Starting state**\n\n" + goals(steps[0][2]))
-    for number, (line, snippet, before, after) in enumerate(steps, 1):
+    shown_comments = set()
+    for number, (line, snippet, before, after, comments) in enumerate(steps, 1):
+        prose = ""
+        if any(comments) and line not in shown_comments:
+            prose = "<p>" + "<br>".join(map(escape, comments)) + "</p>\n\n"
+            shown_comments.add(line)
         parts.append(
-            f"<details>\n<summary>Step {number} · line {line}</summary>\n\n"
+            f"{prose}<details>\n<summary>Step {number} · line {line}</summary>\n\n"
             f"{snippet}\n\n{goals(after, before)}\n\n</details>"
         )
         if len("\n\n".join(parts).encode()) > COMMENT_LIMIT - 512:
