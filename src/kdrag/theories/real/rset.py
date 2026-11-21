@@ -298,7 +298,7 @@ def exists_between_seq(l):
     j = l.fix()
     l.intro()
     l.unfold(is_ub)
-    point = l.fix()
+    l.fix()
     l.beta()
     member = l.intro()
     k = l.obtain(member)
