@@ -245,6 +245,8 @@ def sum_append(pf):
 
 ## Test Reliability Notes
 
+- Guard every `substitute_vars` call with `kernel._check_binder_sorts` in binder order before reversing replacements. Z3 can silently leave loose bound variables on sort mismatches. Convenience APIs should cast Python literals to the binder sort; kernel rules require already-sorted expressions.
+
 - Automatic lifting creates lambdas with fresh binder names. Compare results semantically rather than with AST `.eq`, and instantiate lemmas at concrete arguments when quantifier matching through lambda arguments is unstable.
 - Sequence concatenation accepts Python lists (`[x] + xs`, `xs + [x]`), delegating typed literal conversion to `cast.cast`. Bare elements are rejected with a singleton hint; native scalar additions must defer sequence RHS operands so that diagnostic can run.
 - Default induction on a sequence uses empty/cons cases through `notation.induct`. Explicit `notation.induct_seq` retains empty/singleton/concatenation induction; no sequence-theory import is needed for the default.
