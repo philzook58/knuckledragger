@@ -387,11 +387,24 @@ def added_indices(before, after):
     return added
 
 
-def highlighted_goal(state, previous):
+def trace_goal_text(state, width):
     from kdrag.printers.pretty import pretty_goal
 
-    width = COMMENT_WIDTH - 2  # Leave room for the diff prefix.
     text = pretty_goal(state, width=width)
+    if not (state.sig or state.ctx):
+        return text
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith("⊢ "):
+            if index and not lines[index - 1].startswith("─"):
+                lines.insert(index, "─" * min(width, max(map(len, lines))))
+            break
+    return "\n".join(lines)
+
+
+def highlighted_goal(state, previous):
+    width = COMMENT_WIDTH - 2  # Leave room for the diff prefix.
+    text = trace_goal_text(state, width)
     lines = text.splitlines()
     first_formula = next(
         (i for i, line in enumerate(lines) if re.match(r"^(?:\d+: |⊢ |─)", line)),
@@ -460,11 +473,11 @@ def removal_plan(before, after):
 
 
 def goal_with_removals(state, previous, locals_removed, hypotheses_removed):
-    from kdrag.printers.pretty import _Printer, _sort, pretty_goal
+    from kdrag.printers.pretty import _Printer, _sort
 
     width = COMMENT_WIDTH - 2
-    text = pretty_goal(state, width=width)
-    old_text = pretty_goal(previous, width=width)
+    text = trace_goal_text(state, width)
+    old_text = trace_goal_text(previous, width)
     boundary = re.compile(r"^(?:(\d+): |(?=[─⊢]))", re.M)
     old_boundaries = list(boundary.finditer(old_text))
     current_boundaries = list(boundary.finditer(text))
@@ -516,8 +529,6 @@ def goal_with_removals(state, previous, locals_removed, hypotheses_removed):
 
 
 def goals(states, before=()):
-    from kdrag.printers.pretty import pretty_goal
-
     if not states:
         return "No open goals."
     existing = {goal_key(state): state for state in before}
@@ -531,7 +542,7 @@ def goals(states, before=()):
             previous = existing.get(goal_key(state), before[0])
             block = highlighted_goal(state, previous)
         else:
-            block = math_block(pretty_goal(state, width=COMMENT_WIDTH))
+            block = math_block(trace_goal_text(state, COMMENT_WIDTH))
         rendered.append(f"**Goal {index + 1}**\n\n{block}")
     return "\n\n".join(rendered)
 
