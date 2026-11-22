@@ -99,7 +99,11 @@ class Definitions:
                 INSTALL,
                 "from kdrag.all import *",
                 f"from {module_name} import *",
-                *([f"from {module_name} import {', '.join(private)}"] if private else []),
+                *(
+                    [f"from {module_name} import {', '.join(private)}"]
+                    if private
+                    else []
+                ),
                 "",
                 *([step or src] if step or src else []),
                 *([] if step else [name]),

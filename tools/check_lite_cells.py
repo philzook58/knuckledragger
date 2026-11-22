@@ -47,7 +47,9 @@ for module_name in modules:
         failed.append(f"{module_name}  # import: {type(e).__name__}")
         continue
     names = [
-        n for n, v in sorted(vars(module).items()) if not n.startswith("_") and isinstance(v, kd.Proof)
+        n
+        for n, v in sorted(vars(module).items())
+        if not n.startswith("_") and isinstance(v, kd.Proof)
     ]
     bad = 0
     t = time.perf_counter()
@@ -59,9 +61,15 @@ for module_name in modules:
                 run(defs.cell(name, stepping=False))
         except BaseException as e:  # noqa: BLE001
             bad += 1
-            print(f"  FAIL {module_name}.{name}: {type(e).__name__}: {str(e)[:120]}", flush=True)
+            print(
+                f"  FAIL {module_name}.{name}: {type(e).__name__}: {str(e)[:120]}",
+                flush=True,
+            )
             failed.append(f"{module_name}.{name}  # {type(e).__name__}")
-    print(f"{module_name}: {len(names) - bad}/{len(names)} ok, {time.perf_counter() - t:.1f}s", flush=True)
+    print(
+        f"{module_name}: {len(names) - bad}/{len(names)} ok, {time.perf_counter() - t:.1f}s",
+        flush=True,
+    )
 
 print(f"{len(failed)} skipped of {total} theorems")
 if write:
