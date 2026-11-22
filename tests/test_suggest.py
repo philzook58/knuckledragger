@@ -13,7 +13,7 @@ def test_rank_finds_matching_library_lemma():
 def test_report_marks_lemma_that_closes_goal():
     x, y = smt.Reals("x y")
     report = suggest.report(real.abs(x + y) <= real.abs(x) + real.abs(y))
-    assert "  ✓ " in report
+    assert "  ✅ " in report
 
 
 def test_ptheorem_prints_suggestions_when_enabled(capsys):
@@ -28,3 +28,12 @@ def test_ptheorem_prints_suggestions_when_enabled(capsys):
     finally:
         kd.config.suggest = "off"
     assert "Suggestions" in capsys.readouterr().out
+
+
+def test_suggest_prints_goal_first(capsys):
+    x, y = smt.Reals("x y")
+    l = kd.Lemma(smt.ForAll([x, y], real.abs(x + y) <= real.abs(x) + real.abs(y)))
+    l.fixes()
+    l.suggest()
+    out = capsys.readouterr().out
+    assert out.index("⊢") < out.index("Suggestions")

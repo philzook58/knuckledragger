@@ -165,7 +165,7 @@ def report(
     """
     Ranked suggestions for `goal` as text; the top `check` are tried with z3.
 
-    A suggestion marked ✓ proves the goal on its own. Checks stop once `budget`
+    A suggestion marked ✅ proves the goal on its own. Checks stop once `budget`
     seconds have passed.
     """
     from kdrag.printers.pretty import pretty_expr
@@ -173,11 +173,11 @@ def report(
     start = time.perf_counter()
     lines = []
     for i, s in enumerate(rank(goal)):
-        mark = " "
+        mark = "  "  # two columns, like the emoji
         if i < check and time.perf_counter() - start < budget:
             try:
                 kernel.prove(goal, by=[s.proof], timeout=timeout)
-                mark = "✓"
+                mark = "✅"
             except Exception:
                 pass
         stmt = " ".join(pretty_expr(s.proof.thm).split())
@@ -186,4 +186,4 @@ def report(
         lines.append(f"  {mark} {s.name.removeprefix('kdrag.theories.')}: {stmt}")
     if not lines:
         return ""
-    return "Suggestions (✓ proves the goal alone):\n" + "\n".join(lines)
+    return "Suggestions (✅ proves the goal alone):\n" + "\n".join(lines)

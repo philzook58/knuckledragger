@@ -2231,12 +2231,14 @@ class ProofState:
         """
         Print library lemmas likely to help with the current goal.
 
-        Ranked by shared rare symbols; the top few are tried with z3, and a
-        ✓ marks one that proves the goal on its own. See `kdrag.suggest`.
+        Prints the goal first. Ranked by shared rare symbols; the top few are tried
+        with z3, and ✅ marks one that proves the goal on its own. See `kdrag.suggest`.
         """
         import kdrag.suggest
+        from kdrag.printers.pretty import pretty_goal
 
-        print(kdrag.suggest.report(self.top_goal().to_expr()))
+        goal = self.top_goal()
+        print(pretty_goal(goal), kdrag.suggest.report(goal.to_expr()), sep="\n")
 
     # TODO
     # def llm():
@@ -2438,6 +2440,8 @@ def PTheorem(
         else:
             print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
             if kdrag.config.suggest != "off":
-                l.suggest()
+                from kdrag import suggest
+
+                print(suggest.report(l.top_goal().to_expr()))
 
     return res
