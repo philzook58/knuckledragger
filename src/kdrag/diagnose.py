@@ -30,7 +30,7 @@ def _defns(thm: smt.BoolRef) -> list[kernel.Proof]:
         if t.get_id() in seen:
             continue
         seen.add(t.get_id())
-        if smt.is_quantifier(t):
+        if isinstance(t, smt.QuantifierRef):
             todo.append(t.body())
         elif smt.is_app(t):
             if t.decl() in kernel.defns:
