@@ -2227,8 +2227,18 @@ class ProofState:
             except Exception as _:
                 return g
 
+    def suggest(self) -> None:
+        """
+        Print library lemmas likely to help with the current goal.
+
+        Ranked by shared rare symbols; the top few are tried with z3, and a
+        ✓ marks one that proves the goal on its own. See `kdrag.suggest`.
+        """
+        import kdrag.suggest
+
+        print(kdrag.suggest.report(self.top_goal().to_expr()))
+
     # TODO
-    # def suggest():
     # def llm():
     # def calc
 
@@ -2427,5 +2437,7 @@ def PTheorem(
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
             print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
+            if kdrag.config.suggest != "off":
+                l.suggest()
 
     return res
