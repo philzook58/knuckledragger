@@ -552,7 +552,10 @@ class _AutoFailure(ValueError):
         # Computed only when shown, since failures are also used for control flow.
         import kdrag.diagnose
 
-        return kdrag.diagnose.explain(self.goal, self.error, self.by, self.timeout)
+        # Leading newline so the goal starts on its own line after "_AutoFailure:".
+        return "\n" + kdrag.diagnose.explain(
+            self.goal, self.error, self.by, self.timeout
+        )
 
 
 @cache
