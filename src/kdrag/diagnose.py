@@ -94,7 +94,8 @@ def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
         reason = "z3 found a countermodel"
     else:
         reason = f"z3 returned {error.args[2]} (SMT-LIB: {error.args[3]})"
-    lines = [f"auto failed{where}: {reason}"]
+    # Emoji rather than ANSI color: they survive Jupyter, logs and copy-paste.
+    lines = [f"❌ auto failed{where}: {reason}"]
     if source:
         lines.append(f"    {source}")
     lines.append(pretty_goal(goal))
@@ -103,5 +104,5 @@ def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
             by = [by]
         fix = repair(goal.to_expr(), list(by or []), countermodel)
         if fix is not None:
-            lines.append(f"✓ passes {fix}")
+            lines += ["", f"✅ passes {fix}"]
     return "\n".join(lines)

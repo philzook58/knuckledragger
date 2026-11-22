@@ -18,14 +18,14 @@ def failure() -> _AutoFailure:
 
 def test_failure_suggests_missing_definition():
     text = str(failure())
-    assert text.startswith("auto failed: z3 found a countermodel")
+    assert text.startswith("❌ auto failed: z3 found a countermodel")
     assert "⊢ diag_succ(x₀) > x₀" in text
-    assert "✓ passes adding diag_succ.defn" in text
+    assert "\n\n✅ passes adding diag_succ.defn" in text
 
 
 def test_diagnosis_can_be_switched_off():
     kd.config.diagnose = False
     try:
-        assert "✓" not in str(failure())
+        assert "✅" not in str(failure())
     finally:
         kd.config.diagnose = True
