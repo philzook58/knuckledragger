@@ -40,22 +40,23 @@ def _defns(thm: smt.BoolRef) -> list[kernel.Proof]:
 
 
 def repair(
-    thm: smt.BoolRef, by: list[kernel.Proof], timeout=200, budget=0.5
+    thm: smt.BoolRef,
+    by: list[kernel.Proof],
+    countermodel=False,
+    timeout=50,
+    budget=0.2,
 ) -> str | None:
     """
     The first small change to `by` that proves `thm`, as text, or None.
 
-    Tries dropping each lemma (an extra lemma often causes a timeout), adding a
-    missing definition, then adding a suggested lemma. Each try gets `timeout` ms.
+    Tries adding a missing definition, then a suggested lemma, then dropping a
+    lemma (an extra lemma can cause a timeout, but never a countermodel). Each try
+    gets `timeout` ms. On failures from the existing proofs, 50ms tries in a 0.2s
+    budget found as many fixes as 200ms in 0.5s (see tools/lemma_suggest).
     """
     have = {pf.thm.get_id() for pf in by}
     defns = [d for d in _defns(thm) if d.thm.get_id() not in have]
-    tries = [
-        (f"without {_name(pf)}", [q for q in by if q is not pf])
-        for pf in by
-        if len(by) > 1
-    ]
-    tries += [(f"adding {_name(d)}", by + [d]) for d in defns]
+    tries = [(f"adding {_name(d)}", by + [d]) for d in defns]
     if len(defns) > 1:
         tries.append(("adding " + ", ".join(_name(d) for d in defns), by + defns))
     tries += [
@@ -63,6 +64,8 @@ def repair(
         for s in suggest.rank(thm, k=3)
         if s.proof.thm.get_id() not in have
     ]
+    if not countermodel and len(by) > 1:
+        tries += [(f"without {_name(pf)}", [q for q in by if q is not pf]) for pf in by]
     start = time.perf_counter()
     for label, lemmas in tries:
         if time.perf_counter() - start > budget:
@@ -83,9 +86,10 @@ def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
     """
     from kdrag.printers.pretty import pretty_goal
 
+    countermodel = not isinstance(error, TimeoutError) and len(error.args) == 3
     if isinstance(error, TimeoutError):
         reason = f"timed out after {timeout}ms"
-    elif len(error.args) == 3:
+    elif countermodel:
         # The model uses fresh names (x!7) that don't match the printed goal.
         reason = "z3 found a countermodel"
     else:
@@ -97,7 +101,7 @@ def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
     if config.diagnose:
         if isinstance(by, kernel.Proof):
             by = [by]
-        fix = repair(goal.to_expr(), list(by or []))
+        fix = repair(goal.to_expr(), list(by or []), countermodel)
         if fix is not None:
             lines.append(f"✓ passes {fix}")
     return "\n".join(lines)
