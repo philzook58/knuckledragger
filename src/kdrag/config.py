@@ -7,8 +7,6 @@ admit_enabled = True
 # timeout = 1000
 admit_level = 50
 strict_define: bool = True
-# PTheorem lemma suggestions: "off" or "lemmas" (ranked, top few checked with z3)
-suggest = "off"
 
 # TODO: Someday, when it is annoyingly slow to check built in theories, we can add a flag to disable them
 # check_lib = True

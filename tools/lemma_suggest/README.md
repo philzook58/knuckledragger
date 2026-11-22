@@ -1,8 +1,7 @@
 # Lemma suggestion benchmark
 
-`kdrag.suggest` ranks library lemmas for a goal. `l.suggest()` prints them, and so does
-`PTheorem` when `kd.config.suggest = "lemmas"`. These scripts check the ranking against the
-lemmas that existing proofs actually pass in `by=`.
+`kdrag.suggest` ranks library lemmas for a goal, and `l.suggest()` prints them mid-proof.
+These scripts check the ranking against the lemmas that existing proofs actually pass in `by=`.
 
 ```
 python tools/lemma_suggest/record.py calls.json   # import all theories, record every kd.prove call (~2.5s)

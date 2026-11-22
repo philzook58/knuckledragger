@@ -2438,9 +2438,5 @@ def PTheorem(
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
             print(pretty_goal(l.top_goal()))
-            if kdrag.config.suggest != "off":
-                from kdrag import suggest
-
-                print("", suggest.report(l.top_goal().to_expr()), sep="\n")
 
     return res

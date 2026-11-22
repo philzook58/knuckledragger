@@ -16,20 +16,6 @@ def test_report_marks_lemma_that_closes_goal():
     assert "  ✅ " in report
 
 
-def test_ptheorem_prints_suggestions_when_enabled(capsys):
-    x, y = smt.Reals("x y")
-    kd.config.suggest = "lemmas"
-    try:
-
-        @kd.PTheorem(smt.ForAll([x, y], real.abs(x + y) <= real.abs(x) + real.abs(y)))
-        def _tri(l):
-            l.fixes()
-
-    finally:
-        kd.config.suggest = "off"
-    assert "Suggestions" in capsys.readouterr().out
-
-
 def test_suggest_prints_goal_first(capsys):
     x, y = smt.Reals("x y")
     l = kd.Lemma(smt.ForAll([x, y], real.abs(x + y) <= real.abs(x) + real.abs(y)))
