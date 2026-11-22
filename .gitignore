@@ -11,3 +11,9 @@ test.sh
 .hypothesis/
 py311/
 .codex
+# JupyterLite
+docs/lite/_output/
+docs/lite/pypi/
+docs/lite/.jupyterlite.doit.db
+docs/lite/.cache/
+node_modules/

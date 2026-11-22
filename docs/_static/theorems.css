@@ -41,3 +41,14 @@
 #theorem-search-controls p {
   margin-bottom: 0.5rem;
 }
+
+.rst-content .theorem-table td:nth-child(3),
+.rst-content .theorem-table th:nth-child(3) {
+  width: 2em;
+  text-align: center;
+}
+
+.rst-content .theorem-try img {
+  height: 1.2em;
+  vertical-align: middle;
+}

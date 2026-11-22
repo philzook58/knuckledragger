@@ -22,8 +22,19 @@ jobs:
           uv sync --locked --no-dev --group docs
           --extra dev --extra yosys --extra pypcode --extra solvers
           --no-build-package egglog --no-build-package dd --no-build-package pypcode
+      - name: Build JupyterLite site
+        run: |
+          uv venv .venv-lite
+          uv pip install -p .venv-lite -r docs/lite/requirements.txt
+          PATH="$PWD/.venv-lite/bin:$PATH" docs/lite/build.sh "$PWD/_build/lite"
+      - name: Skip theorem links whose cells fail under Pyodide
+        run: |
+          npm install --no-save pyodide@314.0.6
+          node docs/lite/run_pyodide.mjs docs/lite/pypi/knuckledragger-*.whl docs/lite/check_cells.py --write
       - name: Sphinx build
         run: uv run --no-sync sphinx-build docs _build
+        env:
+          KDRAG_LITE_URL: lite
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}

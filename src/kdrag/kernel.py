@@ -7,6 +7,7 @@ import kdrag.smt as smt
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Sequence
 from . import config
+import sys
 import tempfile
 import time
 
@@ -203,6 +204,8 @@ def prove(
         else:
             s = solver()
         s.set("timeout", timeout)
+        if sys.platform == "emscripten" and isinstance(s, smt.Z3Solver):
+            s.set("rlimit", timeout * 10_000)  # timeout isn't reliable in Pyodide
         for p in by:
             if not isinstance(p, Proof):
                 raise LemmaError("In by reasons:", p, "is not a Proof object")

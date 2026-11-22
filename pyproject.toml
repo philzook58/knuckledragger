@@ -61,6 +61,7 @@ source-exclude = [
     "solvers/twee",
     "solvers/vampire",
     "solvers/vampire-ho",
+    "solvers/verus",
     "contrib/fast/test",
 ]
 module-name = "kdrag"
