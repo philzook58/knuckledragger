@@ -186,4 +186,4 @@ def report(
         lines.append(f"  {mark} {s.name.removeprefix('kdrag.theories.')}: {stmt}")
     if not lines:
         return ""
-    return "Suggestions (✅ proves the goal alone):\n" + "\n".join(lines)
+    return "Suggestions:\n" + "\n".join(lines)
