@@ -205,10 +205,7 @@ def prove(
             s = solver()
         s.set("timeout", timeout)
         if sys.platform == "emscripten" and isinstance(s, smt.Z3Solver):
-            # Pyodide's single-threaded z3 polls its timeout only in some theories;
-            # nonlinear integer goals would spin forever. An rlimit always fires.
-            # About 4000 units/ms there, so this backstop is ~2.5x the timeout.
-            s.set("rlimit", timeout * 10_000)
+            s.set("rlimit", timeout * 10_000)  # timeout isn't reliable in Pyodide
         for p in by:
             if not isinstance(p, Proof):
                 raise LemmaError("In by reasons:", p, "is not a Proof object")
