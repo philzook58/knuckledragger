@@ -2238,7 +2238,7 @@ class ProofState:
         from kdrag.printers.pretty import pretty_goal
 
         goal = self.top_goal()
-        print(pretty_goal(goal), kdrag.suggest.report(goal.to_expr()), sep="\n")
+        print(pretty_goal(goal), "", kdrag.suggest.report(goal.to_expr()), sep="\n")
 
     # TODO
     # def llm():
@@ -2396,7 +2396,6 @@ def PTheorem(
     >>> @PTheorem(smt.Implies(p, q))
     ... def unfinished(l: ProofState):
     ...     l.intro()
-    Next Goal:
     0: p
     ────
     ⊢ q
@@ -2438,10 +2437,10 @@ def PTheorem(
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
-            print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
+            print(pretty_goal(l.top_goal()))
             if kdrag.config.suggest != "off":
                 from kdrag import suggest
 
-                print(suggest.report(l.top_goal().to_expr()))
+                print("", suggest.report(l.top_goal().to_expr()), sep="\n")
 
     return res
