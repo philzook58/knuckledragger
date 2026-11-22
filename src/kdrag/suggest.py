@@ -19,6 +19,7 @@ from typing import NamedTuple
 
 import kdrag.kernel as kernel
 import kdrag.smt as smt
+import kdrag.utils as utils
 
 
 def symbols(e: smt.ExprRef) -> Counter:
@@ -79,7 +80,6 @@ class Index:
 
     def __init__(self):
         self.entries: dict[int, Entry] = {}
-        self._modules: dict[str, int] = {}  # module name -> len(vars) when scanned
         self._ndefns = 0
         self._idf: dict[str, float] = {}
         self._vecs: dict[int, dict[str, float]] = {}
@@ -91,15 +91,13 @@ class Index:
 
     def refresh(self):
         n = len(self.entries)
-        mods = sorted(sys.modules.items(), key=lambda kv: kv[0] == "__main__")
-        for mname, mod in mods:
-            d = getattr(mod, "__dict__", None)
-            if d is None or self._modules.get(mname) == len(d):
-                continue
-            self._modules[mname] = len(d)
-            for k, v in list(d.items()):
-                if isinstance(v, kernel.Proof) and not k.startswith("_"):
-                    self._add(f"{mname}.{k}", v)
+        # __main__ last: a star-imported lemma keeps its defining module's name.
+        db = sorted(
+            utils.lemma_db().items(), key=lambda kv: kv[0].startswith("__main__.")
+        )
+        for name, pf in db:
+            if not name.rsplit(".", 1)[-1].startswith("_"):
+                self._add(name, pf)
         if len(kernel.defns) != self._ndefns:
             self._ndefns = len(kernel.defns)
             names = decl_names()
