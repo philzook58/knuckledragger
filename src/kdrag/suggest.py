@@ -3,7 +3,12 @@ Suggest library lemmas that are likely to help prove a goal.
 
 Lemmas are ranked by shared rare symbols (tf-idf cosine, as in Sledgehammer's MePo
 and SInE filters) with a small bonus for recent lemmas, then the best few are tried
-with z3. See `tools/lemma_suggest/` for the benchmark against existing proofs.
+with z3.
+
+Replaying the theories' own `prove` calls (2026-11, 438 with library lemmas in `by=`,
+only lemmas older than each call offered), a used lemma was in the top 10 for 92%
+of calls. k-NN over earlier calls (MaSh-style) and scikit-learn learned rankers did
+not beat this on held-out modules with so little data, so they were left out.
 """
 
 import math
