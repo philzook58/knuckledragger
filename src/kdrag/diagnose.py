@@ -5,6 +5,7 @@ Only runs when a failure is shown, never on the proving path, and calls only
 `kernel.prove`, so it adds nothing to the trusted core.
 """
 
+import sys
 import time
 
 import kdrag.config as config
@@ -13,11 +14,25 @@ import kdrag.smt as smt
 import kdrag.suggest as suggest
 
 
+def _python_name(decl: smt.FuncDeclRef) -> str | None:
+    """A variable bound to `decl`, preferring the user's script over library modules."""
+    mods = sorted(sys.modules.items(), key=lambda kv: kv[0] != "__main__")
+    for _, mod in mods:
+        for k, v in list(getattr(mod, "__dict__", {}).items()):
+            if isinstance(v, smt.FuncDeclRef) and not k.startswith("_") and v.eq(decl):
+                return k
+    return None
+
+
 def _name(pf: kernel.Proof) -> str:
+    """How a `by=` list would refer to `pf`: its Python name, else its statement."""
+    for decl, unfold in kernel.defns.items():
+        if unfold.ax.thm.eq(pf.thm):
+            return f"{_python_name(decl) or decl.name()}.defn"
     suggest.index.refresh()
     entry = suggest.index.entries.get(pf.thm.get_id())
     if entry is not None:
-        return entry.name.removeprefix("kdrag.theories.")
+        return entry.name.removeprefix("kdrag.theories.").removeprefix("__main__.")
     s = " ".join(str(pf.thm).split())
     return s if len(s) <= 40 else s[:37] + "..."
 
@@ -45,9 +60,9 @@ def repair(
     countermodel=False,
     timeout=50,
     budget=0.2,
-) -> str | None:
+) -> list[kernel.Proof] | None:
     """
-    The first small change to `by` that proves `thm`, as text, or None.
+    The first small change to `by` that proves `thm`, or None.
 
     Tries adding a missing definition, then a suggested lemma, then dropping a
     lemma (an extra lemma can cause a timeout, but never a countermodel). Each try
@@ -56,23 +71,23 @@ def repair(
     """
     have = {pf.thm.get_id() for pf in by}
     defns = [d for d in _defns(thm) if d.thm.get_id() not in have]
-    tries = [(f"adding {_name(d)}", by + [d]) for d in defns]
+    tries = [by + [d] for d in defns]
     if len(defns) > 1:
-        tries.append(("adding " + ", ".join(_name(d) for d in defns), by + defns))
+        tries.append(by + defns)
     tries += [
-        (f"adding {s.name.removeprefix('kdrag.theories.')}", by + [s.proof])
+        by + [s.proof]
         for s in suggest.rank(thm, k=3)
         if s.proof.thm.get_id() not in have
     ]
     if not countermodel and len(by) > 1:
-        tries += [(f"without {_name(pf)}", [q for q in by if q is not pf]) for pf in by]
+        tries += [[q for q in by if q is not pf] for pf in by]
     start = time.perf_counter()
-    for label, lemmas in tries:
+    for lemmas in tries:
         if time.perf_counter() - start > budget:
             break
         try:
             kernel.prove(thm, by=lemmas, timeout=timeout)
-            return label
+            return lemmas
         except (kernel.LemmaError, TimeoutError):
             pass
     return None
@@ -102,5 +117,5 @@ def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
             by = [by]
         fix = repair(goal.to_expr(), list(by or []), countermodel)
         if fix is not None:
-            lines.append(f"✅ passes {fix}")
+            lines.append(f"✅ passes with by=[{', '.join(_name(pf) for pf in fix)}]")
     return "\n".join(lines)
