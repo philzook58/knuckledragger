@@ -1,6 +1,5 @@
 """Render theorem statements and attach symbol search data."""
 
-import ast
 import json
 from html import escape
 from importlib import import_module
@@ -8,6 +7,8 @@ from pathlib import Path
 
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
+
+from lite_cells import Definitions, repl_url, skipped
 
 _SOURCE = "https://github.com/philzook58/knuckledragger/blob/main"
 _ROOT = Path(__file__).resolve().parents[1]
@@ -27,11 +28,12 @@ class TheoremIndex(SphinxDirective):
         if not rows:
             return []
         table = nodes.table(classes=["theorem-table"])
-        group = nodes.tgroup(cols=2)
-        for width in (24, 76):
+        labels = ["Theorem", "Statement"] + ([""] if self.config.theorem_lite_url else [])
+        group = nodes.tgroup(cols=len(labels))
+        for width in (24, 74, 2)[: len(labels)]:
             group += nodes.colspec(colwidth=width)
         header = nodes.row()
-        for label in ("Theorem", "Statement"):
+        for label in labels:
             header += nodes.entry("", nodes.paragraph(text=label))
         group += nodes.thead("", header)
         group += nodes.tbody("", *rows)
@@ -46,16 +48,9 @@ class TheoremIndex(SphinxDirective):
         source = Path(module.__file__)
         self.env.note_dependency(str(source))
         source_url = f"{_SOURCE}/{source.relative_to(_ROOT).as_posix()}"
-        lines = {}
-        for stmt in ast.parse(source.read_bytes()).body:
-            if isinstance(stmt, ast.FunctionDef):
-                lines[stmt.name] = stmt.lineno
-            elif isinstance(stmt, ast.Assign):
-                for target in stmt.targets:
-                    if isinstance(target, ast.Name):
-                        lines[target.id] = stmt.lineno
-            elif isinstance(stmt, ast.AnnAssign) and isinstance(stmt.target, ast.Name):
-                lines[stmt.target.id] = stmt.lineno
+        defs = Definitions(module)
+        lines = defs.lines
+        skip = skipped()
         entries = []
         for name, proof in sorted(vars(module).items()):
             if name.startswith("_") or not isinstance(proof, Proof):
@@ -72,6 +67,7 @@ class TheoremIndex(SphinxDirective):
             )
             if proof.admit:
                 title += nodes.Text(" (admitted)")
+            statement = pretty_expr(proof.thm, width=60)
             entry += nodes.entry("", title)
             symbols = sorted({str(decl.name()) for decl in decls(proof.thm)})
             data = escape(json.dumps([qualified_name, symbols]), quote=True)
@@ -84,12 +80,24 @@ class TheoremIndex(SphinxDirective):
                     "",
                     "",
                     nodes.literal(
-                        text=pretty_expr(proof.thm, width=60),
+                        text=statement,
                         classes=["theorem-formula"],
                     ),
                 ),
                 metadata,
             )
+            if lite := self.config.theorem_lite_url:
+                link = nodes.raw("", "", format="html")
+                if not {qualified_name, module_name} & skip:
+                    href = escape(repl_url(lite, defs.cell(name)), quote=True)
+                    link = nodes.raw(
+                        "",
+                        f'<a class="theorem-try" href="{href}" target="_blank"'
+                        ' title="Edit and rerun in the browser">'
+                        f'<img src="{lite}/icon-120x120.png" alt="try"></a>',
+                        format="html",
+                    )
+                entry += nodes.entry("", link)
             self.state.document.note_explicit_target(entry)
             entries.append(entry)
         return entries
