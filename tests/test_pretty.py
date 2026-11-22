@@ -141,7 +141,8 @@ def test_ptheorem_solver_failure(capsys):
         l.have(x > 0, by=[])
 
     output = capsys.readouterr().out
-    assert "❌ l.have(x > 0, by=[]) failed in unfinished at line " in output
+    assert "❌ l.have(x > 0, by=[]) failed at tests/test_pretty.py:" in output
+    assert " in unfinished: z3 found a countermodel" in output
     assert ": z3 found a countermodel" in output
     assert "[x = 0]" not in output
     assert output.index("⊢ x > 0") < output.index("❌")

@@ -5,8 +5,11 @@ Only runs when a failure is shown, never on the proving path, and calls only
 `kernel.prove`, so it adds nothing to the trusted core.
 """
 
+import io
+import os
 import sys
 import time
+import tokenize
 
 import kdrag.config as config
 import kdrag.kernel as kernel
@@ -93,6 +96,31 @@ def repair(
     return None
 
 
+def _code(line: str) -> str:
+    """`line` without a trailing comment."""
+    try:
+        for tok in tokenize.generate_tokens(io.StringIO(line).readline):
+            if tok.type == tokenize.COMMENT:
+                return line[: tok.start[1]].rstrip()
+    except (
+        tokenize.TokenError,
+        SyntaxError,
+    ):  # e.g. the first line of a multi-line call
+        return line.split("  #")[0].rstrip()
+    return line
+
+
+def location(filename: str, line: int, func: str) -> str:
+    """
+    Where a failing call is, as ` at file:line in func`: terminals and editors make
+    `file:line` clickable. Notebook cells have no real file, so they get the line.
+    """
+    if os.path.isfile(filename) and "ipykernel" not in filename:
+        rel = os.path.relpath(filename)
+        return f" at {filename if rel.startswith('..') else rel}:{line} in {func}"
+    return f" at line {line} in {func}"
+
+
 def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
     """
     Text for a failed `auto` on `goal` (a `tactics.Goal`).
@@ -111,7 +139,8 @@ def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
         reason = f"z3 returned {error.args[2]} (SMT-LIB: {error.args[3]})"
     # Goal first, since it's what you read; then what failed and any repair.
     # Emoji rather than ANSI color: they survive Jupyter, logs and copy-paste.
-    lines = [pretty_goal(goal), "", f"❌ {source or 'auto'} failed{where}: {reason}"]
+    call = _code(source) if source else "auto"
+    lines = [pretty_goal(goal), "", f"❌ {call} failed{where}: {reason}"]
     if config.diagnose:
         if isinstance(by, kernel.Proof):
             by = [by]

@@ -2438,7 +2438,9 @@ def PTheorem(
             where = source = ""
             for frame, line in traceback.walk_tb(failure.__traceback__):
                 if frame.f_code is code:
-                    where = f" in {frame.f_code.co_name} at line {line}"
+                    where = diagnose.location(
+                        frame.f_code.co_filename, line, frame.f_code.co_name
+                    )
                     source = linecache.getline(frame.f_code.co_filename, line).strip()
                     break
             print(
