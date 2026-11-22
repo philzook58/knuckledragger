@@ -26,13 +26,13 @@ def symbols(e: smt.ExprRef) -> Counter:
         if t.get_id() in seen:
             continue
         seen.add(t.get_id())
-        if smt.is_quantifier(t):
+        if isinstance(t, smt.QuantifierRef):
             for i in range(t.num_vars()):
                 out["sort:" + str(t.var_sort(i))] += 1
             todo.append(t.body())
         elif smt.is_app(t):
             d = t.decl()
-            if d.kind() == smt.Z3_OP_UNINTERPRETED:
+            if smt.is_uninterp(d):
                 if "!" not in d.name():  # skip fresh variables like x!7
                     out[d.name()] += 1
             else:
