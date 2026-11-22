@@ -224,20 +224,35 @@ def auto(shows=None, **kwargs) -> kd.kernel.Proof:
     return kd.prove(shows, **kwargs)
 
 
+def _binder_statement(
+    binders: list[smt.ExprRef], formulas: Sequence[smt.BoolRef]
+) -> tuple[list[smt.ExprRef], smt.BoolRef, int]:
+    """Build the open body and count the premises in the header."""
+    if not binders:
+        raise ValueError("Expected a nonempty list of FreshVar binders")
+    if not all(kd.kernel.is_fresh_var(v) for v in binders):
+        raise TypeError("All binders must be created with FreshVar")
+    if len(set(binders)) != len(binders):
+        raise ValueError("Expected distinct binders")
+    if not formulas:
+        raise TypeError("Expected a conclusion after the binder list")
+    if not all(smt.is_bool(formula) for formula in formulas):
+        raise TypeError("Expected SMT Boolean formulas after the binder list")
+
+    statement = smt.ForAll(binders, *formulas)
+    premise_count = sum(v.assumes is not None for v in binders) + len(formulas) - 1
+    return list(binders), statement(*binders), premise_count
+
+
 def prove(
-    thm: smt.BoolRef,
-    fixes: list[smt.ExprRef] = [],
-    assumes: list[smt.BoolRef] = [],
+    thm: smt.BoolRef | list[smt.ExprRef],
+    *formulas: smt.BoolRef,
     by: Optional[kd.kernel.Proof | Sequence[kd.kernel.Proof]] = None,
     admit=False,
     timeout=1000,
     dump=False,
     solver=None,
     contracts=None,
-    # defns=True,
-    # induct=False,
-    # simps=simps,
-    # intros / fix / herb = False
     unfold: Optional[int | list[smt.FuncDeclRef]] = None,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
@@ -248,9 +263,11 @@ def prove(
 
     ``solver`` accepts a solver factory or "z3", "cvc5", "vampire", "eprover".
 
-    :param thm: The theorem to prove.
+    The binder-list form takes premises followed by a conclusion. Pass proof
+    options by keyword in this form, and put binders and premises in the header.
+
     Args:
-        thm (smt.BoolRef): The theorem to prove.
+        thm: The theorem to prove or the list of FreshVar binders.
         by (list[Proof]): A list of previously proved lemmas.
         admit     (bool): If True, admit the theorem without proof.
 
@@ -262,6 +279,10 @@ def prove(
 
     >>> prove(smt.RealVal(1) >= smt.RealVal(0))
     |= 1 >= 0
+
+    >>> n = kd.FreshVar("n", smt.IntSort())
+    >>> prove([n], n > 0, n >= 0)
+    |= ForAll(n!..., Implies(n!... > 0, n!... >= 0))
 
     >>> x = smt.Int("x")
     >>> succ = kd.define("succ", [x], x + 1)
@@ -278,9 +299,11 @@ def prove(
     |= Implies(x >= 0, succ(x) >= 0)
     """
     start_time = time.perf_counter()
-
-    if assumes:
-        thm = smt.Implies(smt.And(assumes), thm)
+    binders = []
+    if isinstance(thm, list):
+        binders, thm, _ = _binder_statement(thm, formulas)
+    elif formulas:
+        raise TypeError("Additional formulas require a binder-list header")
 
     if by is None:
         by_list: list[kd.kernel.Proof] = []
@@ -321,8 +344,8 @@ def prove(
         pf = kd.kernel.prove(
             thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
         )
-        if fixes:
-            pf = kd.kernel.generalize(fixes, pf)
+        if binders:
+            pf = pf.forall(binders)
         kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
         return pf
     except kd.kernel.LemmaError as e:
@@ -335,6 +358,7 @@ def prove(
         elif isinstance(thm, smt.QuantifierRef):
             while isinstance(thm, smt.QuantifierRef) and thm.is_forall():
                 _, thm = kd.utils.open_binder_unhygienic(thm)  # type: ignore
+            assert isinstance(thm, smt.BoolRef)
             # We anticipate this failing with a better countermodel since we can now see the quantified variables
             pf = kd.kernel.prove(
                 thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
@@ -349,7 +373,9 @@ def prove(
         raise e
 
 
-def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
+def exact(
+    thm: smt.BoolRef | list[smt.ExprRef], *args, pf: kd.kernel.Proof | None = None
+) -> kd.kernel.Proof:
     """Check a proof against a statement without calling a solver.
 
     Infer arguments of outer universal quantifiers by one-way matching.
@@ -360,8 +386,27 @@ def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
     >>> pf = kd.prove(smt.ForAll([x], x + 0 == x))
     >>> exact(smt.IntVal(3) + 0 == 3, pf)
     |= 3 + 0 == 3
+
+    The binder-list form accepts a proof of the open body or the quantified
+    statement. It generalizes a matching open proof.
+
+    >>> n = kd.FreshVar("n", smt.IntSort())
+    >>> exact([n], n + 0 == n, kd.prove(n + 0 == n))
+    |= ForAll(n!..., n!... + 0 == n!...)
     """
-    if not isinstance(thm, smt.BoolRef) or not isinstance(pf, kd.Proof):
+    if pf is None and args:
+        args, pf = args[:-1], args[-1]
+    if not isinstance(pf, kd.Proof):
+        raise TypeError("exact expects a statement and a Proof")
+    if isinstance(thm, list):
+        binders, body, _ = _binder_statement(thm, args)
+        if kd.utils.alpha_eq(pf.thm, body):
+            return pf.forall(binders)
+        thm = smt.RawForAll(binders, body)
+    elif args:
+        raise TypeError("exact expects a statement and one Proof")
+
+    if not isinstance(thm, smt.BoolRef):
         raise TypeError("exact expects a statement and a Proof")
     if kd.utils.alpha_eq(pf.thm, thm):
         return pf
@@ -2304,8 +2349,24 @@ class ProofStateProxy(ProofState):
         return pf
 
 
+def _theorem_state(
+    goal: smt.BoolRef, binders: list[smt.ExprRef], premise_count: int, timing=False
+) -> ProofState:
+    fixes = list(binders)
+    if timing:
+        state = ProofStateProxy(Goal(sig=fixes, ctx=[], goal=goal))
+    else:
+        state = kd.Lemma(goal, fixes=fixes)
+    for _ in range(premise_count):
+        state.intro()
+    return state
+
+
+_TIMING_UNSET = object()
+
+
 def Theorem(
-    goal: smt.BoolRef | str, timing=False
+    goal: smt.BoolRef | str | list[smt.ExprRef], *args, timing=_TIMING_UNSET
 ) -> Callable[[Callable[[ProofState], None]], kd.kernel.Proof]:
     """
     A decorator to create a theorem from a function that takes a `ProofState` as argument.
@@ -2329,29 +2390,39 @@ def Theorem(
     ...     l.auto()
     >>> mytheorem3
     |= x + 1 > x
+
+    >>> n = kd.FreshVar("n", smt.IntSort())
+    >>> @Theorem([n], n > 0, n >= 0)
+    ... def nonnegative(l):
+    ...     l.auto()
+    >>> nonnegative
+    |= ForAll(n!..., Implies(n!... > 0, n!... >= 0))
     """
-    if isinstance(goal, str):
+    binders, premise_count = [], 0
+    if isinstance(goal, list):
+        binders, goal1, premise_count = _binder_statement(goal, args)
+    elif isinstance(goal, str):
         l, g = kd.utils.calling_globals_locals()
         goal1 = microlean.parse(goal, l, g)
     else:
         goal1 = goal
+    if not isinstance(goal, list) and args:
+        if len(args) != 1 or timing is not _TIMING_UNSET:
+            raise TypeError("Theorem expects a statement and one timing option")
+        timing = args[0]
+    if timing is _TIMING_UNSET:
+        timing = False
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
         start = time.perf_counter()
         if timing:
             print("Starting theorem", cast(Any, f).__name__)
-            l = ProofStateProxy(
-                Goal(
-                    sig=[],
-                    ctx=[],
-                    goal=goal1,
-                )
-            )
-        else:
-            l = kd.Lemma(goal1)
+        l = _theorem_state(goal1, binders, premise_count, timing=timing)
         f(l)
         pf = l.qed()
+        if binders:
+            pf = pf.forall(binders)
         if timing:
             end = time.perf_counter()
             print(f"Theorem {cast(Any, f).__name__} took {end - start:.4f} seconds")
@@ -2367,9 +2438,7 @@ def Theorem(
     return res
 
 
-def PTheorem(
-    goal: smt.BoolRef | str,
-):
+def PTheorem(goal: smt.BoolRef | str | list[smt.ExprRef], *args):
     """
     Display the next goal or a solver failure while developing a proof.
 
@@ -2388,8 +2457,19 @@ def PTheorem(
     0: p
     ────
     ⊢ q
+
+    >>> n = kd.FreshVar("n", smt.IntSort())
+    >>> @PTheorem([n], n > 0, n >= 0)
+    ... def nonnegative(l):
+    ...     l.auto()
+    Lemma Complete! Change PTheorem to Theorem
     """
-    if isinstance(goal, str):
+    binders, premise_count = [], 0
+    if isinstance(goal, list):
+        binders, goal1, premise_count = _binder_statement(goal, args)
+    elif args:
+        raise TypeError("PTheorem expects one statement or a binder-list header")
+    elif isinstance(goal, str):
         l, g = kd.utils.calling_globals_locals()
         goal1 = microlean.lean(goal, g)
     else:
@@ -2399,7 +2479,7 @@ def PTheorem(
     def res(f: Callable[[ProofState], None]) -> None:
         from kdrag.printers.pretty import pretty_goal
 
-        l = kd.Lemma(goal1)
+        l = _theorem_state(goal1, binders, premise_count)
         try:
             f(l)
         except _AutoFailure as failure:
@@ -2423,7 +2503,9 @@ def PTheorem(
             print("Goal:", pretty_goal(failure.goal), sep="\n")
             return
         if len(l.goals) == 0:
-            l.qed()
+            pf = l.qed()
+            if binders:
+                pf.forall(binders)
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
             print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
