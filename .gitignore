@@ -12,8 +12,8 @@ test.sh
 py311/
 .codex
 # JupyterLite
-lite/_output/
-lite/pypi/
-lite/.jupyterlite.doit.db
-lite/.cache/
+docs/lite/_output/
+docs/lite/pypi/
+docs/lite/.jupyterlite.doit.db
+docs/lite/.cache/
 node_modules/

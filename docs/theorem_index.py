@@ -8,7 +8,7 @@ from pathlib import Path
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 
-from lite_cells import Definitions, repl_url, skipped
+from lite.cells import Definitions, repl_url, skipped
 
 _SOURCE = "https://github.com/philzook58/knuckledragger/blob/main"
 _ROOT = Path(__file__).resolve().parents[1]

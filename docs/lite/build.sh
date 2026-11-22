@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build a JupyterLite site bundling the local knuckledragger wheel and its pinned runtime wheels.
-# Needs `pip install -r lite/requirements.txt`. Output: lite/_output, or the directory given as $1.
+# Needs `pip install -r docs/lite/requirements.txt`. Output: docs/lite/_output, or the directory given as $1.
 set -euo pipefail
 cd "$(dirname "$0")"
 # Pinned wheels the site installs with `%pip install --no-deps` (sympy is skipped).
@@ -11,8 +11,8 @@ WHEELS=(
 )
 mkdir -p pypi
 rm -f pypi/knuckledragger-*.whl
-uv build --wheel --out-dir pypi ..
+uv build --wheel --out-dir pypi ../..
 for w in "${WHEELS[@]}"; do
   [ -f "pypi/${w##*/}" ] || curl -sSfL -o "pypi/${w##*/}" "https://files.pythonhosted.org/packages/py3/$w"
 done
-jupyter lite build ${1:+--output-dir "$1"}
+jupyter lite build --output-dir "${1:-_output}"

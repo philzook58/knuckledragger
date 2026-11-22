@@ -42,7 +42,7 @@ doctest_test_doctest_blocks = ""
 
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "lite"]
 
 # Napoleon settings
 napoleon_google_docstring = True

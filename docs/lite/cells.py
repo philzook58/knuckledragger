@@ -1,6 +1,6 @@
 """Editable JupyterLite REPL cells that replay knuckledragger theorems.
 
-Free of Sphinx imports so `tools/check_lite_cells.py` can run the same cells
+Free of Sphinx imports so `check_cells.py` can run the same cells
 under Pyodide.
 """
 
@@ -15,7 +15,7 @@ HEADER = [
     "# Shift+Enter to run. Python runs in your browser via Pyodide.",
     "# The first run installs knuckledragger and z3, which takes a few seconds.",
 ]
-SKIP_FILE = Path(__file__).with_name("lite_skip.txt")
+SKIP_FILE = Path(__file__).with_name("skip.txt")
 
 
 def _is_theorem(decorator: ast.expr) -> bool:
