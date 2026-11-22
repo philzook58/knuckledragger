@@ -37,3 +37,11 @@ def test_suggest_prints_goal_first(capsys):
     l.suggest()
     out = capsys.readouterr().out
     assert out.index("⊢") < out.index("Suggestions")
+
+
+def test_definitions_named_by_python_variable():
+    n = smt.Int("n")
+    my_succ = kd.define("sugg_test_succ", [n], n + 1)  # z3 name differs on purpose
+    names = [s.name for s in suggest.rank(my_succ(n) > n)]
+    assert "my_succ.defn" in names
+    assert "sugg_test_succ.defn" not in names

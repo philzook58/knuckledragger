@@ -41,6 +41,21 @@ def symbols(e: smt.ExprRef) -> Counter:
     return out
 
 
+def decl_names() -> dict[int, str]:
+    """
+    Python variable names bound to function symbols, keyed by `get_id()`.
+
+    Definitions are shown as `fmul.defn`, as written, rather than z3's internal
+    name (`(Array Real Real).mul`). The user's script is preferred.
+    """
+    out: dict[int, str] = {}
+    for _, mod in sorted(sys.modules.items(), key=lambda kv: kv[0] != "__main__"):
+        for k, v in list(getattr(mod, "__dict__", {}).items()):
+            if isinstance(v, smt.FuncDeclRef) and not k.startswith("_"):
+                out.setdefault(v.get_id(), k)
+    return out
+
+
 class Entry(NamedTuple):
     name: str
     proof: kernel.Proof
@@ -82,8 +97,10 @@ class Index:
                     self._add(f"{mname}.{k}", v)
         if len(kernel.defns) != self._ndefns:
             self._ndefns = len(kernel.defns)
+            names = decl_names()
             for decl, unfold in list(kernel.defns.items()):
-                self._add(f"{decl.name()}.defn", unfold.ax)
+                name = names.get(decl.get_id(), decl.name())
+                self._add(f"{name}.defn", unfold.ax)
         if len(self.entries) != n:
             df = Counter(s for e in self.entries.values() for s in e.symbols)
             self._idf = {s: math.log(len(self.entries) / c) for s, c in df.items()}
