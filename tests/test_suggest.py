@@ -39,9 +39,12 @@ def test_suggest_prints_goal_first(capsys):
     assert out.index("⊢") < out.index("Suggestions")
 
 
+n = smt.Int("n")
+# Module level, as definitions are; the z3 name differs on purpose.
+my_succ = kd.define("sugg_test_succ", [n], n + 1)
+
+
 def test_definitions_named_by_python_variable():
-    n = smt.Int("n")
-    my_succ = kd.define("sugg_test_succ", [n], n + 1)  # z3 name differs on purpose
     names = [s.name for s in suggest.rank(my_succ(n) > n)]
     assert "my_succ.defn" in names
     assert "sugg_test_succ.defn" not in names
