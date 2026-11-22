@@ -190,7 +190,7 @@ def report(
     start = time.perf_counter()
     lines = []
     for i, s in enumerate(rank(goal)):
-        mark = "  "  # two columns, like the emoji
+        mark = "- "  # two columns, like the emoji
         if i < check and time.perf_counter() - start < budget:
             try:
                 kernel.prove(goal, by=[s.proof], timeout=timeout)
