@@ -7,7 +7,6 @@ Only runs when a failure is shown, never on the proving path, and calls only
 
 import io
 import os
-import sys
 import time
 import tokenize
 
@@ -17,21 +16,8 @@ import kdrag.smt as smt
 import kdrag.suggest as suggest
 
 
-def _python_name(decl: smt.FuncDeclRef) -> str | None:
-    """A variable bound to `decl`, preferring the user's script over library modules."""
-    mods = sorted(sys.modules.items(), key=lambda kv: kv[0] != "__main__")
-    for _, mod in mods:
-        for k, v in list(getattr(mod, "__dict__", {}).items()):
-            if isinstance(v, smt.FuncDeclRef) and not k.startswith("_") and v.eq(decl):
-                return k
-    return None
-
-
 def _name(pf: kernel.Proof) -> str:
-    """How a `by=` list would refer to `pf`: its Python name, else its statement."""
-    for decl, unfold in kernel.defns.items():
-        if unfold.ax.thm.eq(pf.thm):
-            return f"{_python_name(decl) or decl.name()}.defn"
+    """How a `by=` list would refer to `pf`: its library name, else its statement."""
     suggest.index.refresh()
     entry = suggest.index.entries.get(pf.thm.get_id())
     if entry is not None:
