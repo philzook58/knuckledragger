@@ -1263,10 +1263,9 @@ class ProofState:
         self, n: int | smt.BoolRef
     ) -> tuple[smt.ExprRef | list[smt.ExprRef], smt.BoolRef]:
         """
-        Open an existential hypothesis and return the witnesses and their local fact.
-
-        A single binder returns one term; multiple binders return a list in binder
-        order. The fact replaces the existential hypothesis in the context.
+        Open an existential hypothesis and return the witnesses and property of witness.
+        It's kind of like projecting apart a dependent pair in type theory.
+        The formula given is replaced in the context with the one with the existential stripped
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
 
         >>> x,y = smt.Ints("x y")
