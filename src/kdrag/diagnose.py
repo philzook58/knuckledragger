@@ -14,9 +14,9 @@ import kdrag.utils as utils
 
 def _name(pf: kernel.Proof) -> str:
     """How a `by=` list would refer to `pf`: its library name, else its statement."""
-    entry = suggest.lemmas().get(pf.thm.get_id())
-    if entry is not None:
-        return entry[0].removeprefix("kdrag.theories.").removeprefix("__main__.")
+    for name, q in utils.lemma_db().items():
+        if q.thm.eq(pf.thm):
+            return name.removeprefix("kdrag.theories.").removeprefix("__main__.")
     s = " ".join(str(pf.thm).split())
     return s if len(s) <= 40 else s[:37] + "..."
 
@@ -35,7 +35,9 @@ def repair(
     if len(defns) > 1:
         tries.append(by + defns)
     tries += [
-        by + [pf] for _, _, pf in suggest.rank(thm)[:3] if pf.thm.get_id() not in have
+        by + [pf]
+        for _, _, pf in suggest.rank_lemmas(thm)[:3]
+        if pf.thm.get_id() not in have
     ]
     if not countermodel and len(by) > 1:
         tries += [[q for q in by if q is not pf] for pf in by]
