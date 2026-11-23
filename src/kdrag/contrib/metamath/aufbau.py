@@ -34,7 +34,6 @@ def test_auf():
     import pytest
 
     if not os.path.exists(mm0_zig_path):
-        pytest.skip()
-        # pytest.skip(reason="Aufbau mm0-zig binary is not built")
+        raise pytest.skip.Exception("Aufbau mm0-zig binary is not built")
     res = subprocess.run([mm0_zig_path], capture_output=True)
     assert res.stdout.decode() == "Usage: mm0-zig FILE.mmb < FILE.mm0\n"

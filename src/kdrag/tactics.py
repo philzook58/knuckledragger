@@ -18,6 +18,7 @@ import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
+from kdrag.printers.pretty import pretty_goal
 
 if TYPE_CHECKING:
     import sympy  # imported lazily: it is slow to import
@@ -2232,8 +2233,14 @@ class ProofState:
             except Exception as _:
                 return g
 
+    def suggest(self) -> None:
+        """
+        Print the goal and library lemmas likely to help prove it. See `utils.suggest`.
+        """
+        goal = self.top_goal()
+        print(pretty_goal(goal), "", kd.utils.suggest(goal.to_expr()), sep="\n")
+
     # TODO
-    # def suggest():
     # def llm():
     # def calc
 
@@ -2389,7 +2396,6 @@ def PTheorem(
     >>> @PTheorem(smt.Implies(p, q))
     ... def unfinished(l: ProofState):
     ...     l.intro()
-    Next Goal:
     0: p
     ────
     ⊢ q
@@ -2402,8 +2408,6 @@ def PTheorem(
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> None:
-        from kdrag.printers.pretty import pretty_goal
-
         l = kd.Lemma(goal1)
         try:
             f(l)
@@ -2431,6 +2435,6 @@ def PTheorem(
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
-            print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
+            print(pretty_goal(l.top_goal()))
 
     return res
