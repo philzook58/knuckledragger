@@ -5,7 +5,7 @@ the value at p (the quotient is 0/0 there). The chain rule goes through
 Carathéodory's characterisation, which avoids dividing by f(x) - f(p).
 """
 
-from kdrag import Theorem
+from kdrag import Theorem, prove
 from kdrag.smt import Consts, Exists, ForAll, Lambda, Reals, RealVal, Store
 
 from kdrag.theories.real import RFun, abs, cont_at, fmul, has_diff_at, has_lim_at
@@ -111,12 +111,11 @@ def has_diff_at_const_mul(l):
         by=[has_lim_at_mul(cf, qf, p, c, a), has_lim_at_const(c, p)],
     )
     # c times the quotient of f is the quotient of c * f away from p.
-    l.auto(
-        by=[
-            has_lim_at_congr(cf * qf, quot(Lambda(x, c * f[x]), p), p, c * a),
-            fmul.defn,
-        ]
-    )
+    target = quot(Lambda(x, c * f[x]), p)
+    congr = ForAll(x, x != p, (cf * qf)[x] == target[x])
+    # Isolate the rational identity from the quantified limit hypotheses.
+    l.have(congr, by=[prove(congr, by=[fmul.defn])])
+    l.auto(by=[has_lim_at_congr(cf * qf, target, p, c * a)])
 
 
 # Carathéodory: f is differentiable at p with derivative a iff
@@ -207,7 +206,9 @@ def cont_at_of_has_diff_at(l):
         has_lim_at(fp + s * lin, p, f[p]),
         by=[has_lim_at_add(fp, s * lin, p, f[p], 0), has_lim_at_const(f[p], p)],
     )
-    l.have(fp + s * lin == f, by=[fmul.defn])
+    # Check the extensional identity without the quantified limit hypotheses.
+    identity = prove(fp + s * lin == f, by=[fmul.defn])
+    l.have(fp + s * lin == f, by=[identity])
     l.have(has_lim_at(f, p, f[p]), by=[])
     l.have(Store(f, p, f[p]) == f, by=[])
     l.auto(by=[cont_at_update_of_has_lim_at(f, p, f[p])])

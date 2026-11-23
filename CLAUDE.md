@@ -262,5 +262,5 @@ def sum_append(pf):
 - In long proofs, keep defined predicates folded in the context and pass instantiated definitions such as `is_fine.defn(D, xs, ts, n)` in `by=`. Unfolded quantified hypotheses make later `auto` calls time out or depend on import order. Clear quantified hypotheses once they have been used.
 - Give witnesses involving division explicitly with `l.exists`, then `obtain` a fresh constant for them (e.g. `eta` with `eta * (|b - a| + 1) == eps`). Division terms inside later goals cause nonlinear timeouts.
 - `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.
-- Z3 `substitute_vars` does not check sorts, and an Int term for a Real binder can leave loose bound variables. The kernel now rejects such instantiations.
 - For pointwise choice of a function (e.g. gauges), use `integral.axiom_of_choice` and state the premise with its binder names `x` and `y`.
+- Isolate extensional or rational identities from quantified limit hypotheses when proving derivative rules; import-order tests can reveal timeouts hidden by a standalone import.

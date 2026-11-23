@@ -29,19 +29,31 @@ def test_limits_at_removable_discontinuities():
     )
 
 
-@pytest.mark.parametrize("module", ["cont", "rseq"])
-def test_analysis_proofs(module):
+@pytest.mark.parametrize(
+    "modules,seed",
+    [
+        ("cont", 0),
+        ("rseq", 0),
+        ("cont deriv rseq integral", 0),
+        ("integral rseq deriv cont", 1),
+        ("rseq cont deriv integral", 7),
+    ],
+)
+def test_analysis_proofs(modules, seed):
     # Import in a fresh process: re-executing rseq would redefine its chosen lim.
     subprocess.run(
         [sys.executable, "-c", """
 import importlib
 import sys
 import kdrag.config as config
+import kdrag.smt as smt
+smt.set_param("smt.random_seed", int(sys.argv[2]))
 import kdrag.theories.real
 import kdrag.theories.int
 
 config.timing = True
-importlib.import_module("kdrag.theories.real." + sys.argv[1])
+for module in sys.argv[1].split():
+    importlib.import_module("kdrag.theories.real." + module)
 solves = [(thm, elapsed) for tag, thm, elapsed in config.perf_log
           if tag == "solver.check"]
 assert solves
@@ -49,7 +61,7 @@ durations = [elapsed for _, elapsed in solves]
 print(f"Z3 checks: {len(solves)}, total {sum(durations):.4f}s, max {max(durations):.4f}s")
 for thm, elapsed in solves:
     assert elapsed < 0.5, ("solver.check", thm, elapsed)
-""", module],
+""", modules, str(seed)],
         check=True,
     )
 

@@ -1,4 +1,5 @@
 """Real sequences, convergence, limit algebra, and series."""
+
 from typing import Optional
 
 from kdrag import FreshVar, Proof
@@ -561,19 +562,15 @@ abs_ge_0 = prove(
 )
 
 
-@Theorem(
-    ForAll([a, n], ForAll(i, i >= 0, a[i] >= 0), n >= 0, finsum(a, n) >= 0)
-)
+@Theorem(ForAll([a, n], ForAll(i, i >= 0, a[i] >= 0), n >= 0, finsum(a, n) >= 0))
 def finsum_nonneg(l):
     a, n = l.fixes()
     l.intros()
-    l.auto(by=[cumsum_mono(zero, a, n), cumsum_zero(n),
-               finsum.defn(a, n), zero.defn])
+    l.auto(by=[cumsum_mono(zero, a, n), cumsum_zero(n), finsum.defn(a, n), zero.defn])
 
 
 @Theorem(
-    QForAll([a, N], N >= 0,
-            QForAll([n], n >= 0, n < N, abs(a)[n] <= finsum(abs(a), N)))
+    QForAll([a, N], N >= 0, QForAll([n], n >= 0, n < N, abs(a)[n] <= finsum(abs(a), N)))
 )
 def abs_le_finsum_abs(l):
     a, N = l.fixes()
@@ -585,8 +582,10 @@ def abs_le_finsum_abs(l):
     l.intros()
     n = l.fix()
     l.intros()
-    l.have(finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N],
-           by=[finsum_succ(abs(a), N)])
+    l.have(
+        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N],
+        by=[finsum_succ(abs(a), N)],
+    )
     l.have(abs(a)[N] >= 0, by=[abs_ge_0(a, N)])
     l.cases(n < N, n == N)
     l.have(abs(a)[n] <= finsum(abs(a), N), by=[])
@@ -603,9 +602,7 @@ is_monotone = define("is_monotone", [a], QForAll([n, m], n <= m, a[n] <= a[m]))
 is_nonneg = define("is_nonneg", [a], QForAll([n], a[n] >= 0))
 
 # The range relevant to convergence as n tends to positive infinity.
-range_nonneg = define(
-    "RSeq.range_nonneg", a, Lambda(x, Exists(n, n >= 0, a[n] == x))
-)
+range_nonneg = define("RSeq.range_nonneg", a, Lambda(x, Exists(n, n >= 0, a[n] == x)))
 
 # https://en.wikipedia.org/wiki/Cauchy_sequence
 
@@ -829,31 +826,34 @@ def lim_of_nonneg_seq(l):
 
 @Theorem(
     ForAll(
-        [c, a, x],
+        [r, a, x],
         has_lim(a, x),
-        has_lim(smul(c, a), c * x),
+        has_lim(smul(r, a), r * x),
     ),
 )
 def has_lim_smul(l):
-    c, a, x = l.fixes()
+    r, a, x = l.fixes()
     l.intros()
     l.rw(has_lim_iff)
     eps = l.fix()
     l.intros()
     # A positive denominator handles zero and nonzero scalars uniformly.
-    eta = eps / (real.abs(c) + 1)
-    l.have(eta > 0, by=[real.abs_pos(c)])
+    eta = eps / (real.abs(r) + 1)
+    l.have(eta > 0, by=[real.abs_pos(r)])
     l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
-    # Pointwise: |c a[m] - c x| = |c| |a[m] - x| < eps.
-    l.have(ForAll([n], real.abs(a[n] - x) < eta, real.abs(smul(c, a)[n] - c * x) < eps))
+    # Pointwise: |r a[m] - r x| = |r| |a[m] - x| < eps.
+    l.have(ForAll([n], real.abs(a[n] - x) < eta, real.abs(smul(r, a)[n] - r * x) < eps))
     l.unfold(smul)
     l.beta()
     m = l.fix()
     l.intros()
-    l.have(real.abs(c) * eta < eps, by=[real.abs_pos(c)])
-    l.have(real.abs(c * a[m] - c * x) == real.abs(c) * real.abs(a[m] - x), by=[real.abs_mul(c, a[m] - x)])
-    l.auto(by=[real.abs_pos(c)])
-    l.auto(by=[eventually_mono(near(a, x, eta), near(smul(c, a), c * x, eps))])
+    l.have(real.abs(r) * eta < eps, by=[real.abs_pos(r)])
+    l.have(
+        real.abs(r * a[m] - r * x) == real.abs(r) * real.abs(a[m] - x),
+        by=[real.abs_mul(r, a[m] - x)],
+    )
+    l.auto(by=[real.abs_pos(r)])
+    l.auto(by=[eventually_mono(near(a, x, eta), near(smul(r, a), r * x, eps))])
 
 
 @Theorem(
@@ -1004,7 +1004,9 @@ def has_lim_squeeze(l):
     )
     m = l.fix()
     l.intro(), l.intro()
-    l.auto(by=[real.abs.defn(a[m] - x), real.abs.defn(d[m] - x), real.abs.defn(b[m] - x)])
+    l.auto(
+        by=[real.abs.defn(a[m] - x), real.abs.defn(d[m] - x), real.abs.defn(b[m] - x)]
+    )
     l.auto(by=[eventually_mono(trapped, near(b, x, eps))])
 
 
@@ -1188,9 +1190,7 @@ def has_lim_div(l):
     l.auto(by=[eventually_mono(both, near(a / b, x / y, eps))])
 
 
-@Theorem(
-    ForAll([a, x], is_monotone(a), rset.is_lub(range_nonneg(a), x), has_lim(a, x))
-)
+@Theorem(ForAll([a, x], is_monotone(a), rset.is_lub(range_nonneg(a), x), has_lim(a, x)))
 def has_lim_of_monotone_of_is_lub(l):
     a, s = l.fixes()
     l.unfold(is_monotone)
@@ -1201,10 +1201,14 @@ def has_lim_of_monotone_of_is_lub(l):
     eps = l.fix()
     l.intro()
     # Anything strictly below the supremum fails to bound the range.
-    l.have(smt.Not(rset.is_ub(values, s - eps)),
-           by=[rset.le_of_is_lub_of_is_ub(values, s, s - eps)])
-    witness = l.have(Exists(n, n >= 0, s - eps < a[n]),
-                     by=[rset.is_ub.defn(values, s - eps), range_nonneg.defn(a)])
+    l.have(
+        smt.Not(rset.is_ub(values, s - eps)),
+        by=[rset.le_of_is_lub_of_is_ub(values, s, s - eps)],
+    )
+    witness = l.have(
+        Exists(n, n >= 0, s - eps < a[n]),
+        by=[rset.is_ub.defn(values, s - eps), range_nonneg.defn(a)],
+    )
     N = l.obtain(witness)
     l.exists(N)
     k = l.fix()
@@ -1217,8 +1221,7 @@ def has_lim_of_monotone_of_is_lub(l):
 
 
 @Theorem(
-    ForAll(a, is_monotone(a), rset.bdd_above(range_nonneg(a)),
-           Exists(x, has_lim(a, x)))
+    ForAll(a, is_monotone(a), rset.bdd_above(range_nonneg(a)), Exists(x, has_lim(a, x)))
 )
 def exists_has_lim_of_monotone_of_bdd_above(l):
     a = l.fix()
@@ -1226,8 +1229,9 @@ def exists_has_lim_of_monotone_of_bdd_above(l):
     values = range_nonneg(a)
     l.have(values[a[0]], by=[range_nonneg.defn(a)])
     l.have(Exists(x, values[x]), by=[])
-    supremum = l.have(Exists(x, rset.is_lub(values, x)),
-                      by=[rset.exists_is_lub_of_bdd_above(values)])
+    supremum = l.have(
+        Exists(x, rset.is_lub(values, x)), by=[rset.exists_is_lub_of_bdd_above(values)]
+    )
     s = l.obtain(supremum)
     l.exists(s)
     l.auto(by=[has_lim_of_monotone_of_is_lub(a, s)])
