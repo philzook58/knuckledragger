@@ -261,12 +261,11 @@ def has_diff_at_comp(l):
         by=[has_lim_at_of_cont_at(sf, p), cont_at_slope_of_has_diff_at(f, p, a)],
     )
     l.have(has_lim_at(sgf * sf, p, b * a), by=[has_lim_at_mul(sgf, sf, p, b, a)])
-    # The quotient of g ∘ f agrees with sg(f x) * sf(x) away from p.
+    # Prove the pointwise identity before transporting the product limit.
+    target = quot(Lambda(x, g[f[x]]), p)
+    l.have(ForAll(x, x != p, (sgf * sf)[x] == target[x]))
+    z = l.fix()
+    l.intro()
+    l.auto(by=[fmul.defn(sgf, sf), quot_comp_eq(f, g, p, a, b, z)])
     l.unfold(has_diff_at)
-    l.auto(
-        by=[
-            has_lim_at_congr(sgf * sf, quot(Lambda(x, g[f[x]]), p), p, b * a),
-            fmul.defn,
-            quot_comp_eq,
-        ]
-    )
+    l.auto(by=[has_lim_at_congr(sgf * sf, target, p, b * a)])
