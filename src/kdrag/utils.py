@@ -1321,6 +1321,8 @@ def lemma_db() -> dict[str, kd.kernel.Proof]:
             seen.add(pf.thm.get_id())
             db[name] = pf
 
+    # `__main__` last: the first name seen for a proof wins, so a lemma star-imported
+    # into a script keeps its defining module's name.
     for modname, mod in sorted(sys.modules.items(), key=lambda kv: kv[0] == "__main__"):
         for name, thm in list(mod.__dict__.items()):
             if name.startswith("_"):
