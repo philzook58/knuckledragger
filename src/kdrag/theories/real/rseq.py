@@ -618,7 +618,7 @@ def eventually_mono(l):
     l.fixes()
     l.unfold(eventually)
     hp, _ = l.intros()
-    N1 = l.obtain(hp)
+    N1, _ = l.obtain(hp)
     l.exists(N1)
     l.auto()
 
@@ -635,8 +635,8 @@ def eventually_and(l):
     l.fixes()
     l.unfold(eventually)
     hp, hq = l.intro(), l.intro()
-    N1 = l.obtain(hp)
-    N2 = l.obtain(hq)
+    N1, _ = l.obtain(hp)
+    N2, _ = l.obtain(hq)
     # Past both cutoffs.
     l.exists(If(N1 > N2, N1, N2))
     l.beta()
@@ -710,9 +710,9 @@ def lim_unique(l):
         QForAll([n], n > n2, real.abs(a[n] - y) < eps),
     )
     l.have(exists_x, by=[])  # unstable due to alpha rename?
-    N1 = l.obtain(exists_x)
+    N1, _ = l.obtain(exists_x)
     l.have(exists_y, by=[])
-    N2 = l.obtain(exists_y)
+    N2, _ = l.obtain(exists_y)
     N = If(N1 > N2, N1, N2) + 1
     forall_x = QForAll([n], n > N1, real.abs(a[n] - x) < eps)
     forall_y = QForAll([n], n > N2, real.abs(a[n] - y) < eps)
@@ -748,7 +748,7 @@ def lim_of_nonneg_seq(l):
     l.unfold(has_lim, at=limit)
     l.contra()
     positive = l.have(-y > 0, by=[])
-    cutoff = l.obtain(l.specialize(0, -y, positive))
+    cutoff, _ = l.obtain(l.specialize(0, -y, positive))
     m = If(cutoff > 0, cutoff, 0) + 1
     l.specialize(nonneg, m)
     l.auto(by=[real.abs.defn(a[m] - y)])
@@ -1076,7 +1076,7 @@ def has_lim_of_monotone_of_is_lub(l):
            by=[rset.le_of_is_lub_of_is_ub(values, s, s - eps)])
     witness = l.have(Exists(n, n >= 0, s - eps < a[n]),
                      by=[rset.is_ub.defn(values, s - eps), range_nonneg.defn(a)])
-    N = l.obtain(witness)
+    N, _ = l.obtain(witness)
     l.exists(N)
     k = l.fix()
     l.intro()
@@ -1099,7 +1099,7 @@ def exists_has_lim_of_monotone_of_bdd_above(l):
     l.have(Exists(x, values[x]), by=[])
     supremum = l.have(Exists(x, rset.is_lub(values, x)),
                       by=[rset.exists_is_lub_of_bdd_above(values)])
-    s = l.obtain(supremum)
+    s, _ = l.obtain(supremum)
     l.exists(s)
     l.auto(by=[has_lim_of_monotone_of_is_lub(a, s)])
 

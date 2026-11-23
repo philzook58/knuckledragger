@@ -93,7 +93,7 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 - `l.fixes()` - open multiple ∀s, returns list
 - `l.intro()` - move one implication hypothesis into context and return it.
 - `l.intros()` - introduce all leading implications and return their hypotheses as a list; stop before `ForAll` and leave conjunctions grouped.
-- `l.obtain(n)` - open ∃ in hypothesis `n`, returns witness constants
+- `l.obtain(n)` - open ∃ in hypothesis `n`, returns `(witness, fact)` (a list of witnesses for multiple binders)
 
 **Proving subgoals:**
 
@@ -268,7 +268,7 @@ def sum_append(pf):
 - When restating nested quantified witnesses, match the definition's binder names and comparison direction (`RealVal(0) < t` versus `t > 0`) to avoid unstable equivalence searches.
 - `p == ForAll(...)` builds `ForAll(...) == p`, because `QuantifierRef`'s reflected `__eq__` wins. Use `smt.Eq(p, q)` when the orientation matters, such as a lemma meant for `rw`.
 - For sequence limit proofs, rewrite the goal with `has_lim_iff` and combine `eventually_near` facts with `eventually_and` and finish with `eventually_mono`, instead of choosing the larger N by hand. Turn `∀ n ≥ 0` hypotheses into `eventually` facts with `eventually_of_forall_nonneg`. One-shot `auto` over unfolded `has_lim` is fragile: adding unrelated declarations can make it time out.
-- `l.obtain(h)` and `l.unfold(..., at=h)` replace `h` in place; `l.specialize(h, ...)` consumes `h` and returns the new hypothesis. Re-fetch handles from `l.top_goal().ctx` rather than reusing the old formula.
+- `l.obtain(h)` replaces `h` with the witness fact and returns both the witness and the fact. Use the returned fact by name. `l.unfold(..., at=h)` replaces `h` in place. `l.specialize(h, ...)` consumes `h` and returns the new hypothesis.
 - In long proofs, keep defined predicates folded in the context and pass instantiated definitions such as `is_fine.defn(D, xs, ts, n)` in `by=`. Unfolded quantified hypotheses make later `auto` calls time out or depend on import order. Clear quantified hypotheses once they have been used.
 - Give witnesses involving division explicitly with `l.exists`, then `obtain` a fresh constant for them (e.g. `eta` with `eta * (|b - a| + 1) == eps`). Division terms inside later goals cause nonlinear timeouts.
 - `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.

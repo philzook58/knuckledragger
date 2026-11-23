@@ -21,8 +21,8 @@ def has_lim_at_unique(l):
     l.contra()
     eps = abs(L - M) / 2
     positive = l.have(RealVal(0) < eps, by=[abs.defn])
-    d1 = l.obtain(l.specialize(hL, eps, positive))
-    d2 = l.obtain(l.specialize(hM, eps, positive))
+    d1, _ = l.obtain(l.specialize(hL, eps, positive))
+    d2, _ = l.obtain(l.specialize(hM, eps, positive))
     # A common point must be near p but different from p.
     x = p + min(d1, d2) / 2
     l.have(
@@ -75,14 +75,14 @@ def cont_at_comp(l):
         Exists(d, d > 0, ForAll(y, abs(f[p] - y) < d, abs(g[f[p]] - g[y]) < eps)), by=[]
     )
     l.clear(hg)
-    d1 = l.obtain(w)
+    d1, _ = l.obtain(w)
     # ... is the target for f's delta at p.
     hf = l.specialize(hf, d1)
     w = l.have(
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < d1)), by=[]
     )
     l.clear(hf)
-    d2 = l.obtain(w)
+    d2, _ = l.obtain(w)
     l.exists(d2)
     l.auto()
 

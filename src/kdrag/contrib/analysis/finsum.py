@@ -1,7 +1,7 @@
 """Finite real sums: subtraction, telescoping, and absolute-value bounds."""
 
 from kdrag import Theorem
-from kdrag.smt import ForAll
+from kdrag.smt import ForAll, IntVal, Reals
 import kdrag.theories.int as int_
 import kdrag.theories.real as real
 from kdrag.theories.real.rseq import (
@@ -13,6 +13,7 @@ from kdrag.theories.real.rseq import (
     diff,
     finsum,
     finsum_succ,
+    geom,
     sub,
 )
 
@@ -71,3 +72,27 @@ def abs_finsum_le(l):
     l.have(real.abs(a[n]) <= b[n], by=[])
     # Triangle inequality on the newest term.
     l.auto(by=[finsum_succ(a, n), finsum_succ(b, n), real.abs_add(finsum(a, n), a[n])])
+
+
+(r,) = Reals("r")
+
+
+@Theorem(
+    ForAll(
+        [r, n],
+        n >= 0,
+        (1 - r) * finsum(geom(r), n) == 1 - real.pownat(r, n),
+    )
+)
+def finsum_geom(l):
+    """The sum of the first n powers, with the denominator cleared."""
+    r, n = l.fixes()
+    terms = geom(r)
+    l.induct(n, using=int_.induct_nat)
+    zero = IntVal(0)
+    l.auto(by=[finsum.defn(terms, zero), cumsum.defn(terms), real.pownat_zero(r)])
+
+    n = l.fix()
+    l.intros()
+    l.have(terms[n] == real.pownat(r, n), by=[geom.defn(r)])
+    l.auto(by=[finsum_succ(terms, n), real.pownat_succ(r, n)])

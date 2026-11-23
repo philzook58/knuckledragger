@@ -79,7 +79,7 @@ def bdd_above_of_bdd_below_neg(l):
     A = l.fix()
     l.unfold(bdd_above, bdd_below)
     h = l.intro()
-    b = l.obtain(h)
+    b, _ = l.obtain(h)
     l.exists(-b)
     l.auto(by=[is_lb_neg(A, b)])
 
@@ -89,7 +89,7 @@ def bdd_below_of_bdd_above_neg(l):
     A = l.fix()
     l.unfold(bdd_above, bdd_below)
     h = l.intro()
-    b = l.obtain(h)
+    b, _ = l.obtain(h)
     l.exists(-b)
     l.auto(by=[is_ub_neg(A, b)])
 
@@ -100,11 +100,11 @@ def bdd_above_neg(l):
     l.unfold(bdd_above, bdd_below)
     l.split()
     h = l.intro()
-    b = l.obtain(h)
+    b, _ = l.obtain(h)
     l.exists(-b)
     l.auto(by=[is_ub_neg(A, b)])
     h = l.intro()
-    b = l.obtain(h)
+    b, _ = l.obtain(h)
     # A lower bound b of A gives an upper bound -b of its image under negation.
     l.exists(-b)
     l.auto(by=[is_ub_neg(A, -b)])
@@ -148,7 +148,7 @@ def exists_is_glb_of_bdd_below(l):
     l.have(bdd_above(-A), by=[bdd_above_neg(A)])
     l.have(Exists(x, (-A)[x]), by=[])
     h = l.have(Exists(u, is_lub(-A, u)), by=[exists_is_lub_of_bdd_above(-A)])
-    lub = l.obtain(h)
+    lub, _ = l.obtain(h)
     l.exists(-lub)
     l.auto(by=[is_glb_of_is_lub_neg(A, -lub)])
 
@@ -301,7 +301,7 @@ def exists_between_seq(l):
     l.fix()
     l.beta()
     member = l.intro()
-    k = l.obtain(member)
+    k, _ = l.obtain(member)
     l.specialize(cross_bounds, k, j)
     l.auto()
 
@@ -313,7 +313,7 @@ def exists_between_seq(l):
     supremum = l.have(
         Exists(u, is_lub(lower, u)), by=[exists_is_lub_of_bdd_above(lower)]
     )
-    s = l.obtain(supremum)
+    s, _ = l.obtain(supremum)
     l.exists(s)
     j = l.fix()
     l.intro()
@@ -336,6 +336,6 @@ def nonempty_iinter_icc_of_nested(l):
     # Nesting separates all lower endpoints from all upper endpoints.
     cross_bounds = l.specialize(nested_icc_bounds, a, b, decreasing, ordered)
     between = l.specialize(exists_between_seq, a, b, cross_bounds)
-    s = l.obtain(between)
+    s, _ = l.obtain(between)
     l.exists(s)
     l.auto(by=[iinter.defn, icc.defn])
