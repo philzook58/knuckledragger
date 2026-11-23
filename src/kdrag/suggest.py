@@ -14,6 +14,7 @@ not beat this on held-out modules with so little data, so they were left out.
 import math
 import time
 from collections import Counter
+from dataclasses import dataclass, field
 
 import kdrag.kernel as kernel
 import kdrag.smt as smt
@@ -30,14 +31,15 @@ def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
     )
 
 
+@dataclass(repr=False)  # the default repr would print the whole library
 class Index:
     """Library lemmas and definitions found by `utils.lemma_db`, oldest first."""
 
-    def __init__(self):
-        self.entries: dict[int, tuple[str, kernel.Proof]] = {}  # by `thm.get_id()`
-        self._syms: dict[int, Counter[smt.FuncDeclRef]] = {}
-        self._idf: dict[smt.FuncDeclRef, float] = {}
-        self._vecs: dict[int, dict[smt.FuncDeclRef, float]] = {}
+    # All keyed by `thm.get_id()`, except `idf`.
+    entries: dict[int, tuple[str, kernel.Proof]] = field(default_factory=dict)
+    syms: dict[int, Counter[smt.FuncDeclRef]] = field(default_factory=dict)
+    idf: dict[smt.FuncDeclRef, float] = field(default_factory=dict)
+    vecs: dict[int, dict[smt.FuncDeclRef, float]] = field(default_factory=dict)
 
     def refresh(self):
         n = len(self.entries)
@@ -51,11 +53,11 @@ class Index:
             key = pf.thm.get_id()
             if key not in self.entries and not name.rsplit(".", 1)[-1].startswith("_"):
                 self.entries[key] = (name, pf)
-                self._syms[key] = decl_counter(pf.thm)
+                self.syms[key] = decl_counter(pf.thm)
         if len(self.entries) != n:
-            df = Counter(s for syms in self._syms.values() for s in syms)
-            self._idf = {s: math.log(len(self.entries) / c) for s, c in df.items()}
-            self._vecs = {}
+            df = Counter(s for syms in self.syms.values() for s in syms)
+            self.idf = {s: math.log(len(self.entries) / c) for s, c in df.items()}
+            self.vecs = {}
 
     def vec(
         self, syms: Counter[smt.FuncDeclRef], ops=0.1
@@ -65,15 +67,16 @@ class Index:
         v = {}
         for s, n in syms.items():
             w = 1.0 if smt.is_uninterp(s) else ops
-            v[s] = w * (1 + math.log(n)) * self._idf.get(s, default)
+            v[s] = w * (1 + math.log(n)) * self.idf.get(s, default)
         norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
         return {s: x / norm for s, x in v.items()}
 
-    def entry_vec(self, key: int) -> dict[smt.FuncDeclRef, float]:
-        v = self._vecs.get(key)
-        if v is None:
-            v = self._vecs[key] = self.vec(self._syms[key])
-        return v
+    def __getitem__(self, thm: smt.ExprRef) -> dict[smt.FuncDeclRef, float]:
+        """tf-idf vector of an indexed theorem, cached."""
+        key = thm.get_id()
+        if key not in self.vecs:
+            self.vecs[key] = self.vec(self.syms[key])
+        return self.vecs[key]
 
 
 index = Index()
@@ -103,12 +106,14 @@ def rank(
         norm = math.sqrt(sum(x * x for x in g.values())) or 1.0
         g = {s: x / norm for s, x in g.items()}
     last = max(len(index.entries) - 1, 1)
-    score = {}
-    for order, key in enumerate(index.entries):
-        v = index.entry_vec(key)
-        score[key] = sum(x * v.get(s, 0.0) for s, x in g.items()) + 0.1 * order / last
-    best = sorted(score, key=lambda key: -score[key])[:k]
-    return [index.entries[key] for key in best if score[key] >= cutoff * score[best[0]]]
+    scored = []
+    for order, (name, pf) in enumerate(index.entries.values()):
+        v = index[pf.thm]
+        score = sum(x * v.get(s, 0.0) for s, x in g.items()) + 0.1 * order / last
+        scored.append((score, name, pf))
+    scored.sort(key=lambda t: -t[0])
+    top = scored[0][0]
+    return [(name, pf) for score, name, pf in scored[:k] if score >= cutoff * top]
 
 
 def report(
