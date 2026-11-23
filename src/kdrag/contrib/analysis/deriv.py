@@ -1,4 +1,4 @@
-"""Pointwise differentiation: difference-quotient and remainder formulations.
+"""Pointwise differentiation defined by the difference-quotient limit.
 
 Linearity follows from the limit rules in `cont`, using that a limit at p ignores
 the value at p (the quotient is 0/0 there). The chain rule goes through
@@ -7,7 +7,7 @@ Carathéodory's characterisation, which avoids dividing by f(x) - f(p).
 
 from kdrag import Theorem, define, prove
 import kdrag.smt as smt
-from kdrag.smt import Const, Consts, Exists, ForAll, Lambda, Reals, RealVal, Store
+from kdrag.smt import Const, Consts, Eq, Exists, ForAll, Lambda, Reals, RealVal, Store
 
 from kdrag.theories.real import RFun, abs, abs_mul, cont_at, fmul, has_lim_at
 from kdrag.contrib.analysis.cont import (
@@ -29,31 +29,11 @@ F = Const("F", RFun)
 k, t, u, v, y, eps, delta = Reals("k t u v y eps delta")
 
 
-# Keep this exploratory definition separate from real.has_diff_at until reviewed.
-has_diff_at = define(
-    "analysis.has_diff_at",
-    [f, p, L],
-    has_lim_at(Lambda(x, (f[x] - f[p]) / (x - p)), p, L),
-)
-
-
-# mathlib's `HasDerivAt F k x`: F y = F x + k * (y - x) + o(y - x).
+# The single derivative predicate: derivative value first, then the base point.
 has_deriv_at = define(
     "has_deriv_at",
-    [F, k, x],
-    ForAll(
-        eps,
-        eps > 0,
-        Exists(
-            delta,
-            delta > 0,
-            ForAll(
-                y,
-                abs(y - x) < delta,
-                abs(F[y] - F[x] - k * (y - x)) <= eps * abs(y - x),
-            ),
-        ),
-    ),
+    [f, a, p],
+    has_lim_at(Lambda(x, (f[x] - f[p]) / (x - p)), p, a),
 )
 
 
@@ -62,10 +42,83 @@ def quot(f, p):
     return Lambda(x, (f[x] - f[p]) / (x - p))
 
 
-@Theorem(ForAll([c, p], has_diff_at(Lambda(x, c), p, 0)))
-def has_diff_at_const(l):
+@Theorem(
+    ForAll(
+        [f, a, p],
+        Eq(
+            has_deriv_at(f, a, p),
+            ForAll(
+                eps,
+                eps > 0,
+                Exists(
+                    delta,
+                    delta > 0,
+                    ForAll(
+                        y,
+                        abs(y - p) < delta,
+                        abs(f[y] - f[p] - a * (y - p)) <= eps * abs(y - p),
+                    ),
+                ),
+            ),
+        ),
+    )
+)
+def has_deriv_at_iff_remainder(l):
+    """The linear-remainder estimate follows from, and characterizes, the limit."""
+    f, a, p = l.fixes()
+    l.unfold(has_deriv_at)
+    l.split()
+    # A strict quotient bound gives the non-strict remainder bound off p.
+    h = l.intro()
+    l.unfold(has_lim_at, at=h)
+    h = l.top_goal().ctx[-1]
+    e = l.fix()
+    l.intro()
+    positive = l.have(RealVal(0) < e, by=[])
+    d = l.obtain(l.specialize(h, e, positive))
+    l.split(at=0)
+    near = l.top_goal().ctx[1]
+    l.exists(d)
+    l.split()
+    l.auto()
+    z = l.fix()
+    l.intro()
+    l.cases(z == p)
+    l.auto(by=[abs.defn(0)])
+    l.have(abs(quot(f, p)[z] - a) < e, by=[abs.defn(z - p)])
+    l.clear(near)
+    l.have((quot(f, p)[z] - a) * (z - p) == f[z] - f[p] - a * (z - p), by=[])
+    l.auto(by=[abs_mul(quot(f, p)[z] - a, z - p), abs.defn(z - p)])
+    # Conversely, use half epsilon to turn <= into < after division.
+    h = l.intro()
+    l.unfold(has_lim_at)
+    e = l.fix()
+    l.intro()
+    positive = l.have(e / 2 > 0, by=[])
+    d = l.obtain(l.specialize(h, e / 2, positive))
+    l.split(at=0)
+    near = l.top_goal().ctx[1]
+    l.exists(d)
+    l.split()
+    l.auto()
+    z = l.fix()
+    l.intros()
+    l.have(abs(f[z] - f[p] - a * (z - p)) <= e / 2 * abs(z - p), by=[])
+    l.clear(near)
+    l.have(
+        (quot(f, p)[z] - a) * (z - p) == f[z] - f[p] - a * (z - p), by=[abs.defn(z - p)]
+    )
+    l.have(
+        abs(quot(f, p)[z] - a) * abs(z - p) == abs(f[z] - f[p] - a * (z - p)),
+        by=[abs_mul(quot(f, p)[z] - a, z - p)],
+    )
+    l.auto(by=[abs.defn(z - p)])
+
+
+@Theorem(ForAll([c, p], has_deriv_at(Lambda(x, c), 0, p)))
+def has_deriv_at_const(l):
     c, p = l.fixes()
-    l.unfold(has_diff_at)
+    l.unfold(has_deriv_at)
     # The quotient (c - c) / (x - p) is 0 away from p.
     zero = Lambda(x, RealVal(0))
     l.auto(
@@ -73,10 +126,10 @@ def has_diff_at_const(l):
     )
 
 
-@Theorem(ForAll([p], has_diff_at(Lambda(x, x), p, 1)))
-def has_diff_at_id(l):
+@Theorem(ForAll([p], has_deriv_at(Lambda(x, x), 1, p)))
+def has_deriv_at_id(l):
     p = l.fix()
-    l.unfold(has_diff_at)
+    l.unfold(has_deriv_at)
     # The quotient (x - p) / (x - p) is 1 away from p.
     one = Lambda(x, RealVal(1))
     l.auto(
@@ -87,18 +140,18 @@ def has_diff_at_id(l):
 @Theorem(
     ForAll(
         [f, g, p, a, b],
-        has_diff_at(f, p, a),
-        has_diff_at(g, p, b),
-        has_diff_at(f + g, p, a + b),
+        has_deriv_at(f, a, p),
+        has_deriv_at(g, b, p),
+        has_deriv_at(f + g, a + b, p),
     )
 )
-def has_diff_at_add(l):
+def has_deriv_at_add(l):
     f, g, p, a, b = l.fixes()
     l.intros()
-    l.unfold(has_diff_at)
+    l.unfold(has_deriv_at)
     qf, qg = quot(f, p), quot(g, p)
-    l.have(has_lim_at(qf, p, a), by=[has_diff_at.defn(f, p, a)])
-    l.have(has_lim_at(qg, p, b), by=[has_diff_at.defn(g, p, b)])
+    l.have(has_lim_at(qf, p, a), by=[has_deriv_at.defn(f, a, p)])
+    l.have(has_lim_at(qg, p, b), by=[has_deriv_at.defn(g, b, p)])
     l.have(has_lim_at(qf + qg, p, a + b), by=[has_lim_at_add(qf, qg, p, a, b)])
     # The quotient of f + g is the sum of the quotients away from p.
     l.auto(by=[has_lim_at_congr(qf + qg, quot(f + g, p), p, a + b)])
@@ -107,16 +160,16 @@ def has_diff_at_add(l):
 @Theorem(
     ForAll(
         [c, f, p, a],
-        has_diff_at(f, p, a),
-        has_diff_at(Lambda(x, c * f[x]), p, c * a),
+        has_deriv_at(f, a, p),
+        has_deriv_at(Lambda(x, c * f[x]), c * a, p),
     )
 )
-def has_diff_at_const_mul(l):
+def has_deriv_at_const_mul(l):
     c, f, p, a = l.fixes()
     l.intro()
-    l.unfold(has_diff_at)
+    l.unfold(has_deriv_at)
     qf, cf = quot(f, p), Lambda(x, c)
-    l.have(has_lim_at(qf, p, a), by=[has_diff_at.defn(f, p, a)])
+    l.have(has_lim_at(qf, p, a), by=[has_deriv_at.defn(f, a, p)])
     l.have(
         has_lim_at(cf * qf, p, c * a),
         by=[has_lim_at_mul(cf, qf, p, c, a), has_lim_at_const(c, p)],
@@ -144,17 +197,17 @@ def sub_eq_slope_mul(l):
     l.auto()
 
 
-@Theorem(ForAll([f, p, a], has_diff_at(f, p, a), cont_at(slope(f, p, a), p)))
-def cont_at_slope_of_has_diff_at(l):
+@Theorem(ForAll([f, p, a], has_deriv_at(f, a, p), cont_at(slope(f, p, a), p)))
+def cont_at_slope_of_has_deriv_at(l):
     f, p, a = l.fixes()
     l.intro()
     l.auto(
-        by=[has_diff_at.defn(f, p, a), cont_at_update_of_has_lim_at(quot(f, p), p, a)]
+        by=[has_deriv_at.defn(f, a, p), cont_at_update_of_has_lim_at(quot(f, p), p, a)]
     )
 
 
-@Theorem(ForAll([f, p, a], has_diff_at(f, p, a), cont_at(f, p)))
-def cont_at_of_has_diff_at(l):
+@Theorem(ForAll([f, p, a], has_deriv_at(f, a, p), cont_at(f, p)))
+def cont_at_of_has_deriv_at(l):
     """A differentiable function is continuous."""
     f, p, a = l.fixes()
     l.intro()
@@ -162,7 +215,7 @@ def cont_at_of_has_diff_at(l):
     # The slope tends to a and x - p tends to 0 ...
     l.have(
         has_lim_at(s, p, a),
-        by=[has_lim_at_of_cont_at(s, p), cont_at_slope_of_has_diff_at(f, p, a)],
+        by=[has_lim_at_of_cont_at(s, p), cont_at_slope_of_has_deriv_at(f, p, a)],
     )
     l.have(
         has_lim_at(lin, p, 0),
@@ -204,26 +257,26 @@ def quot_comp_eq(l):
 @Theorem(
     ForAll(
         [f, g, p, a, b],
-        has_diff_at(f, p, a),
-        has_diff_at(g, f[p], b),
-        has_diff_at(Lambda(x, g[f[x]]), p, b * a),
+        has_deriv_at(f, a, p),
+        has_deriv_at(g, b, f[p]),
+        has_deriv_at(Lambda(x, g[f[x]]), b * a, p),
     )
 )
-def has_diff_at_comp(l):
+def has_deriv_at_comp(l):
     """The chain rule."""
     f, g, p, a, b = l.fixes()
     l.intros()
     sf, sg = slope(f, p, a), slope(g, f[p], b)
     sgf = Lambda(x, sg[f[x]])
     # sg(f x) tends to sg(f p) = b, since f is continuous and sg continuous at f(p).
-    l.have(cont_at(f, p), by=[cont_at_of_has_diff_at(f, p, a)])
-    l.have(cont_at(sg, f[p]), by=[cont_at_slope_of_has_diff_at(g, f[p], b)])
+    l.have(cont_at(f, p), by=[cont_at_of_has_deriv_at(f, p, a)])
+    l.have(cont_at(sg, f[p]), by=[cont_at_slope_of_has_deriv_at(g, f[p], b)])
     l.have(cont_at(sgf, p), by=[cont_at_comp(f, sg, p)])
     l.have(has_lim_at(sgf, p, b), by=[has_lim_at_of_cont_at(sgf, p)])
     # sf tends to a.
     l.have(
         has_lim_at(sf, p, a),
-        by=[has_lim_at_of_cont_at(sf, p), cont_at_slope_of_has_diff_at(f, p, a)],
+        by=[has_lim_at_of_cont_at(sf, p), cont_at_slope_of_has_deriv_at(f, p, a)],
     )
     l.have(has_lim_at(sgf * sf, p, b * a), by=[has_lim_at_mul(sgf, sf, p, b, a)])
     # Prove the pointwise identity before transporting the product limit.
@@ -232,7 +285,7 @@ def has_diff_at_comp(l):
     z = l.fix()
     l.intro()
     l.auto(by=[fmul.defn(sgf, sf), quot_comp_eq(f, g, p, a, b, z)])
-    l.unfold(has_diff_at)
+    l.unfold(has_deriv_at)
     l.auto(by=[has_lim_at_congr(sgf * sf, target, p, b * a)])
 
 
@@ -258,26 +311,13 @@ def straddles(F, k, t, delta, eps) -> smt.BoolRef:
 )
 def straddle_of_has_deriv_at(l):
     F, k, t, eps = l.fixes()
-    l.unfold(has_deriv_at)
+    l.rw(has_deriv_at_iff_remainder)
     h = l.intro()
     l.intro()
-    h = l.specialize(h, eps / 2)
-    witness = l.have(
-        Exists(
-            delta,
-            delta > 0,
-            ForAll(
-                y,
-                abs(y - t) < delta,
-                abs(F[y] - F[t] - k * (y - t)) <= eps / 2 * abs(y - t),
-            ),
-        ),
-        by=[],
-    )
-    l.clear(h)
-    r = l.obtain(witness)
-    l.split(at=-1)
-    near = l.top_goal().ctx[-1]
+    positive = l.have(eps / 2 > 0, by=[])
+    r = l.obtain(l.specialize(h, eps / 2, positive))
+    l.split(at=0)
+    near = l.top_goal().ctx[1]
     l.exists(r)
     l.split()
     l.assumption()
@@ -301,7 +341,7 @@ def straddle_of_has_deriv_at(l):
 @Theorem(ForAll(x, has_deriv_at(Lambda(t, t * t), 2 * x, x)))
 def has_deriv_at_sq(l):
     x = l.fix()
-    l.unfold(has_deriv_at)
+    l.rw(has_deriv_at_iff_remainder)
     eps = l.fix()
     l.intro()
     # The error is (y - x)^2, so delta = eps works.

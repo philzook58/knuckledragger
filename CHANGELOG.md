@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Define `contrib.analysis.deriv.has_diff_at` by the punctured difference-quotient limit.
+- Use one `contrib.analysis.deriv.has_deriv_at(f, a, p)` definition via the punctured difference-quotient limit. Prove the remainder estimate as `has_deriv_at_iff_remainder`; rename the former `has_diff_at` rules accordingly.
 - Order `contrib.analysis.rseq.has_lim_smul` binders as scalar, sequence, limit for composition by `lim_lemma`.
 
 ### Removed

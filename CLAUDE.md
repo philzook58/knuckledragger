@@ -22,6 +22,7 @@
 
 - `kdrag.theories` is the curated library for mathematics Philip has carefully reviewed and understands. Keep new or less-reviewed mathematics in `kdrag.contrib`; use `kdrag.contrib.analysis` for exploratory real analysis.
 - Philip will manually promote material into `kdrag.theories`. Do not promote it, or move existing reviewed material out, without an explicit request.
+- Use the single derivative predicate `contrib.analysis.deriv.has_deriv_at(f, a, p)`, defined via `has_lim_at`. Derive alternative characterizations as theorems rather than introducing parallel derivative predicates.
 - In `contrib.analysis`, keep pointwise limits/continuity in `cont`, derivative predicates and derivative-only lemmas in `deriv`, sequence limits in `rseq`, finite sums in `finsum`, gauge-integral construction in `integral`, and the derivative/integral connection in `ftc`. Keep dependencies one-way; `integral` must not depend on `deriv` or `ftc`.
 - Compare both folders for existing definitions and reusable theorems before adding mathematics. Contrib may import theories; theories must not import contrib. Keep exploratory definitions separate from existing theory declarations until promotion.
 - If the layout or a proposed change conflicts with this boundary, point it out rather than silently treating it as permission to change the policy.
