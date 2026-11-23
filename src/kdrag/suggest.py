@@ -17,6 +17,7 @@ from collections import Counter
 
 import kdrag.kernel as kernel
 import kdrag.smt as smt
+import kdrag.tactics as tactics
 import kdrag.utils as utils
 
 
@@ -84,23 +85,25 @@ index = Index()
 HYPS = 0.3  # weight of hypothesis symbols relative to the conclusion's
 
 
-def goal_vec(goal: smt.BoolRef) -> dict[Symbol, float]:
-    """Vector of `goal`, with hypotheses of a leading implication chain down-weighted."""
-    hyps = []
-    while smt.is_implies(goal):
-        hyps.append(goal.arg(0))
-        goal = goal.arg(1)
-    v = dict(index.vec(symbols(goal)))
-    if hyps:
-        for s, x in index.vec(sum((symbols(h) for h in hyps), Counter())).items():
-            v[s] = v.get(s, 0.0) + HYPS * x
+def goal_vec(goal: tactics.Goal) -> dict[Symbol, float]:
+    """Vector of `goal`, with its hypotheses down-weighted."""
+    v = index.vec(symbols(goal.goal))
+    if goal.ctx:
+        hyps = index.vec(sum((symbols(h) for h in goal.ctx), Counter()))
+        v = {s: v.get(s, 0.0) + HYPS * hyps.get(s, 0.0) for s in v.keys() | hyps.keys()}
         norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
         v = {s: x / norm for s, x in v.items()}
     return v
 
 
+def _goal(goal: tactics.Goal | smt.BoolRef) -> tactics.Goal:
+    if isinstance(goal, smt.BoolRef):
+        return tactics.Goal(sig=[], ctx=[], goal=goal)
+    return goal
+
+
 def rank(
-    goal: smt.BoolRef, k: int = 10, cutoff: float = 0.5
+    goal: tactics.Goal | smt.BoolRef, k: int = 10, cutoff: float = 0.5
 ) -> list[tuple[str, kernel.Proof]]:
     """
     Names and proofs of the library lemmas most likely to help prove `goal`, best first.
@@ -111,7 +114,7 @@ def rank(
     index.refresh()
     if not index.entries:
         return []
-    g = goal_vec(goal)
+    g = goal_vec(_goal(goal))
     last = max(len(index.entries) - 1, 1)
     score = {}
     for order, key in enumerate(index.entries):
@@ -122,7 +125,10 @@ def rank(
 
 
 def report(
-    goal: smt.BoolRef, check: int = 3, timeout: int = 30, budget: float = 0.1
+    goal: tactics.Goal | smt.BoolRef,
+    check: int = 3,
+    timeout: int = 30,
+    budget: float = 0.1,
 ) -> str:
     """
     Ranked suggestions for `goal` as text; the top `check` are tried with z3.
@@ -132,13 +138,14 @@ def report(
     """
     from kdrag.printers.pretty import pretty_expr
 
+    goal = _goal(goal)
     start = time.perf_counter()
     lines = []
     for i, (name, pf) in enumerate(rank(goal)):
         mark = "- "  # two columns, like the emoji
         if i < check and time.perf_counter() - start < budget:
             try:
-                kernel.prove(goal, by=[pf], timeout=timeout)
+                kernel.prove(goal.to_expr(), by=[pf], timeout=timeout)
                 mark = "✅"
             except Exception:
                 pass

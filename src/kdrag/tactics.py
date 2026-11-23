@@ -2238,7 +2238,7 @@ class ProofState:
         from kdrag.printers.pretty import pretty_goal
 
         goal = self.top_goal()
-        print(pretty_goal(goal), "", kdrag.suggest.report(goal.to_expr()), sep="\n")
+        print(pretty_goal(goal), "", kdrag.suggest.report(goal), sep="\n")
 
     # TODO
     # def llm():
