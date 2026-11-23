@@ -21,18 +21,13 @@ import kdrag.tactics as tactics
 import kdrag.utils as utils
 
 
-Symbol = smt.FuncDeclRef | smt.SortRef
-
-
-def symbols(e: smt.ExprRef) -> Counter[Symbol]:
-    """Function symbols in `e`, plus the sorts of its bound variables."""
-    out: Counter[Symbol] = Counter()
-    for t in utils.subterms(e, into_binder=True):
-        if isinstance(t, smt.QuantifierRef):
-            out.update(t.var_sort(i) for i in range(t.num_vars()))
-        elif smt.is_app(t) and "!" not in t.decl().name():  # skip fresh x!7
-            out[t.decl()] += 1
-    return out
+def symbols(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
+    """Function symbols in `e`, skipping fresh variables like x!7."""
+    return Counter(
+        t.decl()
+        for t in utils.subterms(e, into_binder=True)
+        if smt.is_app(t) and "!" not in t.decl().name()
+    )
 
 
 class Index:
@@ -40,9 +35,9 @@ class Index:
 
     def __init__(self):
         self.entries: dict[int, tuple[str, kernel.Proof]] = {}  # by `thm.get_id()`
-        self._syms: dict[int, Counter[Symbol]] = {}
-        self._idf: dict[Symbol, float] = {}
-        self._vecs: dict[int, dict[Symbol, float]] = {}
+        self._syms: dict[int, Counter[smt.FuncDeclRef]] = {}
+        self._idf: dict[smt.FuncDeclRef, float] = {}
+        self._vecs: dict[int, dict[smt.FuncDeclRef, float]] = {}
 
     def refresh(self):
         n = len(self.entries)
@@ -62,17 +57,19 @@ class Index:
             self._idf = {s: math.log(len(self.entries) / c) for s, c in df.items()}
             self._vecs = {}
 
-    def vec(self, syms: Counter[Symbol], ops=0.1) -> dict[Symbol, float]:
-        """tf-idf vector; built-in operators and sorts are down-weighted by `ops`."""
+    def vec(
+        self, syms: Counter[smt.FuncDeclRef], ops=0.1
+    ) -> dict[smt.FuncDeclRef, float]:
+        """tf-idf vector; built-in operators are down-weighted by `ops`."""
         default = math.log(len(self.entries) + 1)
         v = {}
         for s, n in syms.items():
-            w = 1.0 if isinstance(s, smt.FuncDeclRef) and smt.is_uninterp(s) else ops
+            w = 1.0 if smt.is_uninterp(s) else ops
             v[s] = w * (1 + math.log(n)) * self._idf.get(s, default)
         norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
         return {s: x / norm for s, x in v.items()}
 
-    def entry_vec(self, key: int) -> dict[Symbol, float]:
+    def entry_vec(self, key: int) -> dict[smt.FuncDeclRef, float]:
         v = self._vecs.get(key)
         if v is None:
             v = self._vecs[key] = self.vec(self._syms[key])
@@ -85,7 +82,7 @@ index = Index()
 HYPS = 0.3  # weight of hypothesis symbols relative to the conclusion's
 
 
-def goal_vec(goal: tactics.Goal) -> dict[Symbol, float]:
+def goal_vec(goal: tactics.Goal) -> dict[smt.FuncDeclRef, float]:
     """Vector of `goal`, with its hypotheses down-weighted."""
     v = index.vec(symbols(goal.goal))
     if goal.ctx:
