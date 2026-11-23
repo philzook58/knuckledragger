@@ -2,13 +2,16 @@
 
 from kdrag import Theorem
 from kdrag.contrib.analysis.finsum import finsum_geom
-from kdrag.contrib.analysis.rseq import has_lim_congr_nonneg, lim_lemma
+from kdrag.contrib.analysis.rseq import (
+    abs_sub_le_of_has_lim,
+    has_lim_congr_nonneg,
+    lim_lemma,
+)
 from kdrag.smt import (
     And,
     Consts,
     Exists,
     ForAll,
-    If,
     Int,
     Lambda,
     Real,
@@ -26,17 +29,13 @@ from kdrag.theories.real.rseq import (
     cumsum_add,
     cumsum_mono,
     cumsum_succ,
-    eventually,
     exists_has_lim_of_monotone_of_bdd_above,
     finsum,
     geom,
     has_lim,
-    has_lim_iff,
-    has_lim_neg,
     has_lim_sub,
     has_sum,
     is_monotone,
-    neg,
     range_nonneg,
     sub,
 )
@@ -333,31 +332,6 @@ def exists_has_sum_of_geometric_decay(l):
 
 @Theorem(
     ForAll(
-        [a, S, M, start],
-        has_lim(a, S),
-        ForAll(n, n >= start, a[n] <= M),
-        S <= M,
-    )
-)
-def le_of_has_lim_of_tail_le(l):
-    a, S, M, start = l.fixes()
-    l.rw(has_lim_iff(a, S))
-    l.unfold(eventually)
-    l.beta()
-    lim, bound = l.intros()
-    l.contra()
-    gap = l.have(S - M > 0, by=[])
-    cutoff, near = l.obtain(l.specialize(lim, S - M, gap))
-    index = If(cutoff >= start, cutoff + 1, start)
-    beyond = l.have(index > cutoff, by=[])
-    l.specialize(near, index, beyond)
-    after_start = l.have(index >= start, by=[])
-    l.specialize(bound, index, after_start)
-    l.auto(by=[real.abs.defn(a[index] - S)])
-
-
-@Theorem(
-    ForAll(
         [a, r, start, S],
         0 <= r,
         r < 1,
@@ -382,19 +356,9 @@ def has_sum_error_of_geometric_decay(l):
     )
     l.auto(by=[real.abs_pos(a[index])])
 
-    l.have(has_lim(partial, S), by=[has_sum.defn(a, S)])
-    l.have(S <= partial[start] + bound)
-    l.have(ForAll(n, n >= start, partial[n] <= partial[start] + bound))
-    index = l.fix()
-    l.intro()
-    l.auto(by=[real.abs.defn(partial[index] - partial[start])])
-    l.auto(by=[le_of_has_lim_of_tail_le(partial, S, partial[start] + bound, start)])
-
-    l.have(has_lim(-partial, -S), by=[has_lim_neg(partial, S)])
-    l.have(-S <= bound - partial[start])
-    l.have(ForAll(n, n >= start, (-partial)[n] <= bound - partial[start]))
-    index = l.fix()
-    l.intro()
-    l.auto(by=[neg.defn(partial), real.abs.defn(partial[index] - partial[start])])
-    l.auto(by=[le_of_has_lim_of_tail_le(-partial, -S, bound - partial[start], start)])
-    l.auto(by=[real.abs.defn(S - partial[start])])
+    l.auto(
+        by=[
+            has_sum.defn(a, S),
+            abs_sub_le_of_has_lim(partial, S, partial[start], bound, start),
+        ]
+    )

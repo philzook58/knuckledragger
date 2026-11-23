@@ -1,6 +1,7 @@
 """Sine constructed from its power series."""
 
 from kdrag import Theorem, define, kernel, prove
+from kdrag.contrib.analysis.deriv import has_deriv_at, has_deriv_at_iff_remainder
 from kdrag.contrib.analysis.series import (
     exists_has_sum_of_geometric_decay,
     has_sum_error_of_geometric_decay,
@@ -149,22 +150,35 @@ def sin_series_error(l):
     )
 
 
-@Theorem(real.has_lim_at(Lambda(x, sin_series(x) / x), 0, 1))
-def has_lim_at_sin_series_div_zero(l):
-    l.unfold(real.has_lim_at)
+@Theorem(sin_series(0) == 0)
+def sin_series_zero(l):
+    l.auto(by=[sin_series_error(0), real.abs.defn(0), real.abs.defn(sin_series(0))])
+
+
+@Theorem(has_deriv_at(Lambda(x, sin_series(x)), 1, 0))
+def has_deriv_at_sin_series_zero(l):
+    l.rw(has_deriv_at_iff_remainder)
     epsilon = l.fix()
     l.intro()
     l.exists(real.min(1, epsilon))
     l.split()
     l.auto(by=[real.min.defn(1, epsilon)])
+
     x = l.fix()
-    l.intros()
+    l.intro()
+    l.beta()
     l.have(real.abs(x) < 1, by=[real.min.defn(1, epsilon)])
     l.have(real.abs(x) < epsilon, by=[real.min.defn(1, epsilon)])
-    l.have(x != 0, by=[real.abs.defn(x)])
-    l.have(sin_series(x) / x - 1 == (sin_series(x) - x) / x, by=[])
-    l.have(
-        real.abs(sin_series(x) / x - 1) <= x * x / 5,
-        by=[real.abs_div(sin_series(x) - x, x), sin_series_error(x)],
+    l.have(x * x / 5 <= epsilon, by=[real.abs.defn(x)])
+    l.auto(by=[sin_series_error(x), sin_series_zero, real.abs_pos(x)])
+
+
+@Theorem(real.has_lim_at(Lambda(x, sin_series(x) / x), 0, 1))
+def has_lim_at_sin_series_div_zero(l):
+    l.auto(
+        by=[
+            has_deriv_at_sin_series_zero,
+            has_deriv_at.defn(Lambda(x, sin_series(x)), 1, 0),
+            sin_series_zero,
+        ]
     )
-    l.auto(by=[real.abs.defn(x)])
