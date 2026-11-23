@@ -18,6 +18,16 @@
 - Big jumps for the solver are slow, but so is too many little steps. There is a balance.
 - DO NOT try to be sneaky to get a proof though (mutating stuff, using python craziness). Knuckledragger relies on proper usage to remain sound.
 
+## Review boundary and proof presentation
+
+- `kdrag.theories` is the curated library for mathematics Philip has carefully reviewed and understands. Keep new or less-reviewed mathematics in `kdrag.contrib`; use `kdrag.contrib.analysis` for exploratory real analysis.
+- Philip will manually promote material into `kdrag.theories`. Do not promote it, or move existing reviewed material out, without an explicit request.
+- Use the single derivative predicate `contrib.analysis.deriv.has_deriv_at(f, a, p)`, defined via `has_lim_at`. Derive alternative characterizations as theorems rather than introducing parallel derivative predicates.
+- In `contrib.analysis`, keep pointwise limits/continuity in `cont`, derivative predicates and derivative-only lemmas in `deriv`, sequence limits in `rseq`, finite sums in `finsum`, gauge-integral construction in `integral`, and the derivative/integral connection in `ftc`. Keep dependencies one-way; `integral` must not depend on `deriv` or `ftc`.
+- Compare both folders for existing definitions and reusable theorems before adding mathematics. Contrib may import theories; theories must not import contrib. Keep exploratory definitions separate from existing theory declarations until promotion.
+- If the layout or a proposed change conflicts with this boundary, point it out rather than silently treating it as permission to change the policy.
+- When responding about added or changed mathematics, include the actual definition code, theorem statements, and complete proof bodies in chat, as they appear in the source. Summaries and file links supplement the code; they do not replace it. Keep changes small enough to review this way.
+
 ## Library Usage
 
 Knuckledragger is a python library for interactive theorem proving backed by Z3.
@@ -258,3 +268,18 @@ def sum_append(pf):
 - When restating nested quantified witnesses, match the definition's binder names and comparison direction (`RealVal(0) < t` versus `t > 0`) to avoid unstable equivalence searches.
 - `p == ForAll(...)` builds `ForAll(...) == p`, because `QuantifierRef`'s reflected `__eq__` wins. Use `smt.Eq(p, q)` when the orientation matters, such as a lemma meant for `rw`.
 - For sequence limit proofs, rewrite the goal with `has_lim_iff` and combine `eventually_near` facts with `eventually_and` and finish with `eventually_mono`, instead of choosing the larger N by hand. Turn `∀ n ≥ 0` hypotheses into `eventually` facts with `eventually_of_forall_nonneg`. One-shot `auto` over unfolded `has_lim` is fragile: adding unrelated declarations can make it time out.
+- `l.obtain(h)` and `l.unfold(..., at=h)` replace `h` in place; `l.specialize(h, ...)` consumes `h` and returns the new hypothesis. Re-fetch handles from `l.top_goal().ctx` rather than reusing the old formula.
+- In long proofs, keep defined predicates folded in the context and pass instantiated definitions such as `is_fine.defn(D, xs, ts, n)` in `by=`. Unfolded quantified hypotheses make later `auto` calls time out or depend on import order. Clear quantified hypotheses once they have been used.
+- Give witnesses involving division explicitly with `l.exists`, then `obtain` a fresh constant for them (e.g. `eta` with `eta * (|b - a| + 1) == eps`). Division terms inside later goals cause nonlinear timeouts.
+- `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.
+- For pointwise choice of a function (e.g. gauges), use `contrib.analysis._choice.axiom_of_choice` and state the premise with its binder names `x` and `y`.
+- Isolate extensional or rational identities from quantified limit hypotheses when proving derivative rules; import-order tests can reveal timeouts hidden by a standalone import.
+
+
+## Proof instability reports
+
+- Treat proof timeouts that vary with platform, solver version, seed, import order, term construction, or irrelevant context as reproducibility problems to investigate alongside the proof fix.
+- Preserve the original failing query and its options before changing the proof when possible. Record the source commit, platform, Python/Z3 versions, seed, timeout/resource limits, result, `reason_unknown()`, and timing or solver statistics. CI should retain failing SMT dumps when available.
+- Reduce the case to a small standalone SMT-LIB file or Z3 Python program requiring no knuckledragger imports. Remove irrelevant hypotheses and structure while checking that the observed behavior survives. Keep both the original export and the reduced reproducer when useful.
+- Run failing and passing variants in fresh processes, changing one factor at a time. Include the expected result and exact commands. Distinguish a reproduced original failure from a related reduced example, a resource-budget demonstration, or an unreproduced platform-specific report.
+- Search the knuckledragger issue tracker for an existing report; add the reproducer there or open a succinct issue linking the source/CI failure, standalone reproducer, observed results, and workaround. Philip has requested this as the standard workflow for proof-instability problems. Update reports when later evidence changes the diagnosis.

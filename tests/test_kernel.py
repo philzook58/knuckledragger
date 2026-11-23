@@ -483,3 +483,15 @@ def test_smtfile_dump():
     x,y,z = smt.Ints("x y z")
     with pytest.raises(kd.kernel.LemmaError):
         kd.kernel.prove(smt.Not(smt.Exists([x,y,z], x > 0, y > 0, z > 0, x**3 + y**3 == z**3)))
+
+
+def test_instan_rejects_ill_sorted_terms():
+    # substitute_vars does not check sorts and can leave loose bound variables.
+    r, x = smt.Reals("r x")
+    pf = kd.prove(smt.ForAll([r], smt.Implies(smt.ForAll([x], x == x), r <= r)))
+    with pytest.raises(TypeError):
+        kd.kernel.instan([smt.IntVal(0)], pf)
+    with pytest.raises(TypeError):
+        kd.kernel.specialize([smt.IntVal(0)], pf.thm)
+    zero = smt.RealVal(0)
+    assert pf(0).thm.eq(smt.Implies(smt.ForAll([x], x == x), zero <= zero))
