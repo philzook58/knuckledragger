@@ -1309,21 +1309,17 @@ def calling_globals_locals():
 
 def lemma_db() -> dict[str, kd.kernel.Proof]:
     """
-    Proofs and definitions bound in loaded modules, each under one name. Private names
-    are skipped, and `__main__` comes last, so a star-imported lemma keeps the name
-    of the module that defines it.
+    Proofs and definitions bound in loaded modules, each under its shortest name.
+    Private names are skipped.
     """
-    db: dict[str, kd.kernel.Proof] = {}
-    seen = set()
+    best: dict[int, tuple[str, kd.kernel.Proof]] = {}
 
     def add(name, pf):
-        if pf.thm.get_id() not in seen:
-            seen.add(pf.thm.get_id())
-            db[name] = pf
+        old = best.get(pf.thm.get_id())
+        if old is None or (len(name), name) < (len(old[0]), old[0]):
+            best[pf.thm.get_id()] = (name, pf)
 
-    # `__main__` last: the first name seen for a proof wins, so a lemma star-imported
-    # into a script keeps its defining module's name.
-    for modname, mod in sorted(sys.modules.items(), key=lambda kv: kv[0] == "__main__"):
+    for modname, mod in list(sys.modules.items()):
         for name, thm in list(mod.__dict__.items()):
             if name.startswith("_"):
                 continue
@@ -1340,7 +1336,7 @@ def lemma_db() -> dict[str, kd.kernel.Proof]:
                 if decl is not None and decl in kd.kernel.defns:
                     add(modname + "." + name + ".defn", kd.kernel.defns[decl].ax)
             # TODO: Scan GenericProof, SortDispatch objects, objects.
-    return db
+    return dict(best.values())
 
 
 def proofstep_to_smt2(pf: kd.kernel.Proof) -> str:
