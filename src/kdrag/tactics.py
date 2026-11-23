@@ -18,6 +18,7 @@ import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
+from kdrag.printers.pretty import pretty_goal
 
 if TYPE_CHECKING:
     import sympy  # imported lazily: it is slow to import
@@ -2231,8 +2232,6 @@ class ProofState:
         """
         Print the goal and library lemmas likely to help prove it. See `utils.suggest`.
         """
-        from kdrag.printers.pretty import pretty_goal
-
         goal = self.top_goal()
         print(pretty_goal(goal), "", kd.utils.suggest(goal.to_expr()), sep="\n")
 
@@ -2404,8 +2403,6 @@ def PTheorem(
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> None:
-        from kdrag.printers.pretty import pretty_goal
-
         l = kd.Lemma(goal1)
         try:
             f(l)

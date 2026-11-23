@@ -1509,8 +1509,6 @@ def suggest(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1)
     text. The first `check` are tried with z3 within `budget` seconds; ✅ marks one
     that proves `thm` on its own.
     """
-    from kdrag.printers.pretty import pretty_expr
-
     ranked = rank_lemmas(thm)[:k]
     start = time.perf_counter()
     lines = []
@@ -1524,7 +1522,7 @@ def suggest(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1)
                 mark = "✅"
             except Exception:
                 pass
-        stmt = " ".join(pretty_expr(pf.thm).split())
+        stmt = " ".join(kd.pretty_expr(pf.thm).split())
         if len(stmt) > 70:
             stmt = stmt[:67] + "..."
         lines.append(f"  {mark} {name.removeprefix('kdrag.theories.')}: {stmt}")
