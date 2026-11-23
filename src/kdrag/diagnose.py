@@ -8,7 +8,6 @@ import time
 import kdrag.config as config
 import kdrag.kernel as kernel
 import kdrag.smt as smt
-import kdrag.suggest as suggest
 import kdrag.utils as utils
 
 
@@ -36,7 +35,7 @@ def repair(
         tries.append(by + defns)
     tries += [
         by + [pf]
-        for _, _, pf in suggest.rank_lemmas(thm)[:3]
+        for _, _, pf in utils.rank_lemmas(thm)[:3]
         if pf.thm.get_id() not in have
     ]
     if not countermodel and len(by) > 1:
