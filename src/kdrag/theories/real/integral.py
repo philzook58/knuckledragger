@@ -319,8 +319,9 @@ def has_integral_sub_of_has_deriv_at(l):
         ),
         by=[mem_icc_of_is_tagged_partition(xs, ts, n, a, b), tagged, fine],
     )
-    l.have(straddles(F, f[tj], tj, gauge[tj], eta), by=[])
+    hstraddle = l.have(straddles(F, f[tj], tj, gauge[tj], eta), by=[])
     l.have(abs(F[x1] - F[x0] - f[tj] * (x1 - x0)) <= eta * (x1 - x0), by=[])
+    l.clear(hstraddle)
     l.clear(hgauge)
     l.have(
         err[j] == -(F[x1] - F[x0] - f[tj] * (x1 - x0)),
