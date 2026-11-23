@@ -7,7 +7,9 @@ import kdrag.theories.real as real
 def test_rank_finds_matching_library_lemma():
     x, y = smt.Reals("x y")
     goal = real.abs(x + y) <= real.abs(x) + real.abs(y)
-    assert "kdrag.theories.real.abs_add" in [name for name, _ in suggest.rank(goal)]
+    assert "kdrag.theories.real.abs_add" in [
+        name for _, name, _ in suggest.rank(goal)[:10]
+    ]
 
 
 def test_report_marks_lemma_that_closes_goal():
@@ -31,5 +33,5 @@ my_succ = kd.define("sugg_test_succ", [n], n + 1)
 
 
 def test_definitions_named_by_python_variable():
-    names = [name for name, _ in suggest.rank(my_succ(n) > n)]
+    names = [name for _, name, _ in suggest.rank(my_succ(n) > n)[:10]]
     assert any(name.endswith(".my_succ.defn") for name in names)

@@ -88,14 +88,11 @@ index = Index()
 HYPS = 0.3  # weight of hypothesis symbols relative to the conclusion's
 
 
-def rank(
-    goal: tactics.Goal | smt.BoolRef, k: int = 10, cutoff: float = 0.5
-) -> list[tuple[str, kernel.Proof]]:
+def rank(goal: tactics.Goal | smt.BoolRef) -> list[tuple[float, str, kernel.Proof]]:
     """
-    Names and proofs of the library lemmas most likely to help prove `goal`, best first.
+    Every library lemma as `(score, name, proof)`, best first for proving `goal`.
 
-    The score is the tf-idf cosine of shared symbols plus a small recency bonus. At
-    most `k` are returned, and only those scoring at least `cutoff` times the best.
+    The score is the tf-idf cosine of shared symbols plus a small recency bonus.
     """
     index.refresh()
     if not index.entries:
@@ -115,18 +112,20 @@ def rank(
         score = sum(x * v.get(s, 0.0) for s, x in g.items()) + 0.1 * order / last
         scored.append((score, name, pf))
     scored.sort(key=lambda t: -t[0])
-    top = scored[0][0]
-    return [(name, pf) for score, name, pf in scored[:k] if score >= cutoff * top]
+    return scored
 
 
 def report(
     goal: tactics.Goal | smt.BoolRef,
+    k: int = 10,
+    cutoff: float = 0.5,
     check: int = 3,
     timeout: int = 30,
     budget: float = 0.1,
 ) -> str:
     """
-    Ranked suggestions for `goal` as text; the top `check` are tried with z3.
+    The top `k` suggestions for `goal` as text, keeping only those scoring at least
+    `cutoff` times the best. The top `check` are tried with z3.
 
     A suggestion marked ✅ proves the goal on its own. Checks stop once `budget`
     seconds have passed.
@@ -134,9 +133,12 @@ def report(
     from kdrag.printers.pretty import pretty_expr
 
     thm = goal if isinstance(goal, smt.BoolRef) else goal.to_expr()
+    ranked = rank(goal)[:k]
     start = time.perf_counter()
     lines = []
-    for i, (name, pf) in enumerate(rank(goal)):
+    for i, (score, name, pf) in enumerate(ranked):
+        if score < cutoff * ranked[0][0]:
+            break
         mark = "- "  # two columns, like the emoji
         if i < check and time.perf_counter() - start < budget:
             try:
