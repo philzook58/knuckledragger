@@ -4,14 +4,24 @@ import sys
 import pytest
 
 
-@pytest.mark.parametrize("seed", [0, 1, 7])
-def test_zf_nat_proofs(seed):
+@pytest.mark.parametrize(
+    "modules,seed",
+    [
+        ("nat", 0),
+        ("fun", 0),
+        ("rec", 0),
+        ("rec", 1),
+        ("fun nat rec", 7),
+    ],
+)
+def test_zf_proofs(modules, seed):
     # Import in a fresh process so the skolemized infinity witness is created once.
     subprocess.run(
         [
             sys.executable,
             "-c",
             """
+import importlib
 import sys
 import kdrag.config as config
 import kdrag.smt as smt
@@ -19,7 +29,8 @@ smt.set_param("smt.random_seed", int(sys.argv[1]))
 import kdrag.theories.zf.zf
 
 config.timing = True
-import kdrag.contrib.zf.nat
+for module in sys.argv[2].split():
+    importlib.import_module("kdrag.contrib.zf." + module)
 solves = [(thm, elapsed) for tag, thm, elapsed in config.perf_log
           if tag == "solver.check"]
 assert solves
@@ -27,6 +38,7 @@ for thm, elapsed in solves:
     assert elapsed < 0.5, ("solver.check", thm, elapsed)
 """,
             str(seed),
+            modules,
         ],
         check=True,
     )

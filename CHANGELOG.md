@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `kdrag.contrib.analysis.integral`: the gauge (Henstock-Kurzweil) integral, Cousin's lemma, uniqueness of integrals, and the fundamental theorem of calculus in `kdrag.contrib.analysis.ftc`.
 - Add `finsum_sub`, `finsum_diff` (telescoping), and `abs_finsum_le` in `contrib.analysis.finsum`.
 - Add `contrib.zf.nat`: the axiom of infinity, von Neumann ω as the smallest inductive set, induction over ω (with an `induct_omega` hook for `l.induct`), and the Peano axioms following Halmos §12.
+- Add `contrib.zf.fun` (functions as sets with a choice-free `app`) and `contrib.zf.rec`: the recursion theorem on ω, with `nat_rec(X, a, F)` as Halmos' smallest closed set of pairs and theorems `nat_rec_is_func`, `nat_rec_zero`, `nat_rec_succ`.
 
 ### Changed
 
