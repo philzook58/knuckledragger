@@ -1452,7 +1452,8 @@ def search(
     return {k: v for k, v in results[0].items() if all(k in db for db in results)}
 
 
-_decl_counts: dict[int, Counter[smt.FuncDeclRef]] = {}  # cache, by `thm.get_id()`
+# Cache by `thm.get_id()`. Holding `thm` keeps z3 from reusing its id.
+_decl_counts: dict[int, tuple[smt.BoolRef, Counter[smt.FuncDeclRef]]] = {}
 
 
 def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
@@ -1478,8 +1479,8 @@ def rank_lemmas(
     for name, pf in db.items():
         key = pf.thm.get_id()
         if key not in _decl_counts:
-            _decl_counts[key] = decl_counter(pf.thm)
-        decls[name] = _decl_counts[key]
+            _decl_counts[key] = (pf.thm, decl_counter(pf.thm))
+        decls[name] = _decl_counts[key][1]
     df = Counter(d for c in decls.values() for d in c)
 
     def tfidf(c: Counter) -> dict[smt.FuncDeclRef, float]:
