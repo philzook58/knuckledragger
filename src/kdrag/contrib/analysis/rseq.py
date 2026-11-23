@@ -52,6 +52,7 @@ from kdrag.theories.real.rseq import (
     has_lim_iff,
     has_lim_inv,
     has_lim_neg,
+    has_lim_squeeze,
     has_lim_sub,
     mul,
     near,
@@ -61,6 +62,21 @@ from kdrag.theories.real.rseq import (
 )
 
 da, db, X, Y, B, eta, eps = Reals("da db X Y B eta eps")
+
+
+@Theorem(
+    ForAll(
+        [a, b, x],
+        has_lim(a, x),
+        ForAll(n, n >= 0, a[n] == b[n]),
+        has_lim(b, x),
+    )
+)
+def has_lim_congr_nonneg(l):
+    """Sequences that agree at nonnegative indices have the same limits."""
+    a, b, x = l.fixes()
+    l.intros()
+    l.auto(by=[has_lim_squeeze(a, b, a, x)])
 
 
 @Theorem(

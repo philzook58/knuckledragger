@@ -2,10 +2,12 @@
 
 from kdrag import Theorem
 from kdrag.contrib.analysis.finsum import finsum_geom
-from kdrag.smt import And, ForAll, If, Int, Real, RealVal, ToReal
+from kdrag.contrib.analysis.rseq import has_lim_congr_nonneg, lim_lemma
+from kdrag.smt import And, ForAll, Int, Lambda, Real, RealVal, ToReal
 import kdrag.theories.int as int_
 import kdrag.theories.real as real
-from kdrag.theories.real.rseq import finsum, geom, has_lim, has_sum
+from kdrag.theories.real.rseq import cumsum, finsum, geom, has_lim, has_sum
+
 
 r = Real("r")
 n = Int("n")
@@ -71,32 +73,27 @@ def has_sum_geom(l):
     r = l.fix()
     l.intro()
     l.unfold(has_sum)
-    l.unfold(has_lim)
-    eps = l.fix()
-    l.intro()
-    l.have(1 - r > 0, by=[real.abs.defn(r)])
-    positive = l.have(eps * (1 - r) > 0, by=[])
-    small = l.have(has_lim(geom(r), 0), by=[has_lim_geom_zero(r)])
-    l.unfold(has_lim, at=small)
-    small = l.top_goal().ctx[-1]
-    cutoff = l.obtain(l.specialize(small, eps * (1 - r), positive))
-    near = l.top_goal().ctx[-1]
-    l.exists(If(cutoff > 0, cutoff, 0))
-    n = l.fix()
-    l.intro()
-    beyond = l.have(n > cutoff, by=[])
-    l.have(n >= 0, by=[])
-    l.specialize(near, n, beyond)
-    partial = finsum(geom(r), n)
-    power = real.pownat(r, n)
-    l.have(real.abs(power) < eps * (1 - r), by=[geom.defn(r)])
-    l.have((1 - r) * (partial - 1 / (1 - r)) == -power, by=[finsum_geom(r, n)])
+
+    powers = geom(r)
+    total = 1 / (1 - r)
+    expression = (1 - powers[n]) / (1 - r)
+    closed_form = Lambda(n, expression)
+    l.have(1 - r != 0, by=[real.abs.defn(r)])
     l.have(
-        real.abs(partial - 1 / (1 - r)) < eps,
-        by=[
-            real.abs_mul(1 - r, partial - 1 / (1 - r)),
-            real.abs_neg(power),
-            real.abs.defn(1 - r),
-        ],
+        has_lim(closed_form, total),
+        by=[lim_lemma(expression, n)(0), has_lim_geom_zero(r)],
     )
-    l.auto(by=[finsum.defn(geom(r), n)])
+
+    # Identify each partial sum with its closed form.
+    partial_sums = cumsum(powers)
+    l.have(ForAll(n, n >= 0, closed_form[n] == partial_sums[n]))
+    index = l.fix()
+    l.intro()
+    l.auto(
+        by=[
+            geom.defn(r),
+            finsum.defn(powers, index),
+            finsum_geom(r, index),
+        ]
+    )
+    l.auto(by=[has_lim_congr_nonneg(closed_form, partial_sums, total)])
