@@ -2229,16 +2229,13 @@ class ProofState:
 
     def suggest(self) -> None:
         """
-        Print library lemmas likely to help with the current goal.
-
-        Prints the goal first. Ranked by shared rare symbols; the top few are tried
-        with z3, and ✅ marks one that proves the goal on its own. See `kdrag.suggest`.
+        Print the goal and library lemmas likely to help prove it. See `kdrag.suggest`.
         """
         import kdrag.suggest
         from kdrag.printers.pretty import pretty_goal
 
         goal = self.top_goal()
-        print(pretty_goal(goal), "", kdrag.suggest.report(goal), sep="\n")
+        print(pretty_goal(goal), "", kdrag.suggest.report(goal.to_expr()), sep="\n")
 
     # TODO
     # def llm():

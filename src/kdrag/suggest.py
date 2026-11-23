@@ -1,25 +1,19 @@
 """
-Suggest library lemmas that are likely to help prove a goal.
-
-Lemmas are ranked by shared rare symbols (tf-idf cosine, as in Sledgehammer's MePo
-and SInE filters) with a small bonus for recent lemmas, then the best few are tried
-with z3.
-
-Replaying the theories' own `prove` calls (2026-11, 438 with library lemmas in `by=`,
-only lemmas older than each call offered), a used lemma was in the top 10 for 92%
-of calls. k-NN over earlier calls (MaSh-style) and scikit-learn learned rankers did
-not beat this on held-out modules with so little data, so they were left out.
+Suggest library lemmas likely to help prove a goal, ranked by tf-idf cosine of their
+function symbols (as in Sledgehammer's MePo and SInE).
 """
 
 import math
 import time
 from collections import Counter
-from dataclasses import dataclass, field
 
 import kdrag.kernel as kernel
 import kdrag.smt as smt
-import kdrag.tactics as tactics
 import kdrag.utils as utils
+
+BUILTIN = 0.1  # weight of built-ins (+, =, and, ...) relative to user symbols
+
+_decls: dict[int, Counter[smt.FuncDeclRef]] = {}  # cache, by `thm.get_id()`
 
 
 def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
@@ -31,109 +25,57 @@ def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
     )
 
 
-# Weight of built-ins (+, =, and, ...) relative to user symbols. Measured (2026-11) on
-# 437 recorded prove calls: 0 or 1 loses 2-5 points of top-10 hits; 0.1-0.3 is flat.
-BUILTIN = 0.1
+def lemmas() -> dict[int, tuple[str, kernel.Proof]]:
+    """Public lemmas and definitions from `utils.lemma_db`, by `thm.get_id()`."""
+    out = {}
+    # __main__ last, so a star-imported lemma keeps its defining module's name.
+    for name, pf in sorted(
+        utils.lemma_db().items(), key=lambda kv: kv[0].startswith("__main__.")
+    ):
+        if not name.rsplit(".", 1)[-1].startswith("_"):
+            out.setdefault(pf.thm.get_id(), (name, pf))
+    return out
 
 
-@dataclass(repr=False)  # the default repr would print the whole library
-class Index:
-    """Library lemmas and definitions found by `utils.lemma_db`, oldest first."""
+def rank(thm: smt.BoolRef) -> list[tuple[float, str, kernel.Proof]]:
+    """Every library lemma as `(score, name, proof)`, best first for proving `thm`."""
+    db = lemmas()
+    decls = {}
+    for key, (_, pf) in db.items():
+        if key not in _decls:
+            _decls[key] = decl_counter(pf.thm)
+        decls[key] = _decls[key]
+    df = Counter(d for c in decls.values() for d in c)
 
-    # All keyed by `thm.get_id()`, except `idf`.
-    entries: dict[int, tuple[str, kernel.Proof]] = field(default_factory=dict)
-    decls: dict[int, Counter[smt.FuncDeclRef]] = field(default_factory=dict)
-    idf: dict[smt.FuncDeclRef, float] = field(default_factory=dict)
-    vecs: dict[int, dict[smt.FuncDeclRef, float]] = field(default_factory=dict)
+    def tfidf(c: Counter) -> dict[smt.FuncDeclRef, float]:
+        return {
+            d: (1.0 if smt.is_uninterp(d) else BUILTIN)
+            * (1 + math.log(n))
+            * math.log(len(db) / df.get(d, 1))
+            for d, n in c.items()
+        }
 
-    def refresh(self):
-        n = len(self.entries)
-        # Definitions after lemmas, so they get the recency bonus as before; __main__
-        # last, so a star-imported lemma keeps its defining module's name.
-        db = sorted(
-            utils.lemma_db().items(),
-            key=lambda kv: (kv[0].endswith(".defn"), kv[0].startswith("__main__.")),
-        )
-        for name, pf in db:
-            key = pf.thm.get_id()
-            if key not in self.entries and not name.rsplit(".", 1)[-1].startswith("_"):
-                self.entries[key] = (name, pf)
-                self.decls[key] = decl_counter(pf.thm)
-        if len(self.entries) != n:
-            df = Counter(d for decls in self.decls.values() for d in decls)
-            self.idf = {d: math.log(len(self.entries) / c) for d, c in df.items()}
-            self.vecs = {}
-
-    def vec(self, decls: Counter[smt.FuncDeclRef]) -> dict[smt.FuncDeclRef, float]:
-        """Normalized tf-idf vector of decl counts; built-ins weighted by `BUILTIN`."""
-        default = math.log(len(self.entries) + 1)
-        v = {}
-        for d, n in decls.items():
-            w = 1.0 if smt.is_uninterp(d) else BUILTIN
-            v[d] = w * (1 + math.log(n)) * self.idf.get(d, default)
-        norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
-        return {d: x / norm for d, x in v.items()}
-
-    def __getitem__(self, thm: smt.ExprRef) -> dict[smt.FuncDeclRef, float]:
-        """tf-idf vector of an indexed theorem, cached."""
-        key = thm.get_id()
-        if key not in self.vecs:
-            self.vecs[key] = self.vec(self.decls[key])
-        return self.vecs[key]
-
-
-index = Index()
-
-
-HYPS = 0.3  # weight of hypothesis symbols relative to the conclusion's
-
-
-def rank(goal: tactics.Goal | smt.BoolRef) -> list[tuple[float, str, kernel.Proof]]:
-    """
-    Every library lemma as `(score, name, proof)`, best first for proving `goal`.
-
-    The score is the tf-idf cosine of shared symbols plus a small recency bonus.
-    """
-    index.refresh()
-    if not index.entries:
-        return []
-    if isinstance(goal, smt.BoolRef):
-        goal = tactics.Goal(sig=[], ctx=[], goal=goal)
-    g = index.vec(decl_counter(goal.goal))
-    if goal.ctx:  # hypotheses count for less than the conclusion
-        hyps = index.vec(sum((decl_counter(h) for h in goal.ctx), Counter()))
-        g = {s: g.get(s, 0.0) + HYPS * hyps.get(s, 0.0) for s in g.keys() | hyps.keys()}
-        norm = math.sqrt(sum(x * x for x in g.values())) or 1.0
-        g = {s: x / norm for s, x in g.items()}
-    last = max(len(index.entries) - 1, 1)
+    goal = tfidf(decl_counter(thm))
     scored = []
-    for order, (name, pf) in enumerate(index.entries.values()):
-        v = index[pf.thm]
-        score = sum(x * v.get(s, 0.0) for s, x in g.items()) + 0.1 * order / last
-        scored.append((score, name, pf))
+    for key, (name, pf) in db.items():
+        v = tfidf(decls[key])
+        norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
+        scored.append(
+            (sum(x * v.get(d, 0.0) for d, x in goal.items()) / norm, name, pf)
+        )
     scored.sort(key=lambda t: -t[0])
     return scored
 
 
-def report(
-    goal: tactics.Goal | smt.BoolRef,
-    k: int = 10,
-    cutoff: float = 0.5,
-    check: int = 3,
-    timeout: int = 30,
-    budget: float = 0.1,
-) -> str:
+def report(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1) -> str:
     """
-    The top `k` suggestions for `goal` as text, keeping only those scoring at least
-    `cutoff` times the best. The top `check` are tried with z3.
-
-    A suggestion marked ✅ proves the goal on its own. Checks stop once `budget`
-    seconds have passed.
+    The top `k` suggestions for `thm` scoring at least `cutoff` times the best. The
+    first `check` are tried with z3 within `budget` seconds; ✅ marks one that proves
+    `thm` on its own.
     """
     from kdrag.printers.pretty import pretty_expr
 
-    thm = goal if isinstance(goal, smt.BoolRef) else goal.to_expr()
-    ranked = rank(goal)[:k]
+    ranked = rank(thm)[:k]
     start = time.perf_counter()
     lines = []
     for i, (score, name, pf) in enumerate(ranked):
@@ -150,6 +92,4 @@ def report(
         if len(stmt) > 70:
             stmt = stmt[:67] + "..."
         lines.append(f"  {mark} {name.removeprefix('kdrag.theories.')}: {stmt}")
-    if not lines:
-        return ""
-    return "Suggestions:\n" + "\n".join(lines)
+    return "Suggestions:\n" + "\n".join(lines) if lines else ""
