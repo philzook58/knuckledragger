@@ -5,10 +5,10 @@ the value at p (the quotient is 0/0 there). The chain rule goes through
 Carathéodory's characterisation, which avoids dividing by f(x) - f(p).
 """
 
-from kdrag import Theorem, prove
+from kdrag import Theorem, define, prove
 from kdrag.smt import Consts, Exists, ForAll, Lambda, Reals, RealVal, Store
 
-from kdrag.theories.real import RFun, abs, cont_at, fmul, has_diff_at, has_lim_at
+from kdrag.theories.real import RFun, abs, cont_at, fmul, has_lim_at
 from kdrag.theories.real.cont import (
     has_lim_at_of_cont_at,
     cont_at_update_of_has_lim_at,
@@ -19,6 +19,14 @@ from kdrag.theories.real.cont import (
 
 f, g = Consts("f g", RFun)
 x, p, L, a, b, c = Reals("x p L a b c")
+
+
+# Keep this exploratory definition separate from real.has_diff_at until reviewed.
+has_diff_at = define(
+    "analysis.has_diff_at",
+    [f, p, L],
+    has_lim_at(Lambda(x, (f[x] - f[p]) / (x - p)), p, L),
+)
 
 
 def quot(f, p):

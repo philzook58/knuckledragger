@@ -1,26 +1,9 @@
 """Real sequences, convergence, limit algebra, and series."""
-
-from typing import Optional
-
-from kdrag import FreshVar, Proof
-from kdrag.utils import alpha_eq, occurs
 import kdrag as kd
 from kdrag import FreshVars, QExists, QForAll, Theorem, define, define_const, prove
 import kdrag.smt as smt
 from kdrag.smt import (
     And,
-    BoolRef,
-    Eq,
-    ExprRef,
-    is_add,
-    is_app,
-    is_div,
-    is_implies,
-    is_mul,
-    is_neg,
-    is_power,
-    is_select,
-    is_sub,
     Array,
     ArraySort,
     BoolSort,
@@ -442,63 +425,6 @@ finsum_zero = prove(
     by=[finsum.defn, cumsum_zero],
 )
 
-
-@Theorem(ForAll([a, b, n], finsum(a - b, n) == finsum(a, n) - finsum(b, n)))
-def finsum_sub(l):
-    a, b, n = l.fixes()
-    l.unfold(finsum)
-    l.induct(n)
-    # Each step peels one term off both sides.
-    l.fix()
-    l.intros()
-    l.unfold(cumsum)
-    l.auto(by=[sub.defn(a, b)])
-    l.unfold(cumsum)
-    l.auto()
-    l.fix()
-    l.intros()
-    l.unfold(cumsum)
-    l.auto(by=[sub.defn(a, b)])
-
-
-@Theorem(ForAll([a, n], finsum(diff(a), n) == a[n] - a[0]))
-def finsum_diff(l):
-    a, n = l.fixes()
-    l.unfold(finsum)
-    l.induct(n)
-    # Telescoping in both directions from the origin.
-    l.fix()
-    l.intros()
-    l.unfold(cumsum)
-    l.auto(by=[diff.defn(a)])
-    l.unfold(cumsum)
-    l.auto()
-    l.fix()
-    l.intros()
-    l.unfold(cumsum)
-    l.auto(by=[diff.defn(a)])
-
-
-@Theorem(
-    ForAll(
-        [a, b, n],
-        ForAll(i, 0 <= i, i < n, real.abs(a[i]) <= b[i]),
-        n >= 0,
-        real.abs(finsum(a, n)) <= finsum(b, n),
-    )
-)
-def abs_finsum_le(l):
-    a, b, n = l.fixes()
-    # Keep the termwise bound in the induction motive.
-    l.induct(n, using=int_.induct_nat)
-    l.auto(by=[finsum.defn, cumsum.defn, real.abs.defn])
-    n = l.fix()
-    l.intros()
-    l.have(real.abs(a[n]) <= b[n], by=[])
-    # Triangle inequality on the newest term.
-    l.auto(by=[finsum_succ(a, n), finsum_succ(b, n), real.abs_add(finsum(a, n), a[n])])
-
-
 dot = define("rseq.dot", [n, a, b], finsum(a * b, n))
 
 dot_comm = prove(
@@ -562,15 +488,19 @@ abs_ge_0 = prove(
 )
 
 
-@Theorem(ForAll([a, n], ForAll(i, i >= 0, a[i] >= 0), n >= 0, finsum(a, n) >= 0))
+@Theorem(
+    ForAll([a, n], ForAll(i, i >= 0, a[i] >= 0), n >= 0, finsum(a, n) >= 0)
+)
 def finsum_nonneg(l):
     a, n = l.fixes()
     l.intros()
-    l.auto(by=[cumsum_mono(zero, a, n), cumsum_zero(n), finsum.defn(a, n), zero.defn])
+    l.auto(by=[cumsum_mono(zero, a, n), cumsum_zero(n),
+               finsum.defn(a, n), zero.defn])
 
 
 @Theorem(
-    QForAll([a, N], N >= 0, QForAll([n], n >= 0, n < N, abs(a)[n] <= finsum(abs(a), N)))
+    QForAll([a, N], N >= 0,
+            QForAll([n], n >= 0, n < N, abs(a)[n] <= finsum(abs(a), N)))
 )
 def abs_le_finsum_abs(l):
     a, N = l.fixes()
@@ -582,10 +512,8 @@ def abs_le_finsum_abs(l):
     l.intros()
     n = l.fix()
     l.intros()
-    l.have(
-        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N],
-        by=[finsum_succ(abs(a), N)],
-    )
+    l.have(finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N],
+           by=[finsum_succ(abs(a), N)])
     l.have(abs(a)[N] >= 0, by=[abs_ge_0(a, N)])
     l.cases(n < N, n == N)
     l.have(abs(a)[n] <= finsum(abs(a), N), by=[])
@@ -602,7 +530,9 @@ is_monotone = define("is_monotone", [a], QForAll([n, m], n <= m, a[n] <= a[m]))
 is_nonneg = define("is_nonneg", [a], QForAll([n], a[n] >= 0))
 
 # The range relevant to convergence as n tends to positive infinity.
-range_nonneg = define("RSeq.range_nonneg", a, Lambda(x, Exists(n, n >= 0, a[n] == x)))
+range_nonneg = define(
+    "RSeq.range_nonneg", a, Lambda(x, Exists(n, n >= 0, a[n] == x))
+)
 
 # https://en.wikipedia.org/wiki/Cauchy_sequence
 
@@ -826,33 +756,28 @@ def lim_of_nonneg_seq(l):
 
 @Theorem(
     ForAll(
-        [r, a, x],
+        [a, x, r],
         has_lim(a, x),
         has_lim(smul(r, a), r * x),
     ),
 )
 def has_lim_smul(l):
-    r, a, x = l.fixes()
-    l.intros()
+    a, x, r = l.fixes()
+    l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # A positive denominator handles zero and nonzero scalars uniformly.
     eta = eps / (real.abs(r) + 1)
     l.have(eta > 0, by=[real.abs_pos(r)])
     l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
     # Pointwise: |r a[m] - r x| = |r| |a[m] - x| < eps.
     l.have(ForAll([n], real.abs(a[n] - x) < eta, real.abs(smul(r, a)[n] - r * x) < eps))
-    l.unfold(smul)
-    l.beta()
     m = l.fix()
-    l.intros()
+    l.intro()
     l.have(real.abs(r) * eta < eps, by=[real.abs_pos(r)])
-    l.have(
-        real.abs(r * a[m] - r * x) == real.abs(r) * real.abs(a[m] - x),
-        by=[real.abs_mul(r, a[m] - x)],
-    )
-    l.auto(by=[real.abs_pos(r)])
+    l.have(r * a[m] - r * x == r * (a[m] - x), by=[])
+    l.auto(by=[smul.defn(r, a), real.abs_mul(r, a[m] - x), real.abs_pos(r)])
     l.auto(by=[eventually_mono(near(a, x, eta), near(smul(r, a), r * x, eps))])
 
 
@@ -1004,45 +929,8 @@ def has_lim_squeeze(l):
     )
     m = l.fix()
     l.intro(), l.intro()
-    l.auto(
-        by=[real.abs.defn(a[m] - x), real.abs.defn(d[m] - x), real.abs.defn(b[m] - x)]
-    )
+    l.auto(by=[real.abs.defn(a[m] - x), real.abs.defn(d[m] - x), real.abs.defn(b[m] - x)])
     l.auto(by=[eventually_mono(trapped, near(b, x, eps))])
-
-
-da, db, X, Y, B, eta, eps = Reals("da db X Y B eta eps")
-
-
-@Theorem(
-    ForAll(
-        [da, db, X, Y, eta, eps],
-        And(0 <= da, da < eta, 0 <= db, db < eta, eta <= 1, 0 <= X, 0 <= Y),
-        2 * eta * (X + Y + 1) <= eps,
-        da * db + Y * da + X * db < eps,
-    )
-)
-def mul_error_lt(l):
-    """Errors below eta <= 1 keep the product error da db + Y da + X db below eps."""
-    l.fixes()
-    l.intros()
-    l.intros()
-    l.auto()
-
-
-@Theorem(
-    ForAll(
-        [da, db, X, Y, B, eps],
-        And(0 <= da, 0 <= db, 0 <= X, 0 < Y, Y / 2 < B),
-        da < eps * Y / 4,
-        db < eps * Y * Y / (4 * (X + 1)),
-        da / B + X * (db / (B * Y)) < eps,
-    )
-)
-def div_error_lt(l):
-    """Errors da, db with |b| = B > Y/2 keep the quotient error below eps."""
-    l.fixes()
-    l.intros(), l.intros(), l.intros()
-    l.auto()
 
 
 @Theorem(
@@ -1055,10 +943,10 @@ def div_error_lt(l):
 )
 def has_lim_mul(l):
     a, b, x, y = l.fixes()
-    l.intros(), l.intros()
+    l.intro(), l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Keep both errors below one and small enough for the product estimate.
     eta = real.min(1, eps / (2 * (real.abs(x) + real.abs(y) + 1)))
     l.have(eta > 0, by=[real.abs_pos(x), real.abs_pos(y), real.min.defn])
@@ -1075,10 +963,8 @@ def has_lim_mul(l):
             real.abs((a * b)[n] - x * y) < eps,
         )
     )
-    l.unfold(mul)
-    l.beta()
     m = l.fix()
-    l.intros()
+    l.intro()
     l.have(
         And(eta <= 1, 2 * eta * (real.abs(x) + real.abs(y) + 1) <= eps),
         by=[real.abs_pos(x), real.abs_pos(y), real.min.defn],
@@ -1097,17 +983,8 @@ def has_lim_mul(l):
             real.abs_mul(x, v),
         ],
     )
-    l.have(
-        error_bound < eps,
-        by=[
-            mul_error_lt(da, db, real.abs(x), real.abs(y), eta, eps),
-            real.abs_pos(u),
-            real.abs_pos(v),
-            real.abs_pos(x),
-            real.abs_pos(y),
-        ],
-    )
-    l.auto()
+    l.have(error_bound < eps, by=[real.abs_pos(u), real.abs_pos(v), real.abs_pos(x), real.abs_pos(y)])
+    l.auto(by=[mul.defn(a, b)])
     l.auto(by=[eventually_mono(both, near(a * b, x * y, eps))])
 
 
@@ -1129,10 +1006,10 @@ def div_decomp(l):
 )
 def has_lim_div(l):
     a, b, x, y = l.fixes()
-    l.intros(), l.intros(), l.intros()
+    l.intro(), l.intro(), l.intro()
     l.rw(has_lim_iff)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Keep the denominator away from zero and split the quotient error.
     Y, X = real.abs(y), real.abs(x)
     ea = eps * Y / 4
@@ -1156,11 +1033,11 @@ def has_lim_div(l):
     l.unfold(div)
     l.beta()
     m = l.fix()
-    l.intros()
+    l.intro()
 
     am, bm = a[m], b[m]
     da, db, B = real.abs(am - x), real.abs(bm - y), real.abs(bm)
-    l.have(And(db < Y / 2, db < eps * Y * Y / (4 * (X + 1))), by=[real.min.defn])
+    l.have(And(db < Y / 2, db * (4 * (X + 1)) < eps * Y * Y), by=[real.min.defn, real.abs_pos(x)])
     l.have(real.abs(y - bm) == db, by=[real.abs_neg(bm - y)])
     l.have(Y <= db + B, by=[real.abs_triangle(y, RealVal(0), bm)])
     l.have(B > Y / 2, by=[])
@@ -1169,20 +1046,12 @@ def has_lim_div(l):
     t2 = x * ((y - bm) / (bm * y))
     decomp = l.have(am / bm - x / y == t1 + t2, by=[div_decomp(am, bm, x, y)])
     l.have(real.abs(t1) == da / B, by=[real.abs_div(am - x, bm)])
-    q = (y - bm) / (bm * y)
-    l.have(real.abs(bm * y) == B * Y, by=[real.abs_mul(bm, y)])
-    l.have(real.abs(q) == db / (B * Y), by=[real.abs_div(y - bm, bm * y)])
-    l.have(real.abs(t2) == X * (db / (B * Y)), by=[real.abs_mul(x, q)])
-    # The nonlinear error budget, proved once in div_error_lt.
     l.have(
-        da / B + X * (db / (B * Y)) < eps,
-        by=[
-            div_error_lt(da, db, X, Y, B, eps),
-            real.abs_pos(am - x),
-            real.abs_pos(bm - y),
-            real.abs_pos(x),
-        ],
+        real.abs(t2) == X * (db / (B * Y)),
+        by=[real.abs_mul(x, (y - bm) / (bm * y)), real.abs_div(y - bm, bm * y), real.abs_mul(bm, y)],
     )
+    l.have(da / B < eps / 2, by=[])
+    l.have(X * (db / (B * Y)) < eps / 2, by=[real.abs_pos(x), real.abs_pos(bm - y)])
     bound = l.have(real.abs(t1 + t2) < eps, by=[real.abs_add(t1, t2)])
     # Discharge congruence with just the equality and the scalar bound.
     result = real.abs(am / bm - x / y) < eps
@@ -1190,7 +1059,9 @@ def has_lim_div(l):
     l.auto(by=[eventually_mono(both, near(a / b, x / y, eps))])
 
 
-@Theorem(ForAll([a, x], is_monotone(a), rset.is_lub(range_nonneg(a), x), has_lim(a, x)))
+@Theorem(
+    ForAll([a, x], is_monotone(a), rset.is_lub(range_nonneg(a), x), has_lim(a, x))
+)
 def has_lim_of_monotone_of_is_lub(l):
     a, s = l.fixes()
     l.unfold(is_monotone)
@@ -1201,14 +1072,10 @@ def has_lim_of_monotone_of_is_lub(l):
     eps = l.fix()
     l.intro()
     # Anything strictly below the supremum fails to bound the range.
-    l.have(
-        smt.Not(rset.is_ub(values, s - eps)),
-        by=[rset.le_of_is_lub_of_is_ub(values, s, s - eps)],
-    )
-    witness = l.have(
-        Exists(n, n >= 0, s - eps < a[n]),
-        by=[rset.is_ub.defn(values, s - eps), range_nonneg.defn(a)],
-    )
+    l.have(smt.Not(rset.is_ub(values, s - eps)),
+           by=[rset.le_of_is_lub_of_is_ub(values, s, s - eps)])
+    witness = l.have(Exists(n, n >= 0, s - eps < a[n]),
+                     by=[rset.is_ub.defn(values, s - eps), range_nonneg.defn(a)])
     N = l.obtain(witness)
     l.exists(N)
     k = l.fix()
@@ -1221,7 +1088,8 @@ def has_lim_of_monotone_of_is_lub(l):
 
 
 @Theorem(
-    ForAll(a, is_monotone(a), rset.bdd_above(range_nonneg(a)), Exists(x, has_lim(a, x)))
+    ForAll(a, is_monotone(a), rset.bdd_above(range_nonneg(a)),
+           Exists(x, has_lim(a, x)))
 )
 def exists_has_lim_of_monotone_of_bdd_above(l):
     a = l.fix()
@@ -1229,9 +1097,8 @@ def exists_has_lim_of_monotone_of_bdd_above(l):
     values = range_nonneg(a)
     l.have(values[a[0]], by=[range_nonneg.defn(a)])
     l.have(Exists(x, values[x]), by=[])
-    supremum = l.have(
-        Exists(x, rset.is_lub(values, x)), by=[rset.exists_is_lub_of_bdd_above(values)]
-    )
+    supremum = l.have(Exists(x, rset.is_lub(values, x)),
+                      by=[rset.exists_is_lub_of_bdd_above(values)])
     s = l.obtain(supremum)
     l.exists(s)
     l.auto(by=[has_lim_of_monotone_of_is_lub(a, s)])
@@ -1294,125 +1161,3 @@ class Series:
 # has_seqlim = smt.Function("has_seqlim", RSeq, smt.BoolSort())
 
 # %%
-
-
-# Limit rule for each sequence operation. A rule's binders are the operation's
-# arguments in order, followed by the limits of its sequence arguments.
-lim_rules = {
-    neg: has_lim_neg,
-    add: has_lim_add,
-    sub: has_lim_sub,
-    mul: has_lim_mul,
-    div: has_lim_div,
-    smul: has_lim_smul,
-    const: has_lim_const,
-}
-
-# Known limits `has_lim(seq, value)` of particular sequences, used for atoms.
-lim_facts = [has_lim_inv]
-
-# z3 arithmetic on reals, as binary sequence operations folded over arguments.
-_arith_ops = [(is_add, add), (is_sub, sub), (is_mul, mul), (is_div, div)]
-
-
-def _known_lim(t: ExprRef) -> Optional[Proof]:
-    return next((f for f in lim_facts if alpha_eq(f.thm.arg(0), t)), None)
-
-
-def _nat_exponent(p: ExprRef) -> Optional[int]:
-    if isinstance(p, smt.IntNumRef):
-        k = p.as_long()
-    elif isinstance(p, smt.RatNumRef) and p.denominator_as_long() == 1:
-        k = p.numerator_as_long()
-    else:
-        return None
-    return k if k >= 1 else None
-
-
-def _to_seq(e: ExprRef, n: ExprRef) -> ExprRef:
-    """A sequence term equal to Lambda(n, e), built from the sequence operations."""
-    if not occurs(n, e):
-        return const(e)
-    if _known_lim(Lambda([n], e)) is not None:
-        return Lambda([n], e)
-    if is_select(e) and e.arg(1).eq(n) and not occurs(n, e.arg(0)):
-        return e.arg(0)  # a[n] is the sequence a
-    cs = e.children()
-    for is_op, op in _arith_ops:
-        if is_op(e):
-            acc = _to_seq(cs[0], n)
-            for c in cs[1:]:
-                acc = op(acc, _to_seq(c, n))
-            return acc
-    if is_neg(e):
-        return neg(_to_seq(cs[0], n))
-    if is_power(e) and (p := _nat_exponent(cs[1])) is not None:
-        base = _to_seq(cs[0], n)
-        acc = base
-        for _ in range(p - 1):
-            acc = mul(acc, base)
-        return acc
-    return Lambda([n], e)  # Anything else is an atom.
-
-
-def lim_lemma(e: ExprRef, n: Optional[ExprRef] = None) -> Proof:
-    """
-    Prove the limit of a sequence expression from limits of its atoms.
-
-    Recurse through the sequence operations in `lim_rules`. Atoms with a
-    limit in `lim_facts` use it. Every other atom is assumed to converge to a
-    fresh limit, in order of first occurrence. Side conditions of the rules,
-    such as a nonzero denominator limit, become premises.
-
-    With an index `n`, `e` is a real term in `n` and the result is about
-    `Lambda(n, e)`.
-
-    >>> a, b = Consts("a b", RSeq)
-    >>> lim_lemma(a * b + smul(2, a))
-    |= ForAll([L!..., L!...],
-           Implies(And(has_lim(a, L!...), has_lim(b, L!...)),
-                   has_lim(... L!...*L!... + 2*L!...)))
-    >>> lim_lemma(2 * a[n] + RealVal(1) / n, n)
-    |= ForAll(L!...,
-           Implies(has_lim(a, L!...),
-                   has_lim(Lambda(n, 2*a[n] + 1/ToReal(n)), 2*L!... + 0)))
-    """
-    target, eqs = e, []
-    if n is not None:
-        target, e = Lambda([n], e), _to_seq(e, n)
-        defns = [f.defn for f in (add, const, div, mul, neg, sub)]
-        eqs = [prove(Eq(target, e), by=defns)]
-    leaves: dict[ExprRef, ExprRef] = {}
-    lemmas: list[Proof] = []
-    hyps: list[BoolRef] = []
-
-    def worker(t: ExprRef) -> ExprRef:
-        rule = lim_rules.get(t.decl()) if is_app(t) else None
-        if rule is None:
-            known = _known_lim(t)
-            if known is not None:
-                lemmas.append(known)
-                return known.thm.arg(1)
-            # An atom: assume it converges, once per distinct atom.
-            if not any(t.eq(u) for u in leaves):
-                leaves[t] = FreshVar("L", RealSort())
-            return next(y for u, y in leaves.items() if t.eq(u))
-        ys = [worker(c) for c in t.children() if c.sort() == RSeq]
-        pf = rule(*t.children(), *ys)
-        lemmas.append(pf)
-        # Premises that are not limits of children are side conditions.
-        concl = pf.thm
-        while is_implies(concl):
-            if concl.arg(0).decl() != has_lim:
-                hyps.append(concl.arg(0))
-            concl = concl.arg(1)
-        return concl.arg(1)
-
-    lim_e = worker(e)
-    prems = [has_lim(t, y) for t, y in leaves.items()] + hyps
-    concl = has_lim(target, lim_e)
-    if prems:
-        concl = Implies(prems[0] if len(prems) == 1 else And(prems), concl)
-    # Chaining the instantiated lemmas is propositional.
-    pf = prove(concl, by=lemmas + eqs)
-    return pf.forall(list(leaves.values()))

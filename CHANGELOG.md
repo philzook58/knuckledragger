@@ -9,15 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add uniqueness of real function limits and derivative rules for constants, identity, addition, scalar multiplication, continuity, and composition.
-- Add `rseq.lim_lemma` to compose sequence-limit rules, including arithmetic expressions in an index and the known limit of `1/n`.
-- Add `kdrag.theories.real.integral`: the gauge (Henstock-Kurzweil) integral, Cousin's lemma, uniqueness of integrals, and the fundamental theorem of calculus `integral_eq_sub_of_has_deriv_at`.
-- Add `finsum_sub`, `finsum_diff` (telescoping), and `abs_finsum_le` for real sequences.
+- Add `contrib.analysis` proofs of real function limit uniqueness and derivative rules for constants, identity, addition, scalar multiplication, continuity, and composition.
+- Add `contrib.analysis.rseq.lim_lemma` to compose sequence-limit rules, including arithmetic expressions in an index and the known limit of `1/n`.
+- Add `kdrag.contrib.analysis.integral`: the gauge (Henstock-Kurzweil) integral, Cousin's lemma, uniqueness of integrals, and the fundamental theorem of calculus `integral_eq_sub_of_has_deriv_at`.
+- Add `finsum_sub`, `finsum_diff` (telescoping), and `abs_finsum_le` in `contrib.analysis.rseq`.
 
 ### Changed
 
-- Define `has_diff_at` by the punctured difference-quotient limit.
-- Order `rseq.has_lim_smul` binders as scalar, sequence, limit for composition by `lim_lemma`.
+- Define `contrib.analysis.deriv.has_diff_at` by the punctured difference-quotient limit.
+- Order `contrib.analysis.rseq.has_lim_smul` binders as scalar, sequence, limit for composition by `lim_lemma`.
 
 ### Removed
 

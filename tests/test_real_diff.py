@@ -2,7 +2,8 @@ import pytest
 
 from kdrag import prove
 from kdrag.smt import ForAll, Lambda, Reals
-from kdrag.theories.real import abs, has_diff_at, has_lim_at
+from kdrag.theories.real import abs, has_lim_at
+from kdrag.contrib.analysis.deriv import has_diff_at
 
 
 @pytest.mark.parametrize("slope", [0, 1, 3])

@@ -32,13 +32,11 @@ from kdrag.smt import (
     Store,
 )
 from kdrag.theories.real import R, RFun, RSeq, abs, abs_mul, abs_neg, min
+from kdrag.contrib.analysis.rseq import abs_finsum_le, finsum_diff, finsum_sub
 from kdrag.theories.real.rseq import (
-    abs_finsum_le,
     diff,
     finsum,
-    finsum_diff,
     finsum_smul,
-    finsum_sub,
     smul,
     sub,
 )

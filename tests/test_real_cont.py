@@ -32,8 +32,9 @@ def test_limits_at_removable_discontinuities():
 @pytest.mark.parametrize(
     "modules,seed",
     [
-        ("cont", 0),
-        ("rseq", 0),
+        ("kdrag.theories.real.cont", 0),
+        ("kdrag.contrib.analysis.cont", 0),
+        ("kdrag.theories.real.rseq", 0),
         ("cont deriv rseq integral", 0),
         ("integral rseq deriv cont", 1),
         ("rseq cont deriv integral", 7),
@@ -53,7 +54,7 @@ import kdrag.theories.int
 
 config.timing = True
 for module in sys.argv[1].split():
-    importlib.import_module("kdrag.theories.real." + module)
+    importlib.import_module(module if "." in module else "kdrag.contrib.analysis." + module)
 solves = [(thm, elapsed) for tag, thm, elapsed in config.perf_log
           if tag == "solver.check"]
 assert solves
@@ -68,7 +69,7 @@ for thm, elapsed in solves:
 
 def test_lim_lemma_composes_limit_rules():
     import kdrag.theories.real.rseq as seq
-    from kdrag.theories.real.rseq import lim_lemma
+    from kdrag.contrib.analysis.rseq import lim_lemma
 
     a, b, c = smt.Consts("lim_a lim_b lim_c", real.RSeq)
     e = a * b + seq.smul(2, a)
@@ -85,7 +86,7 @@ def test_lim_lemma_composes_limit_rules():
 
 def test_lim_lemma_on_real_terms_in_index():
     import kdrag.theories.real.rseq as seq
-    from kdrag.theories.real.rseq import lim_lemma
+    from kdrag.contrib.analysis.rseq import lim_lemma
 
     a = smt.Const("lim_a", real.RSeq)
     n = smt.Int("lim_n")

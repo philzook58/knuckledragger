@@ -469,12 +469,7 @@ lim = Function("lim", RFun, R, R)
 lim_def = axiom(ForAll([f, x, y], has_lim_at(f, x, y), lim(f, x) == y))
 
 
-# The quotient is evaluated away from p by has_lim_at's punctured neighborhood.
-has_diff_at = define(
-    "has_diff_at",
-    [f, p, L],
-    has_lim_at(Lambda(x, (f[x] - f[p]) / (x - p)), p, L),
-)
+has_diff_at = Function("has_diff_at", RFun, R, R, BoolSort())
 diff_at = define("diff_at", [f, x], Exists([y], has_diff_at(f, x, y)))
 cont_at = define(
     "cont_at",
