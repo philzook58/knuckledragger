@@ -7,9 +7,9 @@ import kdrag.theories.real as real
 def test_rank_lemmas_finds_matching_library_lemma():
     x, y = smt.Reals("x y")
     goal = real.abs(x + y) <= real.abs(x) + real.abs(y)
-    assert "kdrag.theories.real.abs_add" in [
-        name for _, name, _ in utils.rank_lemmas(goal)[:10]
-    ]
+    names = [name for _, name, _ in utils.rank_lemmas(goal)[:10]]
+    # Named by its shortest path, which may be a module that star-imports it.
+    assert any(name.endswith(".abs_add") for name in names)
 
 
 def test_suggest_marks_lemma_that_closes_goal():
