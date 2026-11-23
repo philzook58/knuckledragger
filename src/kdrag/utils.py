@@ -11,7 +11,9 @@ import os
 import glob
 import inspect
 from dataclasses import dataclass
-from collections import defaultdict
+from collections import Counter, defaultdict
+import math
+import time
 
 
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
@@ -1448,6 +1450,84 @@ def search(
         else:
             raise ValueError("Unsupported type for search", e)
     return {k: v for k, v in results[0].items() if all(k in db for db in results)}
+
+
+_decl_counts: dict[int, Counter[smt.FuncDeclRef]] = {}  # cache, by `thm.get_id()`
+
+
+def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
+    """Function symbols in `e`, skipping fresh variables like x!7."""
+    return Counter(
+        t.decl()
+        for t in subterms(e, into_binder=True)
+        if smt.is_app(t) and "!" not in t.decl().name()
+    )
+
+
+def rank_lemmas(
+    thm: smt.BoolRef, builtin=0.1
+) -> list[tuple[float, str, kd.kernel.Proof]]:
+    """
+    Every lemma in `lemma_db` as `(score, name, proof)`, best first for proving `thm`.
+
+    The score is the tf-idf cosine of function symbols (as in Sledgehammer's MePo and
+    SInE). Built-ins like `+` and `=` get weight `builtin`.
+    """
+    db = lemma_db()
+    decls = {}
+    for name, pf in db.items():
+        key = pf.thm.get_id()
+        if key not in _decl_counts:
+            _decl_counts[key] = decl_counter(pf.thm)
+        decls[name] = _decl_counts[key]
+    df = Counter(d for c in decls.values() for d in c)
+
+    def tfidf(c: Counter) -> dict[smt.FuncDeclRef, float]:
+        return {
+            d: (1.0 if smt.is_uninterp(d) else builtin)
+            * (1 + math.log(n))
+            * math.log(len(db) / df.get(d, 1))
+            for d, n in c.items()
+        }
+
+    goal = tfidf(decl_counter(thm))
+    scored = []
+    for name, pf in db.items():
+        v = tfidf(decls[name])
+        norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
+        scored.append(
+            (sum(x * v.get(d, 0.0) for d, x in goal.items()) / norm, name, pf)
+        )
+    scored.sort(key=lambda t: -t[0])
+    return scored
+
+
+def suggest(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1) -> str:
+    """
+    The top `k` lemmas from `rank_lemmas` scoring at least `cutoff` times the best, as
+    text. The first `check` are tried with z3 within `budget` seconds; ✅ marks one
+    that proves `thm` on its own.
+    """
+    from kdrag.printers.pretty import pretty_expr
+
+    ranked = rank_lemmas(thm)[:k]
+    start = time.perf_counter()
+    lines = []
+    for i, (score, name, pf) in enumerate(ranked):
+        if score < cutoff * ranked[0][0]:
+            break
+        mark = "- "  # two columns, like the emoji
+        if i < check and time.perf_counter() - start < budget:
+            try:
+                kd.kernel.prove(thm, by=[pf], timeout=timeout)
+                mark = "✅"
+            except Exception:
+                pass
+        stmt = " ".join(pretty_expr(pf.thm).split())
+        if len(stmt) > 70:
+            stmt = stmt[:67] + "..."
+        lines.append(f"  {mark} {name.removeprefix('kdrag.theories.')}: {stmt}")
+    return "Suggestions:\n" + "\n".join(lines) if lines else ""
 
 
 def prompt(prompt: str):

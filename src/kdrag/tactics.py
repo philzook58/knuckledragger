@@ -2229,13 +2229,12 @@ class ProofState:
 
     def suggest(self) -> None:
         """
-        Print the goal and library lemmas likely to help prove it. See `kdrag.suggest`.
+        Print the goal and library lemmas likely to help prove it. See `utils.suggest`.
         """
-        import kdrag.suggest
         from kdrag.printers.pretty import pretty_goal
 
         goal = self.top_goal()
-        print(pretty_goal(goal), "", kdrag.suggest.report(goal.to_expr()), sep="\n")
+        print(pretty_goal(goal), "", kd.utils.suggest(goal.to_expr()), sep="\n")
 
     # TODO
     # def llm():
