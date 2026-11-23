@@ -54,7 +54,7 @@ def repair(
     if len(defns) > 1:
         tries.append(by + defns)
     tries += [
-        by + [pf] for _, pf in suggest.rank(goal, k=3) if pf.thm.get_id() not in have
+        by + [pf] for _, _, pf in suggest.rank(goal)[:3] if pf.thm.get_id() not in have
     ]
     if not countermodel and len(by) > 1:
         tries += [[q for q in by if q is not pf] for pf in by]
