@@ -1320,10 +1320,13 @@ def lemma_db() -> dict[str, kd.kernel.Proof]:
                 for name2, thm2 in thm.__dict__.items():
                     if is_proof(thm2):
                         db[modname + "." + name + "." + name2] = thm2
+                # `.defn` is a property, so it isn't in `__dict__`
+                decl = thm if isinstance(thm, smt.FuncDeclRef) else None
+                if isinstance(thm, smt.ExprRef) and smt.is_const(thm):
+                    decl = thm.decl()
+                if decl is not None and decl in kd.kernel.defns:
+                    db[modname + "." + name + ".defn"] = kd.kernel.defns[decl].ax
             # TODO: Scan GenericProof, SortDispatch objects, objects.
-            # TODO: Not a problem at the moment, but we should cache unchanged modules.
-            # TODO: Maybe scan user module specially.
-            # TODO: Dedup repeated theorems
     return db
 
 
