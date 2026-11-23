@@ -272,3 +272,12 @@ def sum_append(pf):
 - `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.
 - For pointwise choice of a function (e.g. gauges), use `contrib.analysis.integral.axiom_of_choice` and state the premise with its binder names `x` and `y`.
 - Isolate extensional or rational identities from quantified limit hypotheses when proving derivative rules; import-order tests can reveal timeouts hidden by a standalone import.
+
+
+## Proof instability reports
+
+- Treat proof timeouts that vary with platform, solver version, seed, import order, term construction, or irrelevant context as reproducibility problems to investigate alongside the proof fix.
+- Preserve the original failing query and its options before changing the proof when possible. Record the source commit, platform, Python/Z3 versions, seed, timeout/resource limits, result, `reason_unknown()`, and timing or solver statistics. CI should retain failing SMT dumps when available.
+- Reduce the case to a small standalone SMT-LIB file or Z3 Python program requiring no knuckledragger imports. Remove irrelevant hypotheses and structure while checking that the observed behavior survives. Keep both the original export and the reduced reproducer when useful.
+- Run failing and passing variants in fresh processes, changing one factor at a time. Include the expected result and exact commands. Distinguish a reproduced original failure from a related reduced example, a resource-budget demonstration, or an unreproduced platform-specific report.
+- Search the knuckledragger issue tracker for an existing report; add the reproducer there or open a succinct issue linking the source/CI failure, standalone reproducer, observed results, and workaround. Philip has requested this as the standard workflow for proof-instability problems. Update reports when later evidence changes the diagnosis.
