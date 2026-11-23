@@ -1523,7 +1523,8 @@ def suggest(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1)
         stmt = " ".join(kd.pretty_expr(pf.thm).split())
         if len(stmt) > 70:
             stmt = stmt[:67] + "..."
-        lines.append(f"  {mark} {name.removeprefix('kdrag.theories.')}: {stmt}")
+        name = name.removeprefix("kdrag.theories.").removeprefix("__main__.")
+        lines.append(f"  {mark} {name}: {stmt}")
     return "Suggestions:\n" + "\n".join(lines) if lines else ""
 
 
