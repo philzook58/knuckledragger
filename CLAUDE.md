@@ -22,6 +22,7 @@
 
 - `kdrag.theories` is the curated library for mathematics Philip has carefully reviewed and understands. Keep new or less-reviewed mathematics in `kdrag.contrib`; use `kdrag.contrib.analysis` for exploratory real analysis.
 - Philip will manually promote material into `kdrag.theories`. Do not promote it, or move existing reviewed material out, without an explicit request.
+- In `contrib.analysis`, keep pointwise limits/continuity in `cont`, derivative predicates and derivative-only lemmas in `deriv`, sequence limits in `rseq`, finite sums in `finsum`, gauge-integral construction in `integral`, and the derivative/integral connection in `ftc`. Keep dependencies one-way; `integral` must not depend on `deriv` or `ftc`.
 - Compare both folders for existing definitions and reusable theorems before adding mathematics. Contrib may import theories; theories must not import contrib. Keep exploratory definitions separate from existing theory declarations until promotion.
 - If the layout or a proposed change conflicts with this boundary, point it out rather than silently treating it as permission to change the policy.
 - When responding about added or changed mathematics, include the actual definition code, theorem statements, and complete proof bodies in chat, as they appear in the source. Summaries and file links supplement the code; they do not replace it. Keep changes small enough to review this way.
@@ -270,7 +271,7 @@ def sum_append(pf):
 - In long proofs, keep defined predicates folded in the context and pass instantiated definitions such as `is_fine.defn(D, xs, ts, n)` in `by=`. Unfolded quantified hypotheses make later `auto` calls time out or depend on import order. Clear quantified hypotheses once they have been used.
 - Give witnesses involving division explicitly with `l.exists`, then `obtain` a fresh constant for them (e.g. `eta` with `eta * (|b - a| + 1) == eps`). Division terms inside later goals cause nonlinear timeouts.
 - `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.
-- For pointwise choice of a function (e.g. gauges), use `contrib.analysis.integral.axiom_of_choice` and state the premise with its binder names `x` and `y`.
+- For pointwise choice of a function (e.g. gauges), use `contrib.analysis._choice.axiom_of_choice` and state the premise with its binder names `x` and `y`.
 - Isolate extensional or rational identities from quantified limit hypotheses when proving derivative rules; import-order tests can reveal timeouts hidden by a standalone import.
 
 

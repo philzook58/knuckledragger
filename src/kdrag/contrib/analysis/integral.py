@@ -1,4 +1,4 @@
-"""Gauge (Henstock-Kurzweil) integral and the fundamental theorem of calculus.
+"""Gauge (Henstock-Kurzweil) integral, partitions, existence, and uniqueness.
 
 A tagged partition of `[a, b]` is a length `n` with point and tag sequences
 
@@ -10,35 +10,24 @@ width of the Riemann integral, which makes every derivative integrable.
 """
 
 import kdrag as kd
-import kdrag.smt as smt
 import kdrag.theories.int as int_
-from kdrag import FreshVar, FreshVars, Theorem, define, prove
+from kdrag import FreshVars, Theorem, define, prove
 from kdrag.smt import (
     And,
-    ArraySort,
-    BoolSort,
-    Const,
     Consts,
     Exists,
     ForAll,
-    Implies,
     Ints,
     IntSort,
     IntVal,
     K,
     Lambda,
     Reals,
-    RealVal,
     Store,
 )
-from kdrag.theories.real import R, RFun, RSeq, abs, abs_mul, abs_neg, min
-from kdrag.contrib.analysis.rseq import abs_finsum_le, finsum_diff, finsum_sub
+from kdrag.theories.real import R, RFun, RSeq, abs, min
 from kdrag.theories.real.rseq import (
-    diff,
     finsum,
-    finsum_smul,
-    smul,
-    sub,
 )
 from kdrag.theories.real.rset import (
     bdd_above,
@@ -52,104 +41,6 @@ f, F, D, E = Consts("f F D E", RFun)
 xs, ts = Consts("xs ts", RSeq)
 a, b, k, t, u, v, x, y, eps, delta, I, J = Reals("a b k t u v x y eps delta I J")
 i, n = Ints("i n")
-
-# A pointwise choice of radii is a gauge function.
-P = Const("P", ArraySort(R, R, BoolSort()))
-_P, _x = FreshVar("P", P.sort()), FreshVar("x", R)
-assert isinstance(_P, smt.ArrayRef)
-(_choice,), _choice_spec = kd.kernel.obtain(Exists(y, _P[_x, y]))
-
-
-@Theorem(ForAll(P, ForAll(x, Exists(y, P[x, y])), Exists(D, ForAll(x, P[x, D[x]]))))
-def axiom_of_choice(l):
-    P = l.fix()
-    l.intro()
-    l.exists(Lambda(_x, smt.substitute(_choice, (_P, P))))
-    z = l.fix()
-    l.auto(by=[_choice_spec.forall([_P, _x])(P, z)])
-
-
-# mathlib's `HasDerivAt F k x`: F y = F x + k * (y - x) + o(y - x).
-has_deriv_at = define(
-    "has_deriv_at",
-    [F, k, x],
-    ForAll(
-        eps,
-        eps > 0,
-        Exists(
-            delta,
-            delta > 0,
-            ForAll(
-                y,
-                abs(y - x) < delta,
-                abs(F[y] - F[x] - k * (y - x)) <= eps * abs(y - x),
-            ),
-        ),
-    ),
-)
-
-
-def straddles(F, k, t, delta, eps) -> smt.BoolRef:
-    """Every interval around `t` inside the `delta` ball is within `eps` of slope `k`."""
-    return ForAll(
-        [u, v],
-        t - delta < u,
-        u <= t,
-        t <= v,
-        v < t + delta,
-        abs(F[v] - F[u] - k * (v - u)) <= eps * (v - u),
-    )
-
-
-@Theorem(
-    ForAll(
-        [F, k, t, eps],
-        has_deriv_at(F, k, t),
-        eps > 0,
-        Exists(delta, delta > 0, straddles(F, k, t, delta, eps)),
-    )
-)
-def straddle_of_has_deriv_at(l):
-    F, k, t, eps = l.fixes()
-    l.unfold(has_deriv_at)
-    h = l.intro()
-    l.intro()
-    h = l.specialize(h, eps / 2)
-    witness = l.have(
-        Exists(
-            delta,
-            delta > 0,
-            ForAll(
-                y,
-                abs(y - t) < delta,
-                abs(F[y] - F[t] - k * (y - t)) <= eps / 2 * abs(y - t),
-            ),
-        ),
-        by=[],
-    )
-    l.clear(h)
-    r = l.obtain(witness)
-    l.split(at=-1)
-    near = l.top_goal().ctx[-1]
-    l.exists(r)
-    l.split()
-    l.assumption()
-    u, v = l.fixes()
-    l.intros()
-    # Split [u, v] at t and compare each half with the tangent line at t.
-    l.have(abs(F[u] - F[t] - k * (u - t)) <= eps / 2 * abs(u - t), by=[abs.defn(u - t)])
-    l.have(abs(F[v] - F[t] - k * (v - t)) <= eps / 2 * abs(v - t), by=[abs.defn(v - t)])
-    l.clear(near)
-    l.auto(
-        by=[
-            abs.defn(u - t),
-            abs.defn(v - t),
-            abs.defn(F[v] - F[u] - k * (v - u)),
-            abs.defn(F[u] - F[t] - k * (u - t)),
-            abs.defn(F[v] - F[t] - k * (v - t)),
-        ]
-    )
-
 
 is_tagged_partition = define(
     "is_tagged_partition",
@@ -228,118 +119,6 @@ def mem_icc_of_is_tagged_partition(l):
         ForAll(i, 0 <= i, i <= n, And(a <= xs[i], xs[i] <= b)),
         by=[le_of_monotone_steps(xs, n)],
     )
-    l.auto()
-
-
-@Theorem(
-    ForAll(
-        [F, f, a, b],
-        ForAll(x, a <= x, x <= b, has_deriv_at(F, f[x], x)),
-        has_integral(f, a, b, F[b] - F[a]),
-    )
-)
-def has_integral_sub_of_has_deriv_at(l):
-    """Fundamental theorem of calculus: a derivative integrates to the net change."""
-    F, f, a, b = l.fixes()
-    hderiv = l.intro()
-    l.unfold(has_integral)
-    eps = l.fix()
-    l.intro()
-    # Spread the error budget over the length of [a, b].
-    heta = l.have(Exists(y, y > 0, y * (abs(b - a) + 1) == eps))
-    l.exists(eps / (abs(b - a) + 1))
-    l.auto(by=[abs.defn(b - a)])
-    eta = l.obtain(heta)
-
-    # Choose a straddle radius at every point, using radius 1 outside [a, b].
-    Q = Lambda(
-        [t, delta],
-        And(delta > 0, Implies(And(a <= t, t <= b), straddles(F, f[t], t, delta, eta))),
-    )
-    # Match the binder names of axiom_of_choice so its premise is syntactic.
-    l.have(ForAll(x, Exists(y, Q[x, y])))
-    s = l.fix()
-    l.cases(And(a <= s, s <= b))
-    w = l.have(
-        Exists(delta, delta > 0, straddles(F, f[s], s, delta, eta)),
-        by=[straddle_of_has_deriv_at(F, f[s], s, eta)],
-    )
-    l.clear(hderiv)
-    r = l.obtain(w)
-    l.exists(r)
-    l.beta()
-    l.auto()
-    l.exists(RealVal(1))
-    l.beta()
-    l.auto()
-    hchoice = l.top_goal().ctx[-1]
-    l.have(Exists(D, ForAll(x, Q[x, D[x]])), by=[axiom_of_choice(Q)])
-    gauge = l.obtain(-1)
-    hgauge = l.top_goal().ctx[-1]
-    l.clear(hchoice)
-    l.clear(hderiv)
-    l.exists(gauge)
-    l.split()
-    l.auto()
-    xs, ts, n = l.fixes()
-    l.intros()
-    # Keep the partition hypotheses folded and unfold them only where needed.
-    tagged = is_tagged_partition.defn(xs, ts, n, a, b)
-    fine = is_fine.defn(gauge, xs, ts, n)
-
-    # The error telescopes into a sum of per-cell errors.
-    terms = Lambda(i, f[ts[i]] * (xs[i + 1] - xs[i]))
-    Fxs = Lambda(i, F[xs[i]])
-    err = terms - diff(Fxs)
-    l.have(
-        riemann_sum(f, xs, ts, n) - (F[b] - F[a]) == finsum(err, n),
-        by=[
-            riemann_sum.defn(f, xs, ts, n),
-            finsum_sub(terms, diff(Fxs), n),
-            finsum_diff(Fxs, n),
-            tagged,
-        ],
-    )
-    # Each cell straddles its tag, so its error is at most eta times its length.
-    bound = smul(eta, diff(xs))
-    hbound = l.have(ForAll(i, 0 <= i, i < n, abs(err[i]) <= bound[i]))
-    j = l.fix()
-    l.intros()
-    tj, x0, x1 = ts[j], xs[j], xs[j + 1]
-    l.have(
-        And(
-            a <= tj,
-            tj <= b,
-            x0 <= tj,
-            tj <= x1,
-            tj - gauge[tj] < x0,
-            x1 < tj + gauge[tj],
-        ),
-        by=[mem_icc_of_is_tagged_partition(xs, ts, n, a, b), tagged, fine],
-    )
-    hstraddle = l.have(straddles(F, f[tj], tj, gauge[tj], eta), by=[])
-    l.have(abs(F[x1] - F[x0] - f[tj] * (x1 - x0)) <= eta * (x1 - x0), by=[])
-    l.clear(hstraddle)
-    l.clear(hgauge)
-    l.have(
-        err[j] == -(F[x1] - F[x0] - f[tj] * (x1 - x0)),
-        by=[sub.defn(terms, diff(Fxs)), diff.defn(Fxs)],
-    )
-    l.have(bound[j] == eta * (x1 - x0), by=[smul.defn(eta, diff(xs)), diff.defn(xs)])
-    l.auto(by=[abs_neg(F[x1] - F[x0] - f[tj] * (x1 - x0))])
-
-    # Sum the cell bounds: eta * (b - a) <= eta * |b - a| < eta * (|b - a| + 1) = eps.
-    l.have(
-        abs(finsum(err, n)) <= finsum(bound, n),
-        by=[abs_finsum_le(err, bound, n), tagged],
-    )
-    l.clear(hgauge)
-    l.clear(hbound)
-    l.have(
-        finsum(bound, n) == eta * (b - a),
-        by=[finsum_smul(diff(xs), eta, n), finsum_diff(xs, n), tagged],
-    )
-    l.have(eta * (b - a) <= eta * abs(b - a), by=[abs.defn(b - a)])
     l.auto()
 
 
@@ -506,51 +285,3 @@ def integral_eq_of_has_integral(l):
         has_integral(f, a, b, integral(f, a, b)), by=[has_integral_integral(f, a, b)]
     )
     l.auto(by=[has_integral_unique(f, a, b, integral(f, a, b), I)])
-
-
-@Theorem(
-    ForAll(
-        [F, f, a, b],
-        a <= b,
-        ForAll(x, a <= x, x <= b, has_deriv_at(F, f[x], x)),
-        integral(f, a, b) == F[b] - F[a],
-    )
-)
-def integral_eq_sub_of_has_deriv_at(l):
-    """Fundamental theorem of calculus for the `integral` function."""
-    F, f, a, b = l.fixes()
-    l.intros()
-    l.have(
-        has_integral(f, a, b, F[b] - F[a]),
-        by=[has_integral_sub_of_has_deriv_at(F, f, a, b)],
-    )
-    l.auto(by=[integral_eq_of_has_integral(f, a, b, F[b] - F[a])])
-
-
-@Theorem(ForAll(x, has_deriv_at(Lambda(t, t * t), 2 * x, x)))
-def has_deriv_at_sq(l):
-    x = l.fix()
-    l.unfold(has_deriv_at)
-    eps = l.fix()
-    l.intro()
-    # The error is (y - x)^2, so delta = eps works.
-    l.exists(eps)
-    l.split()
-    l.auto()
-    y = l.fix()
-    l.intro()
-    l.beta()
-    l.have(y * y - x * x - 2 * x * (y - x) == (y - x) * (y - x), by=[])
-    l.auto(by=[abs.defn(y - x), abs.defn((y - x) * (y - x)), abs_mul(y - x, y - x)])
-
-
-@Theorem(integral(Lambda(t, 2 * t), 0, 1) == 1)
-def integral_two_mul_id(l):
-    sq, two_mul = Lambda(t, t * t), Lambda(t, 2 * t)
-    # Write 0 <= x with RealVal so it matches the instantiated hypothesis.
-    l.have(ForAll(x, RealVal(0) <= x, x <= 1, has_deriv_at(sq, two_mul[x], x)))
-    z = l.fix()
-    l.intros()
-    l.beta()
-    l.auto(by=[has_deriv_at_sq(z)])
-    l.auto(by=[integral_eq_sub_of_has_deriv_at(sq, two_mul, 0, 1)])

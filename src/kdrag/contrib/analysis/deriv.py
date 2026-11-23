@@ -1,4 +1,4 @@
-"""Derivative rules for `has_diff_at`, the limit of the difference quotient.
+"""Pointwise differentiation: difference-quotient and remainder formulations.
 
 Linearity follows from the limit rules in `cont`, using that a limit at p ignores
 the value at p (the quotient is 0/0 there). The chain rule goes through
@@ -6,19 +6,27 @@ Carathéodory's characterisation, which avoids dividing by f(x) - f(p).
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import Consts, Exists, ForAll, Lambda, Reals, RealVal, Store
+import kdrag.smt as smt
+from kdrag.smt import Const, Consts, Exists, ForAll, Lambda, Reals, RealVal, Store
 
-from kdrag.theories.real import RFun, abs, cont_at, fmul, has_lim_at
+from kdrag.theories.real import RFun, abs, abs_mul, cont_at, fmul, has_lim_at
+from kdrag.contrib.analysis.cont import (
+    cont_at_comp,
+    has_lim_at_congr,
+    has_lim_at_const,
+    has_lim_at_id,
+)
 from kdrag.theories.real.cont import (
-    has_lim_at_of_cont_at,
     cont_at_update_of_has_lim_at,
+    has_lim_at_of_cont_at,
     has_lim_at_add,
     has_lim_at_mul,
-    has_lim_at_of_cont_at_update,
 )
 
 f, g = Consts("f g", RFun)
 x, p, L, a, b, c = Reals("x p L a b c")
+F = Const("F", RFun)
+k, t, u, v, y, eps, delta = Reals("k t u v y eps delta")
 
 
 # Keep this exploratory definition separate from real.has_diff_at until reviewed.
@@ -29,34 +37,29 @@ has_diff_at = define(
 )
 
 
+# mathlib's `HasDerivAt F k x`: F y = F x + k * (y - x) + o(y - x).
+has_deriv_at = define(
+    "has_deriv_at",
+    [F, k, x],
+    ForAll(
+        eps,
+        eps > 0,
+        Exists(
+            delta,
+            delta > 0,
+            ForAll(
+                y,
+                abs(y - x) < delta,
+                abs(F[y] - F[x] - k * (y - x)) <= eps * abs(y - x),
+            ),
+        ),
+    ),
+)
+
+
 def quot(f, p):
     """The difference quotient of f at p."""
     return Lambda(x, (f[x] - f[p]) / (x - p))
-
-
-@Theorem(
-    ForAll(
-        [f, g, p, L],
-        ForAll([x], x != p, f[x] == g[x]),
-        has_lim_at(f, p, L),
-        has_lim_at(g, p, L),
-    )
-)
-def has_lim_at_congr(l):
-    """A limit at p only depends on values away from p."""
-    f, g, p, L = l.fixes()
-    l.intros()
-    # Redefine both at p as L: the updated functions are equal, and a limit at p
-    # is continuity of the update at p.
-    l.have(cont_at(Store(f, p, L), p), by=[cont_at_update_of_has_lim_at(f, p, L)])
-    l.have(Store(f, p, L) == Store(g, p, L), by=[])
-    l.auto(by=[has_lim_at_of_cont_at_update(g, p, L)])
-
-
-@Theorem(ForAll([c, p], has_lim_at(Lambda(x, c), p, c)))
-def has_lim_at_const(l):
-    l.fixes()
-    l.auto(by=[has_lim_at.defn, abs.defn])
 
 
 @Theorem(ForAll([c, p], has_diff_at(Lambda(x, c), p, 0)))
@@ -150,44 +153,6 @@ def cont_at_slope_of_has_diff_at(l):
     )
 
 
-@Theorem(
-    ForAll([f, g, p], cont_at(f, p), cont_at(g, f[p]), cont_at(Lambda(x, g[f[x]]), p))
-)
-def cont_at_comp(l):
-    f, g, p = l.fixes()
-    l.unfold(cont_at)
-    hf, hg = l.intros()
-    eps = l.fix()
-    l.intro()
-    d, y = Reals("delta y")
-    # g's delta at f(p) for eps ...
-    hg = l.specialize(hg, eps)
-    w = l.have(
-        Exists(d, d > 0, ForAll(y, abs(f[p] - y) < d, abs(g[f[p]] - g[y]) < eps)), by=[]
-    )
-    l.clear(hg)
-    d1 = l.obtain(w)
-    # ... is the target for f's delta at p.
-    hf = l.specialize(hf, d1)
-    w = l.have(
-        Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < d1)), by=[]
-    )
-    l.clear(hf)
-    d2 = l.obtain(w)
-    l.exists(d2)
-    l.auto()
-
-
-@Theorem(ForAll([p], has_lim_at(Lambda(x, x), p, p)))
-def has_lim_at_id(l):
-    l.fix()
-    l.unfold(has_lim_at)
-    eps = l.fix()
-    l.intro()
-    l.exists(eps)
-    l.auto(by=[abs.defn])
-
-
 @Theorem(ForAll([f, p, a], has_diff_at(f, p, a), cont_at(f, p)))
 def cont_at_of_has_diff_at(l):
     """A differentiable function is continuous."""
@@ -269,3 +234,82 @@ def has_diff_at_comp(l):
     l.auto(by=[fmul.defn(sgf, sf), quot_comp_eq(f, g, p, a, b, z)])
     l.unfold(has_diff_at)
     l.auto(by=[has_lim_at_congr(sgf * sf, target, p, b * a)])
+
+
+def straddles(F, k, t, delta, eps) -> smt.BoolRef:
+    """Every interval around `t` inside the `delta` ball is within `eps` of slope `k`."""
+    return ForAll(
+        [u, v],
+        t - delta < u,
+        u <= t,
+        t <= v,
+        v < t + delta,
+        abs(F[v] - F[u] - k * (v - u)) <= eps * (v - u),
+    )
+
+
+@Theorem(
+    ForAll(
+        [F, k, t, eps],
+        has_deriv_at(F, k, t),
+        eps > 0,
+        Exists(delta, delta > 0, straddles(F, k, t, delta, eps)),
+    )
+)
+def straddle_of_has_deriv_at(l):
+    F, k, t, eps = l.fixes()
+    l.unfold(has_deriv_at)
+    h = l.intro()
+    l.intro()
+    h = l.specialize(h, eps / 2)
+    witness = l.have(
+        Exists(
+            delta,
+            delta > 0,
+            ForAll(
+                y,
+                abs(y - t) < delta,
+                abs(F[y] - F[t] - k * (y - t)) <= eps / 2 * abs(y - t),
+            ),
+        ),
+        by=[],
+    )
+    l.clear(h)
+    r = l.obtain(witness)
+    l.split(at=-1)
+    near = l.top_goal().ctx[-1]
+    l.exists(r)
+    l.split()
+    l.assumption()
+    u, v = l.fixes()
+    l.intros()
+    # Split [u, v] at t and compare each half with the tangent line at t.
+    l.have(abs(F[u] - F[t] - k * (u - t)) <= eps / 2 * abs(u - t), by=[abs.defn(u - t)])
+    l.have(abs(F[v] - F[t] - k * (v - t)) <= eps / 2 * abs(v - t), by=[abs.defn(v - t)])
+    l.clear(near)
+    l.auto(
+        by=[
+            abs.defn(u - t),
+            abs.defn(v - t),
+            abs.defn(F[v] - F[u] - k * (v - u)),
+            abs.defn(F[u] - F[t] - k * (u - t)),
+            abs.defn(F[v] - F[t] - k * (v - t)),
+        ]
+    )
+
+
+@Theorem(ForAll(x, has_deriv_at(Lambda(t, t * t), 2 * x, x)))
+def has_deriv_at_sq(l):
+    x = l.fix()
+    l.unfold(has_deriv_at)
+    eps = l.fix()
+    l.intro()
+    # The error is (y - x)^2, so delta = eps works.
+    l.exists(eps)
+    l.split()
+    l.auto()
+    y = l.fix()
+    l.intro()
+    l.beta()
+    l.have(y * y - x * x - 2 * x * (y - x) == (y - x) * (y - x), by=[])
+    l.auto(by=[abs.defn(y - x), abs.defn((y - x) * (y - x)), abs_mul(y - x, y - x)])

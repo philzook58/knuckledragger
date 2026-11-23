@@ -35,9 +35,11 @@ def test_limits_at_removable_discontinuities():
         ("kdrag.theories.real.cont", 0),
         ("kdrag.contrib.analysis.cont", 0),
         ("kdrag.theories.real.rseq", 0),
-        ("cont deriv rseq integral", 0),
-        ("integral rseq deriv cont", 1),
-        ("rseq cont deriv integral", 7),
+        ("deriv", 0),
+        ("integral", 0),
+        ("cont deriv rseq finsum integral ftc", 0),
+        ("ftc integral finsum rseq deriv cont", 1),
+        ("rseq integral cont finsum deriv ftc", 7),
     ],
 )
 def test_analysis_proofs(modules, seed):

@@ -1,7 +1,12 @@
 """Exploratory real analysis awaiting manual review and promotion to theories.
 
-Load the shared reviewed sequence and continuity foundations before exploratory proofs, so its
-proof imports do not depend on which exploratory module was requested first.
+Modules: `cont` for limits and continuity, `deriv` for differentiation,
+`rseq` for sequence limits, `finsum` for finite sums, `integral` for the gauge
+integral, and `ftc` for the fundamental theorem. `_choice` supplies pointwise
+choice for gauges. Dependencies flow from these foundations towards `ftc`.
+
+Load the reviewed sequence and continuity foundations before exploratory proofs
+so their proof imports do not depend on the first exploratory module requested.
 """
 
 from kdrag.theories.real import rseq as _reviewed_rseq  # noqa: F401
