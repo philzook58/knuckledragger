@@ -21,7 +21,7 @@ import kdrag.tactics as tactics
 import kdrag.utils as utils
 
 
-def symbols(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
+def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
     """Function symbols in `e`, skipping fresh variables like x!7."""
     return Counter(
         t.decl()
@@ -51,7 +51,7 @@ class Index:
             key = pf.thm.get_id()
             if key not in self.entries and not name.rsplit(".", 1)[-1].startswith("_"):
                 self.entries[key] = (name, pf)
-                self._syms[key] = symbols(pf.thm)
+                self._syms[key] = decl_counter(pf.thm)
         if len(self.entries) != n:
             df = Counter(s for syms in self._syms.values() for s in syms)
             self._idf = {s: math.log(len(self.entries) / c) for s, c in df.items()}
@@ -82,23 +82,6 @@ index = Index()
 HYPS = 0.3  # weight of hypothesis symbols relative to the conclusion's
 
 
-def goal_vec(goal: tactics.Goal) -> dict[smt.FuncDeclRef, float]:
-    """Vector of `goal`, with its hypotheses down-weighted."""
-    v = index.vec(symbols(goal.goal))
-    if goal.ctx:
-        hyps = index.vec(sum((symbols(h) for h in goal.ctx), Counter()))
-        v = {s: v.get(s, 0.0) + HYPS * hyps.get(s, 0.0) for s in v.keys() | hyps.keys()}
-        norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
-        v = {s: x / norm for s, x in v.items()}
-    return v
-
-
-def _goal(goal: tactics.Goal | smt.BoolRef) -> tactics.Goal:
-    if isinstance(goal, smt.BoolRef):
-        return tactics.Goal(sig=[], ctx=[], goal=goal)
-    return goal
-
-
 def rank(
     goal: tactics.Goal | smt.BoolRef, k: int = 10, cutoff: float = 0.5
 ) -> list[tuple[str, kernel.Proof]]:
@@ -111,7 +94,14 @@ def rank(
     index.refresh()
     if not index.entries:
         return []
-    g = goal_vec(_goal(goal))
+    if isinstance(goal, smt.BoolRef):
+        goal = tactics.Goal(sig=[], ctx=[], goal=goal)
+    g = index.vec(decl_counter(goal.goal))
+    if goal.ctx:  # hypotheses count for less than the conclusion
+        hyps = index.vec(sum((decl_counter(h) for h in goal.ctx), Counter()))
+        g = {s: g.get(s, 0.0) + HYPS * hyps.get(s, 0.0) for s in g.keys() | hyps.keys()}
+        norm = math.sqrt(sum(x * x for x in g.values())) or 1.0
+        g = {s: x / norm for s, x in g.items()}
     last = max(len(index.entries) - 1, 1)
     score = {}
     for order, key in enumerate(index.entries):
@@ -135,14 +125,14 @@ def report(
     """
     from kdrag.printers.pretty import pretty_expr
 
-    goal = _goal(goal)
+    thm = goal if isinstance(goal, smt.BoolRef) else goal.to_expr()
     start = time.perf_counter()
     lines = []
     for i, (name, pf) in enumerate(rank(goal)):
         mark = "- "  # two columns, like the emoji
         if i < check and time.perf_counter() - start < budget:
             try:
-                kernel.prove(goal.to_expr(), by=[pf], timeout=timeout)
+                kernel.prove(thm, by=[pf], timeout=timeout)
                 mark = "✅"
             except Exception:
                 pass
