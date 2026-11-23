@@ -57,7 +57,7 @@ def has_lim_geom_zero(l):
     # Choose a cutoff with eps * gap * N > 1.
     positive = l.have(And(eps * gap > 0, RealVal(1) > 0), by=[])
     large = l.specialize(real.archimedes, eps * gap, 1, positive)
-    cutoff = l.obtain(large)
+    cutoff, _ = l.obtain(large)
     l.exists(cutoff)
     n = l.fix()
     l.intro()

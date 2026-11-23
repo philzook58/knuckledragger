@@ -75,7 +75,7 @@ def has_deriv_at_iff_remainder(l):
     e = l.fix()
     l.intro()
     positive = l.have(RealVal(0) < e, by=[])
-    d = l.obtain(l.specialize(h, e, positive))
+    d, _ = l.obtain(l.specialize(h, e, positive))
     l.split(at=0)
     near = l.top_goal().ctx[1]
     l.exists(d)
@@ -95,7 +95,7 @@ def has_deriv_at_iff_remainder(l):
     e = l.fix()
     l.intro()
     positive = l.have(e / 2 > 0, by=[])
-    d = l.obtain(l.specialize(h, e / 2, positive))
+    d, _ = l.obtain(l.specialize(h, e / 2, positive))
     l.split(at=0)
     near = l.top_goal().ctx[1]
     l.exists(d)
@@ -315,7 +315,7 @@ def straddle_of_has_deriv_at(l):
     h = l.intro()
     l.intro()
     positive = l.have(eps / 2 > 0, by=[])
-    r = l.obtain(l.specialize(h, eps / 2, positive))
+    r, _ = l.obtain(l.specialize(h, eps / 2, positive))
     l.split(at=0)
     near = l.top_goal().ctx[1]
     l.exists(r)

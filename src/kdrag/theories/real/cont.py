@@ -48,7 +48,7 @@ def has_lim_at_of_cont_at(l):
         Exists(d, d > 0, ForAll(y, abs(x - y) < d, abs(f[x] - f[y]) < eps)), by=[]
     )
     l.clear(continuity)
-    delta = l.obtain(witness)
+    delta, _ = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
@@ -68,12 +68,12 @@ def cont_at_add(l):
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eps / 2)), by=[]
     )
     l.clear(hf)
-    d1 = l.obtain(witness_f)
+    d1, _ = l.obtain(witness_f)
     witness_g = l.have(
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eps / 2)), by=[]
     )
     l.clear(hg)
-    d2 = l.obtain(witness_g)
+    d2, _ = l.obtain(witness_g)
     # The smaller radius satisfies both continuity bounds.
     l.exists(min(d1, d2))
     l.auto(by=[abs.defn, min.defn])
@@ -97,12 +97,12 @@ def cont_at_mul(l):
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eta)), by=[]
     )
     l.clear(hf)
-    d1 = l.obtain(witness_f)
+    d1, _ = l.obtain(witness_f)
     witness_g = l.have(
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eta)), by=[]
     )
     l.clear(hg)
-    d2 = l.obtain(witness_g)
+    d2, _ = l.obtain(witness_g)
     l.exists(min(d1, d2))
     l.split()
     l.auto(by=[min.defn])
@@ -153,7 +153,7 @@ def cont_at_update_of_has_lim_at(l):
         by=[],
     )
     l.clear(limit)
-    delta = l.obtain(witness)
+    delta, _ = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
@@ -173,7 +173,7 @@ def has_lim_at_of_cont_at_update(l):
         by=[],
     )
     l.clear(continuity)
-    delta = l.obtain(witness)
+    delta, _ = l.obtain(witness)
     l.split(at=-1)  # Separate positivity from the universal error bound.
     tail = l.top_goal().ctx[-1]
     l.exists(delta)

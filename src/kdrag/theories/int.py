@@ -261,7 +261,7 @@ def dvd_fact(l):
     l.auto()
     # case m != 1 + n1
     witness = l.have(Exists([p], fact(n1) == m * p), by=[])
-    p1 = l.obtain(witness)
+    p1, _ = l.obtain(witness)
     l.exists(p1 * (n1 + 1))
     l.auto()
 

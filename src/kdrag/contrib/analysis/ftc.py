@@ -46,7 +46,7 @@ def has_integral_sub_of_has_deriv_at(l):
     heta = l.have(Exists(y, y > 0, y * (abs(b - a) + 1) == eps))
     l.exists(eps / (abs(b - a) + 1))
     l.auto(by=[abs.defn(b - a)])
-    eta = l.obtain(heta)
+    eta, _ = l.obtain(heta)
 
     # Choose a straddle radius at every point, using radius 1 outside [a, b].
     Q = Lambda(
@@ -62,7 +62,7 @@ def has_integral_sub_of_has_deriv_at(l):
         by=[straddle_of_has_deriv_at(F, f[s], s, eta)],
     )
     l.clear(hderiv)
-    r = l.obtain(w)
+    r, _ = l.obtain(w)
     l.exists(r)
     l.beta()
     l.auto()
@@ -70,9 +70,8 @@ def has_integral_sub_of_has_deriv_at(l):
     l.beta()
     l.auto()
     hchoice = l.top_goal().ctx[-1]
-    l.have(Exists(D, ForAll(x, Q[x, D[x]])), by=[axiom_of_choice(Q)])
-    gauge = l.obtain(-1)
-    hgauge = l.top_goal().ctx[-1]
+    gauge_exists = l.have(Exists(D, ForAll(x, Q[x, D[x]])), by=[axiom_of_choice(Q)])
+    gauge, hgauge = l.obtain(gauge_exists)
     l.clear(hchoice)
     l.clear(hderiv)
     l.exists(gauge)

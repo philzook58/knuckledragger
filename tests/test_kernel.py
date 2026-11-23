@@ -99,7 +99,8 @@ def test_have_returns_formula_for_obtain():
     formula = smt.Exists(x, x == 1)
     witness = l.have(formula, by=[])
     assert witness.eq(formula)
-    value = l.obtain(witness)
+    value, fact = l.obtain(witness)
+    assert fact.eq(value == 1)
     l.exists(value)
     l.auto()
     l.qed()
@@ -312,7 +313,7 @@ def test_Lemma():
     l.intro()
     l.rw(even.defn)
     l.rw(even.defn, at=0)
-    y1 = l.obtain(0)
+    y1, _ = l.obtain(0)
     l.exists(y1 + 1)
     l.auto()
     l.qed()
@@ -326,7 +327,7 @@ def test_Lemma():
         l.intro(),
         l.rw(even.defn),
         l.rw(even.defn, at=0),
-        y1 := l.obtain(0),
+        y1 := l.obtain(0)[0],
         l.exists(y1 + 1),
         l.auto(),
     ]

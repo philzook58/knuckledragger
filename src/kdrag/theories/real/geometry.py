@@ -221,14 +221,14 @@ def is_line_iff_linep(l):
     # l.split()
     # -> implication
     l.intro()
-    p, q = l.obtain(0)
+    (p, q), _ = l.obtain(0)
     l.exists(p.y - q.y, q.x - p.x, p.x * q.y - p.y * q.x)
     l.auto()
 """
 """
         # <- implication
         l.intro()
-        x, y, z = l.obtain(0)
+        (x, y, z), _ = l.obtain(0)
         l.cases(x == 0)
 
         l.case(x == 0)

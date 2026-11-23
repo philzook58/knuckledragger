@@ -1259,9 +1259,14 @@ class ProofState:
             *[kdsympy.sympy_const(v) for v in vs],
         )
 
-    def obtain(self, n: int | smt.BoolRef) -> smt.ExprRef | list[smt.ExprRef]:
+    def obtain(
+        self, n: int | smt.BoolRef
+    ) -> tuple[smt.ExprRef | list[smt.ExprRef], smt.BoolRef]:
         """
-        obtain opens an exists quantifier in context and returns the fresh eigenvariable.
+        Open an existential hypothesis and return the witnesses and their local fact.
+
+        A single binder returns one term; multiple binders return a list in binder
+        order. The fact replaces the existential hypothesis in the context.
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
 
         >>> x,y = smt.Ints("x y")
@@ -1270,12 +1275,14 @@ class ProofState:
         Exists(x, x*x == y)
         >>> l
         [Exists(x, x*x == y)] ?|= y >= 0
-        >>> _x = l.obtain(0)
+        >>> _x, fact = l.obtain(0)
+        >>> fact.eq(_x * _x == y)
+        True
         >>> l
         [...] ; [...*... == y] ?|= y >= 0
         >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
         >>> _ = l.intro()
-        >>> _x = l.obtain(smt.Exists([x], x * x == y))
+        >>> _x, _ = l.obtain(smt.Exists([x], x * x == y))
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -1284,17 +1291,16 @@ class ProofState:
             self.pop_goal()
             fs, obtain_lemma = kd.kernel.obtain(formula)
             self.add_lemma(obtain_lemma)
+            fact = obtain_lemma.thm.arg(1)
+            assert isinstance(fact, smt.BoolRef)
             self.goals.append(
                 goalctx._replace(
                     sig=goalctx.sig + fs,
-                    ctx=ctx[:n] + [obtain_lemma.thm.arg(1)] + ctx[n + 1 :],
+                    ctx=ctx[:n] + [fact] + ctx[n + 1 :],
                     goal=goal,
                 )
             )
-            if len(fs) == 1:
-                return fs[0]
-            else:
-                return fs
+            return (fs[0] if len(fs) == 1 else fs), fact
         else:
             exists_f = {
                 n: formula

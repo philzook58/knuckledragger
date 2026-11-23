@@ -62,7 +62,7 @@ def russell(l):
     l.have(Exists([A], ForAll([x], elem(x, A) == Q[x])))
     l.specialize(0, Q, keep=True)
     l.auto()
-    A1 = l.obtain(-1)
+    A1, _ = l.obtain(-1)
     l.have(elem(A1, A1) == Q(A1))
     l.specialize(-1, A1, keep=True)
     l.auto()
@@ -88,7 +88,7 @@ def emp_exists_elem(l):
     with l.sub() as l1:
         l1.intro()
         l1.intro()
-        x = l1.obtain(-1)
+        x, _ = l1.obtain(-1)
         l1.show(BoolVal(False), by=[ext_ax, elem_emp])
     with l.sub() as l2:
         l2.intro()
@@ -726,7 +726,7 @@ def elem_prod(l):
     l.intro()
     l.rw(elem_prod_def, at=0)
     l.split(at=0)
-    x1, y1 = l.obtain(0)
+    (x1, y1), _ = l.obtain(0)
     l.split(at=0)
     l.split()
     l.rw(1)

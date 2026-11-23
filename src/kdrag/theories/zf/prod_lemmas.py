@@ -38,7 +38,7 @@ def elem_prod_strong(l):
 
     # <- direction: use the witnesses to rebuild the fst/snd form.
     l.intro()
-    x1, y1 = l.obtain(0)
+    (x1, y1), _ = l.obtain(0)
     l.split(at=0)
     l.rw(zf.elem_prod)
     l.split()
@@ -95,7 +95,7 @@ def rel_le_prod(l):
     l.specialize(0, p)
     l.have(zf.is_pair(p), by=[])
     l.unfold(zf.is_pair, at=-1)
-    x1, y1 = l.obtain(-1)
+    (x1, y1), _ = l.obtain(-1)
     l.have(zf.elem(zf.pair(x1, y1), R))
     l.rw(-1)
     l.auto()

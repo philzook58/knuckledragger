@@ -161,14 +161,14 @@ def exists_tagged_partition_is_fine(l):
     hlub = l.have(
         Exists(u, is_lub(S, u)), by=[exists_is_lub_of_bdd_above(S), bdd_above.defn(S)]
     )
-    c = l.obtain(hlub)
+    c, _ = l.obtain(hlub)
     l.have(
         And(a <= c, c <= b),
         by=[is_lub.defn(S, c), is_ub.defn(S, c), le_of_is_lub_of_is_ub(S, c, b)],
     )
     l.have(Exists(x, S[x], c - D[c] < x))
     l.auto(by=[le_of_is_lub_of_is_ub(S, c, c - D[c]), is_ub.defn(S, c - D[c])])
-    x0 = l.obtain(-1)
+    x0, _ = l.obtain(-1)
     l.have(x0 <= c, by=[is_lub.defn(S, c), is_ub.defn(S, c)])
     hpart = l.have(
         Exists(
@@ -176,8 +176,7 @@ def exists_tagged_partition_is_fine(l):
         ),
         by=[],
     )
-    xs0, ts0, n0 = l.obtain(hpart)
-    htag = l.top_goal().ctx[-1]
+    (xs0, ts0, n0), htag = l.obtain(hpart)
 
     # Append the cell [x0, c1] tagged by c; it is fine and reaches c1 = min(b, c + D[c] / 2).
     c1 = min(b, c + D[c] / 2)
@@ -242,8 +241,8 @@ def has_integral_unique(l):
     hpos = l.have(eps > 0, by=[abs.defn(I - J)])
     hI = l.specialize(hI, eps, hpos)
     hJ = l.specialize(hJ, eps, hpos)
-    D1 = l.obtain(hI)
-    D2 = l.obtain(hJ)
+    D1, _ = l.obtain(hI)
+    D2, _ = l.obtain(hJ)
     # Refine both gauges at once and take a partition fine for both.
     G = Lambda(x, min(D1[x], D2[x]))
     l.have(ForAll(x, G[x] > 0), by=[min.defn])
@@ -255,7 +254,7 @@ def has_integral_unique(l):
         ),
         by=[exists_tagged_partition_is_fine(G, a, b)],
     )
-    xs0, ts0, n0 = l.obtain(hpart)
+    (xs0, ts0, n0), _ = l.obtain(hpart)
     l.have(is_fine(D1, xs0, ts0, n0), by=[is_fine_mono(G, D1, xs0, ts0, n0)])
     l.have(is_fine(D2, xs0, ts0, n0), by=[is_fine_mono(G, D2, xs0, ts0, n0)])
     sm = riemann_sum(f, xs0, ts0, n0)
