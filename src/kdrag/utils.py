@@ -1306,26 +1306,35 @@ def calling_globals_locals():
 
 
 def lemma_db() -> dict[str, kd.kernel.Proof]:
-    """Scan all modules for Proof objects and return a dictionary of them."""
+    """
+    Proofs and definitions bound in loaded modules, each under one name. Private names
+    are skipped, and `__main__` comes last, so a star-imported lemma keeps the name
+    of the module that defines it.
+    """
     db: dict[str, kd.kernel.Proof] = {}
-    for modname, mod in sys.modules.items():
-        for name, thm in mod.__dict__.items():
+    seen = set()
+
+    def add(name, pf):
+        if pf.thm.get_id() not in seen:
+            seen.add(pf.thm.get_id())
+            db[name] = pf
+
+    for modname, mod in sorted(sys.modules.items(), key=lambda kv: kv[0] == "__main__"):
+        for name, thm in list(mod.__dict__.items()):
+            if name.startswith("_"):
+                continue
             if is_proof(thm):
-                db[modname + "." + name] = thm
-            elif (
-                isinstance(thm, smt.SortRef)
-                or isinstance(thm, smt.FuncDeclRef)
-                or isinstance(thm, smt.ExprRef)
-            ):
+                add(modname + "." + name, thm)
+            elif isinstance(thm, (smt.SortRef, smt.FuncDeclRef, smt.ExprRef)):
                 for name2, thm2 in thm.__dict__.items():
                     if is_proof(thm2):
-                        db[modname + "." + name + "." + name2] = thm2
+                        add(modname + "." + name + "." + name2, thm2)
                 # `.defn` is a property, so it isn't in `__dict__`
                 decl = thm if isinstance(thm, smt.FuncDeclRef) else None
                 if isinstance(thm, smt.ExprRef) and smt.is_const(thm):
                     decl = thm.decl()
                 if decl is not None and decl in kd.kernel.defns:
-                    db[modname + "." + name + ".defn"] = kd.kernel.defns[decl].ax
+                    add(modname + "." + name + ".defn", kd.kernel.defns[decl].ax)
             # TODO: Scan GenericProof, SortDispatch objects, objects.
     return db
 

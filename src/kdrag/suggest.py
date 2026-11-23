@@ -25,26 +25,15 @@ def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
     )
 
 
-def lemmas() -> dict[int, tuple[str, kernel.Proof]]:
-    """Public lemmas and definitions from `utils.lemma_db`, by `thm.get_id()`."""
-    out = {}
-    # __main__ last, so a star-imported lemma keeps its defining module's name.
-    for name, pf in sorted(
-        utils.lemma_db().items(), key=lambda kv: kv[0].startswith("__main__.")
-    ):
-        if not name.rsplit(".", 1)[-1].startswith("_"):
-            out.setdefault(pf.thm.get_id(), (name, pf))
-    return out
-
-
-def rank(thm: smt.BoolRef) -> list[tuple[float, str, kernel.Proof]]:
-    """Every library lemma as `(score, name, proof)`, best first for proving `thm`."""
-    db = lemmas()
+def rank_lemmas(thm: smt.BoolRef) -> list[tuple[float, str, kernel.Proof]]:
+    """Every lemma in `utils.lemma_db` as `(score, name, proof)`, best first for `thm`."""
+    db = utils.lemma_db()
     decls = {}
-    for key, (_, pf) in db.items():
+    for name, pf in db.items():
+        key = pf.thm.get_id()
         if key not in _decls:
             _decls[key] = decl_counter(pf.thm)
-        decls[key] = _decls[key]
+        decls[name] = _decls[key]
     df = Counter(d for c in decls.values() for d in c)
 
     def tfidf(c: Counter) -> dict[smt.FuncDeclRef, float]:
@@ -57,8 +46,8 @@ def rank(thm: smt.BoolRef) -> list[tuple[float, str, kernel.Proof]]:
 
     goal = tfidf(decl_counter(thm))
     scored = []
-    for key, (name, pf) in db.items():
-        v = tfidf(decls[key])
+    for name, pf in db.items():
+        v = tfidf(decls[name])
         norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
         scored.append(
             (sum(x * v.get(d, 0.0) for d, x in goal.items()) / norm, name, pf)
@@ -75,7 +64,7 @@ def report(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1) 
     """
     from kdrag.printers.pretty import pretty_expr
 
-    ranked = rank(thm)[:k]
+    ranked = rank_lemmas(thm)[:k]
     start = time.perf_counter()
     lines = []
     for i, (score, name, pf) in enumerate(ranked):
