@@ -19,6 +19,7 @@ from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
 from kdrag.printers.pretty import pretty_goal
+import kdrag.diagnose as diagnose
 
 if TYPE_CHECKING:
     import sympy  # imported lazily: it is slow to import
@@ -550,10 +551,8 @@ class _AutoFailure(ValueError):
 
     def __str__(self) -> str:
         # Computed only when shown, since failures are also used for control flow.
-        import kdrag.diagnose
-
         # Leading newline so the goal starts on its own line after "_AutoFailure:".
-        return "\n" + kdrag.diagnose.explain(
+        return "\n" + diagnose.explain(
             self.goal, self.error, self.by, self.timeout
         )
 
@@ -2432,8 +2431,6 @@ def PTheorem(
         try:
             f(l)
         except _AutoFailure as failure:
-            from kdrag import diagnose
-
             code = getattr(f, "__code__", None)
             where = source = ""
             for frame, line in traceback.walk_tb(failure.__traceback__):

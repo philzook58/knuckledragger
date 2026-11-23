@@ -7,6 +7,7 @@ import time
 
 import kdrag.config as config
 import kdrag.kernel as kernel
+from kdrag.printers.pretty import pretty_goal
 import kdrag.smt as smt
 import kdrag.utils as utils
 
@@ -62,8 +63,6 @@ def location(filename: str, line: int, func: str) -> str:
 
 def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
     """Text for a failed `auto` on `goal`; `where` and `source` locate the call."""
-    from kdrag.printers.pretty import pretty_goal
-
     countermodel = not isinstance(error, TimeoutError) and len(error.args) == 3
     if isinstance(error, TimeoutError):
         reason = f"timed out after {timeout}ms"
