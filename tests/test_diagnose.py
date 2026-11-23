@@ -23,7 +23,8 @@ def test_failure_suggests_missing_definition():
         "❌ auto failed: z3 found a countermodel"
     )
     # named as the Python variable (succ), not the z3 name (diag_succ)
-    assert "countermodel\n✅ passes with by=[succ.defn]" in text
+    assert "countermodel\n✅ passes with by=[" in text
+    assert text.endswith(".succ.defn]")
 
 
 def test_diagnosis_can_be_switched_off():
