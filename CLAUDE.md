@@ -258,3 +258,9 @@ def sum_append(pf):
 - When restating nested quantified witnesses, match the definition's binder names and comparison direction (`RealVal(0) < t` versus `t > 0`) to avoid unstable equivalence searches.
 - `p == ForAll(...)` builds `ForAll(...) == p`, because `QuantifierRef`'s reflected `__eq__` wins. Use `smt.Eq(p, q)` when the orientation matters, such as a lemma meant for `rw`.
 - For sequence limit proofs, rewrite the goal with `has_lim_iff` and combine `eventually_near` facts with `eventually_and` and finish with `eventually_mono`, instead of choosing the larger N by hand. Turn `∀ n ≥ 0` hypotheses into `eventually` facts with `eventually_of_forall_nonneg`. One-shot `auto` over unfolded `has_lim` is fragile: adding unrelated declarations can make it time out.
+- `l.obtain(h)` and `l.unfold(..., at=h)` replace `h` in place; `l.specialize(h, ...)` consumes `h` and returns the new hypothesis. Re-fetch handles from `l.top_goal().ctx` rather than reusing the old formula.
+- In long proofs, keep defined predicates folded in the context and pass instantiated definitions such as `is_fine.defn(D, xs, ts, n)` in `by=`. Unfolded quantified hypotheses make later `auto` calls time out or depend on import order. Clear quantified hypotheses once they have been used.
+- Give witnesses involving division explicitly with `l.exists`, then `obtain` a fresh constant for them (e.g. `eta` with `eta * (|b - a| + 1) == eps`). Division terms inside later goals cause nonlinear timeouts.
+- `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.
+- Z3 `substitute_vars` does not check sorts, and an Int term for a Real binder can leave loose bound variables. The kernel now rejects such instantiations.
+- For pointwise choice of a function (e.g. gauges), use `integral.axiom_of_choice` and state the premise with its binder names `x` and `y`.

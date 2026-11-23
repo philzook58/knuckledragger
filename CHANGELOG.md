@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `kdrag.theories.real.integral`: the gauge (Henstock-Kurzweil) integral, Cousin's lemma, uniqueness of integrals, and the fundamental theorem of calculus `integral_eq_sub_of_has_deriv_at`.
+- Add `finsum_sub`, `finsum_diff` (telescoping), and `abs_finsum_le` for real sequences.
+
 ### Changed
+
+- Kernel instantiation (`instan`, `specialize`, `forget`) rejects terms whose sort differs from the bound variable. `Proof.__call__` casts Python values to the bound variable's sort.
 
 ### Removed
 
