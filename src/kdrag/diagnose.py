@@ -32,8 +32,6 @@ def repair(
     defns = [kernel.defns[d].ax for d in utils.defined_decls(thm)]
     defns = [d for d in defns if d.thm.get_id() not in have]
     tries = [by + [d] for d in defns]
-    if len(defns) > 1:
-        tries.append(by + defns)
     tries += [
         by + [pf]
         for _, _, pf in utils.rank_lemmas(thm)[:3]
