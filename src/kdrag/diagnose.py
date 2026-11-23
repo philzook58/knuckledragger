@@ -12,8 +12,9 @@ import tokenize
 
 import kdrag.config as config
 import kdrag.kernel as kernel
-import kdrag.smt as smt
 import kdrag.suggest as suggest
+import kdrag.tactics as tactics
+import kdrag.utils as utils
 
 
 def _name(pf: kernel.Proof) -> str:
@@ -26,32 +27,15 @@ def _name(pf: kernel.Proof) -> str:
     return s if len(s) <= 40 else s[:37] + "..."
 
 
-def _defns(thm: smt.BoolRef) -> list[kernel.Proof]:
-    """Definitions of the defined symbols in `thm`."""
-    seen, out, todo = set(), [], [thm]
-    while todo:
-        t = todo.pop()
-        if t.get_id() in seen:
-            continue
-        seen.add(t.get_id())
-        if isinstance(t, smt.QuantifierRef):
-            todo.append(t.body())
-        elif smt.is_app(t):
-            if t.decl() in kernel.defns:
-                out.append(kernel.defns[t.decl()].ax)
-            todo.extend(t.children())
-    return list({pf.thm.get_id(): pf for pf in out}.values())
-
-
 def repair(
-    thm: smt.BoolRef,
+    goal: tactics.Goal,
     by: list[kernel.Proof],
     countermodel=False,
     timeout=50,
     budget=0.2,
 ) -> list[kernel.Proof] | None:
     """
-    The first small change to `by` that proves `thm`, or None.
+    The first small change to `by` that proves `goal`, or None.
 
     Tries adding a missing definition, then a suggested lemma, then dropping a
     lemma (an extra lemma can cause a timeout, but never a countermodel). Each try
@@ -62,13 +46,15 @@ def repair(
     mattered (165-168 fixed), and 50ms tries in a 0.2s budget fixed 168, as many
     as 200ms in 0.5s (169), at a third of the delay when nothing works.
     """
+    thm = goal.to_expr()
     have = {pf.thm.get_id() for pf in by}
-    defns = [d for d in _defns(thm) if d.thm.get_id() not in have]
+    defns = [kernel.defns[d].ax for d in utils.defined_decls(thm)]
+    defns = [d for d in defns if d.thm.get_id() not in have]
     tries = [by + [d] for d in defns]
     if len(defns) > 1:
         tries.append(by + defns)
     tries += [
-        by + [pf] for _, pf in suggest.rank(thm, k=3) if pf.thm.get_id() not in have
+        by + [pf] for _, pf in suggest.rank(goal, k=3) if pf.thm.get_id() not in have
     ]
     if not countermodel and len(by) > 1:
         tries += [[q for q in by if q is not pf] for pf in by]
@@ -132,7 +118,7 @@ def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
     if config.diagnose:
         if isinstance(by, kernel.Proof):
             by = [by]
-        fix = repair(goal.to_expr(), list(by or []), countermodel)
+        fix = repair(goal, list(by or []), countermodel)
         if fix is not None:
             lines.append(f"✅ passes with by=[{', '.join(_name(pf) for pf in fix)}]")
     return "\n".join(lines)
