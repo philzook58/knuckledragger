@@ -11,7 +11,7 @@ from enum import IntEnum
 import operator as op
 from typing import TYPE_CHECKING, NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
-from functools import cache
+from functools import cache, partial
 import traceback
 import linecache
 import time
@@ -338,10 +338,21 @@ def prove(
             error = TimeoutError()
         if _goal is not None:
             raise _AutoFailure(_goal, error, by_list, timeout) from None
-        message = diagnose.explain(
-            Goal([], [], thm), error, by_list, timeout, source="prove", solver=solver
+        # Keep the diagnostic independent of the exception that owns it.
+        error_info = type(error)(*error.args)
+        explain = partial(
+            diagnose.explain,
+            Goal([], [], thm),
+            error_info,
+            by_list,
+            timeout,
+            source="prove",
+            solver=solver,
         )
-        raise type(error)("\n" + message) from None
+        if isinstance(error, kd.kernel.SolverFailure):
+            error.diagnostic = explain
+            raise
+        raise TimeoutError("\n" + explain()) from None
 
 
 def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:

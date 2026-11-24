@@ -148,6 +148,13 @@ class LemmaError(Exception):
 class SolverFailure(LemmaError):
     """The solver could not establish a theorem."""
 
+    diagnostic: Callable[[], str] | None = None
+
+    def __str__(self) -> str:
+        if self.diagnostic is not None:
+            return "\n" + self.diagnostic()
+        return super().__str__()
+
 
 def prove(
     thm: smt.BoolRef,
