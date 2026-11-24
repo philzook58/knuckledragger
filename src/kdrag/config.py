@@ -7,7 +7,7 @@ admit_enabled = True
 # timeout = 1000
 admit_level = 50
 strict_define: bool = True
-# When auto fails, try small by= changes and report one that works
+# When auto or prove fails, try small by= changes and report one that works
 diagnose = True
 
 # TODO: Someday, when it is annoyingly slow to check built in theories, we can add a flag to disable them

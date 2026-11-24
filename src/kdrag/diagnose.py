@@ -1,5 +1,5 @@
 """
-Explain a failed `auto`: the goal, why it failed, and a `by=` change that makes it pass.
+Explain a failed `auto` or `prove`: the goal, why it failed, and a `by=` change that makes it pass.
 """
 
 import os
@@ -22,7 +22,13 @@ def _name(pf: kernel.Proof) -> str:
 
 
 def repair(
-    thm: smt.BoolRef, by: list[kernel.Proof], countermodel=False, timeout=50, budget=0.2
+    thm: smt.BoolRef,
+    by: list[kernel.Proof],
+    countermodel=False,
+    timeout=50,
+    budget=0.2,
+    *,
+    solver=None,
 ) -> list[kernel.Proof] | None:
     """
     The first small change to `by` that proves `thm`, or None: add a definition, add
@@ -44,10 +50,11 @@ def repair(
         if time.perf_counter() - start > budget:
             break
         try:
-            kernel.prove(thm, by=lemmas, timeout=timeout)
+            kernel.prove(thm, by=lemmas, timeout=timeout, solver=solver)
             return lemmas
-        except (kernel.LemmaError, TimeoutError):
-            pass
+        except Exception:
+            # A candidate may be unsupported by the selected backend.
+            continue
     return None
 
 
@@ -59,20 +66,38 @@ def location(filename: str, line: int, func: str) -> str:
     return f" at line {line} in {func}"
 
 
-def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
-    """Text for a failed `auto` on `goal`; `where` and `source` locate the call."""
-    countermodel = not isinstance(error, TimeoutError) and len(error.args) == 3
-    if isinstance(error, TimeoutError):
+def explain(
+    goal,
+    error,
+    by=(),
+    timeout=1000,
+    where="",
+    source="",
+    *,
+    solver=None,
+    formula=None,
+    timed_out=False,
+    show_countermodel=False,
+) -> str:
+    """Format a solver failure and, when enabled, try a small change to its lemmas."""
+    countermodel = isinstance(error, kernel.SolverFailure) and len(error.args) == 3
+    backend = solver if isinstance(solver, str) else getattr(solver, "__name__", "z3")
+    if timed_out or isinstance(error, TimeoutError):
         reason = f"timed out after {timeout}ms"
-    elif countermodel:  # not shown: its fresh names (x!7) don't match the goal
-        reason = "z3 found a countermodel"
+        if isinstance(error, kernel.SolverFailure) and len(error.args) == 4:
+            reason += f" (SMT-LIB: {error.args[3]})"
+    elif countermodel:
+        reason = f"{backend} found a countermodel"
     else:
-        reason = f"z3 returned {error.args[2]} (SMT-LIB: {error.args[3]})"
-    call = source.split("#")[0].rstrip() or "auto"  # drop a trailing comment
+        reason = f"{backend} returned {error.args[2]} (SMT-LIB: {error.args[3]})"
+    call = source.split("#")[0].rstrip() or "auto"
     lines = [pretty_goal(goal), "", f"❌ {call} failed{where}: {reason}"]
+    if countermodel and show_countermodel:
+        lines.append(f"Countermodel: {error.args[2]}")
     if config.diagnose:
         by = [by] if isinstance(by, kernel.Proof) else list(by or [])
-        fix = repair(goal.to_expr(), by, countermodel)
+        thm = goal.to_expr() if formula is None else formula
+        fix = repair(thm, by, countermodel, solver=solver)
         if fix is not None:
             lines.append(f"✅ passes with by=[{', '.join(_name(pf) for pf in fix)}]")
     return "\n".join(lines)

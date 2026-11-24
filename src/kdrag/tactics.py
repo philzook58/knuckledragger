@@ -246,7 +246,7 @@ def prove(
 
     In essence `prove(Implies(by, thm))`.
 
-    This wraps the kernel version in order to provide better counterexamples.
+    Solver failures display the goal, the failure reason, and any verified repair.
 
     ``solver`` accepts a solver factory or "z3", "cvc5", "vampire", "eprover".
 
@@ -280,6 +280,7 @@ def prove(
     |= Implies(x >= 0, succ(x) >= 0)
     """
     start_time = time.perf_counter()
+    conclusion = thm
 
     if assumes:
         thm = smt.Implies(smt.And(assumes), thm)
@@ -327,28 +328,40 @@ def prove(
             pf = kd.kernel.generalize(fixes, pf)
         kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
         return pf
-    except kd.kernel.LemmaError as e:
-        if not isinstance(e, kd.kernel.SolverFailure):
-            raise
-        if time.perf_counter() - start_time > timeout / 1000:
-            raise TimeoutError(
-                "Timeout. Maybe you have given `prove` too many or not enough lemmas?"
+    except (kd.kernel.SolverFailure, TimeoutError) as error:
+        goal = Goal(list(fixes), list(assumes), conclusion)
+        timed_out = isinstance(error, TimeoutError) or (
+            len(error.args) == 4 and time.perf_counter() - start_time > timeout / 1000
+        )
+        failure_type = _ProveTimeout if timed_out else _ProveFailure
+        if (
+            not timed_out
+            and len(error.args) == 3
+            and isinstance(thm, smt.QuantifierRef)
+            and thm.is_forall()
+        ):
+            error = _countermodel_with_named_variables(
+                thm, error, by_list, timeout, dump, solver
             )
-        elif isinstance(thm, smt.QuantifierRef):
-            while isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-                _, thm = kd.utils.open_binder_unhygienic(thm)  # type: ignore
-            # We anticipate this failing with a better countermodel since we can now see the quantified variables
-            pf = kd.kernel.prove(
-                thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
-            )
-            # TODO: Maybe we should herbrandize and just let the quantifier free version work for us.
-            raise Exception(
-                "Worked with quantifier stripped. Something is going awry", pf
-            )
-        else:
-            raise e
-    except Exception as e:
-        raise e
+        raise failure_type(goal, error, by_list, timeout, solver, thm) from None
+
+
+def _countermodel_with_named_variables(
+    thm: smt.BoolRef, failure, by, timeout, dump, solver
+):
+    """Keep the original countermodel if opening the leading binders cannot improve it."""
+    while isinstance(thm, smt.QuantifierRef) and thm.is_forall():
+        _, body = kd.utils.open_binder_unhygienic(thm)
+        assert isinstance(body, smt.BoolRef)
+        thm = body
+    try:
+        kd.kernel.prove(thm, by=by, timeout=timeout, dump=dump, solver=solver)
+    except kd.kernel.SolverFailure as error:
+        if len(error.args) == 3:
+            return error
+    except (TimeoutError, ValueError):
+        pass
+    return failure
 
 
 def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
@@ -533,28 +546,58 @@ def _modus_ponens() -> kd.kernel.Proof:
     )
 
 
-class _AutoFailure(ValueError):
-    """An open goal that auto could not discharge."""
+class _ProveDiagnostic(Exception):
+    """Carry the original solver failure and render diagnostics only on demand."""
 
-    def __init__(
-        self,
-        goal: Goal,
-        error: kd.kernel.SolverFailure | TimeoutError,
-        by=(),
-        timeout: int = 1000,
-    ):
-        super().__init__("auto failed on goal", goal)
+    def __init__(self, goal, error, by, timeout, solver, formula):
+        args = ("Timeout",) if isinstance(self, TimeoutError) else error.args
+        super().__init__(*args)
         self.goal = goal
         self.error = error
         self.by = by
         self.timeout = timeout
+        self.solver = solver
+        self.formula = formula
+
+    def explain(self, goal, where="", source="prove", *, show_countermodel=False):
+        return diagnose.explain(
+            goal,
+            self.error,
+            self.by,
+            self.timeout,
+            where,
+            source,
+            solver=self.solver,
+            formula=self.formula,
+            timed_out=isinstance(self, TimeoutError),
+            show_countermodel=show_countermodel,
+        )
+
+    def __str__(self):
+        return "\n" + self.explain(self.goal, show_countermodel=True)
+
+
+class _ProveFailure(_ProveDiagnostic, kd.kernel.SolverFailure):
+    """A diagnosed proof failure that retains the solver exception interface."""
+
+
+class _ProveTimeout(_ProveDiagnostic, TimeoutError):
+    """A diagnosed proof timeout."""
+
+
+class _AutoFailure(ValueError):
+    """An open goal that auto could not discharge."""
+
+    def __init__(self, goal: Goal, error: _ProveDiagnostic):
+        super().__init__("auto failed on goal", goal)
+        self.goal = goal
+        self.error = error
+
+    def explain(self, where="", source="auto"):
+        return self.error.explain(self.goal, where, source)
 
     def __str__(self) -> str:
-        # Computed only when shown, since failures are also used for control flow.
-        # Leading newline so the goal starts on its own line after "_AutoFailure:".
-        return "\n" + diagnose.explain(
-            self.goal, self.error, self.by, self.timeout
-        )
+        return "\n" + self.explain()
 
 
 @cache
@@ -1122,11 +1165,9 @@ class ProofState:
         goalctx = self.top_goal()
         try:
             pf = kd.prove(goalctx.to_expr(), **kwargs)
-        except (kd.kernel.SolverFailure, TimeoutError) as error:
-            # from None: the solver's internal traceback is noise; it stays in .error
-            raise _AutoFailure(
-                goalctx, error, kwargs.get("by") or (), kwargs.get("timeout", 1000)
-            ) from None
+        except _ProveDiagnostic as error:
+            # Keep the open tactic goal as the display context.
+            raise _AutoFailure(goalctx, error) from None
         self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
@@ -2440,16 +2481,7 @@ def PTheorem(
                     )
                     source = linecache.getline(frame.f_code.co_filename, line).strip()
                     break
-            print(
-                diagnose.explain(
-                    failure.goal,
-                    failure.error,
-                    failure.by,
-                    failure.timeout,
-                    where,
-                    source,
-                )
-            )
+            print(failure.explain(where, source or "auto"))
             return
         if len(l.goals) == 0:
             l.qed()

@@ -14,7 +14,7 @@ def test_rank_lemmas_finds_matching_library_lemma():
 
 def test_suggest_marks_lemma_that_closes_goal():
     x, y = smt.Reals("x y")
-    report = utils.suggest(real.abs(x + y) <= real.abs(x) + real.abs(y))
+    report = kd.suggest(real.abs(x + y) <= real.abs(x) + real.abs(y))
     assert "  ✅ " in report
 
 

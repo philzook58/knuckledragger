@@ -94,6 +94,7 @@ simp = rewrite.simp
 full_simp = rewrite.full_simp
 
 search = utils.search
+suggest = utils.suggest
 
 lean = microlean.lean
 inductive = microlean.inductive
@@ -617,5 +618,6 @@ __all__ = [
     "RFun",
     "simp",
     "search",
+    "suggest",
     "symdef",
 ]
