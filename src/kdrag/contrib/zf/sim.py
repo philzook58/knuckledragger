@@ -11,7 +11,7 @@ from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, 
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, sep
 from kdrag.contrib.zf.fun import bij_on, inj_on, maps_to, surj_on
-from kdrag.contrib.zf.finite import bij_on_comp, bij_on_inv, inv, inv_elem
+from kdrag.contrib.zf.finite import bij_on_comp, bij_on_id, bij_on_inv, inv, inv_elem
 from kdrag.contrib.zf.poset import (
     exists_least,
     is_least,
@@ -366,3 +366,47 @@ def similarity_seg(l):
     x0, _ = l.obtain(-1)
     l.exists(x0)
     l.auto(by=[elem_seg_iff(R, X, a0, x0), elem_seg_iff(S, Y, g[a0], z0)])
+
+
+# Similarity is an equivalence relation on ordered sets.
+
+
+@Theorem(ForAll([R, X], similar(R, X, R, X)))
+def similar_refl(l):
+    R, X = l.fixes()
+    l.unfold(similar)
+    l.exists(Lambda(x, x))
+    l.unfold(is_similarity)
+    l.unfold(is_order_embedding)
+    l.auto(by=[bij_on_id(X), maps_to.defn])
+
+
+@Theorem(ForAll([R, X, S, Y], similar(R, X, S, Y), similar(S, Y, R, X)))
+def similar_symm(l):
+    R, X, S, Y = l.fixes()
+    l.intro()
+    l.unfold(similar, at=0)
+    g0, _ = l.obtain(0)
+    l.unfold(similar)
+    l.exists(inv(g0, X))
+    l.auto(by=[similarity_inv(g0, R, X, S, Y)])
+
+
+@Theorem(
+    ForAll(
+        [R, X, S, Y, T, Z],
+        similar(R, X, S, Y),
+        similar(S, Y, T, Z),
+        similar(R, X, T, Z),
+    )
+)
+def similar_trans(l):
+    R, X, S, Y, T, Z = l.fixes()
+    l.intros()
+    l.unfold(similar, at=0)
+    l.unfold(similar, at=1)
+    g0, _ = l.obtain(0)
+    h0, _ = l.obtain(1)
+    l.unfold(similar)
+    l.exists(Lambda(x, h0[g0[x]]))
+    l.auto(by=[similarity_comp(g0, h0, R, X, S, Y, T, Z)])
