@@ -12,9 +12,15 @@ from kdrag.smt import (
     Int,
     IntSort,
     IntVal,
+    K,
     Lambda,
+    Map,
+    QuantifierRef,
     Real,
+    RecAddDefinition,
+    RecFunction,
     SeqSort,
+    parse_smt2_string,
 )
 from kdrag.termination import check_int_recursion, define_rec
 
@@ -98,6 +104,53 @@ def test_guarded_branch_context_and_hidden_dependency():
         define_rec(f, n, If(n <= 0, 0, f(n - 1)))
 
 
+def _mapped_call(f, n):
+    return Map(f, K(IntSort(), n))[0]
+
+
+def _as_array_call(f, n):
+    formula = parse_smt2_string(
+        "(assert (= (select (_ as-array target) index) 0))",
+        decls={"target": f, "index": n},
+    )[0]
+    return formula.arg(0)
+
+
+@pytest.mark.parametrize("hidden_call", [_mapped_call, _as_array_call])
+def test_rejects_function_in_operator_parameter(hidden_call):
+    f, n = fresh()
+    with pytest.raises(ValueError, match="AST-valued operator parameters"):
+        define_rec(f, n, hidden_call(f, n) + 1)
+    assert f not in kernel.defns
+    define_rec(f, n, If(n <= 0, 0, f(n - 1)))
+
+
+@pytest.mark.parametrize("hidden_call", [_mapped_call, _as_array_call])
+def test_registered_wrapper_cannot_hide_function_in_operator_parameter(hidden_call):
+    f, n = fresh()
+    wrapper, _ = fresh()
+    kernel.define(wrapper.name(), [n], hidden_call(f, n))
+    with pytest.raises(ValueError, match="registered definition"):
+        define_rec(f, n, wrapper(n) + 1)
+    assert f not in kernel.defns
+
+
+@pytest.mark.parametrize("through_wrapper", [False, True])
+def test_rejects_solver_native_recursive_dependencies(through_wrapper):
+    f, n = fresh()
+    name, _ = fresh()
+    native = RecFunction(name.name(), IntSort(), IntSort())
+    RecAddDefinition(native, n, f(n))
+    call = native(n)
+    if through_wrapper:
+        wrapper, _ = fresh()
+        wrapper = kernel.define(wrapper.name(), [n], call)
+        call = wrapper(n)
+    with pytest.raises(ValueError, match="solver-native recursive"):
+        define_rec(f, n, call + 1)
+    assert f not in kernel.defns
+
+
 def test_boolean_codomain():
     n = Int("rec_bool_n")
     even = FreshFunction(IntSort(), BoolSort())
@@ -173,7 +226,9 @@ def test_lambda_variables_are_quantified_and_do_not_shadow_rank():
     certificates = check_int_recursion(
         f, n, If(n <= 0, Lambda([x], x), Lambda([x], f(n - 1)[x] + 1))
     )
-    assert certificates[0].thm.num_vars() == 2
+    decrease = certificates[0].thm
+    assert isinstance(decrease, QuantifierRef)
+    assert decrease.num_vars() == 2
     define_rec(f, n, If(n <= 0, Lambda([x], x), Lambda([x], f(n - 1)[x] + 1)))
     prove(f(1)[7] == 8, by=[f.defn(0), f.defn(1)])
     for bound in [x, n]:

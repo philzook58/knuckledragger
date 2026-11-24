@@ -3,9 +3,13 @@ Do not use. Work in progress
 
 """
 
-import kdrag.smt as smt
-import kdrag as kd
 import itertools
+from collections.abc import Iterable
+
+from z3.z3consts import Z3_OP_RECURSIVE
+
+import kdrag as kd
+import kdrag.smt as smt
 
 """
 Maybe have size as axiom schema in kernel and make a tactic that instantiates it's definitions.
@@ -159,6 +163,35 @@ def search_wf(
     raise ValueError("No well founded ordering found", head, ">", calls)
 
 
+def _ast_parameters(decl: smt.FuncDeclRef) -> list[smt.FuncDeclRef | smt.ExprRef]:
+    return [
+        param
+        for param in decl.params()
+        if isinstance(param, (smt.FuncDeclRef, smt.ExprRef))
+    ]
+
+
+def _referenced_declarations(
+    bodies: Iterable[smt.ExprRef], *, follow_definitions: bool = False
+) -> set[smt.FuncDeclRef]:
+    pending = {decl for body in bodies for decl in kd.utils.decls(body)}
+    seen: set[smt.FuncDeclRef] = set()
+    while pending:
+        decl = pending.pop()
+        if decl in seen:
+            continue
+        seen.add(decl)
+        # Map and as-array can hide a function without an application of it.
+        for param in _ast_parameters(decl):
+            if isinstance(param, smt.FuncDeclRef):
+                pending.add(param)
+            else:
+                pending.update(kd.utils.decls(param))
+        if follow_definitions and (definition := kd.kernel.defns.get(decl)) is not None:
+            pending.update(kd.utils.decls(definition.body))
+    return seen
+
+
 def check_int_recursion(
     f: smt.FuncDeclRef, args: smt.ExprRef | list[smt.ExprRef], body: smt.ExprRef
 ) -> list[kd.Proof]:
@@ -170,8 +203,10 @@ def check_int_recursion(
     If branches and implication consequents contribute reaching conditions.
     Apart from arguments, lambda variables and self-calls, uninterpreted symbols
     must already have registered definitions. Built-in operations are allowed.
-    Recursive conditions, nested recursive calls and logical quantifiers remain
-    unsupported. No definition is installed.
+    Recursive conditions, nested recursive calls, logical quantifiers and
+    AST-valued operator parameters are unsupported. Solver-native recursive
+    functions are excluded because their bodies are outside the kernel
+    definition registry. No definition is installed.
     """
     args = [args] if isinstance(args, smt.ExprRef) else list(args)
     Z = smt.IntSort()
@@ -198,7 +233,7 @@ def check_int_recursion(
     if f in kd.kernel.defns:
         raise ValueError("Function is already defined", f)
     # A previously installed wrapper could otherwise hide a cycle through f.
-    if any(kd.kernel.decl_occurs(f, d.body) for d in kd.kernel.defns.values()):
+    if f in _referenced_declarations(d.body for d in kd.kernel.defns.values()):
         raise ValueError("Function already occurs in a registered definition", f)
     calls = []
 
@@ -213,7 +248,12 @@ def check_int_recursion(
             return
         if not smt.is_app(t):
             raise ValueError("Unsupported term in integer recursion", t)
-        if t.decl() == f:
+        decl = t.decl()
+        if _ast_parameters(decl):
+            raise ValueError(
+                "AST-valued operator parameters are unsupported in integer recursion", t
+            )
+        if decl == f:
             if not recursive_allowed:
                 raise ValueError(
                     "Recursive conditions and nested recursive calls are unsupported", t
@@ -235,17 +275,21 @@ def check_int_recursion(
             # Symmetric sibling guards can justify recursive calls circularly.
             if (
                 smt.is_uninterp(t)
-                and t.decl() not in kd.kernel.defns
+                and decl not in kd.kernel.defns
                 and not any(t.eq(var) for var in (*args, *bound))
             ):
                 raise ValueError(
                     "Uninterpreted symbol must be defined before recursive use",
-                    t.decl(),
+                    decl,
                 )
             for child in t.children():
                 walk(child, guard, recursive_allowed, bound)
 
     walk(body, smt.BoolVal(True))
+    for decl in _referenced_declarations([body], follow_definitions=True):
+        if decl.kind() == Z3_OP_RECURSIVE:
+            raise ValueError("Unsupported solver-native recursive dependency", decl)
+
     proofs = []
     for guard, call, bound in calls:
         goal = smt.RawForAll(
