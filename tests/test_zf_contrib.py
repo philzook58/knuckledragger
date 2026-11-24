@@ -23,7 +23,10 @@ import pytest
         ("poset", 6),
         ("ordinal", 0),
         ("ordinal", 8),
-        ("fun nat rec arith order finite card poset ordinal", 7),
+        ("trec", 0),
+        ("trec", 9),
+        ("fun nat rec arith order finite card poset ordinal trec", 3),
+        ("fun nat rec arith order finite card poset ordinal trec", 7),
     ],
 )
 def test_zf_proofs(modules, seed):
@@ -89,7 +92,10 @@ def _axioms_used(modules):
 @pytest.mark.parametrize(
     "modules,replacement",
     [
-        (["nat", "fun", "rec", "arith", "order", "finite", "card", "poset"], False),
+        (
+            ["nat", "fun", "rec", "arith", "order", "finite", "card", "poset", "trec"],
+            False,
+        ),
         (["ordinal"], True),
     ],
 )

@@ -176,6 +176,27 @@ nat_is_ordinal = prove(
 )
 
 
+# Stated on its own: inside `is_ordinal_succ` the unused hypothesis
+# is_well_order(λ, α) made this step seed-dependent (see the issue tracker).
+@Theorem(
+    ForAll(
+        [E, A],
+        E <= succ(A),
+        E & A == zf.emp,
+        ForAll(x, elem(x, E), x == A),
+    )
+)
+def eq_of_le_succ_of_inter_emp(l):
+    E, A = l.fixes()
+    l.intros()
+    x0 = l.fix()
+    l.intro()
+    # x ∈ α⁺ means x ∈ α or x = α, and x ∈ α would put x in E ∩ α = ∅.
+    l.have(elem(x0, succ(A)), by=[le.defn(E, succ(A))])
+    l.have(Not(elem(x0, E & A)), by=[zf.elem_emp(x0)])
+    l.auto(by=[zf.elem_inter(x0, E, A), elem_succ(x0, A)])
+
+
 @Theorem(ForAll(A, is_ordinal(A), is_ordinal(succ(A))))
 def is_ordinal_succ(l):
     """Halmos: the successor α⁺ = α ∪ {α} of an ordinal is an ordinal, with α last."""
@@ -242,12 +263,7 @@ def is_ordinal_succ(l):
     l.auto(by=[is_least.defn, zf.elem_inter, le.defn, elem_succ, nat_le.defn])
     # E ∩ α = ∅: every element of E is α itself, and E has one.
     l.exists(A)
-    l.have(ForAll(x, elem(x, E0), x == A))
-    l.fix()
-    l.intro()
-    l.auto(
-        by=[zf.ext_ax(E0 & A, zf.emp), zf.elem_inter, zf.elem_emp, le.defn, elem_succ]
-    )
+    l.have(ForAll(x, elem(x, E0), x == A), by=[eq_of_le_succ_of_inter_emp(E0, A)])
     l.have(Exists(x, elem(x, E0)), by=[zf.not_emp_exists_elem(E0)])
     l.auto(by=[is_least.defn(nat_le_rel, E0, A), nat_le.defn])
 

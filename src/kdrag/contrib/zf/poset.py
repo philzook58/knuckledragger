@@ -6,7 +6,7 @@ just as one-to-one correspondences are HOL functions.
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Or
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pow, sep
 from kdrag.contrib.zf.nat import nat_not_elem_self, omega
@@ -203,3 +203,47 @@ def seg_nat(l):
     l.simp()
     # z < n in ω means z ∈ n, and elements of n are natural numbers.
     l.auto(by=[nat_le.defn(z, n), nat_of_elem(z, n), nat_not_elem_self(n)])
+
+
+P = Consts("P", ArraySort(ZFSet, BoolSort()))[0]
+
+
+@Theorem(
+    ForAll(
+        [R, X, P],
+        is_well_order(R, X),
+        ForAll(a, elem(a, X), ForAll(b, elem(b, seg(R, X, a)), P[b]), P[a]),
+        ForAll(a, elem(a, X), P[a]),
+    )
+)
+def well_order_induction(l):
+    """Halmos §17, the principle of transfinite induction: if all predecessors of x
+    having a property forces x to have it, then every element has it."""
+    R, X, P = l.fixes()
+    l.intros()
+    a0 = l.fix()
+    l.intro()
+    l.contra()
+    # Otherwise the elements without the property have a least one, a.
+    Bad = sep(X, Lambda(x, Not(P[x])))
+    l.have(Bad <= X, by=[le.defn, zf.elem_sep])
+    l.have(Bad != zf.emp, by=[zf.elem_sep(Lambda(x, Not(P[x])), X, a0), zf.elem_emp])
+    l.have(Exists(a, is_least(R, Bad, a)), by=[exists_least(R, X, Bad)])
+    a1, _ = l.obtain(-1)
+    l.have(elem(a1, X), by=[is_least.defn(R, Bad, a1), zf.elem_sep, le.defn])
+    # Every b < a has the property: otherwise b ∈ Bad and a ≤ b < a.
+    l.have(ForAll(b, elem(b, seg(R, X, a1)), P[b]))
+    b0 = l.fix()
+    l.intros()
+    l.contra()
+    l.auto(
+        by=[
+            seg.defn(R, X, a1),
+            zf.elem_sep,
+            is_least.defn(R, Bad, a1),
+            partial_order_antisymm(R, X, a1, b0),
+            partial_order_of_well_order(R, X),
+        ]
+    )
+    # So a has the property, but a ∈ Bad.
+    l.auto(by=[is_least.defn(R, Bad, a1), zf.elem_sep])
