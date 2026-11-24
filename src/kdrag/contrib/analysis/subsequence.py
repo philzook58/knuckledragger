@@ -2,13 +2,10 @@
 
 import kdrag as kd
 from kdrag import Theorem, define
-from kdrag.datatype import define_fun
 from kdrag.smt import (
     And,
-    Const,
     Exists,
     ForAll,
-    Function,
     If,
     Implies,
     IntSort,
@@ -19,7 +16,6 @@ from kdrag.smt import (
     Reals,
 )
 import kdrag.theories.int as int_
-import kdrag.theories.nat as nat
 import kdrag.theories.real as real
 from kdrag.theories.real import rset
 from kdrag.theories.real.rseq import (
@@ -35,6 +31,8 @@ from kdrag.theories.real.rseq import (
     n,
     near,
 )
+
+from ._int_recursion import int_recursion
 
 B, eps, s, t = Reals("M eps s t")
 
@@ -176,15 +174,7 @@ def _exists_next_index(l):
 
 
 (_next_index,), _next_index_spec = kd.kernel.choose(_exists_next_index)
-p = Const("p", nat.Nat)
-_index = Function("analysis.subseq_index", nat.Nat, a.sort(), s.sort(), IntSort())
-_index = define_fun(
-    [
-        _index(nat.Z, a, s) == 0,
-        _index(nat.S(p), a, s)
-        == _next_index(a, s, nat.to_int(nat.S(p)), _index(p, a, s)),
-    ]
-)
+(_indices,), _indices_spec = kd.kernel.choose(int_recursion(IntSort()))
 
 
 @Theorem(
@@ -197,8 +187,10 @@ _index = define_fun(
 def _exists_subseq_of_cluster(l):
     a, s = l.fixes()
     l.intro()
-    idx = Lambda(n, _index(nat.from_int(n), a, s))
-    l.have(idx[0] >= 0, by=[nat.from_int.defn(0), _index.case0(a, s)])
+    step = Lambda([n, m], _next_index(a, s, n + 1, m))
+    idx = _indices(step, 0)
+    initial, recurrence = l.andE(l.specialize(_indices_spec, step, 0))
+    l.specialize(initial, 0)
     # Iteration gives both a strictly later index and the required accuracy.
     steps = l.have(
         ForAll(
@@ -211,10 +203,7 @@ def _exists_subseq_of_cluster(l):
     )
     j = l.fix()
     l.intro()
-    p = nat.from_int(j)
-    l.have(nat.from_int(j + 1) == nat.S(p), by=[nat.from_int.defn(j + 1)])
-    l.have(nat.to_int(nat.S(p)) == j + 1, by=[nat.to_from_int(j + 1)])
-    l.have(idx[j + 1] == _next_index(a, s, j + 1, idx[j]), by=[_index.case1(p, a, s)])
+    l.specialize(recurrence, j)
     l.auto(by=[_next_index_spec(a, s, j + 1, idx[j])])
 
     l.exists(idx)

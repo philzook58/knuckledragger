@@ -1,9 +1,8 @@
 """The contraction mapping theorem on the real line."""
 
+import kdrag as kd
 from kdrag import Theorem, define
-from kdrag.datatype import define_fun
-from kdrag.smt import And, Const, Exists, ForAll, Function, If, IntVal, Lambda, Reals
-import kdrag.theories.nat as nat
+from kdrag.smt import And, Exists, ForAll, If, IntVal, Lambda, Reals
 import kdrag.theories.real as real
 from kdrag.theories.real.rseq import (
     a,
@@ -18,6 +17,7 @@ from kdrag.theories.real.rseq import (
     n,
 )
 
+from ._int_recursion import int_recursion
 from .cauchy import is_cauchy_iff_exists_has_lim
 from .finsum import finsum_diff
 from .series import exists_has_sum_of_geometric_decay, is_summable_iff_is_cauchy_cumsum
@@ -30,21 +30,22 @@ is_contraction = define(
     And(c >= 0, c < 1, ForAll([x, y], real.abs(f[x] - f[y]) <= c * real.abs(x - y))),
 )
 
-k = Const("k", nat.Nat)
-_iterate = Function("analysis.iterate_nat", nat.Nat, real.RFun, real.R, real.R)
-_iterate = define_fun(
-    [
-        _iterate(nat.Z, f, x) == x,
-        _iterate(nat.S(k), f, x) == f[_iterate(k, f, x)],
-    ]
-)
-orbit = define("analysis.orbit", [f, x], Lambda(n, _iterate(nat.from_int(n), f, x)))
+(_iterate,), _iterate_spec = kd.kernel.choose(int_recursion(real.R))
+
+
+def _orbit_step(f):
+    return Lambda([n, y], f[y])
+
+
+orbit = define("analysis.orbit", [f, x], _iterate(_orbit_step(f), x))
 
 
 @Theorem(ForAll([f, x], orbit(f, x)[0] == x))
 def orbit_zero(l):
     f, x = l.fixes()
-    l.auto(by=[orbit.defn(f, x), nat.from_int.defn(0), _iterate.case0(f, x)])
+    initial, _ = l.andE(l.specialize(_iterate_spec, _orbit_step(f), x))
+    l.specialize(initial, 0)
+    l.auto(by=[orbit.defn(f, x)])
 
 
 @Theorem(ForAll([f, x], ForAll(n, n >= 0, orbit(f, x)[n + 1] == f[orbit(f, x)[n]])))
@@ -52,13 +53,9 @@ def orbit_succ(l):
     f, x = l.fixes()
     n = l.fix()
     l.intro()
-    l.auto(
-        by=[
-            orbit.defn(f, x),
-            nat.from_int.defn(n + 1),
-            _iterate.case1(nat.from_int(n), f, x),
-        ]
-    )
+    _, recurrence = l.andE(l.specialize(_iterate_spec, _orbit_step(f), x))
+    l.specialize(recurrence, n)
+    l.auto(by=[orbit.defn(f, x)])
 
 
 @Theorem(ForAll([f, c], is_contraction(f, c), real.is_cont(f)))
