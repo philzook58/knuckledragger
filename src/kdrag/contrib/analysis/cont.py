@@ -1,8 +1,20 @@
 """Pointwise real limits, congruence, and continuity of compositions."""
 
-from kdrag import Theorem
-from kdrag.smt import And, Consts, Exists, Lambda, ForAll, RealVal, Reals, Store
-from kdrag.theories.real import RFun, abs, abs_neg, cont_at, has_lim_at, min
+from kdrag import Theorem, define
+from kdrag.smt import (
+    And,
+    Consts,
+    Exists,
+    FullSet,
+    If,
+    IntVal,
+    Lambda,
+    ForAll,
+    RealVal,
+    Reals,
+    Store,
+)
+from kdrag.theories.real import A, R, RFun, abs, abs_neg, cont_at, has_lim_at, min
 from kdrag.theories.real.cont import (
     cont_at_update_of_has_lim_at,
     has_lim_at_of_cont_at_update,
@@ -97,27 +109,82 @@ def has_lim_at_id(l):
     l.auto(by=[abs.defn])
 
 
+eps, delta = Reals("eps delta")
+
+cont_within_at = define(
+    "analysis.cont_within_at",
+    [f, A, p],
+    ForAll(
+        eps,
+        eps > 0,
+        Exists(
+            delta,
+            delta > 0,
+            ForAll(x, A[x], abs(p - x) < delta, abs(f[p] - f[x]) < eps),
+        ),
+    ),
+)
+cont_on = define("analysis.cont_on", [f, A], ForAll(p, A[p], cont_within_at(f, A, p)))
+
+
+@Theorem(ForAll([f, A, p], cont_at(f, p), cont_within_at(f, A, p)))
+def cont_within_at_of_cont_at(l):
+    f, A, p = l.fixes()
+    l.unfold(cont_at, cont_within_at)
+    continuous = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    delta, witness = l.obtain(l.specialize(continuous, eps, positive))
+    _, images_close = l.andE(witness)
+    l.exists(delta)
+    l.split()
+    l.auto()
+    x = l.fix()
+    l.intros()
+    l.specialize(images_close, x)
+    l.auto()
+
+
 @Theorem(
     ForAll(
-        [a, f, p],
+        [a, f, A, p],
         has_lim(a, p),
-        cont_at(f, p),
+        ForAll(n, n >= 0, A[a[n]]),
+        cont_within_at(f, A, p),
         has_lim(Lambda(n, f[a[n]]), f[p]),
     )
 )
-def has_lim_comp_of_cont_at(l):
-    """A function continuous at the limit preserves sequence convergence."""
-    a, f, p = l.fixes()
-    l.unfold(has_lim, cont_at)
-    tends, continuous = l.intros()
+def has_lim_comp_of_cont_within_at(l):
+    """Continuity within a set preserves limits of sequences in that set."""
+    a, f, A, p = l.fixes()
+    l.unfold(has_lim, cont_within_at)
+    tends, in_set, continuous = l.intros()
     eps = l.fix()
     positive = l.intro()
     delta, witness = l.obtain(l.specialize(continuous, eps, positive))
     delta_positive, images_close = l.andE(witness)
     N, terms_close = l.obtain(l.specialize(tends, delta, delta_positive))
-    l.exists(N)
+    l.exists(If(N < 0, IntVal(0), N))
     j = l.fix()
     l.intro()
+    l.specialize(in_set, j)
     l.specialize(terms_close, j)
     l.specialize(images_close, a[j])
     l.auto(by=[abs_neg(a[j] - p), abs_neg(f[p] - f[a[j]])])
+
+
+@Theorem(
+    ForAll([a, f, p], has_lim(a, p), cont_at(f, p), has_lim(Lambda(n, f[a[n]]), f[p]))
+)
+def has_lim_comp_of_cont_at(l):
+    """A function continuous at the limit preserves sequence convergence."""
+    a, f, p = l.fixes()
+    l.intros()
+    all_reals = FullSet(R)
+    l.have(ForAll(n, n >= 0, all_reals[a[n]]), by=[])
+    l.auto(
+        by=[
+            cont_within_at_of_cont_at(f, all_reals, p),
+            has_lim_comp_of_cont_within_at(a, f, all_reals, p),
+        ]
+    )

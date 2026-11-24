@@ -3,6 +3,7 @@
 from kdrag import Theorem, define
 from kdrag.smt import (
     And,
+    Const,
     Eq,
     Exists,
     ForAll,
@@ -12,12 +13,14 @@ from kdrag.smt import (
     ToInt,
     ToReal,
 )
+from kdrag.notation import Image
 import kdrag.theories.real as real
 from kdrag.theories.real.rseq import (
     F,
     a,
     dommap,
     eventually,
+    f,
     has_lim,
     lim_unique,
     n,
@@ -28,6 +31,8 @@ from kdrag.theories.real.rset import An, M, nested, nested_subset
 
 from ._choice import exists_seq_of_forall_exists
 from .cauchy import is_bounded_nonneg_of_is_cauchy, is_cauchy_of_has_lim
+from .cont import cont_on, cont_within_at, has_lim_comp_of_cont_within_at
+from .rseq import has_lim_congr_nonneg
 from .subsequence import (
     bolzano_weierstrass,
     has_lim_subseq,
@@ -266,3 +271,70 @@ def nonempty_iinter_of_nested_compact(l):
             mem_of_has_lim_of_eventually_mem(sets[m], subseq, limit),
         ]
     )
+
+
+K = Const("K", real.RSet)
+
+
+@Theorem(
+    ForAll([f, A, K], cont_on(f, A), K <= A, is_compact(K), is_compact(Image(f, K)))
+)
+def is_compact_image(l):
+    """The image of a compact subset of the domain is compact (Abbott 4.4.1)."""
+    f, A, K = l.fixes()
+    _, _, compact = l.intros()
+    l.unfold(is_compact)
+    seq = l.fix()
+    in_image = l.intro()
+
+    # Lift each image term to a point of the original compact set.
+    preimage = Lambda([n, x], And(K[x], seq[n] == f[x]))
+    l.have(ForAll(n, n >= 0, Exists(x, preimage[n, x])))
+    j = l.fix()
+    l.intro()
+    l.specialize(in_image, j)
+    l.beta()
+    l.auto()
+    lifted = l.have(
+        Exists(a, ForAll(n, n >= 0, preimage[n, a[n]])),
+        by=[exists_seq_of_forall_exists(preimage)],
+    )
+    source, points = l.obtain(lifted)
+    in_K = l.have(ForAll(n, n >= 0, K[source[n]]), by=[])
+    (idx, point), witness = l.obtain(
+        l.specialize(exists_subseq_of_is_compact, K, source, compact, in_K)
+    )
+    l.andE(witness)
+
+    # The same index map gives a convergent subsequence in the image.
+    subseq = dommap(idx, source)
+    l.have(ForAll(n, n >= 0, A[subseq[n]]))
+    j = l.fix()
+    l.intro()
+    l.have(idx[j] >= j, by=[le_subseq_index(idx, j)])
+    l.specialize(in_K, idx[j])
+    l.auto(by=[dommap.defn(idx, source)])
+    l.have(cont_within_at(f, A, point), by=[cont_on.defn(f, A)])
+    mapped = Lambda(n, f[subseq[n]])
+    l.have(
+        has_lim(mapped, f[point]),
+        by=[has_lim_comp_of_cont_within_at(subseq, f, A, point)],
+    )
+    target = dommap(idx, seq)
+    l.have(ForAll(n, n >= 0, mapped[n] == target[n]))
+    j = l.fix()
+    l.intro()
+    l.have(idx[j] >= j, by=[le_subseq_index(idx, j)])
+    l.specialize(points, idx[j])
+    l.auto(by=[dommap.defn(idx, source), dommap.defn(idx, seq)])
+    l.have(
+        has_lim(target, f[point]), by=[has_lim_congr_nonneg(mapped, target, f[point])]
+    )
+
+    l.exists(idx, f[point])
+    l.beta()
+    l.split()
+    l.auto()
+    l.auto()
+    l.exists(point)
+    l.auto()
