@@ -38,6 +38,7 @@ from kdrag.theories.real.rseq import (
     x,
     y,
     r,
+    k,
     n,
     add,
     const,
@@ -58,6 +59,7 @@ from kdrag.theories.real.rseq import (
     mul,
     near,
     neg,
+    shift,
     smul,
     sub,
 )
@@ -78,6 +80,23 @@ def has_lim_congr_nonneg(l):
     a, b, x = l.fixes()
     l.intros()
     l.auto(by=[has_lim_squeeze(a, b, a, x)])
+
+
+@Theorem(ForAll([a, x, k], has_lim(a, x), has_lim(shift(a, k), x)))
+def has_lim_shift(l):
+    """Translating the index by an integer preserves the limit."""
+    a, x, k = l.fixes()
+    l.unfold(has_lim)
+    tends = l.intro()
+    l.unfold(shift)
+    eps = l.fix()
+    positive = l.intro()
+    N, close = l.obtain(l.specialize(tends, eps, positive))
+    l.exists(N + k)
+    j = l.fix()
+    l.intro()
+    l.specialize(close, j - k)
+    l.auto()
 
 
 start = smt.Int("start")

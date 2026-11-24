@@ -2,25 +2,27 @@
 
 import kdrag as kd
 from kdrag import Theorem, define
-from kdrag.smt import And, Exists, ForAll, If, IntVal, Lambda, Reals
+from kdrag.smt import And, Exists, ForAll, Lambda, Reals
 import kdrag.theories.real as real
+from kdrag.theories.real.cont import cont_at_of_is_cont
 from kdrag.theories.real.rseq import (
     a,
-    cumsum,
     diff,
     f,
-    finsum,
     has_lim,
     is_cauchy,
     is_summable,
+    lim_unique,
     m,
     n,
+    shift,
 )
 
 from ._int_recursion import int_recursion
 from .cauchy import is_cauchy_iff_exists_has_lim
-from .finsum import finsum_diff
-from .series import exists_has_sum_of_geometric_decay, is_summable_iff_is_cauchy_cumsum
+from .cont import has_lim_comp_of_cont_at
+from .rseq import has_lim_congr_nonneg, has_lim_shift
+from .series import exists_has_sum_of_geometric_decay, is_cauchy_of_is_summable_diff
 
 c, x, y, p = Reals("c x y p")
 
@@ -108,25 +110,6 @@ def is_summable_diff_of_contraction_orbit(l):
     l.auto()
 
 
-@Theorem(ForAll(a, is_cauchy(cumsum(diff(a))), is_cauchy(a)))
-def _is_cauchy_of_is_cauchy_cumsum_diff(l):
-    a = l.fix()
-    d = diff(a)
-    l.unfold(is_cauchy)
-    tails = l.intro()
-    eps = l.fix()
-    positive = l.intro()
-    N, close = l.obtain(l.specialize(tails, eps, positive))
-    l.exists(N)
-    j, k = l.fixes()
-    l.intros()
-    l.specialize(close, j, k)
-    # Telescoping cancels the common initial value a[0].
-    l.auto(
-        by=[finsum.defn(d, j), finsum_diff(a, j), finsum.defn(d, k), finsum_diff(a, k)]
-    )
-
-
 @Theorem(
     ForAll(
         [f, c, a],
@@ -138,10 +121,11 @@ def _is_cauchy_of_is_cauchy_cumsum_diff(l):
 def is_cauchy_of_contraction_orbit(l):
     f, c, a = l.fixes()
     l.intros()
-    d = diff(a)
-    l.have(is_summable(d), by=[is_summable_diff_of_contraction_orbit(f, c, a)])
     l.auto(
-        by=[is_summable_iff_is_cauchy_cumsum(d), _is_cauchy_of_is_cauchy_cumsum_diff(a)]
+        by=[
+            is_summable_diff_of_contraction_orbit(f, c, a),
+            is_cauchy_of_is_summable_diff(a),
+        ]
     )
 
 
@@ -156,27 +140,19 @@ def is_cauchy_of_contraction_orbit(l):
 )
 def fixed_of_has_lim_contraction_orbit(l):
     f, c, a, p = l.fixes()
-    l.unfold(is_contraction, has_lim)
-    contraction, step, tends = l.intros()
-    _, _, contract = l.andE(contraction)
-    distance = real.abs(f[p] - p)
-    l.contra()
-    positive = l.have(distance / 2 > 0, by=[real.abs_pos_iff(f[p] - p)])
-    N, close = l.obtain(l.specialize(tends, distance / 2, positive))
-    j = If(N < 0, IntVal(0), N + 1)
-    index_nonneg = l.have(j >= 0, by=[])
-    l.specialize(step, j, index_nonneg)
-    l.specialize(close, j, keep=True)
-    l.specialize(close, j + 1)
-    l.specialize(contract, p, a[j])
-    # Estimate |f(p) - p| through f(a[j]) = a[j+1].
-    l.auto(
-        by=[
-            real.abs_triangle(f[p], p, f[a[j]]),
-            real.abs_neg(a[j] - p),
-            real.abs_pos(p - a[j]),
-        ]
+    l.intros()
+    shifted = shift(a, -1)
+    image = Lambda(n, f[a[n]])
+    l.have(
+        real.cont_at(f, p),
+        by=[is_cont_of_is_contraction(f, c), cont_at_of_is_cont(f, p)],
     )
+    l.have(has_lim(image, f[p]), by=[has_lim_comp_of_cont_at(a, f, p)])
+    # The image of the orbit agrees with the shifted orbit at nonnegative indices.
+    l.have(ForAll(n, n >= 0, image[n] == shifted[n]), by=[shift.defn(a, -1)])
+    l.have(has_lim(shifted, f[p]), by=[has_lim_congr_nonneg(image, shifted, f[p])])
+    l.have(has_lim(shifted, p), by=[has_lim_shift(a, p, -1)])
+    l.auto(by=[lim_unique(shifted, f[p], p)])
 
 
 @Theorem(ForAll([f, c, x, y], is_contraction(f, c), f[x] == x, f[y] == y, x == y))
@@ -229,7 +205,7 @@ def contraction_mapping(l):
     p, witness = l.obtain(
         l.specialize(exists_fixed_limit_of_contraction, f, c, 0, contract)
     )
-    fixed, _ = l.andE(witness)
+    l.andE(witness)
     l.exists(p)
     l.split()
     l.auto()
@@ -237,7 +213,5 @@ def contraction_mapping(l):
     l.intro()
     l.auto(by=[contraction_fixed_unique(f, c, x, p)])
     x = l.fix()
-    q, witness = l.obtain(
-        l.specialize(exists_fixed_limit_of_contraction, f, c, x, contract)
-    )
+    q, _ = l.obtain(l.specialize(exists_fixed_limit_of_contraction, f, c, x, contract))
     l.auto(by=[contraction_fixed_unique(f, c, q, p)])

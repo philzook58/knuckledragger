@@ -2,12 +2,12 @@
 
 from kdrag import Theorem
 from kdrag.smt import And, Consts, Exists, Lambda, ForAll, RealVal, Reals, Store
-from kdrag.theories.real import RFun, abs, cont_at, has_lim_at, min
-
+from kdrag.theories.real import RFun, abs, abs_neg, cont_at, has_lim_at, min
 from kdrag.theories.real.cont import (
     cont_at_update_of_has_lim_at,
     has_lim_at_of_cont_at_update,
 )
+from kdrag.theories.real.rseq import a, has_lim, n
 
 f, g = Consts("f g", RFun)
 x, p, L, M, c = Reals("x p L M c")
@@ -95,3 +95,29 @@ def has_lim_at_id(l):
     l.intro()
     l.exists(eps)
     l.auto(by=[abs.defn])
+
+
+@Theorem(
+    ForAll(
+        [a, f, p],
+        has_lim(a, p),
+        cont_at(f, p),
+        has_lim(Lambda(n, f[a[n]]), f[p]),
+    )
+)
+def has_lim_comp_of_cont_at(l):
+    """A function continuous at the limit preserves sequence convergence."""
+    a, f, p = l.fixes()
+    l.unfold(has_lim, cont_at)
+    tends, continuous = l.intros()
+    eps = l.fix()
+    positive = l.intro()
+    delta, witness = l.obtain(l.specialize(continuous, eps, positive))
+    delta_positive, images_close = l.andE(witness)
+    N, terms_close = l.obtain(l.specialize(tends, delta, delta_positive))
+    l.exists(N)
+    j = l.fix()
+    l.intro()
+    l.specialize(terms_close, j)
+    l.specialize(images_close, a[j])
+    l.auto(by=[abs_neg(a[j] - p), abs_neg(f[p] - f[a[j]])])

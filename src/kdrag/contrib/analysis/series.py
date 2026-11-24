@@ -2,7 +2,7 @@
 
 from kdrag import Theorem
 from kdrag.contrib.analysis.cauchy import is_cauchy_iff_exists_has_lim
-from kdrag.contrib.analysis.finsum import finsum_geom
+from kdrag.contrib.analysis.finsum import finsum_diff, finsum_geom
 from kdrag.contrib.analysis.rseq import (
     abs_sub_le_of_has_lim,
     has_lim_congr_nonneg,
@@ -33,6 +33,7 @@ from kdrag.theories.real.rseq import (
     cumsum_add,
     cumsum_mono,
     cumsum_succ,
+    diff,
     exists_has_lim_of_monotone_of_bdd_above,
     finsum,
     geom,
@@ -219,6 +220,38 @@ def is_summable_iff_is_cauchy_cumsum(l):
     l.unfold(is_summable)
     l.exists(value)
     l.auto(by=[has_sum.defn(a, value)])
+
+
+@Theorem(ForAll(a, is_cauchy(cumsum(diff(a))), is_cauchy(a)))
+def _is_cauchy_of_is_cauchy_cumsum_diff(l):
+    a = l.fix()
+    d = diff(a)
+    l.unfold(is_cauchy)
+    tails = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    N, close = l.obtain(l.specialize(tails, eps, positive))
+    l.exists(N)
+    j, k = l.fixes()
+    l.intros()
+    l.specialize(close, j, k)
+    # Telescoping cancels the common initial value a[0].
+    l.auto(
+        by=[finsum.defn(d, j), finsum_diff(a, j), finsum.defn(d, k), finsum_diff(a, k)]
+    )
+
+
+@Theorem(ForAll(a, is_summable(diff(a)), is_cauchy(a)))
+def is_cauchy_of_is_summable_diff(l):
+    """Summable successive differences make the sequence Cauchy."""
+    a = l.fix()
+    l.intro()
+    l.auto(
+        by=[
+            is_summable_iff_is_cauchy_cumsum(diff(a)),
+            _is_cauchy_of_is_cauchy_cumsum_diff(a),
+        ]
+    )
 
 
 @Theorem(ForAll(a, Eq(is_summable(a), _cauchy_tails(a))))
