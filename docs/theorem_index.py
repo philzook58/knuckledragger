@@ -8,23 +8,39 @@ from pathlib import Path
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 
-from lite.cells import Definitions, repl_url, skipped
+from lite.cells import Definitions, repl_url, skipped, theorem_modules
 
 _SOURCE = "https://github.com/philzook58/knuckledragger/blob/main"
 _ROOT = Path(__file__).resolve().parents[1]
-_THEORIES = _ROOT / "src/kdrag/theories"
+
+
+def _proofs(module):
+    """Public proofs bound in `module`, sorted by name."""
+    from kdrag import Proof
+
+    return [
+        (name, proof)
+        for name, proof in sorted(vars(module).items())
+        if not name.startswith("_") and isinstance(proof, Proof)
+    ]
 
 
 class TheoremIndex(SphinxDirective):
     optional_arguments = 1
 
     def run(self):
-        modules = self.arguments or [
-            ".".join(path.relative_to(_ROOT / "src").with_suffix("").parts)
-            .removesuffix(".__init__")
-            for path in sorted(_THEORIES.rglob("*.py"))
+        modules = [
+            Definitions(import_module(name))
+            for name in self.arguments or theorem_modules()
         ]
-        rows = [row for module in modules for row in self.statements(module)]
+        # An imported proof is listed only where it is defined, if that module is listed.
+        defined = {
+            proof.thm.get_id()
+            for defs in modules
+            for name, proof in _proofs(defs.module)
+            if name in defs.lines
+        }
+        rows = [row for defs in modules for row in self.statements(defs, defined)]
         if not rows:
             return []
         table = nodes.table(classes=["theorem-table"])
@@ -40,20 +56,20 @@ class TheoremIndex(SphinxDirective):
         table += group
         return [table]
 
-    def statements(self, module_name):
-        from kdrag import Proof, pretty_expr
+    def statements(self, defs, defined):
+        from kdrag import pretty_expr
         from kdrag.utils import decls
 
-        module = import_module(module_name)
+        module = defs.module
+        module_name = module.__name__
         source = Path(module.__file__)
         self.env.note_dependency(str(source))
         source_url = f"{_SOURCE}/{source.relative_to(_ROOT).as_posix()}"
-        defs = Definitions(module)
         lines = defs.lines
         skip = skipped()
         entries = []
-        for name, proof in sorted(vars(module).items()):
-            if name.startswith("_") or not isinstance(proof, Proof):
+        for name, proof in _proofs(module):
+            if name not in lines and proof.thm.get_id() in defined:
                 continue
             qualified_name = f"{module_name}.{name}"
             entry = nodes.row(
@@ -61,7 +77,9 @@ class TheoremIndex(SphinxDirective):
             )
             title = nodes.paragraph()
             url = f"{source_url}#L{lines[name]}" if name in lines else source_url
-            display_name = qualified_name.removeprefix("kdrag.theories.")
+            display_name = qualified_name.removeprefix("kdrag.theories.").removeprefix(
+                "kdrag."
+            )
             title += nodes.reference(
                 "", "", nodes.literal(text=display_name), refuri=url
             )
