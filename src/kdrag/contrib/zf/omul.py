@@ -33,7 +33,16 @@ from kdrag.contrib.zf.fun import (
     psnd_pair,
     surj_on,
 )
-from kdrag.contrib.zf.nat import elem_succ, omega_zero
+from kdrag.contrib.zf.arith import add, add_elem_omega, add_succ, add_zero, succ_add
+from kdrag.contrib.zf.nat import (
+    elem_succ,
+    elem_succ_self,
+    induct_omega,
+    nat_not_elem_self,
+    omega,
+    omega_succ,
+    omega_zero,
+)
 from kdrag.contrib.zf.oarith import (
     elem_one,
     elem_osum_set,
@@ -45,15 +54,29 @@ from kdrag.contrib.zf.oarith import (
     oplus,
     oplus_apply,
     osum_rel,
+    osum_rel_inl_inl,
+    osum_rel_inl_inr,
+    osum_rel_inr_inr,
     osum_rel_pairs,
     osum_set,
     similar_osum,
     zero_ne_one,
 )
-from kdrag.contrib.zf.order import nat_le
-from kdrag.contrib.zf.ordinal import is_ordinal, nat_is_ordinal
+from kdrag.contrib.zf.order import (
+    add_elem_add,
+    comparable,
+    nat_comparable,
+    nat_elem_asymm,
+    nat_le,
+    nat_elem_trans,
+    succ_elem_succ,
+)
+from kdrag.contrib.zf.ordinal import is_ordinal, nat_is_ordinal, omega_is_ordinal
 from kdrag.contrib.zf.ordset import ordinal_well_order
 from kdrag.contrib.zf.poset import (
+    elem_seg_iff,
+    omega_well_order,
+    seg,
     exists_least,
     is_least,
     is_partial_order,
@@ -65,6 +88,9 @@ from kdrag.contrib.zf.poset import (
     partial_order_trans,
 )
 from kdrag.contrib.zf.sim import (
+    not_similarity_seg,
+    similarity_comp,
+    similarity_seg,
     is_order_embedding,
     is_similarity,
     similar,
@@ -73,7 +99,7 @@ from kdrag.contrib.zf.sim import (
     similar_trans,
 )
 
-A, B, E, a, b, c, d, p, q, x, y = Consts("A B E a b c d p q x y", ZFSet)
+A, B, E, a, b, c, d, k, m, n, p, q, x, y = Consts("A B E a b c d k m n p q x y", ZFSet)
 A2, B2 = Consts("A2 B2", ZFSet)
 R, S, R2, S2 = Consts("R S R2 S2", ArraySort(ZFSet, ZFSet, BoolSort()))
 f, g = Consts("f g", ArraySort(ZFSet, ZFSet))
@@ -1062,3 +1088,353 @@ def omul_assoc(l):
         similar(otimes, X1, le_, D), by=[similar_trans(otimes, X1, otimes, X4, le_, D)]
     )
     l.auto(by=[omul.defn(AB, C), ord_of_eq(otimes, X1, D)])
+
+
+# Halmos: 2ω = ω but ω2 = ω + ω ≠ ω, so multiplication is not commutative.
+
+# bit(a, n) is 2n + a for a ∈ 2, as Mathlib's Nat.bit.
+bit = define("bit", [a, n], If(a == zero, add(n, n), succ(add(n, n))))
+
+
+@Theorem(ForAll([a, n], elem(n, omega), elem(bit(a, n), omega)))
+def bit_elem_omega(l):
+    a, n = l.fixes()
+    l.intro()
+    l.unfold(bit)
+    l.auto(by=[add_elem_omega(n, n), omega_succ])
+
+
+@Theorem(
+    ForAll(
+        [a, b, n, m],
+        elem(n, omega),
+        elem(m, omega),
+        elem(n, m),
+        elem(bit(a, n), bit(b, m)),
+    )
+)
+def bit_elem_bit(l):
+    """n < m gives 2n + 1 < 2m: as n + 1 ≤ m, 2n + 2 ≤ 2m."""
+    a, b, n, m = l.fixes()
+    l.intros()
+    sn = succ(n)
+    l.have(elem(sn, omega), by=[omega_succ])
+    l.have(Or(elem(sn, m), sn == m), by=[succ_elem_succ(n, m), elem_succ(sn, m)])
+    # 2(n + 1) = (2n + 1) + 1
+    l.have(
+        add(sn, sn) == succ(succ(add(n, n))),
+        by=[add_succ(sn, n), succ_add(n, n)],
+    )
+    l.have(elem(add(sn, sn), omega), by=[add_elem_omega(sn, sn)])
+    l.have(elem(add(m, m), omega), by=[add_elem_omega(m, m)])
+    l.have(
+        Or(elem(add(sn, sn), add(m, m)), add(sn, sn) == add(m, m)),
+        by=[add_elem_add(sn, m, sn, m)],
+    )
+    # so 2n < 2n + 1 < 2m ≤ 2m + 1.
+    t = add(n, n)
+    l.have(elem(succ(t), add(m, m)))
+    l.auto(
+        by=[
+            elem_succ_self(succ(t)),
+            nat_elem_trans(succ(t), add(sn, sn), add(m, m)),
+        ]
+    )
+    l.have(
+        elem(t, add(m, m)),
+        by=[elem_succ_self(t), nat_elem_trans(t, succ(t), add(m, m))],
+    )
+    l.unfold(bit)
+    l.auto(
+        by=[
+            elem_succ_self(add(m, m)),
+            nat_elem_trans(t, add(m, m), succ(add(m, m))),
+            nat_elem_trans(succ(t), add(m, m), succ(add(m, m))),
+            omega_succ,
+        ]
+    )
+
+
+@Theorem(
+    ForAll(
+        k,
+        elem(k, omega),
+        Exists(n, And(elem(n, omega), Or(k == bit(zero, n), k == bit(one, n)))),
+    )
+)
+def exists_bit(l):
+    """Every natural number is even or odd."""
+    k = l.fix()
+    l.intro()
+    l.induct(k, using=induct_omega)
+    l.exists(zero)
+    l.auto(by=[omega_zero, bit.defn, add_zero(zero)])
+    k1 = l.fix()
+    l.intros()
+    n1, _ = l.obtain(-1)
+    l.cases(k1 == bit(zero, n1), k1 == bit(one, n1))
+    # 2n + 1 is odd, and (2n + 1) + 1 = 2(n + 1).
+    l.exists(n1)
+    l.auto(by=[bit.defn, zero_ne_one])
+    l.exists(succ(n1))
+    l.auto(
+        by=[bit.defn, omega_succ, add_succ(succ(n1), n1), succ_add(n1, n1), zero_ne_one]
+    )
+
+
+@Theorem(omul(two, omega) == omega)
+def two_omul_omega(l):
+    """Halmos: 2ω = ω, by (a, n) ↦ 2n + a."""
+    X = prod(two, omega)
+    F = Lambda(p, bit(pfst(p), psnd(p)))
+    # Elements of 2 × ω are (a, n) with a ∈ {0, 1} and n ∈ ω.
+    l.have(
+        ForAll(
+            p,
+            elem(p, X),
+            And(
+                Or(pfst(p) == zero, pfst(p) == one),
+                elem(psnd(p), omega),
+                p == pair(pfst(p), psnd(p)),
+            ),
+        ),
+        by=[elem_prod_iff, elem_two],
+    )
+    l.have(
+        ForAll(n, elem(n, omega), elem(bit(zero, n), bit(one, n))),
+        by=[bit.defn, elem_succ_self, zero_ne_one],
+    )
+    l.have(is_similarity(F, otimes, X, nat_le_rel, omega))
+    l.unfold(is_similarity)
+    l.unfold(is_order_embedding)
+    l.unfold(bij_on)
+    l.split()
+    l.split()
+    l.unfold(maps_to)
+    p0 = l.fix()
+    l.intro()
+    l.simp()
+    l.auto(by=[bit_elem_omega(pfst(p0), psnd(p0))])
+    # Compare n and m first; when they agree, 2n ≤ 2n + 1.
+    p1, q1 = l.fixes()
+    l.intros()
+    l.simp()
+    n1, m1 = psnd(p1), psnd(q1)
+    a1, b1 = pfst(p1), pfst(q1)
+    l.auto(
+        by=[
+            oprod_rel_pair(nat_le_rel, nat_le_rel, a1, n1, b1, m1),
+            nat_le.defn,
+            nat_comparable(n1, m1),
+            comparable.defn(n1, m1),
+            nat_elem_asymm(n1, m1),
+            bit_elem_bit(a1, b1, n1, m1),
+            bit_elem_bit(b1, a1, m1, n1),
+            bit_elem_omega(a1, n1),
+            bit_elem_omega(b1, m1),
+            nat_elem_asymm(bit(a1, n1), bit(b1, m1)),
+            nat_elem_asymm(bit(b1, m1), bit(a1, n1)),
+            nat_not_elem_self(bit(a1, n1)),
+            elem_one(zero),
+            zf.elem_emp(one),
+            zero.defn,
+            zero_ne_one,
+        ]
+    )
+    l.split()
+    l.unfold(maps_to)
+    p2 = l.fix()
+    l.intro()
+    l.simp()
+    l.auto(by=[bit_elem_omega(pfst(p2), psnd(p2))])
+    # Different pairs have different values, as the values are ordered like the pairs.
+    l.unfold(inj_on)
+    p3, q3 = l.fixes()
+    l.intros()
+    l.simp(at=-1)
+    n3, m3 = psnd(p3), psnd(q3)
+    a3, b3 = pfst(p3), pfst(q3)
+    l.auto(
+        by=[
+            nat_comparable(n3, m3),
+            comparable.defn(n3, m3),
+            bit_elem_bit(a3, b3, n3, m3),
+            bit_elem_bit(b3, a3, m3, n3),
+            bit_elem_omega(a3, n3),
+            nat_not_elem_self(bit(a3, n3)),
+        ]
+    )
+    # Every natural number is 2n or 2n + 1.
+    l.unfold(surj_on)
+    k0 = l.fix()
+    l.intro()
+    l.have(
+        Exists(n, And(elem(n, omega), Or(k0 == bit(zero, n), k0 == bit(one, n)))),
+        by=[exists_bit(k0)],
+    )
+    n4, _ = l.obtain(-1)
+    l.cases(k0 == bit(zero, n4), k0 == bit(one, n4))
+    l.exists(pair(zero, n4))
+    l.simp()
+    l.auto(by=[pair_elem_prod(zero, n4, two, omega), elem_two, pfst_pair, psnd_pair])
+    l.exists(pair(one, n4))
+    l.simp()
+    l.auto(by=[pair_elem_prod(one, n4, two, omega), elem_two, pfst_pair, psnd_pair])
+    l.unfold(omul)
+    l.auto(
+        by=[
+            ord_of_eq(otimes, X, omega),
+            similar.defn(otimes, X, nat_le_rel, omega),
+            omega_is_ordinal,
+        ]
+    )
+
+
+@Theorem(
+    is_similarity(
+        Lambda(x, inl(x)),
+        nat_le_rel,
+        omega,
+        oplus,
+        seg(oplus, osum_set(omega, omega), inr(zero)),
+    )
+)
+def similarity_seg_inr_zero(l):
+    """In ω ⊕ ω the elements before (0, 1) are the (n, 0), a copy of ω."""
+    Y = osum_set(omega, omega)
+    top = inr(zero)
+    S = seg(oplus, Y, top)
+    hyps = [
+        ForAll(y, elem(y, S) == And(elem(y, Y), oplus[y, top], y != top)),
+        ForAll(x, elem(x, omega), elem(inl(x), Y)),
+        ForAll(x, inl(x) != top),
+    ]
+    l.have(hyps[0], by=[elem_seg_iff])
+    l.have(hyps[1], by=[elem_osum_set, pfst_pair])
+    l.have(hyps[2], by=[zf.pair_inj, zero_ne_one])
+    l.unfold(is_similarity)
+    l.unfold(is_order_embedding)
+    l.unfold(bij_on)
+    l.split()
+    l.split()
+    l.unfold(maps_to)
+    l.fix()
+    l.intro()
+    l.simp()
+    l.auto(by=[osum_rel_inl_inr])
+    l.fixes()
+    l.intros()
+    l.simp()
+    l.auto(by=[osum_rel_inl_inl])
+    l.split()
+    l.unfold(maps_to)
+    l.fix()
+    l.intro()
+    l.simp()
+    l.auto(by=[osum_rel_inl_inr])
+    l.unfold(inj_on)
+    l.fixes()
+    l.intros()
+    l.simp(at=-1)
+    l.auto(by=[zf.pair_inj])
+    # An element (x, 1) before (0, 1) would have x < 0.
+    l.unfold(surj_on)
+    y0 = l.fix()
+    l.intro()
+    x0 = pfst(y0)
+    l.have(
+        And(elem(y0, Y), oplus[y0, top], y0 != top),
+        by=[elem_seg_iff(oplus, Y, top, y0)],
+    )
+    for h in hyps:
+        l.clear(h)
+    l.have(
+        Or(
+            And(elem(x0, omega), y0 == inl(x0)),
+            And(elem(x0, omega), y0 == inr(x0)),
+        ),
+        by=[elem_osum_set(omega, omega, y0)],
+    )
+    l.have(y0 == inl(x0))
+    l.auto(
+        by=[
+            osum_rel_inr_inr(nat_le_rel, nat_le_rel, x0, zero),
+            nat_le.defn,
+            zero.defn,
+            zf.elem_emp(x0),
+        ]
+    )
+    l.exists(x0)
+    l.simp()
+    l.auto()
+
+
+@Theorem(oadd(omega, omega) != omega)
+def oadd_omega_omega_ne(l):
+    """Halmos: ω + ω ≠ ω. Otherwise a similarity h of ω ⊕ ω onto ω carries the
+    copy of ω before (0, 1) onto the initial segment of ω before h(0, 1), a
+    natural number, and a well ordered set is not similar to an initial segment."""
+    l.intro()
+    Y = osum_set(omega, omega)
+    top = inr(zero)
+    l.have(
+        similar(oplus, Y, nat_le_rel, omega),
+        by=[
+            oadd_spec(omega, omega),
+            omega_is_ordinal,
+            similar_symm(nat_le_rel, oadd(omega, omega), oplus, Y),
+        ],
+    )
+    l.unfold(similar, at=-1)
+    h, _ = l.obtain(-1)
+    l.have(elem(top, Y), by=[elem_osum_set(omega, omega, top), pfst_pair, omega_zero])
+    n0 = h[top]
+    l.have(
+        elem(n0, omega),
+        by=[
+            is_similarity.defn(h, oplus, Y, nat_le_rel, omega),
+            is_order_embedding.defn(h, oplus, Y, nat_le_rel, omega),
+            maps_to.defn(h, Y, omega),
+        ],
+    )
+    S = seg(oplus, Y, top)
+    l.have(
+        is_similarity(h, oplus, S, nat_le_rel, seg(nat_le_rel, omega, n0)),
+        by=[similarity_seg(h, oplus, Y, nat_le_rel, omega, top)],
+    )
+    g = Lambda(x, inl(x))
+    l.have(
+        is_similarity(
+            Lambda(x, h[g[x]]),
+            nat_le_rel,
+            omega,
+            nat_le_rel,
+            seg(nat_le_rel, omega, n0),
+        ),
+        by=[
+            similarity_seg_inr_zero,
+            similarity_comp(
+                g,
+                h,
+                nat_le_rel,
+                omega,
+                oplus,
+                S,
+                nat_le_rel,
+                seg(nat_le_rel, omega, n0),
+            ),
+        ],
+    )
+    l.auto(
+        by=[
+            not_similarity_seg(Lambda(x, h[g[x]]), nat_le_rel, omega, n0),
+            omega_well_order,
+        ]
+    )
+
+
+# Halmos: ω2 = ω + ω ≠ ω = 2ω.
+omul_not_comm = prove(
+    omul(omega, two) != omul(two, omega),
+    by=[omul_two(omega), omega_is_ordinal, two_omul_omega, oadd_omega_omega_ne],
+)
