@@ -80,10 +80,14 @@ def contract(
     foo4392(Var(0))
     >>> kd.prove(foo(5) > 0, contracts=True)
     |= foo4392(5) > 0
-    >>> kd.prove(foo(5) > 5, contracts=True)
-    Traceback (most recent call last):
-        ...
-    SolverFailure: ...
+    >>> try:
+    ...     kd.prove(foo(5) > 5, contracts=True)
+    ... except kd.kernel.SolverFailure as error:
+    ...     print(str(error).strip())
+    ⊢ foo4392(5) > 5
+    <BLANKLINE>
+    ❌ prove failed: z3 found a countermodel
+    Countermodel: ...
     """
     if f in contracts:
         print("Warning: overwriting existing contract for function", f, contracts[f])
