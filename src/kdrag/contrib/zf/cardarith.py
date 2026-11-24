@@ -14,7 +14,7 @@ from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, If, Lamb
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, pow, prod, sep, sing, zero
 from kdrag.contrib.zf.card import dominated
-from kdrag.contrib.zf.finite import equivalent
+from kdrag.contrib.zf.finite import equivalent, equivalent_of_inverse
 from kdrag.contrib.zf.fun import (
     app,
     app_elem,
@@ -124,49 +124,32 @@ def prod_sum_distrib_equivalent(l):
     )
 
 
+# Swapping the tags or the coordinates is its own inverse.
+swap_tag = Lambda(p, If(p == inl(pfst(p)), inr(pfst(p)), inl(pfst(p))))
+swap = Lambda(p, pair(psnd(p), pfst(p)))
+
+
 @Theorem(ForAll([A, B], equivalent(osum_set(A, B), osum_set(B, A))))
 def sum_comm_equivalent(l):
     """a + b = b + a: swap the tags."""
     A, B = l.fixes()
-    l.unfold(equivalent)
-    l.exists(Lambda(p, If(p == inl(pfst(p)), inr(pfst(p)), inl(pfst(p)))))
-    l.unfold(bij_on)
-    l.unfold(maps_to)
-    l.unfold(inj_on)
-    l.unfold(surj_on)
-    l.simp()
     _tags = [elem_osum_set, pfst_pair, zero_ne_one, zf.pair_inj]
-    l.split()
-    l.auto(by=_tags)
-    l.auto(by=_tags)
-    y0 = l.fix()
-    l.intro()
-    l.cases(y0 == inl(pfst(y0)), y0 != inl(pfst(y0)))
-    l.exists(inr(pfst(y0)))
-    l.auto(by=_tags)
-    l.exists(inl(pfst(y0)))
-    l.auto(by=_tags)
+    l.have(maps_to(swap_tag, osum_set(A, B), osum_set(B, A)), by=[maps_to.defn] + _tags)
+    l.have(maps_to(swap_tag, osum_set(B, A), osum_set(A, B)), by=[maps_to.defn] + _tags)
+    l.auto(
+        by=[equivalent_of_inverse(swap_tag, swap_tag, osum_set(A, B), osum_set(B, A))]
+        + _tags
+    )
 
 
 @Theorem(ForAll([A, B], equivalent(prod(A, B), prod(B, A))))
 def prod_comm_equivalent(l):
     """ab = ba: swap the coordinates."""
     A, B = l.fixes()
-    l.unfold(equivalent)
-    l.exists(Lambda(p, pair(psnd(p), pfst(p))))
-    l.unfold(bij_on)
-    l.unfold(maps_to)
-    l.unfold(inj_on)
-    l.unfold(surj_on)
-    l.simp()
-    _pairs = [elem_prod_iff, pair_elem_prod, pfst_pair, psnd_pair, zf.pair_inj]
-    l.split()
-    l.auto(by=_pairs)
-    l.auto(by=_pairs)
-    y0 = l.fix()
-    l.intro()
-    l.exists(pair(psnd(y0), pfst(y0)))
-    l.auto(by=_pairs)
+    _pairs = [elem_prod_iff, pair_elem_prod, pfst_pair, psnd_pair]
+    l.have(maps_to(swap, prod(A, B), prod(B, A)), by=[maps_to.defn] + _pairs)
+    l.have(maps_to(swap, prod(B, A), prod(A, B)), by=[maps_to.defn] + _pairs)
+    l.auto(by=[equivalent_of_inverse(swap, swap, prod(A, B), prod(B, A))] + _pairs)
 
 
 @Theorem(ForAll(X, dominated(X, pow(X))))

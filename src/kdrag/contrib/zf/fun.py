@@ -31,7 +31,7 @@ from kdrag.theories.zf.zf import (
 )
 
 A, B, X, Y, f, p, x, y, z = Consts("A B X Y f p x y z", ZFSet)
-F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
+F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 
 # Small set facts missing from theories.zf
 
@@ -167,6 +167,35 @@ surj_on = define(
 bij_on = define(
     "bij_on", [F, A, B], And(maps_to(F, A, B), inj_on(F, A), surj_on(F, A, B))
 )
+
+
+# Mathlib's Equiv.mk: maps that are inverse to each other are bijections. This
+# replaces separate injectivity and surjectivity proofs with two identities.
+@Theorem(
+    ForAll(
+        [F, G, X, Y],
+        maps_to(F, X, Y),
+        maps_to(G, Y, X),
+        ForAll(x, elem(x, X), G[F[x]] == x),
+        ForAll(y, elem(y, Y), F[G[y]] == y),
+        bij_on(F, X, Y),
+    )
+)
+def bij_on_of_inverse(l):
+    F, G, X, Y = l.fixes()
+    l.intros()
+    l.unfold(bij_on)
+    l.split()
+    l.auto()
+    # F x = F x' gives x = G(F x) = G(F x') = x'.
+    l.unfold(inj_on)
+    l.auto()
+    # y ∈ Y is hit by G y.
+    l.unfold(surj_on)
+    y0 = l.fix()
+    l.intro()
+    l.exists(G[y0])
+    l.auto(by=[maps_to.defn(G, Y, X)])
 
 
 # Choice-free coordinates of an ordered pair (Kuratowski): ⋂(x, y) = {x}, so

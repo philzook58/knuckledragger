@@ -12,6 +12,7 @@ from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, sep, sing, succ, zer
 from kdrag.contrib.zf.fun import (
     bigunion_sing,
     bij_on,
+    bij_on_of_inverse,
     elem_sub,
     inj_on,
     maps_to,
@@ -36,6 +37,25 @@ A, B, C, E, X, Y, a, b, k, m, n, x, y, z = Consts("A B C E X Y a b k m n x y z",
 F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 
 equivalent = define("equivalent", [A, B], Exists(F, bij_on(F, A, B)))
+
+
+@Theorem(
+    ForAll(
+        [F, G, X, Y],
+        maps_to(F, X, Y),
+        maps_to(G, Y, X),
+        ForAll(x, elem(x, X), G[F[x]] == x),
+        ForAll(y, elem(y, Y), F[G[y]] == y),
+        equivalent(X, Y),
+    )
+)
+def equivalent_of_inverse(l):
+    F, G, X, Y = l.fixes()
+    l.intros()
+    l.unfold(equivalent)
+    l.exists(F)
+    l.auto(by=[bij_on_of_inverse(F, G, X, Y)])
+
 
 bij_on_id = prove(
     ForAll(A, bij_on(Lambda(x, x), A, A)),
