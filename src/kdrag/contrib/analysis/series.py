@@ -12,6 +12,7 @@ from kdrag.smt import (
     Consts,
     Exists,
     ForAll,
+    If,
     Int,
     Lambda,
     Real,
@@ -29,13 +30,17 @@ from kdrag.theories.real.rseq import (
     cumsum_add,
     cumsum_mono,
     cumsum_succ,
+    eventually,
     exists_has_lim_of_monotone_of_bdd_above,
     finsum,
     geom,
     has_lim,
+    eventually_near,
+    near,
     has_lim_sub,
     has_sum,
     is_monotone,
+    is_summable,
     range_nonneg,
     sub,
 )
@@ -280,10 +285,10 @@ def geometric_tail_bound(l):
         0 <= r,
         r < 1,
         ForAll(m, m >= start, real.abs(a[m + 1]) <= r * real.abs(a[m])),
-        Exists(S, has_sum(a, S)),
+        Exists(M, ForAll(n, n >= 0, cumsum(seq_abs(a))[n] <= M)),
     )
 )
-def exists_has_sum_of_geometric_decay(l):
+def exists_abs_prefix_bound_of_geometric_decay(l):
     a, r, start = l.fixes()
     l.intro()
     l.intro()
@@ -308,7 +313,7 @@ def exists_has_sum_of_geometric_decay(l):
         ]
     )
     bound = partial[start] + magnitude[start] / (1 - r)
-    l.have(ForAll(n, n >= 0, partial[n] <= bound))
+    l.exists(bound)
     j = l.fix()
     l.intro()
     l.cases(j >= start)
@@ -327,6 +332,25 @@ def exists_has_sum_of_geometric_decay(l):
         ]
     )
     l.auto(by=[cumsum_monotone_of_nonneg(magnitude, j, start)])
+
+
+@Theorem(
+    ForAll(
+        [a, r, start],
+        0 <= r,
+        r < 1,
+        ForAll(m, m >= start, real.abs(a[m + 1]) <= r * real.abs(a[m])),
+        Exists(S, has_sum(a, S)),
+    )
+)
+def exists_has_sum_of_geometric_decay(l):
+    a, r, start = l.fixes()
+    l.intros()
+    h = l.have(
+        Exists(M, ForAll(n, n >= 0, cumsum(seq_abs(a))[n] <= M)),
+        by=[exists_abs_prefix_bound_of_geometric_decay(a, r, start)],
+    )
+    bound, _ = l.obtain(h)
     l.auto(by=[exists_has_sum_of_abs_prefix_bound(a, bound)])
 
 
@@ -360,5 +384,65 @@ def has_sum_error_of_geometric_decay(l):
         by=[
             has_sum.defn(a, S),
             abs_sub_le_of_has_lim(partial, S, partial[start], bound, start),
+        ]
+    )
+
+
+@Theorem(
+    ForAll(
+        [a, r],
+        eventually(Lambda(n, a[n] != 0)),
+        has_lim(Lambda(n, real.abs(a[n + 1] / a[n])), r),
+        r < 1,
+        And(is_summable(a), is_summable(seq_abs(a))),
+    )
+)
+def summable_of_ratio_test(l):
+    """An eventual nonzero denominator and a ratio limit below one imply absolute convergence."""
+    a, r = l.fixes()
+    ratios = Lambda(n, real.abs(a[n + 1] / a[n]))
+    l.intros()
+    cutoff_var = Int("N")
+    nonzero = l.have(
+        Exists(cutoff_var, ForAll(n, n > cutoff_var, a[n] != 0)),
+        by=[eventually.defn(Lambda(n, a[n] != 0))],
+    )
+    nonzero_cutoff, nonzero_tail = l.obtain(nonzero)
+    q = (1 + real.max(0, r)) / 2
+    l.have(0 <= q, by=[real.max.defn(0, r)])
+    l.have(q < 1, by=[real.max.defn(0, r)])
+    l.have(q - r > 0, by=[real.max.defn(0, r)])
+    close = l.have(
+        Exists(cutoff_var, ForAll(n, n > cutoff_var, real.abs(ratios[n] - r) < q - r)),
+        by=[eventually_near(ratios, r, q - r), eventually.defn(near(ratios, r, q - r))],
+    )
+    ratio_cutoff, near_ratio = l.obtain(close)
+    start = If(nonzero_cutoff > ratio_cutoff, nonzero_cutoff, ratio_cutoff) + 1
+    l.have(ForAll(n, n >= start, real.abs(a[n + 1]) <= q * real.abs(a[n])))
+    index = l.fix()
+    l.intro()
+    beyond_nonzero = l.have(index > nonzero_cutoff, by=[])
+    beyond_ratio = l.have(index > ratio_cutoff, by=[])
+    l.specialize(nonzero_tail, index, beyond_nonzero)
+    l.specialize(near_ratio, index, beyond_ratio)
+    l.have(
+        real.abs(a[index + 1] / a[index]) < q,
+        by=[real.abs.defn(real.abs(a[index + 1] / a[index]) - r)],
+    )
+    l.auto(by=[real.abs_div(a[index + 1], a[index]), real.abs_pos_iff(a[index])])
+
+    h = l.have(
+        Exists(M, ForAll(n, n >= 0, cumsum(seq_abs(a))[n] <= M)),
+        by=[exists_abs_prefix_bound_of_geometric_decay(a, q, start)],
+    )
+    bound, _ = l.obtain(h)
+    l.unfold(is_summable)
+    l.split()
+    l.auto(by=[exists_has_sum_of_abs_prefix_bound(a, bound)])
+    l.auto(
+        by=[
+            exists_has_sum_of_nonneg_of_bounded(seq_abs(a), bound),
+            abs_ext,
+            real.abs_pos,
         ]
     )
