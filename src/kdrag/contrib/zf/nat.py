@@ -126,7 +126,9 @@ def induct_omega(x: kd.smt.ExprRef, P: kd.smt.QuantifierRef) -> kd.Proof:
     # from `omega_induction(P)` made z3 match P[k] under binders, which was
     # seed- and state-dependent.
     inst = omega_induction_at(P, x)
-    return kd.prove(kd.rewrite.beta(inst.thm), by=[inst])
+    thm = kd.rewrite.beta(inst.thm)
+    assert isinstance(thm, kd.smt.BoolRef)
+    return kd.prove(thm, by=[inst])
 
 
 # Transitivity and the Peano axiom V (Halmos §12)
