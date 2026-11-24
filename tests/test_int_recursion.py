@@ -1,6 +1,6 @@
 import pytest
 
-from kdrag import kernel, prove
+from kdrag import define_const, kernel, prove
 from kdrag.smt import (
     ArraySort,
     BoolSort,
@@ -173,7 +173,7 @@ def test_defined_helpers_and_constants():
     f, n = fresh()
     g = FreshFunction(IntSort(), IntSort())
     kernel.define(g.name(), [n], n + 1)
-    initial = kernel.define("rec_initial", [], IntVal(7))
+    initial = define_const("rec_initial", IntVal(7))
     define_rec(f, n, If(n <= 0, initial, g(f(n - 1))))
     prove(f(2) == g(g(initial)), by=[f.defn(i) for i in range(3)])
 
@@ -295,7 +295,7 @@ def test_undefined_constants_are_rejected_but_formal_parameters_are_allowed():
         [n, external],
         If(n <= 0, external, parameterized(n - 1, external)),
     )
-    kernel.define(external.decl().name(), [], IntVal(3))
+    define_const(external.decl().name(), IntVal(3))
     define_rec(f, n, If(n <= 0, external, f(n - 1)))
 
 
