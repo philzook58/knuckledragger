@@ -214,6 +214,34 @@ P = Consts("P", ArraySort(ZFSet, BoolSort()))[0]
 
 @Theorem(
     ForAll(
+        [R, X, a, y],
+        elem(y, seg(R, X, a)) == And(elem(y, X), R[y, a], y != a),
+    )
+)
+def elem_seg_iff(l):
+    R, X, a, y = l.fixes()
+    l.unfold(seg)
+    l.rw(zf.elem_sep)
+    l.simp()
+    l.auto()
+
+
+# The elements of X without property P, named so that later steps never see the
+# predicate given to sep (see #106).
+without = define("without", [X, P], sep(X, Lambda(x, Not(P[x]))))
+
+
+@Theorem(ForAll([X, P, x], elem(x, without(X, P)) == And(elem(x, X), Not(P[x]))))
+def elem_without(l):
+    l.fixes()
+    l.unfold(without)
+    l.rw(zf.elem_sep)
+    l.simp()
+    l.auto()
+
+
+@Theorem(
+    ForAll(
         [R, X, P],
         is_well_order(R, X),
         ForAll(a, elem(a, X), ForAll(b, elem(b, seg(R, X, a)), P[b]), P[a]),
@@ -229,12 +257,15 @@ def well_order_induction(l):
     l.intro()
     l.contra()
     # Otherwise the elements without the property have a least one, a.
-    Bad = sep(X, Lambda(x, Not(P[x])))
-    l.have(Bad <= X, by=[le.defn, zf.elem_sep])
-    l.have(Bad != zf.emp, by=[zf.elem_sep(Lambda(x, Not(P[x])), X, a0), zf.elem_emp])
+    Bad = without(X, P)
+    l.have(Bad <= X, by=[le.defn, elem_without])
+    l.have(Bad != zf.emp, by=[elem_without(X, P, a0), zf.elem_emp(a0)])
     l.have(Exists(a, is_least(R, Bad, a)), by=[exists_least(R, X, Bad)])
     a1, _ = l.obtain(-1)
-    l.have(elem(a1, X), by=[is_least.defn(R, Bad, a1), zf.elem_sep, le.defn])
+    l.have(
+        And(elem(a1, X), Not(P[a1])),
+        by=[is_least.defn(R, Bad, a1), elem_without(X, P, a1)],
+    )
     # Every b < a has the property: otherwise b ∈ Bad and a ≤ b < a.
     l.have(ForAll(b, elem(b, seg(R, X, a1)), P[b]))
     b0 = l.fix()
@@ -242,28 +273,14 @@ def well_order_induction(l):
     l.contra()
     l.auto(
         by=[
-            seg.defn(R, X, a1),
-            zf.elem_sep,
+            elem_seg_iff(R, X, a1, b0),
+            elem_without(X, P, b0),
             is_least.defn(R, Bad, a1),
             partial_order_antisymm(R, X, a1, b0),
             partial_order_of_well_order(R, X),
         ]
     )
     # So a has the property, but a ∈ Bad.
-    l.auto(by=[is_least.defn(R, Bad, a1), zf.elem_sep])
-
-
-@Theorem(
-    ForAll(
-        [R, X, a, y],
-        elem(y, seg(R, X, a)) == And(elem(y, X), R[y, a], y != a),
-    )
-)
-def elem_seg_iff(l):
-    R, X, a, y = l.fixes()
-    l.unfold(seg)
-    l.rw(zf.elem_sep)
-    l.simp()
     l.auto()
 
 

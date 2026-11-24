@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add definite description `ordinal.the` with axiom `the_eq` (as Isabelle's THE; it picks only unique objects and adds no choice), and `contrib.zf.ordset` (Halmos §20): `eq_of_similarity` (similar ordinals are equal), `ordinal_comparable`, `is_ordinal_inter`, `elem_of_transitive_ssubset`, `exists_least_of_ordinals`, and `is_ordinal_of_transitive`.
 - Add `contrib.zf.count`, Halmos' counting theorem: `counting_theorem` (each well ordered set is similar to the ordinal `ord_of(R, X)`) and `ordinal_similar_unique`, proved by collecting the ordinals of initial segments with Replacement. Add `sim.similarity_inv`, `similarity_comp`, `similarity_seg`, and `poset.elem_seg_iff`, `seg_seg`, `partial_order_refl`.
 - Add to `contrib.zf.ordset` (Halmos §20): `is_ordinal_bigunion` with `le_bigunion` and `bigunion_le` (the union of a set of ordinals is their supremum), `ordinal_elem_iff_ssubset`, and the Burali-Forti paradox `burali_forti`.
+- Add `contrib.zf.oarith` (Halmos §21): the ordinal sum `osum_set`/`osum_rel` with `osum_well_order`, ordinal addition `oadd(α, β) = ord_of(⊕, α ⊕ β)`, `oadd_zero`, `oadd_one` (α + 1 = α⁺), `one_oadd_omega` (1 + ω = ω), and `oadd_not_comm`. Add the choice-free first coordinate `fun.pfst` with `pfst_pair`, and name the counterexample set in `well_order_induction` (`poset.without`).
 
 ### Changed
 

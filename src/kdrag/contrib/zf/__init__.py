@@ -17,6 +17,7 @@ both, `arith` uses `rec`, `order` uses `arith`, `finite` and `poset` use
 `order`, `card` uses `finite`, `ordinal` uses `poset` and `finite`, and `trec`
 and `sim` use `poset` (`sim` also uses `finite`); `ordset` for sets of ordinal
 numbers (Halmos §20) uses `ordinal` and `sim`; `count` for the counting
-theorem (Halmos §20) uses `ordset`. Only `ordinal`, `ordset`, and `count` may
-use Replacement and definite description.
+theorem (Halmos §20) uses `ordset`; `oarith` for ordinal addition (Halmos §21)
+uses `count`. Only `ordinal`, `ordset`, `count`, and `oarith` may use
+Replacement and definite description.
 """

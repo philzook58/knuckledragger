@@ -167,3 +167,28 @@ surj_on = define(
 bij_on = define(
     "bij_on", [F, A, B], And(maps_to(F, A, B), inj_on(F, A), surj_on(F, A, B))
 )
+
+
+# Choice-free coordinates of an ordered pair (Kuratowski): ⋂(x, y) = {x}, so
+# ⋃⋂(x, y) = x. The fst/snd of theories.zf go through `pick`.
+pfst = define("pfst", [x], bigunion(sinter(x)))
+
+
+@Theorem(ForAll([x, y], pfst(pair(x, y)) == x))
+def pfst_pair(l):
+    x, y = l.fixes()
+    l.unfold(pfst)
+    # ⋂{{x}, {x, y}} = {x}
+    l.have(sinter(pair(x, y)) == sing(x))
+    l.rw(zf.ext_ax)
+    z0 = l.fix()
+    # {x} ∈ (x, y), so the pair is nonempty and its members are {x} and {x, y}.
+    l.have(elem(sing(x), pair(x, y)), by=[zf.elem_pair(x, y, sing(x))])
+    l.have(pair(x, y) != zf.emp, by=[zf.elem_emp(sing(x))])
+    l.have(
+        elem(z0, sinter(pair(x, y))) == And(elem(z0, sing(x)), elem(z0, upair(x, y))),
+        by=[elem_sinter(pair(x, y), z0), zf.elem_pair, zf.elem_upair(x, y, x)],
+    )
+    # z is in both {x} and {x, y} iff z = x.
+    l.auto(by=[zf.elem_sing(z0, x), zf.elem_upair(x, y, z0)])
+    l.auto(by=[bigunion_sing(x)])
