@@ -11,7 +11,9 @@ import pytest
         ("fun", 0),
         ("rec", 0),
         ("rec", 1),
-        ("fun nat rec", 7),
+        ("arith", 0),
+        ("arith", 3),
+        ("fun nat rec arith", 7),
     ],
 )
 def test_zf_proofs(modules, seed):
