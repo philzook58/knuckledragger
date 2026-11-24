@@ -1,5 +1,5 @@
 """
-Explain a failed `auto` or `prove`: the goal, why it failed, and a `by=` change that makes it pass.
+Explain a failed proof and suggest a verified change to `by=`.
 """
 
 import os
@@ -53,7 +53,7 @@ def repair(
             kernel.prove(thm, by=lemmas, timeout=timeout, solver=solver)
             return lemmas
         except Exception:
-            # A candidate may be unsupported by the selected backend.
+            # A proposed lemma may be unsupported by the selected solver.
             continue
     return None
 
@@ -66,38 +66,21 @@ def location(filename: str, line: int, func: str) -> str:
     return f" at line {line} in {func}"
 
 
-def explain(
-    goal,
-    error,
-    by=(),
-    timeout=1000,
-    where="",
-    source="",
-    *,
-    solver=None,
-    formula=None,
-    timed_out=False,
-    show_countermodel=False,
-) -> str:
-    """Format a solver failure and, when enabled, try a small change to its lemmas."""
-    countermodel = isinstance(error, kernel.SolverFailure) and len(error.args) == 3
+def explain(goal, error, by=(), timeout=1000, where="", source="", *, solver=None) -> str:
+    """Format a proof failure and any verified repair."""
+    countermodel = not isinstance(error, TimeoutError) and len(error.args) == 3
     backend = solver if isinstance(solver, str) else getattr(solver, "__name__", "z3")
-    if timed_out or isinstance(error, TimeoutError):
+    if isinstance(error, TimeoutError):
         reason = f"timed out after {timeout}ms"
-        if isinstance(error, kernel.SolverFailure) and len(error.args) == 4:
-            reason += f" (SMT-LIB: {error.args[3]})"
     elif countermodel:
         reason = f"{backend} found a countermodel"
     else:
         reason = f"{backend} returned {error.args[2]} (SMT-LIB: {error.args[3]})"
-    call = source.split("#")[0].rstrip() or "auto"
+    call = source.split("#")[0].rstrip() or "auto"  # drop a trailing comment
     lines = [pretty_goal(goal), "", f"❌ {call} failed{where}: {reason}"]
-    if countermodel and show_countermodel:
-        lines.append(f"Countermodel: {error.args[2]}")
     if config.diagnose:
         by = [by] if isinstance(by, kernel.Proof) else list(by or [])
-        thm = goal.to_expr() if formula is None else formula
-        fix = repair(thm, by, countermodel, solver=solver)
+        fix = repair(goal.to_expr(), by, countermodel, solver=solver)
         if fix is not None:
             lines.append(f"✅ passes with by=[{', '.join(_name(pf) for pf in fix)}]")
     return "\n".join(lines)
