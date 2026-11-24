@@ -3,6 +3,7 @@
 from kdrag import Theorem
 from kdrag.smt import And, Exists, ForAll, If, IntVal, Lambda, Not, RealVal
 import kdrag.theories.real as real
+from kdrag.theories.real import rset
 from kdrag.theories.real.rseq import (
     a,
     eventually,
@@ -200,3 +201,63 @@ def is_closed_icc(l):
     l.split()
     l.auto(by=[real.icc.defn(lo, hi)])
     l.auto(by=[real.ball.defn(p, radius), real.icc.defn(lo, hi)])
+
+
+@Theorem(ForAll([A, x], real.is_closed(A), real.closure(A)[x], A[x]))
+def mem_of_mem_closure(l):
+    """A closed set contains its closure."""
+    A, x = l.fixes()
+    l.unfold(real.closure)
+    l.beta()
+    _, approximants = l.intros()
+    l.contra()
+    l.have(real.is_open(~A), by=[real.is_closed.defn(A)])
+    opened = l.have(real.is_open.defn(~A).thm.arg(1), by=[real.is_open.defn(~A)])
+    outside = l.have((~A)[x], by=[])
+    radius, witness = l.obtain(l.specialize(opened, x, outside))
+    positive, _ = l.andE(witness)
+    l.obtain(l.specialize(approximants, radius, positive))
+    l.auto()
+
+
+@Theorem(ForAll([A, x], real.is_closed(A), rset.is_lub(A, x), A[x]))
+def mem_of_is_lub_of_is_closed(l):
+    """A real supremum of a closed set belongs to the set."""
+    A, x = l.fixes()
+    l.intros()
+    l.have(real.closure(A)[x])
+    l.unfold(real.closure)
+    l.beta()
+    eps = l.fix()
+    l.intro()
+    # Lowering the supremum by eps gives a point within eps of it.
+    l.have(Not(rset.is_ub(A, x - eps)), by=[rset.le_of_is_lub_of_is_ub(A, x, x - eps)])
+    near = l.have(Exists(y, A[y], x - eps < y), by=[rset.is_ub.defn(A, x - eps)])
+    point, _ = l.obtain(near)
+    l.have(
+        point <= x,
+        by=[rset.is_ub_of_is_lub(A, x), rset.le_of_mem_of_is_ub(A, point, x)],
+    )
+    l.exists(point)
+    l.auto(by=[real.ball.defn(x, eps)])
+    l.auto(by=[mem_of_mem_closure(A, x)])
+
+
+@Theorem(ForAll([A, x], real.is_closed(A), rset.is_glb(A, x), A[x]))
+def mem_of_is_glb_of_is_closed(l):
+    """A real infimum of a closed set belongs to the set."""
+    A, x = l.fixes()
+    l.intros()
+    l.have(real.closure(A)[x])
+    l.unfold(real.closure)
+    l.beta()
+    eps = l.fix()
+    l.intro()
+    # Raising the infimum by eps gives a point within eps of it.
+    l.have(Not(rset.is_lb(A, x + eps)), by=[rset.is_glb.defn(A, x)])
+    near = l.have(Exists(y, A[y], y < x + eps), by=[rset.is_lb.defn(A, x + eps)])
+    point, _ = l.obtain(near)
+    l.have(x <= point, by=[rset.is_glb.defn(A, x), rset.is_lb.defn(A, x)])
+    l.exists(point)
+    l.auto(by=[real.ball.defn(x, eps)])
+    l.auto(by=[mem_of_mem_closure(A, x)])

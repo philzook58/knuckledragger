@@ -10,11 +10,14 @@ from kdrag.smt import (
     If,
     IntVal,
     Lambda,
+    Reals,
+    substitute,
     ToInt,
     ToReal,
 )
 from kdrag.notation import Image
 import kdrag.theories.real as real
+from kdrag.theories.real import rset
 from kdrag.theories.real.rseq import (
     F,
     a,
@@ -27,7 +30,7 @@ from kdrag.theories.real.rseq import (
     x,
     y,
 )
-from kdrag.theories.real.rset import An, M, nested, nested_subset
+from kdrag.theories.real.rset import An, M, nested, nested_subset, z
 
 from ._choice import exists_seq_of_forall_exists
 from .cauchy import is_bounded_nonneg_of_is_cauchy, is_cauchy_of_has_lim
@@ -44,6 +47,8 @@ from .topology import (
     is_closed_icc,
     is_closed_of_seq_limits,
     mem_of_has_lim_of_eventually_mem,
+    mem_of_is_glb_of_is_closed,
+    mem_of_is_lub_of_is_closed,
 )
 
 A = real.A
@@ -274,11 +279,10 @@ def nonempty_iinter_of_nested_compact(l):
 
 
 K = Const("K", real.RSet)
+_image = Image(f, K)
 
 
-@Theorem(
-    ForAll([f, A, K], cont_on(f, A), K <= A, is_compact(K), is_compact(Image(f, K)))
-)
+@Theorem(ForAll([f, A, K], cont_on(f, A), K <= A, is_compact(K), is_compact(_image)))
 def is_compact_image(l):
     """The image of a compact subset of the domain is compact (Abbott 4.4.1)."""
     f, A, K = l.fixes()
@@ -338,3 +342,154 @@ def is_compact_image(l):
     l.auto()
     l.exists(point)
     l.auto()
+
+
+@Theorem(
+    ForAll(
+        A,
+        is_compact(A),
+        Exists(x, A[x]),
+        Exists([x, y], A[x], A[y], rset.is_glb(A, x), rset.is_lub(A, y)),
+    )
+)
+def exists_extrema_of_is_compact(l):
+    """A nonempty compact set contains its infimum and supremum."""
+    A = l.fix()
+    l.intros()
+    l.have(is_bounded(A), by=[is_bounded_of_is_compact(A)])
+    bound = l.have(is_bounded.defn(A).thm.arg(1), by=[is_bounded.defn(A)])
+    radius, witness = l.obtain(bound)
+    _, bounds = l.andE(witness)
+    l.have(rset.bdd_below(A))
+    l.unfold(rset.bdd_below)
+    l.exists(-radius)
+    l.unfold(rset.is_lb)
+    point = l.fix()
+    l.intro()
+    l.specialize(bounds, point)
+    l.auto(by=[real.abs_le(point, radius)])
+    l.have(rset.bdd_above(A))
+    l.unfold(rset.bdd_above)
+    l.exists(radius)
+    l.unfold(rset.is_ub)
+    point = l.fix()
+    l.intro()
+    l.specialize(bounds, point)
+    l.auto(by=[real.abs_le(point, radius)])
+
+    infimum = l.have(
+        Exists(x, rset.is_glb(A, x)), by=[rset.exists_is_glb_of_bdd_below(A)]
+    )
+    supremum = l.have(
+        Exists(y, rset.is_lub(A, y)), by=[rset.exists_is_lub_of_bdd_above(A)]
+    )
+    lo, _ = l.obtain(infimum)
+    hi, _ = l.obtain(supremum)
+    l.exists(lo, hi)
+    l.auto(
+        by=[
+            is_closed_of_is_compact(A),
+            mem_of_is_glb_of_is_closed(A, lo),
+            mem_of_is_lub_of_is_closed(A, hi),
+        ]
+    )
+
+
+lo, hi = Reals("lo hi")
+
+
+@Theorem(
+    ForAll(
+        [f, K, lo, hi],
+        _image[lo],
+        _image[hi],
+        rset.is_lb(_image, lo),
+        rset.is_ub(_image, hi),
+        Exists([x, y], K[x], K[y], ForAll(z, K[z], And(f[x] <= f[z], f[z] <= f[y]))),
+    )
+)
+def _exists_extrema_on_of_extrema_image(l):
+    f, K, lo, hi = l.fixes()
+    l.intros()
+    image = Image(f, K)
+    # The extreme image values have preimages in K.
+    lower = l.have(Exists(x, K[x], lo == f[x]), by=[])
+    upper = l.have(Exists(y, K[y], hi == f[y]), by=[])
+    xmin, _ = l.obtain(lower)
+    xmax, _ = l.obtain(upper)
+    l.exists(xmin, xmax)
+    l.split()
+    l.auto()
+    l.auto()
+    point = l.fix()
+    l.intro()
+    l.have(image[f[point]])
+    l.beta()
+    l.exists(point)
+    l.auto()
+    l.auto(
+        by=[rset.is_lb.defn(image, lo), rset.le_of_mem_of_is_ub(image, f[point], hi)]
+    )
+
+
+@Theorem(ForAll([f, K], Exists(x, K[x]), Exists(x, _image[x])))
+def _image_nonempty(l):
+    function, domain = l.fixes()
+    point, _ = l.obtain(l.intro())
+    l.exists(function[point])
+    l.beta()
+    l.exists(point)
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [f, K],
+        Exists(
+            [x, y], _image[x], _image[y], rset.is_glb(_image, x), rset.is_lub(_image, y)
+        ),
+        Exists([x, y], K[x], K[y], ForAll(z, K[z], And(f[x] <= f[z], f[z] <= f[y]))),
+    )
+)
+def _exists_extrema_on_of_image_contains_extrema(l):
+    function, domain = l.fixes()
+    image = substitute(_image, (f, function), (K, domain))
+    (lo, hi), bounds = l.obtain(l.intro())
+    lo_mem, hi_mem, _, _ = l.andE(bounds)
+    lower = l.have(rset.is_lb(image, lo), by=[rset.is_glb.defn(image, lo)])
+    upper = l.have(rset.is_ub(image, hi), by=[rset.is_ub_of_is_lub(image, hi)])
+    l.specialize(
+        _exists_extrema_on_of_extrema_image,
+        function,
+        domain,
+        lo,
+        hi,
+        lo_mem,
+        hi_mem,
+        lower,
+        upper,
+    )
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [f, K],
+        cont_on(f, K),
+        is_compact(K),
+        Exists(x, K[x]),
+        Exists([x, y], K[x], K[y], ForAll(z, K[z], And(f[x] <= f[z], f[z] <= f[y]))),
+    )
+)
+def extreme_value_theorem(l):
+    """A continuous function on a nonempty compact set attains both extrema."""
+    function, domain = l.fixes()
+    image = substitute(_image, (f, function), (K, domain))
+    l.auto(
+        by=[
+            is_compact_image(function, domain, domain),
+            _image_nonempty(function, domain),
+            exists_extrema_of_is_compact(image),
+            _exists_extrema_on_of_image_contains_extrema(function, domain),
+        ]
+    )
