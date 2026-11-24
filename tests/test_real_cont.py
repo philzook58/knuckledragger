@@ -42,6 +42,7 @@ def test_limits_at_removable_discontinuities():
         ("rseq integral cont finsum deriv ftc", 7),
         ("sine", 0),
         ("cauchy", 0),
+        ("cauchy finsum rseq series", 1),
         ("sine ftc cauchy", 7),
     ],
 )

@@ -1,6 +1,7 @@
 """Convergence and sums of real series."""
 
 from kdrag import Theorem
+from kdrag.contrib.analysis.cauchy import is_cauchy_iff_exists_has_lim
 from kdrag.contrib.analysis.finsum import finsum_geom
 from kdrag.contrib.analysis.rseq import (
     abs_sub_le_of_has_lim,
@@ -10,9 +11,12 @@ from kdrag.contrib.analysis.rseq import (
 from kdrag.smt import (
     And,
     Consts,
+    Eq,
     Exists,
     ForAll,
+    If,
     Int,
+    IntVal,
     Lambda,
     Real,
     RealVal,
@@ -35,7 +39,9 @@ from kdrag.theories.real.rseq import (
     has_lim,
     has_lim_sub,
     has_sum,
+    is_cauchy,
     is_monotone,
+    is_summable,
     range_nonneg,
     sub,
 )
@@ -133,6 +139,93 @@ def has_sum_geom(l):
 a, b = Consts("a b", RSeq)
 m, start = Int("m"), Int("start")
 M, S = Real("M"), Real("S")
+
+
+eps = Real("eps")
+
+
+def _cauchy_tails(a):
+    return ForAll(
+        eps,
+        eps > 0,
+        Exists(
+            start,
+            start >= 0,
+            ForAll(
+                [m, n],
+                start <= m,
+                m <= n,
+                real.abs(cumsum(a)[n] - cumsum(a)[m]) < eps,
+            ),
+        ),
+    )
+
+
+@Theorem(ForAll(a, Eq(is_cauchy(cumsum(a)), _cauchy_tails(a))))
+def _is_cauchy_cumsum_iff_tails(l):
+    a = l.fix()
+    partial = cumsum(a)
+    l.unfold(is_cauchy)
+    l.split()
+
+    # Move the strict Cauchy cutoff to a nonnegative inclusive cutoff.
+    cauchy = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    N, close = l.obtain(l.specialize(cauchy, eps, positive))
+    l.exists(If(N < 0, IntVal(0), N + 1))
+    l.split()
+    l.auto()
+    m, n = l.fixes()
+    l.intros()
+    l.specialize(close, n, m)
+    l.auto()
+
+    # The unordered Cauchy condition follows by swapping the two endpoints.
+    tails = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    N, bound = l.obtain(l.specialize(tails, eps, positive))
+    _, small = l.andE(bound)
+    l.exists(N)
+    m, n = l.fixes()
+    l.intros()
+    l.cases(n <= m, m < n)
+    l.specialize(small, n, m)
+    l.auto()
+    l.specialize(small, m, n)
+    l.auto(by=[real.abs_neg(partial[n] - partial[m])])
+
+
+@Theorem(ForAll(a, Eq(is_summable(a), is_cauchy(cumsum(a)))))
+def is_summable_iff_is_cauchy_cumsum(l):
+    """A real series converges iff its partial sums form a Cauchy sequence."""
+    a = l.fix()
+    partial = cumsum(a)
+    l.split()
+    l.unfold(is_summable)
+    value, _ = l.obtain(l.intro())
+    l.have(has_lim(partial, value), by=[has_sum.defn(a, value)])
+    l.have(Exists(S, has_lim(partial, S)))
+    l.exists(value)
+    l.auto()
+    l.auto(by=[is_cauchy_iff_exists_has_lim(partial)])
+
+    l.intro()
+    converges = l.have(
+        Exists(S, has_lim(partial, S)), by=[is_cauchy_iff_exists_has_lim(partial)]
+    )
+    value, _ = l.obtain(converges)
+    l.unfold(is_summable)
+    l.exists(value)
+    l.auto(by=[has_sum.defn(a, value)])
+
+
+@Theorem(ForAll(a, Eq(is_summable(a), _cauchy_tails(a))))
+def is_summable_iff_cauchy_tails(l):
+    """A real series converges iff every sufficiently late finite tail is small."""
+    a = l.fix()
+    l.auto(by=[is_summable_iff_is_cauchy_cumsum(a), _is_cauchy_cumsum_iff_tails(a)])
 
 
 @Theorem(
