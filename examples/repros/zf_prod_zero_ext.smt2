@@ -1,0 +1,36 @@
+; benchmark generated from python API
+(set-info :status unknown)
+(declare-sort ZFSet 0)
+(declare-fun |∈| (ZFSet ZFSet) Bool)
+(declare-fun pair (ZFSet ZFSet) ZFSet)
+(declare-fun psnd (ZFSet) ZFSet)
+(declare-fun pfst (ZFSet) ZFSet)
+(declare-fun prod (ZFSet ZFSet) ZFSet)
+(declare-fun |∅| () ZFSet)
+(declare-fun zf.zero () ZFSet)
+(assert
+ (forall ((A ZFSet) (B ZFSet) )(let (($x234 (forall ((x ZFSet) )(let (($x152 (|∈| x B)))
+ (let (($x178 (|∈| x A)))
+ (= $x178 $x152))))
+ ))
+ (let (($x245 (= A B)))
+ (= $x245 $x234))))
+ )
+(assert
+ (forall ((A ZFSet) (B ZFSet) (p ZFSet) )(let ((?x2685 (pfst p)))
+ (let (($x9617 (|∈| ?x2685 A)))
+ (let ((?x2451 (prod A B)))
+ (let (($x876 (|∈| p ?x2451)))
+ (= $x876 (and $x9617 (|∈| (psnd p) B) (= p (pair ?x2685 (psnd p))))))))))
+ )
+(assert
+ (forall ((x ZFSet) )(let (($x250 (|∈| x |∅|)))
+ (= $x250 false)))
+ )
+(assert
+ (= zf.zero |∅|))
+(assert
+ (let (($x14137 (forall ((A ZFSet) )(= (prod A zf.zero) |∅|))
+))
+(not $x14137)))
+(check-sat)
