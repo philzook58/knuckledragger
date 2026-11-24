@@ -23,6 +23,7 @@
 - `kdrag.theories` is the curated library for mathematics Philip has carefully reviewed and understands. Keep new or less-reviewed mathematics in `kdrag.contrib`; use `kdrag.contrib.analysis` for exploratory real analysis.
 - Philip will manually promote material into `kdrag.theories`. Do not promote it, or move existing reviewed material out, without an explicit request.
 - Use the single derivative predicate `contrib.analysis.deriv.has_deriv_at(f, a, p)`, defined via `has_lim_at`. Derive alternative characterizations as theorems rather than introducing parallel derivative predicates.
+- In `contrib.linalg`, vectors are `RSeq`, lists of vectors are a family `Int -> RSeq` plus a length, and `span` is the smallest subspace containing the list; `mem_span_iff` gives the linear-combination form. Keep `span` -> `indep` -> `dim` one-way.
 - In `contrib.analysis`, keep pointwise limits/continuity in `cont`, derivative predicates and derivative-only lemmas in `deriv`, sequence limits in `rseq`, finite sums in `finsum`, gauge-integral construction in `integral`, and the derivative/integral connection in `ftc`. Keep dependencies one-way; `integral` must not depend on `deriv` or `ftc`.
 - Compare both folders for existing definitions and reusable theorems before adding mathematics. Contrib may import theories; theories must not import contrib. Keep exploratory definitions separate from existing theory declarations until promotion.
 - If the layout or a proposed change conflicts with this boundary, point it out rather than silently treating it as permission to change the policy.
@@ -273,6 +274,9 @@ def sum_append(pf):
 - Give witnesses involving division explicitly with `l.exists`, then `obtain` a fresh constant for them (e.g. `eta` with `eta * (|b - a| + 1) == eps`). Division terms inside later goals cause nonlinear timeouts.
 - `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.
 - For pointwise choice of a function (e.g. gauges), use `contrib.analysis._choice.axiom_of_choice` and state the premise with its binder names `x` and `y`.
+- After `l.cases(P)`, the hypothesis is `P == True`, which `obtain` will not open; restate it with `l.have(P, by=[])` first.
+- If `qed` reports `LemmaCallback failed` with an `unknown` result after every tactic succeeded, reconstruction fell back to re-proving from all collected lemmas (issue #112). Move a large branch into its own lemma.
+- A set-valued helper used as a Python-level `Lambda` can make membership goals time out; `define` it so it stays a folded symbol.
 - Isolate extensional or rational identities from quantified limit hypotheses when proving derivative rules; import-order tests can reveal timeouts hidden by a standalone import.
 
 
