@@ -11,7 +11,18 @@ in `cardinal` uses it.
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import And, ArraySort, BoolSort, Not, Consts, Exists, ForAll, Lambda, Or
+from kdrag.smt import (
+    And,
+    ArraySort,
+    BoolSort,
+    Consts,
+    Exists,
+    ForAll,
+    If,
+    Lambda,
+    Not,
+    Or,
+)
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, succ, zero
 from kdrag.contrib.zf.arith import add, add_elem_omega
@@ -55,7 +66,9 @@ from kdrag.contrib.zf.omul import bit, bit_elem_bit, bit_elem_omega, elem_prod_i
 from kdrag.contrib.zf.order import comparable, nat_comparable
 from kdrag.contrib.zf.rec import nat_rec, nat_rec_succ, nat_rec_zero
 
-A, B, C, X, Y, Z, k, m, m1, n, n1, p, q = Consts("A B C X Y Z k m m1 n n1 p q", ZFSet)
+A, B, C, X, Y, Z, a, k, m, m1, n, n1, p, q = Consts(
+    "A B C X Y Z a k m m1 n n1 p q", ZFSet
+)
 F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 R = Consts("R", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
 
@@ -158,8 +171,38 @@ def bit_inj(l):
     )
 
 
-def _bits(a, n):
-    return [bit_inj(a, zero, n, n1), bit_inj(a, one, n, n1)]
+@Theorem(
+    ForAll(
+        [a, n, m1, n1],
+        Or(a == zero, a == one),
+        elem(n, omega),
+        elem(m1, omega),
+        elem(n1, omega),
+        bit(a, n) == code(m1, n1),
+        If(
+            a == zero,
+            And(m1 == zero, n == n1),
+            Exists(k, And(elem(k, omega), m1 == succ(k), n == code(k, n1))),
+        ),
+    )
+)
+def bit_eq_code(l):
+    """code(0, n₁) = 2n₁ is even and code(k + 1, n₁) = 2 code(k, n₁) + 1 is odd,
+    so 2n + a = code(m₁, n₁) fixes the case of m₁ by the parity a."""
+    a, n, m1, n1 = l.fixes()
+    l.intros()
+    l.cases(m1 == zero, m1 != zero)
+    l.auto(by=[code_zero(n1), bit_inj(a, zero, n, n1), zero_ne_one])
+    l.have(
+        Exists(k, And(elem(k, omega), m1 == succ(k))),
+        by=[exists_eq_succ_of_ne_zero(m1)],
+    )
+    k0, _ = l.obtain(-1)
+    c = code(k0, n1)
+    l.have(code(m1, n1) == bit(one, c), by=[code_succ(k0, n1)])
+    l.have(elem(c, omega), by=[code_elem_omega(k0, n1)])
+    l.have(And(a == one, n == c), by=[bit_inj(a, one, n, c)])
+    l.auto(by=[zero_ne_one])
 
 
 @Theorem(
@@ -177,50 +220,30 @@ def _bits(a, n):
     )
 )
 def code_inj(l):
-    """By induction on m: code(0, n) is even and code(m + 1, n) is odd, and
-    2a + 1 = 2b + 1 gives a = b."""
+    """By induction on m, with the parity cases in `bit_eq_code`."""
     m = l.fix()
     l.intro()
     l.induct(m, using=induct_omega)
     m1, n, n1 = l.fixes()
     l.intros()
-    l.cases(m1 == zero, m1 != zero)
-    l.auto(by=[code_zero, bit_inj(zero, zero, n, n1)])
-    l.have(
-        Exists(k, And(elem(k, omega), m1 == succ(k))),
-        by=[exists_eq_succ_of_ne_zero(m1)],
-    )
-    k0, _ = l.obtain(-1)
-    c = code(k0, n1)
-    l.auto(
-        by=[
-            code_zero(n),
-            code_succ(k0, n1),
-            code_elem_omega(k0, n1),
-            bit_inj(zero, one, n, c),
-            zero_ne_one,
-        ]
-    )
-    # Step: code(k + 1, n) = 2 code(k, n) + 1 is odd.
+    l.auto(by=[code_zero(n), bit_eq_code(zero, n, m1, n1)])
+    # Step: code(k + 1, n) = 2 code(k, n) + 1 = code(m₁, n₁) gives m₁ = j + 1
+    # with code(k, n) = code(j, n₁), and the hypothesis gives k = j and n = n₁.
     k1 = l.fix()
-    l.intros()
+    ih = l.intros()[-1]
     m1, n, n1 = l.fixes()
     l.intros()
     c = code(k1, n)
-    l.have(code(succ(k1), n) == bit(one, c), by=[code_succ(k1, n)])
-    l.have(elem(c, omega), by=[code_elem_omega(k1, n)])
-    l.cases(m1 == zero, m1 != zero)
-    l.auto(by=[code_zero(n1), bit_inj(one, zero, c, n1), zero_ne_one])
     l.have(
-        Exists(k, And(elem(k, omega), m1 == succ(k))),
-        by=[exists_eq_succ_of_ne_zero(m1)],
+        And(code(succ(k1), n) == bit(one, c), elem(c, omega)),
+        by=[code_succ(k1, n), code_elem_omega(k1, n)],
+    )
+    l.have(
+        Exists(k, And(elem(k, omega), m1 == succ(k), c == code(k, n1))),
+        by=[bit_eq_code(one, c, m1, n1), zero_ne_one],
     )
     j0, _ = l.obtain(-1)
-    c1 = code(j0, n1)
-    l.have(
-        c == c1,
-        by=[code_succ(j0, n1), code_elem_omega(j0, n1), bit_inj(one, one, c, c1)],
-    )
+    l.specialize(ih, j0, n, n1)
     l.auto()
 
 

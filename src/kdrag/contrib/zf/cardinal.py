@@ -6,7 +6,20 @@ comparable, and X ≾ Y exactly when card(X) ⊆ card(Y).
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Not, Or
+from kdrag.smt import (
+    And,
+    ArraySort,
+    BoolSort,
+    Consts,
+    Eq,
+    Exists,
+    ForAll,
+    If,
+    Implies,
+    Lambda,
+    Not,
+    Or,
+)
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import (
     ZFSet,
@@ -17,7 +30,9 @@ from kdrag.theories.zf.zf import (
     pow,
     prod,
     sep,
+    sing,
     succ,
+    zero,
 )
 from kdrag.contrib.zf.count import counting_theorem, ord_of
 from kdrag.contrib.zf.ordinal import (
@@ -51,12 +66,18 @@ from kdrag.contrib.zf.finite import (
     equivalent_refl,
     equivalent_symm,
     equivalent_trans,
+    eq_of_equivalent_le_of_finite,
     finite,
+    image,
+    inv,
+    inv_apply,
     nat_eq_of_equivalent,
     omega_infinite,
 )
 from kdrag.contrib.zf.fun import (
     app,
+    elem_sub,
+    surj_on,
     app_elem,
     app_graph,
     bij_on,
@@ -70,10 +91,15 @@ from kdrag.contrib.zf.fun import (
 )
 from kdrag.contrib.zf.nat import (
     elem_succ_self,
+    exists_eq_succ_of_ne_zero,
     is_transitive,
     nat_not_elem_self,
     omega,
     omega_is_transitive,
+    omega_succ,
+    omega_zero,
+    succ_inj,
+    succ_ne_zero,
 )
 from kdrag.contrib.zf.omul import elem_prod_iff
 from kdrag.contrib.zf.poset import is_least, is_well_order, nat_le_rel
@@ -491,3 +517,120 @@ def dominated_total(l):
             dominated_of_card_le(Y, X),
         ]
     )
+
+
+@Theorem(
+    ForAll(
+        X,
+        Not(finite(X)),
+        Exists(Y, And(Y <= X, Y != X, equivalent(X, Y))),
+    )
+)
+def exists_equivalent_ssubset_of_infinite(l):
+    """Halmos §24: an infinite set is equivalent to a proper subset. With
+    e : ω → X one-to-one, send each e(n) to e(n + 1) and fix the other points;
+    this maps X onto X − {e(0)}."""
+    X = l.fix()
+    l.intro()
+    l.have(dominated(omega, X), by=[omega_dominated_of_infinite(X)])
+    l.have(Exists(F, And(maps_to(F, omega, X), inj_on(F, omega))), by=[dominated.defn])
+    e0, _ = l.obtain(-1)
+    I = inv(e0, omega)
+    Img = image(e0, omega, X)
+    # The image of e is the e(n), and I recovers n.
+    l.have(
+        ForAll(
+            x,
+            elem(x, Img) == And(elem(x, X), Exists(n, And(elem(n, omega), e0[n] == x))),
+        ),
+        by=[image.defn, zf.elem_sep],
+    )
+    l.have(ForAll(x, elem(x, Img), And(elem(I[x], omega), e0[I[x]] == x)))
+    x0 = l.fix()
+    l.intro()
+    l.have(Exists(n, And(elem(n, omega), e0[n] == x0)))
+    l.auto()
+    n0, _ = l.obtain(-1)
+    l.auto(by=[inv_apply(e0, omega, n0)])
+    l.have(ForAll(n, elem(n, omega), elem(e0[n], Img)), by=[maps_to.defn])
+    e_0 = e0[zero]
+    l.have(elem(e_0, Img), by=[omega_zero])
+    Y = X - sing(e_0)
+    S = Lambda(x, If(elem(x, Img), e0[succ(I[x])], x))
+    l.exists(Y)
+    l.split()
+    l.auto(by=[le.defn, elem_sub])
+    l.auto(by=[elem_sub(e_0, X, sing(e_0)), zf.elem_sing])
+    l.unfold(equivalent)
+    l.exists(S)
+    l.unfold(bij_on)
+    l.split()
+    # S lands in X − {e(0)}: e(n + 1) ≠ e(0) as n + 1 ≠ 0.
+    l.unfold(maps_to)
+    x1 = l.fix()
+    l.intro()
+    l.simp()
+    l.cases(elem(x1, Img), Not(elem(x1, Img)))
+    k1 = I[x1]
+    l.auto(
+        by=[
+            elem_sub,
+            zf.elem_sing,
+            omega_succ(k1),
+            omega_zero,
+            maps_to.defn(e0, omega, X),
+            inj_on.defn(e0, omega),
+            succ_ne_zero(k1),
+        ]
+    )
+    l.auto(by=[elem_sub, zf.elem_sing])
+    # One-to-one: shifted points stay in the image, the others are fixed.
+    l.unfold(inj_on)
+    x1, x2 = l.fixes()
+    l.intros()
+    l.simp(at=-1)
+    k1, k2 = I[x1], I[x2]
+    l.have(Implies(elem(x1, Img), elem(e0[succ(k1)], Img)), by=[omega_succ(k1)])
+    l.have(Implies(elem(x2, Img), elem(e0[succ(k2)], Img)), by=[omega_succ(k2)])
+    l.auto(
+        by=[
+            omega_succ(k1),
+            omega_succ(k2),
+            inj_on.defn(e0, omega),
+            succ_inj(k1, k2),
+        ]
+    )
+    # Onto: y = e(k) with k ≠ 0 is S(e(j)) for k = j + 1; other y are fixed.
+    l.unfold(surj_on)
+    y0 = l.fix()
+    l.intro()
+    l.cases(elem(y0, Img), Not(elem(y0, Img)))
+    k0 = I[y0]
+    l.have(k0 != zero, by=[elem_sub, zf.elem_sing])
+    l.have(
+        Exists(n, And(elem(n, omega), k0 == succ(n))),
+        by=[exists_eq_succ_of_ne_zero(k0)],
+    )
+    j0, _ = l.obtain(-1)
+    l.exists(e0[j0])
+    l.simp()
+    l.auto(by=[inv_apply(e0, omega, j0), maps_to.defn, le.defn, elem_sub, zf.elem_sing])
+    l.exists(y0)
+    l.simp()
+    l.auto(by=[elem_sub])
+
+
+@Theorem(
+    ForAll(
+        X,
+        Eq(Not(finite(X)), Exists(Y, And(Y <= X, Y != X, equivalent(X, Y)))),
+    )
+)
+def infinite_iff(l):
+    """Halmos §24: a set is infinite iff it is equivalent to a proper subset."""
+    X = l.fix()
+    l.split()
+    l.auto(by=[exists_equivalent_ssubset_of_infinite(X)])
+    l.intro()
+    Y0, _ = l.obtain(-1)
+    l.auto(by=[eq_of_equivalent_le_of_finite(X, Y0)])

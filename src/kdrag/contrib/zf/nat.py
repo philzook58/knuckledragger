@@ -8,7 +8,7 @@ proven for natural numbers by induction, as in Halmos.
 
 import kdrag as kd
 from kdrag import Theorem, axiom, define, define_const, prove
-from kdrag.smt import And, Consts, Exists, ForAll, Lambda, Not, Or
+from kdrag.smt import And, Consts, Exists, ForAll, Implies, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, sep, succ, zero
 
@@ -103,16 +103,30 @@ def omega_induction(l):
     l.auto(by=[zf.elem_sep(P, omega, k)])
 
 
+# Induction at one point, in the shape `l.induct` applies.
+omega_induction_at = prove(
+    ForAll(
+        [P, x],
+        Implies(
+            And(
+                P[zero],
+                ForAll(n, elem(n, omega), P[n], P[succ(n)]),
+                elem(x, omega),
+            ),
+            P[x],
+        ),
+    ),
+    by=[omega_induction],
+)
+
+
 def induct_omega(x: kd.smt.ExprRef, P: kd.smt.QuantifierRef) -> kd.Proof:
     """`using=` hook: `l.induct(n, using=induct_omega)` leaves goals P(0), the step, and n ∈ ω."""
-    k = kd.smt.FreshConst(ZFSet, prefix="n")
-    return kd.prove(
-        kd.smt.Implies(
-            And(P(zero), ForAll(k, elem(k, omega), P(k), P(succ(k))), elem(x, omega)),
-            P(x),
-        ),
-        by=[omega_induction(P)],
-    )
+    # Instantiate, then beta-reduce. Proving the reduced statement directly
+    # from `omega_induction(P)` made z3 match P[k] under binders, which was
+    # seed- and state-dependent.
+    inst = omega_induction_at(P, x)
+    return kd.prove(kd.rewrite.beta(inst.thm), by=[inst])
 
 
 # Transitivity and the Peano axiom V (Halmos §12)

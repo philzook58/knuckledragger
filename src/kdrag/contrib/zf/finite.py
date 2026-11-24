@@ -32,7 +32,7 @@ from kdrag.contrib.zf.nat import (
 )
 from kdrag.contrib.zf.order import comparable, elem_iff_le_ne, nat_comparable
 
-A, B, C, E, a, b, k, m, n, x, y, z = Consts("A B C E a b k m n x y z", ZFSet)
+A, B, C, E, X, Y, a, b, k, m, n, x, y, z = Consts("A B C E X Y a b k m n x y z", ZFSet)
 F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 
 equivalent = define("equivalent", [A, B], Exists(F, bij_on(F, A, B)))
@@ -300,3 +300,39 @@ def omega_infinite(l):
             nat_not_elem_self(n0),
         ]
     )
+
+
+@Theorem(ForAll([X, Y], finite(X), Y <= X, equivalent(X, Y), Y == X))
+def eq_of_equivalent_le_of_finite(l):
+    """Halmos §24: a finite set is equivalent to no proper subset. With X ~ n by
+    g, n ~ g[Y] ⊆ n, so g[Y] = n, and then every x ∈ X is in Y."""
+    X, Y = l.fixes()
+    l.intros()
+    l.have(Exists(n, And(elem(n, omega), equivalent(X, n))), by=[finite.defn(X)])
+    n0, _ = l.obtain(-1)
+    l.have(Exists(F, bij_on(F, X, n0)), by=[equivalent.defn])
+    g0, _ = l.obtain(-1)
+    img = image(g0, Y, n0)
+    l.have(maps_to(g0, Y, n0), by=[maps_to.defn, bij_on.defn, le.defn])
+    l.have(inj_on(g0, Y), by=[inj_on.defn, bij_on.defn, le.defn])
+    l.have(equivalent(Y, img), by=[bij_on_image(g0, Y, n0), equivalent.defn])
+    l.have(
+        equivalent(n0, img),
+        by=[
+            equivalent_symm(X, n0),
+            equivalent_trans(n0, X, Y),
+            equivalent_trans(n0, Y, img),
+        ],
+    )
+    l.have(img <= n0, by=[le.defn, image.defn, zf.elem_sep])
+    l.have(img == n0, by=[nat_eq_of_equivalent_le(n0)])
+    # x ∈ X has g x ∈ n = g[Y], so g x = g y for some y ∈ Y, and x = y.
+    l.have(X <= Y)
+    l.rw(le.defn)
+    x0 = l.fix()
+    l.intro()
+    l.have(elem(g0[x0], img), by=[bij_on.defn, maps_to.defn])
+    l.have(Exists(y, And(elem(y, Y), g0[y] == g0[x0])), by=[image.defn, zf.elem_sep])
+    y0, _ = l.obtain(-1)
+    l.auto(by=[bij_on.defn, inj_on.defn(g0, X), le.defn(Y, X)])
+    l.auto(by=[zf.ext_ax, le.defn])
