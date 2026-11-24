@@ -192,3 +192,31 @@ def pfst_pair(l):
     # z is in both {x} and {x, y} iff z = x.
     l.auto(by=[zf.elem_sing(z0, x), zf.elem_upair(x, y, z0)])
     l.auto(by=[bigunion_sing(x)])
+
+
+# The second coordinate: the unique y ∈ ⋃p with p = (pfst p, y).
+psnd = define("psnd", [x], bigunion(sep(bigunion(x), Lambda(y, x == pair(pfst(x), y)))))
+
+
+@Theorem(ForAll([x, y], psnd(pair(x, y)) == y))
+def psnd_pair(l):
+    x, y = l.fixes()
+    l.unfold(psnd)
+    # {z ∈ ⋃(x, y) | (x, y) = (pfst (x, y), z)} = {y}, as pfst (x, y) = x.
+    p = pair(x, y)
+    l.have(sep(bigunion(p), Lambda(z, p == pair(pfst(p), z))) == sing(y))
+    l.rw(zf.ext_ax)
+    z0 = l.fix()
+    l.rw(zf.elem_sep)
+    l.simp()
+    l.have(pfst(p) == x, by=[pfst_pair])
+    l.have(
+        elem(y, bigunion(p)),
+        by=[
+            zf.bigunion_ax(p, y),
+            zf.elem_pair(x, y, upair(x, y)),
+            zf.elem_upair(x, y, y),
+        ],
+    )
+    l.auto(by=[zf.pair_inj, zf.elem_sing(z0, y)])
+    l.auto(by=[bigunion_sing(y)])
