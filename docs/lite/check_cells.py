@@ -12,23 +12,15 @@ import io
 import sys
 import time
 from importlib import import_module
-from pathlib import Path
 
 sys.modules["sympy"] = None  # type: ignore  # not installed by the cell
 sys.path.insert(0, "docs")
-from lite.cells import INSTALL, SKIP_FILE, Definitions  # noqa: E402
+from lite.cells import INSTALL, SKIP_FILE, Definitions, theorem_modules  # noqa: E402
 
 import kdrag as kd  # noqa: E402
-import kdrag.theories  # noqa: E402
 
 write = "--write" in sys.argv
-modules = [a for a in sys.argv[1:] if not a.startswith("-")] or [
-    ".".join(("kdrag", "theories", *p.with_suffix("").parts)).removesuffix(".__init__")
-    for p in sorted(
-        q.relative_to(Path(kdrag.theories.__file__).parent)
-        for q in Path(kdrag.theories.__file__).parent.rglob("*.py")
-    )
-]
+modules = [a for a in sys.argv[1:] if not a.startswith("-")] or theorem_modules()
 
 
 def run(code: str) -> None:
