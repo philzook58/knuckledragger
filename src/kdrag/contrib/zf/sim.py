@@ -6,12 +6,19 @@ a ≤ b iff f(a) ≤ f(b). The central fact is Halmos' lemma that an
 order-preserving map of a well ordered set into itself satisfies a ≤ f(a).
 """
 
-from kdrag import Theorem, define
+from kdrag import Theorem, define, prove
 from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, sep
 from kdrag.contrib.zf.fun import bij_on, inj_on, maps_to, surj_on
-from kdrag.contrib.zf.finite import bij_on_comp, bij_on_id, bij_on_inv, inv, inv_elem
+from kdrag.contrib.zf.finite import (
+    bij_on_comp,
+    bij_on_id,
+    bij_on_inv,
+    equivalent,
+    inv,
+    inv_elem,
+)
 from kdrag.contrib.zf.poset import (
     exists_least,
     is_least,
@@ -410,3 +417,9 @@ def similar_trans(l):
     l.unfold(similar)
     l.exists(Lambda(x, h0[g0[x]]))
     l.auto(by=[similarity_comp(g0, h0, R, X, S, Y, T, Z)])
+
+
+equivalent_of_similarity = prove(
+    ForAll([f, R, X, S, Y], is_similarity(f, R, X, S, Y), equivalent(X, Y)),
+    by=[is_similarity.defn, equivalent.defn],
+)

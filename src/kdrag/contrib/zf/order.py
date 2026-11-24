@@ -7,7 +7,7 @@ set of natural numbers has a least element.
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import And, Consts, Exists, ForAll, Not, Or
+from kdrag.smt import And, Consts, Exists, ForAll, If, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, succ, zero
 from kdrag.contrib.zf.nat import (
@@ -17,12 +17,14 @@ from kdrag.contrib.zf.nat import (
     induct_omega,
     is_transitive,
     nat_is_transitive,
-    nat_not_le_of_elem,
     nat_not_elem_self,
+    nat_not_le_of_elem,
     omega,
     omega_is_transitive,
     omega_succ,
     omega_zero,
+    one,
+    zero_ne_one,
 )
 from kdrag.contrib.zf.arith import (
     add,
@@ -30,6 +32,7 @@ from kdrag.contrib.zf.arith import (
     add_elem_omega,
     add_succ,
     add_zero,
+    succ_add,
     mul,
     mul_elem_omega,
     mul_succ,
@@ -37,7 +40,7 @@ from kdrag.contrib.zf.arith import (
     zero_add,
 )
 
-E, e, j, k, m, n, p = Consts("E e j k m n p", ZFSet)
+E, a, b, e, j, k, m, n, p, q = Consts("E a b e j k m n p q", ZFSet)
 
 comparable = define("comparable", [m, n], Or(elem(m, n), m == n, elem(n, m)))
 
@@ -325,3 +328,129 @@ def exists_least_of_nonempty(l):
     e0, _ = l.obtain(-1)
     l.have(elem(e0, omega), by=[le.defn(E, omega)])
     l.auto(by=[elem_succ_self(e0), omega_succ(e0)])
+
+
+# bit(a, n) is 2n + a for a ∈ 2, as Mathlib's Nat.bit.
+bit = define("bit", [a, n], If(a == zero, add(n, n), succ(add(n, n))))
+
+
+@Theorem(ForAll([a, n], elem(n, omega), elem(bit(a, n), omega)))
+def bit_elem_omega(l):
+    a, n = l.fixes()
+    l.intro()
+    l.unfold(bit)
+    l.auto(by=[add_elem_omega(n, n), omega_succ])
+
+
+@Theorem(
+    ForAll(
+        [a, b, n, m],
+        elem(n, omega),
+        elem(m, omega),
+        elem(n, m),
+        elem(bit(a, n), bit(b, m)),
+    )
+)
+def bit_elem_bit(l):
+    """n < m gives 2n + 1 < 2m: as n + 1 ≤ m, 2n + 2 ≤ 2m."""
+    a, b, n, m = l.fixes()
+    l.intros()
+    sn = succ(n)
+    l.have(elem(sn, omega), by=[omega_succ])
+    l.have(Or(elem(sn, m), sn == m), by=[succ_elem_succ(n, m), elem_succ(sn, m)])
+    # 2(n + 1) = (2n + 1) + 1
+    l.have(
+        add(sn, sn) == succ(succ(add(n, n))),
+        by=[add_succ(sn, n), succ_add(n, n)],
+    )
+    l.have(elem(add(sn, sn), omega), by=[add_elem_omega(sn, sn)])
+    l.have(elem(add(m, m), omega), by=[add_elem_omega(m, m)])
+    l.have(
+        Or(elem(add(sn, sn), add(m, m)), add(sn, sn) == add(m, m)),
+        by=[add_elem_add(sn, m, sn, m)],
+    )
+    # so 2n < 2n + 1 < 2m ≤ 2m + 1.
+    t = add(n, n)
+    l.have(elem(succ(t), add(m, m)))
+    l.auto(
+        by=[
+            elem_succ_self(succ(t)),
+            nat_elem_trans(succ(t), add(sn, sn), add(m, m)),
+        ]
+    )
+    l.have(
+        elem(t, add(m, m)),
+        by=[elem_succ_self(t), nat_elem_trans(t, succ(t), add(m, m))],
+    )
+    l.unfold(bit)
+    l.auto(
+        by=[
+            elem_succ_self(add(m, m)),
+            nat_elem_trans(t, add(m, m), succ(add(m, m))),
+            nat_elem_trans(succ(t), add(m, m), succ(add(m, m))),
+            omega_succ,
+        ]
+    )
+
+
+@Theorem(
+    ForAll(
+        k,
+        elem(k, omega),
+        Exists(n, And(elem(n, omega), Or(k == bit(zero, n), k == bit(one, n)))),
+    )
+)
+def exists_bit(l):
+    """Every natural number is even or odd."""
+    k = l.fix()
+    l.intro()
+    l.induct(k, using=induct_omega)
+    l.exists(zero)
+    l.auto(by=[omega_zero, bit.defn, add_zero(zero)])
+    k1 = l.fix()
+    l.intros()
+    n1, _ = l.obtain(-1)
+    l.cases(k1 == bit(zero, n1), k1 == bit(one, n1))
+    # 2n + 1 is odd, and (2n + 1) + 1 = 2(n + 1).
+    l.exists(n1)
+    l.auto(by=[bit.defn, zero_ne_one])
+    l.exists(succ(n1))
+    l.auto(
+        by=[bit.defn, omega_succ, add_succ(succ(n1), n1), succ_add(n1, n1), zero_ne_one]
+    )
+
+
+@Theorem(
+    ForAll(
+        [p, q, n, m],
+        elem(n, omega),
+        elem(m, omega),
+        Or(p == zero, p == one),
+        Or(q == zero, q == one),
+        bit(p, n) == bit(q, m),
+        And(p == q, n == m),
+    )
+)
+def bit_inj(l):
+    """2n + a determines n and a: different n are ordered, and 2n < 2n + 1."""
+    p, q, n, m = l.fixes()
+    l.intros()
+    l.have(
+        Or(elem(n, m), n == m, elem(m, n)),
+        by=[nat_comparable(n, m), comparable.defn(n, m)],
+    )
+    # For n = m, 2n ≠ 2n + 1 as 2n ∉ 2n.
+    t = add(n, n)
+    l.auto(
+        by=[
+            bit_elem_bit(p, q, n, m),
+            bit_elem_bit(q, p, m, n),
+            nat_not_elem_self(bit(p, n)),
+            bit_elem_omega(p, n),
+            bit.defn,
+            nat_not_elem_self(t),
+            elem_succ_self(t),
+            add_elem_omega(n, n),
+            zero_ne_one,
+        ]
+    )

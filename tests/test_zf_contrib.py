@@ -9,6 +9,7 @@ import pytest
     [
         ("nat", 0),
         ("fun", 0),
+        ("dsum", 0),
         ("rec", 0),
         ("rec", 1),
         ("arith", 0),
@@ -52,11 +53,11 @@ import pytest
         ("cardinal", 0),
         ("cardinal", 11),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal",
+            "fun nat dsum rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal",
             3,
         ),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal",
+            "fun nat dsum rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal",
             7,
         ),
     ],
@@ -128,6 +129,7 @@ def _axioms_used(modules):
             [
                 "nat",
                 "fun",
+                "dsum",
                 "rec",
                 "arith",
                 "order",

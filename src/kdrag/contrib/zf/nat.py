@@ -226,3 +226,16 @@ def omega_is_transitive(l):
     # If k ⊆ ω and k ∈ ω then succ k = k ∪ {k} ⊆ ω.
     l.fix()
     l.auto(by=[elem_succ, le.defn])
+
+
+# Small naturals.
+
+one = succ(zero)
+zero_ne_one = prove(Not(zero == one), by=[succ_ne_zero])
+elem_one = prove(
+    ForAll(x, elem(x, one) == (x == zero)), by=[elem_succ, zero.defn, zf.elem_emp]
+)
+two = succ(one)
+elem_two = prove(
+    ForAll(x, elem(x, two) == Or(x == zero, x == one)), by=[elem_succ, elem_one]
+)

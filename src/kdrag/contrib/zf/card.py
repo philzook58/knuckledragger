@@ -23,7 +23,7 @@ from kdrag.contrib.zf.fun import (
 )
 from kdrag.contrib.zf.finite import equivalent, image, inv, inv_apply
 
-C, X, Y, x, x1, y = Consts("C X Y x x1 y", ZFSet)
+C, X, Y, Z, k, x, x1, y = Consts("C X Y Z k x x1 y", ZFSet)
 F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 
 dominated = define("dominated", [X, Y], Exists(F, And(maps_to(F, X, Y), inj_on(F, X))))
@@ -218,3 +218,32 @@ def schroeder_bernstein(l):
     l.auto(by=[inj_on.defn(G0, Y), maps_to.defn(F0, X, Y), le.defn])
     l.exists(G0[y1])
     l.auto(by=[inv_apply(G0, Y, y1), maps_to.defn(G0, Y, X)])
+
+
+@Theorem(ForAll([X, Y, Z], dominated(X, Y), dominated(Y, Z), dominated(X, Z)))
+def dominated_trans(l):
+    """Compose the one-to-one maps."""
+    X, Y, Z = l.fixes()
+    l.intros()
+    l.unfold(dominated, at=0)
+    l.unfold(dominated, at=1)
+    F0, _ = l.obtain(0)
+    G0, _ = l.obtain(1)
+    l.unfold(dominated)
+    l.exists(Lambda(k, G0[F0[k]]))
+    l.auto(by=[maps_to.defn, inj_on.defn])
+
+
+@Theorem(ForAll([X, Y], Y <= X, dominated(Y, X)))
+def dominated_of_le(l):
+    X, Y = l.fixes()
+    l.intro()
+    l.unfold(dominated)
+    l.exists(Lambda(k, k))
+    l.auto(by=[maps_to.defn, inj_on.defn, le.defn])
+
+
+dominated_of_equivalent = prove(
+    ForAll([X, Y], equivalent(X, Y), dominated(X, Y)),
+    by=[equivalent.defn, bij_on.defn, dominated.defn],
+)

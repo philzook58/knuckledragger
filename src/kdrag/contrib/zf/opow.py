@@ -18,9 +18,9 @@ from kdrag.contrib.zf.nat import (
     omega,
     omega_succ,
     omega_zero,
+    one,
     succ_ne_zero,
 )
-from kdrag.contrib.zf.oarith import one
 from kdrag.contrib.zf.omul import omul, one_omul
 from kdrag.contrib.zf.ordinal import (
     elem_repl,

@@ -30,7 +30,7 @@ from kdrag.theories.zf.zf import (
     upair,
 )
 
-A, B, X, Y, f, x, y, z = Consts("A B X Y f x y z", ZFSet)
+A, B, X, Y, f, p, x, y, z = Consts("A B X Y f p x y z", ZFSet)
 F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
 
 # Small set facts missing from theories.zf
@@ -298,3 +298,16 @@ def eq_graph(l):
     )
     (x0, y0), _ = l.obtain(-1)
     l.auto(by=[pair_app_elem(f, X, Y, x0), pair_elem_graph(F, X, Y, x0, y0)])
+
+
+@Theorem(
+    ForAll(
+        [A, B, p],
+        elem(p, prod(A, B))
+        == And(elem(pfst(p), A), elem(psnd(p), B), p == pair(pfst(p), psnd(p))),
+    )
+)
+def elem_prod_iff(l):
+    """The elements of A × B are the pairs of their coordinates."""
+    A, B, p0 = l.fixes()
+    l.auto(by=[zf.elem_prod_def, pfst_pair, psnd_pair, pair_elem_prod])

@@ -22,18 +22,13 @@ from kdrag.contrib.zf.fun import (
     surj_on,
 )
 from kdrag.contrib.zf.oarith import (
-    elem_osum_set,
-    inl,
-    inr,
     oadd,
     oadd_spec,
     oplus,
     oplus_apply,
     osum_rel_inl_inr,
     osum_rel_inr_inr,
-    osum_set,
     similar_osum,
-    zero_ne_one,
 )
 from kdrag.contrib.zf.order import nat_le
 from kdrag.contrib.zf.ordinal import is_ordinal, is_ordinal_of_elem, well_order_subset
@@ -53,6 +48,8 @@ from kdrag.contrib.zf.sim import (
     similar_trans,
     similarity_seg,
 )
+from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
+from kdrag.contrib.zf.nat import zero_ne_one
 
 A, B, C, D, a, d, p, q, x, y = Consts("A B C D a d p q x y", ZFSet)
 

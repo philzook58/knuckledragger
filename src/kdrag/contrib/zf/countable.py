@@ -25,8 +25,12 @@ from kdrag.smt import (
 )
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, succ, zero
-from kdrag.contrib.zf.arith import add, add_elem_omega
-from kdrag.contrib.zf.card import dominated, schroeder_bernstein
+from kdrag.contrib.zf.card import (
+    dominated,
+    dominated_of_le,
+    dominated_trans,
+    schroeder_bernstein,
+)
 from kdrag.contrib.zf.count import counting_theorem, ord_of
 from kdrag.contrib.zf.finite import (
     bij_on_image,
@@ -37,14 +41,18 @@ from kdrag.contrib.zf.finite import (
     image,
     inv,
 )
-from kdrag.contrib.zf.ordinal import is_ordinal, omega_is_ordinal
+from kdrag.contrib.zf.ordinal import (
+    is_ordinal,
+    omega_is_ordinal,
+    well_order_subset,
+)
 from kdrag.contrib.zf.ordset import ordinal_comparable, ordinal_le_of_elem
 from kdrag.contrib.zf.poset import is_well_order, nat_le_rel, omega_well_order
-from kdrag.contrib.zf.ordinal import well_order_subset
 from kdrag.contrib.zf.sim import is_similarity, similar
 from kdrag.contrib.zf.fun import (
     app,
     bij_on,
+    elem_prod_iff,
     inj_on,
     maps_to,
     pair_elem_prod,
@@ -52,18 +60,20 @@ from kdrag.contrib.zf.fun import (
     psnd,
 )
 from kdrag.contrib.zf.nat import (
-    elem_succ_self,
     exists_eq_succ_of_ne_zero,
     induct_omega,
-    nat_not_elem_self,
+    is_transitive,
     omega,
     omega_is_transitive,
-    is_transitive,
     omega_zero,
+    one,
+    zero_ne_one,
 )
-from kdrag.contrib.zf.oarith import one, zero_ne_one
-from kdrag.contrib.zf.omul import bit, bit_elem_bit, bit_elem_omega, elem_prod_iff
-from kdrag.contrib.zf.order import comparable, nat_comparable
+from kdrag.contrib.zf.order import (
+    bit,
+    bit_elem_omega,
+    bit_inj,
+)
 from kdrag.contrib.zf.rec import nat_rec, nat_rec_succ, nat_rec_zero
 
 A, B, C, X, Y, Z, a, k, m, m1, n, n1, p, q = Consts(
@@ -73,29 +83,6 @@ F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 R = Consts("R", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
 
 countable = define("countable", [X], dominated(X, omega))
-
-
-@Theorem(ForAll([X, Y, Z], dominated(X, Y), dominated(Y, Z), dominated(X, Z)))
-def dominated_trans(l):
-    """Compose the one-to-one maps."""
-    X, Y, Z = l.fixes()
-    l.intros()
-    l.unfold(dominated, at=0)
-    l.unfold(dominated, at=1)
-    F0, _ = l.obtain(0)
-    G0, _ = l.obtain(1)
-    l.unfold(dominated)
-    l.exists(Lambda(k, G0[F0[k]]))
-    l.auto(by=[maps_to.defn, inj_on.defn])
-
-
-@Theorem(ForAll([X, Y], Y <= X, dominated(Y, X)))
-def dominated_of_le(l):
-    X, Y = l.fixes()
-    l.intro()
-    l.unfold(dominated)
-    l.exists(Lambda(k, k))
-    l.auto(by=[maps_to.defn, inj_on.defn, le.defn])
 
 
 countable_of_le = prove(
@@ -133,42 +120,6 @@ def code_elem_omega(l):
     k0 = l.fix()
     l.intros()
     l.auto(by=[code_succ(k0, n), bit_elem_omega])
-
-
-@Theorem(
-    ForAll(
-        [p, q, n, m],
-        elem(n, omega),
-        elem(m, omega),
-        Or(p == zero, p == one),
-        Or(q == zero, q == one),
-        bit(p, n) == bit(q, m),
-        And(p == q, n == m),
-    )
-)
-def bit_inj(l):
-    """2n + a determines n and a: different n are ordered, and 2n < 2n + 1."""
-    p, q, n, m = l.fixes()
-    l.intros()
-    l.have(
-        Or(elem(n, m), n == m, elem(m, n)),
-        by=[nat_comparable(n, m), comparable.defn(n, m)],
-    )
-    # For n = m, 2n ≠ 2n + 1 as 2n ∉ 2n.
-    t = add(n, n)
-    l.auto(
-        by=[
-            bit_elem_bit(p, q, n, m),
-            bit_elem_bit(q, p, m, n),
-            nat_not_elem_self(bit(p, n)),
-            bit_elem_omega(p, n),
-            bit.defn,
-            nat_not_elem_self(t),
-            elem_succ_self(t),
-            add_elem_omega(n, n),
-            zero_ne_one,
-        ]
-    )
 
 
 @Theorem(

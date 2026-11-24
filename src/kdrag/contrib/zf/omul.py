@@ -20,10 +20,11 @@ from kdrag.smt import (
     Select,
 )
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, sep, succ, zero
+from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, sep, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
 from kdrag.contrib.zf.fun import (
     bij_on,
+    elem_prod_iff,
     inj_on,
     maps_to,
     pair_elem_prod,
@@ -33,24 +34,20 @@ from kdrag.contrib.zf.fun import (
     psnd_pair,
     surj_on,
 )
-from kdrag.contrib.zf.arith import add, add_elem_omega, add_succ, add_zero, succ_add
 from kdrag.contrib.zf.nat import (
-    elem_succ,
+    elem_one,
     elem_succ_self,
-    induct_omega,
+    elem_two,
     nat_not_elem_self,
     omega,
-    omega_succ,
     omega_zero,
+    one,
+    two,
+    zero_ne_one,
 )
 from kdrag.contrib.zf.oarith import (
-    elem_one,
-    elem_osum_set,
-    inl,
-    inr,
     oadd,
     oadd_spec,
-    one,
     oplus,
     oplus_apply,
     osum_rel,
@@ -58,18 +55,17 @@ from kdrag.contrib.zf.oarith import (
     osum_rel_inl_inr,
     osum_rel_inr_inr,
     osum_rel_pairs,
-    osum_set,
     similar_osum,
-    zero_ne_one,
 )
 from kdrag.contrib.zf.order import (
-    add_elem_add,
+    bit,
+    bit_elem_bit,
+    bit_elem_omega,
     comparable,
+    exists_bit,
     nat_comparable,
     nat_elem_asymm,
     nat_le,
-    nat_elem_trans,
-    succ_elem_succ,
 )
 from kdrag.contrib.zf.ordinal import is_ordinal, nat_is_ordinal, omega_is_ordinal
 from kdrag.contrib.zf.ordset import ordinal_well_order
@@ -98,24 +94,12 @@ from kdrag.contrib.zf.sim import (
     similar_symm,
     similar_trans,
 )
+from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
 
 A, B, E, a, b, c, d, k, m, n, p, q, x, y = Consts("A B E a b c d k m n p q x y", ZFSet)
 A2, B2 = Consts("A2 B2", ZFSet)
 R, S, R2, S2 = Consts("R S R2 S2", ArraySort(ZFSet, ZFSet, BoolSort()))
 f, g = Consts("f g", ArraySort(ZFSet, ZFSet))
-
-
-@Theorem(
-    ForAll(
-        [A, B, p],
-        elem(p, prod(A, B))
-        == And(elem(pfst(p), A), elem(psnd(p), B), p == pair(pfst(p), psnd(p))),
-    )
-)
-def elem_prod_iff(l):
-    """The elements of A × B are the pairs of their coordinates."""
-    A, B, p0 = l.fixes()
-    l.auto(by=[zf.elem_prod_def, pfst_pair, psnd_pair, pair_elem_prod])
 
 
 oprod_le = define(
@@ -485,12 +469,6 @@ def one_omul(l):
     l.auto(by=[pair_elem_prod(zero, x0, one, A), elem_one, psnd_pair])
     l.unfold(omul)
     l.auto(by=[ord_of_eq(otimes, X, A), similar.defn(otimes, X, nat_le_rel, A)])
-
-
-two = succ(one)
-elem_two = prove(
-    ForAll(x, elem(x, two) == Or(x == zero, x == one)), by=[elem_succ, elem_one]
-)
 
 
 @Theorem(ForAll(A, is_ordinal(A), omul(A, two) == oadd(A, A)))
@@ -1091,95 +1069,6 @@ def omul_assoc(l):
 
 
 # Halmos: 2ω = ω but ω2 = ω + ω ≠ ω, so multiplication is not commutative.
-
-# bit(a, n) is 2n + a for a ∈ 2, as Mathlib's Nat.bit.
-bit = define("bit", [a, n], If(a == zero, add(n, n), succ(add(n, n))))
-
-
-@Theorem(ForAll([a, n], elem(n, omega), elem(bit(a, n), omega)))
-def bit_elem_omega(l):
-    a, n = l.fixes()
-    l.intro()
-    l.unfold(bit)
-    l.auto(by=[add_elem_omega(n, n), omega_succ])
-
-
-@Theorem(
-    ForAll(
-        [a, b, n, m],
-        elem(n, omega),
-        elem(m, omega),
-        elem(n, m),
-        elem(bit(a, n), bit(b, m)),
-    )
-)
-def bit_elem_bit(l):
-    """n < m gives 2n + 1 < 2m: as n + 1 ≤ m, 2n + 2 ≤ 2m."""
-    a, b, n, m = l.fixes()
-    l.intros()
-    sn = succ(n)
-    l.have(elem(sn, omega), by=[omega_succ])
-    l.have(Or(elem(sn, m), sn == m), by=[succ_elem_succ(n, m), elem_succ(sn, m)])
-    # 2(n + 1) = (2n + 1) + 1
-    l.have(
-        add(sn, sn) == succ(succ(add(n, n))),
-        by=[add_succ(sn, n), succ_add(n, n)],
-    )
-    l.have(elem(add(sn, sn), omega), by=[add_elem_omega(sn, sn)])
-    l.have(elem(add(m, m), omega), by=[add_elem_omega(m, m)])
-    l.have(
-        Or(elem(add(sn, sn), add(m, m)), add(sn, sn) == add(m, m)),
-        by=[add_elem_add(sn, m, sn, m)],
-    )
-    # so 2n < 2n + 1 < 2m ≤ 2m + 1.
-    t = add(n, n)
-    l.have(elem(succ(t), add(m, m)))
-    l.auto(
-        by=[
-            elem_succ_self(succ(t)),
-            nat_elem_trans(succ(t), add(sn, sn), add(m, m)),
-        ]
-    )
-    l.have(
-        elem(t, add(m, m)),
-        by=[elem_succ_self(t), nat_elem_trans(t, succ(t), add(m, m))],
-    )
-    l.unfold(bit)
-    l.auto(
-        by=[
-            elem_succ_self(add(m, m)),
-            nat_elem_trans(t, add(m, m), succ(add(m, m))),
-            nat_elem_trans(succ(t), add(m, m), succ(add(m, m))),
-            omega_succ,
-        ]
-    )
-
-
-@Theorem(
-    ForAll(
-        k,
-        elem(k, omega),
-        Exists(n, And(elem(n, omega), Or(k == bit(zero, n), k == bit(one, n)))),
-    )
-)
-def exists_bit(l):
-    """Every natural number is even or odd."""
-    k = l.fix()
-    l.intro()
-    l.induct(k, using=induct_omega)
-    l.exists(zero)
-    l.auto(by=[omega_zero, bit.defn, add_zero(zero)])
-    k1 = l.fix()
-    l.intros()
-    n1, _ = l.obtain(-1)
-    l.cases(k1 == bit(zero, n1), k1 == bit(one, n1))
-    # 2n + 1 is odd, and (2n + 1) + 1 = 2(n + 1).
-    l.exists(n1)
-    l.auto(by=[bit.defn, zero_ne_one])
-    l.exists(succ(n1))
-    l.auto(
-        by=[bit.defn, omega_succ, add_succ(succ(n1), n1), succ_add(n1, n1), zero_ne_one]
-    )
 
 
 @Theorem(omul(two, omega) == omega)

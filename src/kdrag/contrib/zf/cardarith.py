@@ -9,7 +9,7 @@ correspondence. Cantor's theorem says X is strictly dominated by P(X) ~ 2^X.
 No choice is used.
 """
 
-from kdrag import Theorem, define, prove
+from kdrag import Theorem, define
 from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, If, Lambda, Not
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, pow, prod, sep, sing, zero
@@ -20,11 +20,12 @@ from kdrag.contrib.zf.fun import (
     app_elem,
     app_graph,
     bij_on,
+    elem_prod_iff,
     eq_graph,
     graph,
+    inj_on,
     is_func,
     is_func_graph,
-    inj_on,
     maps_to,
     pair_elem_prod,
     pfst,
@@ -34,20 +35,11 @@ from kdrag.contrib.zf.fun import (
     surj_on,
 )
 from kdrag.contrib.zf.oarith import (
-    elem_osum_set,
-    one,
-    inl,
-    inr,
     osum_assoc_map,
     osum_rel,
-    osum_set,
     similarity_osum_assoc,
-    zero_ne_one,
 )
 from kdrag.contrib.zf.omul import (
-    elem_prod_iff,
-    elem_two,
-    two,
     odist_map,
     oprod_assoc_map,
     oprod_rel,
@@ -55,17 +47,16 @@ from kdrag.contrib.zf.omul import (
     similarity_oprod_assoc,
 )
 from kdrag.contrib.zf.poset import nat_le_rel
-from kdrag.contrib.zf.sim import is_similarity
+from kdrag.contrib.zf.sim import (
+    equivalent_of_similarity,
+)
+from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
+from kdrag.contrib.zf.nat import elem_two, one, two, zero_ne_one
 
 A, B, C, X, Y, Z, f, g, p, x, y = Consts("A B C X Y Z f g p x y", ZFSet)
 F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
 R, S, T = Consts("R S T", ArraySort(ZFSet, ZFSet, BoolSort()))
 L = nat_le_rel  # any relation will do below
-
-equivalent_of_similarity = prove(
-    ForAll([F, R, X, S, Y], is_similarity(F, R, X, S, Y), equivalent(X, Y)),
-    by=[is_similarity.defn, equivalent.defn],
-)
 
 
 @Theorem(

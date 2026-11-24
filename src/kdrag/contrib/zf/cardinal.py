@@ -5,7 +5,7 @@ cardinal number card(X) is the least ordinal equivalent to X. Any two sets are
 comparable, and X ≾ Y exactly when card(X) ⊆ card(Y).
 """
 
-from kdrag import Theorem, define, prove
+from kdrag import Theorem, define
 from kdrag.smt import (
     And,
     ArraySort,
@@ -52,12 +52,16 @@ from kdrag.contrib.zf.ordset import (
 )
 from kdrag.contrib.zf.order import nat_le
 from kdrag.contrib.zf.sim import is_similarity, similar
-from kdrag.contrib.zf.card import dominated, schroeder_bernstein
+from kdrag.contrib.zf.card import (
+    dominated,
+    dominated_of_equivalent,
+    dominated_of_le,
+    dominated_trans,
+    schroeder_bernstein,
+)
 from kdrag.contrib.zf.choice import exists_choice_on, is_choice_on
 from kdrag.contrib.zf.countable import (
     countable,
-    dominated_of_le,
-    dominated_trans,
     omega_dominated_of_well_order,
     prod_omega_equivalent,
 )
@@ -76,11 +80,11 @@ from kdrag.contrib.zf.finite import (
 )
 from kdrag.contrib.zf.fun import (
     app,
-    elem_sub,
-    surj_on,
     app_elem,
     app_graph,
     bij_on,
+    elem_prod_iff,
+    elem_sub,
     graph,
     inj_on,
     is_func,
@@ -88,6 +92,7 @@ from kdrag.contrib.zf.fun import (
     maps_to,
     pair_elem_prod,
     pfst,
+    surj_on,
 )
 from kdrag.contrib.zf.nat import (
     elem_succ_self,
@@ -101,7 +106,6 @@ from kdrag.contrib.zf.nat import (
     succ_inj,
     succ_ne_zero,
 )
-from kdrag.contrib.zf.omul import elem_prod_iff
 from kdrag.contrib.zf.poset import is_least, is_well_order, nat_le_rel
 from kdrag.contrib.zf.wellord import well_ordering
 
@@ -452,12 +456,6 @@ def card_omega(l):
     l.intro()
     l.auto(by=[omega_infinite, finite.defn(omega)])
     l.auto(by=[card_eq_of(omega, omega)])
-
-
-dominated_of_equivalent = prove(
-    ForAll([X, Y], equivalent(X, Y), dominated(X, Y)),
-    by=[equivalent.defn, bij_on.defn, dominated.defn],
-)
 
 
 @Theorem(ForAll([X, Y], card(X) <= card(Y), dominated(X, Y)))

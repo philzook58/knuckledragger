@@ -23,18 +23,18 @@ from kdrag.smt import (
     Select,
 )
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, sep, sing, succ, zero
+from kdrag.theories.zf.zf import ZFSet, elem, le, pair, sep, succ, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
 from kdrag.contrib.zf.fun import (
     bij_on,
     inj_on,
     maps_to,
-    pair_elem_prod,
     pfst,
     pfst_pair,
     surj_on,
 )
 from kdrag.contrib.zf.nat import (
+    elem_one,
     elem_succ,
     elem_succ_self,
     exists_eq_succ_of_ne_zero,
@@ -43,8 +43,10 @@ from kdrag.contrib.zf.nat import (
     omega,
     omega_succ,
     omega_zero,
+    one,
     succ_inj,
     succ_ne_zero,
+    zero_ne_one,
 )
 from kdrag.contrib.zf.order import comparable, comparable_zero, nat_le, succ_elem_succ
 from kdrag.contrib.zf.ordinal import is_ordinal, is_ordinal_succ, omega_is_ordinal
@@ -72,40 +74,12 @@ from kdrag.contrib.zf.sim import (
     similar_symm,
     similar_trans,
 )
+from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
 
 A, B, E, a, b, p, q, r, x, y = Consts("A B E a b p q r x y", ZFSet)
 A2, B2 = Consts("A2 B2", ZFSet)
 R, S, R2, S2 = Consts("R S R2 S2", ArraySort(ZFSet, ZFSet, BoolSort()))
 f, g = Consts("f g", ArraySort(ZFSet, ZFSet))
-
-one = succ(zero)
-zero_ne_one = prove(Not(zero == one), by=[succ_ne_zero])
-
-osum_set = define("osum_set", [A, B], (prod(A, sing(zero))) | (prod(B, sing(one))))
-
-
-@Theorem(
-    ForAll(
-        [A, B, p],
-        elem(p, osum_set(A, B))
-        == Or(
-            And(elem(pfst(p), A), p == pair(pfst(p), zero)),
-            And(elem(pfst(p), B), p == pair(pfst(p), one)),
-        ),
-    )
-)
-def elem_osum_set(l):
-    """The elements of the ordinal sum are (x, 0) with x ∈ A and (y, 1) with y ∈ B."""
-    A, B, p0 = l.fixes()
-    l.unfold(osum_set)
-    l.rw(zf.elem_union)
-    l.split()
-    # → : p ∈ A × {0} is (x, z) with z = 0, and pfst recovers x.
-    l.intro()
-    l.auto(by=[zf.elem_prod_def, zf.elem_sing, pfst_pair])
-    l.intro()
-    l.auto(by=[pair_elem_prod, zf.elem_sing])
-
 
 osum_le = define(
     "osum_le",
@@ -317,14 +291,6 @@ def osum_well_order(l):
 
 
 # The order of the sum on tagged elements, as in Mathlib's Sum.lex_inl_inl etc.
-def inl(x):
-    return pair(x, zero)
-
-
-def inr(x):
-    return pair(x, one)
-
-
 _tags = [osum_rel_apply, osum_le.defn, pfst_pair, zf.pair_inj, zero_ne_one]
 osum_rel_inl_inl = prove(
     ForAll([R, S, x, y], osum_rel(R, S)[inl(x), inl(y)] == R[x, y]), by=_tags
@@ -550,11 +516,6 @@ def oadd_zero(l):
     l.auto(by=[elem_osum_set(A, zero, pair(x0, zero)), pfst_pair])
     l.unfold(oadd)
     l.auto(by=[ord_of_eq(oplus, X, A), similar.defn(oplus, X, nat_le_rel, A)])
-
-
-elem_one = prove(
-    ForAll(x, elem(x, one) == (x == zero)), by=[elem_succ, zero.defn, zf.elem_emp]
-)
 
 
 @Theorem(ForAll(A, is_ordinal(A), oadd(A, one) == succ(A)))
