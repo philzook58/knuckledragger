@@ -67,7 +67,7 @@ def location(filename: str, line: int, func: str) -> str:
 
 
 def explain(goal, error, by=(), timeout=1000, where="", source="", *, solver=None) -> str:
-    """Format a proof failure and any verified repair."""
+    """Format a proof failure with a verified repair or ranked suggestions."""
     countermodel = not isinstance(error, TimeoutError) and len(error.args) == 3
     backend = solver if isinstance(solver, str) else getattr(solver, "__name__", "z3")
     if isinstance(error, TimeoutError):
@@ -80,7 +80,12 @@ def explain(goal, error, by=(), timeout=1000, where="", source="", *, solver=Non
     lines = [pretty_goal(goal), "", f"❌ {call} failed{where}: {reason}"]
     if config.diagnose:
         by = [by] if isinstance(by, kernel.Proof) else list(by or [])
-        fix = repair(goal.to_expr(), by, countermodel, solver=solver)
+        thm = goal.to_expr()
+        fix = repair(thm, by, countermodel, solver=solver)
         if fix is not None:
             lines.append(f"✅ passes with by=[{', '.join(_name(pf) for pf in fix)}]")
+        else:
+            suggestions = utils.suggest(thm, check=0)
+            if suggestions:
+                lines.append(suggestions)
     return "\n".join(lines)

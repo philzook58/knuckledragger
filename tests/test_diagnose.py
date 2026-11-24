@@ -51,3 +51,12 @@ def test_prove_suggests_missing_definition_when_rendered(monkeypatch):
     assert "prove failed: z3 found a countermodel" in message
     assert "Countermodel:" not in message
     assert message.endswith(".succ.defn]")
+
+
+def test_prove_shows_candidates_when_no_repair_works():
+    with pytest.raises(kd.kernel.SolverFailure) as error:
+        kd.prove(succ(x) == x)
+    message = str(error.value)
+    assert "✅" not in message
+    assert "Suggestions:\n" in message
+    assert ".succ.defn:" in message
