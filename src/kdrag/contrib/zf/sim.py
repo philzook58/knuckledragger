@@ -10,7 +10,7 @@ from kdrag import Theorem, define, prove
 from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, sep
-from kdrag.contrib.zf.fun import bij_on, inj_on, maps_to, surj_on
+from kdrag.contrib.zf.fun import bij_on, bij_on_of_inverse, inj_on, maps_to, surj_on
 from kdrag.contrib.zf.finite import (
     bij_on_comp,
     bij_on_id,
@@ -51,6 +51,24 @@ is_similarity = define(
     And(is_order_embedding(f, R, X, S, Y), bij_on(f, X, Y)),
 )
 similar = define("similar", [R, X, S, Y], Exists(f, is_similarity(f, R, X, S, Y)))
+
+
+@Theorem(
+    ForAll(
+        [f, g, R, X, S, Y],
+        is_order_embedding(f, R, X, S, Y),
+        maps_to(g, Y, X),
+        ForAll(x, elem(x, X), g[f[x]] == x),
+        ForAll(y, elem(y, Y), f[g[y]] == y),
+        is_similarity(f, R, X, S, Y),
+    )
+)
+def similarity_of_inverse(l):
+    """An order embedding with an inverse is a similarity (Mathlib's OrderIso)."""
+    f, g, R, X, S, Y = l.fixes()
+    l.intros()
+    l.unfold(is_similarity)
+    l.auto(by=[is_order_embedding.defn(f, R, X, S, Y), bij_on_of_inverse(f, g, X, Y)])
 
 
 @Theorem(

@@ -70,6 +70,7 @@ from kdrag.contrib.zf.sim import (
     is_order_embedding,
     is_similarity,
     similar,
+    similarity_of_inverse,
     similar_refl,
     similar_symm,
     similar_trans,
@@ -469,30 +470,21 @@ def oadd_zero(l):
         ForAll(p, elem(p, X), And(elem(pfst(p), A), p == pair(pfst(p), zero))),
         by=[elem_osum_set, zero.defn, zf.elem_emp],
     )
-    l.have(is_similarity(f, oplus, X, nat_le_rel, A))
-    l.unfold(is_similarity)
+    l.have(is_order_embedding(f, oplus, X, nat_le_rel, A))
     l.unfold(is_order_embedding)
-    l.split()
     l.split()
     l.auto(by=[maps_to.defn(f, X, A)])
     p0, q0 = l.fixes()
     l.intros()
     l.simp()
     l.auto(by=[oplus_apply(A, zero, p0, q0), zero_ne_one, zf.pair_inj, nat_le.defn])
-    l.unfold(bij_on)
-    l.split()
-    l.auto(by=[maps_to.defn(f, X, A)])
-    l.unfold(inj_on)
-    p1, q1 = l.fixes()
-    l.intros()
-    l.simp(at=-1)
-    l.auto()
-    l.unfold(surj_on)
-    x0 = l.fix()
-    l.intro()
-    l.exists(pair(x0, zero))
-    l.simp()
-    l.auto(by=[elem_osum_set(A, zero, pair(x0, zero)), pfst_pair])
+    # The inverse is x ↦ (x, 0).
+    g = Lambda(x, pair(x, zero))
+    l.have(maps_to(g, A, X), by=[maps_to.defn, elem_osum_set, pfst_pair])
+    l.have(
+        is_similarity(f, oplus, X, nat_le_rel, A),
+        by=[similarity_of_inverse(f, g, oplus, X, nat_le_rel, A), pfst_pair],
+    )
     l.unfold(oadd)
     l.auto(by=[ord_of_eq(oplus, X, A), similar.defn(oplus, X, nat_le_rel, A)])
 
@@ -710,30 +702,21 @@ def zero_oadd(l):
         ForAll(p, elem(p, X), And(elem(pfst(p), A), p == inr(pfst(p)))),
         by=[elem_osum_set, zero.defn, zf.elem_emp],
     )
-    l.have(is_similarity(f, oplus, X, nat_le_rel, A))
-    l.unfold(is_similarity)
+    l.have(is_order_embedding(f, oplus, X, nat_le_rel, A))
     l.unfold(is_order_embedding)
-    l.split()
     l.split()
     l.auto(by=[maps_to.defn(f, X, A)])
     p0, q0 = l.fixes()
     l.intros()
     l.simp()
     l.auto(by=[oplus_apply(zero, A, p0, q0), zero_ne_one, zf.pair_inj, nat_le.defn])
-    l.unfold(bij_on)
-    l.split()
-    l.auto(by=[maps_to.defn(f, X, A)])
-    l.unfold(inj_on)
-    p1, q1 = l.fixes()
-    l.intros()
-    l.simp(at=-1)
-    l.auto()
-    l.unfold(surj_on)
-    x0 = l.fix()
-    l.intro()
-    l.exists(inr(x0))
-    l.simp()
-    l.auto(by=[elem_osum_set(zero, A, inr(x0)), pfst_pair])
+    # The inverse is x ↦ (x, 1).
+    g = Lambda(x, inr(x))
+    l.have(maps_to(g, A, X), by=[maps_to.defn, elem_osum_set, pfst_pair])
+    l.have(
+        is_similarity(f, oplus, X, nat_le_rel, A),
+        by=[similarity_of_inverse(f, g, oplus, X, nat_le_rel, A), pfst_pair],
+    )
     l.unfold(oadd)
     l.auto(by=[ord_of_eq(oplus, X, A), similar.defn(oplus, X, nat_le_rel, A)])
 
