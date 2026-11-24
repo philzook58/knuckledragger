@@ -40,12 +40,15 @@ import pytest
         ("orec", 13),
         ("opow", 0),
         ("opow", 6),
+        ("choice", 0),
+        ("zorn", 0),
+        ("zorn", 5),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow",
+            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn",
             3,
         ),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow",
+            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn",
             7,
         ),
     ],
@@ -111,7 +114,7 @@ def _axioms_used(modules):
 
 
 @pytest.mark.parametrize(
-    "modules,replacement",
+    "modules,extra",
     [
         (
             [
@@ -126,20 +129,22 @@ def _axioms_used(modules):
                 "trec",
                 "sim",
             ],
-            False,
+            "none",
         ),
         (
             ["ordinal", "ordset", "count", "oarith", "omul", "osub", "orec", "opow"],
-            True,
+            "replacement",
         ),
+        (["choice", "zorn"], "choice"),
     ],
 )
-def test_zf_contrib_axioms(modules, replacement):
+def test_zf_contrib_axioms(modules, extra):
     # contrib.zf rests on the theories.zf axioms plus infinity, adding Replacement
-    # and definite description only where noted, with no Foundation and never the
-    # global-choice `pick`.
+    # and definite description, or Halmos' axiom of choice, only where noted, with
+    # no Foundation and never the global-choice `pick`.
     import kdrag.theories.zf.zf as zf
     from kdrag.contrib.zf.nat import infinity_ax
+    from kdrag.contrib.zf.choice import choice_ax
     from kdrag.contrib.zf.ordinal import elem_repl, the_eq
 
     allowed = [
@@ -151,8 +156,10 @@ def test_zf_contrib_axioms(modules, replacement):
         zf.elem_pow,
         infinity_ax,
     ]
-    if replacement:
+    if extra == "replacement":
         allowed += [elem_repl, the_eq]
+    if extra == "choice":
+        allowed += [choice_ax]
     used, deps = _axioms_used(modules)
     assert used <= {id(ax) for ax in allowed}
     assert not any(p is zf.elem_pick0 for p in deps)

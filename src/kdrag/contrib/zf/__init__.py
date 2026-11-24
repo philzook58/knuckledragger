@@ -23,5 +23,7 @@ uses `count`; `omul` for ordinal multiplication and `osub` for subtraction
 without a codomain uses `trec` and `ordset`; `opow` for exponentiation (Halmos
 §21) uses `omul` and `orec`. Only `ordinal`, `ordset`, `count`, `oarith`,
 `omul`, `osub`, `orec`, and `opow` may use Replacement and definite
-description.
+description. `choice` adds Halmos' axiom of choice (§15) and `zorn` proves
+Zorn's lemma from it (§16), using `fun` and `poset`; only these two may use
+choice.
 """
