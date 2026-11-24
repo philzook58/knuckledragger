@@ -38,14 +38,13 @@ from kdrag.contrib.zf.fun import (
     app_eq_of_pair_elem,
     elem_sub,
     is_func,
+    maps_to,
     pair_app_elem,
     pair_elem_prod,
 )
 
 A, X, a, c, k, n, m, p, t, x, y = Consts("A X a c k n m p t x y", ZFSet)
 F = Const("F", ArraySort(ZFSet, ZFSet))
-
-maps_to = define("maps_to", [F, X], ForAll(x, elem(x, X), elem(F[x], X)))
 
 rec_closed = define(
     "rec_closed",
@@ -79,18 +78,23 @@ def elem_rec_family(l):
     l.auto()
 
 
-@Theorem(ForAll([X, a, F], elem(a, X), maps_to(F, X), rec_closed(prod(omega, X), a, F)))
+@Theorem(
+    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), rec_closed(prod(omega, X), a, F))
+)
 def rec_closed_prod(l):
     """ω × X itself is closed, so 𝒞 is nonempty."""
     X, a, F = l.fixes()
     l.intros()
     l.unfold(rec_closed)
-    l.auto(by=[pair_elem_prod, omega_zero, omega_succ, maps_to.defn(F, X)])
+    l.auto(by=[pair_elem_prod, omega_zero, omega_succ, maps_to.defn(F, X, X)])
 
 
 prod_elem_rec_family = prove(
     ForAll(
-        [X, a, F], elem(a, X), maps_to(F, X), elem(prod(omega, X), rec_family(X, a, F))
+        [X, a, F],
+        elem(a, X),
+        maps_to(F, X, X),
+        elem(prod(omega, X), rec_family(X, a, F)),
     ),
     by=[elem_rec_family, rec_closed_prod, le.defn],
 )
@@ -100,7 +104,7 @@ prod_elem_rec_family = prove(
     ForAll(
         [X, a, F, x],
         elem(a, X),
-        maps_to(F, X),
+        maps_to(F, X, X),
         elem(x, nat_rec(X, a, F))
         == ForAll(A, elem(A, rec_family(X, a, F)), elem(x, A)),
     )
@@ -118,7 +122,7 @@ def elem_nat_rec(l):
     ForAll(
         [X, a, F, A],
         elem(a, X),
-        maps_to(F, X),
+        maps_to(F, X, X),
         A <= prod(omega, X),
         rec_closed(A, a, F),
         nat_rec(X, a, F) <= A,
@@ -134,13 +138,13 @@ def nat_rec_le_of_closed(l):
 
 
 nat_rec_le_prod = prove(
-    ForAll([X, a, F], elem(a, X), maps_to(F, X), nat_rec(X, a, F) <= prod(omega, X)),
+    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), nat_rec(X, a, F) <= prod(omega, X)),
     by=[nat_rec_le_of_closed, rec_closed_prod, le.defn],
 )
 
 
 @Theorem(
-    ForAll([X, a, F], elem(a, X), maps_to(F, X), rec_closed(nat_rec(X, a, F), a, F))
+    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), rec_closed(nat_rec(X, a, F), a, F))
 )
 def nat_rec_closed(l):
     """nat_rec is closed: every closed set contains (0, a) and is closed under the step."""
@@ -174,7 +178,7 @@ def rec_closed_sub_sing(l):
     ForAll(
         [X, a, F, p],
         elem(a, X),
-        maps_to(F, X),
+        maps_to(F, X, X),
         pair(zero, a) != p,
         ForAll(
             [m, t],
@@ -209,7 +213,7 @@ def not_elem_nat_rec_of_sub_sing(l):
     ForAll(
         [X, a, F, k, x, c],
         elem(a, X),
-        maps_to(F, X),
+        maps_to(F, X, X),
         elem(k, omega),
         ForAll(y, elem(pair(k, y), nat_rec(X, a, F)), y == x),
         c != F[x],
@@ -245,7 +249,7 @@ def unique_value(u, n):
     ForAll(
         [X, a, F],
         elem(a, X),
-        maps_to(F, X),
+        maps_to(F, X, X),
         ForAll(n, elem(n, omega), unique_value(nat_rec(X, a, F), n)),
     )
 )
@@ -298,7 +302,7 @@ def nat_rec_unique_value(l):
 
 
 @Theorem(
-    ForAll([X, a, F], elem(a, X), maps_to(F, X), is_func(nat_rec(X, a, F), omega, X))
+    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), is_func(nat_rec(X, a, F), omega, X))
 )
 def nat_rec_is_func(l):
     X, a, F = l.fixes()
@@ -312,7 +316,7 @@ def nat_rec_is_func(l):
 
 
 nat_rec_zero = prove(
-    ForAll([X, a, F], elem(a, X), maps_to(F, X), app(nat_rec(X, a, F), zero) == a),
+    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), app(nat_rec(X, a, F), zero) == a),
     by=[
         app_eq_of_pair_elem,
         nat_rec_is_func,
@@ -326,7 +330,7 @@ nat_rec_zero = prove(
     ForAll(
         [X, a, F, n],
         elem(a, X),
-        maps_to(F, X),
+        maps_to(F, X, X),
         elem(n, omega),
         app(nat_rec(X, a, F), succ(n)) == F[app(nat_rec(X, a, F), n)],
     )

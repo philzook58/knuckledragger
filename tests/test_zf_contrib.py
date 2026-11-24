@@ -15,7 +15,9 @@ import pytest
         ("arith", 3),
         ("order", 0),
         ("order", 5),
-        ("fun nat rec arith order", 7),
+        ("finite", 0),
+        ("finite", 2),
+        ("fun nat rec arith order finite", 7),
     ],
 )
 def test_zf_proofs(modules, seed):

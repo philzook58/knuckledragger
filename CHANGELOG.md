@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `contrib.zf.fun` (functions as sets with a choice-free `app`) and `contrib.zf.rec`: the recursion theorem on ω, with `nat_rec(X, a, F)` as Halmos' smallest closed set of pairs and theorems `nat_rec_is_func`, `nat_rec_zero`, `nat_rec_succ`.
 - Add `contrib.zf.arith`: addition and multiplication on ω by recursion (Halmos §13), with `add_zero`, `add_succ`, `zero_add`, `succ_add`, `add_comm`, `add_assoc`, `mul_zero`, `mul_succ`, `zero_mul`, `succ_mul`, `mul_comm`, `mul_assoc`, and the distributive law `mul_add`.
 - Add `contrib.zf.order`: comparability and trichotomy of natural numbers (`nat_comparable`, `nat_elem_asymm`), `elem_iff_le_ne`, `nat_le`, compatibility of `∈` with addition and multiplication, and the well-ordering `exists_least_of_nonempty` (Halmos §13).
+- Add `contrib.zf.finite`: one-to-one correspondences as HOL functions (`fun.maps_to`, `inj_on`, `surj_on`, `bij_on`), the equivalence relation `equivalent`, `omega_equivalent_sub_zero`, the pigeonhole principle `nat_eq_of_equivalent_le`, `finite`, uniqueness of the number of elements, and `omega_infinite` (Halmos §13). Generalize `rec.maps_to` to `fun.maps_to(F, X, Y)`.
 
 ### Changed
 

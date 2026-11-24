@@ -9,9 +9,8 @@ from kdrag import Theorem, define, prove
 from kdrag.smt import Consts, ForAll, Lambda
 from kdrag.theories.zf.zf import ZFSet, elem, succ, zero
 from kdrag.contrib.zf.nat import induct_omega, omega, omega_succ, omega_zero
-from kdrag.contrib.zf.fun import app, app_elem
+from kdrag.contrib.zf.fun import app, app_elem, maps_to
 from kdrag.contrib.zf.rec import (
-    maps_to,
     nat_rec,
     nat_rec_is_func,
     nat_rec_succ,
@@ -23,7 +22,7 @@ k, m, n, p = Consts("k m n p", ZFSet)
 # Addition
 
 succ_fn = Lambda(k, succ(k))
-maps_to_succ = prove(maps_to(succ_fn, omega), by=[maps_to.defn, omega_succ])
+maps_to_succ = prove(maps_to(succ_fn, omega, omega), by=[maps_to.defn, omega_succ])
 
 add = define("add", [m, n], app(nat_rec(omega, m, succ_fn), n))
 
@@ -105,7 +104,7 @@ def add_assoc(l):
 # Multiplication
 
 maps_to_add = prove(
-    ForAll(m, elem(m, omega), maps_to(Lambda(k, add(k, m)), omega)),
+    ForAll(m, elem(m, omega), maps_to(Lambda(k, add(k, m)), omega, omega)),
     by=[maps_to.defn, add_elem_omega],
 )
 
