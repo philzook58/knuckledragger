@@ -220,3 +220,81 @@ def psnd_pair(l):
     )
     l.auto(by=[zf.pair_inj, zf.elem_sing(z0, y)])
     l.auto(by=[bigunion_sing(y)])
+
+
+# The graph of a HOL function F from A to B, as a set function.
+graph = define("graph", [F, A, B], sep(prod(A, B), Lambda(z, psnd(z) == F[pfst(z)])))
+
+
+@Theorem(
+    ForAll(
+        [F, A, B, x, y],
+        elem(pair(x, y), graph(F, A, B)) == And(elem(x, A), elem(y, B), y == F[x]),
+    )
+)
+def pair_elem_graph(l):
+    F, A, B, x, y = l.fixes()
+    l.unfold(graph)
+    l.rw(zf.elem_sep)
+    l.simp()
+    l.auto(by=[pair_elem_prod, pfst_pair, psnd_pair])
+
+
+@Theorem(ForAll([F, A, B], maps_to(F, A, B), is_func(graph(F, A, B), A, B)))
+def is_func_graph(l):
+    F, A, B = l.fixes()
+    l.intro()
+    l.unfold(is_func)
+    l.split()
+    l.auto(by=[le.defn, graph.defn, zf.elem_sep])
+    x0 = l.fix()
+    l.intro()
+    l.exists(F[x0])
+    l.auto(by=[pair_elem_graph, maps_to.defn])
+    l.auto(by=[pair_elem_graph])
+
+
+@Theorem(
+    ForAll([F, A, B, x], maps_to(F, A, B), elem(x, A), app(graph(F, A, B), x) == F[x])
+)
+def app_graph(l):
+    F, A, B, x = l.fixes()
+    l.intros()
+    G = graph(F, A, B)
+    l.have(is_func(G, A, B), by=[is_func_graph(F, A, B)])
+    l.have(elem(pair(x, F[x]), G), by=[pair_elem_graph(F, A, B, x, F[x]), maps_to.defn])
+    l.auto(by=[app_eq_of_pair_elem(G, A, B, x, F[x])])
+
+
+@Theorem(
+    ForAll(
+        [f, F, X, Y],
+        is_func(f, X, Y),
+        ForAll(x, elem(x, X), app(f, x) == F[x]),
+        f == graph(F, X, Y),
+    )
+)
+def eq_graph(l):
+    """A set function is the graph of its values."""
+    f, F, X, Y = l.fixes()
+    l.intros()
+    l.rw(zf.ext_ax)
+    z0 = l.fix()
+    l.split()
+    # z ∈ f is (x, y) in X × Y with y = f(x).
+    l.intro()
+    l.have(elem(z0, prod(X, Y)), by=[is_func.defn(f, X, Y), le.defn(f, prod(X, Y))])
+    l.have(
+        Exists([x, y], And(z0 == pair(x, y), elem(x, X), elem(y, Y))),
+        by=[zf.elem_prod_def],
+    )
+    (x0, y0), _ = l.obtain(-1)
+    l.auto(by=[app_eq_of_pair_elem(f, X, Y, x0, y0), pair_elem_graph(F, X, Y, x0, y0)])
+    l.intro()
+    l.have(elem(z0, prod(X, Y)), by=[graph.defn, zf.elem_sep])
+    l.have(
+        Exists([x, y], And(z0 == pair(x, y), elem(x, X), elem(y, Y))),
+        by=[zf.elem_prod_def],
+    )
+    (x0, y0), _ = l.obtain(-1)
+    l.auto(by=[pair_app_elem(f, X, Y, x0), pair_elem_graph(F, X, Y, x0, y0)])

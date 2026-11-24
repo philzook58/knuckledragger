@@ -43,12 +43,20 @@ import pytest
         ("choice", 0),
         ("zorn", 0),
         ("zorn", 5),
+        ("wellord", 0),
+        ("wellord", 9),
+        ("countable", 0),
+        ("countable", 7),
+        ("cardarith", 0),
+        ("cardarith", 6),
+        ("cardinal", 0),
+        ("cardinal", 11),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn",
+            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal",
             3,
         ),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn",
+            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal",
             7,
         ),
     ],
@@ -132,10 +140,21 @@ def _axioms_used(modules):
             "none",
         ),
         (
-            ["ordinal", "ordset", "count", "oarith", "omul", "osub", "orec", "opow"],
+            [
+                "ordinal",
+                "ordset",
+                "count",
+                "oarith",
+                "omul",
+                "osub",
+                "orec",
+                "opow",
+                "countable",
+                "cardarith",
+            ],
             "replacement",
         ),
-        (["choice", "zorn"], "choice"),
+        (["choice", "zorn", "wellord", "cardinal"], "choice"),
     ],
 )
 def test_zf_contrib_axioms(modules, extra):
@@ -159,7 +178,7 @@ def test_zf_contrib_axioms(modules, extra):
     if extra == "replacement":
         allowed += [elem_repl, the_eq]
     if extra == "choice":
-        allowed += [choice_ax]
+        allowed += [elem_repl, the_eq, choice_ax]
     used, deps = _axioms_used(modules)
     assert used <= {id(ax) for ax in allowed}
     assert not any(p is zf.elem_pick0 for p in deps)
