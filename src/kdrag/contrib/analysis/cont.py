@@ -20,7 +20,11 @@ from kdrag.theories.real import (
     R,
     RFun,
     abs,
+    abs_div,
+    abs_mul,
     abs_neg,
+    abs_pos,
+    abs_pos_iff,
     abs_triangle,
     cont_at,
     has_lim_at,
@@ -30,7 +34,7 @@ from kdrag.theories.real.cont import (
     cont_at_update_of_has_lim_at,
     has_lim_at_of_cont_at_update,
 )
-from kdrag.theories.real.rseq import a, has_lim, n
+from kdrag.theories.real.rseq import a as seq_a, has_lim, n
 
 f, g = Consts("f g", RFun)
 x, y, p, L, M, c = Reals("x y p L M c")
@@ -158,11 +162,11 @@ def cont_within_at_of_cont_at(l):
 
 @Theorem(
     ForAll(
-        [a, f, A, p],
-        has_lim(a, p),
-        ForAll(n, n >= 0, A[a[n]]),
+        [seq_a, f, A, p],
+        has_lim(seq_a, p),
+        ForAll(n, n >= 0, A[seq_a[n]]),
         cont_within_at(f, A, p),
-        has_lim(Lambda(n, f[a[n]]), f[p]),
+        has_lim(Lambda(n, f[seq_a[n]]), f[p]),
     )
 )
 def has_lim_comp_of_cont_within_at(l):
@@ -185,7 +189,12 @@ def has_lim_comp_of_cont_within_at(l):
 
 
 @Theorem(
-    ForAll([a, f, p], has_lim(a, p), cont_at(f, p), has_lim(Lambda(n, f[a[n]]), f[p]))
+    ForAll(
+        [seq_a, f, p],
+        has_lim(seq_a, p),
+        cont_at(f, p),
+        has_lim(Lambda(n, f[seq_a[n]]), f[p]),
+    )
 )
 def has_lim_comp_of_cont_at(l):
     """A function continuous at the limit preserves sequence convergence."""
@@ -309,3 +318,108 @@ def exists_pair_radius_of_cont_within_at(l):
             abs_triangle(f[x], f[y], f[p]),
         ]
     )
+
+
+@Theorem(
+    ForAll(
+        [f, p, L, eps],
+        has_lim_at(f, p, L),
+        RealVal(0) < eps,
+        Exists(
+            delta,
+            delta > 0,
+            ForAll(x, RealVal(0) < abs(x - p), abs(x - p) < delta, abs(f[x] - L) < eps),
+        ),
+    )
+)
+def exists_limit_radius(l):
+    f, p, L, eps = l.fixes()
+    l.unfold(has_lim_at)
+    limit, positive = l.intros()
+    l.specialize(limit, eps, positive)
+    l.assumption()
+
+
+u, v, a, b = Reals("u v a b")
+
+
+@Theorem(
+    ForAll(
+        [u, v, a, b, eps],
+        b != 0,
+        eps > 0,
+        abs(u - a) < eps * abs(b) / 4,
+        abs(v - b) < min(abs(b) / 2, eps * abs(b) * abs(b) / (4 * (abs(a) + 1))),
+        abs(u / v - a / b) < eps,
+    )
+)
+def div_error_at(l):
+    u, v, a, b, eps = l.fixes()
+    l.intros()
+    B, A = abs(b), abs(a)
+    e1, e2 = abs(u - a), abs(v - b)
+    l.have(B > 0, by=[abs_pos_iff(b)])
+    l.have(e2 < B / 2, by=[min.defn(B / 2, eps * B * B / (4 * (A + 1)))])
+    l.have(abs(v) > B / 2, by=[abs_triangle(b, RealVal(0), v), abs_neg(v - b)])
+    l.have(v != 0, by=[abs_pos_iff(v)])
+    l.have(u / v - a / b == ((u - a) * b - a * (v - b)) / (v * b), by=[])
+    numerator = (u - a) * b - a * (v - b)
+    l.have(
+        abs(numerator) <= e1 * B + A * e2,
+        by=[
+            abs_triangle((u - a) * b, a * (v - b), RealVal(0)),
+            abs_mul(u - a, b),
+            abs_mul(a, v - b),
+            abs_neg(a * (v - b)),
+        ],
+    )
+    l.have(e1 * B < eps * B * B / 4, by=[])
+    l.have(
+        A * e2 <= eps * B * B / 4,
+        by=[abs_pos(a), min.defn(B / 2, eps * B * B / (4 * (A + 1)))],
+    )
+    l.have(abs(v * b) == abs(v) * B, by=[abs_mul(v, b)])
+    l.auto(by=[abs_div(numerator, v * b)])
+
+
+@Theorem(
+    ForAll(
+        [f, g, p, L, M],
+        has_lim_at(f, p, L),
+        has_lim_at(g, p, M),
+        M != 0,
+        has_lim_at(Lambda(x, f[x] / g[x]), p, L / M),
+    )
+)
+def has_lim_at_div(l):
+    f, g, p, L, M = l.fixes()
+    hf = l.intro()
+    hg = l.intro()
+    l.intro()
+    l.unfold(has_lim_at)
+    eps = l.fix()
+    l.intro()
+    B, A = abs(M), abs(L)
+    ea = eps * B / 4
+    eb = min(B / 2, eps * B * B / (4 * (A + 1)))
+    l.have(B > 0, by=[abs_pos_iff(M)])
+    pa = l.have(RealVal(0) < ea, by=[])
+    pb = l.have(
+        RealVal(0) < eb, by=[abs_pos(L), min.defn(B / 2, eps * B * B / (4 * (A + 1)))]
+    )
+    da, near_f = l.obtain(l.specialize(exists_limit_radius, f, p, L, ea, hf, pa))
+    db, near_g = l.obtain(l.specialize(exists_limit_radius, g, p, M, eb, hg, pb))
+    l.exists(min(da, db))
+    l.split()
+    l.auto(by=[min.defn(da, db)])
+    z = l.fix()
+    positive, close = l.intros()
+    fa = l.have(abs(z - p) < da, by=[min.defn(da, db)])
+    gb = l.have(abs(z - p) < db, by=[min.defn(da, db)])
+    l.split(at=near_f)
+    _, near_f = near_f.children()
+    l.specialize(near_f, z, positive, fa)
+    l.split(at=near_g)
+    _, near_g = near_g.children()
+    l.specialize(near_g, z, positive, gb)
+    l.auto(by=[div_error_at(f[z], g[z], L, M, eps)])

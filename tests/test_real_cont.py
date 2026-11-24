@@ -45,7 +45,9 @@ def test_limits_at_removable_discontinuities():
         ("contraction", 0),
         ("compact", 0),
         ("cauchy finsum rseq series contraction", 1),
-        ("sine ftc cauchy contraction compact", 7),
+        ("lhopital sine ftc cauchy contraction compact", 7),
+        ("series lhopital", 0),
+        ("lhopital sine", 7),
     ],
 )
 def test_analysis_proofs(modules, seed):
