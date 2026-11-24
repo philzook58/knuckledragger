@@ -240,3 +240,21 @@ def bolzano_weierstrass(l):
     idx, converges = l.obtain(l.specialize(_exists_subseq_of_cluster, a, s, cluster))
     l.exists(idx, s)
     l.auto()
+
+
+@Theorem(ForAll([a, F, s], is_subseq_index(F), has_lim(a, s), has_lim(dommap(F, a), s)))
+def has_lim_subseq(l):
+    """Every subsequence of a convergent sequence has the same limit."""
+    a, idx, s = l.fixes()
+    l.unfold(has_lim)
+    _, tends = l.intros()
+    l.unfold(dommap)
+    eps = l.fix()
+    positive = l.intro()
+    N, close = l.obtain(l.specialize(tends, eps, positive))
+    l.exists(If(N < 0, IntVal(0), N))
+    j = l.fix()
+    l.intro()
+    l.have(idx[j] >= j, by=[le_subseq_index(idx, j)])
+    l.specialize(close, idx[j])
+    l.auto()
