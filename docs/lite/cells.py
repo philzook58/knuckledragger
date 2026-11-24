@@ -6,6 +6,7 @@ under Pyodide.
 
 import ast
 import re
+from importlib import import_module
 from pathlib import Path
 from types import ModuleType
 from urllib.parse import urlencode
@@ -16,6 +17,20 @@ HEADER = [
     "# The first run installs knuckledragger and z3, which takes a few seconds.",
 ]
 SKIP_FILE = Path(__file__).with_name("skip.txt")
+# Packages listed in the theorem search, whose cells check_cells.py runs.
+PACKAGES = ["kdrag.theories", "kdrag.contrib.analysis"]
+
+
+def theorem_modules() -> list[str]:
+    """Modules of `PACKAGES`, private ones skipped."""
+    modules = []
+    for package in PACKAGES:
+        root = Path(import_module(package).__file__).parent
+        for path in sorted(root.rglob("*.py")):
+            parts = path.relative_to(root).with_suffix("").parts
+            if path.name == "__init__.py" or not path.name.startswith("_"):
+                modules.append(".".join((package, *parts)).removesuffix(".__init__"))
+    return modules
 
 
 def _is_theorem(decorator: ast.expr) -> bool:
