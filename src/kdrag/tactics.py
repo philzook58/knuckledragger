@@ -19,6 +19,7 @@ from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
 from kdrag.printers.pretty import pretty_goal
+import kdrag.diagnose as diagnose
 
 if TYPE_CHECKING:
     import sympy  # imported lazily: it is slow to import
@@ -535,10 +536,25 @@ def _modus_ponens() -> kd.kernel.Proof:
 class _AutoFailure(ValueError):
     """An open goal that auto could not discharge."""
 
-    def __init__(self, goal: Goal, error: kd.kernel.SolverFailure | TimeoutError):
+    def __init__(
+        self,
+        goal: Goal,
+        error: kd.kernel.SolverFailure | TimeoutError,
+        by=(),
+        timeout: int = 1000,
+    ):
         super().__init__("auto failed on goal", goal)
         self.goal = goal
         self.error = error
+        self.by = by
+        self.timeout = timeout
+
+    def __str__(self) -> str:
+        # Computed only when shown, since failures are also used for control flow.
+        # Leading newline so the goal starts on its own line after "_AutoFailure:".
+        return "\n" + diagnose.explain(
+            self.goal, self.error, self.by, self.timeout
+        )
 
 
 @cache
@@ -1107,7 +1123,10 @@ class ProofState:
         try:
             pf = kd.prove(goalctx.to_expr(), **kwargs)
         except (kd.kernel.SolverFailure, TimeoutError) as error:
-            raise _AutoFailure(goalctx, error) from error
+            # from None: the solver's internal traceback is noise; it stays in .error
+            raise _AutoFailure(
+                goalctx, error, kwargs.get("by") or (), kwargs.get("timeout", 1000)
+            ) from None
         self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
@@ -2413,23 +2432,24 @@ def PTheorem(
             f(l)
         except _AutoFailure as failure:
             code = getattr(f, "__code__", None)
-            headline = "auto failed"
+            where = source = ""
             for frame, line in traceback.walk_tb(failure.__traceback__):
                 if frame.f_code is code:
-                    headline += f" in {frame.f_code.co_name} at line {line}"
+                    where = diagnose.location(
+                        frame.f_code.co_filename, line, frame.f_code.co_name
+                    )
                     source = linecache.getline(frame.f_code.co_filename, line).strip()
-                    if source:
-                        headline += f"\n    {source}"
                     break
-            print(headline)
-            error = failure.error
-            if isinstance(error, TimeoutError):
-                print(error)
-            elif len(error.args) == 3:
-                print("Solver found a countermodel.")
-            else:
-                print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
-            print("Goal:", pretty_goal(failure.goal), sep="\n")
+            print(
+                diagnose.explain(
+                    failure.goal,
+                    failure.error,
+                    failure.by,
+                    failure.timeout,
+                    where,
+                    source,
+                )
+            )
             return
         if len(l.goals) == 0:
             l.qed()
