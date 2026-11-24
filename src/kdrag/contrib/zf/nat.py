@@ -149,12 +149,13 @@ def nat_not_le_of_elem(l):
     l.intros()
     x = l.fix()
     l.intro()
-    l.contra()
-    # If succ k ⊆ x then k ⊆ x and k ∈ x.
+    l.intro()
+    # Since k ⊆ k, k ∉ k.
+    l.have(Not(elem(k, k)), by=[le.defn(k, k)])
+    # If k⁺ ⊆ x, then k ⊆ x and k ∈ x.
     l.have(k <= x, by=[le_succ(k), le.defn])
     l.have(elem(k, x), by=[elem_succ_self(k), le.defn])
-    # x ∈ succ k means x ∈ k or x = k; both contradict the hypothesis for k.
-    l.have(k <= k, by=[le.defn])
+    # So x ≠ k, as k ∉ k; and x ∉ k, as k ⊆ x. Neither is possible for x ∈ k⁺.
     l.auto(by=[elem_succ(x, k)])
 
 

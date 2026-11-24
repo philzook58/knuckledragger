@@ -36,16 +36,9 @@ elem_sub = prove(
 def bigunion_sing(l):
     y = l.fix()
     l.rw(zf.ext_ax)
-    l.fix()
-    l.rw(zf.bigunion_ax)
-    # The only member of {y} is y itself.
-    l.split()
-    l.intro()
-    (w, _) = l.obtain(-1)
-    l.auto(by=[zf.elem_sing(w, y)])
-    l.intro()
-    l.exists(y)
-    l.auto(by=[zf.elem_sing(y, y)])
+    z = l.fix()
+    # z ∈ ⋃{y} means z ∈ B for some B ∈ {y}, and the only such B is y.
+    l.auto(by=[zf.bigunion_ax(sing(y), z), zf.elem_sing])
 
 
 pair_elem_prod = prove(

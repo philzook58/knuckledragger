@@ -42,7 +42,7 @@ from kdrag.contrib.zf.fun import (
     pair_elem_prod,
 )
 
-A, X, a, n, m, p, t, x, y = Consts("A X a n m p t x y", ZFSet)
+A, X, a, c, k, n, m, p, t, x, y = Consts("A X a c k n m p t x y", ZFSet)
 F = Const("F", ArraySort(ZFSet, ZFSet))
 
 maps_to = define("maps_to", [F, X], ForAll(x, elem(x, X), elem(F[x], X)))
@@ -175,22 +175,65 @@ def rec_closed_sub_sing(l):
         [X, a, F, p],
         elem(a, X),
         maps_to(F, X),
-        elem(p, nat_rec(X, a, F)),
-        Not(rec_closed(nat_rec(X, a, F) - sing(p), a, F)),
+        pair(zero, a) != p,
+        ForAll(
+            [m, t],
+            elem(pair(m, t), nat_rec(X, a, F) - sing(p)),
+            pair(succ(m), F[t]) != p,
+        ),
+        Not(elem(p, nat_rec(X, a, F))),
     )
 )
-def not_rec_closed_nat_rec_sub_sing(l):
-    """No pair can be removed from nat_rec: the result would be a smaller closed set."""
+def not_elem_nat_rec_of_sub_sing(l):
+    """
+    Halmos' diminished set: if u - {p} still contains (0, a) and no step from it
+    lands on p, then u - {p} is closed, so p was never in the smallest closed set u.
+    """
     X, a, F, p = l.fixes()
     u = nat_rec(X, a, F)
     l.intros()
     l.intro()
+    l.have(
+        rec_closed(u - sing(p), a, F),
+        by=[rec_closed_sub_sing(u, a, F, p), nat_rec_closed(X, a, F)],
+    )
     l.have(
         u - sing(p) <= prod(omega, X), by=[nat_rec_le_prod(X, a, F), le.defn, elem_sub]
     )
     l.have(u <= u - sing(p), by=[nat_rec_le_of_closed(X, a, F, u - sing(p))])
     # But p ∈ u and p ∉ u - {p}.
     l.auto(by=[le.defn(u, u - sing(p)), elem_sub, zf.elem_sing])
+
+
+@Theorem(
+    ForAll(
+        [X, a, F, k, x, c],
+        elem(a, X),
+        maps_to(F, X),
+        elem(k, omega),
+        ForAll(y, elem(pair(k, y), nat_rec(X, a, F)), y == x),
+        c != F[x],
+        ForAll(
+            [m, t],
+            elem(pair(m, t), nat_rec(X, a, F)),
+            pair(succ(m), F[t]) != pair(succ(k), c),
+        ),
+    )
+)
+def nat_rec_step_ne(l):
+    """
+    Halmos: if x is the only value at k and c ≠ F x, no step lands on (k⁺, c).
+    A step (m, t) ↦ (m⁺, F t) onto (k⁺, c) needs m = k, so t = x and c = F x.
+    """
+    X, a, F, k, x, c = l.fixes()
+    l.intros()
+    m, t = l.fixes()
+    l.intros()
+    l.intro()
+    l.have(elem(m, omega), by=[nat_rec_le_prod(X, a, F), le.defn, pair_elem_prod])
+    l.have(And(succ(m) == succ(k), F[t] == c), by=[zf.pair_inj])
+    l.have(m == k, by=[succ_inj(m, k)])  # Peano V
+    l.auto()
 
 
 def unique_value(u, n):
@@ -207,7 +250,7 @@ def unique_value(u, n):
     )
 )
 def nat_rec_unique_value(l):
-    """Halmos: by induction on n, nat_rec has exactly one value at each n ∈ ω."""
+    """Halmos: by induction, u has exactly one value at each n ∈ ω."""
     X, a, F = l.fixes()
     u = nat_rec(X, a, F)
     l.intros()
@@ -215,58 +258,43 @@ def nat_rec_unique_value(l):
     l.intro()
     l.induct(n, using=induct_omega)
 
-    # Base case: the value at 0 is a.
+    # 0 ∈ S: (0, a) ∈ u. If not unique, then (0, b) ∈ u for some b distinct from a.
     l.exists(a)
     l.split()
     l.auto(by=[nat_rec_closed(X, a, F), rec_closed.defn])
     b = l.fix()
     l.intro()
     l.contra()
-    # If also (0, b) ∈ u with b ≠ a, then u - {(0, b)} is still closed:
-    # it keeps (0, a), and no step lands on 0.
+    # The diminished set u - {(0, b)} still contains (0, a), and since n⁺ ≠ 0
+    # no step lands on (0, b).
     p0 = pair(zero, b)
     l.have(pair(zero, a) != p0, by=[zf.pair_inj])
     l.have(
         ForAll([m, t], elem(pair(m, t), u - sing(p0)), pair(succ(m), F[t]) != p0),
         by=[zf.pair_inj, succ_ne_zero],
     )
-    l.have(
-        rec_closed(u - sing(p0), a, F),
-        by=[rec_closed_sub_sing(u, a, F, p0), nat_rec_closed(X, a, F)],
-    )
-    l.auto(by=[not_rec_closed_nat_rec_sub_sing(X, a, F, p0)])
+    l.auto(by=[not_elem_nat_rec_of_sub_sing(X, a, F, p0)])
 
-    # Inductive step: if x is the unique value at k, then F x is the unique value at k⁺.
+    # n ∈ S → n⁺ ∈ S: if x is the unique value at k, then (k⁺, F x) ∈ u.
     k = l.fix()
     _, ih = l.intros()
     x0, _ = l.obtain(ih)
     l.exists(F[x0])
     l.split()
     l.auto(by=[nat_rec_closed(X, a, F), rec_closed.defn])
+    # If not unique, then (k⁺, c) ∈ u for some c different from F x.
     c = l.fix()
     l.intro()
     l.contra()
-    # If also (k⁺, c) ∈ u with c ≠ F x, remove (k⁺, c). It is not (0, a) since k⁺ ≠ 0.
+    # The diminished set u - {(k⁺, c)} still contains (0, a) since k⁺ ≠ 0,
+    # and no step lands on (k⁺, c).
     p1 = pair(succ(k), c)
     l.have(pair(zero, a) != p1, by=[zf.pair_inj, succ_ne_zero])
-    # A step (m, t) ↦ (m⁺, F t) landing on (k⁺, c) forces m = k by Peano V,
-    # then t = x by uniqueness at k, so c = F x: a contradiction.
-    l.have(ForAll([m, t], elem(pair(m, t), u - sing(p1)), pair(succ(m), F[t]) != p1))
-    m1, t1 = l.fixes()
-    l.intro()
-    l.contra()
     l.have(
-        elem(m1, omega),
-        by=[nat_rec_le_prod(X, a, F), le.defn, elem_sub, pair_elem_prod],
+        ForAll([m, t], elem(pair(m, t), u - sing(p1)), pair(succ(m), F[t]) != p1),
+        by=[nat_rec_step_ne(X, a, F, k, x0, c), elem_sub],
     )
-    l.have(And(succ(m1) == succ(k), F[t1] == c), by=[zf.pair_inj])
-    l.have(m1 == k, by=[succ_inj(m1, k)])
-    l.auto(by=[elem_sub])
-    l.have(
-        rec_closed(u - sing(p1), a, F),
-        by=[rec_closed_sub_sing(u, a, F, p1), nat_rec_closed(X, a, F)],
-    )
-    l.auto(by=[not_rec_closed_nat_rec_sub_sing(X, a, F, p1)])
+    l.auto(by=[not_elem_nat_rec_of_sub_sing(X, a, F, p1)])
 
 
 @Theorem(
