@@ -13,6 +13,7 @@ from kdrag.smt import (
     Eq,
     ExprRef,
     ForAll,
+    If,
     Implies,
     Lambda,
     RealSort,
@@ -77,6 +78,37 @@ def has_lim_congr_nonneg(l):
     a, b, x = l.fixes()
     l.intros()
     l.auto(by=[has_lim_squeeze(a, b, a, x)])
+
+
+start = smt.Int("start")
+center, radius = Reals("center radius")
+
+
+@Theorem(
+    ForAll(
+        [a, x, center, radius, start],
+        has_lim(a, x),
+        ForAll(n, n >= start, real.abs(a[n] - center) <= radius),
+        real.abs(x - center) <= radius,
+    )
+)
+def abs_sub_le_of_has_lim(l):
+    """A closed interval containing the tail also contains its limit."""
+    a, x, center, radius, start = l.fixes()
+    l.rw(has_lim_iff(a, x))
+    l.unfold(eventually)
+    l.beta()
+    limit, bound = l.intros()
+    l.contra()
+    gap = real.abs(x - center) - radius
+    positive = l.have(gap > 0, by=[])
+    cutoff, near = l.obtain(l.specialize(limit, gap, positive))
+    index = If(cutoff >= start, cutoff + 1, start)
+    beyond = l.have(index > cutoff, by=[])
+    l.specialize(near, index, beyond)
+    after_start = l.have(index >= start, by=[])
+    l.specialize(bound, index, after_start)
+    l.auto(by=[real.abs_triangle(x, center, a[index]), real.abs_neg(a[index] - x)])
 
 
 @Theorem(
