@@ -9,7 +9,9 @@ multiplication defined by recursion (Halmos §13); `order` for the order on ω,
 where `m < n` is `m ∈ n` (Halmos §13); `finite` for equivalent and finite
 sets via HOL-function bijections (Halmos §13); `card` for comparing sizes and
 the Schröder-Bernstein theorem (Halmos §22); `poset` for partial, total, and
-well orders (Halmos §14, §17). Dependencies flow one way: `nat` and `fun` are
-independent, `rec` uses both, `arith` uses `rec`, `order` uses `arith`,
-`finite` and `poset` use `order`, and `card` uses `finite`.
+well orders (Halmos §14, §17); `ordinal` for the axiom of substitution
+(Replacement) and ordinal numbers (Halmos §19). Dependencies flow one way: `nat`
+and `fun` are independent, `rec` uses both, `arith` uses `rec`, `order` uses
+`arith`, `finite` and `poset` use `order`, `card` uses `finite`, and `ordinal`
+uses `poset` and `finite`. Only `ordinal` assumes Replacement.
 """

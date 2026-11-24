@@ -63,6 +63,47 @@ is_well_order = define(
     ),
 )
 
+# The order laws one at a time, for instantiating in proofs.
+partial_order_of_well_order = prove(
+    ForAll([R, X], is_well_order(R, X), is_partial_order(R, X)),
+    by=[is_well_order.defn],
+)
+partial_order_antisymm = prove(
+    ForAll(
+        [R, X, x, y],
+        is_partial_order(R, X),
+        elem(x, X),
+        elem(y, X),
+        R[x, y],
+        R[y, x],
+        x == y,
+    ),
+    by=[is_partial_order.defn],
+)
+partial_order_trans = prove(
+    ForAll(
+        [R, X, x, y, z],
+        is_partial_order(R, X),
+        elem(x, X),
+        elem(y, X),
+        elem(z, X),
+        R[x, y],
+        R[y, z],
+        R[x, z],
+    ),
+    by=[is_partial_order.defn],
+)
+exists_least = prove(
+    ForAll(
+        [R, X, E],
+        is_well_order(R, X),
+        E <= X,
+        E != zf.emp,
+        Exists(a, is_least(R, E, a)),
+    ),
+    by=[is_well_order.defn],
+)
+
 # The initial segment s(a) = {x ∈ X | x < a}.
 seg = define("seg", [R, X, a], sep(X, Lambda(x, And(R[x, a], x != a))))
 
@@ -141,7 +182,13 @@ def omega_well_order(l):
     # Every nonempty set of naturals has a least element.
     E = l.fix()
     l.intros()
-    l.auto(by=[exists_least_of_nonempty(E), is_least.defn])
+    l.have(
+        Exists(a, And(elem(a, E), ForAll(x, elem(x, E), nat_le(a, x)))),
+        by=[exists_least_of_nonempty(E)],
+    )
+    k, _ = l.obtain(-1)
+    l.exists(k)
+    l.auto(by=[is_least.defn(nat_le_rel, E, k)])
 
 
 @Theorem(ForAll(a, elem(a, omega), seg(nat_le_rel, omega, a) == a))

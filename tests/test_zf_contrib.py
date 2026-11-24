@@ -21,7 +21,9 @@ import pytest
         ("card", 4),
         ("poset", 0),
         ("poset", 6),
-        ("fun nat rec arith order finite card poset", 7),
+        ("ordinal", 0),
+        ("ordinal", 8),
+        ("fun nat rec arith order finite card poset ordinal", 7),
     ],
 )
 def test_zf_proofs(modules, seed):
@@ -69,15 +71,11 @@ def _dependencies(proofs):
     return out
 
 
-def test_zf_contrib_axioms():
-    # contrib.zf should rest on ZF minus Replacement and Foundation, without choice:
-    # the theories.zf axioms plus infinity, and never the global-choice `pick`.
+def _axioms_used(modules):
     import importlib
 
     import kdrag as kd
-    import kdrag.theories.zf.zf as zf
 
-    modules = ["nat", "fun", "rec", "arith", "order", "finite", "card", "poset"]
     proofs = [
         v
         for mod in modules
@@ -85,22 +83,34 @@ def test_zf_contrib_axioms():
         if isinstance(v, kd.kernel.Proof)
     ]
     deps = _dependencies(proofs)
-    from kdrag.contrib.zf.nat import infinity_ax
+    return {id(p) for p in deps if p.reason == ["axiom"]}, deps
 
-    allowed = {
-        id(ax)
-        for ax in [
-            zf.ext_ax,
-            zf.elem_emp,
-            zf.elem_upair,
-            zf.elem_sep,
-            zf.bigunion_ax,
-            zf.elem_pow,
-            infinity_ax,
-        ]
-    }
-    used = [p for p in deps if p.reason == ["axiom"]]
-    assert {id(p) for p in used} <= allowed, [
-        p.thm for p in used if id(p) not in allowed
+
+@pytest.mark.parametrize(
+    "modules,replacement",
+    [
+        (["nat", "fun", "rec", "arith", "order", "finite", "card", "poset"], False),
+        (["ordinal"], True),
+    ],
+)
+def test_zf_contrib_axioms(modules, replacement):
+    # contrib.zf rests on the theories.zf axioms plus infinity, adding Replacement
+    # only where noted, with no Foundation and never the global-choice `pick`.
+    import kdrag.theories.zf.zf as zf
+    from kdrag.contrib.zf.nat import infinity_ax
+    from kdrag.contrib.zf.ordinal import elem_repl
+
+    allowed = [
+        zf.ext_ax,
+        zf.elem_emp,
+        zf.elem_upair,
+        zf.elem_sep,
+        zf.bigunion_ax,
+        zf.elem_pow,
+        infinity_ax,
     ]
+    if replacement:
+        allowed.append(elem_repl)
+    used, deps = _axioms_used(modules)
+    assert used <= {id(ax) for ax in allowed}
     assert not any(p is zf.elem_pick0 for p in deps)
