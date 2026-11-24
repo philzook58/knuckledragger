@@ -154,3 +154,76 @@ def mul_add(l):
             mul_elem_omega,
         ]
     )
+
+
+@Theorem(ForAll(n, elem(n, omega), mul(zero, n) == zero))
+def zero_mul(l):
+    n = l.fix()
+    l.intro()
+    l.induct(n, using=induct_omega)
+    l.auto(by=[mul_zero, omega_zero])
+    # 0·k⁺ = 0·k + 0 = 0 + 0 = 0
+    k = l.fix()
+    l.auto(by=[mul_succ(zero, k), add_zero, omega_zero])
+
+
+@Theorem(
+    ForAll([m, n], elem(m, omega), elem(n, omega), mul(succ(m), n) == add(mul(m, n), n))
+)
+def succ_mul(l):
+    m, n = l.fixes()
+    l.intros()
+    l.induct(n, using=induct_omega)
+    l.auto(by=[mul_zero, add_zero, omega_succ, omega_zero])
+    # m⁺·k⁺ = m⁺·k + m⁺ = (m·k + k) + m⁺ = m·k + (k + m⁺)
+    #       = m·k + (m + k⁺) = (m·k + m) + k⁺ = m·k⁺ + k⁺
+    k = l.fix()
+    l.intros()
+    l.have(elem(mul(m, k), omega), by=[mul_elem_omega])
+    l.have(add(k, succ(m)) == add(m, succ(k)), by=[add_succ, succ_add, add_comm])
+    l.auto(
+        by=[
+            mul_succ(succ(m), k),
+            mul_succ(m, k),
+            add_assoc(mul(m, k), k, succ(m)),
+            add_assoc(mul(m, k), m, succ(k)),
+            omega_succ,
+        ]
+    )
+
+
+@Theorem(ForAll([m, n], elem(m, omega), elem(n, omega), mul(m, n) == mul(n, m)))
+def mul_comm(l):
+    m, n = l.fixes()
+    l.intros()
+    l.induct(n, using=induct_omega)
+    l.auto(by=[mul_zero, zero_mul])
+    # m·k⁺ = m·k + m = k·m + m = k⁺·m
+    k = l.fix()
+    l.auto(by=[mul_succ(m, k), succ_mul(k, m)])
+
+
+@Theorem(
+    ForAll(
+        [m, n, p],
+        elem(m, omega),
+        elem(n, omega),
+        elem(p, omega),
+        mul(mul(m, n), p) == mul(m, mul(n, p)),
+    )
+)
+def mul_assoc(l):
+    m, n, p = l.fixes()
+    l.intros()
+    l.induct(p, using=induct_omega)
+    l.auto(by=[mul_zero, mul_elem_omega])
+    # (m·n)·k⁺ = (m·n)·k + m·n = m·(n·k) + m·n = m·(n·k + n) = m·(n·k⁺)
+    k = l.fix()
+    l.auto(
+        by=[
+            mul_succ(mul(m, n), k),
+            mul_succ(n, k),
+            mul_add(m, mul(n, k), n),
+            mul_elem_omega,
+        ]
+    )

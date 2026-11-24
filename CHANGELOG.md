@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `finsum_sub`, `finsum_diff` (telescoping), and `abs_finsum_le` in `contrib.analysis.finsum`.
 - Add `contrib.zf.nat`: the axiom of infinity, von Neumann ω as the smallest inductive set, induction over ω (with an `induct_omega` hook for `l.induct`), and the Peano axioms following Halmos §12.
 - Add `contrib.zf.fun` (functions as sets with a choice-free `app`) and `contrib.zf.rec`: the recursion theorem on ω, with `nat_rec(X, a, F)` as Halmos' smallest closed set of pairs and theorems `nat_rec_is_func`, `nat_rec_zero`, `nat_rec_succ`.
-- Add `contrib.zf.arith`: addition and multiplication on ω by recursion (Halmos §13), with `add_zero`, `add_succ`, `zero_add`, `succ_add`, `add_comm`, `add_assoc`, `mul_zero`, `mul_succ`, and the distributive law `mul_add`.
+- Add `contrib.zf.arith`: addition and multiplication on ω by recursion (Halmos §13), with `add_zero`, `add_succ`, `zero_add`, `succ_add`, `add_comm`, `add_assoc`, `mul_zero`, `mul_succ`, `zero_mul`, `succ_mul`, `mul_comm`, `mul_assoc`, and the distributive law `mul_add`.
 
 ### Changed
 
