@@ -3,6 +3,8 @@
 from kdrag import Theorem, define
 from kdrag.smt import (
     And,
+    BoolVal,
+    RealVal,
     Const,
     Eq,
     Exists,
@@ -34,7 +36,16 @@ from kdrag.theories.real.rset import An, M, nested, nested_subset, z
 
 from ._choice import exists_seq_of_forall_exists
 from .cauchy import is_bounded_nonneg_of_is_cauchy, is_cauchy_of_has_lim
-from .cont import cont_on, cont_within_at, has_lim_comp_of_cont_within_at
+from .cont import (
+    _bad_pair,
+    _bad_pairs_at_every_radius,
+    _exists_bad_pairs_of_not_uniform_cont_on,
+    cont_on,
+    cont_within_at,
+    exists_pair_radius_of_cont_within_at,
+    has_lim_comp_of_cont_within_at,
+    uniform_cont_on,
+)
 from .rseq import has_lim_congr_nonneg
 from .subsequence import (
     bolzano_weierstrass,
@@ -409,12 +420,12 @@ lo, hi = Reals("lo hi")
     )
 )
 def _exists_extrema_on_of_extrema_image(l):
-    f, K, lo, hi = l.fixes()
+    function, domain, lo, hi = l.fixes()
     l.intros()
-    image = Image(f, K)
+    image = substitute(_image, (f, function), (K, domain))
     # The extreme image values have preimages in K.
-    lower = l.have(Exists(x, K[x], lo == f[x]), by=[])
-    upper = l.have(Exists(y, K[y], hi == f[y]), by=[])
+    lower = l.have(Exists(x, domain[x], lo == function[x]), by=[])
+    upper = l.have(Exists(y, domain[y], hi == function[y]), by=[])
     xmin, _ = l.obtain(lower)
     xmax, _ = l.obtain(upper)
     l.exists(xmin, xmax)
@@ -423,12 +434,15 @@ def _exists_extrema_on_of_extrema_image(l):
     l.auto()
     point = l.fix()
     l.intro()
-    l.have(image[f[point]])
+    l.have(image[function[point]])
     l.beta()
     l.exists(point)
     l.auto()
     l.auto(
-        by=[rset.is_lb.defn(image, lo), rset.le_of_mem_of_is_ub(image, f[point], hi)]
+        by=[
+            rset.is_lb.defn(image, lo),
+            rset.le_of_mem_of_is_ub(image, function[point], hi),
+        ]
     )
 
 
@@ -493,3 +507,177 @@ def extreme_value_theorem(l):
             _exists_extrema_on_of_image_contains_extrema(function, domain),
         ]
     )
+
+
+eps, delta = Reals("eps delta")
+
+
+def _has_bad_partner(f, K, eps, n, left):
+    return Exists(y, _bad_pair(f, K, eps, RealVal(1) / (n + 1), left, y))
+
+
+_bad_left_seq = define(
+    "analysis.bad_left_seq",
+    [f, K, eps, a],
+    ForAll(n, n >= 0, _has_bad_partner(f, K, eps, n, a[n])),
+)
+
+
+@Theorem(
+    ForAll(
+        [f, K, eps, a, n],
+        _bad_left_seq(f, K, eps, a),
+        n >= 0,
+        _has_bad_partner(f, K, eps, n, a[n]),
+    )
+)
+def _bad_partner_at(l):
+    l.fixes()
+    l.unfold(_bad_left_seq)
+    l.intros()
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [f, K, eps],
+        _bad_pairs_at_every_radius(f, K, eps),
+        Exists(a, _bad_left_seq(f, K, eps, a)),
+    )
+)
+def _exists_bad_left_seq(l):
+    f, K, eps = l.fixes()
+    bad_pairs = l.intro()
+    left_ok = Lambda([n, x], _has_bad_partner(f, K, eps, n, x))
+    l.have(ForAll(n, n >= 0, Exists(y, left_ok[n, y])))
+    j = l.fix()
+    l.intro()
+    l.beta()
+    radius = RealVal(1) / (j + 1)
+    positive = l.have(radius > 0, by=[])
+    (left, right), _ = l.obtain(l.specialize(bad_pairs, radius, positive))
+    l.exists(left)
+    l.exists(right)
+    l.auto()
+    choice = l.have(
+        Exists(a, ForAll(n, n >= 0, left_ok[n, a[n]])),
+        by=[exists_seq_of_forall_exists(left_ok)],
+    )
+    seq, _ = l.obtain(choice)
+    l.exists(seq)
+    l.unfold(_bad_left_seq)
+    l.auto()
+
+
+radius = Reals("radius")[0]
+
+
+@Theorem(
+    ForAll(
+        [a, F, x, radius],
+        is_subseq_index(F),
+        has_lim(dommap(F, a), x),
+        radius > 0,
+        Exists(
+            n, n >= 0, real.abs(a[F[n]] - x) < radius, RealVal(1) / (F[n] + 1) < radius
+        ),
+    )
+)
+def _exists_late_subseq_term(l):
+    a, idx, point, radius = l.fixes()
+    _, _, positive = l.intros()
+    subseq = dommap(idx, a)
+    tends = l.have(
+        has_lim.defn(subseq, point).thm.arg(1), by=[has_lim.defn(subseq, point)]
+    )
+    N, close = l.obtain(l.specialize(tends, radius, positive))
+    budget = l.have(And(radius > 0, RealVal(1) > 0), by=[])
+    B, _ = l.obtain(l.specialize(real.archimedes, radius, 1, budget))
+    cutoff = If(N < B, B, N)
+    j = If(cutoff < 0, IntVal(0), cutoff) + 1
+    l.have(idx[j] >= j, by=[le_subseq_index(idx, j)])
+    l.specialize(close, j)
+    left = a[idx[j]]
+    l.have(real.abs(left - point) < radius, by=[dommap.defn(idx, a)])
+    l.have(radius * (idx[j] + 1) > 1, by=[])
+    l.exists(j)
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [f, K, eps, a],
+        cont_on(f, K),
+        is_compact(K),
+        eps > 0,
+        _bad_left_seq(f, K, eps, a),
+        BoolVal(False),
+    )
+)
+def _false_of_bad_left_seq(l):
+    f, K, eps, a = l.fixes()
+    _, compact, _, _ = l.intros()
+    in_set = l.have(ForAll(n, n >= 0, K[a[n]]))
+    j = l.fix()
+    l.auto(by=[_bad_partner_at(f, K, eps, a, j)])
+    (idx, point), witness = l.obtain(
+        l.specialize(exists_subseq_of_is_compact, K, a, compact, in_set)
+    )
+    l.andE(witness)
+    l.have(cont_within_at(f, K, point), by=[cont_on.defn(f, K)])
+    # Pick the local radius first, then a term late enough for that radius.
+    nearby = l.have(
+        Exists(
+            delta,
+            delta > 0,
+            ForAll(
+                [x, y],
+                K[x],
+                K[y],
+                real.abs(x - point) < delta,
+                real.abs(x - y) < delta,
+                real.abs(f[x] - f[y]) < eps,
+            ),
+        ),
+        by=[exists_pair_radius_of_cont_within_at(f, K, point, eps)],
+    )
+    radius, witness = l.obtain(nearby)
+    positive, close_images = l.andE(witness)
+    close = l.have(
+        Exists(
+            n,
+            n >= 0,
+            real.abs(a[idx[n]] - point) < radius,
+            RealVal(1) / (idx[n] + 1) < radius,
+        ),
+        by=[_exists_late_subseq_term(a, idx, point, radius)],
+    )
+    j, _ = l.obtain(close)
+    l.have(idx[j] >= j, by=[le_subseq_index(idx, j)])
+    left = a[idx[j]]
+    partner = l.have(
+        _has_bad_partner(f, K, eps, idx[j], left),
+        by=[_bad_partner_at(f, K, eps, a, idx[j])],
+    )
+    right, _ = l.obtain(partner)
+    l.specialize(close_images, left, right)
+    l.auto()
+
+
+@Theorem(ForAll([f, K], cont_on(f, K), is_compact(K), uniform_cont_on(f, K)))
+def uniform_cont_on_of_is_compact(l):
+    """Continuity on a compact set implies uniform continuity (Abbott 4.4.7)."""
+    f, K = l.fixes()
+    l.intros()
+    l.contra()
+    failure = l.have(
+        Exists(eps, eps > 0, _bad_pairs_at_every_radius(f, K, eps)),
+        by=[_exists_bad_pairs_of_not_uniform_cont_on(f, K)],
+    )
+    error, _ = l.obtain(failure)
+    sequence = l.have(
+        Exists(a, _bad_left_seq(f, K, error, a)),
+        by=[_exists_bad_left_seq(f, K, error)],
+    )
+    seq, _ = l.obtain(sequence)
+    l.auto(by=[_false_of_bad_left_seq(f, K, error, seq)])

@@ -9,12 +9,23 @@ from kdrag.smt import (
     If,
     IntVal,
     Lambda,
+    Not,
     ForAll,
     RealVal,
     Reals,
     Store,
 )
-from kdrag.theories.real import A, R, RFun, abs, abs_neg, cont_at, has_lim_at, min
+from kdrag.theories.real import (
+    A,
+    R,
+    RFun,
+    abs,
+    abs_neg,
+    abs_triangle,
+    cont_at,
+    has_lim_at,
+    min,
+)
 from kdrag.theories.real.cont import (
     cont_at_update_of_has_lim_at,
     has_lim_at_of_cont_at_update,
@@ -22,7 +33,7 @@ from kdrag.theories.real.cont import (
 from kdrag.theories.real.rseq import a, has_lim, n
 
 f, g = Consts("f g", RFun)
-x, p, L, M, c = Reals("x p L M c")
+x, y, p, L, M, c = Reals("x y p L M c")
 
 
 @Theorem(ForAll([f, p, L, M], has_lim_at(f, p, L), has_lim_at(f, p, M), L == M))
@@ -186,5 +197,115 @@ def has_lim_comp_of_cont_at(l):
         by=[
             cont_within_at_of_cont_at(f, all_reals, p),
             has_lim_comp_of_cont_within_at(a, f, all_reals, p),
+        ]
+    )
+
+
+_has_uniform_radius = define(
+    "analysis.has_uniform_radius",
+    [f, A, eps],
+    Exists(
+        delta,
+        delta > 0,
+        ForAll([x, y], A[x], A[y], abs(x - y) < delta, abs(f[x] - f[y]) < eps),
+    ),
+)
+uniform_cont_on = define(
+    "analysis.uniform_cont_on",
+    [f, A],
+    ForAll(eps, eps > 0, _has_uniform_radius(f, A, eps)),
+)
+
+
+def _bad_pair(f, A, eps, delta, x, y):
+    return And(A[x], A[y], abs(x - y) < delta, eps <= abs(f[x] - f[y]))
+
+
+def _bad_pairs_at_every_radius(f, A, eps):
+    return ForAll(delta, delta > 0, Exists([x, y], _bad_pair(f, A, eps, delta, x, y)))
+
+
+@Theorem(
+    ForAll(
+        [f, A, eps],
+        Not(_has_uniform_radius(f, A, eps)),
+        _bad_pairs_at_every_radius(f, A, eps),
+    )
+)
+def _bad_pairs_of_no_uniform_radius(l):
+    f, A, eps = l.fixes()
+    l.intro()
+    radius = l.fix()
+    l.intro()
+    l.contra()
+    l.have(_has_uniform_radius(f, A, eps))
+    l.unfold(_has_uniform_radius)
+    l.exists(radius)
+    l.split()
+    l.auto()
+    l.fixes()
+    l.intros()
+    l.auto()
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [f, A],
+        Not(uniform_cont_on(f, A)),
+        Exists(eps, eps > 0, _bad_pairs_at_every_radius(f, A, eps)),
+    )
+)
+def _exists_bad_pairs_of_not_uniform_cont_on(l):
+    f, A = l.fixes()
+    l.unfold(uniform_cont_on)
+    l.intro()
+    missing = l.have(Exists(eps, eps > 0, Not(_has_uniform_radius(f, A, eps))), by=[])
+    error, _ = l.obtain(missing)
+    l.exists(error)
+    l.auto(by=[_bad_pairs_of_no_uniform_radius(f, A, error)])
+
+
+@Theorem(
+    ForAll(
+        [f, A, p, eps],
+        cont_within_at(f, A, p),
+        eps > 0,
+        Exists(
+            delta,
+            delta > 0,
+            ForAll(
+                [x, y],
+                A[x],
+                A[y],
+                abs(x - p) < delta,
+                abs(x - y) < delta,
+                abs(f[x] - f[y]) < eps,
+            ),
+        ),
+    )
+)
+def exists_pair_radius_of_cont_within_at(l):
+    """Two close points near p have close images."""
+    f, A, p, eps = l.fixes()
+    l.unfold(cont_within_at)
+    continuous, _ = l.intros()
+    positive = l.have(eps / 2 > 0, by=[])
+    radius, witness = l.obtain(l.specialize(continuous, eps / 2, positive))
+    _, close_images = l.andE(witness)
+    l.exists(radius / 2)
+    l.split()
+    l.auto()
+    x, y = l.fixes()
+    l.intros()
+    l.specialize(close_images, x, keep=True)
+    l.specialize(close_images, y)
+    l.auto(
+        by=[
+            abs_neg(x - p),
+            abs_neg(x - y),
+            abs_triangle(p, y, x),
+            abs_neg(f[p] - f[x]),
+            abs_triangle(f[x], f[y], f[p]),
         ]
     )
