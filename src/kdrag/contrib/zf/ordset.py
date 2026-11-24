@@ -453,7 +453,8 @@ def ordinal_elem_iff_ssubset(l):
     )
 
 
-# The ordinals in a set, named so that later steps do not see the lambda (see #102).
+# The ordinals in a set, named so that later steps never see the predicate given
+# to sep; with it in view z3 gave up on a trivial step (see #106).
 ordinals_in = define("ordinals_in", [C], zf.sep(C, Lambda(x, is_ordinal(x))))
 
 
