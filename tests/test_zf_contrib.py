@@ -17,7 +17,9 @@ import pytest
         ("order", 5),
         ("finite", 0),
         ("finite", 2),
-        ("fun nat rec arith order finite", 7),
+        ("card", 0),
+        ("card", 4),
+        ("fun nat rec arith order finite card", 7),
     ],
 )
 def test_zf_proofs(modules, seed):
@@ -73,7 +75,7 @@ def test_zf_contrib_axioms():
     import kdrag as kd
     import kdrag.theories.zf.zf as zf
 
-    modules = ["nat", "fun", "rec", "arith", "order", "finite"]
+    modules = ["nat", "fun", "rec", "arith", "order", "finite", "card"]
     proofs = [
         v
         for mod in modules

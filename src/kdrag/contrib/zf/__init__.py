@@ -7,7 +7,8 @@ Modules: `nat` for the von Neumann naturals, ω, and the Peano axioms
 the recursion theorem on ω (Halmos §12); `arith` for addition and
 multiplication defined by recursion (Halmos §13); `order` for the order on ω,
 where `m < n` is `m ∈ n` (Halmos §13); `finite` for equivalent and finite
-sets via HOL-function bijections (Halmos §13). Dependencies flow one way: `nat`
+sets via HOL-function bijections (Halmos §13); `card` for comparing sizes and
+the Schröder-Bernstein theorem (Halmos §22). Dependencies flow one way: `nat`
 and `fun` are independent, `rec` uses both, `arith` uses `rec`, `order` uses
-`arith`, and `finite` uses `order`.
+`arith`, `finite` uses `order`, and `card` uses `finite`.
 """

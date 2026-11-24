@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `contrib.zf.order`: comparability and trichotomy of natural numbers (`nat_comparable`, `nat_elem_asymm`), `elem_iff_le_ne`, `nat_le`, compatibility of `∈` with addition and multiplication, and the well-ordering `exists_least_of_nonempty` (Halmos §13).
 - Add `contrib.zf.finite`: one-to-one correspondences as HOL functions (`fun.maps_to`, `inj_on`, `surj_on`, `bij_on`), the equivalence relation `equivalent`, `omega_equivalent_sub_zero`, the pigeonhole principle `nat_eq_of_equivalent_le`, `finite`, uniqueness of the number of elements, and `omega_infinite` (Halmos §13). Generalize `rec.maps_to` to `fun.maps_to(F, X, Y)`.
 - Keep `contrib.zf` choice-free: build `nat_rec` from a choice-free intersection `fun.sinter` instead of the `pick`-based `biginter`, prove `pair_elem_prod` without `fst`/`snd`, and invert correspondences with `finite.inv` (`⋃{x ∈ A | F x = y}`). A test checks the proofs use only the ZF axioms of `theories.zf` and infinity.
+- Add `contrib.zf.card`: domination `dominated(X, Y)` and the Schröder-Bernstein theorem `schroeder_bernstein` following Halmos §22, without choice.
 
 ### Changed
 
