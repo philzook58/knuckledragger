@@ -19,6 +19,9 @@ and `sim` use `poset` (`sim` also uses `finite`); `ordset` for sets of ordinal
 numbers (Halmos §20) uses `ordinal` and `sim`; `count` for the counting
 theorem (Halmos §20) uses `ordset`; `oarith` for ordinal addition (Halmos §21)
 uses `count`; `omul` for ordinal multiplication and `osub` for subtraction
-(Halmos §21) use `oarith`. Only `ordinal`, `ordset`, `count`, `oarith`, `omul`,
-and `osub` may use Replacement and definite description.
+(Halmos §21) use `oarith`; `orec` for transfinite recursion on the ordinals
+without a codomain uses `trec` and `ordset`; `opow` for exponentiation (Halmos
+§21) uses `omul` and `orec`. Only `ordinal`, `ordset`, `count`, `oarith`,
+`omul`, `osub`, `orec`, and `opow` may use Replacement and definite
+description.
 """
