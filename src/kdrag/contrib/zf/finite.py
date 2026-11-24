@@ -6,13 +6,13 @@ Correspondences are HOL functions `ZFSet → ZFSet` (`fun.bij_on`).
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, If, Implies, Lambda, Not
+from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, If, Lambda, Not
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, elem, le, sep, sing, succ, zero
+from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, sep, sing, succ, zero
 from kdrag.contrib.zf.fun import (
+    bigunion_sing,
     bij_on,
     elem_sub,
-    exists_choice_fn,
     inj_on,
     maps_to,
     surj_on,
@@ -32,7 +32,7 @@ from kdrag.contrib.zf.nat import (
 )
 from kdrag.contrib.zf.order import comparable, elem_iff_le_ne, nat_comparable
 
-A, B, C, E, a, b, k, m, n, x, y = Consts("A B C E a b k m n x y", ZFSet)
+A, B, C, E, a, b, k, m, n, x, y, z = Consts("A B C E a b k m n x y z", ZFSet)
 F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 
 equivalent = define("equivalent", [A, B], Exists(F, bij_on(F, A, B)))
@@ -52,35 +52,53 @@ bij_on_comp = prove(
 )
 
 
-@Theorem(ForAll([F, A, B], bij_on(F, A, B), Exists(G, bij_on(G, B, A))))
-def exists_bij_on_inv(l):
-    """The inverse of a one-to-one correspondence, chosen pointwise (Halmos §10)."""
-    F, A, B = l.fixes()
-    l.intro()
-    l.unfold(bij_on, at=0)
-    # For each y ∈ B choose the x ∈ A with F x = y.
-    R = Lambda([y, x], Implies(elem(y, B), And(elem(x, A), F[x] == y)))
-    choice = exists_choice_fn(R)
-    l.have(choice.thm.arg(0))
-    y0 = l.fix()
-    l.cases(elem(y0, B))
-    # y ∈ B: surjectivity gives the x. y ∉ B: any x will do.
-    l.have(Exists(x, And(elem(x, A), F[x] == y0)), by=[surj_on.defn(F, A, B)])
+# The inverse of a one-to-one correspondence needs no choice: for y in the range,
+# {x ∈ A | F x = y} is a singleton {x}, and ⋃{x} = x (Halmos §10).
+inv = define("inv", [F, A], Lambda(y, bigunion(sep(A, Lambda(x, F[x] == y)))))
+
+
+@Theorem(ForAll([F, A, x], inj_on(F, A), elem(x, A), inv(F, A)[F[x]] == x))
+def inv_apply(l):
+    F, A, x = l.fixes()
+    l.intros()
+    l.unfold(inv)
+    l.simp()
+    # Injectivity makes {z ∈ A | F z = F x} the singleton {x}.
+    l.have(sep(A, Lambda(z, F[z] == F[x])) == sing(x))
+    l.rw(zf.ext_ax)
+    l.fix()
+    l.rw(zf.elem_sep).rw(zf.elem_sing)
+    l.auto(by=[inj_on.defn(F, A)])
+    l.auto(by=[bigunion_sing(x)])
+
+
+@Theorem(
+    ForAll(
+        [F, A, B, y],
+        bij_on(F, A, B),
+        elem(y, B),
+        And(elem(inv(F, A)[y], A), F[inv(F, A)[y]] == y),
+    )
+)
+def inv_elem(l):
+    F, A, B, y = l.fixes()
+    l.intros()
+    # y = F x for some x ∈ A, and inv(F, A) sends F x back to x.
+    l.have(Exists(x, And(elem(x, A), F[x] == y)), by=[bij_on.defn, surj_on.defn])
     x0, _ = l.obtain(-1)
-    l.exists(x0)
-    l.auto()
-    l.exists(y0)
-    l.auto()
-    l.have(choice.thm.arg(1), by=[choice])
-    G0, _ = l.obtain(-1)
-    l.exists(G0)
-    l.auto(by=[bij_on.defn, maps_to.defn, inj_on.defn, surj_on.defn])
+    l.auto(by=[inv_apply(F, A, x0), bij_on.defn])
+
+
+bij_on_inv = prove(
+    ForAll([F, A, B], bij_on(F, A, B), bij_on(inv(F, A), B, A)),
+    by=[bij_on.defn, maps_to.defn, inj_on.defn, surj_on.defn, inv_elem, inv_apply],
+)
 
 
 equivalent_refl = prove(ForAll(A, equivalent(A, A)), by=[equivalent.defn, bij_on_id])
 equivalent_symm = prove(
     ForAll([A, B], equivalent(A, B), equivalent(B, A)),
-    by=[equivalent.defn, exists_bij_on_inv],
+    by=[equivalent.defn, bij_on_inv],
 )
 
 

@@ -5,18 +5,15 @@ A function is its graph. `app(f, x)` reads the value at `x` without choice,
 as `⋃{y | (x, y) ∈ f}` (Isabelle/ZF's `apply`); off the domain it is junk.
 """
 
-import kdrag as kd
-from kdrag import FreshVar, Theorem, define, prove
+from kdrag import Theorem, define, prove
 from kdrag.smt import (
     And,
     ArraySort,
-    BoolSort,
     Consts,
     Exists,
     ForAll,
     Lambda,
     Not,
-    substitute,
 )
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import (
@@ -25,13 +22,13 @@ from kdrag.theories.zf.zf import (
     elem,
     le,
     pair,
+    pow,
     prod,
     ran,
     sep,
     sing,
     upair,
 )
-from kdrag.theories.zf.prod_lemmas import elem_prod_strong
 
 A, B, X, Y, f, x, y, z = Consts("A B X Y f x y z", ZFSet)
 F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
@@ -53,10 +50,49 @@ def bigunion_sing(l):
     l.auto(by=[zf.bigunion_ax(sing(y), z), zf.elem_sing])
 
 
-pair_elem_prod = prove(
-    ForAll([x, y, A, B], elem(pair(x, y), prod(A, B)) == And(elem(x, A), elem(y, B))),
-    by=[elem_prod_strong, zf.pair_inj],
+@Theorem(
+    ForAll([x, y, A, B], elem(pair(x, y), prod(A, B)) == And(elem(x, A), elem(y, B)))
 )
+def pair_elem_prod(l):
+    x, y, A, B = l.fixes()
+    l.rw(zf.elem_prod_def)
+    l.split()
+    # → : (x, y) = (x', y') with x' ∈ A, y' ∈ B, and pairs are injective.
+    l.intro()
+    l.auto(by=[zf.pair_inj])
+    # ← : {x} and {x, y} are subsets of A ∪ B.
+    l.intro()
+    l.have(sing(x) <= A | B, by=[le.defn, zf.elem_sing, zf.elem_union])
+    l.have(upair(x, y) <= A | B, by=[le.defn, zf.elem_upair, zf.elem_union])
+    l.have(
+        elem(pair(x, y), pow(pow(A | B))),
+        by=[zf.elem_pow, le.defn, zf.elem_pair],
+    )
+    l.auto()
+
+
+# Choice-free intersection, as in Mathlib's ZFSet.sInter. The intersection in
+# theories.zf separates from `pick(a)`, which uses global choice.
+sinter = define(
+    "sinter", [A], sep(bigunion(A), Lambda(x, ForAll(B, elem(B, A), elem(x, B))))
+)
+
+
+@Theorem(
+    ForAll(
+        [A, x],
+        A != zf.emp,
+        elem(x, sinter(A)) == ForAll(B, elem(B, A), elem(x, B)),
+    )
+)
+def elem_sinter(l):
+    A, x = l.fixes()
+    l.intro()
+    l.unfold(sinter)
+    l.rw(zf.elem_sep)
+    # x in every member of a nonempty A is in some member, so x ∈ ⋃A.
+    l.have(Exists(B, elem(B, A)), by=[zf.not_emp_exists_elem(A)])
+    l.auto(by=[zf.bigunion_ax(A, x)])
 
 
 @Theorem(ForAll([x, y, f], elem(pair(x, y), f), elem(y, ran(f))))
@@ -131,19 +167,3 @@ surj_on = define(
 bij_on = define(
     "bij_on", [F, A, B], And(maps_to(F, A, B), inj_on(F, A), surj_on(F, A, B))
 )
-
-
-# Choice of a function: global choice is built into kd via `obtain`.
-R = Consts("R", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
-_R, _x = FreshVar("R", R.sort()), FreshVar("x", ZFSet)
-assert isinstance(_R, kd.smt.ArrayRef)
-(_choice,), _choice_spec = kd.kernel.obtain(Exists(y, _R[_x, y]))
-
-
-@Theorem(ForAll(R, ForAll(x, Exists(y, R[x, y])), Exists(F, ForAll(x, R[x, F[x]]))))
-def exists_choice_fn(l):
-    R = l.fix()
-    l.intro()
-    l.exists(Lambda(_x, substitute(_choice, (_R, R))))
-    z = l.fix()
-    l.auto(by=[_choice_spec.forall([_R, _x])(R, z)])

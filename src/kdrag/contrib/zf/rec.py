@@ -13,7 +13,6 @@ from kdrag.smt import And, ArraySort, Const, Consts, Exists, ForAll, Lambda, Not
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import (
     ZFSet,
-    biginter,
     elem,
     emp,
     le,
@@ -41,6 +40,8 @@ from kdrag.contrib.zf.fun import (
     maps_to,
     pair_app_elem,
     pair_elem_prod,
+    sinter,
+    elem_sinter,
 )
 
 A, X, a, c, k, n, m, p, t, x, y = Consts("A X a c k n m p t x y", ZFSet)
@@ -61,7 +62,7 @@ rec_family = define(
     [X, a, F],
     sep(pow(prod(omega, X)), Lambda(A, rec_closed(A, a, F))),
 )
-nat_rec = define("nat_rec", [X, a, F], biginter(rec_family(X, a, F)))
+nat_rec = define("nat_rec", [X, a, F], sinter(rec_family(X, a, F)))
 
 
 @Theorem(
@@ -115,7 +116,7 @@ def elem_nat_rec(l):
     l.unfold(nat_rec)
     # 𝒞 is nonempty, so ⋂𝒞 has the expected members.
     l.have(rec_family(X, a, F) != emp, by=[prod_elem_rec_family(X, a, F), zf.elem_emp])
-    l.auto(by=[zf.elem_biginter])
+    l.auto(by=[elem_sinter])
 
 
 @Theorem(
