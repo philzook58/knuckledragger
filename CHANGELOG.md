@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `contrib.zf.poset`: partial, total, and well orders as HOL relations on a set (Halmos §14, §17), least and minimal elements, initial segments `seg`, inclusion as a partial order, `total_order_of_well_order`, `omega_well_order`, and `seg_nat` (each natural number is the set of its predecessors).
 - Add `contrib.zf.ordinal`: the axiom of substitution (Replacement) as `repl(F, A)` with `elem_repl`, and Halmos' ordinal numbers with `is_ordinal_iff` (well ordered by ∈, transitive, irreflexive), `omega_is_ordinal`, `nat_is_ordinal`, `is_ordinal_of_elem`, and `is_ordinal_succ`. The axiom test tracks which modules use Replacement.
 - Add the principle of transfinite induction `poset.well_order_induction` (Halmos §17) and `contrib.zf.trec`, the transfinite recursion theorem (Halmos §18): for a well ordered W and a sequence function F of type W in X, `trec(F, R, W, X)` is a function from W into X with `trec_eq`: U(a) = F(U^a). No Replacement is used.
+- Add `contrib.zf.sim`: order embeddings and similarities (Halmos §18), Halmos' lemma `le_apply_of_order_embedding` (a ≤ f(a) for an order-preserving self-map of a well ordered set), `similarity_unique`, and `not_similarity_seg`.
 
 ### Changed
 

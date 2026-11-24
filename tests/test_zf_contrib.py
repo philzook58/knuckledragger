@@ -25,8 +25,9 @@ import pytest
         ("ordinal", 8),
         ("trec", 0),
         ("trec", 9),
-        ("fun nat rec arith order finite card poset ordinal trec", 3),
-        ("fun nat rec arith order finite card poset ordinal trec", 7),
+        ("sim", 0),
+        ("fun nat rec arith order finite card poset ordinal trec sim", 3),
+        ("fun nat rec arith order finite card poset ordinal trec sim", 7),
     ],
 )
 def test_zf_proofs(modules, seed):
@@ -93,7 +94,18 @@ def _axioms_used(modules):
     "modules,replacement",
     [
         (
-            ["nat", "fun", "rec", "arith", "order", "finite", "card", "poset", "trec"],
+            [
+                "nat",
+                "fun",
+                "rec",
+                "arith",
+                "order",
+                "finite",
+                "card",
+                "poset",
+                "trec",
+                "sim",
+            ],
             False,
         ),
         (["ordinal"], True),
