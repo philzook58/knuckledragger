@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add the principle of transfinite induction `poset.well_order_induction` (Halmos §17) and `contrib.zf.trec`, the transfinite recursion theorem (Halmos §18): for a well ordered W and a sequence function F of type W in X, `trec(F, R, W, X)` is a function from W into X with `trec_eq`: U(a) = F(U^a). No Replacement is used.
 - Add `contrib.zf.sim`: order embeddings and similarities (Halmos §18), Halmos' lemma `le_apply_of_order_embedding` (a ≤ f(a) for an order-preserving self-map of a well ordered set), `similarity_unique`, and `not_similarity_seg`.
 - Add definite description `ordinal.the` with axiom `the_eq` (as Isabelle's THE; it picks only unique objects and adds no choice), and `contrib.zf.ordset` (Halmos §20): `eq_of_similarity` (similar ordinals are equal), `ordinal_comparable`, `is_ordinal_inter`, `elem_of_transitive_ssubset`, `exists_least_of_ordinals`, and `is_ordinal_of_transitive`.
+- Add `contrib.zf.count`, Halmos' counting theorem: `counting_theorem` (each well ordered set is similar to the ordinal `ord_of(R, X)`) and `ordinal_similar_unique`, proved by collecting the ordinals of initial segments with Replacement. Add `sim.similarity_inv`, `similarity_comp`, `similarity_seg`, and `poset.elem_seg_iff`, `seg_seg`, `partial_order_refl`.
 
 ### Changed
 

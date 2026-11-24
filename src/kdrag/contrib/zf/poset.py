@@ -68,6 +68,10 @@ partial_order_of_well_order = prove(
     ForAll([R, X], is_well_order(R, X), is_partial_order(R, X)),
     by=[is_well_order.defn],
 )
+partial_order_refl = prove(
+    ForAll([R, X, x], is_partial_order(R, X), elem(x, X), R[x, x]),
+    by=[is_partial_order.defn],
+)
 partial_order_antisymm = prove(
     ForAll(
         [R, X, x, y],
@@ -247,3 +251,45 @@ def well_order_induction(l):
     )
     # So a has the property, but a ∈ Bad.
     l.auto(by=[is_least.defn(R, Bad, a1), zf.elem_sep])
+
+
+@Theorem(
+    ForAll(
+        [R, X, a, y],
+        elem(y, seg(R, X, a)) == And(elem(y, X), R[y, a], y != a),
+    )
+)
+def elem_seg_iff(l):
+    R, X, a, y = l.fixes()
+    l.unfold(seg)
+    l.rw(zf.elem_sep)
+    l.simp()
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [R, X, a, b],
+        is_partial_order(R, X),
+        elem(a, X),
+        elem(b, seg(R, X, a)),
+        seg(R, seg(R, X, a), b) == seg(R, X, b),
+    )
+)
+def seg_seg(l):
+    """An initial segment of an initial segment s(a) is an initial segment of X."""
+    R, X, a0, b0 = l.fixes()
+    l.intros()
+    l.rw(zf.ext_ax)
+    y0 = l.fix()
+    # y < b < a gives y < a, and y = a would force a = b by antisymmetry.
+    l.auto(
+        by=[
+            elem_seg_iff(R, seg(R, X, a0), b0, y0),
+            elem_seg_iff(R, X, a0, y0),
+            elem_seg_iff(R, X, b0, y0),
+            elem_seg_iff(R, X, a0, b0),
+            partial_order_trans(R, X, y0, b0, a0),
+            partial_order_antisymm(R, X, a0, b0),
+        ]
+    )

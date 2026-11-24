@@ -10,8 +10,8 @@ from kdrag import Theorem, define
 from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, sep
-from kdrag.contrib.zf.fun import bij_on, maps_to
-from kdrag.contrib.zf.finite import inv, inv_elem
+from kdrag.contrib.zf.fun import bij_on, inj_on, maps_to, surj_on
+from kdrag.contrib.zf.finite import bij_on_comp, bij_on_inv, inv, inv_elem
 from kdrag.contrib.zf.poset import (
     exists_least,
     is_least,
@@ -20,6 +20,7 @@ from kdrag.contrib.zf.poset import (
     is_well_order,
     partial_order_antisymm,
     partial_order_of_well_order,
+    elem_seg_iff,
     seg,
     total_order_of_well_order,
 )
@@ -238,3 +239,130 @@ def not_similarity_seg(l):
     l.auto(
         by=[partial_order_antisymm(R, X, a0, f[a0]), partial_order_of_well_order(R, X)]
     )
+
+
+T = Consts("T", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
+Z = Consts("Z", ZFSet)[0]
+
+
+@Theorem(
+    ForAll(
+        [g, R, X, S, Y],
+        is_similarity(g, R, X, S, Y),
+        is_similarity(inv(g, X), S, Y, R, X),
+    )
+)
+def similarity_inv(l):
+    """Halmos: the inverse of a similarity is a similarity."""
+    g, R, X, S, Y = l.fixes()
+    l.intro()
+    gi = inv(g, X)
+    defs = [is_similarity.defn(g, R, X, S, Y), is_order_embedding.defn(g, R, X, S, Y)]
+    l.have(bij_on(g, X, Y), by=defs)
+    l.have(bij_on(gi, Y, X), by=[bij_on_inv(g, X, Y)])
+    l.have(ForAll(y, elem(y, Y), And(elem(gi[y], X), g[gi[y]] == y)), by=[inv_elem])
+    l.unfold(is_similarity)
+    l.unfold(is_order_embedding)
+    l.split()
+    l.split()
+    l.auto(by=[bij_on.defn(gi, Y, X)])
+    # u ≤ v iff g(g⁻¹u) ≤ g(g⁻¹v) iff g⁻¹u ≤ g⁻¹v.
+    u, v = l.fixes()
+    l.intros()
+    l.auto(by=defs)
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [g, h, R, X, S, Y, T, Z],
+        is_similarity(g, R, X, S, Y),
+        is_similarity(h, S, Y, T, Z),
+        is_similarity(Lambda(x, h[g[x]]), R, X, T, Z),
+    )
+)
+def similarity_comp(l):
+    """Halmos: the composite of similarities is a similarity."""
+    g, h, R, X, S, Y, T, Z = l.fixes()
+    l.intros()
+    gd = [is_similarity.defn(g, R, X, S, Y), is_order_embedding.defn(g, R, X, S, Y)]
+    hd = [is_similarity.defn(h, S, Y, T, Z), is_order_embedding.defn(h, S, Y, T, Z)]
+    l.have(bij_on(Lambda(x, h[g[x]]), X, Z), by=[bij_on_comp(g, h, X, Y, Z)] + gd + hd)
+    l.unfold(is_similarity)
+    l.unfold(is_order_embedding)
+    l.split()
+    l.split()
+    l.auto(by=[bij_on.defn])
+    a1, b1 = l.fixes()
+    l.intros()
+    l.auto(by=gd + hd + [maps_to.defn(g, X, Y)])
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [g, R, X, S, Y, a],
+        is_similarity(g, R, X, S, Y),
+        elem(a, X),
+        is_similarity(g, R, seg(R, X, a), S, seg(S, Y, g[a])),
+    )
+)
+def similarity_seg(l):
+    """A similarity maps the initial segment s(a) onto the initial segment s(f(a))."""
+    g, R, X, S, Y, a0 = l.fixes()
+    l.intros()
+    gd = [is_similarity.defn(g, R, X, S, Y), is_order_embedding.defn(g, R, X, S, Y)]
+    l.have(maps_to(g, X, Y), by=gd)
+    l.have(bij_on(g, X, Y), by=gd)
+    l.have(ForAll([a, b], elem(a, X), elem(b, X), R[a, b] == S[g[a], g[b]]), by=gd)
+    l.clear(is_similarity(g, R, X, S, Y))
+    sa = seg(R, X, a0)
+    l.unfold(is_similarity)
+    l.unfold(is_order_embedding)
+    l.split()
+    l.split()
+    # η < a in X maps to g(η) < g(a) in Y, as g preserves ≤ and is one-to-one.
+    l.unfold(maps_to)
+    y0 = l.fix()
+    l.intro()
+    l.auto(
+        by=[
+            elem_seg_iff(R, X, a0, y0),
+            elem_seg_iff(S, Y, g[a0], g[y0]),
+            maps_to.defn(g, X, Y),
+            bij_on.defn(g, X, Y),
+            inj_on.defn(g, X),
+        ]
+    )
+    a1, b1 = l.fixes()
+    l.intros()
+    l.auto(by=[elem_seg_iff(R, X, a0, a1), elem_seg_iff(R, X, a0, b1)])
+    l.unfold(bij_on)
+    l.split()
+    l.unfold(maps_to)
+    y1 = l.fix()
+    l.intro()
+    l.auto(
+        by=[
+            elem_seg_iff(R, X, a0, y1),
+            elem_seg_iff(S, Y, g[a0], g[y1]),
+            maps_to.defn(g, X, Y),
+            bij_on.defn(g, X, Y),
+            inj_on.defn(g, X),
+        ]
+    )
+    l.auto(
+        by=[inj_on.defn(g, X), inj_on.defn(g, sa), bij_on.defn(g, X, Y), elem_seg_iff]
+    )
+    # ζ < g(a) in Y is g(η) for some η ∈ X, and then η < a.
+    l.unfold(surj_on)
+    z0 = l.fix()
+    l.intro()
+    l.have(elem(z0, Y), by=[elem_seg_iff(S, Y, g[a0], z0)])
+    l.have(
+        Exists(x, And(elem(x, X), g[x] == z0)),
+        by=[bij_on.defn(g, X, Y), surj_on.defn(g, X, Y)],
+    )
+    x0, _ = l.obtain(-1)
+    l.exists(x0)
+    l.auto(by=[elem_seg_iff(R, X, a0, x0), elem_seg_iff(S, Y, g[a0], z0)])
