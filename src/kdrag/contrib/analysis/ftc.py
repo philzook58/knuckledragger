@@ -43,7 +43,7 @@ def has_integral_sub_of_has_deriv_at(l):
     eps = l.fix()
     l.intro()
     # Spread the error budget over the length of [a, b].
-    heta = l.have(Exists(y, y > 0, y * (abs(b - a) + 1) == eps))
+    heta = l.have(Exists(y, y > 0, y * abs(b - a) + y == eps))
     l.exists(eps / (abs(b - a) + 1))
     l.auto(by=[abs.defn(b - a)])
     eta, _ = l.obtain(heta)
@@ -124,7 +124,7 @@ def has_integral_sub_of_has_deriv_at(l):
     l.have(bound[j] == eta * (x1 - x0), by=[smul.defn(eta, diff(xs)), diff.defn(xs)])
     l.auto(by=[abs_neg(F[x1] - F[x0] - f[tj] * (x1 - x0))])
 
-    # Sum the cell bounds: eta * (b - a) <= eta * |b - a| < eta * (|b - a| + 1) = eps.
+    # Sum the cell bounds: eta * (b - a) <= eta * |b - a| < eta * |b - a| + eta = eps.
     l.have(
         abs(finsum(err, n)) <= finsum(bound, n),
         by=[abs_finsum_le(err, bound, n), tagged],

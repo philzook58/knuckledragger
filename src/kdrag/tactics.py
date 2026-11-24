@@ -18,6 +18,8 @@ import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
+from kdrag.printers.pretty import pretty_goal
+import kdrag.diagnose as diagnose
 
 if TYPE_CHECKING:
     import sympy  # imported lazily: it is slow to import
@@ -534,10 +536,25 @@ def _modus_ponens() -> kd.kernel.Proof:
 class _AutoFailure(ValueError):
     """An open goal that auto could not discharge."""
 
-    def __init__(self, goal: Goal, error: kd.kernel.SolverFailure | TimeoutError):
+    def __init__(
+        self,
+        goal: Goal,
+        error: kd.kernel.SolverFailure | TimeoutError,
+        by=(),
+        timeout: int = 1000,
+    ):
         super().__init__("auto failed on goal", goal)
         self.goal = goal
         self.error = error
+        self.by = by
+        self.timeout = timeout
+
+    def __str__(self) -> str:
+        # Computed only when shown, since failures are also used for control flow.
+        # Leading newline so the goal starts on its own line after "_AutoFailure:".
+        return "\n" + diagnose.explain(
+            self.goal, self.error, self.by, self.timeout
+        )
 
 
 @cache
@@ -1106,7 +1123,10 @@ class ProofState:
         try:
             pf = kd.prove(goalctx.to_expr(), **kwargs)
         except (kd.kernel.SolverFailure, TimeoutError) as error:
-            raise _AutoFailure(goalctx, error) from error
+            # from None: the solver's internal traceback is noise; it stays in .error
+            raise _AutoFailure(
+                goalctx, error, kwargs.get("by") or (), kwargs.get("timeout", 1000)
+            ) from None
         self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
@@ -1263,10 +1283,9 @@ class ProofState:
         self, n: int | smt.BoolRef
     ) -> tuple[smt.ExprRef | list[smt.ExprRef], smt.BoolRef]:
         """
-        Open an existential hypothesis and return the witnesses and their local fact.
-
-        A single binder returns one term; multiple binders return a list in binder
-        order. The fact replaces the existential hypothesis in the context.
+        Open an existential hypothesis and return the witnesses and property of witness.
+        It's kind of like projecting apart a dependent pair in type theory.
+        The formula given is replaced in the context with the one with the existential stripped
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
 
         >>> x,y = smt.Ints("x y")
@@ -2233,8 +2252,14 @@ class ProofState:
             except Exception as _:
                 return g
 
+    def suggest(self) -> None:
+        """
+        Print the goal and library lemmas likely to help prove it. See `utils.suggest`.
+        """
+        goal = self.top_goal()
+        print(pretty_goal(goal), "", kd.utils.suggest(goal.to_expr()), sep="\n")
+
     # TODO
-    # def suggest():
     # def llm():
     # def calc
 
@@ -2390,7 +2415,6 @@ def PTheorem(
     >>> @PTheorem(smt.Implies(p, q))
     ... def unfinished(l: ProofState):
     ...     l.intro()
-    Next Goal:
     0: p
     ────
     ⊢ q
@@ -2403,35 +2427,34 @@ def PTheorem(
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> None:
-        from kdrag.printers.pretty import pretty_goal
-
         l = kd.Lemma(goal1)
         try:
             f(l)
         except _AutoFailure as failure:
             code = getattr(f, "__code__", None)
-            headline = "auto failed"
+            where = source = ""
             for frame, line in traceback.walk_tb(failure.__traceback__):
                 if frame.f_code is code:
-                    headline += f" in {frame.f_code.co_name} at line {line}"
+                    where = diagnose.location(
+                        frame.f_code.co_filename, line, frame.f_code.co_name
+                    )
                     source = linecache.getline(frame.f_code.co_filename, line).strip()
-                    if source:
-                        headline += f"\n    {source}"
                     break
-            print(headline)
-            error = failure.error
-            if isinstance(error, TimeoutError):
-                print(error)
-            elif len(error.args) == 3:
-                print("Solver found a countermodel.")
-            else:
-                print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
-            print("Goal:", pretty_goal(failure.goal), sep="\n")
+            print(
+                diagnose.explain(
+                    failure.goal,
+                    failure.error,
+                    failure.by,
+                    failure.timeout,
+                    where,
+                    source,
+                )
+            )
             return
         if len(l.goals) == 0:
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
-            print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
+            print(pretty_goal(l.top_goal()))
 
     return res
