@@ -15,6 +15,7 @@ recursion theorem (Halmos §18); `sim` for similarity of ordered sets (Halmos
 §18). Dependencies flow one way: `nat` and `fun` are independent, `rec` uses
 both, `arith` uses `rec`, `order` uses `arith`, `finite` and `poset` use
 `order`, `card` uses `finite`, `ordinal` uses `poset` and `finite`, and `trec`
-and `sim` use `poset` (`sim` also uses `finite`). Only `ordinal` assumes
-Replacement.
+and `sim` use `poset` (`sim` also uses `finite`); `ordset` for sets of ordinal
+numbers (Halmos §20) uses `ordinal` and `sim`. Only `ordinal` and `ordset` may
+use Replacement and definite description.
 """

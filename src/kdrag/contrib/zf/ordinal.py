@@ -1,5 +1,6 @@
 """
-Ordinal numbers (Halmos §19) and the axiom of substitution (Replacement).
+Ordinal numbers (Halmos §19-20), the axiom of substitution (Replacement), and
+definite description.
 
 Halmos: an ordinal number is a well ordered set α such that s(ξ) = ξ for every
 ξ ∈ α. With s(ξ) = {η ∈ α | η < ξ}, the order is forced to be "∈ or =", the
@@ -7,7 +8,17 @@ same relation `nat_le` that orders ω.
 """
 
 from kdrag import Theorem, axiom, define, prove
-from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, Function, Not, Or
+from kdrag.smt import (
+    And,
+    ArraySort,
+    BoolSort,
+    Consts,
+    Exists,
+    ForAll,
+    Function,
+    Not,
+    Or,
+)
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, succ
 from kdrag.contrib.zf.fun import maps_to
@@ -38,6 +49,13 @@ repl = Function("repl", ArraySort(ZFSet, ZFSet), ZFSet, ZFSet)
 elem_repl = axiom(
     ForAll([F, A, y], elem(y, repl(F, A)) == Exists(x, And(elem(x, A), F[x] == y)))
 )
+
+
+# Definite description, as Isabelle's THE: `the(P)` is the unique x with P x when
+# there is exactly one. It only picks unique things, so it adds no choice.
+P = Consts("P", ArraySort(ZFSet, BoolSort()))[0]
+the = Function("the", ArraySort(ZFSet, BoolSort()), ZFSet)
+the_eq = axiom(ForAll([P, x], P[x], ForAll(y, P[y], y == x), the(P) == x))
 
 
 # With Replacement the image no longer needs a known codomain.

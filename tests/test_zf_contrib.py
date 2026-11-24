@@ -26,8 +26,10 @@ import pytest
         ("trec", 0),
         ("trec", 9),
         ("sim", 0),
-        ("fun nat rec arith order finite card poset ordinal trec sim", 3),
-        ("fun nat rec arith order finite card poset ordinal trec sim", 7),
+        ("ordset", 0),
+        ("ordset", 4),
+        ("fun nat rec arith order finite card poset ordinal trec sim ordset", 3),
+        ("fun nat rec arith order finite card poset ordinal trec sim ordset", 7),
     ],
 )
 def test_zf_proofs(modules, seed):
@@ -108,15 +110,16 @@ def _axioms_used(modules):
             ],
             False,
         ),
-        (["ordinal"], True),
+        (["ordinal", "ordset"], True),
     ],
 )
 def test_zf_contrib_axioms(modules, replacement):
     # contrib.zf rests on the theories.zf axioms plus infinity, adding Replacement
-    # only where noted, with no Foundation and never the global-choice `pick`.
+    # and definite description only where noted, with no Foundation and never the
+    # global-choice `pick`.
     import kdrag.theories.zf.zf as zf
     from kdrag.contrib.zf.nat import infinity_ax
-    from kdrag.contrib.zf.ordinal import elem_repl
+    from kdrag.contrib.zf.ordinal import elem_repl, the_eq
 
     allowed = [
         zf.ext_ax,
@@ -128,7 +131,7 @@ def test_zf_contrib_axioms(modules, replacement):
         infinity_ax,
     ]
     if replacement:
-        allowed.append(elem_repl)
+        allowed += [elem_repl, the_eq]
     used, deps = _axioms_used(modules)
     assert used <= {id(ax) for ax in allowed}
     assert not any(p is zf.elem_pick0 for p in deps)
