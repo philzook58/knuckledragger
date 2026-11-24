@@ -6,7 +6,7 @@ countable, and ω × ω ~ ω, through the one-to-one map
 
     code(0, n) = 2n,   code(m + 1, n) = 2 code(m, n) + 1,
 
-that is, code(m, n) = 2ᵐ(2n + 1) − 1. No choice is used here; `countable_union`
+that is, code(m, n) = 2ᵐ(2n + 1) − 1. No choice is used here; `countable_bigunion`
 in `cardinal` uses it.
 """
 

@@ -23,7 +23,7 @@ from kdrag.smt import (
     Select,
 )
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, elem, le, pair, sep, succ, zero
+from kdrag.theories.zf.zf import ZFSet, elem, le, pair, succ, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
 from kdrag.contrib.zf.fun import (
     bij_on,
@@ -75,6 +75,7 @@ from kdrag.contrib.zf.sim import (
     similar_trans,
 )
 from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
+from kdrag.contrib.zf._sep import define_sep
 
 A, B, E, a, b, p, q, r, x, y = Consts("A B E a b p q r x y", ZFSet)
 A2, B2 = Consts("A2 B2", ZFSet)
@@ -165,34 +166,12 @@ def osum_partial_order(l):
 
 # The parts of E ⊆ A ⊕ B coming from A and from B, named to keep lambdas out
 # of later goals.
-left_part = define("left_part", [E, A], sep(A, Lambda(x, elem(pair(x, zero), E))))
-right_part = define("right_part", [E, B], sep(B, Lambda(x, elem(pair(x, one), E))))
-
-
-@Theorem(
-    ForAll(
-        [E, A, x], elem(x, left_part(E, A)) == And(elem(x, A), elem(pair(x, zero), E))
-    )
+left_part, elem_left_part = define_sep(
+    "left_part", [E, A], A, x, elem(pair(x, zero), E)
 )
-def elem_left_part(l):
-    l.fixes()
-    l.unfold(left_part)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
-
-
-@Theorem(
-    ForAll(
-        [E, B, x], elem(x, right_part(E, B)) == And(elem(x, B), elem(pair(x, one), E))
-    )
+right_part, elem_right_part = define_sep(
+    "right_part", [E, B], B, x, elem(pair(x, one), E)
 )
-def elem_right_part(l):
-    l.fixes()
-    l.unfold(right_part)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
 
 
 @Theorem(

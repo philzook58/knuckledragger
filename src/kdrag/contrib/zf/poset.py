@@ -8,7 +8,7 @@ just as one-to-one correspondences are HOL functions.
 from kdrag import Theorem, define, prove
 from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, elem, le, pow, sep
+from kdrag.theories.zf.zf import ZFSet, elem, le, pow
 from kdrag.contrib.zf.nat import nat_not_elem_self, omega
 from kdrag.contrib.zf.order import (
     exists_least_of_nonempty,
@@ -17,6 +17,7 @@ from kdrag.contrib.zf.order import (
     nat_le_trans,
     nat_of_elem,
 )
+from kdrag.contrib.zf._sep import define_sep
 
 E, X, a, b, x, y, z = Consts("E X a b x y z", ZFSet)
 R = Consts("R", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
@@ -109,7 +110,7 @@ exists_least = prove(
 )
 
 # The initial segment s(a) = {x ∈ X | x < a}.
-seg = define("seg", [R, X, a], sep(X, Lambda(x, And(R[x, a], x != a))))
+seg, elem_seg_iff = define_sep("seg", [R, X, a], X, x, And(R[x, a], x != a))
 
 
 subset_rel = Lambda([x, y], x <= y)
@@ -212,32 +213,9 @@ def seg_nat(l):
 P = Consts("P", ArraySort(ZFSet, BoolSort()))[0]
 
 
-@Theorem(
-    ForAll(
-        [R, X, a, y],
-        elem(y, seg(R, X, a)) == And(elem(y, X), R[y, a], y != a),
-    )
-)
-def elem_seg_iff(l):
-    R, X, a, y = l.fixes()
-    l.unfold(seg)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
-
-
 # The elements of X without property P, named so that later steps never see the
 # predicate given to sep (see #106).
-without = define("without", [X, P], sep(X, Lambda(x, Not(P[x]))))
-
-
-@Theorem(ForAll([X, P, x], elem(x, without(X, P)) == And(elem(x, X), Not(P[x]))))
-def elem_without(l):
-    l.fixes()
-    l.unfold(without)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
+without, elem_without = define_sep("without", [X, P], X, x, Not(P[x]))
 
 
 @Theorem(

@@ -52,6 +52,7 @@ from kdrag.contrib.zf.sim import (
 )
 from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
 from kdrag.contrib.zf.nat import elem_two, one, two, zero_ne_one
+from kdrag.contrib.zf._sep import define_sep
 
 A, B, C, X, Y, Z, f, g, p, x, y = Consts("A B C X Y Z f g p x y", ZFSet)
 F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
@@ -65,7 +66,7 @@ L = nat_le_rel  # any relation will do below
         equivalent(osum_set(osum_set(A, B), C), osum_set(A, osum_set(B, C))),
     )
 )
-def osum_assoc_equivalent(l):
+def sum_assoc_equivalent(l):
     """(a + b) + c = a + (b + c)."""
     A, B, C = l.fixes()
     l.auto(
@@ -106,7 +107,7 @@ def prod_assoc_equivalent(l):
         equivalent(prod(A, osum_set(B, C)), osum_set(prod(A, B), prod(A, C))),
     )
 )
-def prod_osum_equivalent(l):
+def prod_sum_distrib_equivalent(l):
     """a(b + c) = ab + ac."""
     A, B, C = l.fixes()
     l.auto(
@@ -124,7 +125,7 @@ def prod_osum_equivalent(l):
 
 
 @Theorem(ForAll([A, B], equivalent(osum_set(A, B), osum_set(B, A))))
-def osum_comm_equivalent(l):
+def sum_comm_equivalent(l):
     """a + b = b + a: swap the tags."""
     A, B = l.fixes()
     l.unfold(equivalent)
@@ -189,30 +190,13 @@ def dominated_pow(l):
 
 
 # Cantor's diagonal set for F : P(X) → X.
-diag = define(
-    "diag",
-    [F, X],
-    sep(X, Lambda(x, Exists(A, And(A <= X, F[A] == x, Not(elem(x, A)))))),
+diag, elem_diag = define_sep(
+    "diag", [F, X], X, x, Exists(A, And(A <= X, F[A] == x, Not(elem(x, A))))
 )
-
-
-@Theorem(
-    ForAll(
-        [F, X, x],
-        elem(x, diag(F, X))
-        == And(elem(x, X), Exists(A, And(A <= X, F[A] == x, Not(elem(x, A))))),
-    )
-)
-def elem_diag(l):
-    l.fixes()
-    l.unfold(diag)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
 
 
 @Theorem(ForAll(X, Not(dominated(pow(X), X))))
-def not_dominated_pow(l):
+def cantor_injective(l):
     """Halmos §24, Cantor's theorem: P(X) does not map one-to-one into X. Given
     such an F, let D = {F(A) | A ⊆ X, F(A) ∉ A}. Then F(D) ∈ D iff F(D) ∉ D."""
     X = l.fix()
@@ -244,7 +228,7 @@ def elem_funs(l):
 # The characteristic function of A ⊆ X, and the set where f is 1.
 chi_fn = define("chi_fn", [A], Lambda(x, If(elem(x, A), one, zero)))
 chi = define("chi", [A, X], graph(chi_fn(A), X, two))
-ones = define("ones", [f, X], sep(X, Lambda(x, app(f, x) == one)))
+ones, elem_ones = define_sep("ones", [f, X], X, x, app(f, x) == one)
 
 
 @Theorem(ForAll([A, X], And(maps_to(chi_fn(A), X, two), is_func(chi(A, X), X, two))))
@@ -266,15 +250,6 @@ def app_chi(l):
     l.intro()
     l.have(maps_to(chi_fn(A), X, two), by=[is_func_chi(A, X)])
     l.auto(by=[chi.defn, app_graph(chi_fn(A), X, two, x0), chi_fn.defn])
-
-
-@Theorem(ForAll([f, X, x], elem(x, ones(f, X)) == And(elem(x, X), app(f, x) == one)))
-def elem_ones(l):
-    l.fixes()
-    l.unfold(ones)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
 
 
 @Theorem(ForAll(X, equivalent(pow(X), funs(X, two))))
@@ -386,7 +361,7 @@ def maps_to_app_inl_inr(l):
         equivalent(funs(osum_set(X, Z), Y), prod(funs(X, Y), funs(Z, Y))),
     )
 )
-def funs_osum_equivalent(l):
+def power_add_equivalent(l):
     """Halmos §24: a^(b + c) = a^b · a^c."""
     X, Z, Y = l.fixes()
     S = osum_set(X, Z)
@@ -535,7 +510,7 @@ def maps_to_app_fst_snd(l):
         equivalent(funs(X, prod(Y, Z)), prod(funs(X, Y), funs(X, Z))),
     )
 )
-def funs_prod_equivalent(l):
+def mul_power_equivalent(l):
     """Halmos §24: (ab)^c = a^c · b^c."""
     X, Y, Z = l.fixes()
     P = prod(Y, Z)
@@ -704,7 +679,7 @@ def is_func_slice(l):
         equivalent(funs(Z, funs(X, Y)), funs(prod(X, Z), Y)),
     )
 )
-def funs_funs_equivalent(l):
+def power_mul_equivalent(l):
     """Halmos §24: (a^b)^c = a^(bc)."""
     X, Y, Z = l.fixes()
     W = prod(X, Z)

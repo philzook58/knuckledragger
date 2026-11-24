@@ -6,7 +6,7 @@ of ordinals is an ordinal, and every well ordered set is similar to a unique
 ordinal. The counting theorem uses Replacement and definite description.
 """
 
-from kdrag import Theorem, define, prove
+from kdrag import Theorem, prove
 from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, Implies, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, succ
@@ -35,6 +35,7 @@ from kdrag.contrib.zf.poset import (
     well_order_induction,
 )
 from kdrag.contrib.zf.sim import is_order_embedding, is_similarity
+from kdrag.contrib.zf._sep import define_sep
 
 A, B, a, b, x, y, z = Consts("A B a b x y z", ZFSet)
 f = Consts("f", ArraySort(ZFSet, ZFSet))[0]
@@ -455,16 +456,7 @@ def ordinal_elem_iff_ssubset(l):
 
 # The ordinals in a set, named so that later steps never see the predicate given
 # to sep; with it in view z3 gave up on a trivial step (see #106).
-ordinals_in = define("ordinals_in", [C], zf.sep(C, Lambda(x, is_ordinal(x))))
-
-
-@Theorem(ForAll([C, x], elem(x, ordinals_in(C)) == And(elem(x, C), is_ordinal(x))))
-def elem_ordinals_in(l):
-    C, x0 = l.fixes()
-    l.unfold(ordinals_in)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
+ordinals_in, elem_ordinals_in = define_sep("ordinals_in", [C], C, x, is_ordinal(x))
 
 
 @Theorem(Not(Exists(C, ForAll(A, is_ordinal(A), elem(A, C)))))

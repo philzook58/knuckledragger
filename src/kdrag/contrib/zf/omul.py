@@ -20,7 +20,7 @@ from kdrag.smt import (
     Select,
 )
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, sep, zero
+from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
 from kdrag.contrib.zf.fun import (
     bij_on,
@@ -95,6 +95,7 @@ from kdrag.contrib.zf.sim import (
     similar_trans,
 )
 from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
+from kdrag.contrib.zf._sep import define_sep
 
 A, B, E, a, b, c, d, k, m, n, p, q, x, y = Consts("A B E a b c d k m n p q x y", ZFSet)
 A2, B2 = Consts("A2 B2", ZFSet)
@@ -187,35 +188,8 @@ def oprod_partial_order(l):
 
 # For E ⊆ A × B: the second coordinates occurring in E, and the first
 # coordinates paired with b.
-snds = define("snds", [E, B], sep(B, Lambda(b, Exists(a, elem(pair(a, b), E)))))
-fiber = define("fiber", [E, A, b], sep(A, Lambda(a, elem(pair(a, b), E))))
-
-
-@Theorem(
-    ForAll(
-        [E, B, b],
-        elem(b, snds(E, B)) == And(elem(b, B), Exists(a, elem(pair(a, b), E))),
-    )
-)
-def elem_snds(l):
-    l.fixes()
-    l.unfold(snds)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
-
-
-@Theorem(
-    ForAll(
-        [E, A, b, a], elem(a, fiber(E, A, b)) == And(elem(a, A), elem(pair(a, b), E))
-    )
-)
-def elem_fiber(l):
-    l.fixes()
-    l.unfold(fiber)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
+snds, elem_snds = define_sep("snds", [E, B], B, b, Exists(a, elem(pair(a, b), E)))
+fiber, elem_fiber = define_sep("fiber", [E, A, b], A, a, elem(pair(a, b), E))
 
 
 @Theorem(

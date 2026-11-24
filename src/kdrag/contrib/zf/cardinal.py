@@ -107,7 +107,8 @@ from kdrag.contrib.zf.nat import (
     succ_ne_zero,
 )
 from kdrag.contrib.zf.poset import is_least, is_well_order, nat_le_rel
-from kdrag.contrib.zf.wellord import well_ordering
+from kdrag.contrib.zf.wellord import exists_well_order
+from kdrag.contrib.zf._sep import define_sep
 
 A, B, C, D, K, X, Y, g, x, y = Consts("A B C D K X Y g x y", ZFSet)
 n = Consts("n", ZFSet)[0]
@@ -120,7 +121,7 @@ def omega_dominated_of_infinite(l):
     """Halmos: every infinite set has a subset equivalent to ω. Well order it."""
     X = l.fix()
     l.intro()
-    l.have(Exists(R, is_well_order(R, X)), by=[well_ordering(X)])
+    l.have(Exists(R, is_well_order(R, X)), by=[exists_well_order(X)])
     R0, _ = l.obtain(-1)
     l.auto(by=[omega_dominated_of_well_order(R0, X)])
 
@@ -174,16 +175,7 @@ def injs_ne_emp(l):
 
 
 # The members of C that contain x.
-holders = define("holders", [C, x], sep(C, Lambda(A, elem(x, A))))
-
-
-@Theorem(ForAll([C, x, A], elem(A, holders(C, x)) == And(elem(A, C), elem(x, A))))
-def elem_holders(l):
-    l.fixes()
-    l.unfold(holders)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
+holders, elem_holders = define_sep("holders", [C, x], C, A, elem(x, A))
 
 
 @Theorem(
@@ -194,7 +186,7 @@ def elem_holders(l):
         countable(bigunion(C)),
     )
 )
-def countable_union(l):
+def countable_bigunion(l):
     """Halmos §23: a countable union of countable sets is countable. Choose a
     member s(x) of C holding each x, and a one-to-one h(A) : A → ω for each
     A ∈ C. With C one-to-one into ω by c, x ↦ (c(s x), h(s x)(x)) maps ⋃C
@@ -300,18 +292,7 @@ is_card_of = define(
     ),
 )
 # The ordinals in A that are equivalent to X.
-equivs_in = define("equivs_in", [A, X], sep(A, Lambda(B, equivalent(X, B))))
-
-
-@Theorem(
-    ForAll([A, X, B], elem(B, equivs_in(A, X)) == And(elem(B, A), equivalent(X, B)))
-)
-def elem_equivs_in(l):
-    l.fixes()
-    l.unfold(equivs_in)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
+equivs_in, elem_equivs_in = define_sep("equivs_in", [A, X], A, B, equivalent(X, B))
 
 
 @Theorem(ForAll(X, Exists(K, is_card_of(K, X))))
@@ -319,7 +300,7 @@ def exists_card_of(l):
     """Halmos: well order X; it is equivalent to an ordinal α, and the least
     ordinal in α⁺ equivalent to X is a cardinal number of X."""
     X = l.fix()
-    l.have(Exists(R, is_well_order(R, X)), by=[well_ordering(X)])
+    l.have(Exists(R, is_well_order(R, X)), by=[exists_well_order(X)])
     R0, _ = l.obtain(-1)
     a0 = ord_of(R0, X)
     l.have(
@@ -393,7 +374,7 @@ def card_spec(l):
 
 
 @Theorem(ForAll([X, Y], (card(X) == card(Y)) == equivalent(X, Y)))
-def card_eq_card_iff(l):
+def card_eq(l):
     """Halmos: equivalent sets have the same cardinal number, and conversely."""
     X, Y = l.fixes()
     l.have(is_card_of(card(X), X), by=[card_spec])
@@ -478,7 +459,7 @@ def dominated_of_card_le(l):
 
 
 @Theorem(ForAll([X, Y], dominated(X, Y) == (card(X) <= card(Y))))
-def dominated_iff_card_le(l):
+def card_le_iff(l):
     """Halmos §25: X ≾ Y iff card(X) ≤ card(Y). If card(Y) < card(X), then
     also Y ≾ X, and Schröder-Bernstein gives card(X) = card(Y)."""
     X, Y = l.fixes()
@@ -493,13 +474,13 @@ def dominated_iff_card_le(l):
         by=[ordinal_comparable(cX, cY), ordinal_le_of_elem(cY, cX), le.defn],
     )
     l.have(dominated(Y, X), by=[dominated_of_card_le(Y, X), ordinal_le_of_elem(cX, cY)])
-    l.have(cX == cY, by=[schroeder_bernstein(X, Y), card_eq_card_iff(X, Y)])
+    l.have(cX == cY, by=[schroeder_bernstein(X, Y), card_eq(X, Y)])
     l.auto(by=[ordinal_not_elem_self(cX, cY)])
     l.auto(by=[dominated_of_card_le(X, Y)])
 
 
 @Theorem(ForAll([X, Y], Or(dominated(X, Y), dominated(Y, X))))
-def dominated_total(l):
+def embedding_total(l):
     """Halmos §25: any two sets are comparable, as their cardinal numbers are."""
     X, Y = l.fixes()
     cX, cY = card(X), card(Y)
@@ -624,7 +605,7 @@ def exists_equivalent_ssubset_of_infinite(l):
         Eq(Not(finite(X)), Exists(Y, And(Y <= X, Y != X, equivalent(X, Y)))),
     )
 )
-def infinite_iff(l):
+def infinite_iff_equivalent_ssubset(l):
     """Halmos §24: a set is infinite iff it is equivalent to a proper subset."""
     X = l.fix()
     l.split()

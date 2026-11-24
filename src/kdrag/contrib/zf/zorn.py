@@ -37,6 +37,7 @@ from kdrag.contrib.zf.poset import (
     partial_order_refl,
     partial_order_trans,
 )
+from kdrag.contrib.zf._sep import define_sep
 
 A, B, C, K, T, X, f, x, y = Consts("A B C K T X f x y", ZFSet)
 
@@ -61,18 +62,7 @@ is_tukey = define(
 )
 
 # Â: the points that can be added to A without leaving K.
-hat = define("hat", [K, X, A], sep(X, Lambda(x, elem(A | sing(x), K))))
-
-
-@Theorem(
-    ForAll([K, X, A, x], elem(x, hat(K, X, A)) == And(elem(x, X), elem(A | sing(x), K)))
-)
-def elem_hat(l):
-    l.fixes()
-    l.unfold(hat)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
+hat, elem_hat = define_sep("hat", [K, X, A], X, x, elem(A | sing(x), K))
 
 
 # Halmos' g: add the chosen new point of Â, if there is one.
@@ -199,24 +189,9 @@ def tower_self(l):
 
 
 # T₀, the intersection of all towers.
-tower0 = define(
-    "tower0", [f, K, X], sep(K, Lambda(A, ForAll(T, is_tower(T, f, K, X), elem(A, T))))
+tower0, elem_tower0 = define_sep(
+    "tower0", [f, K, X], K, A, ForAll(T, is_tower(T, f, K, X), elem(A, T))
 )
-
-
-@Theorem(
-    ForAll(
-        [f, K, X, A],
-        elem(A, tower0(f, K, X))
-        == And(elem(A, K), ForAll(T, is_tower(T, f, K, X), elem(A, T))),
-    )
-)
-def elem_tower0(l):
-    l.fixes()
-    l.unfold(tower0)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
 
 
 @Theorem(ForAll([f, K, X, T], is_tower(T, f, K, X), tower0(f, K, X) <= T))
@@ -315,26 +290,9 @@ def nxt_le_of_ssubset(l):
 
 
 # Halmos' U(C): the members of T₀ inside C or containing g(C).
-ubar = define(
-    "ubar",
-    [f, K, X, C],
-    sep(tower0(f, K, X), Lambda(A, Or(A <= C, nxt(f, K, X, C) <= A))),
+ubar, elem_ubar = define_sep(
+    "ubar", [f, K, X, C], tower0(f, K, X), A, Or(A <= C, nxt(f, K, X, C) <= A)
 )
-
-
-@Theorem(
-    ForAll(
-        [f, K, X, C, A],
-        elem(A, ubar(f, K, X, C))
-        == And(elem(A, tower0(f, K, X)), Or(A <= C, nxt(f, K, X, C) <= A)),
-    )
-)
-def elem_ubar(l):
-    l.fixes()
-    l.unfold(ubar)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
 
 
 @Theorem(
@@ -432,26 +390,9 @@ def comparable_nxt(l):
     )
 
 
-comparables = define(
-    "comparables",
-    [f, K, X],
-    sep(tower0(f, K, X), Lambda(C, comparable_t0(f, K, X, C))),
+comparables, elem_comparables = define_sep(
+    "comparables", [f, K, X], tower0(f, K, X), C, comparable_t0(f, K, X, C)
 )
-
-
-@Theorem(
-    ForAll(
-        [f, K, X, C],
-        elem(C, comparables(f, K, X))
-        == And(elem(C, tower0(f, K, X)), comparable_t0(f, K, X, C)),
-    )
-)
-def elem_comparables(l):
-    l.fixes()
-    l.unfold(comparables)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
 
 
 @Theorem(ForAll([f, K, X], *_hyps(f, K, X), is_chain(tower0(f, K, X))))

@@ -16,7 +16,7 @@ least element of E.
 from kdrag import Theorem, define
 from kdrag.smt import And, Eq, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, Not
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, pow, sep, upair
+from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, pow, upair
 from kdrag.contrib.zf.choice import exists_choice_on, is_choice_on
 from kdrag.contrib.zf.poset import is_least, is_partial_order, is_well_order
 from kdrag.contrib.zf.zorn import (
@@ -33,6 +33,7 @@ from kdrag.contrib.zf.zorn import (
     tower0_chain,
     tower0_tower,
 )
+from kdrag.contrib.zf._sep import define_sep
 
 A, B, C, E, X, f, x, y = Consts("A B C E X f x y", ZFSet)
 R = Consts("R", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
@@ -94,26 +95,13 @@ def comparable_of_elem_tower0(l):
 
 
 # The members of T₀ that miss E.
-missing = define(
+missing, elem_missing = define_sep(
     "missing",
     [f, X, E],
-    sep(tower0(f, pow(X), X), Lambda(A, ForAll(x, elem(x, E), Not(elem(x, A))))),
+    tower0(f, pow(X), X),
+    A,
+    ForAll(x, elem(x, E), Not(elem(x, A))),
 )
-
-
-@Theorem(
-    ForAll(
-        [f, X, E, A],
-        elem(A, missing(f, X, E))
-        == And(elem(A, tower0(f, pow(X), X)), ForAll(x, elem(x, E), Not(elem(x, A)))),
-    )
-)
-def elem_missing(l):
-    l.fixes()
-    l.unfold(missing)
-    l.rw(zf.elem_sep)
-    l.simp()
-    l.auto()
 
 
 @Theorem(
@@ -283,7 +271,7 @@ def wo_rel_well_order(l):
 
 
 @Theorem(ForAll(X, Exists(R, is_well_order(R, X))))
-def well_ordering(l):
+def exists_well_order(l):
     """Halmos §17, the well ordering theorem: every set can be well ordered."""
     X = l.fix()
     l.have(Exists(f, is_choice_on(f, X)), by=[exists_choice_on(X)])
