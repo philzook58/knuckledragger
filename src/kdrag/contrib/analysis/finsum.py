@@ -9,7 +9,9 @@ from kdrag.theories.real.rseq import (
     b,
     n,
     i,
+    m,
     cumsum,
+    cumsum_succ,
     diff,
     finsum,
     finsum_succ,
@@ -56,6 +58,29 @@ def finsum_diff(l):
 
 @Theorem(
     ForAll(
+        [a, b, m, n],
+        n >= 0,
+        ForAll(i, m <= i, i < m + n, real.abs(a[i]) <= b[i]),
+        real.abs(cumsum(a)[m + n] - cumsum(a)[m]) <= cumsum(b)[m + n] - cumsum(b)[m],
+    )
+)
+def abs_cumsum_sub_le(l):
+    """Termwise absolute bounds control the sum over a finite interval."""
+    a, b, m, n = l.fixes()
+    l.induct(n, using=int_.induct_nat)
+    l.auto(by=[real.abs.defn(0)])
+    k = l.fix()
+    l.intros()
+    index = m + k
+    l.have(real.abs(a[index]) <= b[index], by=[])
+    tail = cumsum(a)[index] - cumsum(a)[m]
+    l.auto(
+        by=[cumsum_succ(a, index), cumsum_succ(b, index), real.abs_add(tail, a[index])]
+    )
+
+
+@Theorem(
+    ForAll(
         [a, b, n],
         ForAll(i, 0 <= i, i < n, real.abs(a[i]) <= b[i]),
         n >= 0,
@@ -64,14 +89,15 @@ def finsum_diff(l):
 )
 def abs_finsum_le(l):
     a, b, n = l.fixes()
-    # Keep the termwise bound in the induction motive.
-    l.induct(n, using=int_.induct_nat)
-    l.auto(by=[finsum.defn, cumsum.defn, real.abs.defn])
-    n = l.fix()
-    l.intros()
-    l.have(real.abs(a[n]) <= b[n], by=[])
-    # Triangle inequality on the newest term.
-    l.auto(by=[finsum_succ(a, n), finsum_succ(b, n), real.abs_add(finsum(a, n), a[n])])
+    compare, nonneg = l.intros()
+    zero = IntVal(0)
+    within = l.have(ForAll(i, zero <= i, i < zero + n, real.abs(a[i]) <= b[i]), by=[])
+    l.clear(compare)
+    l.specialize(abs_cumsum_sub_le, a, b, zero, n, nonneg, within)
+    l.clear(within)
+    l.have(cumsum(a)[0] == 0, by=[cumsum.defn(a)])
+    l.have(cumsum(b)[0] == 0, by=[cumsum.defn(b)])
+    l.auto(by=[finsum.defn(a, n), finsum.defn(b, n)])
 
 
 (r,) = Reals("r")
