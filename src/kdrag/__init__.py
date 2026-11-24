@@ -94,7 +94,14 @@ simp = rewrite.simp
 full_simp = rewrite.full_simp
 
 search = utils.search
-suggest = utils.suggest
+
+
+def suggest(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1) -> None:
+    """Print library lemmas likely to help prove the theorem."""
+    print(
+        utils.suggest(thm, k=k, cutoff=cutoff, check=check, timeout=timeout, budget=budget)
+    )
+
 
 lean = microlean.lean
 inductive = microlean.inductive

@@ -12,9 +12,11 @@ def test_rank_lemmas_finds_matching_library_lemma():
     assert any(name.endswith(".abs_add") for name in names)
 
 
-def test_suggest_marks_lemma_that_closes_goal():
+def test_suggest_prints_lemma_that_closes_goal(capsys):
     x, y = smt.Reals("x y")
-    report = kd.suggest(real.abs(x + y) <= real.abs(x) + real.abs(y))
+    kd.suggest(real.abs(x + y) <= real.abs(x) + real.abs(y))
+    report = capsys.readouterr().out
+    assert report.startswith("Suggestions:\n")
     assert "  ✅ " in report
 
 
