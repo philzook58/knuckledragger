@@ -1,6 +1,6 @@
-# %%
+"""Real sequences, convergence, limit algebra, and series."""
 import kdrag as kd
-from kdrag import FreshVars, QExists, QForAll, Theorem, define, prove
+from kdrag import FreshVars, QExists, QForAll, Theorem, define, define_const, prove
 import kdrag.smt as smt
 from kdrag.smt import (
     And,
@@ -30,6 +30,7 @@ from kdrag.smt import (
 
 import kdrag.theories.int as int_
 import kdrag.theories.real as real
+from kdrag.theories.real import rset
 
 
 RSeq = real.RSeq
@@ -40,10 +41,9 @@ A, B, C = FreshVars("A B C", RSeq)
 i, j, k, n, m, N = Ints("i j k n m N")
 x, y, z, eps, delta, M = Reals("x y z eps delta M")
 
-zero = define("RSeq.zero", [], K(IntSort(), RealVal(0)))
+zero = define_const("RSeq.zero", K(IntSort(), RealVal(0)))
 const = define("RSeq.const", [x], Lambda([i], x))
-id_ = define("RSeq.id", [], Lambda([i], ToReal(i)))
-assert isinstance(id_, smt.ExprRef)  # for typechecker
+id_ = define_const("RSeq.id", Lambda([i], ToReal(i)))
 
 geom = define("geom", [x], Lambda([i], real.pownat(x, i)))
 
@@ -153,19 +153,39 @@ def test():
     """
 
 
+# Oriented partial sums: S[0] = 0 and S[n + 1] - S[n] = a[n].
 cumsum = Function("cumsum", RSeq, RSeq)
 cumsum = define(
     "cumsum",
     [a],
     Lambda(
         [i],
-        If(  # Maybe this is a badly shifted definition
+        If(
             i == 0,
-            a[0],
-            If(i > 0, cumsum(a)[i - 1] + a[i], -cumsum(a)[i + 1] - a[i + 1]),
+            RealVal(0),
+            If(i > 0, cumsum(a)[i - 1] + a[i - 1], cumsum(a)[i + 1] - a[i]),
         ),
     ),
 )
+
+
+@Theorem(ForAll([a, n], cumsum(a)[n + 1] == cumsum(a)[n] + a[n]))
+def cumsum_succ(l):
+    a, n = l.fixes()
+    # Use the recurrence pointing toward zero on each side of the origin.
+    l.cases(n >= 0, n < 0)
+    _, step = kd.kernel.unfold(cumsum(a)[n + 1], [cumsum])
+    l.auto(by=[step])
+    _, step = kd.kernel.unfold(cumsum(a)[n], [cumsum])
+    l.auto(by=[step])
+
+
+@Theorem(ForAll(a, diff(cumsum(a)) == a))
+def diff_cumsum(l):
+    a = l.fix()
+    l.ext()
+    n = l.fix()
+    l.auto(by=[diff.defn(cumsum(a)), cumsum_succ(a, n)])
 
 
 @Theorem("forall (n : Int), cumsum zero n = 0")
@@ -177,7 +197,6 @@ def cumsum_zero(l):
     # n < 0
     l.fix()
     l.intros()
-    l.intros()
     l.unfold(cumsum)
     l.auto()
 
@@ -188,84 +207,49 @@ def cumsum_zero(l):
     # n > 0
     l.fix()
     l.intros()
-    l.intros()
     l.unfold(cumsum)
     l.auto()
 
 
-@Theorem(
-    "forall (x : Real) (n : Int), n >= 0 -> cumsum (const x) n = (n + 1) * x"
-)  # TODO: fix for n < 0. Wrong definition?
+@Theorem("forall (x : Real) (n : Int), cumsum (const x) n = n * x")
 def cumsum_const(l):
     x, n = l.fixes()
     l.unfold(const)
     l.induct(n)
-
-    # n < 0
-    # l.fix()
-    # l.intros()
-    # l.unfold(cumsum)
-    # l.simp()
-    l.auto()
-
-    # n == 0
-    l.unfold(cumsum)
-    l.auto()
-
-    # n > 0
-    n = l.fix()
-    l.intros()
+    # Step down from zero, base case, and step up from zero.
+    l.fix()
     l.intros()
     l.unfold(cumsum)
-    # l.boolsimp() # boolsimp is not working well
-    # l.simp()
-    # l.have((n == -1) == False, by=[])
-    # l.rw(-1)
-    # l.have((n <= -1) == False, by=[])
-    # l.rw(-1)
+    l.auto()
+    l.unfold(cumsum)
+    l.auto()
+    l.fix()
+    l.intros()
+    l.unfold(cumsum)
     l.auto()
 
 
-# TODO: cumsum id_ = n * (n + 1) / 2
-# cumsum pownat = 1 - x^(n + 1) / (1 - x)
-# cumsum_diff - the fundamental theorem of calculus for sequences
+# TODO: cumsum id_ = n * (n - 1) / 2
+# TODO: cumsum pownat = (1 - x^n) / (1 - x), when x != 1
 
 
-cumsum_smul = prove(
-    ForAll([a, x], cumsum(smul(x, a)) == smul(x, cumsum(a))), admit=True
-)
-"""
-# TODO: cumsum_comm = cumsum(lambda x, cumsum(lammbda y, a[x,y]) ) ???
-
-# TODO: unstable
-@kd.Theorem(
-    "forall (a : RSeq) (x : Real) (n : Int), cumsum (smul x a) n = smul x (cumsum a) n"
-)
+@Theorem(ForAll([a, x], cumsum(smul(x, a)) == smul(x, cumsum(a))))
 def cumsum_smul(l):
-    a, x, n = l.fixes()
+    a, x = l.fixes()
+    l.ext()
+    n = l.fix()
     l.induct(n)
-
-    # n < 0
-    # TODO: These induction cases look disgusting with too many lambdas.
+    # Both directions use the same linearity argument for the recurrence.
     l.fix()
-    l.simp()
     l.intros()
-    l.unfold(cumsum, smul)
-    l.simp()
-    l.auto(by=[smul.defn, cumsum.defn])
-
-    # n == 0
-    l.auto(by=[smul.defn, cumsum.defn])
-
-    # n > 0
+    l.unfold(cumsum)
+    l.auto(by=[smul.defn])
+    l.unfold(cumsum)
+    l.auto(by=[smul.defn])
     l.fix()
-    l.simp()
-    l.unfold(cumsum, smul)
-    l.simp()
-    l.unfold(cumsum, smul)
-    l.simp()
-    l.auto(by=[smul.defn, cumsum.defn])
-"""
+    l.intros()
+    l.unfold(cumsum)
+    l.auto(by=[smul.defn])
 
 
 @Theorem(
@@ -273,7 +257,7 @@ def cumsum_smul(l):
 )
 def cumsum_mono(l):
     a, b, m = l.fixes()
-    l.intros()
+    l.intro()
     l.induct(m)
     _n = l.fix()
     l.auto()
@@ -283,10 +267,10 @@ def cumsum_mono(l):
 
     # n > 0
     _n = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.simp()
-    l.intros()
+    l.intro()
     l.unfold(cumsum)
     l.auto(by=[cumsum.defn])
 
@@ -300,7 +284,6 @@ def cumsum_add(l):
     # The negative and positive steps both reduce to linear arithmetic.
     l.fix()
     l.intros()
-    l.intros()
     l.unfold(cumsum)
     l.auto(by=[add.defn(a, b)])
 
@@ -310,7 +293,6 @@ def cumsum_add(l):
 
     # Positive step
     l.fix()
-    l.intros()
     l.intros()
     l.unfold(cumsum)
     l.auto(by=[add.defn(a, b)])
@@ -351,19 +333,19 @@ def max_ge_self(l):
 )
 def max_prefix_bound(l):
     a, n = l.fixes()
-    # l.intros()
+    # l.intro()
     l.induct(n)  # Some weird stuff happened here
     l.auto()  # n < 0
     l.auto(by=[max.defn])  # n == 0. Kind of weird that we lose the equality...
     n = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.simp(at=-1)
     i = Int("i")
     l.have(ForAll([i], i >= 0, i <= n, a[i] <= max(a)[n]), by=[])
-    l.intros()
+    l.intro()
     i = l.fix()
-    l.intros()
+    l.intro()
     l.specialize(2, i)
     l.unfold(max)
     l.simp()
@@ -390,10 +372,7 @@ def max_suffix_bound(l):
     # step: n <= 0 -> n - 1
     n = l.fix()
     l.intros()
-    l.intros()
-    l.intros()
     i = l.fix()
-    l.intros()
     l.intros()
     l.cases(i == n - 1)
     l.have(i == n - 1, by=[])
@@ -421,12 +400,10 @@ Sum = Function("Sum", RSeq, IntSort(), IntSort(), R)
 finsum = define("finsum", [a, n], cumsum(a)[n])
 
 
-@Theorem(QForAll([a, n], n >= 0, finsum(a, n + 1) == finsum(a, n) + a[n + 1]))
+@Theorem(ForAll([a, n], finsum(a, n + 1) == finsum(a, n) + a[n]))
 def finsum_succ(l):
     a, n = l.fixes()
-    # Use the recurrence at this index, rather than an equality of whole arrays.
-    _, step = kd.kernel.unfold(cumsum(a)[n + 1], [cumsum])
-    l.auto(by=[finsum.defn(a, n + 1), finsum.defn(a, n), step])
+    l.auto(by=[finsum.defn(a, n + 1), finsum.defn(a, n), cumsum_succ(a, n)])
 
 
 @Theorem(ForAll([a, x, n], finsum(smul(x, a), n) == x * finsum(a, n)))
@@ -512,59 +489,37 @@ abs_ge_0 = prove(
 
 
 @Theorem(
-    QForAll(
-        [a, N],
-        N >= 0,
-        QForAll([n], n >= 0, n <= N, abs(a)[n] <= finsum(abs(a), N)),
-    )
+    ForAll([a, n], ForAll(i, i >= 0, a[i] >= 0), n >= 0, finsum(a, n) >= 0)
+)
+def finsum_nonneg(l):
+    a, n = l.fixes()
+    l.intros()
+    l.auto(by=[cumsum_mono(zero, a, n), cumsum_zero(n),
+               finsum.defn(a, n), zero.defn])
+
+
+@Theorem(
+    QForAll([a, N], N >= 0,
+            QForAll([n], n >= 0, n < N, abs(a)[n] <= finsum(abs(a), N)))
 )
 def abs_le_finsum_abs(l):
     a, N = l.fixes()
-
+    l.intro()
     l.induct(N, using=int_.induct_nat)
-    # base case: N = 0
-    l.intros()
-    n = l.fix()
-    l.intros()
-    l.intros()
-    l.have(n == 0, by=[])
-    l.rw(-1)
-    l.unfold(finsum)
-    l.unfold(cumsum)
-    l.simp()
+    # No index lies in the empty prefix [0, 0).
     l.auto()
-
-    # step: N >= 0, IH -> N + 1
     N = l.fix()
     l.intros()
-    l.intros()
-    l.intros()
-
     n = l.fix()
     l.intros()
-    l.intros()
-
-    # Establish the shared recurrence before splitting the two cases.
-    l.have(
-        finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N + 1],
-        by=[finsum_succ(abs(a), N)],
-    )
-    l.have(abs(a)[N + 1] >= 0, by=[abs_ge_0(a, N + 1)])
-
-    # Case split: n <= N or n = N + 1
-    l.cases(n <= N)
-
-    # n <= N: use IH and monotonicity of finsum
+    l.have(finsum(abs(a), N + 1) == finsum(abs(a), N) + abs(a)[N],
+           by=[finsum_succ(abs(a), N)])
+    l.have(abs(a)[N] >= 0, by=[abs_ge_0(a, N)])
+    l.cases(n < N, n == N)
     l.have(abs(a)[n] <= finsum(abs(a), N), by=[])
-    l.have(finsum(abs(a), N) <= finsum(abs(a), N + 1), by=[])
     l.auto()
-
-    # n > N: then n = N + 1
-    l.have(n == N + 1, by=[])
-    l.rw(-1)
-    l.have(abs(a)[0] <= finsum(abs(a), N), by=[])
-    l.have(abs(a)[0] >= 0, by=[abs_ge_0])
-    l.have(finsum(abs(a), N + 1) >= abs(a)[N + 1], by=[])
+    l.have(finsum(abs(a), N) >= 0, by=[finsum_nonneg(abs(a), N), abs_ge_0])
+    l.auto()
     l.auto()
 
 
@@ -573,6 +528,11 @@ is_bounded = define("is_bounded", [a], Exists([M], has_bound(a, M)))
 
 is_monotone = define("is_monotone", [a], QForAll([n, m], n <= m, a[n] <= a[m]))
 is_nonneg = define("is_nonneg", [a], QForAll([n], a[n] >= 0))
+
+# The range relevant to convergence as n tends to positive infinity.
+range_nonneg = define(
+    "RSeq.range_nonneg", a, Lambda(x, Exists(n, n >= 0, a[n] == x))
+)
 
 # https://en.wikipedia.org/wiki/Cauchy_sequence
 
@@ -648,7 +608,7 @@ def has_lim_iff(l):
 def eventually_near(l):
     a, y, eps = l.fixes()
     l.rw(has_lim_iff(a, y))
-    h = l.intros()
+    h = l.intro()
     l.specialize(h, eps)
     l.auto()
 
@@ -657,9 +617,8 @@ def eventually_near(l):
 def eventually_mono(l):
     l.fixes()
     l.unfold(eventually)
-    hp = l.intros()
-    l.intros()
-    N1 = l.obtain(hp)
+    hp, _ = l.intros()
+    N1, _ = l.obtain(hp)
     l.exists(N1)
     l.auto()
 
@@ -675,9 +634,9 @@ def eventually_mono(l):
 def eventually_and(l):
     l.fixes()
     l.unfold(eventually)
-    hp, hq = l.intros(), l.intros()
-    N1 = l.obtain(hp)
-    N2 = l.obtain(hq)
+    hp, hq = l.intro(), l.intro()
+    N1, _ = l.obtain(hp)
+    N2, _ = l.obtain(hq)
     # Past both cutoffs.
     l.exists(If(N1 > N2, N1, N2))
     l.beta()
@@ -688,7 +647,7 @@ def eventually_and(l):
 def eventually_of_forall_nonneg(l):
     l.fixes()
     l.unfold(eventually)
-    l.intros()
+    l.intro()
     l.exists(IntVal(0))
     l.auto()
 
@@ -720,7 +679,7 @@ def has_lim_inv(l):
     N = ToInt(1 / eps) + 1
     l.exists(N)
     l.fix()
-    l.intros()
+    l.intro()
     l.unfold(real.abs)
     l.auto()
 
@@ -728,7 +687,6 @@ def has_lim_inv(l):
 @Theorem("forall (a : RSeq) (x y : Real), has_lim a x -> has_lim a y -> x = y")
 def lim_unique(l):
     a, x, y = l.fixes()
-    l.intros()
     l.intros()
     l.contra()
     eps = real.abs(x - y) / 2
@@ -752,9 +710,9 @@ def lim_unique(l):
         QForAll([n], n > n2, real.abs(a[n] - y) < eps),
     )
     l.have(exists_x, by=[])  # unstable due to alpha rename?
-    N1 = l.obtain(exists_x)
+    N1, _ = l.obtain(exists_x)
     l.have(exists_y, by=[])
-    N2 = l.obtain(exists_y)
+    N2, _ = l.obtain(exists_y)
     N = If(N1 > N2, N1, N2) + 1
     forall_x = QForAll([n], n > N1, real.abs(a[n] - x) < eps)
     forall_y = QForAll([n], n > N2, real.abs(a[n] - y) < eps)
@@ -776,6 +734,374 @@ def lim_unique(l):
     l.have(eps + eps == real.abs(x - y), by=[])
     l.have(real.abs(x - y) < real.abs(x - y), by=[])
     l.auto()
+
+
+# Algebra of real sequence limits.
+d = Const("d", RSeq)
+r, u, v, w = Reals("r u v w")
+
+
+@Theorem(ForAll([a, y], has_lim(a, y), ForAll(n, n >= 0, a[n] >= 0), y >= 0))
+def lim_of_nonneg_seq(l):
+    a, y = l.fixes()
+    limit, nonneg = l.intro(), l.intro()
+    l.unfold(has_lim, at=limit)
+    l.contra()
+    positive = l.have(-y > 0, by=[])
+    cutoff, _ = l.obtain(l.specialize(0, -y, positive))
+    m = If(cutoff > 0, cutoff, 0) + 1
+    l.specialize(nonneg, m)
+    l.auto(by=[real.abs.defn(a[m] - y)])
+
+
+@Theorem(
+    ForAll(
+        [a, x, r],
+        has_lim(a, x),
+        has_lim(smul(r, a), r * x),
+    ),
+)
+def has_lim_smul(l):
+    a, x, r = l.fixes()
+    l.intro()
+    l.rw(has_lim_iff)
+    eps = l.fix()
+    l.intro()
+    # A positive denominator handles zero and nonzero scalars uniformly.
+    eta = eps / (real.abs(r) + 1)
+    l.have(eta > 0, by=[real.abs_pos(r)])
+    l.have(eventually(near(a, x, eta)), by=[eventually_near(a, x, eta)])
+    # Pointwise: |r a[m] - r x| = |r| |a[m] - x| < eps.
+    l.have(ForAll([n], real.abs(a[n] - x) < eta, real.abs(smul(r, a)[n] - r * x) < eps))
+    m = l.fix()
+    l.intro()
+    l.have(real.abs(r) * eta < eps, by=[real.abs_pos(r)])
+    l.have(r * a[m] - r * x == r * (a[m] - x), by=[])
+    l.auto(by=[smul.defn(r, a), real.abs_mul(r, a[m] - x), real.abs_pos(r)])
+    l.auto(by=[eventually_mono(near(a, x, eta), near(smul(r, a), r * x, eps))])
+
+
+@Theorem(
+    ForAll(
+        [a, b, x, y],
+        has_lim(a, x),
+        has_lim(b, y),
+        has_lim(a + b, x + y),
+    ),
+)
+def has_lim_add(l):
+    a, b, x, y = l.fixes()
+    l.intro(), l.intro()
+    l.rw(has_lim_iff)
+    eps = l.fix()
+    l.intro()
+    # Each sequence contributes half the error budget.
+    e = eps / 2
+    Pa, Pb = near(a, x, e), near(b, y, e)
+    both = Lambda([n], And(Pa[n], Pb[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, e)])
+    l.have(eventually(Pb), by=[eventually_near(b, y, e)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pb)])
+    # Pointwise: the triangle inequality.
+    l.have(
+        ForAll(
+            [n],
+            And(real.abs(a[n] - x) < e, real.abs(b[n] - y) < e),
+            real.abs((a + b)[n] - (x + y)) < eps,
+        )
+    )
+    m = l.fix()
+    l.intro()
+    l.auto(by=[add.defn(a, b), real.abs_add(a[m] - x, b[m] - y)])
+    l.auto(by=[eventually_mono(both, near(a + b, x + y, eps))])
+
+
+@Theorem(ForAll([a, x], has_lim(a, x), has_lim(-a, -x)))
+def has_lim_neg(l):
+    a, x = l.fixes()
+    l.intro()
+    l.rw(has_lim_iff)
+    eps = l.fix()
+    l.intro()
+    l.have(eventually(near(a, x, eps)), by=[eventually_near(a, x, eps)])
+    # Pointwise: |-a[m] - -x| = |a[m] - x|.
+    l.have(ForAll([n], real.abs(a[n] - x) < eps, real.abs((-a)[n] - -x) < eps))
+    l.unfold(neg)
+    l.beta()
+    m = l.fix()
+    l.intro()
+    l.auto(by=[real.abs_neg(a[m] - x)])
+    l.auto(by=[eventually_mono(near(a, x, eps), near(-a, -x, eps))])
+
+
+@Theorem(
+    ForAll(
+        [a, b, x, y],
+        has_lim(a, x),
+        has_lim(b, y),
+        has_lim(a - b, x - y),
+    ),
+)
+def has_lim_sub(l):
+    a, b, x, y = l.fixes()
+    l.rw(sub_eq_add_neg)
+    l.auto(by=[has_lim_add(a, -b, x, -y), has_lim_neg(b, y)])
+
+
+@Theorem(
+    ForAll(
+        [a, b, x, y],
+        has_lim(a, x),
+        has_lim(b, y),
+        ForAll(n, n >= 0, a[n] <= b[n]),
+        x <= y,
+    ),
+)
+def le_of_has_lim_of_has_lim(l):
+    """Limits preserve non-strict inequalities between sequences."""
+    a, b, x, y = l.fixes()
+    l.auto(
+        by=[
+            sub.defn(b, a),
+            has_lim_sub(b, a, y, x),
+            lim_of_nonneg_seq(b - a, y - x),
+        ]
+    )
+
+
+@Theorem(ForAll([a, x, r], has_lim(a, x), ForAll(n, n >= 0, a[n] <= r), x <= r))
+def le_of_has_lim(l):
+    a, x, r = l.fixes()
+    l.auto(
+        by=[
+            le_of_has_lim_of_has_lim(a, const(r), x, r),
+            has_lim_const(r),
+            const.defn(r),
+        ]
+    )
+
+
+@Theorem(ForAll([a, x, r], has_lim(a, x), ForAll(n, n >= 0, r <= a[n]), r <= x))
+def ge_of_has_lim(l):
+    a, x, r = l.fixes()
+    l.auto(
+        by=[
+            le_of_has_lim_of_has_lim(const(r), a, r, x),
+            has_lim_const(r),
+            const.defn(r),
+        ]
+    )
+
+
+@Theorem(
+    ForAll(
+        [a, b, d, x],
+        has_lim(a, x),
+        has_lim(d, x),
+        ForAll(n, n >= 0, And(a[n] <= b[n], b[n] <= d[n])),
+        has_lim(b, x),
+    ),
+)
+def has_lim_squeeze(l):
+    """Squeeze theorem: a sequence trapped between two with limit x has limit x."""
+    a, b, d, x = l.fixes()
+    l.intro(), l.intro(), l.intro()
+    l.rw(has_lim_iff)
+    eps = l.fix()
+    l.intro()
+    Pa, Pd = near(a, x, eps), near(d, x, eps)
+    between = Lambda([n], And(a[n] <= b[n], b[n] <= d[n]))
+    both = Lambda([n], And(Pa[n], Pd[n]))
+    trapped = Lambda([n], And(both[n], between[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, eps)])
+    l.have(eventually(Pd), by=[eventually_near(d, x, eps)])
+    l.have(eventually(between), by=[eventually_of_forall_nonneg(between)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pd)])
+    l.have(eventually(trapped), by=[eventually_and(both, between)])
+    # Pointwise: b[m] lies between a[m] and d[m], both within eps of x.
+    l.have(
+        ForAll(
+            [n],
+            And(real.abs(a[n] - x) < eps, real.abs(d[n] - x) < eps),
+            And(a[n] <= b[n], b[n] <= d[n]),
+            real.abs(b[n] - x) < eps,
+        )
+    )
+    m = l.fix()
+    l.intro(), l.intro()
+    l.auto(by=[real.abs.defn(a[m] - x), real.abs.defn(d[m] - x), real.abs.defn(b[m] - x)])
+    l.auto(by=[eventually_mono(trapped, near(b, x, eps))])
+
+
+@Theorem(
+    ForAll(
+        [a, b, x, y],
+        has_lim(a, x),
+        has_lim(b, y),
+        has_lim(a * b, x * y),
+    ),
+)
+def has_lim_mul(l):
+    a, b, x, y = l.fixes()
+    l.intro(), l.intro()
+    l.rw(has_lim_iff)
+    eps = l.fix()
+    l.intro()
+    # Keep both errors below one and small enough for the product estimate.
+    eta = real.min(1, eps / (2 * (real.abs(x) + real.abs(y) + 1)))
+    l.have(eta > 0, by=[real.abs_pos(x), real.abs_pos(y), real.min.defn])
+    Pa, Pb = near(a, x, eta), near(b, y, eta)
+    both = Lambda([n], And(Pa[n], Pb[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, eta)])
+    l.have(eventually(Pb), by=[eventually_near(b, y, eta)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pb)])
+    # Pointwise: expand a[m] b[m] - x y and bound each term.
+    l.have(
+        ForAll(
+            [n],
+            And(real.abs(a[n] - x) < eta, real.abs(b[n] - y) < eta),
+            real.abs((a * b)[n] - x * y) < eps,
+        )
+    )
+    m = l.fix()
+    l.intro()
+    l.have(
+        And(eta <= 1, 2 * eta * (real.abs(x) + real.abs(y) + 1) <= eps),
+        by=[real.abs_pos(x), real.abs_pos(y), real.min.defn],
+    )
+    u, v = a[m] - x, b[m] - y
+    da, db = real.abs(u), real.abs(v)
+    error_bound = da * db + real.abs(y) * da + real.abs(x) * db
+    l.have(a[m] * b[m] - x * y == u * v + y * u + x * v, by=[])
+    l.have(
+        real.abs(a[m] * b[m] - x * y) <= error_bound,
+        by=[
+            real.abs_add(u * v + y * u, x * v),
+            real.abs_add(u * v, y * u),
+            real.abs_mul(u, v),
+            real.abs_mul(y, u),
+            real.abs_mul(x, v),
+        ],
+    )
+    l.have(error_bound < eps, by=[real.abs_pos(u), real.abs_pos(v), real.abs_pos(x), real.abs_pos(y)])
+    l.auto(by=[mul.defn(a, b)])
+    l.auto(by=[eventually_mono(both, near(a * b, x * y, eps))])
+
+
+@Theorem(
+    ForAll(
+        [u, v, w, z],
+        And(v != 0, z != 0),
+        (u / v) + -1 * (w / z) == (u - w) / v + w * ((z - v) / (v * z)),
+    )
+)
+def div_decomp(l):
+    u, v, w, z = l.fixes()
+    l.intro()
+    l.auto()
+
+
+@Theorem(
+    ForAll([a, b, x, y], has_lim(a, x), has_lim(b, y), y != 0, has_lim(a / b, x / y))
+)
+def has_lim_div(l):
+    a, b, x, y = l.fixes()
+    l.intro(), l.intro(), l.intro()
+    l.rw(has_lim_iff)
+    eps = l.fix()
+    l.intro()
+    # Keep the denominator away from zero and split the quotient error.
+    Y, X = real.abs(y), real.abs(x)
+    ea = eps * Y / 4
+    eb = real.min(Y / 2, eps * Y * Y / (4 * (X + 1)))
+    l.have(Y > 0, by=[real.abs_pos_iff(y)])
+    l.have(ea > 0, by=[])
+    l.have(eb > 0, by=[real.abs_pos(x), real.min.defn])
+    Pa, Pb = near(a, x, ea), near(b, y, eb)
+    both = Lambda([n], And(Pa[n], Pb[n]))
+    l.have(eventually(Pa), by=[eventually_near(a, x, ea)])
+    l.have(eventually(Pb), by=[eventually_near(b, y, eb)])
+    l.have(eventually(both), by=[eventually_and(Pa, Pb)])
+    # Pointwise: split a[m]/b[m] - x/y into a numerator and a denominator error.
+    l.have(
+        ForAll(
+            [n],
+            And(real.abs(a[n] - x) < ea, real.abs(b[n] - y) < eb),
+            real.abs((a / b)[n] - x / y) < eps,
+        )
+    )
+    l.unfold(div)
+    l.beta()
+    m = l.fix()
+    l.intro()
+
+    am, bm = a[m], b[m]
+    da, db, B = real.abs(am - x), real.abs(bm - y), real.abs(bm)
+    l.have(And(db < Y / 2, db * (4 * (X + 1)) < eps * Y * Y), by=[real.min.defn, real.abs_pos(x)])
+    l.have(real.abs(y - bm) == db, by=[real.abs_neg(bm - y)])
+    l.have(Y <= db + B, by=[real.abs_triangle(y, RealVal(0), bm)])
+    l.have(B > Y / 2, by=[])
+    l.have(bm != 0, by=[real.abs_pos_iff(bm)])
+    t1 = (am - x) / bm
+    t2 = x * ((y - bm) / (bm * y))
+    decomp = l.have(am / bm - x / y == t1 + t2, by=[div_decomp(am, bm, x, y)])
+    l.have(real.abs(t1) == da / B, by=[real.abs_div(am - x, bm)])
+    l.have(
+        real.abs(t2) == X * (db / (B * Y)),
+        by=[real.abs_mul(x, (y - bm) / (bm * y)), real.abs_div(y - bm, bm * y), real.abs_mul(bm, y)],
+    )
+    l.have(da / B < eps / 2, by=[])
+    l.have(X * (db / (B * Y)) < eps / 2, by=[real.abs_pos(x), real.abs_pos(bm - y)])
+    bound = l.have(real.abs(t1 + t2) < eps, by=[real.abs_add(t1, t2)])
+    # Discharge congruence with just the equality and the scalar bound.
+    result = real.abs(am / bm - x / y) < eps
+    l.auto(by=[prove(Implies(And(decomp, bound), result))])
+    l.auto(by=[eventually_mono(both, near(a / b, x / y, eps))])
+
+
+@Theorem(
+    ForAll([a, x], is_monotone(a), rset.is_lub(range_nonneg(a), x), has_lim(a, x))
+)
+def has_lim_of_monotone_of_is_lub(l):
+    a, s = l.fixes()
+    l.unfold(is_monotone)
+    monotone, _ = l.intros()
+    values = range_nonneg(a)
+    l.have(rset.is_ub(values, s), by=[rset.is_ub_of_is_lub(values, s)])
+    l.unfold(has_lim)
+    eps = l.fix()
+    l.intro()
+    # Anything strictly below the supremum fails to bound the range.
+    l.have(smt.Not(rset.is_ub(values, s - eps)),
+           by=[rset.le_of_is_lub_of_is_ub(values, s, s - eps)])
+    witness = l.have(Exists(n, n >= 0, s - eps < a[n]),
+                     by=[rset.is_ub.defn(values, s - eps), range_nonneg.defn(a)])
+    N, _ = l.obtain(witness)
+    l.exists(N)
+    k = l.fix()
+    l.intro()
+    # The entire tail is trapped between a[N] > s-eps and the supremum s.
+    l.specialize(monotone, N, k)
+    l.have(values[a[k]], by=[range_nonneg.defn(a)])
+    l.have(a[k] <= s, by=[rset.le_of_mem_of_is_ub(values, a[k], s)])
+    l.auto(by=[real.abs.defn(a[k] - s)])
+
+
+@Theorem(
+    ForAll(a, is_monotone(a), rset.bdd_above(range_nonneg(a)),
+           Exists(x, has_lim(a, x)))
+)
+def exists_has_lim_of_monotone_of_bdd_above(l):
+    a = l.fix()
+    l.intros()
+    values = range_nonneg(a)
+    l.have(values[a[0]], by=[range_nonneg.defn(a)])
+    l.have(Exists(x, values[x]), by=[])
+    supremum = l.have(Exists(x, rset.is_lub(values, x)),
+                      by=[rset.exists_is_lub_of_bdd_above(values)])
+    s, _ = l.obtain(supremum)
+    l.exists(s)
+    l.auto(by=[has_lim_of_monotone_of_is_lub(a, s)])
 
 
 has_sum = define("has_sum", [a, y], has_lim(cumsum(a), y))

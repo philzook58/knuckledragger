@@ -61,14 +61,14 @@ postfixed_eval = prove(
 @Theorem(ForAll([f], Implies(monotone(f), f[lfp(f)] <= lfp(f))))
 def lfp_prefixed(l):
     f = l.fix()
-    l.intros()
+    l.intro()
     l.unfold(lfp)
     P = prefixed(f)
 
     l.apply(inf_greatest)
     l.unfold(is_lb)
     x = l.fix()
-    l.intros()
+    l.intro()
 
     l.have(is_lb(P, inf(P)), by=[inf_is_lb(P)])
     l.unfold(is_lb, at=-1)
@@ -86,7 +86,7 @@ def lfp_prefixed(l):
 @Theorem(ForAll([f], Implies(monotone(f), lfp(f) <= f[lfp(f)])))
 def lfp_postfixed(l):
     f = l.fix()
-    l.intros()
+    l.intro()
     l.unfold(lfp)
     P = prefixed(f)
 
@@ -109,7 +109,7 @@ def lfp_postfixed(l):
 @Theorem(ForAll([f], Implies(monotone(f), f[lfp(f)] == lfp(f))))
 def lfp_fixed(l):
     f = l.fix()
-    l.intros()
+    l.intro()
     l.apply(le_antisym)
     l.have(f[lfp(f)] <= lfp(f), by=[lfp_prefixed(f)])
     l.have(lfp(f) <= f[lfp(f)], by=[lfp_postfixed(f)])
@@ -124,7 +124,7 @@ def lfp_fixed(l):
 )
 def lfp_least(l):
     f, x = l.fixes()
-    l.intros()
+    l.intro()
     l.unfold(lfp)
     P = prefixed(f)
 
@@ -140,14 +140,14 @@ def lfp_least(l):
 @Theorem(ForAll([f], Implies(monotone(f), gfp(f) <= f[gfp(f)])))
 def gfp_postfixed(l):
     f = l.fix()
-    l.intros()
+    l.intro()
     l.unfold(gfp)
     Q = postfixed(f)
 
     l.apply(sup_least)
     l.unfold(is_ub)
     x = l.fix()
-    l.intros()
+    l.intro()
 
     l.have(is_ub(Q, sup(Q)), by=[sup_is_ub(Q)])
     l.unfold(is_ub, at=-1)
@@ -165,7 +165,7 @@ def gfp_postfixed(l):
 @Theorem(ForAll([f], Implies(monotone(f), f[gfp(f)] <= gfp(f))))
 def gfp_prefixed(l):
     f = l.fix()
-    l.intros()
+    l.intro()
     l.unfold(gfp)
     Q = postfixed(f)
 
@@ -187,7 +187,7 @@ def gfp_prefixed(l):
 @Theorem(ForAll([f], Implies(monotone(f), f[gfp(f)] == gfp(f))))
 def gfp_fixed(l):
     f = l.fix()
-    l.intros()
+    l.intro()
     l.apply(le_antisym)
     l.have(f[gfp(f)] <= gfp(f), by=[gfp_prefixed(f)])
     l.have(gfp(f) <= f[gfp(f)], by=[gfp_postfixed(f)])
@@ -202,7 +202,7 @@ def gfp_fixed(l):
 )
 def gfp_greatest(l):
     f, x = l.fixes()
-    l.intros()
+    l.intro()
     l.unfold(gfp)
     Q = postfixed(f)
 
@@ -231,7 +231,7 @@ def gfp_greatest(l):
 )
 def knaster_tarski(l):
     f = l.fix()
-    l.intros()
+    l.intro()
     l.have(f[lfp(f)] == lfp(f), by=[lfp_fixed(f)])
     l.have(f[gfp(f)] == gfp(f), by=[gfp_fixed(f)])
     l.have(

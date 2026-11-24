@@ -61,6 +61,7 @@ source-exclude = [
     "solvers/twee",
     "solvers/vampire",
     "solvers/vampire-ho",
+    "solvers/verus",
     "contrib/fast/test",
 ]
 module-name = "kdrag"
@@ -119,6 +120,7 @@ doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
 markers = ["slow: Marks tests as long-running."]
 
 [dependency-groups]
+docs = ["sphinx", "sphinx-rtd-theme", "myst-parser"]
 dev = [
     "jupyter>=1.1.1",
     "line-profiler>=5.0.0",

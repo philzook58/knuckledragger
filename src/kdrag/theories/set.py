@@ -38,6 +38,7 @@ from kdrag.smt import (  # noqa: F401
     Store,
     Unit,
     domains,
+    is_set,
 )
 import functools
 
@@ -123,10 +124,6 @@ def Set(T):
     S.sub_antisym = prove(ForAll([A, B], Implies((A <= B) & (B <= A), (A == B))))
 
     return S
-
-
-def is_set(A: smt.ArrayRef) -> bool:
-    return isinstance(A.sort(), smt.ArraySortRef) and A.sort().range() == BoolSort()
 
 
 def union(A: smt.ArrayRef, B: smt.ArrayRef) -> smt.ArrayRef:

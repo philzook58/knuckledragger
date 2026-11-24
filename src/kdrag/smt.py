@@ -191,6 +191,31 @@ def Eq(x, y):
     return RawEq(x, y)
 
 
+def substitute_body(q: QuantifierRef, *ts: ExprRef) -> ExprRef:
+    """Substitute into a quantifier or lambda, checking arity and exact sorts.
+
+    Terms follow binder order, unlike smt.substitute_vars's de Bruijn order.
+    Python literals must be converted to expressions by the caller. Z3 itself
+    does not enforce sorts and can silently leave loose variables on mismatch.
+
+    >>> r, n = Real("r"), Int("n")
+    >>> substitute_body(Lambda([r, n], r + n), RealVal(42), IntVal(7))
+    42 + ToReal(7)
+    """
+    if not isinstance(q, QuantifierRef):
+        raise TypeError(f"Expected QuantifierRef, got {type(q).__name__}")
+    if len(ts) != q.num_vars():
+        raise ValueError(f"Binder expects {q.num_vars()} terms, got {len(ts)}")
+    for i, t in enumerate(ts):
+        if not isinstance(t, ExprRef) or t.sort() != q.var_sort(i):
+            actual = t.sort() if isinstance(t, ExprRef) else type(t).__name__
+            raise TypeError(
+                f"Term {i + 1} for bound variable {q.var_name(i)} must have "
+                f"sort {q.var_sort(i)}, got {t!r} ({actual})"
+            )
+    return substitute_vars(q.body(), *reversed(ts))
+
+
 NEq = ExprRef.__ne__
 
 # TODO: Overload them?
@@ -213,18 +238,23 @@ def ForAll(vs: list[ExprRef] | ExprRef, *hyp_conc, **kwargs) -> QuantifierRef:
     ForAll(x, Implies(x >= 0, x > 3))
 
     """
-    if isinstance(vs, ExprRef):
-        vs = [vs]
-    if any(v.assumes is not None for v in vs):
-        # fast path avoids this
-        hyp_conc0 = hyp_conc
-        hyp_conc = [v.assumes for v in vs if v.assumes is not None]
-        hyp_conc.extend(hyp_conc0)
-    assert hyp_conc
-    body = hyp_conc[-1]
-    for hyp in reversed(hyp_conc[:-1]):
-        body = Implies(hyp, body)
-    return RawForAll(vs, body, **kwargs)
+    try:
+        if isinstance(vs, ExprRef):
+            vs = [vs]
+        if any(v.assumes is not None for v in vs):
+            # fast path avoids this
+            hyp_conc0 = hyp_conc
+            hyp_conc = [v.assumes for v in vs if v.assumes is not None]
+            hyp_conc.extend(hyp_conc0)
+        assert hyp_conc
+        body = hyp_conc[-1]
+        for hyp in reversed(hyp_conc[:-1]):
+            body = Implies(hyp, body)
+        return RawForAll(vs, body, **kwargs)
+    except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
+        raise Z3Exception(
+            f"ForAll: variables {vs!r}, bodies {hyp_conc!r}: {error}"
+        ) from error
 
 
 def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
@@ -240,17 +270,32 @@ def Exists(vs: list[ExprRef] | ExprRef, *concs, **kwargs) -> QuantifierRef:
     >>> Exists([x], x > 3)
     Exists(x, And(x >= 0, x > 3))
     """
-    if isinstance(vs, ExprRef):
-        vs = [vs]
-    if any(v.assumes is not None for v in vs):
-        # fast path avoids this
-        concs0 = concs
-        concs = [v.assumes for v in vs if v.assumes is not None]
-        concs.extend(concs0)
-    if len(concs) == 1:
-        return RawExists(vs, concs[0], **kwargs)
-    else:
-        return RawExists(vs, And(concs), **kwargs)
+    try:
+        if isinstance(vs, ExprRef):
+            vs = [vs]
+        if any(v.assumes is not None for v in vs):
+            # fast path avoids this
+            concs0 = concs
+            concs = [v.assumes for v in vs if v.assumes is not None]
+            concs.extend(concs0)
+        if len(concs) == 1:
+            return RawExists(vs, concs[0], **kwargs)
+        else:
+            return RawExists(vs, And(concs), **kwargs)
+    except (Z3Exception, AttributeError, TypeError, AssertionError) as error:
+        raise Z3Exception(
+            f"Exists: variables {vs!r}, bodies {concs!r}: {error}"
+        ) from error
+
+
+RawLambda = Lambda
+
+
+def Lambda(vs, body):
+    try:
+        return RawLambda(vs, body)
+    except (Z3Exception, AttributeError, TypeError) as error:
+        raise Z3Exception(f"Lambda: variables {vs!r}, body {body!r}: {error}") from error
 
 
 # Shorthands
@@ -559,7 +604,19 @@ def new_call(self: FuncDeclRef, *args, **kwargs):
         assert len(new_args) == self.arity(), (
             "Something has gone wrong with implicit argument filling"
         )
-    res = old_call(self, *new_args)
+    try:
+        res = old_call(self, *new_args)
+    except Z3Exception as error:
+        # Native errors that already show the declaration have enough context.
+        if self.sexpr() in str(error):
+            raise
+        arguments = ", ".join(
+            f"{arg!r} ({arg.sort() if is_expr(arg) else type(arg).__name__})"
+            for arg in new_args
+        )
+        raise Z3Exception(
+            f"Cannot apply {self.sexpr()} to arguments [{arguments}]: {error}"
+        ) from error
     if self.subrange is not None:
         res.assumes = self.subrange(res)
     return res
@@ -576,6 +633,27 @@ def is_func(f: ExprRef) -> TypeGuard[FuncRef]:
     >>> assert is_func(Lambda([x], x))
     """
     return is_array(f) or (isinstance(f, QuantifierRef) and f.is_lambda())
+
+
+def is_set(term: object) -> TypeGuard[FuncRef]:
+    """Check for a set represented by a unary Boolean array, including lambdas.
+
+    >>> x = Int("x")
+    >>> is_set(EmptySet(IntSort()))
+    True
+    >>> is_set(Lambda(x, x > 0))
+    True
+    >>> is_set(Array("relation", IntSort(), IntSort(), BoolSort()))
+    False
+    >>> is_set(x)
+    False
+    """
+    return (
+        isinstance(term, ExprRef)
+        and isinstance(term.sort(), ArraySortRef)
+        and is_bool_sort(term.sort().range())
+        and len(domains(term.sort())) == 1
+    )
 
 
 def domains(f: FuncRef | ArraySortRef) -> list[SortRef]:

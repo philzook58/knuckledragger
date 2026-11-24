@@ -14,7 +14,9 @@ from kdrag import (  # noqa: F401
     tuple_,
 )
 from kdrag.smt import (  # noqa: F401
+    Abs,
     And,
+    ArithRef,
     Array,
     ArraySort,
     BoolSort,
@@ -33,7 +35,9 @@ from kdrag.smt import (  # noqa: F401
     Ints,
     Not,
     Or,
+    RawForAll,
     SetSort,
+    is_int,
 )
 
 Z = IntSort()
@@ -67,9 +71,8 @@ P = Array("P", Z, BoolSort())
 def induct_nat_ax(l):
     l.fix()
     l.intros()
-    l.intros()
     x = l.fix()
-    l.intros()
+    l.intro()
     l.induct(x, using=induct_nat)
 
 
@@ -89,6 +92,34 @@ def induct_nat_strong(x, P):
 
 
 induct = kd.notation.induct_int
+
+
+def induct_strong(x: ArithRef, P) -> kd.Proof:
+    """Strong integer induction on absolute value, with no domain side condition.
+
+    To establish P(n), assume P(m) for every integer m with Abs(m) < Abs(n).
+    This is an axiom schema, like ordinary integer induction; real-valued
+    arguments are rejected because absolute-value descent is not well-founded
+    on the reals.
+    """
+    if not is_int(x):
+        raise TypeError("Strong integer induction requires an integer argument")
+    n = FreshConst(Z, prefix="n")
+    m = FreshConst(Z, prefix="m")
+    return axiom(
+        Implies(
+            RawForAll(
+                [n],
+                Implies(
+                    RawForAll([m], Implies(Abs(m) < Abs(n), P(m))),
+                    P(n),
+                ),
+            ),
+            P(x),
+        ),
+        by="integer_strong_induction",
+    )
+
 
 t = Int("t")
 
@@ -201,7 +232,6 @@ def fact_ge_1(l):
     l.auto(unfold=1)
     l.fix()
     l.intros()
-    l.intros()
     l.simp()
     l.unfold(fact)
     l.simp()
@@ -223,9 +253,6 @@ def dvd_fact(l):
     l.unfold(dvd)
     n1 = l.fix()
     l.intros()
-    l.intros()
-    l.intros()
-    l.intros()
     l.unfold(fact)
     l.simp()
     l.simp(at=1)
@@ -234,7 +261,7 @@ def dvd_fact(l):
     l.auto()
     # case m != 1 + n1
     witness = l.have(Exists([p], fact(n1) == m * p), by=[])
-    p1 = l.obtain(witness)
+    p1, _ = l.obtain(witness)
     l.exists(p1 * (n1 + 1))
     l.auto()
 
@@ -365,8 +392,8 @@ def natpair_unpair(l):
     l.auto(by=[natpair_to_tuple.defn, natpair.defn])  # k == 0
 
     k = l.fix()
-    l.intros()
-    l.intros()
+    l.intro()
+    l.intro()
     l.case(k >= 0)
     l.unfold(natpair_to_tuple)
     l.have((k + 1 == 0) == BoolVal(False), by=[])
@@ -378,12 +405,12 @@ def natpair_unpair(l):
     l.autocases()
     l.rw(-1)
     l.simp()
-    l.intros()
+    l.intro()
     l.auto(by=[natpair_to_tuple.defn, natpair.defn])
 
     l.rw(-1)
     l.simp()
-    l.intros()
+    l.intro()
     l.auto(by=[natpair_to_tuple.defn, natpair.defn])
 
 

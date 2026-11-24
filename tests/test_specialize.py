@@ -9,8 +9,7 @@ def test_specialize_context_premise(keep):
     x, y = smt.Ints("x y")
     rule = smt.ForAll(x, x > 0, x >= 0)
     l = kd.Lemma(smt.Implies(rule, smt.Implies(y > 0, y >= 0)))
-    hyp = l.intros()
-    positive = l.intros()
+    hyp, positive = l.intros()
     result = l.specialize(hyp, y, positive, keep=keep)
     assert result.eq(y >= 0)
     assert any(h.eq(hyp) for h in l.ctx) == keep
@@ -39,7 +38,7 @@ def test_specialize_multiple_implication_premises():
     p = smt.Bool("p")
     rule = smt.Implies(p, smt.Implies(smt.BoolVal(True), p))
     l = kd.Lemma(smt.Implies(rule, smt.Implies(p, p)))
-    hyp, premise = l.intros(), l.intros()
+    hyp, premise = l.intro(), l.intro()
     result = l.specialize(hyp, premise, kd.prove(smt.BoolVal(True)))
     assert result.eq(p)
     l.assumption()
@@ -60,7 +59,7 @@ def test_specialize_rejects_formula_not_in_context():
     x = smt.Int("x")
     rule = smt.ForAll(x, x > 0, x >= 0)
     l = kd.Lemma(smt.Implies(rule, smt.BoolVal(True)))
-    hyp = l.intros()
+    hyp = l.intro()
     before = l.top_goal()
     # Even a true formula needs to be in the context to be premise evidence.
     with pytest.raises(KeyError, match="not found in context"):
@@ -72,7 +71,7 @@ def test_specialize_rejects_mismatched_premises():
     p, q, r = smt.Bools("p q r")
     rule = smt.Implies(p, q)
     l = kd.Lemma(smt.Implies(rule, smt.Implies(r, smt.BoolVal(True))))
-    hyp, wrong = l.intros(), l.intros()
+    hyp, wrong = l.intro(), l.intro()
     before = l.top_goal()
     with pytest.raises(ValueError, match="does not match"):
         l.specialize(hyp, wrong)

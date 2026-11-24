@@ -103,14 +103,11 @@ def update_notation() -> None:
     Only unary and binary `FuncDeclRef` methods are added. Call this after
     importing a theory that registers new notation-backed function declarations.
 
-    >>> from kdrag.theories import real
-    >>> update_notation()
-    >>> f, g = smt.Consts("f g", real.RFun)
-    >>> to_latex(f + g)
-    '\\text{f} + \\text{g}'
     >>> from kdrag.theories.real import vec2
     >>> update_notation()
-    >>> u = smt.Const("u", vec2.Vec2)
+    >>> u, v = smt.Consts("u v", vec2.Vec2)
+    >>> to_latex(u + v)
+    '\\text{u} + \\text{v}'
     >>> to_latex(-u)
     '-\\text{u}'
     """

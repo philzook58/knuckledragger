@@ -37,7 +37,7 @@ from kdrag.smt import (
     is_var,
 )
 import kdrag as kd
-from kdrag import NewType, QExists, Theorem, axiom, cond, define, prove
+from kdrag import NewType, QExists, Theorem, axiom, cond, define, define_const, prove
 
 T = RealSort()
 
@@ -62,7 +62,6 @@ x, y, z, eps = Reals("x y z eps")
 
 f, g = Consts("f g", RFun)
 
-fadd = kd.notation.add.define([f, g], Lambda([x], f[x] + g[x]))
 fsub = kd.notation.sub.define([f, g], Lambda([x], f[x] - g[x]))
 fmul = kd.notation.mul.define([f, g], Lambda([x], f[x] * g[x]))
 fdiv = kd.notation.div.define([f, g], Lambda([x], f[x] / g[x]))
@@ -76,7 +75,7 @@ axiom(ForAll([f, g], poly(f), poly(g), poly(f * g)))
 
 # NReal = kd.NewType("NReal", R)
 
-zero = define("R.zero", [], RealVal(0))
+zero = define_const("R.zero", RealVal(0))
 
 
 add = define("R.add", [x, y], x + y)
@@ -105,7 +104,7 @@ sub_add = prove(
 
 mul = define("mul", [x, y], x * y)
 mul_zero = prove(ForAll([x], mul(x, 0) == 0), by=[mul.defn])
-one = define("one", [], RealVal(1))
+one = define_const("one", RealVal(1))
 mul_one = prove(ForAll([x], mul(x, one) == x), by=[mul.defn, one.defn])
 one_mul = prove(ForAll([x], mul(one, x) == x), by=[mul.defn, one.defn])
 mul_comm = prove(ForAll([x, y], mul(x, y) == mul(y, x)), by=[mul.defn])
@@ -364,7 +363,7 @@ exp_inv = prove(ForAll([x], exp(-x) == 1 / exp(x)), by=[exp_div])
 def exp_mono(l):
     # exp(x) <= exp(x) * exp(y-x) == exp(y)
     x, y = l.fixes()
-    l.intros()
+    l.intro()
     l.have(exp(y) == exp(y - x) * exp(x), by=[exp_add(y - x, x)])
     l.have(exp(y - x) >= 1, by=[exp_pos_ge_one(y - x)])
     l.auto(by=[exp_pos])
@@ -438,7 +437,7 @@ comp = define("comp", [f, g], Lambda([x], f(g(x))))
 kd.notation.matmul.register(RFun, comp)
 
 
-ident = define("RFun.ident", [], Lambda([x], x))
+ident = define_const("RFun.ident", Lambda([x], x))
 const = define("RFun.const", [x], K(RealSort(), x))
 X = ident
 
@@ -503,7 +502,7 @@ N = Int("N")
 def archimedes(l):
     # https://en.wikipedia.org/wiki/Archimedean_property
     x, y = l.fixes()
-    l.intros()
+    l.intro()
 
     # Choose N = floor(y/x) + 1.
     l.exists(ToInt(y / x) + 1)
@@ -604,14 +603,6 @@ def interior_point(A: smt.ArrayRef, x: smt.ArithRef) -> smt.BoolRef:
 is_open = define("RSet.is_open", A, ForAll(x, A[x], interior_point(A, x)))
 is_closed = define("RSet.is_closed", A, is_open(~A))
 interior = define("RSet.interior", A, Lambda(x, interior_point(A, x)))
-closure = define("RSet.closure", A,
-    Lambda(x, ForAll(eps, eps > 0, Exists(y, A[y], ball(x, eps)[y]))))
-
-upper_bounds = define("RSet.upper_bounds", A, Lambda(u, ForAll(x, A[x], x <= u)))
-lower_bounds = define("RSet.lower_bounds", A, Lambda(u, ForAll(x, A[x], u <= x)))
-bdd_above = define("RSet.bdd_above", A, upper_bounds(A) != empty)
-bdd_below = define("RSet.bdd_below", A, lower_bounds(A) != empty)
-is_lub = define("RSet.is_lub", [A, u],
-    And(upper_bounds(A)[u], ForAll(v, upper_bounds(A)[v], u <= v)))
-is_glb = define("RSet.is_glb", [A, u],
-    And(lower_bounds(A)[u], ForAll(v, lower_bounds(A)[v], v <= u)))
+closure = define(
+    "RSet.closure", A, Lambda(x, ForAll(eps, eps > 0, Exists(y, A[y], ball(x, eps)[y])))
+)

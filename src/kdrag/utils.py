@@ -11,7 +11,9 @@ import os
 import glob
 import inspect
 from dataclasses import dataclass
-from collections import defaultdict
+from collections import Counter, defaultdict
+import math
+import time
 
 
 def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]:
@@ -32,7 +34,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
         kd.kernel.FreshVar(lam.var_name(i).upper().split("!")[0], lam.var_sort(i))
         for i in range(lam.num_vars())
     ]
-    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+    return vs, smt.substitute_body(lam, *vs)
 
 
 def open_binder_unhygienic(
@@ -47,7 +49,7 @@ def open_binder_unhygienic(
     """
     # Open with capitalized names to match tptp conventions
     vs = [smt.Const(lam.var_name(i), lam.var_sort(i)) for i in range(lam.num_vars())]
-    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+    return vs, smt.substitute_body(lam, *vs)
 
 
 def pathmap(
@@ -145,7 +147,7 @@ def pmatch(
                 return None
             vs1, patbody = open_binder(pat)
             no_escape.extend(vs1)
-            tbody = smt.substitute_vars(t.body(), *reversed(vs1))
+            tbody = smt.substitute_body(t, *vs1)
             todo.append((patbody, tbody))
         else:
             raise Exception("Unexpected pattern", t, pat)
@@ -422,7 +424,7 @@ def alpha_eq(t1, t2):
         ):
             # It is ok to keep de bruijn indices here and not use open_binder?
             # vs, body1 = open_binder(t1)
-            # body2 = smt.substitute_vars(t2.body(), *reversed(vs))
+            # body2 = smt.substitute_body(t2, *vs)
             # return alpha_eq(body1, body2)
             return alpha_eq(t1.body(), t2.body())
         else:
@@ -460,10 +462,12 @@ def alpha_norm(expr: smt.ExprRef) -> smt.ExprRef:
     """
 
     if isinstance(expr, smt.QuantifierRef):
-        body = alpha_norm(expr.body())
+        # Fresh placeholders keep inner canonical names from capturing outer variables.
+        opened, body = kd.kernel.open_binder(expr)
+        body = alpha_norm(body)
         vs = [smt.Const("x" + str(i), expr.var_sort(i)) for i in range(expr.num_vars())]
         assert kd.utils.free_in(vs, body)
-        body = smt.substitute_vars(body, *reversed(vs))
+        body = smt.substitute(body, *zip(opened, vs))
         if expr.is_forall():
             return smt.ForAll(vs, body)
         elif expr.is_exists():
@@ -1304,25 +1308,35 @@ def calling_globals_locals():
 
 
 def lemma_db() -> dict[str, kd.kernel.Proof]:
-    """Scan all modules for Proof objects and return a dictionary of them."""
-    db: dict[str, kd.kernel.Proof] = {}
-    for modname, mod in sys.modules.items():
-        for name, thm in mod.__dict__.items():
+    """
+    Proofs and definitions bound in loaded modules, each under its shortest name.
+    Private names are skipped.
+    """
+    best: dict[int, tuple[str, kd.kernel.Proof]] = {}
+
+    def add(name, pf):
+        old = best.get(pf.thm.get_id())
+        if old is None or (len(name), name) < (len(old[0]), old[0]):
+            best[pf.thm.get_id()] = (name, pf)
+
+    for modname, mod in list(sys.modules.items()):
+        for name, thm in list(mod.__dict__.items()):
+            if name.startswith("_"):
+                continue
             if is_proof(thm):
-                db[modname + "." + name] = thm
-            elif (
-                isinstance(thm, smt.SortRef)
-                or isinstance(thm, smt.FuncDeclRef)
-                or isinstance(thm, smt.ExprRef)
-            ):
+                add(modname + "." + name, thm)
+            elif isinstance(thm, (smt.SortRef, smt.FuncDeclRef, smt.ExprRef)):
                 for name2, thm2 in thm.__dict__.items():
                     if is_proof(thm2):
-                        db[modname + "." + name + "." + name2] = thm2
+                        add(modname + "." + name + "." + name2, thm2)
+                # `.defn` is a property, so it isn't in `__dict__`
+                decl = thm if isinstance(thm, smt.FuncDeclRef) else None
+                if isinstance(thm, smt.ExprRef) and smt.is_const(thm):
+                    decl = thm.decl()
+                if decl is not None and decl in kd.kernel.defns:
+                    add(modname + "." + name + ".defn", kd.kernel.defns[decl].ax)
             # TODO: Scan GenericProof, SortDispatch objects, objects.
-            # TODO: Not a problem at the moment, but we should cache unchanged modules.
-            # TODO: Maybe scan user module specially.
-            # TODO: Dedup repeated theorems
-    return db
+    return dict(best.values())
 
 
 def proofstep_to_smt2(pf: kd.kernel.Proof) -> str:
@@ -1434,6 +1448,84 @@ def search(
         else:
             raise ValueError("Unsupported type for search", e)
     return {k: v for k, v in results[0].items() if all(k in db for db in results)}
+
+
+# Cache by `thm.get_id()`. Holding `thm` keeps z3 from reusing its id.
+_decl_counts: dict[int, tuple[smt.BoolRef, Counter[smt.FuncDeclRef]]] = {}
+
+
+def decl_counter(e: smt.ExprRef) -> Counter[smt.FuncDeclRef]:
+    """Function symbols in `e`, skipping fresh variables like x!7."""
+    return Counter(
+        t.decl()
+        for t in subterms(e, into_binder=True)
+        if smt.is_app(t) and "!" not in t.decl().name()
+    )
+
+
+def rank_lemmas(
+    thm: smt.BoolRef, builtin=0.1
+) -> list[tuple[float, str, kd.kernel.Proof]]:
+    """
+    Every lemma in `lemma_db` as `(score, name, proof)`, best first for proving `thm`.
+
+    The score is the tf-idf cosine of function symbols (as in Sledgehammer's MePo and
+    SInE). Built-ins like `+` and `=` get weight `builtin`.
+    """
+    db = lemma_db()
+    decls = {}
+    for name, pf in db.items():
+        key = pf.thm.get_id()
+        if key not in _decl_counts:
+            _decl_counts[key] = (pf.thm, decl_counter(pf.thm))
+        decls[name] = _decl_counts[key][1]
+    df = Counter(d for c in decls.values() for d in c)
+
+    def tfidf(c: Counter) -> dict[smt.FuncDeclRef, float]:
+        return {
+            d: (1.0 if smt.is_uninterp(d) else builtin)
+            * (1 + math.log(n))
+            * math.log(len(db) / df.get(d, 1))
+            for d, n in c.items()
+        }
+
+    goal = tfidf(decl_counter(thm))
+    scored = []
+    for name, pf in db.items():
+        v = tfidf(decls[name])
+        norm = math.sqrt(sum(x * x for x in v.values())) or 1.0
+        scored.append(
+            (sum(x * v.get(d, 0.0) for d, x in goal.items()) / norm, name, pf)
+        )
+    scored.sort(key=lambda t: -t[0])
+    return scored
+
+
+def suggest(thm: smt.BoolRef, k=10, cutoff=0.5, check=3, timeout=30, budget=0.1) -> str:
+    """
+    The top `k` lemmas from `rank_lemmas` scoring at least `cutoff` times the best, as
+    text. The first `check` are tried with z3 within `budget` seconds; ✅ marks one
+    that proves `thm` on its own.
+    """
+    ranked = rank_lemmas(thm)[:k]
+    start = time.perf_counter()
+    lines = []
+    for i, (score, name, pf) in enumerate(ranked):
+        if score < cutoff * ranked[0][0]:
+            break
+        mark = "- "  # two columns, like the emoji
+        if i < check and time.perf_counter() - start < budget:
+            try:
+                kd.kernel.prove(thm, by=[pf], timeout=timeout)
+                mark = "✅"
+            except Exception:
+                pass
+        stmt = " ".join(kd.pretty_expr(pf.thm).split())
+        if len(stmt) > 70:
+            stmt = stmt[:67] + "..."
+        name = name.removeprefix("kdrag.theories.").removeprefix("__main__.")
+        lines.append(f"  {mark} {name}: {stmt}")
+    return "Suggestions:\n" + "\n".join(lines) if lines else ""
 
 
 def prompt(prompt: str):

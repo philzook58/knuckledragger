@@ -31,6 +31,25 @@ def test_define_single_argument():
     kd.prove(f(3) == 4, by=[f.defn])
 
 
+def test_define_nullary():
+    f = kd.kernel.define("nullary_definition", [], smt.IntVal(42))
+    assert isinstance(f, smt.FuncDeclRef)
+    assert f.arity() == 0
+    kd.prove(f() == 42, by=[f.defn])
+
+
+@pytest.mark.parametrize(
+    "body",
+    [smt.IntVal(42), smt.BoolVal(True), smt.K(smt.IntSort(), smt.RealVal(0))],
+)
+def test_define_const(body):
+    c = kd.define_const("defined_constant_" + str(body.sort()), body)
+    assert isinstance(c, smt.ExprRef)
+    assert c.sort() == body.sort()
+    assert c.defn.thm.eq(smt.Eq(c, body))
+    assert kd.rewrite.unfold(c).eq(body)
+
+
 def test_true_infer():
     kd.prove(smt.BoolVal(True))
 
@@ -80,7 +99,8 @@ def test_have_returns_formula_for_obtain():
     formula = smt.Exists(x, x == 1)
     witness = l.have(formula, by=[])
     assert witness.eq(formula)
-    value = l.obtain(witness)
+    value, fact = l.obtain(witness)
+    assert fact.eq(value == 1)
     l.exists(value)
     l.auto()
     l.qed()
@@ -89,7 +109,7 @@ def test_have_returns_formula_for_obtain():
 def test_have_returns_formula_for_pending_goal():
     x = smt.Int("x")
     l = kd.Lemma(smt.Implies(x > 0, x > -2))
-    l.intros()
+    l.intro()
     h = l.have(x > -1)
     assert h.eq(x > -1)
     assert l.goal.eq(h)
@@ -228,7 +248,7 @@ def test_Lemma():
 
     l = kd.tactics.Lemma(kd.QForAll([p, q], p, q, p))
     p1, q1 = l.fixes()
-    l.intros()
+    l.intro()
     l.cases(p1)
     l.auto()
     l.auto()
@@ -250,19 +270,19 @@ def test_Lemma():
 
     p, q = smt.Bools("p q")
     l = kd.Lemma(smt.Implies(p, smt.Or(p, q)))
-    l.intros()
+    l.intro()
     l.left()
     l.auto()
     l.qed()
 
     l = kd.Lemma(smt.Implies(q, smt.Or(p, p, p, q, p)))
-    l.intros()
+    l.intro()
     l.left(3)
     l.auto()
     l.qed()
 
     l = kd.Lemma(smt.Implies(p, smt.Or(q, q, q, p)))
-    l.intros()
+    l.intro()
     l.right()
     l.qed()
 
@@ -290,10 +310,10 @@ def test_Lemma():
     )
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
     x1 = l.fix()
-    l.intros()
+    l.intro()
     l.rw(even.defn)
     l.rw(even.defn, at=0)
-    y1 = l.obtain(0)
+    y1, _ = l.obtain(0)
     l.exists(y1 + 1)
     l.auto()
     l.qed()
@@ -304,10 +324,10 @@ def test_Lemma():
     l = kd.Lemma(kd.QForAll([x], even(x), even(x + 2)))
     [
         x1 := l.fix(),
-        l.intros(),
+        l.intro(),
         l.rw(even.defn),
         l.rw(even.defn, at=0),
-        y1 := l.obtain(0),
+        y1 := l.obtain(0)[0],
         l.exists(y1 + 1),
         l.auto(),
     ]
@@ -392,7 +412,7 @@ This is causing failure in vampire becausei tdoesn't support multiarity array
 def test_lambda_2():
     
 
-    test = kd.define("test2", [], smt.Lambda([z, x], z))
+    test = kd.define_const("test2", smt.Lambda([z, x], z))
     # print("body", test.defn.thm.body())
     # print("ax", smt.ForAll([z, x], test[z, x] == z).body())
     assert test.defn.thm.body().eq(smt.ForAll([z, x], test[z, x] == z).body())
@@ -464,3 +484,15 @@ def test_smtfile_dump():
     x,y,z = smt.Ints("x y z")
     with pytest.raises(kd.kernel.LemmaError):
         kd.kernel.prove(smt.Not(smt.Exists([x,y,z], x > 0, y > 0, z > 0, x**3 + y**3 == z**3)))
+
+
+def test_instan_rejects_ill_sorted_terms():
+    # substitute_vars does not check sorts and can leave loose bound variables.
+    r, x = smt.Reals("r x")
+    pf = kd.prove(smt.ForAll([r], smt.Implies(smt.ForAll([x], x == x), r <= r)))
+    with pytest.raises(TypeError):
+        kd.kernel.instan([smt.IntVal(0)], pf)
+    with pytest.raises(TypeError):
+        kd.kernel.specialize([smt.IntVal(0)], pf.thm)
+    zero = smt.RealVal(0)
+    assert pf(0).thm.eq(smt.Implies(smt.ForAll([x], x == x), zero <= zero))

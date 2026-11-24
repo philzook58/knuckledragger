@@ -18,6 +18,8 @@ import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
+from kdrag.printers.pretty import pretty_goal
+import kdrag.diagnose as diagnose
 
 if TYPE_CHECKING:
     import sympy  # imported lazily: it is slow to import
@@ -408,7 +410,7 @@ def subst(
     """
     assert isinstance(pf.thm, smt.QuantifierRef)
     vs1, ab = kd.kernel.herb(
-        smt.ForAll(vs, smt.substitute_vars(pf.thm.body(), *reversed(subst)))
+        smt.ForAll(vs, smt.substitute_body(pf.thm, *subst))
     )
     a = kd.kernel.instan([smt.substitute(t, *zip(vs, vs1)) for t in subst], pf)
     return kd.kernel.modus(ab, a)
@@ -534,10 +536,43 @@ def _modus_ponens() -> kd.kernel.Proof:
 class _AutoFailure(ValueError):
     """An open goal that auto could not discharge."""
 
-    def __init__(self, goal: Goal, error: kd.kernel.SolverFailure | TimeoutError):
+    def __init__(
+        self,
+        goal: Goal,
+        error: kd.kernel.SolverFailure | TimeoutError,
+        by=(),
+        timeout: int = 1000,
+    ):
         super().__init__("auto failed on goal", goal)
         self.goal = goal
         self.error = error
+        self.by = by
+        self.timeout = timeout
+
+    def __str__(self) -> str:
+        # Computed only when shown, since failures are also used for control flow.
+        # Leading newline so the goal starts on its own line after "_AutoFailure:".
+        return "\n" + diagnose.explain(
+            self.goal, self.error, self.by, self.timeout
+        )
+
+
+@cache
+def _iff_intro() -> kd.kernel.Proof:
+    """Assemble an equivalence without searching inside its quantified operands."""
+    ctx, p, q = smt.Bools("ctx p q")
+    return kd.kernel.prove(
+        smt.RawForAll(
+            [ctx, p, q],
+            smt.Implies(
+                smt.Implies(ctx, smt.Implies(p, q)),
+                smt.Implies(
+                    smt.Implies(ctx, smt.Implies(q, p)),
+                    smt.Implies(ctx, smt.Eq(p, q)),
+                ),
+            ),
+        ),
+    )
 
 
 class ProofState:
@@ -595,7 +630,7 @@ class ProofState:
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p,q))
         >>> l1 = l.copy()
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
@@ -617,7 +652,7 @@ class ProofState:
         >>> l = Lemma(smt.Implies(p,q))
         >>> l.push()
         [] ?|= Implies(p, q)
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
@@ -729,26 +764,26 @@ class ProofState:
 
     def qfix(self, prefix=None) -> smt.ExprRef:
         n = self.fix(prefix=prefix)
-        self.intros()
+        self.intro()
         return n
 
     def qfixes(self, prefixes=None) -> list[smt.ExprRef]:
         vs = self.fixes(prefixes=prefixes)
-        self.intros()
+        self.intro()
         return vs
 
-    def intros(self) -> smt.BoolRef:
+    def intro(self) -> smt.BoolRef:
         """
-        intros opens an implication. ?|= p -> q becomes p ?|= q
+        intro opens an implication. ?|= p -> q becomes p ?|= q
 
         >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Implies(p, q))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
         >>> l = Lemma(smt.Not(q))
-        >>> l.intros()
+        >>> l.intro()
         q
         >>> l
         [q] ?|= False
@@ -771,7 +806,7 @@ class ProofState:
         elif smt.is_distinct(goal):
             self.pop_goal()
             if goal.num_args() != 2:
-                raise NotImplementedError("Intros only implemented for two arguments")
+                raise NotImplementedError("Intro only implemented for two arguments")
             else:
                 hyp = smt.Eq(goal.arg(0), goal.arg(1))
                 self.goals.append(
@@ -792,10 +827,28 @@ class ProofState:
             return hyp
         elif isinstance(goal, smt.QuantifierRef) and goal.is_forall():
             raise ValueError(
-                "Intros failed on goal. Use fixes/fix to open forall quantifier", goal
+                "Intro failed on goal. Use fixes/fix to open forall quantifier", goal
             )
         else:
-            raise ValueError("Intros failed on goal", goal)
+            raise ValueError("Intro failed on goal", goal)
+
+    def intros(self) -> list[smt.BoolRef]:
+        """Introduce all leading implications and return their premises in order.
+
+        Stop at a universal quantifier or any non-implication. Conjunctions
+        remain grouped premises; no applicable implication returns an empty list.
+
+        >>> p, q = smt.Bools("p q")
+        >>> l = Lemma(smt.Implies(p, smt.Implies(q, p)))
+        >>> l.intros()
+        [p, q]
+        >>> l
+        [p, q] ?|= p
+        """
+        hypotheses = []
+        while smt.is_implies(self.goal):
+            hypotheses.append(self.intro())
+        return hypotheses
 
     def splintro(self):
         """
@@ -806,7 +859,7 @@ class ProofState:
         >>> l.splintro()
         [p, q] ?|= p
         """
-        self.intros()
+        self.intro()
         return self.split(at=-1)
 
     def assumes(self, hyp: smt.BoolRef):
@@ -819,7 +872,7 @@ class ProofState:
         >>> l
         [p] ?|= q
         """
-        hyp1 = self.intros()
+        hyp1 = self.intro()
         if hyp1.eq(hyp):
             return hyp
         else:
@@ -879,12 +932,12 @@ class ProofState:
 
         >>> p,q,r = smt.Bools("p q r")
         >>> l = Lemma(smt.Implies(smt.And(p, smt.Not(q)), smt.And(q, p, r)))
-        >>> l.intros()
+        >>> l.intro()
         And(p, Not(q))
         >>> l.boolsimp()
         [And(p, Not(q)), p == True, And(q, p, r) == False, q == False] ?|= False
         >>> l = Lemma(smt.Implies(p, smt.If(smt.Not(p), p, q) == r))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l.boolsimp()
         [p, p == True, Not(p) == False] ?|= If(False, True, q) == r
@@ -930,7 +983,7 @@ class ProofState:
         Use egraph based equality modulo theories to simplify the goal.
         >>> x, y, z, w = smt.Ints("x y z w")
         >>> l = Lemma(smt.Implies(x + y + 1 == z, x + y + 1 == w))
-        >>> l.intros()
+        >>> l.intro()
         x + y + 1 == z
         >>> l
         [x + y + 1 == z] ?|= x + y + 1 == w
@@ -1070,7 +1123,10 @@ class ProofState:
         try:
             pf = kd.prove(goalctx.to_expr(), **kwargs)
         except (kd.kernel.SolverFailure, TimeoutError) as error:
-            raise _AutoFailure(goalctx, error) from error
+            # from None: the solver's internal traceback is noise; it stays in .error
+            raise _AutoFailure(
+                goalctx, error, kwargs.get("by") or (), kwargs.get("timeout", 1000)
+            ) from None
         self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?
@@ -1094,7 +1150,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(smt.And(p, smt.Not(p)), q))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> l
         [And(p, Not(p))] ?|= q
         >>> _ = l.impossible().qed()
@@ -1199,7 +1255,7 @@ class ProofState:
 
         >>> x,y,z = smt.Reals("x y z")
         >>> l = Lemma(smt.Implies(smt.And(x + y == 10, y + z == 4), True))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> _ = l.split(at=0)
         >>> l.solve(x,z)
         {x: 10 - y, z: 4 - y}
@@ -1223,23 +1279,29 @@ class ProofState:
             *[kdsympy.sympy_const(v) for v in vs],
         )
 
-    def obtain(self, n: int | smt.BoolRef) -> smt.ExprRef | list[smt.ExprRef]:
+    def obtain(
+        self, n: int | smt.BoolRef
+    ) -> tuple[smt.ExprRef | list[smt.ExprRef], smt.BoolRef]:
         """
-        obtain opens an exists quantifier in context and returns the fresh eigenvariable.
+        Open an existential hypothesis and return the witnesses and property of witness.
+        It's kind of like projecting apart a dependent pair in type theory.
+        The formula given is replaced in the context with the one with the existential stripped
         `[exists x, p(x)] ?|= goal` becomes `p(x) ?|= goal`
 
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
-        >>> l.intros()
+        >>> l.intro()
         Exists(x, x*x == y)
         >>> l
         [Exists(x, x*x == y)] ?|= y >= 0
-        >>> _x = l.obtain(0)
+        >>> _x, fact = l.obtain(0)
+        >>> fact.eq(_x * _x == y)
+        True
         >>> l
         [...] ; [...*... == y] ?|= y >= 0
         >>> l = Lemma(smt.Implies(smt.Exists([x], x * x == y), y >= 0))
-        >>> _ = l.intros()
-        >>> _x = l.obtain(smt.Exists([x], x * x == y))
+        >>> _ = l.intro()
+        >>> _x, _ = l.obtain(smt.Exists([x], x * x == y))
         """
         goalctx = self.top_goal()
         ctx, goal = goalctx.ctx, goalctx.goal
@@ -1248,17 +1310,16 @@ class ProofState:
             self.pop_goal()
             fs, obtain_lemma = kd.kernel.obtain(formula)
             self.add_lemma(obtain_lemma)
+            fact = obtain_lemma.thm.arg(1)
+            assert isinstance(fact, smt.BoolRef)
             self.goals.append(
                 goalctx._replace(
                     sig=goalctx.sig + fs,
-                    ctx=ctx[:n] + [obtain_lemma.thm.arg(1)] + ctx[n + 1 :],
+                    ctx=ctx[:n] + [fact] + ctx[n + 1 :],
                     goal=goal,
                 )
             )
-            if len(fs) == 1:
-                return fs[0]
-            else:
-                return fs
+            return (fs[0] if len(fs) == 1 else fs), fact
         else:
             exists_f = {
                 n: formula
@@ -1278,7 +1339,7 @@ class ProofState:
         >>> kd.contract(succ, [x], x >= 0, succ(x) >= 0, by=[succ.defn])
         |= ForAll(x, Implies(x >= 0, mysucc72(x) >= 0))
         >>> l = Lemma(smt.Implies(smt.And(x >= 0, succ(x) >= 0), succ(succ(x)) >= 0))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> l.contract()
         [And(x >= 0, mysucc72(x) >= 0),
         Implies(mysucc72(x) >= 0, mysucc72(mysucc72(x)) >= 0),
@@ -1311,7 +1372,7 @@ class ProofState:
 
         >>> x,y = smt.Ints("x y")
         >>> l = Lemma(smt.Implies(smt.ForAll([x],x == y), True))
-        >>> hyp = l.intros()
+        >>> hyp = l.intro()
         >>> l.specialize(hyp, smt.IntVal(42))
         42 == y
         >>> l
@@ -1319,8 +1380,8 @@ class ProofState:
 
         >>> rule = smt.ForAll([x], smt.Implies(x > 0, x >= 0))
         >>> l = Lemma(smt.Implies(rule, smt.Implies(y > 0, y >= 0)))
-        >>> hyp = l.intros()
-        >>> positive = l.intros()
+        >>> hyp = l.intro()
+        >>> positive = l.intro()
         >>> l.specialize(hyp, y, positive)
         y >= 0
         >>> l
@@ -1414,7 +1475,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(smt.And(p, q), p))
-        >>> _ = l.intros()
+        >>> _ = l.intro()
         >>> p,q = l.andE(0)
         >>> l
         [p, q] ?|= p
@@ -1463,16 +1524,29 @@ class ProofState:
                 )
             elif smt.is_eq(goal):
                 self.pop_goal()
-                self.goals.append(
-                    goalctx._replace(
-                        ctx=ctx, goal=smt.Implies(goal.arg(1), goal.arg(0))
+                self.push_lemmas()
+                left, right = goal.children()
+                forward = smt.Implies(left, right)
+                backward = smt.Implies(right, left)
+                context = smt.And(ctx)
+
+                def cb():
+                    pf_forward = self.get_lemma(smt.Implies(context, forward))
+                    pf_backward = self.get_lemma(smt.Implies(context, backward))
+                    self.pop_lemmas()
+                    rule = kd.kernel.instan([context, left, right], _iff_intro())
+                    combined = kd.kernel.modus(
+                        kd.kernel.modus(rule, pf_forward), pf_backward
                     )
-                )
-                self.goals.append(
-                    goalctx._replace(
-                        ctx=ctx, goal=smt.Implies(goal.arg(0), goal.arg(1))
-                    )
-                )
+                    self.add_lemma(combined)
+                    if not ctx:
+                        self.add_lemma(
+                            kd.kernel.modus(combined, kd.kernel.prove(context))
+                        )
+
+                self.goals.append(LemmaCallback(cb, annot=("split", goal)))
+                self.goals.append(goalctx._replace(ctx=ctx, goal=backward))
+                self.goals.append(goalctx._replace(ctx=ctx, goal=forward))
             elif smt.is_distinct(goal):
                 self.pop_goal()
                 for i in range(goal.num_args()):
@@ -1580,7 +1654,7 @@ class ProofState:
         >>> x = kd.FreshVar("x", smt.RealSort())
         >>> pf = kd.prove(smt.Implies(x >= 0, smt.Sqrt(x) ** 2 == x)).forall([x])
         >>> l = Lemma(smt.Implies(x >= 0, smt.Sqrt(x + 2)**2 == x + 2))
-        >>> l.intros()
+        >>> l.intro()
         x!... >= 0
         >>> l
         [x!... >= 0] ?|= ((x!... + 2)**(1/2))**2 == x!... + 2
@@ -1702,7 +1776,7 @@ class ProofState:
         >>> l.beta()
         [] ?|= 3 + 1 == 4
         >>> l = Lemma(smt.Implies(smt.Lambda([x], x + 1)[3] == 5, True))
-        >>> l.intros()
+        >>> l.intro()
         Lambda(x, x + 1)[3] == 5
         >>> l
         [Lambda(x, x + 1)[3] == 5] ?|= True
@@ -1806,7 +1880,7 @@ class ProofState:
 
         >>> x,y = smt.Ints("x y")
         >>> l = kd.Lemma(smt.Implies(smt.Implies(x == 7, y == 3), y == 3))
-        >>> l.intros()
+        >>> l.intro()
         Implies(x == 7, y == 3)
         >>> l
         [Implies(x == 7, y == 3)] ?|= y == 3
@@ -1819,7 +1893,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = kd.Lemma(smt.Implies(smt.Not(p), q))
-        >>> l.intros()
+        >>> l.intro()
         Not(p)
         >>> l
         [Not(p)] ?|= q
@@ -1912,7 +1986,7 @@ class ProofState:
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p, q))
-        >>> h = l.intros()
+        >>> h = l.intro()
         >>> l
         [p] ?|= q
         >>> l.clear(h)
@@ -1940,7 +2014,7 @@ class ProofState:
         Move a hypothesis back onto the goal as an implication.
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p, q))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= q
@@ -2024,7 +2098,7 @@ class ProofState:
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, smt.And(x > -2, x > -1)))
-        >>> l.intros()
+        >>> l.intro()
         x > 0
         >>> l
         [x > 0] ?|= And(x > -2, x > -1)
@@ -2086,7 +2160,7 @@ class ProofState:
 
         >>> x = smt.Int("x")
         >>> l = Lemma(smt.Implies(x > 0, x > -2))
-        >>> l.intros()
+        >>> l.intro()
         x > 0
         >>> l
         [x > 0] ?|= x > -2
@@ -2160,12 +2234,12 @@ class ProofState:
         """
         >>> p = smt.Bool("p")
         >>> l = Lemma(smt.Implies(p, smt.Implies(p, p)))
-        >>> l.intros()
+        >>> l.intro()
         p
         >>> l
         [p] ?|= Implies(p, p)
         >>> l = Lemma(smt.Implies(p, smt.Implies(p, p)))
-        >>> l.repeat(lambda: l.intros())
+        >>> l.repeat(lambda: l.intro())
         p
         >>> l
         [p, p] ?|= p
@@ -2178,8 +2252,14 @@ class ProofState:
             except Exception as _:
                 return g
 
+    def suggest(self) -> None:
+        """
+        Print the goal and library lemmas likely to help prove it. See `utils.suggest`.
+        """
+        goal = self.top_goal()
+        print(pretty_goal(goal), "", kd.utils.suggest(goal.to_expr()), sep="\n")
+
     # TODO
-    # def suggest():
     # def llm():
     # def calc
 
@@ -2334,8 +2414,7 @@ def PTheorem(
     >>> p, q = smt.Bools("p q")
     >>> @PTheorem(smt.Implies(p, q))
     ... def unfinished(l: ProofState):
-    ...     l.intros()
-    Next Goal:
+    ...     l.intro()
     0: p
     ────
     ⊢ q
@@ -2348,35 +2427,34 @@ def PTheorem(
     assert isinstance(goal1, smt.BoolRef)
 
     def res(f: Callable[[ProofState], None]) -> None:
-        from kdrag.printers.pretty import pretty_goal
-
         l = kd.Lemma(goal1)
         try:
             f(l)
         except _AutoFailure as failure:
             code = getattr(f, "__code__", None)
-            headline = "auto failed"
+            where = source = ""
             for frame, line in traceback.walk_tb(failure.__traceback__):
                 if frame.f_code is code:
-                    headline += f" in {frame.f_code.co_name} at line {line}"
+                    where = diagnose.location(
+                        frame.f_code.co_filename, line, frame.f_code.co_name
+                    )
                     source = linecache.getline(frame.f_code.co_filename, line).strip()
-                    if source:
-                        headline += f"\n    {source}"
                     break
-            print(headline)
-            error = failure.error
-            if isinstance(error, TimeoutError):
-                print(error)
-            elif len(error.args) == 3:
-                print("Solver found a countermodel.")
-            else:
-                print(f"Solver returned {error.args[2]} (SMT-LIB: {error.args[3]})")
-            print("Goal:", pretty_goal(failure.goal), sep="\n")
+            print(
+                diagnose.explain(
+                    failure.goal,
+                    failure.error,
+                    failure.by,
+                    failure.timeout,
+                    where,
+                    source,
+                )
+            )
             return
         if len(l.goals) == 0:
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:
-            print("Next Goal:", pretty_goal(l.top_goal()), sep="\n")
+            print(pretty_goal(l.top_goal()))
 
     return res

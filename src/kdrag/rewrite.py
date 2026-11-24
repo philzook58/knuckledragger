@@ -91,7 +91,7 @@ def beta(e: smt.ExprRef) -> smt.ExprRef:
     ):
         args = [beta(c) for c in e.children()[1:]]
         f = e.arg(0)
-        return smt.substitute_vars(f.body(), *reversed(args))
+        return smt.substitute_body(f, *args)
     elif smt.is_app(e):
         decl = e.decl()
         children = [beta(c) for c in e.children()]

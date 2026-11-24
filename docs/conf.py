@@ -2,6 +2,7 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+import os
 import sys
 from pathlib import Path
 # -- Project information -----------------------------------------------------
@@ -41,7 +42,7 @@ doctest_test_doctest_blocks = ""
 
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "lite"]
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -75,11 +76,14 @@ source_parsers = {
 # html_theme = "alabaster"
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+# Base URL of a JupyterLite site (see lite/README.md); enables "try" links on theorems.
+theorem_lite_url = os.environ.get("KDRAG_LITE_URL", "")
 
 
 def setup(app):
     from theorem_index import TheoremIndex
 
+    app.add_config_value("theorem_lite_url", "", "html")
     app.add_directive("theorem-index", TheoremIndex)
     app.add_js_file("theorem-search.js", loading_method="defer")
     app.add_css_file("theorems.css")

@@ -7,6 +7,7 @@ import kdrag.smt as smt
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Sequence
 from . import config
+import sys
 import tempfile
 import time
 
@@ -62,7 +63,7 @@ class Proof(Judgement):
         """
         return generalize(fresh_vars, self)
 
-    def __call__(self, *args: "smt.ExprRef | Proof"):
+    def __call__(self, *args: "smt.ExprRef | Proof | int | float | complex | str"):
         """
 
         >>> x,y = smt.Ints("x y")
@@ -71,6 +72,9 @@ class Proof(Judgement):
         |= ForAll(x, x >= x - 1)
         >>> p(x, 7)
         |= 7 >= 7 - 1
+        >>> r = smt.Real("r")
+        >>> prove(smt.ForAll(r, r <= r))(42).thm.arg(0).sort()
+        Real
 
         >>> a,b,c = smt.Bools("a b c")
         >>> ab = prove(smt.Implies(a,smt.Implies(a, a)))
@@ -81,15 +85,40 @@ class Proof(Judgement):
         |= a
         """
         # Note: Not trusted code. Trusted code is in `instan` and `modus`
+        for i, arg in enumerate(args, start=1):
+            if not isinstance(
+                arg, (smt.ExprRef, Proof, bool, int, float, complex, str)
+            ):
+                raise TypeError(
+                    f"Proof argument {i}: expected ExprRef, Proof, or Python scalar, "
+                    f"got {arg!r} ({type(arg).__name__})."
+                )
         acc = self
         n = 0
         while n < len(args):
             if isinstance(acc.thm, smt.QuantifierRef) and acc.thm.is_forall():
                 i = acc.thm.num_vars()
-                subargs = [
-                    a if isinstance(a, smt.ExprRef) else smt._py2expr(a)
-                    for a in args[n : n + i]
-                ]
+                subargs = []
+                for j, arg in enumerate(args[n : n + i]):
+                    sort = acc.thm.var_sort(j)
+                    # TODO: Use the general casting mechanism in kdrag.cast
+                    # once it handles Python string literals.
+                    try:
+                        if isinstance(arg, str) and sort.eq(
+                            smt.StringSort(ctx=sort.ctx)
+                        ):
+                            term = smt.StringVal(arg, ctx=sort.ctx)
+                        elif isinstance(arg, smt.ExprRef):
+                            term = arg
+                        else:
+                            term = sort.cast(arg)
+                    except (smt.Z3Exception, TypeError, ValueError) as error:
+                        raise TypeError(
+                            f"Proof argument {n + j + 1} for bound variable "
+                            f"{acc.thm.var_name(j)} must have sort {sort}, "
+                            f"got {arg!r} ({type(arg).__name__})"
+                        ) from error
+                    subargs.append(term)
                 acc = instan(subargs, acc)
                 n += i
             elif smt.is_implies(acc.thm):
@@ -175,6 +204,8 @@ def prove(
         else:
             s = solver()
         s.set("timeout", timeout)
+        if sys.platform == "emscripten" and isinstance(s, smt.Z3Solver):
+            s.set("rlimit", timeout * 10_000)  # timeout isn't reliable in Pyodide
         for p in by:
             if not isinstance(p, Proof):
                 raise LemmaError("In by reasons:", p, "is not a Proof object")
@@ -351,7 +382,7 @@ def open_binder(lam: smt.QuantifierRef) -> tuple[list[smt.ExprRef], smt.ExprRef]
         )
         for i in range(lam.num_vars())
     ]
-    return vs, smt.substitute_vars(lam.body(), *reversed(vs))
+    return vs, smt.substitute_body(lam, *vs)
 
 
 def make_unfolding(pf: Proof) -> Unfolding:
@@ -404,10 +435,11 @@ def define(
     Args:
         name: The name of the term to define.
         args: A single argument or a list of arguments (empty for a constant).
-        defn: The definition of the term.
+        body: The definition of the term.
 
     Returns:
-        tuple[smt.FuncDeclRef, Proof]: A tuple of the defined term and the proof of the definition.
+        smt.FuncDeclRef: The function declaration, including for zero arguments.
+            Apply it with `()` to obtain a constant expression.
     """
     if isinstance(args, smt.ExprRef):
         args = [args]
@@ -438,10 +470,7 @@ def define(
             )
         print("WARNING: Redefining function", f, "from", defns[f].ax, "to", def_ax.thm)
         defns[f] = defn
-    if len(args) == 0:
-        return f()  # Convenience. TODO: Remove
-    else:
-        return f
+    return f
 
 
 def decl_occurs(f: smt.FuncDeclRef, body: smt.ExprRef) -> bool:
@@ -567,14 +596,11 @@ def instan(ts: Sequence[smt.ExprRef], pf: Proof) -> Proof:
     This is forall elimination
     """
     # Note: modus + specialize easily derive this rule, but it is nice to have it directly.
-    assert (
-        is_proof(pf)
-        and isinstance(pf.thm, smt.QuantifierRef)
-        and pf.thm.is_forall()
-        and len(ts) == pf.thm.num_vars()
-    )
+    assert is_proof(pf) and isinstance(pf.thm, smt.QuantifierRef) and pf.thm.is_forall()
 
-    return axiom(smt.substitute_vars(pf.thm.body(), *reversed(ts)), by=[pf])
+    body = smt.substitute_body(pf.thm, *ts)
+    assert isinstance(body, smt.BoolRef)
+    return axiom(body, by=[pf])
 
 
 def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
@@ -583,14 +609,10 @@ def specialize(ts: Sequence[smt.ExprRef], thm: smt.BoolRef) -> Proof:
     `forall xs, P(xs) -> P(ts)`
     This is forall elimination
     """
-    assert (
-        isinstance(thm, smt.QuantifierRef)
-        and thm.is_forall()
-        and len(ts) == thm.num_vars()
-    )
+    assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
 
     return axiom(
-        smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(ts))),
+        smt.Implies(thm, smt.substitute_body(thm, *ts)),
         by=["forall_elim"],
     )
 
@@ -603,9 +625,9 @@ def forget(ts: Sequence[smt.ExprRef], thm: smt.QuantifierRef) -> Proof:
     forget easily follows.
     https://en.wikipedia.org/wiki/Existential_generalization
     """
-    assert smt.is_quantifier(thm) and thm.is_exists() and len(ts) == thm.num_vars()
+    assert smt.is_quantifier(thm) and thm.is_exists()
     return axiom(
-        smt.Implies(smt.substitute_vars(thm.body(), *reversed(ts)), thm),
+        smt.Implies(smt.substitute_body(thm, *ts), thm),
         by=["exists_intro"],
     )
 
@@ -638,7 +660,7 @@ def obtain(thm: smt.QuantifierRef) -> tuple[list[smt.ExprRef], Proof]:
             for i in range(thm.num_vars())
         ]
     return skolems, axiom(
-        smt.Implies(thm, smt.substitute_vars(thm.body(), *reversed(skolems))),
+        smt.Implies(thm, smt.substitute_body(thm, *skolems)),
         by=["obtain"],
     )
 
@@ -690,7 +712,7 @@ def herb(thm: smt.QuantifierRef, prefixes=None) -> tuple[list[smt.ExprRef], Proo
         thm, prefixes=prefixes
     )  # We could mark these as schema variables? Useful?
     return herbs, axiom(
-        smt.Implies(smt.substitute_vars(thm.body(), *reversed(herbs)), thm),
+        smt.Implies(smt.substitute_body(thm, *herbs), thm),
         by=["herbrand"],
     )
 
@@ -980,7 +1002,7 @@ def rename_vars2(
     thm = pf.thm
     assert isinstance(thm, smt.QuantifierRef)
     t_body = thm.body()
-    body = smt.substitute_vars(t_body, *reversed(vs))
+    body = smt.substitute_body(thm, *vs)
     if thm.is_forall():
         t2 = smt.ForAll(vs, body, patterns=patterns, no_patterns=no_patterns)
     elif thm.is_exists():
@@ -1014,13 +1036,9 @@ def trigger(
     thm = pf.thm
     assert isinstance(thm, smt.QuantifierRef)
     # unhygienic open_binder. Later assert keeps hygiene
-    vs = [
-        smt.Const(thm.var_name(i), thm.var_sort(i))
-        for i in reversed(range(thm.num_vars()))
-    ]
+    vs = [smt.Const(thm.var_name(i), thm.var_sort(i)) for i in range(thm.num_vars())]
     body0 = thm.body()
-    body = smt.substitute_vars(body0, *vs)
-    vs.reverse()
+    body = smt.substitute_body(thm, *vs)
     if thm.is_forall():
         t2 = smt.ForAll(
             vs,

@@ -284,14 +284,14 @@ def quickcheck(thm: smt.QuantifierRef, deadline=100, **hyp_settings):
     """
     assert isinstance(thm, smt.QuantifierRef) and thm.is_forall()
     sorts = [val_of_sort(thm.var_sort(i)) for i in range(thm.num_vars())]
-    body = thm.body()
     N = len(sorts)
 
     # Todo: could specialize to arity of the quantifier. Probably not worth it.
     @hypothesis.settings(deadline=deadline, **hyp_settings)
     @hypothesis.given(**{str(i): sort for i, sort in enumerate(sorts)})
     def quickcheck(**kwargs):
-        t0 = smt.substitute_vars(body, *[kwargs[str(i)] for i in range(N - 1, -1, -1)])
+        terms = [kwargs[str(i)] for i in range(N)]
+        t0 = smt.substitute_body(thm, *terms)
         hypothesis.note(("Starting point: ", t0))
         t1 = kd.rewrite.simp(t0, max_iter=1000000000)
         hypothesis.note(("Simplifies to: ", t1))

@@ -6691,6 +6691,8 @@ def substitute_vars(
     """
     ...
 
+def substitute_body(q: QuantifierRef, *ts: ExprRef) -> ExprRef: ...
+
 def substitute_funs(
     t, *m
 ):  # -> PatternRef | QuantifierRef | BoolRef | IntNumRef | ArithRef | RatNumRef | AlgebraicNumRef | BitVecNumRef | BitVecRef | ArrayRef | DatatypeRef | FPNumRef | FPRef | FiniteDomainNumRef | FiniteDomainRef | FPRMRef | SeqRef | CharRef | ReRef | ExprRef:
@@ -8390,6 +8392,8 @@ def is_func(f: ExprRef) -> TypeGuard[FuncRef]:
     >>> assert is_func(Lambda([x], x))
     """
     ...
+
+def is_set(term: object) -> TypeGuard[FuncRef]: ...
 
 def domains(f: FuncRef | ArraySortRef) -> list[SortRef]:
     """

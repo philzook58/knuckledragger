@@ -1,6 +1,7 @@
 import kdrag as kd
 import kdrag.smt as smt
 import kdrag.theories.real as real
+from kdrag.theories.real import rset
 
 
 def expand(expr):
@@ -33,10 +34,14 @@ def test_indexed_set_operations():
 
 def test_bounds_definitions():
     singleton = smt.Lambda(real.x, real.x == 2)
-    assert expand(real.upper_bounds(singleton)[3]).eq(
+    assert expand(rset.is_ub(singleton, 3)).eq(
         smt.simplify(smt.ForAll(real.x, real.x == 2, real.x <= 3)))
-    assert expand(real.lower_bounds(singleton)[1]).eq(
+    assert expand(rset.is_lb(singleton, 1)).eq(
         smt.simplify(smt.ForAll(real.x, real.x == 2, 1 <= real.x)))
+    kd.prove(rset.upper_bounds(rset.A)[rset.u] == rset.is_ub(rset.A, rset.u),
+             by=[rset.upper_bounds.defn])
+    kd.prove(rset.lower_bounds(rset.A)[rset.u] == rset.is_lb(rset.A, rset.u),
+             by=[rset.lower_bounds.defn])
 
 
 def test_interior_point_does_not_capture_radius():
@@ -44,3 +49,19 @@ def test_interior_point_does_not_capture_radius():
     condition = real.interior_point(real.ball(0, radius), radius)
     assert radius in kd.utils.free_vars(condition)
     assert smt.is_quantifier(condition) and condition.is_exists()
+
+
+def test_nested_intervals_ignore_negative_indices():
+    # Nonnegative intervals are the singleton {2}; interval -1 is empty.
+    a = smt.Store(smt.K(smt.IntSort(), smt.RealVal(2)), -1, 1000)
+    b = smt.K(smt.IntSort(), smt.RealVal(2))
+    intervals = smt.Lambda(rset.i, real.icc(a[rset.i], b[rset.i]))
+    decreasing = kd.prove(
+        rset.nested(intervals), by=[rset.nested.defn(intervals), real.icc.defn]
+    )
+    nonempty = kd.prove(
+        smt.ForAll(rset.n, rset.n >= 0, a[rset.n] <= b[rset.n]),
+    )
+    intersection = rset.nonempty_iinter_icc_of_nested(a, b)(decreasing, nonempty)
+    kd.prove(smt.Exists(real.x, real.iinter(intervals)[real.x]), by=[intersection])
+    kd.prove(real.iinter(intervals)[2], by=[real.iinter.defn, real.icc.defn])

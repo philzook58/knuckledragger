@@ -39,6 +39,15 @@ def test_goal_names_and_binders():
     assert pretty_expr(nested) == "∀α : ℝ, ∃β : ℝ, α < β"
 
 
+def test_goal_separator_with_locals_only():
+    x = smt.Int("x")
+    assert pretty_goal(Goal([x], [], x >= 0)).splitlines() == [
+        "x : ℤ",
+        "─" * len("⊢ x ≥ 0"),
+        "⊢ x ≥ 0",
+    ]
+
+
 def test_datatype_cases():
     color = smt.Datatype("Color")
     color.declare("red")
@@ -63,12 +72,12 @@ def test_fresh_names_follow_numeric_order():
 
 def test_registered_notation():
     from kdrag.theories import nat
-    from kdrag.theories.real import seq
+    from kdrag.theories.real import rseq
 
     x, y = smt.Consts("x y", nat.Nat)
     assert pretty_expr(nat.add(x, y)) == "x + y"
     assert pretty_expr(nat.add(x, nat.add(y, x))) == "x + (y + x)"
-    a, b = smt.Consts("a b", seq.RSeq)
+    a, b = smt.Consts("a b", rseq.RSeq)
     assert pretty_expr((a + b)[0]) == "(a + b)[0]"
 
 
@@ -132,11 +141,11 @@ def test_ptheorem_solver_failure(capsys):
         l.have(x > 0, by=[])
 
     output = capsys.readouterr().out
-    assert "auto failed in unfinished at line " in output
-    assert "    l.have(x > 0, by=[])\n" in output
-    assert "Solver found a countermodel.\nGoal:" in output
+    assert "❌ l.have(x > 0, by=[]) failed at tests/test_pretty.py:" in output
+    assert " in unfinished: z3 found a countermodel" in output
+    assert ": z3 found a countermodel" in output
     assert "[x = 0]" not in output
-    assert "Goal:\n⊢ x > 0" in output
+    assert output.index("⊢ x > 0") < output.index("❌")
     assert "Traceback" not in output
 
 
@@ -160,8 +169,8 @@ def test_deep_expression_uses_smtlib():
     target = term == x
     hyp = x >= 0
     assert pretty_expr(target) == target.sexpr()
-    assert pretty_goal(Goal([x], [hyp], target)) == (
-        f"x : Int\n0: {hyp.sexpr()}\n⊢ {target.sexpr()}"
+    assert pretty_goal(Goal([x], [hyp], target), width=8) == (
+        f"x : Int\n0: {hyp.sexpr()}\n" + "─" * 8 + f"\n⊢ {target.sexpr()}"
     )
 
 

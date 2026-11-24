@@ -19,7 +19,6 @@ from kdrag.theories.real import (
     RFun,
     abs,
     cont_at,
-    fadd,
     fmul,
     has_lim_at,
     is_cont,
@@ -39,9 +38,9 @@ cont_at_of_is_cont = prove(
 def has_lim_at_of_cont_at(l):
     f, x = l.fixes()
     l.unfold(cont_at, has_lim_at)
-    continuity = l.intros()
+    continuity = l.intro()
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Reuse continuity's delta for the punctured neighborhood.
     continuity = l.specialize(continuity, eps)
     d, y = Reals("delta y")
@@ -49,7 +48,7 @@ def has_lim_at_of_cont_at(l):
         Exists(d, d > 0, ForAll(y, abs(x - y) < d, abs(f[x] - f[y]) < eps)), by=[]
     )
     l.clear(continuity)
-    delta = l.obtain(witness)
+    delta, _ = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
@@ -58,10 +57,9 @@ def has_lim_at_of_cont_at(l):
 def cont_at_add(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
-    hf, hg = l.intros(), l.intros()
-    l.unfold(fadd)
+    hf, hg = l.intros()
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Each summand gets half the error budget.
     hf = l.specialize(hf, eps / 2)
     hg = l.specialize(hg, eps / 2)
@@ -70,12 +68,13 @@ def cont_at_add(l):
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eps / 2)), by=[]
     )
     l.clear(hf)
-    d1 = l.obtain(witness_f)
+    d1, _ = l.obtain(witness_f)
     witness_g = l.have(
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eps / 2)), by=[]
     )
     l.clear(hg)
-    d2 = l.obtain(witness_g)
+    d2, _ = l.obtain(witness_g)
+    # The smaller radius satisfies both continuity bounds.
     l.exists(min(d1, d2))
     l.auto(by=[abs.defn, min.defn])
 
@@ -84,10 +83,10 @@ def cont_at_add(l):
 def cont_at_mul(l):
     f, g, p = l.fixes()
     l.unfold(cont_at)
-    hf, hg = l.intros(), l.intros()
+    hf, hg = l.intro(), l.intro()
     l.unfold(fmul)
     eps = l.fix()
-    l.intros()
+    l.intro()
     # Keep both errors below one and control the product error.
     eta = min(1, eps / (2 * (abs(f[p]) + abs(g[p]) + 1)))
     l.have(eta > 0, by=[abs.defn, min.defn])
@@ -98,17 +97,17 @@ def cont_at_mul(l):
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(f[p] - f[y]) < eta)), by=[]
     )
     l.clear(hf)
-    d1 = l.obtain(witness_f)
+    d1, _ = l.obtain(witness_f)
     witness_g = l.have(
         Exists(d, d > 0, ForAll(y, abs(p - y) < d, abs(g[p] - g[y]) < eta)), by=[]
     )
     l.clear(hg)
-    d2 = l.obtain(witness_g)
+    d2, _ = l.obtain(witness_g)
     l.exists(min(d1, d2))
     l.split()
     l.auto(by=[min.defn])
     y = l.fix()
-    l.intros()
+    l.intro()
     l.have(And(abs(p - y) < d1, abs(p - y) < d2), by=[min.defn])
     l.have(abs(f[p] - f[y]) < eta, by=[])
     l.have(abs(g[p] - g[y]) < eta, by=[])
@@ -119,10 +118,15 @@ def cont_at_mul(l):
     l.auto(by=[abs.defn])
 
 
-is_cont_add = prove(
-    ForAll([f, g], is_cont(f), is_cont(g), is_cont(f + g)),
-    by=[is_cont.defn, cont_at_add],
-)
+@Theorem(ForAll([f, g], is_cont(f), is_cont(g), is_cont(f + g)))
+def is_cont_add(l):
+    f, g = l.fixes()
+    l.unfold(is_cont)
+    l.intros()
+    p = l.fix()
+    # Instantiate closure at this point instead of matching lambda arguments.
+    l.auto(by=[cont_at_add(f, g, p)])
+
 
 is_cont_mul = prove(
     ForAll([f, g], is_cont(f), is_cont(g), is_cont(f * g)),
@@ -135,9 +139,9 @@ is_cont_mul = prove(
 def cont_at_update_of_has_lim_at(l):
     f, p, L = l.fixes()
     l.unfold(has_lim_at, cont_at)
-    limit = l.intros()
+    limit = l.intro()
     eps = l.fix()
-    l.intros()
+    l.intro()
     limit = l.specialize(limit, eps)
     d, x = Reals("delta x")
     witness = l.have(
@@ -149,7 +153,7 @@ def cont_at_update_of_has_lim_at(l):
         by=[],
     )
     l.clear(limit)
-    delta = l.obtain(witness)
+    delta, _ = l.obtain(witness)
     l.exists(delta)
     l.auto(by=[abs.defn])
 
@@ -158,9 +162,9 @@ def cont_at_update_of_has_lim_at(l):
 def has_lim_at_of_cont_at_update(l):
     f, p, L = l.fixes()
     l.unfold(cont_at, has_lim_at)
-    continuity = l.intros()
+    continuity = l.intro()
     eps = l.fix()
-    l.intros()
+    l.intro()
     continuity = l.specialize(continuity, eps)
     d, y = Reals("delta y")
     updated = Store(f, p, L)
@@ -169,7 +173,7 @@ def has_lim_at_of_cont_at_update(l):
         by=[],
     )
     l.clear(continuity)
-    delta = l.obtain(witness)
+    delta, _ = l.obtain(witness)
     l.split(at=-1)  # Separate positivity from the universal error bound.
     tail = l.top_goal().ctx[-1]
     l.exists(delta)
@@ -178,7 +182,6 @@ def has_lim_at_of_cont_at_update(l):
 
     # Instantiate continuity at the point in the punctured neighborhood.
     x = l.fix()
-    l.intros()
     l.intros()
     l.specialize(tail, x)
     l.auto(
@@ -202,12 +205,11 @@ def has_lim_at_of_cont_at_update(l):
 def has_lim_at_add(l):
     f, g, p, L, M = l.fixes()
     l.intros()
-    l.intros()
     f1, g1 = Store(f, p, L), Store(g, p, M)
     l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
     l.have(cont_at(g1, p), by=[cont_at_update_of_has_lim_at(g, p, M)])
     l.have(cont_at(f1 + g1, p), by=[cont_at_add(f1, g1, p)])
-    l.have(f1 + g1 == Store(f + g, p, L + M), by=[fadd.defn(f1, g1), fadd.defn(f, g)])
+    l.have(f1 + g1 == Store(f + g, p, L + M), by=[])
     l.auto(by=[has_lim_at_of_cont_at_update(f + g, p, L + M)])
 
 
@@ -221,7 +223,6 @@ def has_lim_at_add(l):
 )
 def has_lim_at_mul(l):
     f, g, p, L, M = l.fixes()
-    l.intros()
     l.intros()
     f1, g1 = Store(f, p, L), Store(g, p, M)
     l.have(cont_at(f1, p), by=[cont_at_update_of_has_lim_at(f, p, L)])
@@ -250,7 +251,6 @@ def continuous_add_const(l):
     identity, constant = Lambda(x, x), Lambda(x, a)
     l.auto(
         by=[
-            fadd.defn(identity, constant),
             is_cont_add(identity, constant)(continuous_id, continuous_const(a)),
         ]
     )
