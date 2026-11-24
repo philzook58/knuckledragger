@@ -6,18 +6,19 @@ of ordinals is an ordinal, and every well ordered set is similar to a unique
 ordinal. The counting theorem uses Replacement and definite description.
 """
 
-from kdrag import Theorem, prove
+from kdrag import Theorem, define, prove
 from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, Implies, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import ZFSet, elem, le
+from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, succ
 from kdrag.contrib.zf.fun import bij_on, elem_sub, inj_on, maps_to, surj_on
-from kdrag.contrib.zf.nat import is_transitive
+from kdrag.contrib.zf.nat import elem_succ_self, is_transitive
 from kdrag.contrib.zf.order import nat_le
 from kdrag.contrib.zf.ordinal import (
     elem_seg,
     is_ordinal,
     is_ordinal_iff,
     is_ordinal_of_elem,
+    is_ordinal_succ,
     well_order_subset,
 )
 from kdrag.contrib.zf.poset import (
@@ -384,3 +385,99 @@ def is_ordinal_of_transitive(l):
     l.auto(by=[exists_least_of_ordinals(A, E0)])
     l.auto()
     l.auto(by=[ordinal_not_elem_self])
+
+
+# Suprema and the Burali-Forti paradox
+
+C = Consts("C", ZFSet)[0]
+
+
+@Theorem(ForAll(C, ForAll(x, elem(x, C), is_ordinal(x)), is_ordinal(bigunion(C))))
+def is_ordinal_bigunion(l):
+    """Halmos: the union of a set of ordinal numbers is an ordinal number."""
+    C = l.fix()
+    l.intro()
+    U = bigunion(C)
+    # ⋃C is transitive (each member is), and its elements are elements of ordinals.
+    l.have(is_transitive(U))
+    l.unfold(is_transitive)
+    x0 = l.fix()
+    l.intro()
+    l.have(Exists(B, And(elem(B, C), elem(x0, B))), by=[zf.bigunion_ax(C, x0)])
+    B0, _ = l.obtain(-1)
+    l.unfold(le)
+    z0 = l.fix()
+    l.intro()
+    l.auto(by=[ordinal_le_of_elem(B0, x0), le.defn, zf.bigunion_ax(C, z0)])
+    l.have(ForAll(x, elem(x, U), is_ordinal(x)))
+    x1 = l.fix()
+    l.intro()
+    l.have(Exists(B, And(elem(B, C), elem(x1, B))), by=[zf.bigunion_ax(C, x1)])
+    B1, _ = l.obtain(-1)
+    l.auto(by=[is_ordinal_of_elem(B1, x1)])
+    l.auto(by=[is_ordinal_of_transitive(U)])
+
+
+le_bigunion = prove(
+    ForAll([C, x], elem(x, C), x <= bigunion(C)), by=[le.defn, zf.bigunion_ax]
+)
+bigunion_le = prove(
+    ForAll([C, B], ForAll(x, elem(x, C), x <= B), bigunion(C) <= B),
+    by=[le.defn, zf.bigunion_ax],
+)
+
+
+@Theorem(
+    ForAll(
+        [A, B],
+        is_ordinal(A),
+        is_ordinal(B),
+        elem(B, A) == And(B <= A, B != A),
+    )
+)
+def ordinal_elem_iff_ssubset(l):
+    """Halmos: for distinct ordinals, β ∈ α iff β ⊆ α."""
+    A, B = l.fixes()
+    l.intros()
+    l.split()
+    l.intro()
+    l.auto(by=[ordinal_le_of_elem(A, B), ordinal_not_elem_self(A, B)])
+    # Otherwise α ∈ β or α = β by comparability; α ∈ β ⊆ α would put α in α.
+    l.intro()
+    l.auto(
+        by=[
+            ordinal_comparable(A, B),
+            le.defn(B, A),
+            ordinal_not_elem_self(B, A),
+        ]
+    )
+
+
+# The ordinals in a set, named so that later steps do not see the lambda (see #102).
+ordinals_in = define("ordinals_in", [C], zf.sep(C, Lambda(x, is_ordinal(x))))
+
+
+@Theorem(ForAll([C, x], elem(x, ordinals_in(C)) == And(elem(x, C), is_ordinal(x))))
+def elem_ordinals_in(l):
+    C, x0 = l.fixes()
+    l.unfold(ordinals_in)
+    l.rw(zf.elem_sep)
+    l.simp()
+    l.auto()
+
+
+@Theorem(Not(Exists(C, ForAll(A, is_ordinal(A), elem(A, C)))))
+def burali_forti(l):
+    """Halmos §20: there is no set of all ordinal numbers. Its supremum would be an
+    ordinal, and its successor an ordinal above every ordinal."""
+    l.intro()
+    C0, _ = l.obtain(-1)
+    O = ordinals_in(C0)
+    U = bigunion(O)
+    l.have(is_ordinal(U), by=[is_ordinal_bigunion(O), elem_ordinals_in])
+    l.have(is_ordinal(succ(U)), by=[is_ordinal_succ(U)])
+    l.have(elem(succ(U), O), by=[elem_ordinals_in(C0, succ(U))])
+    # U⁺ ⊆ ⋃O = U, but U ∈ U⁺.
+    l.have(succ(U) <= U, by=[le_bigunion(O, succ(U))])
+    l.have(elem(U, U), by=[le.defn(succ(U), U), elem_succ_self(U)])
+    l.auto(by=[ordinal_not_elem_self(U, U)])
