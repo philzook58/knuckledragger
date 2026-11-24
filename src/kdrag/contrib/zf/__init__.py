@@ -18,7 +18,7 @@ both, `arith` uses `rec`, `order` uses `arith`, `finite` and `poset` use
 and `sim` use `poset` (`sim` also uses `finite`); `ordset` for sets of ordinal
 numbers (Halmos §20) uses `ordinal` and `sim`; `count` for the counting
 theorem (Halmos §20) uses `ordset`; `oarith` for ordinal addition (Halmos §21)
-uses `count`; `omul` for ordinal multiplication (Halmos §21) uses `oarith`.
-Only `ordinal`, `ordset`, `count`, `oarith`, and `omul` may use Replacement and
-definite description.
+uses `count`; `omul` for ordinal multiplication and `osub` for subtraction
+(Halmos §21) use `oarith`. Only `ordinal`, `ordset`, `count`, `oarith`, `omul`,
+and `osub` may use Replacement and definite description.
 """

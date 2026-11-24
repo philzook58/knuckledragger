@@ -34,12 +34,14 @@ import pytest
         ("oarith", 4),
         ("omul", 0),
         ("omul", 6),
+        ("osub", 0),
+        ("osub", 9),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul",
+            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub",
             3,
         ),
         (
-            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul",
+            "fun nat rec arith order finite card poset ordinal trec sim ordset count oarith omul osub",
             7,
         ),
     ],
@@ -122,7 +124,7 @@ def _axioms_used(modules):
             ],
             False,
         ),
-        (["ordinal", "ordset", "count", "oarith", "omul"], True),
+        (["ordinal", "ordset", "count", "oarith", "omul", "osub"], True),
     ],
 )
 def test_zf_contrib_axioms(modules, replacement):
