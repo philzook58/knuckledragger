@@ -29,6 +29,7 @@ from kdrag.smt import (
 import kdrag.theories.int as int_
 from kdrag.theories.zf.zf import ZFSet, elem, succ, zero
 from kdrag.contrib.zf.nat import (
+    elem_succ,
     induct_omega,
     omega,
     omega_succ,
@@ -37,7 +38,8 @@ from kdrag.contrib.zf.nat import (
     succ_ne_zero,
     two,
 )
-from kdrag.contrib.zf.arith import add, add_succ, add_zero
+from kdrag.contrib.zf.arith import add, add_succ, add_zero, mul, mul_succ, mul_zero
+from kdrag.contrib.zf.order import nat_elem_asymm, nat_not_elem_self
 
 x, y = Consts("x y", ZFSet)
 i, j = Ints("i j")
@@ -178,3 +180,67 @@ def has_int_add(l):
     )
     l.auto()
     l.auto()
+
+
+@Theorem(ForAll([x, y, i, j], has_int(x, i), has_int(y, j), has_int(mul(x, y), i * j)))
+def has_int_mul(l):
+    """Multiplication on ω agrees with multiplication on Int."""
+    x, y, i, j = l.fixes()
+    l.intros()
+    l.have(elem(x, omega), by=[has_int_elem_omega(x, i)])
+    l.have(y == from_int(j), by=[has_int.defn])
+    l.have(j >= 0, by=[has_int.defn])
+    l.have(ForAll(j, j >= 0, has_int(mul(x, from_int(j)), i * j)))
+    j1 = l.fix()
+    l.intro()
+    l.induct(j1, using=induct_int)
+    l.auto(by=[has_int_zero, from_int_zero, mul_zero(x)])
+    # x · (n + 1) = x · n + x, and i · n + i = i · (n + 1).
+    n = l.fix()
+    l.intros()
+    l.have(
+        mul(x, from_int(n + 1)) == add(mul(x, from_int(n)), x),
+        by=[from_int_succ(n), mul_succ(x, from_int(n)), from_int_elem_omega(n)],
+    )
+    l.have(
+        has_int(add(mul(x, from_int(n)), x), i * n + i),
+        by=[has_int_add(mul(x, from_int(n)), x, i * n, i)],
+    )
+    l.have(i * (n + 1) == i * n + i)
+    l.auto()
+    l.auto()
+    l.auto()
+
+
+@Theorem(ForAll(i, i >= 0, ForAll(j, j >= 0, i < j, elem(from_int(i), from_int(j)))))
+def from_int_elem_of_lt(l):
+    """Induction on j: i < n + 1 means i < n or i = n, and n⁺ = n ∪ {n}."""
+    l.fix()
+    l.intro()
+    j = l.fix()
+    l.intro()
+    l.induct(j, using=induct_int)
+    l.auto()
+    n = l.fix()
+    l.intros()
+    l.auto(by=[from_int_succ(n), elem_succ])
+    l.auto()
+
+
+@Theorem(ForAll([x, y, i, j], has_int(x, i), has_int(y, j), elem(x, y) == (i < j)))
+def has_int_elem_iff(l):
+    """The order on ω, x ∈ y, agrees with < on Int."""
+    x, y, i, j = l.fixes()
+    l.intros()
+    l.unfold(has_int, at=0)
+    l.unfold(has_int, at=1)
+    # ← is from_int_elem_of_lt; → because j ≤ i gives y = x or y ∈ x.
+    l.auto(
+        by=[
+            from_int_elem_of_lt(i),
+            from_int_elem_of_lt(j),
+            from_int_elem_omega(i),
+            nat_not_elem_self(x),
+            nat_elem_asymm(y, x),
+        ]
+    )
