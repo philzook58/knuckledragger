@@ -1,7 +1,7 @@
 import pytest
 
 import kdrag as kd
-from kdrag.smt import And, BoolVal, Int
+from kdrag.smt import And, Bool, BoolVal, Implies, Int
 
 
 def test_focus_exports_only_the_completed_claim():
@@ -59,3 +59,27 @@ def test_nested_focus():
             l.auto()
     assert not l.goals
     assert l.qed().thm.eq(x - x == 0)
+
+
+def test_scope_reuses_exact_target_proof_at_exit(monkeypatch):
+    target = BoolVal(True)
+    l = kd.Lemma(target)
+    proof = kd.prove(target)
+
+    def unexpected_solver_call(*args, **kwargs):
+        raise AssertionError("an exact target proof is already available")
+
+    monkeypatch.setattr(kd.kernel, "prove", unexpected_solver_call)
+    with l:
+        l.exact(proof)
+    assert l.qed() is proof
+
+
+def test_scope_can_reconstruct_an_assumption_proof():
+    p = Bool("p")
+    target = Implies(p, p)
+    l = kd.Lemma(target)
+    with l:
+        l.intro()
+        l.assumption()
+    assert l.qed().thm.eq(target)

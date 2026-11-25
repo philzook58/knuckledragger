@@ -521,10 +521,22 @@ class LemmaCallback:
 
 @dataclass
 class _ProofScope:
-    thm: Goal
-    goals: list[Goal | LemmaCallback]
+    target_goal: Goal
+    goals: list[Goal | LemmaCallback] = field(init=False)
     lemmas: list[dict[int, kd.kernel.Proof]] = field(default_factory=lambda: [{}])
     start_time: float = field(default_factory=time.perf_counter)
+
+    def __post_init__(self):
+        self.goals = [self.target_goal]
+
+    def build_proof(self, **kwargs) -> kd.kernel.Proof:
+        """Get the target proof, reconstructing it from the recorded lemmas on a miss."""
+        target = self.target_goal.to_expr()
+        proof = self.lemmas[-1].get(target.get_id())
+        if proof is not None:
+            return proof
+        by = [*kwargs.pop("by", ()), *self.lemmas[-1].values()]
+        return kd.kernel.prove(target, by=by, **kwargs)
 
 
 def Lemma(goal: smt.BoolRef, fixes=None, assumes=None) -> "ProofState":
@@ -603,7 +615,7 @@ class ProofState:
     """
 
     def __init__(self, goal: Goal):
-        self._scopes = [_ProofScope(goal, [goal])]
+        self._scopes = [_ProofScope(goal)]
 
     @property
     def _scope(self) -> _ProofScope:
@@ -619,7 +631,7 @@ class ProofState:
 
     @property
     def thm(self) -> Goal:
-        return self._scope.thm
+        return self._scope.target_goal
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
@@ -636,7 +648,7 @@ class ProofState:
 
     def abort(self):
         scope = self._scope
-        scope.thm = Goal.empty()
+        scope.target_goal = Goal.empty()
         scope.lemmas = [{}]
         scope.goals = []
 
@@ -2030,7 +2042,7 @@ class ProofState:
         goal = self.top_goal()
         if not self.goals:
             raise ValueError("Cannot focus a proof with no open goals")
-        self._scopes.append(_ProofScope(goal, [goal]))
+        self._scopes.append(_ProofScope(goal))
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -2251,20 +2263,12 @@ class ProofState:
                     lam_cb.cb()
                 except Exception as e:
                     raise ValueError("LemmaCallback failed", lam_cb.annot) from e
-        thm = self.thm.to_expr()
-        pf0 = self.lemmas[-1].get(thm.get_id())
-        if pf0 is not None:
-            pf = pf0
-        else:
-            if "by" in kwargs:
-                kwargs["by"].extend(self.lemmas[-1].values())
-            else:
-                kwargs["by"] = list(self.lemmas[-1].values())
-            pf = kd.kernel.prove(thm, **kwargs)
+        scope = self._scope
+        proof = scope.build_proof(**kwargs)
         kdrag.config.perf_event(
-            "ProofState", self.thm, time.perf_counter() - self._scope.start_time
+            "ProofState", scope.target_goal, time.perf_counter() - scope.start_time
         )
-        return pf
+        return proof
 
 
 _TRUE = kd.kernel.prove(smt.BoolVal(True))
