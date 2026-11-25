@@ -521,6 +521,8 @@ class LemmaCallback:
 
 @dataclass
 class _ProofScope:
+    """The pending goals, reconstruction callbacks, and lemmas for one target goal."""
+
     target_goal: Goal
     goals: list[Goal | LemmaCallback] = field(init=False)
     lemmas: list[dict[int, kd.kernel.Proof]] = field(default_factory=lambda: [{}])
@@ -615,6 +617,8 @@ class ProofState:
     """
 
     def __init__(self, goal: Goal):
+        # The root scope is at the bottom. Each `with l:` pushes a scope for
+        # the current goal, and tactics work on the scope at the top.
         self._scopes = [_ProofScope(goal)]
 
     @property
