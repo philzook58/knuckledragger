@@ -1,20 +1,33 @@
 """
-Classes and the sets that reflect them.
+Classes and the sets whose members they are.
 
-A class is a predicate `ZFSet → Bool` (`zf.Class`); z3 compares classes
-extensionally on its own. `zf.reflects(C, A)` says the set A has exactly the
-members of C, like `has_lim` for limits: a relation, not a total function, so
-no junk values. `zf.is_set(C)` says some set reflects C.
+A class is a predicate `ZFSet → Bool` (`zf.Class`), and z3 compares classes
+extensionally on its own. `elts(x)` is the class of members of x, as in
+Isabelle's ZFC_in_HOL (Mathlib's coercion `↑x`). "x has exactly the members of
+C" is then the equation `elts(x) == C`, and C is a set when some x solves it
+(`is_set_iff`, bridging to `zf.is_set`). Like `has_lim`, this is a relation
+rather than a total function, so there are no junk values.
 
-The set operations then have class versions, and each ZF axiom becomes a
-smallness statement: the class built from small classes is small. These are
-proved here from the existing axioms, so this module adds no axioms. Russell's
-paradox and Burali-Forti become statements that some classes are not sets.
+Each set operation commutes with `elts` (`elts_sep`, `elts_bigunion`, ...), as
+in Mathlib's `ZFSet.coe_sep`. The ZF axioms then become smallness statements:
+the class built from small classes is small. These are proved from the existing
+axioms, so this module adds none. Russell's paradox and Burali-Forti say that
+some classes are not sets.
 """
 
-import kdrag as kd
 from kdrag import Theorem, define, define_const
-from kdrag.smt import And, ArraySort, BoolVal, Consts, Exists, ForAll, Lambda, Not, Or
+from kdrag.smt import (
+    And,
+    ArraySort,
+    BoolVal,
+    Consts,
+    Eq,
+    Exists,
+    ForAll,
+    Lambda,
+    Not,
+    Or,
+)
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import (
     Class,
@@ -32,19 +45,43 @@ from kdrag.contrib.zf.nat import elem_omega, is_inductive, omega
 from kdrag.contrib.zf.ordinal import elem_repl, is_ordinal, repl
 from kdrag.contrib.zf.ordset import burali_forti
 
-A, B, a, b, x, y, z = Consts("A B a b x y z", ZFSet)
+A, B, a, b, x, y = Consts("A B a b x y", ZFSet)
 C, D = Consts("C D", Class)
 F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
 
-# A set reflects at most one class, and a class is reflected by at most one set.
-reflects_unique = kd.prove(
-    ForAll([C, A, B], reflects(C, A), reflects(C, B), A == B),
-    by=[reflects.defn, zf.ext_ax],
-)
+# The members of a set, as a class.
+elts = define("elts", [A], Lambda(x, elem(x, A)))
 
-# The class operations, as in Mathlib's `Class`. Each is named, so z3 sees a
+
+@Theorem(ForAll([A, B], elts(A) == elts(B), A == B))
+def elts_inj(l):
+    """Extensionality: a set is determined by its members."""
+    l.fixes()
+    l.intro()
+    # Equal classes are equal lambdas, which z3 compares pointwise.
+    l.unfold(elts, at=0)
+    l.rw(zf.ext_ax)
+    l.auto()
+
+
+@Theorem(ForAll([C, A], Eq(reflects(C, A), elts(A) == C)))
+def reflects_iff(l):
+    C, A = l.fixes()
+    l.unfold(reflects)
+    l.unfold(elts)
+    l.auto()
+
+
+@Theorem(ForAll(C, Eq(is_set(C), Exists(A, elts(A) == C))))
+def is_set_iff(l):
+    """Isabelle's small_iff: a class is a set when it is the members of a set."""
+    l.fix()
+    l.unfold(is_set)
+    l.auto(by=[reflects_iff])
+
+
+# The class operations, as in Mathlib's `ZFClass`. Each is named, so z3 sees a
 # constant rather than a lambda (see #106).
-set_cls = define("set_cls", [A], Lambda(x, elem(x, A)))  # A as a class
 univ = define_const("univ", Lambda(x, BoolVal(True)))
 cempty = define_const("cempty", Lambda(x, BoolVal(False)))
 cpair = define("cpair", [a, b], Lambda(x, Or(x == a, x == b)))
@@ -54,29 +91,64 @@ cpowerset = define("cpowerset", [C], Lambda(x, ForAll(y, elem(y, x), C[y])))
 cimage = define("cimage", [F, C], Lambda(y, Exists(x, And(C[x], F[x] == y))))
 
 
-@Theorem(ForAll(A, reflects(set_cls(A), A)))
-def reflects_set_cls(l):
+# Each set operation commutes with elts.
+
+
+@Theorem(elts(emp) == cempty)
+def elts_emp(l):
+    l.unfold(elts)
+    l.unfold(cempty)
+    l.auto(by=[zf.elem_emp])
+
+
+@Theorem(ForAll([a, b], elts(upair(a, b)) == cpair(a, b)))
+def elts_upair(l):
+    l.fixes()
+    l.unfold(elts)
+    l.unfold(cpair)
+    l.auto(by=[zf.elem_upair])
+
+
+@Theorem(ForAll([A, C], elts(sep(A, C)) == cinter(C, elts(A))))
+def elts_sep(l):
+    l.fixes()
+    l.unfold(elts)
+    l.unfold(cinter)
+    l.auto(by=[zf.elem_sep])
+
+
+@Theorem(ForAll(A, elts(bigunion(A)) == csUnion(elts(A))))
+def elts_bigunion(l):
     l.fix()
-    l.unfold(reflects)
-    l.auto(by=[set_cls.defn])
+    l.unfold(elts)
+    l.unfold(csUnion)
+    l.auto(by=[zf.bigunion_ax])
 
 
-# The ZF axioms as smallness of classes.
+@Theorem(ForAll(A, elts(pow(A)) == cpowerset(elts(A))))
+def elts_pow(l):
+    l.fix()
+    l.unfold(elts)
+    l.unfold(cpowerset)
+    l.auto(by=[zf.elem_pow, zf.le.defn])
 
 
-@Theorem(is_set(cempty))
-def is_set_empty(l):
-    l.unfold(is_set)
-    l.exists(emp)
-    l.auto(by=[reflects.defn, cempty.defn, zf.elem_emp])
+@Theorem(ForAll([F, A], elts(repl(F, A)) == cimage(F, elts(A))))
+def elts_repl(l):
+    l.fixes()
+    l.unfold(elts)
+    l.unfold(cimage)
+    l.auto(by=[elem_repl])
 
 
-@Theorem(ForAll([a, b], is_set(cpair(a, b))))
-def is_set_pair(l):
-    a, b = l.fixes()
-    l.unfold(is_set)
-    l.exists(upair(a, b))
-    l.auto(by=[reflects.defn, cpair.defn, zf.elem_upair])
+@Theorem(elts(omega) == Lambda(x, ForAll(A, is_inductive(A), elem(x, A))))
+def elts_omega(l):
+    """Infinity: ω is the class of natural numbers."""
+    l.unfold(elts)
+    l.auto(by=[elem_omega])
+
+
+# The ZF axioms as smallness of classes, from the equations above.
 
 
 @Theorem(ForAll([C, D], is_set(D), is_set(cinter(C, D))))
@@ -84,35 +156,35 @@ def is_set_inter(l):
     """Separation: a subclass of a set is a set."""
     C, D = l.fixes()
     l.intro()
-    l.unfold(is_set, at=0)
+    l.rw(is_set_iff(D), at=0)
     A0 = l.obtain(0)[0]
-    l.unfold(is_set)
+    l.rw(is_set_iff(cinter(C, D)))
     l.exists(sep(A0, C))
-    l.auto(by=[reflects.defn, cinter.defn, zf.elem_sep])
+    l.auto(by=[elts_sep(A0, C)])
 
 
 @Theorem(ForAll(C, is_set(C), is_set(csUnion(C))))
 def is_set_sUnion(l):
     """Union: the union of a set of sets is a set."""
-    l.fix()
+    C = l.fix()
     l.intro()
-    l.unfold(is_set, at=0)
+    l.rw(is_set_iff(C), at=0)
     A0 = l.obtain(0)[0]
-    l.unfold(is_set)
+    l.rw(is_set_iff(csUnion(C)))
     l.exists(bigunion(A0))
-    l.auto(by=[reflects.defn, csUnion.defn, zf.bigunion_ax])
+    l.auto(by=[elts_bigunion(A0)])
 
 
 @Theorem(ForAll(C, is_set(C), is_set(cpowerset(C))))
 def is_set_powerset(l):
     """Power set: the subsets of a set form a set."""
-    l.fix()
+    C = l.fix()
     l.intro()
-    l.unfold(is_set, at=0)
+    l.rw(is_set_iff(C), at=0)
     A0 = l.obtain(0)[0]
-    l.unfold(is_set)
+    l.rw(is_set_iff(cpowerset(C)))
     l.exists(pow(A0))
-    l.auto(by=[reflects.defn, cpowerset.defn, zf.elem_pow, zf.le.defn])
+    l.auto(by=[elts_pow(A0)])
 
 
 @Theorem(ForAll([F, C], is_set(C), is_set(cimage(F, C))))
@@ -120,42 +192,35 @@ def is_set_image(l):
     """Replacement: the image of a set is a set."""
     F, C = l.fixes()
     l.intro()
-    l.unfold(is_set, at=0)
+    l.rw(is_set_iff(C), at=0)
     A0 = l.obtain(0)[0]
-    l.unfold(is_set)
+    l.rw(is_set_iff(cimage(F, C)))
     l.exists(repl(F, A0))
-    l.auto(by=[reflects.defn, cimage.defn, elem_repl])
-
-
-@Theorem(is_set(Lambda(x, ForAll(A, is_inductive(A), elem(x, A)))))
-def is_set_omega(l):
-    """Infinity: the class of natural numbers is a set, namely ω."""
-    l.unfold(is_set)
-    l.exists(omega)
-    l.auto(by=[reflects.defn, elem_omega])
+    l.auto(by=[elts_repl(F, A0)])
 
 
 # Classes that are not sets.
 
+russell_cls = define_const("russell_cls", Lambda(x, Not(elem(x, x))))
 
-@Theorem(Not(is_set(Lambda(x, Not(elem(x, x))))))
+
+@Theorem(Not(is_set(russell_cls)))
 def not_is_set_russell(l):
-    """Russell: the class of sets that are not members of themselves."""
+    """Russell: the sets that are not members of themselves."""
+    l.rw(is_set_iff(russell_cls))
     l.intro()
-    l.unfold(is_set, at=0)
     A0 = l.obtain(0)[0]
-    l.auto(by=[reflects.defn(Lambda(x, Not(elem(x, x))), A0)])
+    # A0 ∈ A0 holds exactly when it does not.
+    l.have(elem(A0, A0) == Not(elem(A0, A0)), by=[elts.defn(A0), russell_cls.defn])
+    l.auto()
 
 
 @Theorem(Not(is_set(univ)))
 def not_is_set_univ(l):
     """The universe is not a set, or by separation Russell's class would be."""
     l.intro()
-    l.have(is_set(cinter(Lambda(x, Not(elem(x, x))), univ)), by=[is_set_inter])
-    l.have(
-        cinter(Lambda(x, Not(elem(x, x))), univ) == Lambda(x, Not(elem(x, x))),
-        by=[cinter.defn, univ.defn],
-    )
+    l.have(is_set(cinter(russell_cls, univ)), by=[is_set_inter])
+    l.have(cinter(russell_cls, univ) == russell_cls, by=[cinter.defn, univ.defn])
     l.auto(by=[not_is_set_russell])
 
 
@@ -165,8 +230,8 @@ Ord = define_const("Ord", Lambda(x, is_ordinal(x)))
 @Theorem(Not(is_set(Ord)))
 def not_is_set_ord(l):
     """Burali-Forti: the ordinals do not form a set."""
+    l.rw(is_set_iff(Ord))
     l.intro()
-    l.unfold(is_set, at=0)
     A0 = l.obtain(0)[0]
-    l.have(ForAll(A, is_ordinal(A), elem(A, A0)), by=[reflects.defn, Ord.defn])
+    l.have(ForAll(A, is_ordinal(A), elem(A, A0)), by=[elts.defn(A0), Ord.defn])
     l.auto(by=[burali_forti])

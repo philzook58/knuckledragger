@@ -33,6 +33,6 @@ Replacement but no choice. `cardinal` (Halmos §23-25) uses choice for the
 countable union theorem, infinite sets containing ω, and cardinal numbers
 `card(X)` with the comparability of any two sets. Only `choice`, `zorn`,
 `wellord`, and `cardinal` may use choice. `cls` restates the axioms as
-smallness of classes (`zf.is_set`), with Russell and Burali-Forti as classes
+smallness of classes, with `elts(x) == C` saying x has the members of C, with Russell and Burali-Forti as classes
 that are not sets; it uses `ordset` and Replacement.
 """
