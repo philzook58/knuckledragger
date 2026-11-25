@@ -11,7 +11,7 @@ from enum import IntEnum
 import operator as op
 from typing import TYPE_CHECKING, NamedTuple, Optional, Sequence, Callable, Any, cast
 import pprint
-from functools import cache
+from functools import cache, partial
 import traceback
 import linecache
 import time
@@ -241,12 +241,14 @@ def prove(
     # simps=simps,
     # intros / fix / herb = False
     unfold: Optional[int | list[smt.FuncDeclRef]] = None,
+    *,
+    _goal: Optional["Goal"] = None,
 ) -> kd.kernel.Proof:
     """Prove a theorem using a list of previously proved lemmas.
 
     In essence `prove(Implies(by, thm))`.
 
-    This wraps the kernel version in order to provide better counterexamples.
+    Solver failures report the goal and any verified change to `by`.
 
     ``solver`` accepts a solver factory or "z3", "cvc5", "vampire", "eprover".
 
@@ -327,28 +329,30 @@ def prove(
             pf = kd.kernel.generalize(fixes, pf)
         kdrag.config.perf_event("prove", thm, time.perf_counter() - start_time)
         return pf
-    except kd.kernel.LemmaError as e:
-        if not isinstance(e, kd.kernel.SolverFailure):
+    except (kd.kernel.SolverFailure, TimeoutError) as error:
+        if (
+            isinstance(error, kd.kernel.SolverFailure)
+            and len(error.args) == 4
+            and time.perf_counter() - start_time > timeout / 1000
+        ):
+            error = TimeoutError()
+        if _goal is not None:
+            raise _AutoFailure(_goal, error, by_list, timeout) from None
+        # Keep the diagnostic independent of the exception that owns it.
+        error_info = type(error)(*error.args)
+        explain = partial(
+            diagnose.explain,
+            Goal([], [], thm),
+            error_info,
+            by_list,
+            timeout,
+            source="prove",
+            solver=solver,
+        )
+        if isinstance(error, kd.kernel.SolverFailure):
+            error.diagnostic = explain
             raise
-        if time.perf_counter() - start_time > timeout / 1000:
-            raise TimeoutError(
-                "Timeout. Maybe you have given `prove` too many or not enough lemmas?"
-            )
-        elif isinstance(thm, smt.QuantifierRef):
-            while isinstance(thm, smt.QuantifierRef) and thm.is_forall():
-                _, thm = kd.utils.open_binder_unhygienic(thm)  # type: ignore
-            # We anticipate this failing with a better countermodel since we can now see the quantified variables
-            pf = kd.kernel.prove(
-                thm, by=by_list, timeout=timeout, dump=dump, solver=solver, admit=admit
-            )
-            # TODO: Maybe we should herbrandize and just let the quantifier free version work for us.
-            raise Exception(
-                "Worked with quantifier stripped. Something is going awry", pf
-            )
-        else:
-            raise e
-    except Exception as e:
-        raise e
+        raise TimeoutError("\n" + explain()) from None
 
 
 def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
@@ -1120,13 +1124,7 @@ class ProofState:
         `auto` discharges a goal using z3. It forwards all parameters to `kd.prove`
         """
         goalctx = self.top_goal()
-        try:
-            pf = kd.prove(goalctx.to_expr(), **kwargs)
-        except (kd.kernel.SolverFailure, TimeoutError) as error:
-            # from None: the solver's internal traceback is noise; it stays in .error
-            raise _AutoFailure(
-                goalctx, error, kwargs.get("by") or (), kwargs.get("timeout", 1000)
-            ) from None
+        pf = kd.prove(goalctx.to_expr(), _goal=goalctx, **kwargs)
         self.add_lemma(pf)
         self.pop_goal()
         self.top_goal()  # TODO: This is clearing lemmacallbacks but why do I need to?

@@ -1,5 +1,5 @@
 """
-Explain a failed `auto`: the goal, why it failed, and a `by=` change that makes it pass.
+Explain a failed proof and suggest a verified change to `by=`.
 """
 
 import os
@@ -22,7 +22,13 @@ def _name(pf: kernel.Proof) -> str:
 
 
 def repair(
-    thm: smt.BoolRef, by: list[kernel.Proof], countermodel=False, timeout=50, budget=0.2
+    thm: smt.BoolRef,
+    by: list[kernel.Proof],
+    countermodel=False,
+    timeout=50,
+    budget=0.2,
+    *,
+    solver=None,
 ) -> list[kernel.Proof] | None:
     """
     The first small change to `by` that proves `thm`, or None: add a definition, add
@@ -44,10 +50,11 @@ def repair(
         if time.perf_counter() - start > budget:
             break
         try:
-            kernel.prove(thm, by=lemmas, timeout=timeout)
+            kernel.prove(thm, by=lemmas, timeout=timeout, solver=solver)
             return lemmas
-        except (kernel.LemmaError, TimeoutError):
-            pass
+        except Exception:
+            # A proposed lemma may be unsupported by the selected solver.
+            continue
     return None
 
 
@@ -59,20 +66,26 @@ def location(filename: str, line: int, func: str) -> str:
     return f" at line {line} in {func}"
 
 
-def explain(goal, error, by=(), timeout=1000, where="", source="") -> str:
-    """Text for a failed `auto` on `goal`; `where` and `source` locate the call."""
+def explain(goal, error, by=(), timeout=1000, where="", source="", *, solver=None) -> str:
+    """Format a proof failure with a verified repair or ranked suggestions."""
     countermodel = not isinstance(error, TimeoutError) and len(error.args) == 3
+    backend = solver if isinstance(solver, str) else getattr(solver, "__name__", "z3")
     if isinstance(error, TimeoutError):
         reason = f"timed out after {timeout}ms"
-    elif countermodel:  # not shown: its fresh names (x!7) don't match the goal
-        reason = "z3 found a countermodel"
+    elif countermodel:
+        reason = f"{backend} found a countermodel"
     else:
-        reason = f"z3 returned {error.args[2]} (SMT-LIB: {error.args[3]})"
+        reason = f"{backend} returned {error.args[2]} (SMT-LIB: {error.args[3]})"
     call = source.split("#")[0].rstrip() or "auto"  # drop a trailing comment
     lines = [pretty_goal(goal), "", f"❌ {call} failed{where}: {reason}"]
     if config.diagnose:
         by = [by] if isinstance(by, kernel.Proof) else list(by or [])
-        fix = repair(goal.to_expr(), by, countermodel)
+        thm = goal.to_expr()
+        fix = repair(thm, by, countermodel, solver=solver)
         if fix is not None:
             lines.append(f"✅ passes with by=[{', '.join(_name(pf) for pf in fix)}]")
+        else:
+            suggestions = utils.suggest(thm, check=0)
+            if suggestions:
+                lines.append(suggestions)
     return "\n".join(lines)

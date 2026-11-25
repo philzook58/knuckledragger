@@ -1,6 +1,8 @@
 import pytest
 
 import kdrag as kd
+import kdrag.config as config
+import kdrag.diagnose as diagnose
 import kdrag.smt as smt
 from kdrag.tactics import _AutoFailure
 
@@ -27,9 +29,34 @@ def test_failure_suggests_missing_definition():
     assert text.endswith(".succ.defn]")
 
 
-def test_diagnosis_can_be_switched_off():
-    kd.config.diagnose = False
-    try:
-        assert "✅" not in str(failure())
-    finally:
-        kd.config.diagnose = True
+def test_diagnosis_can_be_switched_off(monkeypatch):
+    monkeypatch.setattr(config, "diagnose", False)
+    assert "✅" not in str(failure())
+
+
+def test_prove_suggests_missing_definition_when_rendered(monkeypatch):
+    repair = diagnose.repair
+    attempts = []
+
+    def record(*args, **kwargs):
+        attempts.append(True)
+        return repair(*args, **kwargs)
+
+    monkeypatch.setattr(diagnose, "repair", record)
+    with pytest.raises(kd.kernel.SolverFailure) as error:
+        kd.prove(smt.ForAll([x], succ(x) > x))
+    assert not attempts
+    message = str(error.value)
+    assert attempts
+    assert "prove failed: z3 found a countermodel" in message
+    assert "Countermodel:" not in message
+    assert message.endswith(".succ.defn]")
+
+
+def test_prove_shows_candidates_when_no_repair_works():
+    with pytest.raises(kd.kernel.SolverFailure) as error:
+        kd.prove(succ(x) == x)
+    message = str(error.value)
+    assert "✅" not in message
+    assert "Suggestions:\n" in message
+    assert ".succ.defn:" in message

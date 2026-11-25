@@ -25,7 +25,7 @@ def test_prove_with_solver(solver):
     p, q = smt.Bools("p q")
     thm = smt.Implies(smt.And(p, q), p)
     assert kd.prove(thm, solver=solver).thm.eq(thm)
-    with pytest.raises(kd.kernel.LemmaError, match="Countermodel"):
+    with pytest.raises(kd.kernel.SolverFailure, match="found a countermodel"):
         kd.prove(smt.BoolVal(False), solver=solver)
 
 
