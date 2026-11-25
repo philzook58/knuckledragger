@@ -38,7 +38,7 @@ def clamp_is_nearest(l):
     l.assumption()
     z = l.fix()
     l.intros()
-    l.cases(x < lo)
+    l.cases(x < lo, lo <= x)
     with l:
         l.case(x < lo)
         at_lower_endpoint = l.have(nearest == lo, by=[])
@@ -48,7 +48,7 @@ def clamp_is_nearest(l):
 
     with l:
         l.case(lo <= x)
-        l.cases(hi < x)
+        l.cases(hi < x, x <= hi)
         with l:
             l.case(hi < x)
             at_upper_endpoint = l.have(nearest == hi, by=[])
