@@ -8,7 +8,7 @@ import kdrag.contrib.pcode as pcode
 from collections import defaultdict
 import json
 import subprocess
-from typing import NamedTuple, Optional
+from typing import Callable, NamedTuple, Optional
 import kdrag.contrib.ir as ir
 
 kd_macro = r"""
@@ -606,13 +606,16 @@ def run_all_paths(
 
 class VCProofState(kd.tactics.ProofState):
     def __init__(
-        self, vc: VerificationCondition, ctx: pcode.BinaryContext, _parent=None
+        self,
+        vc: VerificationCondition,
+        ctx: pcode.BinaryContext,
+        *,
+        on_qed: Callable[[kd.Proof], None] | None = None,
     ):
         self.vc = vc
         self.binctx = ctx
-        super().__init__(
-            kd.tactics.Goal(sig=[], ctx=[], goal=vc.vc(ctx)), _parent=_parent
-        )
+        self._on_qed = on_qed
+        super().__init__(kd.tactics.Goal(sig=[], ctx=[], goal=vc.vc(ctx)))
         # self.intro()
         # self.split(at=0)
 
@@ -633,6 +636,18 @@ class VCProofState(kd.tactics.ProofState):
         goalctx = self.top_goal()
         return repr(ir.Block.of_expr(goalctx.to_expr())) + f"\n\nfrom VC: {self.vc}"
         # return super().__repr__() + f"\n\nfrom VC: {self.vc}"
+
+    def qed(self, **kwargs):
+        proof = super().qed(**kwargs)
+        if self._on_qed is not None and not self._focus_stack:
+            self._on_qed(proof)
+        return proof
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        super().__exit__(exc_type, exc_value, traceback)
+        if exc_type is None and self._on_qed is not None and not self._focus_stack:
+            if not self.goals:
+                self.qed()
 
 
 @dataclass(frozen=True)
@@ -678,10 +693,9 @@ class AsmProofState:
         return f"AsmProofState(num_vcs={len(self.vcs)}, num_pfs={len(self.pfs)})"
 
     def lemma(self, n) -> VCProofState:
-        return VCProofState(self.vcs[n], self.ctx, _parent=self)
+        return VCProofState(self.vcs[n], self.ctx, on_qed=self.exact)
 
     def exact(self, pf: kd.Proof):
-        # it's goofy, but this is the current ProofState api
         self.pfs.append(pf)
 
     def qed(self):

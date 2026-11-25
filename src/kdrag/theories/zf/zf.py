@@ -85,21 +85,21 @@ elem_emp = axiom(ForAll([x], elem(x, emp) == BoolVal(False)))
 def emp_exists_elem(l):
     A = l.fix()
     l.split()
-    with l.sub() as l1:
-        l1.intro()
-        l1.intro()
-        x, _ = l1.obtain(-1)
-        l1.show(BoolVal(False), by=[ext_ax, elem_emp])
-    with l.sub() as l2:
-        l2.intro()
-        l2.rw(ext_ax)
-        x = l2.fix()
-        l2.apply(0)
-        l2.exists(x)
-        l2.have(elem(x, emp) == BoolVal(False), by=[elem_emp(x)])
-        l2.have(elem(x, A), by=[])
+    with l:
+        l.intro()
+        l.intro()
+        x, _ = l.obtain(-1)
+        l.show(BoolVal(False), by=[ext_ax, elem_emp])
+    with l:
+        l.intro()
+        l.rw(ext_ax)
+        x = l.fix()
+        l.apply(0)
+        l.exists(x)
+        l.have(elem(x, emp) == BoolVal(False), by=[elem_emp(x)])
+        l.have(elem(x, A), by=[])
 
-        l2.auto()
+        l.auto()
 
 
 @Theorem(ForAll(A, A != emp, Exists([x], elem(x, A))))
@@ -273,21 +273,21 @@ def elem_bigunion_upair(l):
     x, A, B = l.fixes()
     l.rw(bigunion_ax)
     l.split()
-    with l.sub() as c1:
-        c1.intro()
-        c1.obtain(0)
-        c1.rw(elem_upair, at=0)
-        c1.auto()
-    with l.sub() as c2:
-        c2.intro()
-        c2.cases(elem(x, A))
-        c2.exists(A)
-        c2.rw(elem_upair)
-        c2.auto()
+    with l:
+        l.intro()
+        l.obtain(0)
+        l.rw(elem_upair, at=0)
+        l.auto()
+    with l:
+        l.intro()
+        l.cases(elem(x, A))
+        l.exists(A)
+        l.rw(elem_upair)
+        l.auto()
 
-        c2.exists(B)
-        c2.rw(elem_upair)
-        c2.auto()
+        l.exists(B)
+        l.rw(elem_upair)
+        l.auto()
 
 
 @Theorem(ForAll([x, A, B], elem(x, A | B) == (elem(x, A) | elem(x, B))))

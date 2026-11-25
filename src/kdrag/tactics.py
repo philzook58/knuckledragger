@@ -524,7 +524,6 @@ class _FocusFrame(NamedTuple):
     goals: list[Goal | LemmaCallback]
     lemmas: list[dict[int, kd.kernel.Proof]]
     pushed: Optional["ProofState"]
-    parent: Optional["ProofState"]
     start_time: float
 
 
@@ -603,14 +602,13 @@ class ProofState:
 
     """
 
-    def __init__(self, goal: Goal, _parent=None):
+    def __init__(self, goal: Goal):
         self.start_time = time.perf_counter()
         self.lemmas: list[dict[int, kdrag.kernel.Proof]] = [{}]
         self.thm = goal
         self.goals: list[Goal | LemmaCallback] = [goal]
         self.pushed = None
-        self._parent = _parent
-        self._focus_stack: list[_FocusFrame | None] = []
+        self._focus_stack: list[_FocusFrame] = []
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
@@ -651,7 +649,7 @@ class ProofState:
         >>> l1
         [] ?|= Implies(p, q)
         """
-        lemma_cpy = ProofState(self.thm, _parent=self._parent)
+        lemma_cpy = ProofState(self.thm)
         lemma_cpy.goals = self.goals.copy()
         lemma_cpy.lemmas = self.lemmas.copy()
         lemma_cpy.pushed = None
@@ -2049,46 +2047,8 @@ class ProofState:
         else:
             raise ValueError("Goal is not satisfiable, cannot produce model")
 
-    def sublemma(self) -> "ProofState":
-        """
-        Create a sub ProofState for the current goal. This is useful to break up a proof into smaller lemmas.
-        The goal is the same but the internally held `kd.Proof` database is cleared, making it easier for z3
-        On calling `'l.qed()`, the sublemma will propagate it's `kd.Proof`  back to it's parent.
-
-        >>> l1 = Lemma(smt.BoolVal(True))
-        >>> l2 = l1.sublemma()
-        >>> l2
-        [] ?|= True
-        >>> l2.auto()
-        Nothing to do. Hooray!
-        >>> l1
-        [] ?|= True
-        >>> l2.qed()
-        |= True
-        >>> l1
-        Nothing to do. Hooray!
-        >>> l1.qed()
-        |= True
-        """
-        goalctx = self.top_goal()
-        return ProofState(goalctx, _parent=self)
-
-    def sub(self) -> "ProofState":
-        return self.sublemma()
-
     def __enter__(self) -> "ProofState":
         """Focus the current goal with a fresh lemma table."""
-        if (
-            self._parent is not None
-            and not self._focus_stack
-            and len(self.goals) == 1
-            and self.goals[0] is self.thm
-            and not self.lemmas[-1]
-        ):
-            # An explicit `with l.sub() as child` already has its own proof state.
-            self._focus_stack.append(None)
-            return self
-
         goal = self.top_goal()
         if not self.goals:
             raise ValueError("Cannot focus a proof with no open goals")
@@ -2098,7 +2058,6 @@ class ProofState:
                 self.goals,
                 self.lemmas,
                 self.pushed,
-                self._parent,
                 self.start_time,
             )
         )
@@ -2106,21 +2065,12 @@ class ProofState:
         self.goals = [goal]
         self.lemmas = [{}]
         self.pushed = None
-        self._parent = None
         self.start_time = time.perf_counter()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Restore the surrounding proof and export the completed goal's proof."""
-        saved = self._focus_stack.pop()
-        if saved is None:
-            if exc_type is None:
-                if not self.goals:
-                    self.qed()
-                else:
-                    print("Goal", self.top_goal())
-            return
-
+        saved = self._focus_stack[-1]
         try:
             if exc_type is not None:
                 return
@@ -2129,12 +2079,12 @@ class ProofState:
                 raise ValueError("Unfinished focused proof", goal)
             proof = self.qed()
         finally:
+            self._focus_stack.pop()
             (
                 self.thm,
                 self.goals,
                 self.lemmas,
                 self.pushed,
-                self._parent,
                 self.start_time,
             ) = saved
         self.exact(proof)
@@ -2151,8 +2101,8 @@ class ProofState:
         [x > 0] ?|= And(x > -2, x > -1)
         >>> l.split()
         [x > 0] ?|= x > -2
-        >>> with l.show(x > -2).sub() as sub1:
-        ...     _ = sub1.auto()
+        >>> with l.show(x > -2):
+        ...     _ = l.auto()
         >>> l
         [x > 0] ?|= x > -1
         >>> l.show(x > -1, by=[])
@@ -2357,8 +2307,6 @@ class ProofState:
         kdrag.config.perf_event(
             "ProofState", self.thm, time.perf_counter() - self.start_time
         )
-        if self._parent is not None:
-            self._parent.exact(pf)
         return pf
 
 

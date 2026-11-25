@@ -48,14 +48,14 @@ def test_exception_after_closing_focus_leaves_parent_goal_open():
     assert not l.lemmas[-1]
 
 
-def test_nested_focus_inside_explicit_subproof():
+def test_nested_focus():
     x = Int("x")
     l = kd.Lemma(x - x == 0)
-    with l.sub() as child:
-        child.cases(x < 0)
-        with child:
-            child.auto()
-        with child:
-            child.auto()
+    with l:
+        l.cases(x < 0, x >= 0)
+        with l.case(x < 0):
+            l.auto()
+        with l.case(x >= 0):
+            l.auto()
     assert not l.goals
     assert l.qed().thm.eq(x - x == 0)

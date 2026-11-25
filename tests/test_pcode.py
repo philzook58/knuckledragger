@@ -6,6 +6,25 @@ import kdrag.contrib.pcode.asmspec as asmspec
 import kdrag.theories.bitvec as bv
 import pytest
 import subprocess
+from unittest.mock import Mock
+
+
+def test_vc_context_only_reports_the_completed_verification_condition():
+    vc = Mock()
+    goal = smt.And(smt.BoolVal(True), smt.BoolVal(True))
+    vc.vc.return_value = goal
+    report = Mock()
+    l = asmspec.VCProofState(vc, Mock(), on_qed=report)
+    with l:
+        l.split()
+        with l:
+            l.auto()
+        report.assert_not_called()
+        with l:
+            l.auto()
+        report.assert_not_called()
+    report.assert_called_once()
+    assert report.call_args.args[0].thm.eq(goal)
 
 
 def check_code(asm, nsucc, nfail):
