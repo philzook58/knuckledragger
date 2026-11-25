@@ -23,12 +23,12 @@ def test_unfinished_focus_restores_goal_and_siblings():
     l = kd.Lemma(And(BoolVal(True), BoolVal(True)))
     l.split()
     original = l.top_goal()
-    original_goals = l.goals.copy()
+    original_goals = l._scope.goals.copy()
     with pytest.raises(ValueError, match="Unfinished focused proof"):
         with l:
             l.have(BoolVal(True), by=[])
     assert l.top_goal() is original
-    assert all(a is b for a, b in zip(l.goals, original_goals, strict=True))
+    assert all(a is b for a, b in zip(l._scope.goals, original_goals, strict=True))
     assert not l.lemmas[-1]
     with l:
         l.auto()
@@ -55,9 +55,11 @@ def test_nested_focus():
         l.cases(x < 0, x >= 0)
         with l.case(x < 0):
             l.auto()
+            assert not l._scope.has_pending_work()
+        assert l._scope.has_pending_work()
         with l.case(x >= 0):
             l.auto()
-    assert not l.goals
+    assert not l._scope.has_pending_work()
     assert l.qed().thm.eq(x - x == 0)
 
 

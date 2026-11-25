@@ -301,10 +301,10 @@ def record(targets, revision):
     pending = {}
 
     def snapshot(state):
-        # top_goal() can run callbacks, so read the stack directly.
+        # top_goal() can run callbacks, so read the active scope's stack directly.
         return tuple(
             goal._replace(sig=list(goal.sig), ctx=list(goal.ctx))
-            for goal in reversed(state.goals)
+            for goal in reversed(state._scope.goals)
             if isinstance(goal, tactics.Goal)
         )
 

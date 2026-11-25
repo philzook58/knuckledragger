@@ -531,6 +531,10 @@ class _ProofScope:
     def __post_init__(self):
         self.goals = [self.target_goal]
 
+    def has_pending_work(self) -> bool:
+        """Whether this scope still has any goals or reconstruction callbacks."""
+        return bool(self.goals)
+
     def build_proof(self, **kwargs) -> kd.kernel.Proof:
         """Get the target proof, reconstructing it from the recorded lemmas on a miss."""
         target = self.target_goal.to_expr()
@@ -626,10 +630,6 @@ class ProofState:
         return self._scopes[-1]
 
     @property
-    def goals(self) -> list[Goal | LemmaCallback]:
-        return self._scope.goals
-
-    @property
     def lemmas(self) -> list[dict[int, kd.kernel.Proof]]:
         return self._scope.lemmas
 
@@ -672,7 +672,7 @@ class ProofState:
         [] ?|= Implies(p, q)
         """
         lemma_cpy = ProofState(self._scope.target_goal)
-        lemma_cpy._scope.goals = self.goals.copy()
+        lemma_cpy._scope.goals = self._scope.goals.copy()
         lemma_cpy._scope.lemmas = self.lemmas.copy()
         return lemma_cpy
 
@@ -738,8 +738,10 @@ class ProofState:
                     l = self.get_lemma(smt.Implies(smt.And(ctx), newgoal))
                     self.add_lemma(kd.kernel.compose(l, herb_lemma))
 
-            self.goals.append(LemmaCallback(cb, annot=("fixes", goal)))
-            self.goals.append(goalctx._replace(sig=goalctx.sig + vs, goal=newgoal))
+            self._scope.goals.append(LemmaCallback(cb, annot=("fixes", goal)))
+            self._scope.goals.append(
+                goalctx._replace(sig=goalctx.sig + vs, goal=newgoal)
+            )
             return vs
         else:
             raise ValueError(f"fixes tactic failed. Not a forall {goal}")
@@ -796,12 +798,14 @@ class ProofState:
         if smt.is_implies(goal):
             self.pop_goal()
             hyp = goal.arg(0)
-            self.goals.append(goalctx._replace(ctx=ctx + [hyp], goal=goal.arg(1)))
+            self._scope.goals.append(
+                goalctx._replace(ctx=ctx + [hyp], goal=goal.arg(1))
+            )
             return hyp  # TODO: should return hyp
         elif smt.is_not(goal):
             self.pop_goal()
             hyp = goal.arg(0)
-            self.goals.append(
+            self._scope.goals.append(
                 goalctx._replace(ctx=ctx + [hyp], goal=smt.BoolVal(False))
             )
             return hyp
@@ -811,7 +815,7 @@ class ProofState:
                 raise NotImplementedError("Intro only implemented for two arguments")
             else:
                 hyp = smt.Eq(goal.arg(0), goal.arg(1))
-                self.goals.append(
+                self._scope.goals.append(
                     goalctx._replace(ctx=ctx + [hyp], goal=smt.BoolVal(False))
                 )
                 return hyp
@@ -821,9 +825,11 @@ class ProofState:
             self.pop_goal()
             hyp = goal.arg(0).arg(0)
             if goal.num_args() == 2:
-                self.goals.append(goalctx._replace(ctx=ctx + [hyp], goal=goal.arg(1)))
+                self._scope.goals.append(
+                    goalctx._replace(ctx=ctx + [hyp], goal=goal.arg(1))
+                )
             else:
-                self.goals.append(
+                self._scope.goals.append(
                     goalctx._replace(ctx=ctx + [hyp], goal=smt.Or(goal.children()[1:]))
                 )
             return hyp
@@ -914,7 +920,7 @@ class ProofState:
             #        "Simplify failed. Goal is already simplified.", oldgoal
             #    )
             assert isinstance(newgoal, smt.BoolRef)
-            self.goals[-1] = goalctx._replace(goal=newgoal)
+            self._scope.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
             (at, old) = goalctx.ctx_find(at)
@@ -923,7 +929,7 @@ class ProofState:
             if new.eq(old):
                 raise ValueError("Simplify failed. Ctx is already simplified.")
             self.add_lemma(kd.kernel.prove(smt.Eq(old, new)))
-            self.goals[-1] = goalctx._replace(
+            self._scope.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
         return self
@@ -977,7 +983,7 @@ class ProofState:
             *zip(trues, [smt.BoolVal(True)] * len(trues)),
             *zip(falses, [smt.BoolVal(False)] * len(falses)),
         )
-        self.goals[-1] = goalctx._replace(ctx=newctx, goal=newgoal)
+        self._scope.goals[-1] = goalctx._replace(ctx=newctx, goal=newgoal)
         return self
 
     def emt(self):
@@ -1008,7 +1014,7 @@ class ProofState:
             self.add_lemma(
                 kd.kernel.prove(smt.Implies(smt.And(ctx), smt.Eq(goal, newgoal)))
             )
-            self.goals[-1] = goalctx._replace(goal=newgoal)
+            self._scope.goals[-1] = goalctx._replace(goal=newgoal)
             return self
 
     def cases(self, t, *options, timeout=1000):
@@ -1051,24 +1057,24 @@ class ProofState:
             )
             self.add_lemma(coverage)
             self.pop_goal()
-            self.goals.extend(
+            self._scope.goals.extend(
                 goalctx._replace(ctx=ctx + [condition], goal=goal)
                 for condition in reversed(conditions)
             )
             return self.top_goal()
         if t.sort() == smt.BoolSort():
             self.pop_goal()
-            self.goals.append(
+            self._scope.goals.append(
                 goalctx._replace(ctx=ctx + [t == smt.BoolVal(False)], goal=goal)
             )
-            self.goals.append(
+            self._scope.goals.append(
                 goalctx._replace(ctx=ctx + [t == smt.BoolVal(True)], goal=goal)
             )
         elif isinstance(t, smt.DatatypeRef):
             self.pop_goal()
             dsort = t.sort()
             for i in reversed(range(dsort.num_constructors())):
-                self.goals.append(
+                self._scope.goals.append(
                     goalctx._replace(
                         ctx=ctx + [dsort.recognizer(i)(t) == smt.BoolVal(True)],
                         goal=goal,
@@ -1103,12 +1109,12 @@ class ProofState:
                 and isinstance(e, smt.BoolRef)
             )
             self.pop_goal()
-            self.goals.append(
+            self._scope.goals.append(
                 goalctx._replace(
                     ctx=goalctx.ctx + [smt.Eq(cond, smt.BoolVal(False))], goal=e
                 )
             )
-            self.goals.append(
+            self._scope.goals.append(
                 goalctx._replace(
                     ctx=goalctx.ctx + [smt.Eq(cond, smt.BoolVal(True))], goal=t
                 )
@@ -1137,7 +1143,7 @@ class ProofState:
         >>> l.exfalso()
         [] ?|= False
         """
-        self.goals[-1] = self.top_goal()._replace(goal=smt.BoolVal(False))
+        self._scope.goals[-1] = self.top_goal()._replace(goal=smt.BoolVal(False))
         return self
 
     def impossible(self, **kwargs) -> "ProofState":
@@ -1308,7 +1314,7 @@ class ProofState:
             self.add_lemma(obtain_lemma)
             fact = obtain_lemma.thm.arg(1)
             assert isinstance(fact, smt.BoolRef)
-            self.goals.append(
+            self._scope.goals.append(
                 goalctx._replace(
                     sig=goalctx.sig + fs,
                     ctx=ctx[:n] + [fact] + ctx[n + 1 :],
@@ -1351,7 +1357,7 @@ class ProofState:
         for l in clemmas:
             self.add_lemma(l)
         newctx = ctx + [l.thm for l in clemmas]
-        self.goals[-1] = self.goalctx._replace(ctx=newctx)
+        self._scope.goals[-1] = self.goalctx._replace(ctx=newctx)
         return self
 
     def specialize(
@@ -1438,7 +1444,7 @@ class ProofState:
             ctx = goalctx.ctx + [thm]
         else:
             ctx = goalctx.ctx[:index] + [thm] + goalctx.ctx[index + 1 :]
-        self.goals[-1] = goalctx._replace(ctx=ctx)
+        self._scope.goals[-1] = goalctx._replace(ctx=ctx)
         return thm
 
     def ext(self, at=None):
@@ -1480,7 +1486,7 @@ class ProofState:
         (at, formula) = goalctx.ctx_find(n)
         if smt.is_and(formula):
             children = formula.children()
-            self.goals[-1] = goalctx._replace(
+            self._scope.goals[-1] = goalctx._replace(
                 ctx=goalctx.ctx[:at] + children + goalctx.ctx[at + 1 :]
             )
             return children
@@ -1514,8 +1520,8 @@ class ProofState:
                     self.pop_lemmas()
                     self.add_lemma(kd.kernel.andI(subproofs))
 
-                self.goals.append(LemmaCallback(cb, annot=("split", goal)))
-                self.goals.extend(
+                self._scope.goals.append(LemmaCallback(cb, annot=("split", goal)))
+                self._scope.goals.extend(
                     [goalctx._replace(ctx=ctx, goal=c) for c in reversed(children)]
                 )
             elif smt.is_eq(goal):
@@ -1540,14 +1546,14 @@ class ProofState:
                             kd.kernel.modus(combined, kd.kernel.prove(context))
                         )
 
-                self.goals.append(LemmaCallback(cb, annot=("split", goal)))
-                self.goals.append(goalctx._replace(ctx=ctx, goal=backward))
-                self.goals.append(goalctx._replace(ctx=ctx, goal=forward))
+                self._scope.goals.append(LemmaCallback(cb, annot=("split", goal)))
+                self._scope.goals.append(goalctx._replace(ctx=ctx, goal=backward))
+                self._scope.goals.append(goalctx._replace(ctx=ctx, goal=forward))
             elif smt.is_distinct(goal):
                 self.pop_goal()
                 for i in range(goal.num_args()):
                     for j in range(i):
-                        self.goals.append(
+                        self._scope.goals.append(
                             goalctx._replace(
                                 ctx=ctx + [smt.Eq(goal.arg(j), goal.arg(i))],
                                 goal=smt.BoolVal(False),
@@ -1562,13 +1568,13 @@ class ProofState:
                 # Make N new goals for each disjunct
                 self.pop_goal()
                 for c in hyp.children():
-                    self.goals.append(
+                    self._scope.goals.append(
                         goalctx._replace(ctx=ctx[:at] + [c] + ctx[at + 1 :], goal=goal)
                     )
                 return self
             elif smt.is_and(hyp):  # TODO: phase this out in favor of andE.
                 self.pop_goal()
-                self.goals.append(
+                self._scope.goals.append(
                     goalctx._replace(
                         ctx=ctx[:at] + ctx[at].children() + ctx[at + 1 :], goal=goal
                     )
@@ -1595,7 +1601,7 @@ class ProofState:
         if smt.is_or(goal):
             children = goal.children()
             newgoal = children.pop(n)
-            self.goals[-1] = goalctx._replace(
+            self._scope.goals[-1] = goalctx._replace(
                 ctx=ctx + list(map(smt.Not, children)), goal=newgoal
             )
             return self.top_goal()
@@ -1616,7 +1622,7 @@ class ProofState:
         ctx, goal = goalctx.ctx, goalctx.goal
         if smt.is_or(goal):
             children = goal.children()
-            self.goals[-1] = goalctx._replace(
+            self._scope.goals[-1] = goalctx._replace(
                 ctx=ctx + list(map(smt.Not, children[:-1])), goal=children[-1]
             )
             return self.top_goal()
@@ -1638,7 +1644,7 @@ class ProofState:
         # ts = []
         lemma = kd.kernel.forget(ts, goal)
         self.add_lemma(lemma)
-        self.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
+        self._scope.goals[-1] = goalctx._replace(ctx=ctx, goal=lemma.thm.arg(0))
         return self
 
     def rw(
@@ -1706,9 +1712,9 @@ class ProofState:
             if isinstance(rule, kd.kernel.Proof):
                 self.add_lemma(rule)
             if at is None:
-                self.goals.append(goalctx._replace(ctx=ctx, goal=target))
+                self._scope.goals.append(goalctx._replace(ctx=ctx, goal=target))
             else:
-                self.goals.append(
+                self._scope.goals.append(
                     goalctx._replace(ctx=ctx[:at] + [target] + ctx[at + 1 :], goal=goal)
                 )
             if cond is not None:
@@ -1727,7 +1733,7 @@ class ProofState:
         """
         ctxgoal = self.top_goal()
         if smt.is_eq(ctxgoal.goal):
-            self.goals[-1] = ctxgoal._replace(
+            self._scope.goals[-1] = ctxgoal._replace(
                 goal=smt.Eq(ctxgoal.goal.arg(1), ctxgoal.goal.arg(0))
             )
             return self.top_goal()
@@ -1745,7 +1751,9 @@ class ProofState:
                     **kwargs,
                 )
             )
-            self.goals[-1] = ctxgoal._replace(goal=smt.Eq(ctxgoal.goal.arg(0), rhs))
+            self._scope.goals[-1] = ctxgoal._replace(
+                goal=smt.Eq(ctxgoal.goal.arg(0), rhs)
+            )
             return self.top_goal()
         else:
             raise ValueError("Eq tactic failed. Not an equality", ctxgoal.goal)
@@ -1760,7 +1768,7 @@ class ProofState:
                 smt.Implies(smt.And(goalctx.ctx + [newgoal]), goalctx.goal), **kwargs
             )
         )
-        self.goals[-1] = goalctx._replace(goal=newgoal)
+        self._scope.goals[-1] = goalctx._replace(goal=newgoal)
         return self.top_goal()
 
     def beta(self, at=None):
@@ -1791,7 +1799,7 @@ class ProofState:
                     "Beta tactic failed. Goal is already beta reduced.", oldgoal
                 )
             self.add_lemma(kd.kernel.prove(smt.Eq(oldgoal, newgoal)))
-            self.goals[-1] = goalctx._replace(goal=newgoal)
+            self._scope.goals[-1] = goalctx._replace(goal=newgoal)
         else:
             oldctx = goalctx.ctx
             at, old = goalctx.ctx_find(at)
@@ -1804,7 +1812,7 @@ class ProofState:
                     "Beta tactic failed. Ctx is already beta reduced.", old
                 )
             self.add_lemma(kd.kernel.prove(smt.Eq(old, new)))
-            self.goals[-1] = goalctx._replace(
+            self._scope.goals[-1] = goalctx._replace(
                 ctx=oldctx[:at] + [new] + oldctx[at + 1 :]
             )
         return self.top_goal()
@@ -1846,13 +1854,13 @@ class ProofState:
                 self.add_lemma(lem)
             self.pop_goal()
             if keep:
-                self.goals.append(
+                self._scope.goals.append(
                     goalctx._replace(
                         goal=e2, ctx=goalctx.ctx + [pf.thm for pf in trace]
                     )
                 )
             else:
-                self.goals.append(goalctx._replace(goal=e2))
+                self._scope.goals.append(goalctx._replace(goal=e2))
         else:
             at, e = goalctx.ctx_find(at)
             trace = []
@@ -1864,7 +1872,7 @@ class ProofState:
                 self.add_lemma(lem)
             # self.add_lemma(kd.prove(e == e2, by=trace))
             self.pop_goal()
-            self.goals.append(
+            self._scope.goals.append(
                 goalctx._replace(ctx=goalctx.ctx[:at] + [e2] + goalctx.ctx[at + 1 :])
             )
 
@@ -1906,7 +1914,7 @@ class ProofState:
                 newctx = ctx.copy()
                 newctx.pop(pf)
                 newctx.append(smt.Not(goal))
-                self.goals.append(goalctx._replace(ctx=newctx, goal=thm.arg(0)))
+                self._scope.goals.append(goalctx._replace(ctx=newctx, goal=thm.arg(0)))
                 return self.top_goal()
         elif isinstance(pf, kd.Proof):
             thm = pf.thm
@@ -1928,7 +1936,7 @@ class ProofState:
             elif isinstance(pf, int) and len(rule.vs) > 0:
                 pf1 = kd.kernel.specialize([subst[v] for v in rule.vs], ctx[pf])
                 self.add_lemma(pf1)
-            self.goals[-1] = goalctx._replace(ctx=ctx, goal=newgoal)
+            self._scope.goals[-1] = goalctx._replace(ctx=ctx, goal=newgoal)
             return self.top_goal()
 
     def induct(
@@ -1954,7 +1962,7 @@ class ProofState:
         if smt.is_and(self.top_goal().goal):
             # self.split()
             goalctx = self.pop_goal()
-            self.goals.extend(
+            self._scope.goals.extend(
                 [goalctx._replace(goal=c) for c in reversed(goalctx.goal.children())]
             )
         return self.top_goal()
@@ -1971,7 +1979,7 @@ class ProofState:
         """
         goalctx = self.pop_goal()
         negated = smt.Not(goalctx.goal)
-        self.goals.append(
+        self._scope.goals.append(
             goalctx._replace(ctx=goalctx.ctx + [negated], goal=smt.BoolVal(False))
         )
         return negated
@@ -1992,7 +2000,7 @@ class ProofState:
         ctx = ctxgoal.ctx.copy()
         n, _ = ctxgoal.ctx_find(n)
         ctx.pop(n)
-        self.goals.append(ctxgoal._replace(ctx=ctx))
+        self._scope.goals.append(ctxgoal._replace(ctx=ctx))
         return self.top_goal()
 
     def generalize(self, *vs: smt.ExprRef):
@@ -2002,7 +2010,7 @@ class ProofState:
         goalctx = self.top_goal()
         self.pop_goal()
         self.add_lemma(kd.kernel.specialize(vs, smt.ForAll(vs, goalctx.goal)))
-        self.goals.append(goalctx._replace(goal=smt.ForAll(vs, goalctx.goal)))
+        self._scope.goals.append(goalctx._replace(goal=smt.ForAll(vs, goalctx.goal)))
         return self.top_goal()
 
     def revert(self, n: int):
@@ -2021,7 +2029,7 @@ class ProofState:
         ctx = goalctx.ctx.copy()
         hyp = ctx.pop(n)
         self.pop_goal()
-        self.goals.append(
+        self._scope.goals.append(
             goalctx._replace(ctx=ctx, goal=smt.Implies(hyp, goalctx.goal))
         )
         return self.top_goal()
@@ -2040,7 +2048,7 @@ class ProofState:
     def __enter__(self) -> "ProofState":
         """Focus the current goal with a fresh lemma table."""
         goal = self.top_goal()
-        if not self.goals:
+        if not self._scope.has_pending_work():
             raise ValueError("Cannot focus a proof with no open goals")
         self._scopes.append(_ProofScope(goal))
         return self
@@ -2051,7 +2059,7 @@ class ProofState:
             if exc_type is not None:
                 return
             goal = self.top_goal()
-            if self.goals:
+            if self._scope.has_pending_work():
                 raise ValueError("Unfinished focused proof", goal)
             proof = self.qed()
         finally:
@@ -2151,9 +2159,9 @@ class ProofState:
             conc = conc0
         assert isinstance(conc, smt.BoolRef)
         goalctx = self.pop_goal()
-        self.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
+        self._scope.goals.append(goalctx._replace(ctx=goalctx.ctx + [conc]))
         newgoal = goalctx._replace(goal=conc)
-        self.goals.append(newgoal)
+        self._scope.goals.append(newgoal)
         if len(kwargs) != 0:
             self.auto(**kwargs)
             # self.add_lemma(
@@ -2231,25 +2239,26 @@ class ProofState:
 
     def pop_goal(self) -> Goal:
         goal = self.top_goal()  # to clear possible LemmaCallback
-        self.goals.pop()
+        self._scope.goals.pop()
         return goal
 
     def top_goal(self) -> Goal:
-        while len(self.goals) > 0 and isinstance(self.goals[-1], LemmaCallback):
-            lc = self.goals.pop()
+        scope = self._scope
+        while scope.goals and isinstance(scope.goals[-1], LemmaCallback):
+            lc = scope.goals.pop()
             assert isinstance(lc, LemmaCallback)  # for type checker
             try:
                 lc.cb()
             except Exception as e:
                 raise ValueError("LemmaCallback failed", lc.annot) from e
-        if len(self.goals) == 0:
+        if not scope.has_pending_work():
             return Goal.empty()  # kind of hacky
-        res = self.goals[-1]
+        res = scope.goals[-1]
         assert isinstance(res, Goal)
         return res
 
     def __repr__(self):
-        if len(self.goals) == 0:
+        if not self._scope.has_pending_work():
             return "Nothing to do. Hooray!"
         return repr(self.top_goal())
 
@@ -2257,13 +2266,13 @@ class ProofState:
         """
         return the actual final `Proof` of the lemma that was defined at the beginning.
         """
-        for lam_cb in reversed(self.goals):
+        scope = self._scope
+        for lam_cb in reversed(scope.goals):
             if isinstance(lam_cb, LemmaCallback):
                 try:
                     lam_cb.cb()
                 except Exception as e:
                     raise ValueError("LemmaCallback failed", lam_cb.annot) from e
-        scope = self._scope
         proof = scope.build_proof(**kwargs)
         kdrag.config.perf_event(
             "ProofState", scope.target_goal, time.perf_counter() - scope.start_time
@@ -2407,7 +2416,7 @@ def PTheorem(
                 )
             )
             return
-        if len(l.goals) == 0:
+        if not l._scope.has_pending_work():
             l.qed()
             print("Lemma Complete! Change PTheorem to Theorem")
         else:

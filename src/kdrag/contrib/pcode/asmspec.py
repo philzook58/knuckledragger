@@ -646,7 +646,7 @@ class VCProofState(kd.tactics.ProofState):
     def __exit__(self, exc_type, exc_value, traceback):
         super().__exit__(exc_type, exc_value, traceback)
         if exc_type is None and self._on_qed is not None and len(self._scopes) == 1:
-            if not self.goals:
+            if not self._scope.has_pending_work():
                 self.qed()
 
 
