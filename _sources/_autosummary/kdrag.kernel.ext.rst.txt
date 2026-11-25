@@ -1,0 +1,6 @@
+kdrag.kernel.ext
+================
+
+.. currentmodule:: kdrag.kernel
+
+.. autofunction:: ext

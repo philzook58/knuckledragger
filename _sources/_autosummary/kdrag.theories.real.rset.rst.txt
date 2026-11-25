@@ -1,0 +1,31 @@
+kdrag.theories.real.rset
+========================
+
+.. automodule:: kdrag.theories.real.rset
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.rset
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/rset.py
+   :language: python

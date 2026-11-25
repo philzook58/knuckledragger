@@ -1,0 +1,6 @@
+kdrag.theories.float.is\_finite
+===============================
+
+.. currentmodule:: kdrag.theories.float
+
+.. autofunction:: is_finite

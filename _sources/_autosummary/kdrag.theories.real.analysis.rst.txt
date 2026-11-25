@@ -1,0 +1,38 @@
+kdrag.theories.real.analysis
+============================
+
+.. automodule:: kdrag.theories.real.analysis
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      Ball
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.analysis
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/analysis.py
+   :language: python

@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.real.rset &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=5b5cfd35" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.real.vec" href="kdrag.theories.real.vec.html" />
+    <link rel="prev" title="kdrag.theories.real.rseq.test" href="kdrag.theories.real.rseq.test.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.int.html">kdrag.theories.int</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.abstract_arith.html">kdrag.theories.real.abstract_arith</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.interior_point.html">kdrag.theories.real.interior_point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rlemma.html">kdrag.theories.real.rlemma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sin_lower.html">kdrag.theories.real.sin_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_bnd.html">kdrag.theories.real.sqrt_bnd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_lower.html">kdrag.theories.real.sqrt_lower</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.sqrt_upper.html">kdrag.theories.real.sqrt_upper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.Add"><code class="docutils literal notranslate"><span class="pre">Add</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.Mul"><code class="docutils literal notranslate"><span class="pre">Mul</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.abstract_arith"><code class="docutils literal notranslate"><span class="pre">abstract_arith()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.interior_point"><code class="docutils literal notranslate"><span class="pre">interior_point()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.rlemma"><code class="docutils literal notranslate"><span class="pre">rlemma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sin_lower"><code class="docutils literal notranslate"><span class="pre">sin_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_bnd"><code class="docutils literal notranslate"><span class="pre">sqrt_bnd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_lower"><code class="docutils literal notranslate"><span class="pre">sqrt_lower()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.html#kdrag.theories.real.sqrt_upper"><code class="docutils literal notranslate"><span class="pre">sqrt_upper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.analysis.html">kdrag.theories.real.analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.arb.html">kdrag.theories.real.arb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.complex.html">kdrag.theories.real.complex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.cont.html">kdrag.theories.real.cont</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.cseq.html">kdrag.theories.real.cseq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.extended.html">kdrag.theories.real.extended</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.fun.html">kdrag.theories.real.fun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.geometry.html">kdrag.theories.real.geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.interval.html">kdrag.theories.real.interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.measure.html">kdrag.theories.real.measure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.ndarray.html">kdrag.theories.real.ndarray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.rseq.html">kdrag.theories.real.rseq</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">kdrag.theories.real.rset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec.html">kdrag.theories.real.vec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec2.html">kdrag.theories.real.vec2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.real.vec3.html">kdrag.theories.real.vec3</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.real.rset</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.real.rset.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.real.rset">
+<span id="kdrag-theories-real-rset"></span><h1>kdrag.theories.real.rset<a class="headerlink" href="#module-kdrag.theories.real.rset" title="Link to this heading"></a></h1>
+<p>Bounds, completeness, and operations on sets of real numbers.</p>
+<table class="theorem-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Theorem</p></th>
+<th class="head"><p>Statement</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-bdd-above-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L98"><code class="docutils literal notranslate"><span class="pre">real.rset.bdd_above_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">RSet.bdd_above(λz₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160;&#160;&#160;&#160;&#160; <span class="pre">∃x₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x₀]</span> <span class="pre">∧</span> <span class="pre">z₀</span> <span class="pre">=</span> <span class="pre">-x₀)</span> <span class="pre">=</span> <span class="pre">RSet.bdd_below(A)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.bdd_above_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;RSet.bdd_above&quot;, &quot;RSet.bdd_below&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28A%2C+bdd_above%28-A%29+%3D%3D+bdd_below%28A%29%29%29%0Adef+bdd_above_neg%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A+%3D+l.fix%28%29%0A++++l.unfold%28bdd_above%2C+bdd_below%29%0A++++l.split%28%29%0A++++h+%3D+l.intro%28%29%0A++++b%2C+_+%3D+l.obtain%28h%29%0A++++l.exists%28-b%29%0A++++l.auto%28by%3D%5Bis_ub_neg%28A%2C+b%29%5D%29%0A++++h+%3D+l.intro%28%29%0A++++b%2C+_+%3D+l.obtain%28h%29%0A++++%23+A+lower+bound+b+of+A+gives+an+upper+bound+-b+of+its+image+under+negation.%0A++++l.exists%28-b%29%0A++++l.auto%28by%3D%5Bis_ub_neg%28A%2C+-b%29%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-bdd-above-of-bdd-below-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L78"><code class="docutils literal notranslate"><span class="pre">real.rset.bdd_above_of_bdd_below_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">RSet.bdd_below(λz₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">∃x₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x₀]</span> <span class="pre">∧</span> <span class="pre">z₀</span> <span class="pre">=</span> <span class="pre">-x₀)</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.bdd_above(A)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.bdd_above_of_bdd_below_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;RSet.bdd_above&quot;, &quot;RSet.bdd_below&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28A%2C+bdd_below%28-A%29%2C+bdd_above%28A%29%29%29%0Adef+bdd_above_of_bdd_below_neg%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A+%3D+l.fix%28%29%0A++++l.unfold%28bdd_above%2C+bdd_below%29%0A++++h+%3D+l.intro%28%29%0A++++b%2C+_+%3D+l.obtain%28h%29%0A++++l.exists%28-b%29%0A++++l.auto%28by%3D%5Bis_lb_neg%28A%2C+b%29%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-bdd-below-of-bdd-above-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L88"><code class="docutils literal notranslate"><span class="pre">real.rset.bdd_below_of_bdd_above_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">RSet.bdd_above(λz₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">∃x₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x₀]</span> <span class="pre">∧</span> <span class="pre">z₀</span> <span class="pre">=</span> <span class="pre">-x₀)</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.bdd_below(A)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.bdd_below_of_bdd_above_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;RSet.bdd_above&quot;, &quot;RSet.bdd_below&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28A%2C+bdd_above%28-A%29%2C+bdd_below%28A%29%29%29%0Adef+bdd_below_of_bdd_above_neg%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A+%3D+l.fix%28%29%0A++++l.unfold%28bdd_above%2C+bdd_below%29%0A++++h+%3D+l.intro%28%29%0A++++b%2C+_+%3D+l.obtain%28h%29%0A++++l.exists%28-b%29%0A++++l.auto%28by%3D%5Bis_ub_neg%28A%2C+b%29%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-exists-between-seq"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L291"><code class="docutils literal notranslate"><span class="pre">real.rset.exists_between_seq</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">(∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">m</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">b[m])</span> <span class="pre">→</span>
+&#160; <span class="pre">∃x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">x</span> <span class="pre">∧</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">b[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.exists_between_seq&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%5Ba%2C+b%5D%2C+ForAll%28%5Bn%2C+m%5D%2C+n+%3E%3D+0%2C+m+%3E%3D+0%2C+a%5Bn%5D+%3C%3D+b%5Bm%5D%29%2C%0A+++++++++++Exists%28x%2C+ForAll%28n%2C+n+%3E%3D+0%2C+And%28a%5Bn%5D+%3C%3D+x%2C+x+%3C%3D+b%5Bn%5D%29%29%29%29%0A%29%0Adef+exists_between_seq%28l%29%3A%0A++++%22%22%22Uniformly+separated+real+sequences+admit+a+common+interpolant.%22%22%22%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++a%2C+b+%3D+l.fixes%28%29%0A++++cross_bounds+%3D+l.intro%28%29%0A++++%23+Ignore+negative+indices.+Every+upper-sequence+term+bounds+this+range.%0A++++lower+%3D+Lambda%28x%2C+Exists%28n%2C+n+%3E%3D+0%2C+a%5Bn%5D+%3D%3D+x%29%29%0A++++bounds+%3D+l.have%28ForAll%28m%2C+m+%3E%3D+0%2C+is_ub%28lower%2C+b%5Bm%5D%29%29%29%0A++++j+%3D+l.fix%28%29%0A++++l.intro%28%29%0A++++l.unfold%28is_ub%29%0A++++l.fix%28%29%0A++++l.beta%28%29%0A++++member+%3D+l.intro%28%29%0A++++k%2C+_+%3D+l.obtain%28member%29%0A++++l.specialize%28cross_bounds%2C+k%2C+j%29%0A++++l.auto%28%29%0A%0A++++%23+Take+the+supremum+of+the+lower+sequence%2C+bounded+by+b%5B0%5D.%0A++++l.have%28lower%5Ba%5B0%5D%5D%2C+by%3D%5B%5D%29%0A++++l.have%28Exists%28x%2C+lower%5Bx%5D%29%2C+by%3D%5B%5D%29%0A++++l.specialize%28bounds%2C+0%2C+keep%3DTrue%29%0A++++l.have%28bdd_above%28lower%29%2C+by%3D%5Bbdd_above.defn%28lower%29%5D%29%0A++++supremum+%3D+l.have%28%0A++++++++Exists%28u%2C+is_lub%28lower%2C+u%29%29%2C+by%3D%5Bexists_is_lub_of_bdd_above%28lower%29%5D%0A++++%29%0A++++s%2C+_+%3D+l.obtain%28supremum%29%0A++++l.exists%28s%29%0A++++j+%3D+l.fix%28%29%0A++++l.intro%28%29%0A++++l.specialize%28bounds%2C+j%29%0A++++%23+Membership+gives+the+lower+inequality%3B+leastness+gives+the+upper+one.%0A++++l.have%28lower%5Ba%5Bj%5D%5D%2C+by%3D%5B%5D%29%0A++++l.have%28is_ub%28lower%2C+s%29%2C+by%3D%5Bis_ub_of_is_lub%28lower%2C+s%29%5D%29%0A++++l.have%28a%5Bj%5D+%3C%3D+s%2C+by%3D%5Ble_of_mem_of_is_ub%28lower%2C+a%5Bj%5D%2C+s%29%5D%29%0A++++l.auto%28by%3D%5Ble_of_is_lub_of_is_ub%28lower%2C+s%2C+b%5Bj%5D%29%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-exists-is-glb-of-bdd-below"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L144"><code class="docutils literal notranslate"><span class="pre">real.rset.exists_is_glb_of_bdd_below</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">(∃x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x])</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.bdd_below(A)</span> <span class="pre">→</span> <span class="pre">∃u</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.is_glb(A,</span> <span class="pre">u)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.exists_is_glb_of_bdd_below&quot;, [&quot;=&gt;&quot;, &quot;RSet.bdd_below&quot;, &quot;RSet.is_glb&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28A%2C+Exists%28x%2C+A%5Bx%5D%29%2C+bdd_below%28A%29%2C+Exists%28u%2C+is_glb%28A%2C+u%29%29%29%29%0Adef+exists_is_glb_of_bdd_below%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A+%3D+l.fix%28%29%0A++++l.intro%28%29%0A++++l.intro%28%29%0A++++l.have%28bdd_above%28-A%29%2C+by%3D%5Bbdd_above_neg%28A%29%5D%29%0A++++l.have%28Exists%28x%2C+%28-A%29%5Bx%5D%29%2C+by%3D%5B%5D%29%0A++++h+%3D+l.have%28Exists%28u%2C+is_lub%28-A%2C+u%29%29%2C+by%3D%5Bexists_is_lub_of_bdd_above%28-A%29%5D%29%0A++++lub%2C+_+%3D+l.obtain%28h%29%0A++++l.exists%28-lub%29%0A++++l.auto%28by%3D%5Bis_glb_of_is_lub_neg%28A%2C+-lub%29%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-exists-is-lub-of-bdd-above"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L41"><code class="docutils literal notranslate"><span class="pre">real.rset.exists_is_lub_of_bdd_above</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">(∃x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x])</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.bdd_above(A)</span> <span class="pre">→</span> <span class="pre">∃u</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.is_lub(A,</span> <span class="pre">u)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.exists_is_lub_of_bdd_above&quot;, [&quot;=&gt;&quot;, &quot;RSet.bdd_above&quot;, &quot;RSet.is_lub&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0Aexists_is_lub_of_bdd_above+%3D+axiom%28%0A++++ForAll%28A%2C+Exists%28x%2C+A%5Bx%5D%29%2C+bdd_above%28A%29%2C+Exists%28u%2C+is_lub%28A%2C+u%29%29%29%0A%29%0Aexists_is_lub_of_bdd_above" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-icc-subset-icc-iff"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L209"><code class="docutils literal notranslate"><span class="pre">real.rset.icc_subset_icc_iff</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">u</span> <span class="pre">v</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">y</span> <span class="pre">→</span>
+&#160; <span class="pre">(RSet.icc(x,</span> <span class="pre">y)</span> <span class="pre">⊆</span> <span class="pre">RSet.icc(u,</span> <span class="pre">v))</span> <span class="pre">=</span> <span class="pre">(u</span> <span class="pre">≤</span> <span class="pre">x</span> <span class="pre">∧</span> <span class="pre">y</span> <span class="pre">≤</span> <span class="pre">v)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.icc_subset_icc_iff&quot;, [&quot;&lt;=&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;RSet.icc&quot;, &quot;and&quot;, &quot;subset&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%5Bx%2C+y%2C+u%2C+v%5D%2C+x+%3C%3D+y%2C%0A+++++++++++Eq%28icc%28x%2C+y%29+%3C%3D+icc%28u%2C+v%29%2C+And%28u+%3C%3D+x%2C+y+%3C%3D+v%29%29%29%0A%29%0Adef+icc_subset_icc_iff%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++l.fixes%28%29%0A++++l.intro%28%29%0A++++l.unfold%28icc%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-is-glb-of-is-lub-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L129"><code class="docutils literal notranslate"><span class="pre">real.rset.is_glb_of_is_lub_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSet.is_lub(λz₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">∃x₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x₀]</span> <span class="pre">∧</span> <span class="pre">z₀</span> <span class="pre">=</span> <span class="pre">-x₀,</span> <span class="pre">-x)</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.is_glb(A,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_glb_of_is_lub_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;RSet.is_glb&quot;, &quot;RSet.is_lub&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5BA%2C+x%5D%2C+is_lub%28-A%2C+-x%29%2C+is_glb%28A%2C+x%29%29%29%0Adef+is_glb_of_is_lub_neg%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A%2C+x+%3D+l.fixes%28%29%0A++++l.unfold%28is_glb%2C+is_lub%29%0A++++l.intro%28%29%0A++++l.split%28%29%0A%0A++++l.auto%28by%3D%5Bis_ub_neg%28A%2C+-x%29%5D%29%0A%0A++++v+%3D+l.fix%28%29%0A++++l.intro%28%29%0A++++l.have%28is_ub%28-A%2C+-v%29%2C+by%3D%5Bis_ub_neg%28A%2C+-v%29%5D%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-is-lb-icc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L224"><code class="docutils literal notranslate"><span class="pre">real.rset.is_lb_icc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.is_lb(RSet.icc(x,</span> <span class="pre">y),</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_lb_icc&quot;, [&quot;RSet.icc&quot;, &quot;RSet.is_lb&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5Bx%2C+y%5D%2C+is_lb%28icc%28x%2C+y%29%2C+x%29%29%29%0Adef+is_lb_icc%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++l.fixes%28%29%0A++++l.unfold%28is_lb%2C+icc%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-is-lb-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L47"><code class="docutils literal notranslate"><span class="pre">real.rset.is_lb_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">u</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSet.is_lb(λz₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">∃x₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x₀]</span> <span class="pre">∧</span> <span class="pre">z₀</span> <span class="pre">=</span> <span class="pre">-x₀,</span>
+&#160;&#160;&#160; <span class="pre">u)</span> <span class="pre">=</span> <span class="pre">RSet.is_ub(A,</span> <span class="pre">-u)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_lb_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;RSet.is_lb&quot;, &quot;RSet.is_ub&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5BA%2C+u%5D%2C+is_lb%28-A%2C+u%29+%3D%3D+is_ub%28A%2C+-u%29%29%29%0Adef+is_lb_neg%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A%2C+u+%3D+l.fixes%28%29%0A++++l.unfold%28is_lb%2C+is_ub%29%0A++++l.split%28%29%0A++++h+%3D+l.intro%28%29%0A++++x+%3D+l.fix%28%29%0A++++l.specialize%28h%2C+-x%29%0A++++l.auto%28%29%0A++++h+%3D+l.intro%28%29%0A++++x+%3D+l.fix%28%29%0A++++l.specialize%28h%2C+-x%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-is-lub-icc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L231"><code class="docutils literal notranslate"><span class="pre">real.rset.is_lub_icc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">y</span> <span class="pre">→</span> <span class="pre">RSet.is_lub(RSet.icc(x,</span> <span class="pre">y),</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_lub_icc&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;RSet.icc&quot;, &quot;RSet.is_lub&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5Bx%2C+y%5D%2C+x+%3C%3D+y%2C+is_lub%28icc%28x%2C+y%29%2C+y%29%29%29%0Adef+is_lub_icc%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++x%2C+y+%3D+l.fixes%28%29%0A++++l.unfold%28is_lub%29%0A++++l.intro%28%29%0A++++l.split%28%29%0A++++l.auto%28by%3D%5Bis_ub_icc%28x%2C+y%29%5D%29%0A++++l.unfold%28is_ub%2C+icc%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-is-lub-of-is-glb-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L114"><code class="docutils literal notranslate"><span class="pre">real.rset.is_lub_of_is_glb_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSet.is_glb(λz₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">∃x₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x₀]</span> <span class="pre">∧</span> <span class="pre">z₀</span> <span class="pre">=</span> <span class="pre">-x₀,</span> <span class="pre">-x)</span> <span class="pre">→</span>
+&#160; <span class="pre">RSet.is_lub(A,</span> <span class="pre">x)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_lub_of_is_glb_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;=&gt;&quot;, &quot;RSet.is_glb&quot;, &quot;RSet.is_lub&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5BA%2C+x%5D%2C+is_glb%28-A%2C+-x%29%2C+is_lub%28A%2C+x%29%29%29%0Adef+is_lub_of_is_glb_neg%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A%2C+x+%3D+l.fixes%28%29%0A++++l.unfold%28is_glb%2C+is_lub%29%0A++++l.intro%28%29%0A++++l.split%28%29%0A%0A++++l.auto%28by%3D%5Bis_lb_neg%28A%2C+-x%29%5D%29%0A%0A++++v+%3D+l.fix%28%29%0A++++l.intro%28%29%0A++++l.have%28is_lb%28-A%2C+-v%29%2C+by%3D%5Bis_lb_neg%28A%2C+-v%29%5D%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-is-ub-icc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L217"><code class="docutils literal notranslate"><span class="pre">real.rset.is_ub_icc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.is_ub(RSet.icc(x,</span> <span class="pre">y),</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_ub_icc&quot;, [&quot;RSet.icc&quot;, &quot;RSet.is_ub&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5Bx%2C+y%5D%2C+is_ub%28icc%28x%2C+y%29%2C+y%29%29%29%0Adef+is_ub_icc%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++l.fixes%28%29%0A++++l.unfold%28is_ub%2C+icc%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-is-ub-neg"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L62"><code class="docutils literal notranslate"><span class="pre">real.rset.is_ub_neg</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">u</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSet.is_ub(λz₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">∃x₀</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x₀]</span> <span class="pre">∧</span> <span class="pre">z₀</span> <span class="pre">=</span> <span class="pre">-x₀,</span>
+&#160;&#160;&#160; <span class="pre">u)</span> <span class="pre">=</span> <span class="pre">RSet.is_lb(A,</span> <span class="pre">-u)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_ub_neg&quot;, [&quot;-&quot;, &quot;=&quot;, &quot;RSet.is_lb&quot;, &quot;RSet.is_ub&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5BA%2C+u%5D%2C+is_ub%28-A%2C+u%29+%3D%3D+is_lb%28A%2C+-u%29%29%29%0Adef+is_ub_neg%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++A%2C+u+%3D+l.fixes%28%29%0A++++%23+Prove+this+direction+directly+to+avoid+matching+through+double+images.%0A++++l.unfold%28is_lb%2C+is_ub%29%0A++++l.split%28%29%0A++++h+%3D+l.intro%28%29%0A++++x+%3D+l.fix%28%29%0A++++l.specialize%28h%2C+-x%29%0A++++l.auto%28%29%0A++++h+%3D+l.intro%28%29%0A++++x+%3D+l.fix%28%29%0A++++l.specialize%28h%2C+-x%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-is-ub-of-is-lub"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L166"><code class="docutils literal notranslate"><span class="pre">real.rset.is_ub_of_is_lub</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">u</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.is_lub(A,</span> <span class="pre">u)</span> <span class="pre">→</span> <span class="pre">RSet.is_ub(A,</span> <span class="pre">u)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.is_ub_of_is_lub&quot;, [&quot;=&gt;&quot;, &quot;RSet.is_lub&quot;, &quot;RSet.is_ub&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0Ais_ub_of_is_lub+%3D+prove%28%0A++++ForAll%28%5BA%2C+u%5D%2C+is_lub%28A%2C+u%29%2C+is_ub%28A%2C+u%29%29%2C+by%3D%5Bis_lub.defn%5D%0A%29%0Ais_ub_of_is_lub" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-lb-le-ub"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L156"><code class="docutils literal notranslate"><span class="pre">real.rset.lb_le_ub</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">x</span> <span class="pre">y</span> <span class="pre">z</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">A[x]</span> <span class="pre">→</span> <span class="pre">RSet.is_lb(A,</span> <span class="pre">y)</span> <span class="pre">→</span> <span class="pre">RSet.is_ub(A,</span> <span class="pre">z)</span> <span class="pre">→</span> <span class="pre">y</span> <span class="pre">≤</span> <span class="pre">z</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.lb_le_ub&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;RSet.is_lb&quot;, &quot;RSet.is_ub&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0Alb_le_ub+%3D+prove%28%0A++++ForAll%28%5BA%2C+x%2C+y%2C+z%5D%2C+A%5Bx%5D%2C+is_lb%28A%2C+y%29%2C+is_ub%28A%2C+z%29%2C+y+%3C%3D+z%29%2C%0A++++by%3D%5Bis_lb.defn%2C+is_ub.defn%5D%2C%0A%29%0Alb_le_ub" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-le-of-is-lub-of-is-ub"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L170"><code class="docutils literal notranslate"><span class="pre">real.rset.le_of_is_lub_of_is_ub</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">u</span> <span class="pre">v</span> <span class="pre">:</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">RSet.is_lub(A,</span> <span class="pre">u)</span> <span class="pre">→</span> <span class="pre">RSet.is_ub(A,</span> <span class="pre">v)</span> <span class="pre">→</span> <span class="pre">u</span> <span class="pre">≤</span> <span class="pre">v</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.le_of_is_lub_of_is_ub&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;RSet.is_lub&quot;, &quot;RSet.is_ub&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0Ale_of_is_lub_of_is_ub+%3D+prove%28%0A++++ForAll%28%5BA%2C+u%2C+v%5D%2C+is_lub%28A%2C+u%29%2C+is_ub%28A%2C+v%29%2C+u+%3C%3D+v%29%2C+by%3D%5Bis_lub.defn%5D%0A%29%0Ale_of_is_lub_of_is_ub" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-le-of-mem-of-is-ub"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L162"><code class="docutils literal notranslate"><span class="pre">real.rset.le_of_mem_of_is_ub</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀A</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">x</span> <span class="pre">u</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">A[x]</span> <span class="pre">→</span> <span class="pre">RSet.is_ub(A,</span> <span class="pre">u)</span> <span class="pre">→</span> <span class="pre">x</span> <span class="pre">≤</span> <span class="pre">u</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.le_of_mem_of_is_ub&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;RSet.is_ub&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0Ale_of_mem_of_is_ub+%3D+prove%28%0A++++ForAll%28%5BA%2C+x%2C+u%5D%2C+A%5Bx%5D%2C+is_ub%28A%2C+u%29%2C+x+%3C%3D+u%29%2C+by%3D%5Bis_ub.defn%5D%0A%29%0Ale_of_mem_of_is_ub" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-nested-icc-bounds"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L271"><code class="docutils literal notranslate"><span class="pre">real.rset.nested_icc_bounds</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">nested(λi</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">RSet.icc(a[i],</span> <span class="pre">b[i]))</span> <span class="pre">→</span>
+&#160; <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">b[n])</span> <span class="pre">→</span>
+&#160; <span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">m</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">b[m]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.nested_icc_bounds&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;RSet.icc&quot;, &quot;nested&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%5Ba%2C+b%5D%2C+nested%28I%29%2C%0A+++++++++++ForAll%28n%2C+n+%3E%3D+0%2C+a%5Bn%5D+%3C%3D+b%5Bn%5D%29%2C%0A+++++++++++ForAll%28%5Bn%2C+m%5D%2C+n+%3E%3D+0%2C+m+%3E%3D+0%2C+a%5Bn%5D+%3C%3D+b%5Bm%5D%29%29%0A%29%0Adef+nested_icc_bounds%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++a%2C+b+%3D+l.fixes%28%29%0A++++_%2C+nonempty+%3D+l.intros%28%29%0A++++n%2C+m+%3D+l.fixes%28%29%0A++++l.intros%28%29%0A++++intervals+%3D+Lambda%28i%2C+icc%28a%5Bi%5D%2C+b%5Bi%5D%29%29%0A++++%23+The+nonempty+interval+at+max%28n%2Cm%29+is+contained+in+both+earlier+intervals.%0A++++k+%3D+If%28n+%3C%3D+m%2C+m%2C+n%29%0A++++l.specialize%28nonempty%2C+k%29%0A++++l.have%28a%5Bk%5D+%3C%3D+b%5Bk%5D%2C+by%3D%5B%5D%29%0A++++l.have%28intervals%28k%29+%3C%3D+intervals%28n%29%2C+by%3D%5Bnested_subset%28intervals%2C+n%2C+k%29%5D%29%0A++++l.have%28intervals%28k%29+%3C%3D+intervals%28m%29%2C+by%3D%5Bnested_subset%28intervals%2C+m%2C+k%29%5D%29%0A++++l.auto%28by%3D%5Bicc_subset_icc_iff%28a%5Bk%5D%2C+b%5Bk%5D%2C+a%5Bn%5D%2C+b%5Bn%5D%29%2C%0A+++++++++++++++icc_subset_icc_iff%28a%5Bk%5D%2C+b%5Bk%5D%2C+a%5Bm%5D%2C+b%5Bm%5D%29%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-nested-subset"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L242"><code class="docutils literal notranslate"><span class="pre">real.rset.nested_subset</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀An</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">nested(An)</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">m</span> <span class="pre">→</span> <span class="pre">An[m]</span> <span class="pre">⊆</span> <span class="pre">An[n]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.nested_subset&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;nested&quot;, &quot;select&quot;, &quot;subset&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5BAn%2C+n%2C+m%5D%2C+nested%28An%29%2C+n+%3E%3D+0%2C+n+%3C%3D+m%2C+An%5Bm%5D+%3C%3D+An%5Bn%5D%29%29%0Adef+nested_subset%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++from+kdrag.theories.int+import+induct_strong%0A%0A++++An%2C+n%2C+m+%3D+l.fixes%28%29%0A++++l.unfold%28nested%29%0A++++steps+%3D+l.intro%28%29%0A++++l.intro%28%29%0A++++%23+Keep+n+%3C%3D+m+in+the+predicate+so+indices+below+n+give+vacuous+cases.%0A++++l.induct%28m%2C+using%3Dinduct_strong%29%0A++++k+%3D+l.fix%28%29%0A++++ih+%3D+l.intro%28%29%0A++++l.intro%28%29%0A++++l.cases%28k+%3D%3D+n%2C+k+%3E+n%29%0A++++l.auto%28%29%0A++++%23+For+k+%3E+n+%3E%3D+0%2C+the+predecessor+is+smaller+in+absolute+value.%0A++++l.specialize%28ih%2C+k+-+1%29%0A++++l.specialize%28steps%2C+k+-+1%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-nonempty-icc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L199"><code class="docutils literal notranslate"><span class="pre">real.rset.nonempty_icc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀x</span> <span class="pre">y</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">(∃z</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.icc(x,</span> <span class="pre">y)[z])</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">≤</span> <span class="pre">y)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.nonempty_icc&quot;, [&quot;&lt;=&quot;, &quot;=&quot;, &quot;RSet.icc&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28ForAll%28%5Bx%2C+y%5D%2C+Eq%28Exists%28z%2C+icc%28x%2C+y%29%5Bz%5D%29%2C+x+%3C%3D+y%29%29%29%0Adef+nonempty_icc%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++l.fixes%28%29%0A++++l.unfold%28icc%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-real-rset-nonempty-iinter-icc-of-nested"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L333"><code class="docutils literal notranslate"><span class="pre">real.rset.nonempty_iinter_icc_of_nested</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀a</span> <span class="pre">b</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">ℝ,</span>
+&#160; <span class="pre">nested(λi</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">RSet.icc(a[i],</span> <span class="pre">b[i]))</span> <span class="pre">→</span>
+&#160; <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">a[n]</span> <span class="pre">≤</span> <span class="pre">b[n])</span> <span class="pre">→</span>
+&#160; <span class="pre">∃x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.iinter(λi</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">RSet.icc(a[i],</span> <span class="pre">b[i]))[x]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.nonempty_iinter_icc_of_nested&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;RSet.icc&quot;, &quot;RSet.iinter&quot;, &quot;nested&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%5Ba%2C+b%5D%2C+nested%28I%29%2C%0A+++++++++++ForAll%28n%2C+n+%3E%3D+0%2C+a%5Bn%5D+%3C%3D+b%5Bn%5D%29%2C%0A+++++++++++Exists%28x%2C+iinter%28I%29%5Bx%5D%29%29%0A%29%0Adef+nonempty_iinter_icc_of_nested%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++a%2C+b+%3D+l.fixes%28%29%0A++++decreasing%2C+ordered+%3D+l.intros%28%29%0A++++%23+Nesting+separates+all+lower+endpoints+from+all+upper+endpoints.%0A++++cross_bounds+%3D+l.specialize%28nested_icc_bounds%2C+a%2C+b%2C+decreasing%2C+ordered%29%0A++++between+%3D+l.specialize%28exists_between_seq%2C+a%2C+b%2C+cross_bounds%29%0A++++s%2C+_+%3D+l.obtain%28between%29%0A++++l.exists%28s%29%0A++++l.auto%28by%3D%5Biinter.defn%2C+icc.defn%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-real-rset-sing-elem"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/real/rset.py#L186"><code class="docutils literal notranslate"><span class="pre">real.rset.sing_elem</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀c</span> <span class="pre">x</span> <span class="pre">:</span> <span class="pre">ℝ,</span> <span class="pre">RSet.sing(c)[x]</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">=</span> <span class="pre">c)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.real.rset.sing_elem&quot;, [&quot;=&quot;, &quot;RSet.sing&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.real.rset+import+%2A%0A%0Asing_elem+%3D+prove%28%0A++++QForAll%28%5Bc%2C+x%5D%2C+sing%28c%29%5Bx%5D+%3D%3D+%28x+%3D%3D+c%29%29%2C%0A++++by%3D%5Bsing.defn%5D%2C%0A%29%0Asing_elem" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.real.rseq.test.html" class="btn btn-neutral float-left" title="kdrag.theories.real.rseq.test" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.real.vec.html" class="btn btn-neutral float-right" title="kdrag.theories.real.vec" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

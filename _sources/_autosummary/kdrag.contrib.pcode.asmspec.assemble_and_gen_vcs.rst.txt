@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.asmspec.assemble\_and\_gen\_vcs
+===================================================
+
+.. currentmodule:: kdrag.contrib.pcode.asmspec
+
+.. autofunction:: assemble_and_gen_vcs

@@ -1,0 +1,6 @@
+kdrag.solvers.kb.multiset.deduce
+================================
+
+.. currentmodule:: kdrag.solvers.kb.multiset
+
+.. autofunction:: deduce

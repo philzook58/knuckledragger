@@ -1,0 +1,28 @@
+kdrag.contrib.analysis.series
+=============================
+
+.. automodule:: kdrag.contrib.analysis.series
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/analysis/series.py
+   :language: python

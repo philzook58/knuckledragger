@@ -1,0 +1,6 @@
+kdrag.printers.lean.accessor\_def
+=================================
+
+.. currentmodule:: kdrag.printers.lean
+
+.. autofunction:: accessor_def

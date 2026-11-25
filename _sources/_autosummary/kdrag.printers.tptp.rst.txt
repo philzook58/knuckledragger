@@ -1,0 +1,41 @@
+kdrag.printers.tptp
+===================
+
+.. automodule:: kdrag.printers.tptp
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      cnf_file
+      expr_to_cnf
+      expr_to_tptp
+      identifier
+      mangle_decl
+      sort_to_tptp
+      validate_names
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/printers/tptp.py
+   :language: python

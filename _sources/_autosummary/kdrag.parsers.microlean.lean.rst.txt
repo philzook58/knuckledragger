@@ -1,0 +1,6 @@
+kdrag.parsers.microlean.lean
+============================
+
+.. currentmodule:: kdrag.parsers.microlean
+
+.. autofunction:: lean

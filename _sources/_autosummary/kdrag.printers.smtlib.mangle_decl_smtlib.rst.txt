@@ -1,0 +1,6 @@
+kdrag.printers.smtlib.mangle\_decl\_smtlib
+==========================================
+
+.. currentmodule:: kdrag.printers.smtlib
+
+.. autofunction:: mangle_decl_smtlib

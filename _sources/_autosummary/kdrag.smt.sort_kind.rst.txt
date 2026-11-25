@@ -1,0 +1,6 @@
+kdrag.smt.sort\_kind
+====================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: sort_kind

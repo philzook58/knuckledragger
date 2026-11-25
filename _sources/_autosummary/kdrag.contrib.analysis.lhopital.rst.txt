@@ -1,0 +1,28 @@
+kdrag.contrib.analysis.lhopital
+===============================
+
+.. automodule:: kdrag.contrib.analysis.lhopital
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/analysis/lhopital.py
+   :language: python

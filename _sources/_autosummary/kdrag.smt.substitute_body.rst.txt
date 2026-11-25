@@ -1,0 +1,6 @@
+kdrag.smt.substitute\_body
+==========================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: substitute_body

@@ -1,0 +1,6 @@
+kdrag.smt.is\_neg
+=================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: is_neg

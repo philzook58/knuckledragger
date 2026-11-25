@@ -1,0 +1,6 @@
+kdrag.notation.compose
+======================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: compose

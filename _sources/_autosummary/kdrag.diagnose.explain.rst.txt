@@ -1,0 +1,6 @@
+kdrag.diagnose.explain
+======================
+
+.. currentmodule:: kdrag.diagnose
+
+.. autofunction:: explain

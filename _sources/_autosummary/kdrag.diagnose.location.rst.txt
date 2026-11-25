@@ -1,0 +1,6 @@
+kdrag.diagnose.location
+=======================
+
+.. currentmodule:: kdrag.diagnose
+
+.. autofunction:: location

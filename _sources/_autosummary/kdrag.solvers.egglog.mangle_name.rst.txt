@@ -1,0 +1,6 @@
+kdrag.solvers.egglog.mangle\_name
+=================================
+
+.. currentmodule:: kdrag.solvers.egglog
+
+.. autofunction:: mangle_name

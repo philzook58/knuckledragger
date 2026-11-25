@@ -1,0 +1,37 @@
+kdrag.diagnose
+==============
+
+.. automodule:: kdrag.diagnose
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      explain
+      location
+      repair
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/diagnose.py
+   :language: python

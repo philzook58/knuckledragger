@@ -1,0 +1,6 @@
+kdrag.tactics.open\_binder
+==========================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: open_binder

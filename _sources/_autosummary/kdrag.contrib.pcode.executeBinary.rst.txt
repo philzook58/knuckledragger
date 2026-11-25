@@ -1,0 +1,6 @@
+kdrag.contrib.pcode.executeBinary
+=================================
+
+.. currentmodule:: kdrag.contrib.pcode
+
+.. autofunction:: executeBinary

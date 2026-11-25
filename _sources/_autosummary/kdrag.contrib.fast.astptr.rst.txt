@@ -1,0 +1,6 @@
+kdrag.contrib.fast.astptr
+=========================
+
+.. currentmodule:: kdrag.contrib.fast
+
+.. autofunction:: astptr

@@ -1,0 +1,6 @@
+kdrag.suggest
+=============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: suggest

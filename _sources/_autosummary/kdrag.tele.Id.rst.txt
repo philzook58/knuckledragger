@@ -1,0 +1,6 @@
+kdrag.tele.Id
+=============
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: Id

@@ -1,0 +1,6 @@
+kdrag.printers.smtlib.funcdecl\_smtlib
+======================================
+
+.. currentmodule:: kdrag.printers.smtlib
+
+.. autofunction:: funcdecl_smtlib

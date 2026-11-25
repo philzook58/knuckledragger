@@ -1,0 +1,6 @@
+kdrag.reflect.ensures
+=====================
+
+.. currentmodule:: kdrag.reflect
+
+.. autofunction:: ensures

@@ -1,0 +1,6 @@
+kdrag.solvers.tla.domain
+========================
+
+.. currentmodule:: kdrag.solvers.tla
+
+.. autofunction:: domain

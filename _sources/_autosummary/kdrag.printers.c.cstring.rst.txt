@@ -1,0 +1,6 @@
+kdrag.printers.c.cstring
+========================
+
+.. currentmodule:: kdrag.printers.c
+
+.. autofunction:: cstring

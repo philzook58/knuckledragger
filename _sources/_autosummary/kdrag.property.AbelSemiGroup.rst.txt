@@ -1,0 +1,6 @@
+kdrag.property.AbelSemiGroup
+============================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: AbelSemiGroup

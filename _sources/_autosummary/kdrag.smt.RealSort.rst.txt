@@ -1,0 +1,6 @@
+kdrag.smt.RealSort
+==================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: RealSort

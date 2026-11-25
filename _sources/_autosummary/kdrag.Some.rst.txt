@@ -1,0 +1,6 @@
+kdrag.Some
+==========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: Some

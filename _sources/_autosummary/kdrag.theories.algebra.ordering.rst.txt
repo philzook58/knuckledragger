@@ -1,0 +1,37 @@
+kdrag.theories.algebra.ordering
+===============================
+
+.. automodule:: kdrag.theories.algebra.ordering
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      PreOrder
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.algebra.ordering
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/algebra/ordering.py
+   :language: python

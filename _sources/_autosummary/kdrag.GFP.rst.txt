@@ -1,0 +1,6 @@
+kdrag.GFP
+=========
+
+.. currentmodule:: kdrag
+
+.. autofunction:: GFP

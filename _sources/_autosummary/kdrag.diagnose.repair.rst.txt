@@ -1,0 +1,6 @@
+kdrag.diagnose.repair
+=====================
+
+.. currentmodule:: kdrag.diagnose
+
+.. autofunction:: repair

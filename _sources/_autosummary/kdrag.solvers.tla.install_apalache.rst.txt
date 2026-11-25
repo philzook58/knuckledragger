@@ -1,0 +1,6 @@
+kdrag.solvers.tla.install\_apalache
+===================================
+
+.. currentmodule:: kdrag.solvers.tla
+
+.. autofunction:: install_apalache

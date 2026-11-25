@@ -1,0 +1,6 @@
+kdrag.solvers.scryer.to\_scryer\_str
+====================================
+
+.. currentmodule:: kdrag.solvers.scryer
+
+.. autofunction:: to_scryer_str

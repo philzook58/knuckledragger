@@ -1,0 +1,6 @@
+kdrag.contrib.analysis.deriv.straddles
+======================================
+
+.. currentmodule:: kdrag.contrib.analysis.deriv
+
+.. autofunction:: straddles

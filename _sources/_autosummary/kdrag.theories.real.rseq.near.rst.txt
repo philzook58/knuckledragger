@@ -1,0 +1,6 @@
+kdrag.theories.real.rseq.near
+=============================
+
+.. currentmodule:: kdrag.theories.real.rseq
+
+.. autofunction:: near

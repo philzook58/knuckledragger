@@ -1,0 +1,6 @@
+kdrag.theories.option.is\_option
+================================
+
+.. currentmodule:: kdrag.theories.option
+
+.. autofunction:: is_option

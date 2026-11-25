@@ -1,0 +1,6 @@
+kdrag.tele.TForAll
+==================
+
+.. currentmodule:: kdrag.tele
+
+.. autofunction:: TForAll

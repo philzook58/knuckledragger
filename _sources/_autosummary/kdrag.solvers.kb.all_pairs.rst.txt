@@ -1,0 +1,6 @@
+kdrag.solvers.kb.all\_pairs
+===========================
+
+.. currentmodule:: kdrag.solvers.kb
+
+.. autofunction:: all_pairs

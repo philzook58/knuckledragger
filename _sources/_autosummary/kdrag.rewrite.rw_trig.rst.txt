@@ -1,0 +1,6 @@
+kdrag.rewrite.rw\_trig
+======================
+
+.. currentmodule:: kdrag.rewrite
+
+.. autofunction:: rw_trig

@@ -1,0 +1,6 @@
+kdrag.theories.real.abstract\_arith
+===================================
+
+.. currentmodule:: kdrag.theories.real
+
+.. autofunction:: abstract_arith

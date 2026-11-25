@@ -1,0 +1,6 @@
+kdrag.utils.rank\_lemmas
+========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: rank_lemmas

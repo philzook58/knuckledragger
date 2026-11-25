@@ -1,0 +1,6 @@
+kdrag.printers.verilog.to\_verilog
+==================================
+
+.. currentmodule:: kdrag.printers.verilog
+
+.. autofunction:: to_verilog

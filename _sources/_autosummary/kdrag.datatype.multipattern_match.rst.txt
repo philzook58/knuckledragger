@@ -1,0 +1,6 @@
+kdrag.datatype.multipattern\_match
+==================================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: multipattern_match

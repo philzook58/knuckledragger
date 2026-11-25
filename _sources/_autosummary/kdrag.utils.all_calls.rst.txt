@@ -1,0 +1,6 @@
+kdrag.utils.all\_calls
+======================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: all_calls

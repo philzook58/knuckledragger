@@ -1,0 +1,6 @@
+kdrag.property.Antisymm
+=======================
+
+.. currentmodule:: kdrag.property
+
+.. autofunction:: Antisymm

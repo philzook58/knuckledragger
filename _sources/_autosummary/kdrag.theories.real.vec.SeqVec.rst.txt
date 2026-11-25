@@ -1,0 +1,6 @@
+kdrag.theories.real.vec.SeqVec
+==============================
+
+.. currentmodule:: kdrag.theories.real.vec
+
+.. autofunction:: SeqVec

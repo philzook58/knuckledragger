@@ -1,0 +1,6 @@
+kdrag.smt.Lam
+=============
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: Lam

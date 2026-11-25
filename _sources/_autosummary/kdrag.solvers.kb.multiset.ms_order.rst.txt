@@ -1,0 +1,6 @@
+kdrag.solvers.kb.multiset.ms\_order
+===================================
+
+.. currentmodule:: kdrag.solvers.kb.multiset
+
+.. autofunction:: ms_order

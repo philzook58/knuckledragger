@@ -1,0 +1,37 @@
+kdrag.contrib.analysis.deriv
+============================
+
+.. automodule:: kdrag.contrib.analysis.deriv
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      quot
+      slope
+      straddles
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/analysis/deriv.py
+   :language: python

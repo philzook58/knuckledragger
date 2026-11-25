@@ -1,0 +1,6 @@
+kdrag.solvers.run
+=================
+
+.. currentmodule:: kdrag.solvers
+
+.. autofunction:: run

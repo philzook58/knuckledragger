@@ -1,0 +1,6 @@
+kdrag.smt.Any
+=============
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: Any

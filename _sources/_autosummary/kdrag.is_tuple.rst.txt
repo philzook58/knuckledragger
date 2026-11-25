@@ -1,0 +1,6 @@
+kdrag.is\_tuple
+===============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: is_tuple

@@ -1,0 +1,6 @@
+kdrag.TupleSort
+===============
+
+.. currentmodule:: kdrag
+
+.. autofunction:: TupleSort

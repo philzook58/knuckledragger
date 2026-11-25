@@ -1,0 +1,28 @@
+kdrag.contrib.analysis.ftc
+==========================
+
+.. automodule:: kdrag.contrib.analysis.ftc
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/analysis/ftc.py
+   :language: python

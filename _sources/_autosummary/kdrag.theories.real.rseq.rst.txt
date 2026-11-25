@@ -1,0 +1,51 @@
+kdrag.theories.real.rseq
+========================
+
+.. automodule:: kdrag.theories.real.rseq
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      cauchy_mod
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      near
+      test
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Series
+   
+   
+
+   
+   
+   
+
+
+.. theorem-index:: kdrag.theories.real.rseq
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/theories/real/rseq.py
+   :language: python

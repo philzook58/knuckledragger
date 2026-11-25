@@ -1,0 +1,6 @@
+kdrag.contrib.analysis.deriv.quot
+=================================
+
+.. currentmodule:: kdrag.contrib.analysis.deriv
+
+.. autofunction:: quot

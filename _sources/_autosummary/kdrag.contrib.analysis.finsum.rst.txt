@@ -1,0 +1,28 @@
+kdrag.contrib.analysis.finsum
+=============================
+
+.. automodule:: kdrag.contrib.analysis.finsum
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/analysis/finsum.py
+   :language: python

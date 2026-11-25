@@ -1,0 +1,6 @@
+kdrag.utils.decl\_counter
+=========================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: decl_counter

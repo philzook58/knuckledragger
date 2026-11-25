@@ -1,0 +1,6 @@
+kdrag.smt.Lambda
+================
+
+.. currentmodule:: kdrag.smt
+
+.. autofunction:: Lambda

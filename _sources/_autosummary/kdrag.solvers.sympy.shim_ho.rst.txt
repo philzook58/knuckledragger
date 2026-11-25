@@ -1,0 +1,6 @@
+kdrag.solvers.sympy.shim\_ho
+============================
+
+.. currentmodule:: kdrag.solvers.sympy
+
+.. autofunction:: shim_ho

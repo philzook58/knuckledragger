@@ -1,0 +1,6 @@
+kdrag.contrib.nand2tetris.ppinsn
+================================
+
+.. currentmodule:: kdrag.contrib.nand2tetris
+
+.. autofunction:: ppinsn

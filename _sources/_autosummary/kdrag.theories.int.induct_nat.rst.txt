@@ -1,0 +1,6 @@
+kdrag.theories.int.induct\_nat
+==============================
+
+.. currentmodule:: kdrag.theories.int
+
+.. autofunction:: induct_nat

@@ -1,0 +1,35 @@
+kdrag.contrib.analysis.rseq
+===========================
+
+.. automodule:: kdrag.contrib.analysis.rseq
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      lim_lemma
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+
+
+
+.. literalinclude:: ../../kdrag/contrib/analysis/rseq.py
+   :language: python

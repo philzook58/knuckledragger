@@ -1,0 +1,6 @@
+kdrag.tactics.simp
+==================
+
+.. currentmodule:: kdrag.tactics
+
+.. autofunction:: simp

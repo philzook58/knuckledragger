@@ -1,0 +1,6 @@
+kdrag.notation.default\_getitem
+===============================
+
+.. currentmodule:: kdrag.notation
+
+.. autofunction:: default_getitem

@@ -1,0 +1,6 @@
+kdrag.solvers.gappa.gappa\_of\_bool
+===================================
+
+.. currentmodule:: kdrag.solvers.gappa
+
+.. autofunction:: gappa_of_bool

@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kdrag.theories.int &mdash; knuckledragger 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/theorems.css?v=5b5cfd35" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="../_static/theorem-search.js?v=d6edcd84"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kdrag.theories.int.induct_nat" href="kdrag.theories.int.induct_nat.html" />
+    <link rel="prev" title="kdrag.theories.fun.store_view" href="kdrag.theories.fun.store_view.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            knuckledragger
+          </a>
+<form action="../theorems.html" method="get" role="search" aria-label="Theorem search">
+  <input type="text" name="theorem" placeholder="Find theorem names or symbols" aria-label="Theorem name or symbol" />
+</form>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="kdrag.theories.html">kdrag.theories</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.algebra.html">kdrag.theories.algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bitvec.html">kdrag.theories.bitvec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.bool.html">kdrag.theories.bool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fixed.html">kdrag.theories.fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.float.html">kdrag.theories.float</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.fun.html">kdrag.theories.fun</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">kdrag.theories.int</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.induct_nat.html">kdrag.theories.int.induct_nat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.induct_nat_strong.html">kdrag.theories.int.induct_nat_strong</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kdrag.theories.int.induct_strong.html">kdrag.theories.int.induct_strong</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.int.induct_nat"><code class="docutils literal notranslate"><span class="pre">induct_nat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.int.induct_nat_strong"><code class="docutils literal notranslate"><span class="pre">induct_nat_strong()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.int.induct_strong"><code class="docutils literal notranslate"><span class="pre">induct_strong()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kdrag.theories.int.natpair_to_tuple"><code class="docutils literal notranslate"><span class="pre">natpair_to_tuple</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.list.html">kdrag.theories.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.logic.html">kdrag.theories.logic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.nat.html">kdrag.theories.nat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.option.html">kdrag.theories.option</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.real.html">kdrag.theories.real</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.regex.html">kdrag.theories.regex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.seq.html">kdrag.theories.seq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.set.html">kdrag.theories.set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.sexp.html">kdrag.theories.sexp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.univ.html">kdrag.theories.univ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdrag.theories.zf.html">kdrag.theories.zf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdrag.html">kdrag</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knuckledragger</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="kdrag.theories.html">kdrag.theories</a></li>
+      <li class="breadcrumb-item active">kdrag.theories.int</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/kdrag.theories.int.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-kdrag.theories.int">
+<span id="kdrag-theories-int"></span><h1>kdrag.theories.int<a class="headerlink" href="#module-kdrag.theories.int" title="Link to this heading"></a></h1>
+<p>Builtin theory of integers</p>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kdrag.theories.int.natpair_to_tuple" title="kdrag.theories.int.natpair_to_tuple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">natpair_to_tuple</span></code></a></p></td>
+<td><p>&#64;kd.PTheorem(</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.int.induct_nat.html#kdrag.theories.int.induct_nat" title="kdrag.theories.int.induct_nat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">induct_nat</span></code></a>(x, P)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="kdrag.theories.int.induct_nat_strong.html#kdrag.theories.int.induct_nat_strong" title="kdrag.theories.int.induct_nat_strong"><code class="xref py py-obj docutils literal notranslate"><span class="pre">induct_nat_strong</span></code></a>(x, P)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="kdrag.theories.int.induct_strong.html#kdrag.theories.int.induct_strong" title="kdrag.theories.int.induct_strong"><code class="xref py py-obj docutils literal notranslate"><span class="pre">induct_strong</span></code></a>(x, P)</p></td>
+<td><p>Strong integer induction on absolute value, with no domain side condition.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.int.induct_nat">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.int.</span></span><span class="sig-name descname"><span class="pre">induct_nat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.int.induct_nat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.int.induct_nat_strong">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.int.</span></span><span class="sig-name descname"><span class="pre">induct_nat_strong</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kdrag.theories.int.induct_nat_strong" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kdrag.theories.int.induct_strong">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.int.</span></span><span class="sig-name descname"><span class="pre">induct_strong</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArithRef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><span class="pre">Proof</span></a></span></span><a class="headerlink" href="#kdrag.theories.int.induct_strong" title="Link to this definition"></a></dt>
+<dd><p>Strong integer induction on absolute value, with no domain side condition.</p>
+<p>To establish P(n), assume P(m) for every integer m with Abs(m) &lt; Abs(n).
+This is an axiom schema, like ordinary integer induction; real-valued
+arguments are rejected because absolute-value descent is not well-founded
+on the reals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ArithRef</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="kdrag.kernel.html#kdrag.kernel.Proof" title="kdrag.kernel.Proof"><em>Proof</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="kdrag.theories.int.natpair_to_tuple">
+<span class="sig-prename descclassname"><span class="pre">kdrag.theories.int.</span></span><span class="sig-name descname"><span class="pre">natpair_to_tuple</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">natpair_to_tuple</span></span><a class="headerlink" href="#kdrag.theories.int.natpair_to_tuple" title="Link to this definition"></a></dt>
+<dd><dl>
+<dt>&#64;kd.PTheorem(</dt><dd><dl>
+<dt>ForAll(</dt><dd><p>[n, m],
+n &gt;= 0,
+m &gt;= 0,
+And(</p>
+<blockquote>
+<div><p>natpair_to_tuple(natpair(n, m))[0] == n,
+natpair_to_tuple(natpair(n, m))[1] == m,</p>
+</div></blockquote>
+<p>),</p>
+</dd>
+</dl>
+<p>)</p>
+</dd>
+</dl>
+<p>)
+def unpair_natpair(l):</p>
+<blockquote>
+<div><p>n, m = l.fixes()
+l.generalize(n)  # TODO: should remove from context
+m = l.induct(m)
+# n = l.fix()
+# _n = l.induct(n)
+# l.auto()
+# l.auto(by=[natpair.defn, natpair_to_tuple.defn])</p>
+<p># n = l.induct(n)
+# l.auto(by=[natpair.defn, natpair_to_tuple.defn])
+# l.auto(by=[natpair.defn, natpair_to_tuple.defn])</p>
+<p># l.auto(by=[natpair.defn, natpair_to_tuple.defn])</p>
+<p># l.auto(by=[natpair.defn, natpair_to_tuple.defn])</p>
+</div></blockquote>
+</dd></dl>
+
+<table class="theorem-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Theorem</p></th>
+<th class="head"><p>Statement</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-add-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L161"><code class="docutils literal notranslate"><span class="pre">int.add_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">(m</span> <span class="pre">+</span> <span class="pre">k)</span> <span class="pre">=</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">m</span> <span class="pre">+</span> <span class="pre">k</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.add_assoc&quot;, [&quot;+&quot;, &quot;=&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Aadd_assoc+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+n+%2B+%28m+%2B+k%29+%3D%3D+%28n+%2B+m%29+%2B+k%29%29%0Aadd_assoc" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-add-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L160"><code class="docutils literal notranslate"><span class="pre">int.add_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">m</span> <span class="pre">=</span> <span class="pre">m</span> <span class="pre">+</span> <span class="pre">n</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.add_comm&quot;, [&quot;+&quot;, &quot;=&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Aadd_comm+%3D+prove%28ForAll%28%5Bn%2C+m%5D%2C+n+%2B+m+%3D%3D+m+%2B+n%29%29%0Aadd_comm" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-add-inv"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L163"><code class="docutils literal notranslate"><span class="pre">int.add_inv</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">-n</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.add_inv&quot;, [&quot;+&quot;, &quot;-&quot;, &quot;=&quot;, &quot;Int&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Aadd_inv+%3D+prove%28ForAll%28%5Bn%5D%2C+n+%2B+-n+%3D%3D+0%29%29%0Aadd_inv" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-add-monotone"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L165"><code class="docutils literal notranslate"><span class="pre">int.add_monotone</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">m</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">k</span> <span class="pre">≤</span> <span class="pre">m</span> <span class="pre">+</span> <span class="pre">k</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.add_monotone&quot;, [&quot;+&quot;, &quot;&lt;=&quot;, &quot;=&gt;&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Aadd_monotone+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+n+%3C%3D+m%2C+n+%2B+k+%3C%3D+m+%2B+k%29%29%0Aadd_monotone" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-add-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L162"><code class="docutils literal notranslate"><span class="pre">int.add_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">n</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.add_zero&quot;, [&quot;+&quot;, &quot;=&quot;, &quot;Int&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Aadd_zero+%3D+prove%28ForAll%28%5Bn%5D%2C+n+%2B+0+%3D%3D+n%29%29%0Aadd_zero" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-choose-ax"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L191"><code class="docutils literal notranslate"><span class="pre">int.choose_ax</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">(∃n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">P[n])</span> <span class="pre">=</span> <span class="pre">P[choose(P)]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.choose_ax&quot;, [&quot;=&quot;, &quot;choose&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Achoose_ax+%3D+axiom%28ForAll%28%5BP%5D%2C+P%5Bchoose%28P%29%5D+%3D%3D+Exists%28%5Bn%5D%2C+P%5Bn%5D%29%29%29%0Achoose_ax" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-distrib-left"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L183"><code class="docutils literal notranslate"><span class="pre">int.distrib_left</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">(m</span> <span class="pre">+</span> <span class="pre">k)</span> <span class="pre">=</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">m</span> <span class="pre">+</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">k</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.distrib_left&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;=&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Adistrib_left+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+n+%2A+%28m+%2B+k%29+%3D%3D+n+%2A+m+%2B+n+%2A+k%29%29%0Adistrib_left" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-distrib-right"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L184"><code class="docutils literal notranslate"><span class="pre">int.distrib_right</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">(m</span> <span class="pre">+</span> <span class="pre">k)</span> <span class="pre">*</span> <span class="pre">n</span> <span class="pre">=</span> <span class="pre">m</span> <span class="pre">*</span> <span class="pre">n</span> <span class="pre">+</span> <span class="pre">k</span> <span class="pre">*</span> <span class="pre">n</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.distrib_right&quot;, [&quot;*&quot;, &quot;+&quot;, &quot;=&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Adistrib_right+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+%28m+%2B+k%29+%2A+n+%3D%3D+m+%2A+n+%2B+k+%2A+n%29%29%0Adistrib_right" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-dvd-fact"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L245"><code class="docutils literal notranslate"><span class="pre">int.dvd_fact</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀m₀</span> <span class="pre">n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">m₀</span> <span class="pre">≥</span> <span class="pre">1</span> <span class="pre">→</span> <span class="pre">m₀</span> <span class="pre">≤</span> <span class="pre">n₀</span> <span class="pre">→</span> <span class="pre">dvd(m₀,</span> <span class="pre">fact(n₀))</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.dvd_fact&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;dvd&quot;, &quot;fact&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28ForAll%28%5Bm%2C+n%5D%2C+1+%3C%3D+m%2C+m+%3C%3D+n%2C+dvd%28m%2C+fact%28n%29%29%29%29%0Adef+dvd_fact%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++m%2C+n+%3D+l.fixes%28%29%0A++++l.induct%28n%29%0A++++%23+inductive+case+n+%3C+0+is+vacuous%0A++++l.auto%28%29%0A++++%23+inductive+case+n+%3D%3D+0%0A++++l.auto%28by%3D%5Bfact.defn%28IntVal%280%29%29%5D%29%0A++++%23+inductive+case+n+%3E+0%0A++++l.unfold%28dvd%29%0A++++n1+%3D+l.fix%28%29%0A++++l.intros%28%29%0A++++l.unfold%28fact%29%0A++++l.simp%28%29%0A++++l.simp%28at%3D1%29%0A++++l.cases%28m+%3D%3D+n1+%2B+1%29%0A++++%23+case+m+%3D%3D+1+%2B+n1%0A++++l.auto%28%29%0A++++%23+case+m+%21%3D+1+%2B+n1%0A++++witness+%3D+l.have%28Exists%28%5Bp%5D%2C+fact%28n1%29+%3D%3D+m+%2A+p%29%2C+by%3D%5B%5D%29%0A++++p1%2C+_+%3D+l.obtain%28witness%29%0A++++l.exists%28p1+%2A+%28n1+%2B+1%29%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-dvd-imp-le"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L223"><code class="docutils literal notranslate"><span class="pre">int.dvd_imp_le</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀k₀</span> <span class="pre">n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">dvd(k₀,</span> <span class="pre">n₀)</span> <span class="pre">→</span> <span class="pre">k₀</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">n₀</span> <span class="pre">&gt;</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">k₀</span> <span class="pre">≤</span> <span class="pre">n₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.dvd_imp_le&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;dvd&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Advd_imp_le+%3D+prove%28ForAll%28%5Bk%2C+n%5D%2C+dvd%28k%2C+n%29%2C+k+%3E%3D+0%2C+n+%3E+0%2C+k+%3C%3D+n%29%2C+unfold%3D1%29%0Advd_imp_le" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-fact-ge-1"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L227"><code class="docutils literal notranslate"><span class="pre">int.fact_ge_1</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">fact(n₀)</span> <span class="pre">≥</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.fact_ge_1&quot;, [&quot;&gt;=&quot;, &quot;Int&quot;, &quot;fact&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28ForAll%28n%2C+fact%28n%29+%3E%3D+1%29%29%0Adef+fact_ge_1%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++n+%3D+l.fix%28%29%0A++++l.induct%28n%29%0A++++l.unfold%28fact%29%0A++++l.auto%28%29%0A++++l.auto%28unfold%3D1%29%0A++++l.fix%28%29%0A++++l.intros%28%29%0A++++l.simp%28%29%0A++++l.unfold%28fact%29%0A++++l.simp%28%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-from-to-nat"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L311"><code class="docutils literal notranslate"><span class="pre">int.from_to_nat</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">from_nat(to_nat(n₀))</span> <span class="pre">=</span> <span class="pre">n₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.from_to_nat&quot;, [&quot;=&quot;, &quot;from_nat&quot;, &quot;to_nat&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Afrom_to_nat+%3D+prove%28%0A++++ForAll%28n%2C+from_nat%28to_nat%28n%29%29+%3D%3D+n%29%2C+by%3D%5Bto_nat.defn%2C+from_nat.defn%5D%0A%29%0Afrom_to_nat" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-induct2"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L150"><code class="docutils literal notranslate"><span class="pre">int.induct2</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">t</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">t</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span>
+&#160; <span class="pre">P[0]</span> <span class="pre">→</span>
+&#160; <span class="pre">P[1]</span> <span class="pre">→</span>
+&#160; <span class="pre">(∀t′1</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">t′1</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">P[t′1]</span> <span class="pre">→</span> <span class="pre">P[t′1</span> <span class="pre">+</span> <span class="pre">1]</span> <span class="pre">→</span> <span class="pre">P[t′1</span> <span class="pre">+</span> <span class="pre">2])</span> <span class="pre">→</span>
+&#160; <span class="pre">P[t]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.induct2&quot;, [&quot;+&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%0A++++++++%5BP%2C+t%5D%2C+t+%3E%3D+0%2C+P%280%29%2C+P%281%29%2C+ForAll%28%5Bt%5D%2C+t+%3E%3D+0%2C+P%28t%29%2C+P%28t+%2B+1%29%2C+P%28t+%2B+2%29%29%2C+P%28t%29%0A++++%29%0A%29%0Adef+induct2%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++P%2C+t+%3D+l.fixes%28%29%0A++++l.auto%28by%3Dinduct2_pair%28P%2C+t%29%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-induct2-pair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L137"><code class="docutils literal notranslate"><span class="pre">int.induct2_pair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">Bool,</span> <span class="pre">t</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">t</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span>
+&#160; <span class="pre">P[0]</span> <span class="pre">→</span>
+&#160; <span class="pre">P[1]</span> <span class="pre">→</span>
+&#160; <span class="pre">(∀t′1</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">t′1</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">P[t′1]</span> <span class="pre">→</span> <span class="pre">P[t′1</span> <span class="pre">+</span> <span class="pre">1]</span> <span class="pre">→</span> <span class="pre">P[t′1</span> <span class="pre">+</span> <span class="pre">2])</span> <span class="pre">→</span>
+&#160; <span class="pre">P[t]</span> <span class="pre">∧</span> <span class="pre">P[t</span> <span class="pre">+</span> <span class="pre">1]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.induct2_pair&quot;, [&quot;+&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;and&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%0A++++++++%5BP%2C+t%5D%2C%0A++++++++t+%3E%3D+0%2C%0A++++++++P%280%29%2C%0A++++++++P%281%29%2C%0A++++++++ForAll%28%5Bt%5D%2C+t+%3E%3D+0%2C+P%28t%29%2C+P%28t+%2B+1%29%2C+P%28t+%2B+2%29%29%2C%0A++++++++And%28P%28t%29%2C+P%28t+%2B+1%29%29%2C%0A++++%29%0A%29%0Adef+induct2_pair%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++P%2C+t+%3D+l.fixes%28%29%0A++++l.induct%28t%29%0A++++l.auto%28%29%0A++++l.auto%28%29%0A++++l.auto%28%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-induct-nat-ax"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L71"><code class="docutils literal notranslate"><span class="pre">int.induct_nat_ax</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀P</span> <span class="pre">:</span> <span class="pre">ℤ</span> <span class="pre">→</span> <span class="pre">Bool,</span>
+&#160; <span class="pre">P[0]</span> <span class="pre">→</span>
+&#160; <span class="pre">(∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">P[n]</span> <span class="pre">→</span> <span class="pre">P[n</span> <span class="pre">+</span> <span class="pre">1])</span> <span class="pre">→</span> <span class="pre">∀x</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">x</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">P[x]</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.induct_nat_ax&quot;, [&quot;+&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;select&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%0A++++++++%5BP%5D%2C%0A++++++++P%280%29%2C%0A++++++++ForAll%28%5Bn%5D%2C+n+%3E%3D+0%2C+P%28n%29%2C+P%28n+%2B+1%29%29%2C%0A++++++++ForAll%28%5Bx%5D%2C+x+%3E%3D+0%2C+P%28x%29%29%2C%0A++++%29%0A%29%0Adef+induct_nat_ax%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++l.fix%28%29%0A++++l.intros%28%29%0A++++x+%3D+l.fix%28%29%0A++++l.intro%28%29%0A++++l.induct%28x%2C+using%3Dinduct_nat%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-le-refl"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L175"><code class="docutils literal notranslate"><span class="pre">int.le_refl</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">n</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.le_refl&quot;, [&quot;&lt;=&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Ale_refl+%3D+prove%28ForAll%28%5Bn%5D%2C+n+%3C%3D+n%29%29%0Ale_refl" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-le-trans"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L176"><code class="docutils literal notranslate"><span class="pre">int.le_trans</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">m</span> <span class="pre">→</span> <span class="pre">m</span> <span class="pre">≤</span> <span class="pre">k</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">k</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.le_trans&quot;, [&quot;&lt;=&quot;, &quot;=&gt;&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Ale_trans+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+n+%3C%3D+m%2C+m+%3C%3D+k%2C+n+%3C%3D+k%29%29%0Ale_trans" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-lt-total"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L180"><code class="docutils literal notranslate"><span class="pre">int.lt_total</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">&lt;</span> <span class="pre">m</span> <span class="pre">∨</span> <span class="pre">n</span> <span class="pre">=</span> <span class="pre">m</span> <span class="pre">∨</span> <span class="pre">m</span> <span class="pre">&lt;</span> <span class="pre">n</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.lt_total&quot;, [&quot;&lt;&quot;, &quot;=&quot;, &quot;or&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Alt_total+%3D+prove%28ForAll%28%5Bn%2C+m%5D%2C+Or%28n+%3C+m%2C+n+%3D%3D+m%2C+m+%3C+n%29%29%29%0Alt_total" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-lt-trans"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L179"><code class="docutils literal notranslate"><span class="pre">int.lt_trans</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">&lt;</span> <span class="pre">m</span> <span class="pre">→</span> <span class="pre">m</span> <span class="pre">&lt;</span> <span class="pre">k</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">&lt;</span> <span class="pre">k</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.lt_trans&quot;, [&quot;&lt;&quot;, &quot;=&gt;&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Alt_trans+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+n+%3C+m%2C+m+%3C+k%2C+n+%3C+k%29%29%0Alt_trans" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-mul-assoc"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L168"><code class="docutils literal notranslate"><span class="pre">int.mul_assoc</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">(m</span> <span class="pre">*</span> <span class="pre">k)</span> <span class="pre">=</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">m</span> <span class="pre">*</span> <span class="pre">k</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.mul_assoc&quot;, [&quot;*&quot;, &quot;=&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Amul_assoc+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+n+%2A+%28m+%2A+k%29+%3D%3D+%28n+%2A+m%29+%2A+k%29%29%0Amul_assoc" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-mul-comm"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L167"><code class="docutils literal notranslate"><span class="pre">int.mul_comm</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">m</span> <span class="pre">=</span> <span class="pre">m</span> <span class="pre">*</span> <span class="pre">n</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.mul_comm&quot;, [&quot;*&quot;, &quot;=&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Amul_comm+%3D+prove%28ForAll%28%5Bn%2C+m%5D%2C+n+%2A+m+%3D%3D+m+%2A+n%29%29%0Amul_comm" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-mul-monotone"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L172"><code class="docutils literal notranslate"><span class="pre">int.mul_monotone</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">m</span> <span class="pre">k</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">≤</span> <span class="pre">m</span> <span class="pre">→</span> <span class="pre">k</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">k</span> <span class="pre">≤</span> <span class="pre">m</span> <span class="pre">*</span> <span class="pre">k</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.mul_monotone&quot;, [&quot;*&quot;, &quot;&lt;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Amul_monotone+%3D+prove%28ForAll%28%5Bn%2C+m%2C+k%5D%2C+n+%3C%3D+m%2C+k+%3E%3D+0%2C+n+%2A+k+%3C%3D+m+%2A+k%29%29%0Amul_monotone" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-mul-one"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L169"><code class="docutils literal notranslate"><span class="pre">int.mul_one</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">1</span> <span class="pre">=</span> <span class="pre">n</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.mul_one&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;Int&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Amul_one+%3D+prove%28ForAll%28%5Bn%5D%2C+n+%2A+1+%3D%3D+n%29%29%0Amul_one" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-mul-zero"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L170"><code class="docutils literal notranslate"><span class="pre">int.mul_zero</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.mul_zero&quot;, [&quot;*&quot;, &quot;=&quot;, &quot;Int&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Amul_zero+%3D+prove%28ForAll%28%5Bn%5D%2C+n+%2A+0+%3D%3D+0%29%29%0Amul_zero" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-natpair-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L320"><code class="docutils literal notranslate"><span class="pre">int.natpair_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">m₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n₀</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">m₀</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">natpair(n₀,</span> <span class="pre">m₀)</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.natpair_pos&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;natpair&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Anatpair_pos+%3D+prove%28%0A++++ForAll%28%5Bn%2C+m%5D%2C+n+%3E%3D+0%2C+m+%3E%3D+0%2C+natpair%28n%2C+m%29+%3E%3D+0%29%2C+by%3D%5Bnatpair.defn%5D%0A%29%0Anatpair_pos" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-natpair-succ"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L325"><code class="docutils literal notranslate"><span class="pre">int.natpair_succ</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">m₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">natpair(n₀,</span> <span class="pre">m₀)</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">=</span> <span class="pre">natpair(n₀</span> <span class="pre">-</span> <span class="pre">1,</span> <span class="pre">m₀</span> <span class="pre">+</span> <span class="pre">1)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.natpair_succ&quot;, [&quot;+&quot;, &quot;-&quot;, &quot;=&quot;, &quot;Int&quot;, &quot;natpair&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Anatpair_succ+%3D+prove%28%0A++++ForAll%28%5Bn%2C+m%5D%2C+natpair%28n%2C+m%29+%2B+1+%3D%3D+natpair%28n+-+1%2C+m+%2B+1%29%29%2C%0A++++by%3D%5Bnatpair.defn%5D%2C%0A%29++%23+natpair%28n-1%2Cm%29+%3D%3D+natpair%28n%2Cm%29%0Anatpair_succ" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-natpair-unpair"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L388"><code class="docutils literal notranslate"><span class="pre">int.natpair_unpair</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀k₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span>
+&#160; <span class="pre">k₀</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span>
+&#160; <span class="pre">natpair(natpair_to_tuple(k₀)._0,</span>
+&#160;&#160;&#160; <span class="pre">natpair_to_tuple(k₀)._1)</span> <span class="pre">=</span> <span class="pre">k₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.natpair_unpair&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;_0&quot;, &quot;_1&quot;, &quot;natpair&quot;, &quot;natpair_to_tuple&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28%0A++++ForAll%28%5Bk%5D%2C+k+%3E%3D+0%2C+natpair%28natpair_to_tuple%28k%29%5B0%5D%2C+natpair_to_tuple%28k%29%5B1%5D%29+%3D%3D+k%29%0A%29%0Adef+natpair_unpair%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++k+%3D+l.fix%28%29%0A++++k+%3D+l.induct%28k%29%0A++++l.auto%28%29++%23+k+%3C+0%0A++++l.auto%28by%3D%5Bnatpair_to_tuple.defn%2C+natpair.defn%5D%29++%23+k+%3D%3D+0%0A%0A++++k+%3D+l.fix%28%29%0A++++l.intro%28%29%0A++++l.intro%28%29%0A++++l.case%28k+%3E%3D+0%29%0A++++l.unfold%28natpair_to_tuple%29%0A++++l.have%28%28k+%2B+1+%3D%3D+0%29+%3D%3D+BoolVal%28False%29%2C+by%3D%5B%5D%29%0A++++l.rw%28-1%29%0A++++l.have%28%28k+%2B+1+%3C+0%29+%3D%3D+BoolVal%28False%29%2C+by%3D%5B%5D%29%0A++++l.rw%28-1%29%0A++++l.simp%28%29%0A%0A++++l.autocases%28%29%0A++++l.rw%28-1%29%0A++++l.simp%28%29%0A++++l.intro%28%29%0A++++l.auto%28by%3D%5Bnatpair_to_tuple.defn%2C+natpair.defn%5D%29%0A%0A++++l.rw%28-1%29%0A++++l.simp%28%29%0A++++l.intro%28%29%0A++++l.auto%28by%3D%5Bnatpair_to_tuple.defn%2C+natpair.defn%5D%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-natpair-zero-m"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L330"><code class="docutils literal notranslate"><span class="pre">int.natpair_zero_m</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀m₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">natpair(0,</span> <span class="pre">m₀)</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">=</span> <span class="pre">natpair(m₀</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">0)</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.natpair_zero_m&quot;, [&quot;+&quot;, &quot;=&quot;, &quot;Int&quot;, &quot;natpair&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Anatpair_zero_m+%3D+prove%28%0A++++ForAll%28m%2C+natpair%280%2C+m%29+%2B+1+%3D%3D+natpair%28m+%2B+1%2C+0%29%29%2C+by%3D%5Bnatpair.defn%5D%0A%29%0Anatpair_zero_m" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-prime-gt-1"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L218"><code class="docutils literal notranslate"><span class="pre">int.prime_gt_1</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">prime(n₀)</span> <span class="pre">→</span> <span class="pre">n₀</span> <span class="pre">&gt;</span> <span class="pre">1</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.prime_gt_1&quot;, [&quot;=&gt;&quot;, &quot;&gt;&quot;, &quot;Int&quot;, &quot;prime&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28ForAll%28n%2C+prime%28n%29%2C+n+%3E+1%29%29%0Adef+prime_gt_1%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++n+%3D+l.fix%28%29%0A++++l.auto%28by%3Dprime.defn%28n%29%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-prime-nat"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L212"><code class="docutils literal notranslate"><span class="pre">int.prime_nat</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">prime(n₀)</span> <span class="pre">→</span> <span class="pre">n₀</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.prime_nat&quot;, [&quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;prime&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0A%40PTheorem%28ForAll%28n%2C+prime%28n%29%2C+n+%3E%3D+0%29%29%0Adef+prime_nat%28l%29%3A%0A++++return++%23+move+down+%28Alt%2BDown%29+to+step+through+the+proof%0A++++n+%3D+l.fix%28%29%0A++++l.auto%28by%3Dprime.defn%28n%29%29" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-even" id="kdrag-theories-int-to-from-nat"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L314"><code class="docutils literal notranslate"><span class="pre">int.to_from_nat</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">n₀</span> <span class="pre">≥</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">to_nat(from_nat(n₀))</span> <span class="pre">=</span> <span class="pre">n₀</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.to_from_nat&quot;, [&quot;=&quot;, &quot;=&gt;&quot;, &quot;&gt;=&quot;, &quot;Int&quot;, &quot;from_nat&quot;, &quot;to_nat&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Ato_from_nat+%3D+prove%28%0A++++ForAll%28n%2C+n+%3E%3D+0%2C+to_nat%28from_nat%28n%29%29+%3D%3D+n%29%2C+by%3D%5Bto_nat.defn%2C+from_nat.defn%5D%0A%29%0Ato_from_nat" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+<tr class="theorem-entry row-odd" id="kdrag-theories-int-to-nat-pos"><td><p><a class="reference external" href="https://github.com/philzook58/knuckledragger/blob/main/src/kdrag/theories/int.py#L310"><code class="docutils literal notranslate"><span class="pre">int.to_nat_pos</span></code></a></p></td>
+<td><p><code class="theorem-formula docutils literal notranslate"><span class="pre">∀n₀</span> <span class="pre">:</span> <span class="pre">ℤ,</span> <span class="pre">to_nat(n₀)</span> <span class="pre">≥</span> <span class="pre">0</span></code></p>
+<span hidden data-theorem="[&quot;kdrag.theories.int.to_nat_pos&quot;, [&quot;&gt;=&quot;, &quot;Int&quot;, &quot;to_nat&quot;]]"></span></td>
+<td><a class="theorem-try" href="lite/repl/index.html?kernel=python&amp;execute=0&amp;clearCodeContentOnExecute=0&amp;code=%23+Shift%2BEnter+to+run.+Python+runs+in+your+browser+via+Pyodide.%0A%23+The+first+run+installs+knuckledragger+and+z3%2C+which+takes+a+few+seconds.%0A%25pip+install+-q+--no-deps+knuckledragger+z3-solver+lark+graphviz%0Afrom+kdrag.all+import+%2A%0Afrom+kdrag.theories.int+import+%2A%0A%0Ato_nat_pos+%3D+prove%28ForAll%28n%2C+to_nat%28n%29+%3E%3D+0%29%2C+by%3D%5Bto_nat.defn%5D%29%0Ato_nat_pos" target="_blank" title="Edit and rerun in the browser"><img src="lite/icon-120x120.png" alt="try"></a></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kdrag.theories.fun.store_view.html" class="btn btn-neutral float-left" title="kdrag.theories.fun.store_view" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kdrag.theories.int.induct_nat.html" class="btn btn-neutral float-right" title="kdrag.theories.int.induct_nat" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Philip Zucker.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

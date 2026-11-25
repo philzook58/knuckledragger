@@ -1,0 +1,6 @@
+kdrag.utils.open\_binder\_unhygienic
+====================================
+
+.. currentmodule:: kdrag.utils
+
+.. autofunction:: open_binder_unhygienic

@@ -1,0 +1,6 @@
+kdrag.contrib.analysis.rseq.lim\_lemma
+======================================
+
+.. currentmodule:: kdrag.contrib.analysis.rseq
+
+.. autofunction:: lim_lemma

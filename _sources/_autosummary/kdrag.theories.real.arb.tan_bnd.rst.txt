@@ -1,0 +1,6 @@
+kdrag.theories.real.arb.tan\_bnd
+================================
+
+.. currentmodule:: kdrag.theories.real.arb
+
+.. autofunction:: tan_bnd

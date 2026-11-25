@@ -1,0 +1,6 @@
+kdrag.datatype.define\_fun
+==========================
+
+.. currentmodule:: kdrag.datatype
+
+.. autofunction:: define_fun
