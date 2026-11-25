@@ -20,7 +20,7 @@
 
 ## Review boundary and proof presentation
 
-- `kdrag.theories` is the curated library for mathematics Philip has carefully reviewed and understands. Keep new or less-reviewed mathematics in `kdrag.contrib`; use `kdrag.contrib.analysis` for exploratory real analysis.
+- `kdrag.theories` is the curated library for mathematics Philip has carefully reviewed and understands. Keep new or less-reviewed mathematics in `kdrag.contrib`; use `kdrag.contrib.analysis` for exploratory real analysis and `kdrag.contrib.zf` for exploratory set theory following Halmos.
 - Philip will manually promote material into `kdrag.theories`. Do not promote it, or move existing reviewed material out, without an explicit request.
 - Use the single derivative predicate `contrib.analysis.deriv.has_deriv_at(f, a, p)`, defined via `has_lim_at`. Derive alternative characterizations as theorems rather than introducing parallel derivative predicates.
 - In `contrib.analysis`, keep pointwise limits/continuity in `cont`, derivative predicates and derivative-only lemmas in `deriv`, sequence limits in `rseq`, finite sums in `finsum`, gauge-integral construction in `integral`, and the derivative/integral connection in `ftc`. Keep dependencies one-way; `integral` must not depend on `deriv` or `ftc`.
@@ -274,6 +274,11 @@ def sum_append(pf):
 - `0 <= x` in Python builds `x >= 0`. Write `RealVal(0) <= x` when a `have` must match an instantiated lemma premise syntactically.
 - For pointwise choice of a function (e.g. gauges), use `contrib.analysis._choice.axiom_of_choice` and state the premise with its binder names `x` and `y`.
 - Isolate extensional or rational identities from quantified limit hypotheses when proving derivative rules; import-order tests can reveal timeouts hidden by a standalone import.
+- In `contrib.zf`, prove inequalities of sets from one witnessing element (`x ∈ succ x`, `x ∉ ∅`) rather than through `ext_ax`; congruence finishes it. Use `l.induct(n, using=nat.induct_omega)` for induction over ω.
+- Proving `sep(ω, P) == ω` in one `have` timed out; state the three hypotheses of `eq_omega_of_inductive` as separate `have`s first.
+- In `contrib.zf`, an `auto` given unfolded order definitions (`is_partial_order.defn`, `is_well_order.defn`) passes under one random seed and times out under another. Instantiate `poset.partial_order_trans`, `partial_order_antisymm`, and `exists_least` at the exact terms instead. `tests/test_zf_contrib.py` runs several seeds to catch this.
+- A `using=` induction hook should instantiate a pointwise induction lemma and return its `kd.rewrite.beta` reduction. Proving the reduced statement from an instance at a lambda made z3 match `P[k]` under binders; this was seed- and state-dependent (it even changed with `config.timing`).
+- Keep a quantified induction hypothesis out of long case analyses: prove the cases as a separate lemma, then `l.specialize` the hypothesis at the end (see `countable.bit_eq_code`).
 
 
 ## Proof instability reports
