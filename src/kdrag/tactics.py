@@ -519,6 +519,15 @@ class LemmaCallback:
     annot: object = None
 
 
+class _FocusFrame(NamedTuple):
+    thm: Goal
+    goals: list[Goal | LemmaCallback]
+    lemmas: list[dict[int, kd.kernel.Proof]]
+    pushed: Optional["ProofState"]
+    parent: Optional["ProofState"]
+    start_time: float
+
+
 def Lemma(goal: smt.BoolRef, fixes=None, assumes=None) -> "ProofState":
     return Goal(
         sig=[] if fixes is None else fixes,
@@ -601,6 +610,7 @@ class ProofState:
         self.goals: list[Goal | LemmaCallback] = [goal]
         self.pushed = None
         self._parent = _parent
+        self._focus_stack: list[_FocusFrame | None] = []
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
@@ -2067,28 +2077,67 @@ class ProofState:
         return self.sublemma()
 
     def __enter__(self) -> "ProofState":
-        """
-        On entering a `with` block, return self.
-        This marks that at the exit of the `with` block, qed will be automatically called
-        and `kd.Proof` propagated back to a parent
-        """
-        if len(self.goals) != 1 or len(self.lemmas[-1]) != 0:
-            raise ValueError(
-                "Entered a non-fresh ProofState. Did you forget to call l.subproof?"
+        """Focus the current goal with a fresh lemma table."""
+        if (
+            self._parent is not None
+            and not self._focus_stack
+            and len(self.goals) == 1
+            and self.goals[0] is self.thm
+            and not self.lemmas[-1]
+        ):
+            # An explicit `with l.sub() as child` already has its own proof state.
+            self._focus_stack.append(None)
+            return self
+
+        goal = self.top_goal()
+        if not self.goals:
+            raise ValueError("Cannot focus a proof with no open goals")
+        self._focus_stack.append(
+            _FocusFrame(
+                self.thm,
+                self.goals,
+                self.lemmas,
+                self.pushed,
+                self._parent,
+                self.start_time,
             )
+        )
+        self.thm = goal
+        self.goals = [goal]
+        self.lemmas = [{}]
+        self.pushed = None
+        self._parent = None
+        self.start_time = time.perf_counter()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        """
-        On exiting a `with` block, if no exception occurred, call qed and propagate the proof to the parent
-        """
-        if exc_type is not None:
-            return False  # propagate exception
-        else:
-            if len(self.goals) == 0:
-                self.qed()
-            else:
-                print("Goal", self.top_goal())
+        """Restore the surrounding proof and export the completed goal's proof."""
+        saved = self._focus_stack.pop()
+        if saved is None:
+            if exc_type is None:
+                if not self.goals:
+                    self.qed()
+                else:
+                    print("Goal", self.top_goal())
+            return
+
+        try:
+            if exc_type is not None:
+                return
+            goal = self.top_goal()
+            if self.goals:
+                raise ValueError("Unfinished focused proof", goal)
+            proof = self.qed()
+        finally:
+            (
+                self.thm,
+                self.goals,
+                self.lemmas,
+                self.pushed,
+                self._parent,
+                self.start_time,
+            ) = saved
+        self.exact(proof)
 
     def show(self, thm: smt.BoolRef, **kwargs) -> "ProofState":
         """
