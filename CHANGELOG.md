@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `contrib.zf.fun.bij_on_of_inverse` and `contrib.zf.finite.equivalent_of_inverse` (as in Mathlib's `Equiv.mk`): two maps that are inverse to each other give a bijection. Use them to shorten `sum_comm_equivalent` and `prod_comm_equivalent`.
 - Add `contrib.zf.sim.similarity_of_inverse`: an order embedding that has an inverse is a similarity. Use it to shorten `oadd_zero`, `zero_oadd`, `one_omul`, and `omul_one`.
 - Add `contrib.zf.cls`, a bridge to class-style set theory after Isabelle's ZFC_in_HOL: `elts(x)` is the class of members of x, so "x has exactly the members of C" is the equation `elts(x) == C` (`is_set_iff` bridges to `zf.is_set`). Each set operation commutes with `elts` (`elts_sep`, `elts_bigunion`, `elts_pow`, `elts_repl`, ...), the ZF axioms become smallness of classes, and Russell, the universe, and Burali-Forti are classes that are not sets. No axioms are added.
+- Add `contrib.zf.nat_int`, relating the von Neumann naturals to z3's Int: the recursive `from_int` (evaluated by z3 on numerals) and the relation `has_int(x, i)`, with injectivity, every natural having an integer (by omega induction), and `has_int_add` transferring addition.
 
 ### Changed
 

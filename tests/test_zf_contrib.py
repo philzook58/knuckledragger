@@ -54,12 +54,14 @@ import pytest
         ("cardinal", 11),
         ("cls", 0),
         ("cls", 9),
+        ("nat_int", 0),
+        ("nat_int", 3),
         (
-            "fun nat dsum rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal cls",
+            "fun nat dsum rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal cls nat_int",
             3,
         ),
         (
-            "fun nat dsum rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal cls",
+            "fun nat dsum rec arith order finite card poset ordinal trec sim ordset count oarith omul osub orec opow choice zorn wellord countable cardarith cardinal cls nat_int",
             7,
         ),
     ],
@@ -160,6 +162,7 @@ def _axioms_used(modules):
             "replacement",
         ),
         (["choice", "zorn", "wellord", "cardinal"], "choice"),
+        (["nat_int"], "int"),
     ],
 )
 def test_zf_contrib_axioms(modules, extra):
@@ -184,6 +187,13 @@ def test_zf_contrib_axioms(modules, extra):
         allowed += [elem_repl, the_eq]
     if extra == "choice":
         allowed += [elem_repl, the_eq, choice_ax]
+    if extra == "int":
+        # Only the Int induction axiom behind theories.int.induct_nat_ax.
+        import kdrag.theories.int as int_
+
+        allowed += [
+            p for p in _dependencies([int_.induct_nat_ax]) if p.reason == ["axiom"]
+        ]
     used, deps = _axioms_used(modules)
     assert used <= {id(ax) for ax in allowed}
     assert not any(p is zf.elem_pick0 for p in deps)

@@ -34,5 +34,6 @@ countable union theorem, infinite sets containing ω, and cardinal numbers
 `card(X)` with the comparability of any two sets. Only `choice`, `zorn`,
 `wellord`, and `cardinal` may use choice. `cls` restates the axioms as
 smallness of classes, with `elts(x) == C` saying x has the members of C, with Russell and Burali-Forti as classes
-that are not sets; it uses `ordset` and Replacement.
+that are not sets; it uses `ordset` and Replacement. `nat_int` relates ω to
+z3's Int by `from_int` and the relation `has_int`, using Int induction.
 """
