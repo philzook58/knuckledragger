@@ -117,12 +117,18 @@ def has_integral_sub_of_has_deriv_at(l):
     l.have(abs(F[x1] - F[x0] - f[tj] * (x1 - x0)) <= eta * (x1 - x0), by=[])
     l.clear(hstraddle)
     l.clear(hgauge)
-    l.have(
-        err[j] == -(F[x1] - F[x0] - f[tj] * (x1 - x0)),
+    remainder = F[x1] - F[x0] - f[tj] * (x1 - x0)
+    err_eq = l.have(
+        err[j] == -remainder,
         by=[sub.defn(terms, diff(Fxs)), diff.defn(Fxs)],
     )
-    l.have(bound[j] == eta * (x1 - x0), by=[smul.defn(eta, diff(xs)), diff.defn(xs)])
-    l.auto(by=[abs_neg(F[x1] - F[x0] - f[tj] * (x1 - x0))])
+    bound_eq = l.have(
+        bound[j] == eta * (x1 - x0), by=[smul.defn(eta, diff(xs)), diff.defn(xs)]
+    )
+    l.rw(err_eq)
+    l.rw(bound_eq)
+    l.rw(abs_neg(remainder))
+    l.assumption()
 
     # Sum the cell bounds: eta * (b - a) <= eta * |b - a| < eta * |b - a| + eta = eps.
     l.have(
