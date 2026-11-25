@@ -93,6 +93,7 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 - `l.fixes()` - open multiple ∀s, returns list
 - `l.intro()` - move one implication hypothesis into context and return it.
 - `l.intros()` - introduce all leading implications and return their hypotheses as a list; stop before `ForAll` and leave conjunctions grouped.
+- `@Theorem` functions can take parameters after `l`: `def foo(l, x, hx):` opens one ∀ variable or hypothesis per parameter, in goal order.
 - `l.obtain(n)` - open ∃ in hypothesis `n`, returns `(witness, fact)` (a list of witnesses for multiple binders)
 
 **Proving subgoals:**

@@ -14,6 +14,7 @@ import pprint
 from functools import cache, partial
 import traceback
 import linecache
+import inspect
 import time
 from dataclasses import dataclass, field
 import kdrag.parsers.microlean as microlean
@@ -857,6 +858,34 @@ class ProofState:
         while smt.is_implies(self.goal):
             hypotheses.append(self.intro())
         return hypotheses
+
+    def _open_params(self, f: Callable[..., Any], skip: int = 0) -> list[Any]:
+        """Open one ∀ variable or one hypothesis per positional parameter of `f`.
+
+        `skip` ignores leading parameters, such as `Theorem`'s proof state.
+        """
+        params = list(inspect.signature(f).parameters.values())[skip:]
+        if any(
+            p.kind != p.POSITIONAL_OR_KEYWORD or p.default is not p.empty
+            for p in params
+        ):
+            raise ValueError("Proof parameters must be plain positional names", params)
+        names = [p.name for p in params]
+        args: list[Any] = []
+        while names:
+            goal = self.goal
+            if isinstance(goal, smt.QuantifierRef) and goal.is_forall():
+                k = goal.num_vars()
+                if len(names) < k:
+                    raise ValueError(
+                        f"Need {k} names for the binders of {goal}, got {names}"
+                    )
+                args.extend(self.fixes(prefixes=" ".join(names[:k])))
+                names = names[k:]
+            else:
+                args.append(self.intro())
+                names = names[1:]
+        return args
 
     def splintro(self):
         """
@@ -2325,6 +2354,15 @@ def Theorem(
     ...     l.auto()
     >>> mytheorem3
     |= x + 1 > x
+
+    Parameters after the proof state open the theorem's binders and hypotheses,
+    one per name, like `fixes` and `intro`.
+
+    >>> @Theorem(smt.ForAll([x], x > 0, x >= 1))
+    ... def mytheorem4(l, x, hx):
+    ...     l.auto()
+    >>> mytheorem4
+    |= ForAll(x, Implies(x > 0, x >= 1))
     """
     if isinstance(goal, str):
         l, g = kd.utils.calling_globals_locals()
@@ -2333,7 +2371,7 @@ def Theorem(
         goal1 = goal
     assert isinstance(goal1, smt.BoolRef)
 
-    def res(f: Callable[[ProofState], None]) -> kd.kernel.Proof:
+    def res(f: Callable[..., None]) -> kd.kernel.Proof:
         start = time.perf_counter()
         if timing:
             print("Starting theorem", cast(Any, f).__name__)
@@ -2346,7 +2384,7 @@ def Theorem(
             )
         else:
             l = kd.Lemma(goal1)
-        f(l)
+        f(l, *l._open_params(f, skip=1))
         pf = l.qed()
         if timing:
             end = time.perf_counter()
@@ -2391,10 +2429,10 @@ def PTheorem(
         goal1 = goal
     assert isinstance(goal1, smt.BoolRef)
 
-    def res(f: Callable[[ProofState], None]) -> None:
+    def res(f: Callable[..., None]) -> None:
         l = kd.Lemma(goal1)
         try:
-            f(l)
+            f(l, *l._open_params(f, skip=1))
         except _AutoFailure as failure:
             code = getattr(f, "__code__", None)
             where = source = ""

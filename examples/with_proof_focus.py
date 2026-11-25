@@ -24,9 +24,7 @@ def clamp(x, lo, hi):
         ),
     )
 )
-def clamp_is_nearest(l):
-    x, lo, hi = l.fixes()
-    l.intro()
+def clamp_is_nearest(l, x, lo, hi, h):
     nearest = clamp(x, lo, hi)
     bounds = l.have(And(lo <= nearest, nearest <= hi))
     with l:
