@@ -635,7 +635,8 @@ class ProofState:
 
     @property
     def thm(self) -> Goal:
-        return self._scope.target_goal
+        """The target of the outermost proof."""
+        return self._scopes[0].target_goal
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
@@ -675,7 +676,7 @@ class ProofState:
         >>> l1
         [] ?|= Implies(p, q)
         """
-        lemma_cpy = ProofState(self.thm)
+        lemma_cpy = ProofState(self._scope.target_goal)
         lemma_cpy._scope.goals = self.goals.copy()
         lemma_cpy._scope.lemmas = self.lemmas.copy()
         return lemma_cpy
@@ -2291,7 +2292,7 @@ class ProofStateProxy(ProofState):
         start = time.perf_counter()
         pf = super().qed(**kwargs)
         end = time.perf_counter()
-        print(f"QED on {self.thm} took {end - start:.4f} seconds")
+        print(f"QED on {self._scope.target_goal} took {end - start:.4f} seconds")
         return pf
 
 
