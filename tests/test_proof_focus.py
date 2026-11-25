@@ -83,16 +83,3 @@ def test_scope_can_reconstruct_an_assumption_proof():
         l.intro()
         l.assumption()
     assert l.qed().thm.eq(target)
-
-
-def test_thm_stays_at_the_root_during_focus():
-    p = Bool("p")
-    l = kd.Lemma(Implies(p, p))
-    root = l.thm
-    l.intro()
-    focused = l.top_goal()
-    with l:
-        assert l.thm is root
-        assert l.copy().thm is focused
-        l.auto()
-    assert l.qed().thm.eq(root.to_expr())

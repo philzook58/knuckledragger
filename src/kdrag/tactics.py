@@ -633,11 +633,6 @@ class ProofState:
     def lemmas(self) -> list[dict[int, kd.kernel.Proof]]:
         return self._scope.lemmas
 
-    @property
-    def thm(self) -> Goal:
-        """The target of the outermost proof."""
-        return self._scopes[0].target_goal
-
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
         Record a lemma in the current ProofState state.
