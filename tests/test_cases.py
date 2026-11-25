@@ -90,6 +90,26 @@ def test_single_bool_retains_both_branches():
     l.qed()
 
 
+def test_case_label_checks_ast_id_without_solver(monkeypatch):
+    p = smt.Bool("p")
+    l = kd.Lemma(smt.BoolVal(True))
+    l.cases(p)
+    goal = l.top_goal()
+
+    def unexpected_solver_call(*args, **kwargs):
+        raise AssertionError("case labels should not invoke the solver")
+
+    monkeypatch.setattr(kd, "prove", unexpected_solver_call)
+    monkeypatch.setattr(kd.kernel, "prove", unexpected_solver_call)
+    assert l.case(smt.Bool("p") == smt.BoolVal(True)) is l
+    with pytest.raises(ValueError, match="Case label is not exactly a hypothesis"):
+        l.case(p)
+    with pytest.raises(ValueError, match="Case label is not exactly a hypothesis"):
+        l.case(p == smt.BoolVal(False))
+    assert l.top_goal() is goal
+    assert not l.lemmas[-1]
+
+
 def test_single_datatype_retains_constructor_branches():
     T = kd.Enum("CasesOptionsTest", "A B")
     x = smt.Const("x", T)
