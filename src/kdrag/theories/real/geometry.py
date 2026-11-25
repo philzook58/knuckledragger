@@ -229,7 +229,7 @@ def is_line_iff_linep(l):
         # <- implication
         l.intro()
         (x, y, z), _ = l.obtain(0)
-        l.cases(x == 0)
+        l.cases(x == 0, x != 0)
 
         l.case(x == 0)
         l.have(y != 0, by=[])
