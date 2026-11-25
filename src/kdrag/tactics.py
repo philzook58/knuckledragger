@@ -520,7 +520,7 @@ class LemmaCallback:
 
 
 @dataclass
-class _ProofFrame:
+class _ProofScope:
     thm: Goal
     goals: list[Goal | LemmaCallback]
     lemmas: list[dict[int, kd.kernel.Proof]] = field(default_factory=lambda: [{}])
@@ -603,23 +603,23 @@ class ProofState:
     """
 
     def __init__(self, goal: Goal):
-        self._frames = [_ProofFrame(goal, [goal])]
+        self._scopes = [_ProofScope(goal, [goal])]
 
     @property
-    def _frame(self) -> _ProofFrame:
-        return self._frames[-1]
+    def _scope(self) -> _ProofScope:
+        return self._scopes[-1]
 
     @property
     def goals(self) -> list[Goal | LemmaCallback]:
-        return self._frame.goals
+        return self._scope.goals
 
     @property
     def lemmas(self) -> list[dict[int, kd.kernel.Proof]]:
-        return self._frame.lemmas
+        return self._scope.lemmas
 
     @property
     def thm(self) -> Goal:
-        return self._frame.thm
+        return self._scope.thm
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
@@ -635,10 +635,10 @@ class ProofState:
             return l
 
     def abort(self):
-        frame = self._frame
-        frame.thm = Goal.empty()
-        frame.lemmas = [{}]
-        frame.goals = []
+        scope = self._scope
+        scope.thm = Goal.empty()
+        scope.lemmas = [{}]
+        scope.goals = []
 
     def push_lemmas(self):
         self.lemmas.append({})
@@ -647,7 +647,7 @@ class ProofState:
         self.lemmas.pop()
 
     def copy(self):
-        """Make a copy of the active proof frame.
+        """Make a copy of the active proof scope.
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p,q))
@@ -660,8 +660,8 @@ class ProofState:
         [] ?|= Implies(p, q)
         """
         lemma_cpy = ProofState(self.thm)
-        lemma_cpy._frame.goals = self.goals.copy()
-        lemma_cpy._frame.lemmas = self.lemmas.copy()
+        lemma_cpy._scope.goals = self.goals.copy()
+        lemma_cpy._scope.lemmas = self.lemmas.copy()
         return lemma_cpy
 
     def search(self, *args, at=None, db={}):
@@ -2030,7 +2030,7 @@ class ProofState:
         goal = self.top_goal()
         if not self.goals:
             raise ValueError("Cannot focus a proof with no open goals")
-        self._frames.append(_ProofFrame(goal, [goal]))
+        self._scopes.append(_ProofScope(goal, [goal]))
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -2043,7 +2043,7 @@ class ProofState:
                 raise ValueError("Unfinished focused proof", goal)
             proof = self.qed()
         finally:
-            self._frames.pop()
+            self._scopes.pop()
         self.exact(proof)
 
     def show(self, thm: smt.BoolRef, **kwargs) -> "ProofState":
@@ -2262,7 +2262,7 @@ class ProofState:
                 kwargs["by"] = list(self.lemmas[-1].values())
             pf = kd.kernel.prove(thm, **kwargs)
         kdrag.config.perf_event(
-            "ProofState", self.thm, time.perf_counter() - self._frame.start_time
+            "ProofState", self.thm, time.perf_counter() - self._scope.start_time
         )
         return pf
 

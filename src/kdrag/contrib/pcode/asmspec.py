@@ -639,13 +639,13 @@ class VCProofState(kd.tactics.ProofState):
 
     def qed(self, **kwargs):
         proof = super().qed(**kwargs)
-        if self._on_qed is not None and len(self._frames) == 1:
+        if self._on_qed is not None and len(self._scopes) == 1:
             self._on_qed(proof)
         return proof
 
     def __exit__(self, exc_type, exc_value, traceback):
         super().__exit__(exc_type, exc_value, traceback)
-        if exc_type is None and self._on_qed is not None and len(self._frames) == 1:
+        if exc_type is None and self._on_qed is not None and len(self._scopes) == 1:
             if not self.goals:
                 self.qed()
 
