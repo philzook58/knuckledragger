@@ -40,22 +40,23 @@ def clamp_is_nearest(l):
     l.intros()
     l.cases(x < lo)
     with l:
-        # Left of the interval, every point is at least as far as lo.
+        l.case(x < lo)
         at_lower_endpoint = l.have(nearest == lo, by=[])
         l.have(x < z, by=[])
         l.rw(at_lower_endpoint)
         l.auto()
 
     with l:
+        l.case(lo <= x)
         l.cases(hi < x)
         with l:
-            # Right of the interval, use hi instead.
+            l.case(hi < x)
             at_upper_endpoint = l.have(nearest == hi, by=[])
             l.have(z < x, by=[])
             l.rw(at_upper_endpoint)
             l.auto()
         with l:
-            # Inside the interval, clamping leaves x alone.
+            l.case(x <= hi)
             unchanged = l.have(nearest == x, by=[])
             l.rw(unchanged)
             l.auto()
