@@ -24,7 +24,7 @@ and `osub` for subtraction (Halmos §21) use `oarith`; `orec` for transfinite
 recursion on the ordinals without a codomain uses `trec` and `ordset`; `opow`
 for exponentiation (Halmos §21) uses `omul` and `orec`. Only `ordinal`,
 `ordset`, `count`, `oarith`, `omul`, `osub`, `orec`, `opow`, `countable`,
-`cardarith`, and `cardinal` may use Replacement and definite description.
+`cardarith`, `cardinal`, and `cls` may use Replacement and definite description.
 `choice` adds Halmos' axiom of choice (§15) and `zorn` proves Zorn's lemma from
 it (§16), using `fun` and `poset`; `wellord` proves the well ordering theorem
 (§17) from Zorn's towers. `countable` (Halmos §23) and `cardarith` (Halmos §24,
@@ -32,5 +32,7 @@ cardinal arithmetic up to equivalence and Cantor's theorem) use `omul` and
 Replacement but no choice. `cardinal` (Halmos §23-25) uses choice for the
 countable union theorem, infinite sets containing ω, and cardinal numbers
 `card(X)` with the comparability of any two sets. Only `choice`, `zorn`,
-`wellord`, and `cardinal` may use choice.
+`wellord`, and `cardinal` may use choice. `cls` restates the axioms as
+smallness of classes (`zf.is_set`), with Russell and Burali-Forti as classes
+that are not sets; it uses `ordset` and Replacement.
 """

@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add the local helper `contrib.zf._sep.define_sep`, which defines {x ∈ A | P} together with its membership lemma, and use it for 17 such sets. Rename `contrib.zf` theorems after Mathlib: `cantor_injective`, `embedding_total`, `countable_bigunion`, `card_eq`, `card_le_iff`, `sum_comm_equivalent`, `sum_assoc_equivalent`, `prod_sum_distrib_equivalent`, `power_add_equivalent`, `mul_power_equivalent`, `power_mul_equivalent`, `infinite_iff_equivalent_ssubset`, and `exists_well_order`.
 - Add `contrib.zf.fun.bij_on_of_inverse` and `contrib.zf.finite.equivalent_of_inverse` (as in Mathlib's `Equiv.mk`): two maps that are inverse to each other give a bijection. Use them to shorten `sum_comm_equivalent` and `prod_comm_equivalent`.
 - Add `contrib.zf.sim.similarity_of_inverse`: an order embedding that has an inverse is a similarity. Use it to shorten `oadd_zero`, `zero_oadd`, `one_omul`, and `omul_one`.
+- Add `contrib.zf.cls`, a bridge to class-style set theory: class operations (`set_cls`, `cpair`, `cinter`, `csUnion`, `cpowerset`, `cimage`), the ZF axioms restated as smallness of classes via `zf.is_set` (proved from the existing axioms, adding none), and Russell, the universe, and Burali-Forti as classes that are not sets.
 
 ### Changed
 
