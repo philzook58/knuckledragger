@@ -3,6 +3,7 @@
 Sequence limits, subsequences, and completeness live in `rseq`,
 `subsequence`, and `cauchy`. Finite sums and series live in `finsum` and
 `series`, with applications in `contraction` and `sine`.
+Uniform convergence of function sequences lives in `funseq`.
 
 Pointwise limits and continuity live in `cont`. Properties of real sets
 live in `topology`, `compact`, and `connected`. The connectedness proof of
