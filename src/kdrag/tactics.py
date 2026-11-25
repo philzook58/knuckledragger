@@ -2242,26 +2242,26 @@ class ProofState:
             # )
         return conc
 
-    def case(self, thm=None) -> "ProofState":
-        """
-        To make more readable proofs, `case` lets you state which case you are currently in from a `cases`
-        It is basically an alias for `have` followed by `clear(-1)`.
+    def case(self, thm: smt.BoolRef) -> "ProofState":
+        """Label the current case with a formula already in the context.
+
+        The label must have the same AST ID as a hypothesis. This does not
+        invoke the solver or add a hypothesis.
 
         >>> p = smt.Bool("p")
         >>> l = Lemma(smt.Or(p, smt.Not(p)))
         >>> _ = l.cases(p)
-        >>> l.case(p)
+        >>> l.case(p == smt.BoolVal(True))
         [p == True] ?|= Or(p, Not(p))
         >>> _ = l.auto()
-        >>> l.case(smt.Not(p))
+        >>> l.case(p == smt.BoolVal(False))
         [p == False] ?|= Or(p, Not(p))
         """
-        if thm is None:
-            return self
-        else:
-            self.have(thm, by=[])  # self.assumption()?
-            self.clear(-1)
-            return self
+        ctx = self.ctx
+        label_id = thm.get_id()
+        if not any(hyp.get_id() == label_id for hyp in ctx):
+            raise ValueError("Case label is not exactly a hypothesis", thm, ctx)
+        return self
 
     def admit(self) -> Goal:
         """
