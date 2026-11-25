@@ -28,7 +28,14 @@ from kdrag.theories.real import (
     abs_triangle,
     cont_at,
     has_lim_at,
+    icc,
     min,
+    sqr,
+    sqr_sqrt,
+    sqrt,
+    sqrt_pos,
+    sqrt_sqr,
+    sqrt_zero,
 )
 from kdrag.theories.real.cont import (
     cont_at_update_of_has_lim_at,
@@ -224,6 +231,96 @@ uniform_cont_on = define(
     [f, A],
     ForAll(eps, eps > 0, _has_uniform_radius(f, A, eps)),
 )
+
+
+lipschitz_on = define(
+    "analysis.lipschitz_on",
+    [f, A],
+    Exists(
+        M,
+        M > 0,
+        ForAll([x, y], A[x], A[y], abs(f[x] - f[y]) <= M * abs(x - y)),
+    ),
+)
+
+
+@Theorem(ForAll([f, A], lipschitz_on(f, A), uniform_cont_on(f, A)))
+def uniform_cont_on_of_lipschitz_on(l):
+    """Abbott 4.4.9(a)."""
+    f, A = l.fixes()
+    l.unfold(lipschitz_on, uniform_cont_on)
+    K, bound = l.obtain(l.intro())
+    _, slopes = l.andE(bound)
+    eps = l.fix()
+    l.intro()
+    l.unfold(_has_uniform_radius)
+    # Scale the requested output tolerance by the slope bound.
+    radius = eps / K
+    l.exists(radius)
+    l.split()
+    l.auto()
+    x, y = l.fixes()
+    l.intros()
+    l.specialize(slopes, x, y)
+    l.auto()
+
+
+_sqrt_fun = Lambda(x, sqrt(x))
+_unit_interval = icc(0, 1)
+
+
+@Theorem(uniform_cont_on(_sqrt_fun, _unit_interval))
+def uniform_cont_on_sqrt_unit_interval(l):
+    l.unfold(uniform_cont_on)
+    eps = l.fix()
+    l.intro()
+    l.unfold(_has_uniform_radius)
+    l.exists(eps * eps)
+    l.split()
+    l.auto()
+    x, y = l.fixes()
+    l.intros()
+    l.have(And(x >= 0, y >= 0), by=[icc.defn(0, 1)])
+    a, b = sqrt(x), sqrt(y)
+    # The squared output difference is bounded by the input difference.
+    d = a - b
+    l.have(
+        d * d <= abs(x - y),
+        by=[
+            sqrt_pos(x),
+            sqrt_pos(y),
+            sqr_sqrt(x),
+            sqr_sqrt(y),
+            sqr.defn(a),
+            sqr.defn(b),
+            abs.defn(x - y),
+        ],
+    )
+    l.auto(by=[abs.defn(d)])
+
+
+@Theorem(Not(lipschitz_on(_sqrt_fun, _unit_interval)))
+def not_lipschitz_on_sqrt_unit_interval(l):
+    """The square root gives the counterexample in Abbott 4.4.9(b)."""
+    l.unfold(lipschitz_on)
+    K, bound = l.obtain(l.intro())
+    _, slopes = l.andE(bound)
+    # At x = t² and y = 0 the proposed bound would give 1 ≤ Kt.
+    t = RealVal(1) / (K + 1)
+    l.have(And(t > 0, t <= 1, K * t < 1), by=[])
+    x = sqr(t)
+    zero = RealVal(0)
+    l.specialize(slopes, x, zero)
+    l.auto(
+        by=[
+            icc.defn(0, 1),
+            sqrt_sqr(t),
+            sqrt_zero,
+            sqr.defn(t),
+            abs.defn(x - zero),
+            abs.defn(sqrt(x) - sqrt(zero)),
+        ],
+    )
 
 
 def _bad_pair(f, A, eps, delta, x, y):
