@@ -11,41 +11,11 @@ from .deriv import (
     deriv_eq_zero_of_interior_extremum,
     has_deriv_at,
     has_deriv_at_iff_remainder,
+    has_deriv_at_sub_linear,
 )
 
 f, df = Consts("f df", real.RFun)
 x, p, q, d, lo, hi, level = Reals("x p q d lo hi level")
-
-
-def _tilt(f, level):
-    return Lambda(x, f[x] - level * x)
-
-
-@Theorem(
-    ForAll(
-        [f, d, p, level],
-        has_deriv_at(f, d, p),
-        has_deriv_at(_tilt(f, level), d - level, p),
-    )
-)
-def has_deriv_at_sub_linear(l):
-    f, d, p, level = l.fixes()
-    l.rw(has_deriv_at_iff_remainder(f, d, p))
-    l.rw(has_deriv_at_iff_remainder(_tilt(f, level), d - level, p))
-    differentiable = l.intro()
-    eps = l.fix()
-    positive = l.intro()
-    radius, witness = l.obtain(l.specialize(differentiable, eps, positive))
-    _, estimate = l.andE(witness)
-    # Subtracting a line leaves the linear remainder unchanged.
-    l.exists(radius)
-    l.split()
-    l.auto()
-    point = l.fix()
-    l.intro()
-    l.specialize(estimate, point)
-    l.beta()
-    l.auto()
 
 
 def _between(p, x, q):
@@ -186,7 +156,7 @@ def darboux(l):
     f, df, lo, hi, level = l.fixes()
     _, derivatives, _ = l.intros()
     domain = real.icc(lo, hi)
-    g, dg = _tilt(f, level), Lambda(x, df[x] - level)
+    g, dg = Lambda(x, f[x] - level * x), Lambda(x, df[x] - level)
     l.have(_derivatives_on(g, dg, domain))
     p = l.fix()
     member = l.intro()

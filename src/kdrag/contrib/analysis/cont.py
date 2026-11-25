@@ -169,6 +169,40 @@ def cont_within_at_of_cont_at(l):
 
 @Theorem(
     ForAll(
+        [f, g, A, p],
+        cont_within_at(f, A, p),
+        cont_within_at(g, A, p),
+        cont_within_at(Lambda(x, f[x] - g[x]), A, p),
+    )
+)
+def cont_within_at_sub(l):
+    """The difference of two functions continuous within a set is continuous there."""
+    f, g, A, p = l.fixes()
+    l.unfold(cont_within_at)
+    hf, hg = l.intros()
+    eps = l.fix()
+    l.intro()
+    half = l.have(eps / 2 > 0, by=[])
+    r1, near_f = l.obtain(l.specialize(hf, eps / 2, half))
+    r2, near_g = l.obtain(l.specialize(hg, eps / 2, half))
+    _, near_f = l.andE(near_f)
+    _, near_g = l.andE(near_g)
+
+    # Use a radius that keeps both image differences below half epsilon.
+    l.exists(min(r1, r2))
+    l.split()
+    l.auto(by=[min.defn(r1, r2)])
+    q = l.fix()
+    member, _ = l.intros()
+    l.specialize(near_f, q, member)
+    l.specialize(near_g, q, member)
+    df, dg = f[p] - f[q], g[p] - g[q]
+    l.beta()
+    l.auto(by=[min.defn(r1, r2), abs.defn(df), abs.defn(dg), abs.defn(df - dg)])
+
+
+@Theorem(
+    ForAll(
         [seq_a, f, A, p],
         has_lim(seq_a, p),
         ForAll(n, n >= 0, A[seq_a[n]]),

@@ -27,6 +27,7 @@ from kdrag.contrib.analysis.cont import (
     has_lim_at_congr,
     has_lim_at_const,
     has_lim_at_id,
+    has_lim_at_unique,
 )
 from kdrag.theories.real.cont import (
     cont_at_update_of_has_lim_at,
@@ -53,6 +54,14 @@ has_deriv_at = define(
 def quot(f, p):
     """The difference quotient of f at p."""
     return Lambda(x, (f[x] - f[p]) / (x - p))
+
+
+@Theorem(ForAll([f, p, a, b], has_deriv_at(f, a, p), has_deriv_at(f, b, p), a == b))
+def has_deriv_at_unique(l):
+    """A function has at most one derivative value at a point."""
+    f, p, a, b = l.fixes()
+    l.unfold(has_deriv_at)
+    l.auto(by=[has_lim_at_unique(quot(f, p), p, a, b)])
 
 
 @Theorem(
@@ -126,6 +135,34 @@ def has_deriv_at_iff_remainder(l):
         by=[abs_mul(quot(f, p)[z] - a, z - p)],
     )
     l.auto(by=[abs.defn(z - p)])
+
+
+@Theorem(
+    ForAll(
+        [f, a, p, c],
+        has_deriv_at(f, a, p),
+        has_deriv_at(Lambda(x, f[x] - c * x), a - c, p),
+    )
+)
+def has_deriv_at_sub_linear(l):
+    """Subtracting x ↦ c*x subtracts c from the derivative."""
+    f, a, p, c = l.fixes()
+    l.rw(has_deriv_at_iff_remainder(f, a, p))
+    l.rw(has_deriv_at_iff_remainder(Lambda(x, f[x] - c * x), a - c, p))
+    differentiable = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    radius, witness = l.obtain(l.specialize(differentiable, eps, positive))
+    _, estimate = l.andE(witness)
+    # Subtracting a line leaves the linear remainder unchanged.
+    l.exists(radius)
+    l.split()
+    l.auto()
+    point = l.fix()
+    l.intro()
+    l.specialize(estimate, point)
+    l.beta()
+    l.auto()
 
 
 @Theorem(ForAll([c, p], has_deriv_at(Lambda(x, c), 0, p)))
