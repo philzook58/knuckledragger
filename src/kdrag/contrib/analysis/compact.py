@@ -12,6 +12,7 @@ from kdrag.smt import (
     If,
     IntVal,
     Lambda,
+    Not,
     Reals,
     substitute,
     ToInt,
@@ -37,10 +38,9 @@ from kdrag.theories.real.rset import An, M, nested, nested_subset, z
 from ._choice import exists_seq_of_forall_exists
 from .cauchy import is_bounded_nonneg_of_is_cauchy, is_cauchy_of_has_lim
 from .cont import (
-    _bad_pair,
-    _bad_pairs_at_every_radius,
-    _exists_bad_pairs_of_not_uniform_cont_on,
+    _has_uniform_radius,
     cont_on,
+    cont_on_mono,
     cont_within_at,
     exists_pair_radius_of_cont_within_at,
     has_lim_comp_of_cont_within_at,
@@ -298,6 +298,7 @@ def is_compact_image(l):
     """The image of a compact subset of the domain is compact (Abbott 4.4.1)."""
     f, A, K = l.fixes()
     _, _, compact = l.intros()
+    l.have(cont_on(f, K), by=[cont_on_mono(f, A, K)])
     l.unfold(is_compact)
     seq = l.fix()
     in_image = l.intro()
@@ -323,17 +324,17 @@ def is_compact_image(l):
 
     # The same index map gives a convergent subsequence in the image.
     subseq = dommap(idx, source)
-    l.have(ForAll(n, n >= 0, A[subseq[n]]))
+    l.have(ForAll(n, n >= 0, K[subseq[n]]))
     j = l.fix()
     l.intro()
     l.have(idx[j] >= j, by=[le_subseq_index(idx, j)])
     l.specialize(in_K, idx[j])
     l.auto(by=[dommap.defn(idx, source)])
-    l.have(cont_within_at(f, A, point), by=[cont_on.defn(f, A)])
+    l.have(cont_within_at(f, K, point), by=[cont_on.defn(f, K)])
     mapped = Lambda(n, f[subseq[n]])
     l.have(
         has_lim(mapped, f[point]),
-        by=[has_lim_comp_of_cont_within_at(subseq, f, A, point)],
+        by=[has_lim_comp_of_cont_within_at(subseq, f, K, point)],
     )
     target = dommap(idx, seq)
     l.have(ForAll(n, n >= 0, mapped[n] == target[n]))
@@ -510,6 +511,55 @@ def extreme_value_theorem(l):
 
 
 eps, delta = Reals("eps delta")
+
+
+def _bad_pair(f, A, eps, delta, x, y):
+    return And(A[x], A[y], real.abs(x - y) < delta, eps <= real.abs(f[x] - f[y]))
+
+
+def _bad_pairs_at_every_radius(f, A, eps):
+    return ForAll(delta, delta > 0, Exists([x, y], _bad_pair(f, A, eps, delta, x, y)))
+
+
+@Theorem(
+    ForAll(
+        [f, A, eps],
+        Not(_has_uniform_radius(f, A, eps)),
+        _bad_pairs_at_every_radius(f, A, eps),
+    )
+)
+def _bad_pairs_of_no_uniform_radius(l):
+    f, A, eps = l.fixes()
+    l.intro()
+    radius = l.fix()
+    l.intro()
+    l.contra()
+    l.have(_has_uniform_radius(f, A, eps))
+    l.unfold(_has_uniform_radius)
+    l.exists(radius)
+    l.split()
+    l.auto()
+    l.fixes()
+    l.intros()
+    l.auto()
+    l.auto()
+
+
+@Theorem(
+    ForAll(
+        [f, A],
+        Not(uniform_cont_on(f, A)),
+        Exists(eps, eps > 0, _bad_pairs_at_every_radius(f, A, eps)),
+    )
+)
+def _exists_bad_pairs_of_not_uniform_cont_on(l):
+    f, A = l.fixes()
+    l.unfold(uniform_cont_on)
+    l.intro()
+    missing = l.have(Exists(eps, eps > 0, Not(_has_uniform_radius(f, A, eps))), by=[])
+    error, _ = l.obtain(missing)
+    l.exists(error)
+    l.auto(by=[_bad_pairs_of_no_uniform_radius(f, A, error)])
 
 
 def _has_bad_partner(f, K, eps, n, left):

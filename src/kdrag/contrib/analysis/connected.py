@@ -7,7 +7,7 @@ import kdrag.theories.real as real
 from kdrag.theories.real import rset
 from kdrag.theories.real.rseq import a, ge_of_has_lim, has_lim, le_of_has_lim, n
 
-from .cont import cont_on, cont_within_at, has_lim_comp_of_cont_within_at
+from .cont import cont_on, cont_on_mono, cont_within_at, has_lim_comp_of_cont_within_at
 from .topology import (
     exists_seq_of_mem_closure,
     mem_closure_of_has_lim,
@@ -127,28 +127,27 @@ def _partition_preimage(l):
 
 @Theorem(
     ForAll(
-        [f, G, E, A, B],
-        cont_on(f, G),
-        E <= G,
+        [f, E, A, B],
+        cont_on(f, E),
         _seq_crosses(E & preimage(f, A), E & preimage(f, B)),
         _seq_crosses(A, B),
     )
 )
 def _seq_crosses_image(l):
-    f, G, E, A, B = l.fixes()
-    _, _, crossing = l.intros()
+    f, E, A, B = l.fixes()
+    _, crossing = l.intros()
     (seq, point), witness = l.obtain(crossing)
     in_pullback, _, _ = l.andE(witness)
     mapped = Lambda(n, f[seq[n]])
-    l.have(ForAll(n, n >= 0, And(G[seq[n]], A[mapped[n]])))
+    l.have(ForAll(n, n >= 0, And(E[seq[n]], A[mapped[n]])))
     j = l.fix()
     l.intro()
     l.specialize(in_pullback, j)
     l.auto(by=[preimage.defn(f, A)])
     l.clear(in_pullback)
-    l.have(cont_within_at(f, G, point), by=[cont_on.defn(f, G)])
+    l.have(cont_within_at(f, E, point), by=[cont_on.defn(f, E)])
     l.exists(mapped, f[point])
-    l.auto(by=[has_lim_comp_of_cont_within_at(seq, f, G, point), preimage.defn(f, B)])
+    l.auto(by=[has_lim_comp_of_cont_within_at(seq, f, E, point), preimage.defn(f, B)])
 
 
 @Theorem(
@@ -158,6 +157,7 @@ def is_connected_image(l):
     """Abbott 4.5.2."""
     f, G, E = l.fixes()
     l.intros()
+    l.have(cont_on(f, E), by=[cont_on_mono(f, G, E)])
     image = Image(f, E)
     l.rw(is_connected_iff_seq(image))
     A, B = l.fixes()
@@ -167,7 +167,7 @@ def is_connected_image(l):
     partition = l.have(_partition(E, C, D), by=[_partition_preimage(f, E, A, B)])
     connected = l.have(_sequence_property(E), by=[is_connected_iff_seq(E)])
     l.specialize(connected, C, D, partition)
-    l.auto(by=[_seq_crosses_image(f, G, E, A, B), _seq_crosses_image(f, G, E, B, A)])
+    l.auto(by=[_seq_crosses_image(f, E, A, B), _seq_crosses_image(f, E, B, A)])
 
 
 @Theorem(ForAll([E, lo, x, hi], is_connected(E), E[lo], E[hi], lo < x, x < hi, E[x]))

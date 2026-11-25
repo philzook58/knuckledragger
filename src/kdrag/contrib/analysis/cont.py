@@ -3,6 +3,7 @@
 from kdrag import Theorem, define
 from kdrag.smt import (
     And,
+    Const,
     Consts,
     Exists,
     FullSet,
@@ -44,6 +45,7 @@ from kdrag.theories.real.cont import (
 from kdrag.theories.real.rseq import a as seq_a, has_lim, n
 
 f, g = Consts("f g", RFun)
+B = Const("B", A.sort())
 x, y, p, L, M, c = Reals("x y p L M c")
 
 
@@ -147,6 +149,37 @@ cont_within_at = define(
     ),
 )
 cont_on = define("analysis.cont_on", [f, A], ForAll(p, A[p], cont_within_at(f, A, p)))
+
+
+@Theorem(ForAll([f, A, B, p], cont_within_at(f, A, p), B <= A, cont_within_at(f, B, p)))
+def cont_within_at_mono(l):
+    """Continuity within a set restricts to its subsets at the same point."""
+    f, A, B, p = l.fixes()
+    l.unfold(cont_within_at)
+    continuous, _ = l.intros()
+    eps = l.fix()
+    positive = l.intro()
+    radius, witness = l.obtain(l.specialize(continuous, eps, positive))
+    _, images_close = l.andE(witness)
+    l.exists(radius)
+    l.split()
+    l.auto()
+    x = l.fix()
+    l.intros()
+    l.specialize(images_close, x)
+    l.auto()
+
+
+@Theorem(ForAll([f, A, B], cont_on(f, A), B <= A, cont_on(f, B)))
+def cont_on_mono(l):
+    """Restrict a continuous function to a subset of its domain."""
+    f, A, B = l.fixes()
+    l.unfold(cont_on)
+    continuous, _ = l.intros()
+    p = l.fix()
+    l.intro()
+    l.specialize(continuous, p)
+    l.auto(by=[cont_within_at_mono(f, A, B, p)])
 
 
 @Theorem(ForAll([f, A, p], cont_at(f, p), cont_within_at(f, A, p)))
@@ -355,55 +388,6 @@ def not_lipschitz_on_sqrt_unit_interval(l):
             abs.defn(sqrt(x) - sqrt(zero)),
         ],
     )
-
-
-def _bad_pair(f, A, eps, delta, x, y):
-    return And(A[x], A[y], abs(x - y) < delta, eps <= abs(f[x] - f[y]))
-
-
-def _bad_pairs_at_every_radius(f, A, eps):
-    return ForAll(delta, delta > 0, Exists([x, y], _bad_pair(f, A, eps, delta, x, y)))
-
-
-@Theorem(
-    ForAll(
-        [f, A, eps],
-        Not(_has_uniform_radius(f, A, eps)),
-        _bad_pairs_at_every_radius(f, A, eps),
-    )
-)
-def _bad_pairs_of_no_uniform_radius(l):
-    f, A, eps = l.fixes()
-    l.intro()
-    radius = l.fix()
-    l.intro()
-    l.contra()
-    l.have(_has_uniform_radius(f, A, eps))
-    l.unfold(_has_uniform_radius)
-    l.exists(radius)
-    l.split()
-    l.auto()
-    l.fixes()
-    l.intros()
-    l.auto()
-    l.auto()
-
-
-@Theorem(
-    ForAll(
-        [f, A],
-        Not(uniform_cont_on(f, A)),
-        Exists(eps, eps > 0, _bad_pairs_at_every_radius(f, A, eps)),
-    )
-)
-def _exists_bad_pairs_of_not_uniform_cont_on(l):
-    f, A = l.fixes()
-    l.unfold(uniform_cont_on)
-    l.intro()
-    missing = l.have(Exists(eps, eps > 0, Not(_has_uniform_radius(f, A, eps))), by=[])
-    error, _ = l.obtain(missing)
-    l.exists(error)
-    l.auto(by=[_bad_pairs_of_no_uniform_radius(f, A, error)])
 
 
 @Theorem(
