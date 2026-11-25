@@ -1,7 +1,7 @@
 import pytest
 
 import kdrag as kd
-from kdrag.smt import And, Bool, BoolVal, Implies, Int
+from kdrag.smt import And, BoolVal, Int
 
 
 def test_focus_exports_only_the_completed_claim():
@@ -59,16 +59,3 @@ def test_nested_focus():
             l.auto()
     assert not l.goals
     assert l.qed().thm.eq(x - x == 0)
-
-
-def test_checkpoint_stays_with_its_frame():
-    p = Bool("p")
-    l = kd.Lemma(Implies(p, p))
-    original = l.push()
-    l.intro()
-    with l:
-        focused = l.push()
-        l.auto()
-        assert l.pop() is focused
-        l.auto()
-    assert l.pop() is original

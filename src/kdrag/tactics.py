@@ -15,7 +15,7 @@ from functools import cache, partial
 import traceback
 import linecache
 import time
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
 from kdrag.printers.pretty import pretty_goal
@@ -524,11 +524,7 @@ class _ProofFrame:
     thm: Goal
     goals: list[Goal | LemmaCallback]
     lemmas: list[dict[int, kd.kernel.Proof]] = field(default_factory=lambda: [{}])
-    pushed: Optional["_ProofFrame"] = None
     start_time: float = field(default_factory=time.perf_counter)
-
-    def copy(self) -> "_ProofFrame":
-        return replace(self, goals=self.goals.copy(), lemmas=self.lemmas.copy())
 
 
 def Lemma(goal: smt.BoolRef, fixes=None, assumes=None) -> "ProofState":
@@ -651,9 +647,7 @@ class ProofState:
         self.lemmas.pop()
 
     def copy(self):
-        """
-        ProofState methods mutates the proof state. This can make you a copy.
-        Does not copy the pushed ProofState stack.
+        """Make a copy of the active proof frame.
 
         >>> p,q = smt.Bools("p q")
         >>> l = Lemma(smt.Implies(p,q))
@@ -669,38 +663,6 @@ class ProofState:
         lemma_cpy._frame.goals = self.goals.copy()
         lemma_cpy._frame.lemmas = self.lemmas.copy()
         return lemma_cpy
-
-    def push(self):
-        """
-        Push a copy of the current ProofState state onto a stack.
-        This why you can try things out, and if they fail
-
-        >>> p,q = smt.Bools("p q")
-        >>> l = Lemma(smt.Implies(p,q))
-        >>> l.push()
-        [] ?|= Implies(p, q)
-        >>> l.intro()
-        p
-        >>> l
-        [p] ?|= q
-        >>> l.pop()
-        [] ?|= Implies(p, q)
-        """
-        frame = self._frame
-        frame.pushed = frame.copy()
-        return self.top_goal()
-
-    def pop(self):
-        """
-        Pop state off the ProofState stack.
-        """
-        frame = self._frame
-        saved = frame.pushed
-        assert saved is not None
-        frame.lemmas = saved.lemmas
-        frame.goals = saved.goals
-        frame.pushed = saved.pushed
-        return self.top_goal()
 
     def search(self, *args, at=None, db={}):
         """
