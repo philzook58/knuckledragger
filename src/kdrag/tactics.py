@@ -603,11 +603,11 @@ class ProofState:
     """
 
     def __init__(self, goal: Goal):
-        self._with_stack = [_ProofFrame(goal, [goal])]
+        self._frames = [_ProofFrame(goal, [goal])]
 
     @property
     def _frame(self) -> _ProofFrame:
-        return self._with_stack[-1]
+        return self._frames[-1]
 
     @property
     def goals(self) -> list[Goal | LemmaCallback]:
@@ -2030,7 +2030,7 @@ class ProofState:
         goal = self.top_goal()
         if not self.goals:
             raise ValueError("Cannot focus a proof with no open goals")
-        self._with_stack.append(_ProofFrame(goal, [goal]))
+        self._frames.append(_ProofFrame(goal, [goal]))
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -2043,7 +2043,7 @@ class ProofState:
                 raise ValueError("Unfinished focused proof", goal)
             proof = self.qed()
         finally:
-            self._with_stack.pop()
+            self._frames.pop()
         self.exact(proof)
 
     def show(self, thm: smt.BoolRef, **kwargs) -> "ProofState":
