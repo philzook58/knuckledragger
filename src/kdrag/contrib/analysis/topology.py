@@ -152,6 +152,65 @@ def _has_lim_of_error_lt_inv_succ(l):
 
 @Theorem(
     ForAll(
+        [A, x],
+        real.closure(A)[x],
+        Exists(a, ForAll(n, n >= 0, A[a[n]]), has_lim(a, x)),
+    )
+)
+def exists_seq_of_mem_closure(l):
+    A, x = l.fixes()
+    l.unfold(real.closure)
+    l.beta()
+    approximants = l.intro()
+    close = Lambda([n, y], And(A[y], real.abs(y - x) < RealVal(1) / (n + 1)))
+    l.have(ForAll(n, n >= 0, Exists(y, close[n, y])))
+    j = l.fix()
+    l.intro()
+    radius = RealVal(1) / (j + 1)
+    positive = l.have(radius > 0, by=[])
+    point, _ = l.obtain(l.specialize(approximants, radius, positive))
+    l.exists(point)
+    l.auto(by=[real.ball.defn(x, radius), real.abs.defn(point - x)])
+    choice = l.have(
+        Exists(a, ForAll(n, n >= 0, close[n, a[n]])),
+        by=[exists_seq_of_forall_exists(close)],
+    )
+    seq, points = l.obtain(choice)
+    l.have(ForAll(n, n >= 0, A[seq[n]]), by=[])
+    l.have(ForAll(n, n >= 0, real.abs(seq[n] - x) < RealVal(1) / (n + 1)), by=[])
+    l.clear(points)
+    l.exists(seq)
+    l.auto(by=[_has_lim_of_error_lt_inv_succ(seq, x)])
+
+
+@Theorem(
+    ForAll(
+        [A, a, x],
+        ForAll(n, n >= 0, A[a[n]]),
+        has_lim(a, x),
+        real.closure(A)[x],
+    )
+)
+def mem_closure_of_has_lim(l):
+    A, a, x = l.fixes()
+    l.unfold(real.closure)
+    l.beta()
+    inside, _ = l.intros()
+    radius = l.fix()
+    l.intro()
+    close = near(a, x, radius)
+    l.have(eventually(close), by=[eventually_near(a, x, radius)])
+    tail = l.have(eventually.defn(close).thm.arg(1), by=[eventually.defn(close)])
+    cutoff, terms_close = l.obtain(tail)
+    j = If(cutoff < 0, IntVal(0), cutoff) + 1
+    l.specialize(inside, j)
+    l.specialize(terms_close, j)
+    l.exists(a[j])
+    l.auto(by=[real.ball.defn(x, radius), real.abs.defn(a[j] - x)])
+
+
+@Theorem(
+    ForAll(
         A,
         ForAll([a, x], ForAll(n, n >= 0, A[a[n]]), has_lim(a, x), A[x]),
         real.is_closed(A),
@@ -167,23 +226,21 @@ def is_closed_of_seq_limits(l):
     l.intro()
     l.contra()
 
-    # A point outside the set with no disjoint neighborhood is a sequence limit.
-    near = Lambda([n, y], And(A[y], real.abs(y - x) < RealVal(1) / (n + 1)))
-    l.have(ForAll(n, n >= 0, Exists(y, near[n, y])))
-    j = l.fix()
+    # A point with no disjoint neighborhood belongs to the closure.
+    in_closure = l.have(real.closure(A)[x])
+    l.unfold(real.closure)
+    l.beta()
+    radius = l.fix()
     l.intro()
-    radius = RealVal(1) / (j + 1)
-    l.have(radius > 0, by=[])
-    l.auto(by=[_exists_mem_near_of_not_interior_compl(A, x, radius)])
-    choice = l.have(
-        Exists(a, ForAll(n, n >= 0, near[n, a[n]])),
-        by=[exists_seq_of_forall_exists(near)],
+    near = l.have(
+        Exists(y, A[y], real.abs(y - x) < radius),
+        by=[_exists_mem_near_of_not_interior_compl(A, x, radius)],
     )
-    seq, points = l.obtain(choice)
-    l.have(ForAll(n, n >= 0, A[seq[n]]), by=[])
-    l.have(ForAll(n, n >= 0, real.abs(seq[n] - x) < RealVal(1) / (n + 1)), by=[])
-    l.clear(points)
-    l.have(has_lim(seq, x), by=[_has_lim_of_error_lt_inv_succ(seq, x)])
+    point, _ = l.obtain(near)
+    l.exists(point)
+    l.auto(by=[real.ball.defn(x, radius), real.abs.defn(point - x)])
+    seq, witness = l.obtain(l.specialize(exists_seq_of_mem_closure, A, x, in_closure))
+    l.andE(witness)
     l.specialize(retains_limits, seq, x)
     l.auto()
 
@@ -220,12 +277,11 @@ def mem_of_mem_closure(l):
     l.auto()
 
 
-@Theorem(ForAll([A, x], real.is_closed(A), rset.is_lub(A, x), A[x]))
-def mem_of_is_lub_of_is_closed(l):
-    """A real supremum of a closed set belongs to the set."""
+@Theorem(ForAll([A, x], rset.is_lub(A, x), real.closure(A)[x]))
+def mem_closure_of_is_lub(l):
+    """A real supremum belongs to the closure of the set."""
     A, x = l.fixes()
-    l.intros()
-    l.have(real.closure(A)[x])
+    l.intro()
     l.unfold(real.closure)
     l.beta()
     eps = l.fix()
@@ -240,7 +296,13 @@ def mem_of_is_lub_of_is_closed(l):
     )
     l.exists(point)
     l.auto(by=[real.ball.defn(x, eps)])
-    l.auto(by=[mem_of_mem_closure(A, x)])
+
+
+@Theorem(ForAll([A, x], real.is_closed(A), rset.is_lub(A, x), A[x]))
+def mem_of_is_lub_of_is_closed(l):
+    """A real supremum of a closed set belongs to the set."""
+    A, x = l.fixes()
+    l.auto(by=[mem_closure_of_is_lub(A, x), mem_of_mem_closure(A, x)])
 
 
 @Theorem(ForAll([A, x], real.is_closed(A), rset.is_glb(A, x), A[x]))
