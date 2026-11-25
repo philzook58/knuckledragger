@@ -15,7 +15,7 @@ from functools import cache, partial
 import traceback
 import linecache
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 import kdrag.parsers.microlean as microlean
 import kdrag.solvers.egraph as egraph
 from kdrag.printers.pretty import pretty_goal
@@ -519,12 +519,16 @@ class LemmaCallback:
     annot: object = None
 
 
-class _FocusFrame(NamedTuple):
+@dataclass
+class _ProofFrame:
     thm: Goal
     goals: list[Goal | LemmaCallback]
-    lemmas: list[dict[int, kd.kernel.Proof]]
-    pushed: Optional["ProofState"]
-    start_time: float
+    lemmas: list[dict[int, kd.kernel.Proof]] = field(default_factory=lambda: [{}])
+    pushed: Optional["_ProofFrame"] = None
+    start_time: float = field(default_factory=time.perf_counter)
+
+    def copy(self) -> "_ProofFrame":
+        return replace(self, goals=self.goals.copy(), lemmas=self.lemmas.copy())
 
 
 def Lemma(goal: smt.BoolRef, fixes=None, assumes=None) -> "ProofState":
@@ -603,12 +607,23 @@ class ProofState:
     """
 
     def __init__(self, goal: Goal):
-        self.start_time = time.perf_counter()
-        self.lemmas: list[dict[int, kdrag.kernel.Proof]] = [{}]
-        self.thm = goal
-        self.goals: list[Goal | LemmaCallback] = [goal]
-        self.pushed = None
-        self._focus_stack: list[_FocusFrame] = []
+        self._with_stack = [_ProofFrame(goal, [goal])]
+
+    @property
+    def _frame(self) -> _ProofFrame:
+        return self._with_stack[-1]
+
+    @property
+    def goals(self) -> list[Goal | LemmaCallback]:
+        return self._frame.goals
+
+    @property
+    def lemmas(self) -> list[dict[int, kd.kernel.Proof]]:
+        return self._frame.lemmas
+
+    @property
+    def thm(self) -> Goal:
+        return self._frame.thm
 
     def add_lemma(self, lemma: kd.kernel.Proof):
         """
@@ -624,9 +639,10 @@ class ProofState:
             return l
 
     def abort(self):
-        self.thm = Goal.empty()
-        self.lemmas = [{}]
-        self.goals = []
+        frame = self._frame
+        frame.thm = Goal.empty()
+        frame.lemmas = [{}]
+        frame.goals = []
 
     def push_lemmas(self):
         self.lemmas.append({})
@@ -650,9 +666,8 @@ class ProofState:
         [] ?|= Implies(p, q)
         """
         lemma_cpy = ProofState(self.thm)
-        lemma_cpy.goals = self.goals.copy()
-        lemma_cpy.lemmas = self.lemmas.copy()
-        lemma_cpy.pushed = None
+        lemma_cpy._frame.goals = self.goals.copy()
+        lemma_cpy._frame.lemmas = self.lemmas.copy()
         return lemma_cpy
 
     def push(self):
@@ -671,19 +686,20 @@ class ProofState:
         >>> l.pop()
         [] ?|= Implies(p, q)
         """
-        cpy = self.copy()
-        cpy.pushed = self.pushed
-        self.pushed = cpy
+        frame = self._frame
+        frame.pushed = frame.copy()
         return self.top_goal()
 
     def pop(self):
         """
         Pop state off the ProofState stack.
         """
-        assert self.pushed is not None
-        self.lemmas = self.pushed.lemmas  # maybe we should store lemmas incrementally?
-        self.goals = self.pushed.goals
-        self.pushed = self.pushed.pushed
+        frame = self._frame
+        saved = frame.pushed
+        assert saved is not None
+        frame.lemmas = saved.lemmas
+        frame.goals = saved.goals
+        frame.pushed = saved.pushed
         return self.top_goal()
 
     def search(self, *args, at=None, db={}):
@@ -2052,25 +2068,11 @@ class ProofState:
         goal = self.top_goal()
         if not self.goals:
             raise ValueError("Cannot focus a proof with no open goals")
-        self._focus_stack.append(
-            _FocusFrame(
-                self.thm,
-                self.goals,
-                self.lemmas,
-                self.pushed,
-                self.start_time,
-            )
-        )
-        self.thm = goal
-        self.goals = [goal]
-        self.lemmas = [{}]
-        self.pushed = None
-        self.start_time = time.perf_counter()
+        self._with_stack.append(_ProofFrame(goal, [goal]))
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Restore the surrounding proof and export the completed goal's proof."""
-        saved = self._focus_stack[-1]
         try:
             if exc_type is not None:
                 return
@@ -2079,14 +2081,7 @@ class ProofState:
                 raise ValueError("Unfinished focused proof", goal)
             proof = self.qed()
         finally:
-            self._focus_stack.pop()
-            (
-                self.thm,
-                self.goals,
-                self.lemmas,
-                self.pushed,
-                self.start_time,
-            ) = saved
+            self._with_stack.pop()
         self.exact(proof)
 
     def show(self, thm: smt.BoolRef, **kwargs) -> "ProofState":
@@ -2305,7 +2300,7 @@ class ProofState:
                 kwargs["by"] = list(self.lemmas[-1].values())
             pf = kd.kernel.prove(thm, **kwargs)
         kdrag.config.perf_event(
-            "ProofState", self.thm, time.perf_counter() - self.start_time
+            "ProofState", self.thm, time.perf_counter() - self._frame.start_time
         )
         return pf
 
