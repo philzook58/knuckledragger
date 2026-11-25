@@ -83,22 +83,13 @@ def has_integral_sub_of_has_deriv_at(l):
     tagged = is_tagged_partition.defn(xs, ts, n, a, b)
     fine = is_fine.defn(gauge, xs, ts, n)
 
-    # The error telescopes into a sum of per-cell errors.
-    terms = Lambda(i, f[ts[i]] * (xs[i + 1] - xs[i]))
-    Fxs = Lambda(i, F[xs[i]])
-    err = terms - diff(Fxs)
-    l.have(
-        riemann_sum(f, xs, ts, n) - (F[b] - F[a]) == finsum(err, n),
-        by=[
-            riemann_sum.defn(f, xs, ts, n),
-            finsum_sub(terms, diff(Fxs), n),
-            finsum_diff(Fxs, n),
-            tagged,
-        ],
+    # Bound the scalar remainder on each cell using the gauge at its tag.
+    def remainder(j):
+        return F[xs[j + 1]] - F[xs[j]] - f[ts[j]] * (xs[j + 1] - xs[j])
+
+    cell_bound = l.have(
+        ForAll(i, 0 <= i, i < n, abs(remainder(i)) <= eta * (xs[i + 1] - xs[i]))
     )
-    # Each cell straddles its tag, so its error is at most eta times its length.
-    bound = smul(eta, diff(xs))
-    hbound = l.have(ForAll(i, 0 <= i, i < n, abs(err[i]) <= bound[i]))
     j = l.fix()
     l.intros()
     tj, x0, x1 = ts[j], xs[j], xs[j + 1]
@@ -113,21 +104,38 @@ def has_integral_sub_of_has_deriv_at(l):
         ),
         by=[mem_icc_of_is_tagged_partition(xs, ts, n, a, b), tagged, fine],
     )
-    hstraddle = l.have(straddles(F, f[tj], tj, gauge[tj], eta), by=[])
-    l.have(abs(F[x1] - F[x0] - f[tj] * (x1 - x0)) <= eta * (x1 - x0), by=[])
-    l.clear(hstraddle)
+    l.have(straddles(F, f[tj], tj, gauge[tj], eta), by=[])
     l.clear(hgauge)
-    remainder = F[x1] - F[x0] - f[tj] * (x1 - x0)
+    l.auto()
+    l.clear(hgauge)
+
+    # The error telescopes into a sum of per-cell errors.
+    terms = Lambda(i, f[ts[i]] * (xs[i + 1] - xs[i]))
+    Fxs = Lambda(i, F[xs[i]])
+    err = terms - diff(Fxs)
+    l.have(
+        riemann_sum(f, xs, ts, n) - (F[b] - F[a]) == finsum(err, n),
+        by=[
+            riemann_sum.defn(f, xs, ts, n),
+            finsum_sub(terms, diff(Fxs), n),
+            finsum_diff(Fxs, n),
+            tagged,
+        ],
+    )
+    bound = smul(eta, diff(xs))
+    hbound = l.have(ForAll(i, 0 <= i, i < n, abs(err[i]) <= bound[i]))
+    j = l.fix()
+    nonnegative, below = l.intros()
+    l.specialize(cell_bound, j, nonnegative, below)
+    width = eta * (xs[j + 1] - xs[j])
     err_eq = l.have(
-        err[j] == -remainder,
+        err[j] == -remainder(j),
         by=[sub.defn(terms, diff(Fxs)), diff.defn(Fxs)],
     )
-    bound_eq = l.have(
-        bound[j] == eta * (x1 - x0), by=[smul.defn(eta, diff(xs)), diff.defn(xs)]
-    )
+    bound_eq = l.have(bound[j] == width, by=[smul.defn(eta, diff(xs)), diff.defn(xs)])
     l.rw(err_eq)
     l.rw(bound_eq)
-    l.rw(abs_neg(remainder))
+    l.rw(abs_neg(remainder(j)))
     l.assumption()
 
     # Sum the cell bounds: eta * (b - a) <= eta * |b - a| < eta * |b - a| + eta = eps.
@@ -135,7 +143,7 @@ def has_integral_sub_of_has_deriv_at(l):
         abs(finsum(err, n)) <= finsum(bound, n),
         by=[abs_finsum_le(err, bound, n), tagged],
     )
-    l.clear(hgauge)
+    l.clear(cell_bound)
     l.clear(hbound)
     l.have(
         finsum(bound, n) == eta * (b - a),
