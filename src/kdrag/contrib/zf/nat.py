@@ -25,9 +25,7 @@ elem_succ = prove(
 elem_succ_self = prove(ForAll(x, elem(x, succ(x))), by=[elem_succ])
 le_succ = prove(ForAll(x, x <= succ(x)), by=[le.defn, elem_succ])
 # Peano IV: succ x contains x, but nothing is in 0.
-succ_ne_zero = prove(
-    ForAll(x, succ(x) != zero), by=[elem_succ_self, zero.defn, zf.elem_emp]
-)
+succ_ne_zero = prove(ForAll(x, succ(x) != zero), by=[elem_succ_self, zero.defn, zf.elem_emp])
 
 
 # ω, the smallest successor set
@@ -39,9 +37,7 @@ is_inductive = define(
 infinity_ax = axiom(Exists(A, is_inductive(A)))
 (inf_set,), inf_set_inductive = kd.tactics.skolem(infinity_ax)
 
-omega = define_const(
-    "omega", sep(inf_set, Lambda(n, ForAll(A, is_inductive(A), elem(n, A))))
-)
+omega = define_const("omega", sep(inf_set, Lambda(n, ForAll(A, is_inductive(A), elem(n, A)))))
 
 
 # The `n ∈ inf_set` conjunct of the definition is redundant since inf_set is inductive.
@@ -54,35 +50,21 @@ omega_inductive = prove(is_inductive(omega), by=[elem_omega, is_inductive.defn])
 # Peano I and II
 omega_zero = prove(elem(zero, omega), by=[omega_inductive, is_inductive.defn(omega)])
 omega_succ = prove(
-    ForAll(n, elem(n, omega), elem(succ(n), omega)),
-    by=[omega_inductive, is_inductive.defn(omega)],
+    ForAll(n, elem(n, omega), elem(succ(n), omega)), by=[omega_inductive, is_inductive.defn(omega)]
 )
-omega_le_of_inductive = prove(
-    ForAll(A, is_inductive(A), omega <= A), by=[le.defn, elem_omega]
-)
+omega_le_of_inductive = prove(ForAll(A, is_inductive(A), omega <= A), by=[le.defn, elem_omega])
 
 
 # Peano III, the principle of mathematical induction in Halmos' form.
 # S is inductive and all inductive sets contain ω, so S is squeezed to ω.
 eq_omega_of_inductive = prove(
-    ForAll(
-        S,
-        S <= omega,
-        elem(zero, S),
-        ForAll(n, elem(n, S), elem(succ(n), S)),
-        S == omega,
-    ),
+    ForAll(S, S <= omega, elem(zero, S), ForAll(n, elem(n, S), elem(succ(n), S)), S == omega),
     by=[is_inductive.defn, omega_le_of_inductive, zf.ext_ax, le.defn],
 )
 
 
 @Theorem(
-    ForAll(
-        P,
-        P(zero),
-        ForAll(n, elem(n, omega), P(n), P(succ(n))),
-        ForAll(n, elem(n, omega), P(n)),
-    )
+    ForAll(P, P(zero), ForAll(n, elem(n, omega), P(n), P(succ(n))), ForAll(n, elem(n, omega), P(n)))
 )
 def omega_induction(l):
     """Induction over ω for any class P, via the set {n ∈ ω | P n}."""
@@ -102,10 +84,7 @@ def omega_induction(l):
 omega_induction_at = prove(
     ForAll(
         [P, x],
-        Implies(
-            And(P[zero], ForAll(n, elem(n, omega), P[n], P[succ(n)]), elem(x, omega)),
-            P[x],
-        ),
+        Implies(And(P[zero], ForAll(n, elem(n, omega), P[n], P[succ(n)]), elem(x, omega)), P[x]),
     ),
     by=[omega_induction],
 )
@@ -174,9 +153,7 @@ succ_ne_self = prove(
 )
 
 
-@Theorem(
-    ForAll([n, m], elem(n, omega), elem(m, omega), (succ(n) == succ(m)) == (n == m))
-)
+@Theorem(ForAll([n, m], elem(n, omega), elem(m, omega), (succ(n) == succ(m)) == (n == m)))
 def succ_inj(l):
     """Peano V"""
     n, m = l.fixes()
@@ -187,15 +164,11 @@ def succ_inj(l):
     l.have(Or(elem(n, m), n == m), by=[elem_succ(n, m), elem_succ_self(n)])
     l.have(Or(elem(m, n), m == n), by=[elem_succ(m, n), elem_succ_self(m)])
     # n ∈ m ∈ n with n transitive would put n ∈ n.
-    l.auto(
-        by=[nat_is_transitive(n), is_transitive.defn(n), le.defn, nat_not_elem_self(n)]
-    )
+    l.auto(by=[nat_is_transitive(n), is_transitive.defn(n), le.defn, nat_not_elem_self(n)])
     l.auto()
 
 
-@Theorem(
-    ForAll(n, elem(n, omega), n != zero, Exists(m, And(elem(m, omega), n == succ(m))))
-)
+@Theorem(ForAll(n, elem(n, omega), n != zero, Exists(m, And(elem(m, omega), n == succ(m)))))
 def exists_eq_succ_of_ne_zero(l):
     n = l.fix()
     l.intro()
@@ -224,10 +197,6 @@ def omega_is_transitive(l):
 
 one = succ(zero)
 zero_ne_one = prove(Not(zero == one), by=[succ_ne_zero])
-elem_one = prove(
-    ForAll(x, elem(x, one) == (x == zero)), by=[elem_succ, zero.defn, zf.elem_emp]
-)
+elem_one = prove(ForAll(x, elem(x, one) == (x == zero)), by=[elem_succ, zero.defn, zf.elem_emp])
 two = succ(one)
-elem_two = prove(
-    ForAll(x, elem(x, two) == Or(x == zero, x == one)), by=[elem_succ, elem_one]
-)
+elem_two = prove(ForAll(x, elem(x, two) == Or(x == zero, x == one)), by=[elem_succ, elem_one])

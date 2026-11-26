@@ -127,9 +127,7 @@ nat_elem_asymm = prove(
 )
 
 
-@Theorem(
-    ForAll([m, n], elem(m, omega), elem(n, omega), elem(m, n) == And(m <= n, m != n))
-)
+@Theorem(ForAll([m, n], elem(m, omega), elem(n, omega), elem(m, n) == And(m <= n, m != n)))
 def elem_iff_le_ne(l):
     """Halmos: for natural numbers, m ∈ n iff m is a proper subset of n."""
     m, n = l.fixes()
@@ -205,12 +203,7 @@ def add_elem_add_right(l):
     # m + j⁺ = (m + j)⁺ ∈ (n + j)⁺ = n + j⁺
     j = l.fix()
     l.auto(
-        by=[
-            add_succ(m, j),
-            add_succ(n, j),
-            succ_elem_succ(add(m, j), add(n, j)),
-            add_elem_omega,
-        ]
+        by=[add_succ(m, j), add_succ(n, j), succ_elem_succ(add(m, j), add(n, j)), add_elem_omega]
     )
 
 
@@ -232,9 +225,7 @@ def add_elem_add(l):
     # m + k ∈ n + k = k + n ∈ p + n = n + p
     l.have(elem(add(m, k), add(n, k)), by=[add_elem_add_right(m, n, k)])
     l.have(elem(add(k, n), add(p, n)), by=[add_elem_add_right(k, p, n)])
-    l.auto(
-        by=[add_comm, nat_elem_trans(add(m, k), add(n, k), add(n, p)), add_elem_omega]
-    )
+    l.auto(by=[add_comm, nat_elem_trans(add(m, k), add(n, k), add(n, p)), add_elem_omega])
 
 
 @Theorem(
@@ -276,10 +267,7 @@ def mul_elem_mul_right(l):
 
 @Theorem(
     ForAll(
-        E,
-        E <= omega,
-        E != zf.emp,
-        Exists(k, And(elem(k, E), ForAll(m, elem(m, E), nat_le(k, m)))),
+        E, E <= omega, E != zf.emp, Exists(k, And(elem(k, E), ForAll(m, elem(m, E), nat_le(k, m))))
     )
 )
 def exists_least_of_nonempty(l):
@@ -302,12 +290,7 @@ def exists_least_of_nonempty(l):
     m0 = l.fix()
     l.intro()
     l.auto(
-        by=[
-            le.defn(E, omega),
-            nat_comparable(k, m0),
-            comparable.defn(k, m0),
-            nat_le.defn(k, m0),
-        ]
+        by=[le.defn(E, omega), nat_comparable(k, m0), comparable.defn(k, m0), nat_le.defn(k, m0)]
     )
     l.auto()
     l.auto(by=[elem_succ])
@@ -332,13 +315,7 @@ def bit_elem_omega(l):
 
 
 @Theorem(
-    ForAll(
-        [a, b, n, m],
-        elem(n, omega),
-        elem(m, omega),
-        elem(n, m),
-        elem(bit(a, n), bit(b, m)),
-    )
+    ForAll([a, b, n, m], elem(n, omega), elem(m, omega), elem(n, m), elem(bit(a, n), bit(b, m)))
 )
 def bit_elem_bit(l):
     """n < m gives 2n + 1 < 2m: as n + 1 ≤ m, 2n + 2 ≤ 2m."""
@@ -352,19 +329,13 @@ def bit_elem_bit(l):
     l.have(elem(add(sn, sn), omega), by=[add_elem_omega(sn, sn)])
     l.have(elem(add(m, m), omega), by=[add_elem_omega(m, m)])
     l.have(
-        Or(elem(add(sn, sn), add(m, m)), add(sn, sn) == add(m, m)),
-        by=[add_elem_add(sn, m, sn, m)],
+        Or(elem(add(sn, sn), add(m, m)), add(sn, sn) == add(m, m)), by=[add_elem_add(sn, m, sn, m)]
     )
     # so 2n < 2n + 1 < 2m ≤ 2m + 1.
     t = add(n, n)
     l.have(elem(succ(t), add(m, m)))
-    l.auto(
-        by=[elem_succ_self(succ(t)), nat_elem_trans(succ(t), add(sn, sn), add(m, m))]
-    )
-    l.have(
-        elem(t, add(m, m)),
-        by=[elem_succ_self(t), nat_elem_trans(t, succ(t), add(m, m))],
-    )
+    l.auto(by=[elem_succ_self(succ(t)), nat_elem_trans(succ(t), add(sn, sn), add(m, m))])
+    l.have(elem(t, add(m, m)), by=[elem_succ_self(t), nat_elem_trans(t, succ(t), add(m, m))])
     l.unfold(bit)
     l.auto(
         by=[
@@ -378,9 +349,7 @@ def bit_elem_bit(l):
 
 @Theorem(
     ForAll(
-        k,
-        elem(k, omega),
-        Exists(n, And(elem(n, omega), Or(k == bit(zero, n), k == bit(one, n)))),
+        k, elem(k, omega), Exists(n, And(elem(n, omega), Or(k == bit(zero, n), k == bit(one, n))))
     )
 )
 def exists_bit(l):
@@ -398,9 +367,7 @@ def exists_bit(l):
     l.exists(n1)
     l.auto(by=[bit.defn, zero_ne_one])
     l.exists(succ(n1))
-    l.auto(
-        by=[bit.defn, omega_succ, add_succ(succ(n1), n1), succ_add(n1, n1), zero_ne_one]
-    )
+    l.auto(by=[bit.defn, omega_succ, add_succ(succ(n1), n1), succ_add(n1, n1), zero_ne_one])
 
 
 @Theorem(
@@ -418,10 +385,7 @@ def bit_inj(l):
     """2n + a determines n and a: different n are ordered, and 2n < 2n + 1."""
     p, q, n, m = l.fixes()
     l.intros()
-    l.have(
-        Or(elem(n, m), n == m, elem(m, n)),
-        by=[nat_comparable(n, m), comparable.defn(n, m)],
-    )
+    l.have(Or(elem(n, m), n == m, elem(m, n)), by=[nat_comparable(n, m), comparable.defn(n, m)])
     # For n = m, 2n ≠ 2n + 1 as 2n ∉ 2n.
     t = add(n, n)
     l.auto(

@@ -12,15 +12,7 @@ from kdrag import Theorem, define, prove
 from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, If, Lambda, Not
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pow, sep, sing
-from kdrag.contrib.zf.fun import (
-    bij_on,
-    elem_sinter,
-    elem_sub,
-    inj_on,
-    maps_to,
-    sinter,
-    surj_on,
-)
+from kdrag.contrib.zf.fun import bij_on, elem_sinter, elem_sub, inj_on, maps_to, sinter, surj_on
 from kdrag.contrib.zf.finite import equivalent, image, inv, inv_apply
 
 C, X, Y, Z, k, x, x1, y = Consts("C X Y Z k x x1 y", ZFSet)
@@ -56,8 +48,7 @@ def desc_closed_self(l):
     ForAll(
         [F, G, X, Y, x],
         *_maps(F, G, X, Y),
-        elem(x, origin_x(F, G, X, Y))
-        == ForAll(C, C <= X, desc_closed(C, F, G, X, Y), elem(x, C)),
+        elem(x, origin_x(F, G, X, Y)) == ForAll(C, C <= X, desc_closed(C, F, G, X, Y), elem(x, C)),
     )
 )
 def elem_origin_x(l):
@@ -65,10 +56,7 @@ def elem_origin_x(l):
     l.intros()
     l.unfold(origin_x)
     fam = sep(pow(X), Lambda(C, desc_closed(C, F, G, X, Y)))
-    l.have(
-        elem(X, fam),
-        by=[zf.elem_sep, zf.elem_pow, le.defn, desc_closed_self(F, G, X, Y)],
-    )
+    l.have(elem(X, fam), by=[zf.elem_sep, zf.elem_pow, le.defn, desc_closed_self(F, G, X, Y)])
     l.have(fam != zf.emp, by=[zf.elem_emp])
     l.auto(by=[elem_sinter(fam, x), zf.elem_sep, zf.elem_pow])
 
@@ -97,11 +85,7 @@ origin_x_le = prove(
 )
 
 
-@Theorem(
-    ForAll(
-        [F, G, X, Y], *_maps(F, G, X, Y), desc_closed(origin_x(F, G, X, Y), F, G, X, Y)
-    )
-)
+@Theorem(ForAll([F, G, X, Y], *_maps(F, G, X, Y), desc_closed(origin_x(F, G, X, Y), F, G, X, Y)))
 def origin_x_closed(l):
     """X_X contains the orphans and the descendants of its elements."""
     F, G, X, Y = l.fixes()
@@ -132,13 +116,7 @@ def exists_parent_origin_x(l):
     # (no descendant step lands on x), so the smallest such set D is inside D - {x}.
     l.have(
         desc_closed(D - sing(x), F, G, X, Y),
-        by=[
-            desc_closed.defn,
-            origin_x_closed(F, G, X, Y),
-            le.defn,
-            elem_sub,
-            zf.elem_sing,
-        ],
+        by=[desc_closed.defn, origin_x_closed(F, G, X, Y), le.defn, elem_sub, zf.elem_sing],
     )
     l.have(D - sing(x) <= X, by=[origin_x_le(F, G, X, Y), le.defn, elem_sub])
     l.have(D <= D - sing(x), by=[origin_x_le_of_closed(F, G, X, Y, D - sing(x))])
@@ -160,15 +138,10 @@ def schroeder_bernstein(l):
     l.have(desc_closed(D, F0, G0, X, Y), by=[origin_x_closed(F0, G0, X, Y)])
 
     # Outside X_X every x has a parent y = G⁻¹ x in Y.
-    l.have(
-        ForAll(x, elem(x, X), Not(elem(x, D)), And(elem(Ginv[x], Y), G0[Ginv[x]] == x))
-    )
+    l.have(ForAll(x, elem(x, X), Not(elem(x, D)), And(elem(Ginv[x], Y), G0[Ginv[x]] == x)))
     x0 = l.fix()
     l.intros()
-    l.have(
-        elem(x0, image(G0, Y, X)),
-        by=[desc_closed.defn(D, F0, G0, X, Y), le.defn, elem_sub],
-    )
+    l.have(elem(x0, image(G0, Y, X)), by=[desc_closed.defn(D, F0, G0, X, Y), le.defn, elem_sub])
     l.have(Exists(y, And(elem(y, Y), G0[y] == x0)), by=[image.defn, zf.elem_sep])
     y0, _ = l.obtain(-1)
     l.auto(by=[inv_apply(G0, Y, y0)])
@@ -192,10 +165,7 @@ def schroeder_bernstein(l):
     y1 = l.fix()
     l.intro()
     l.cases(elem(G0[y1], D), Not(elem(G0[y1], D)))
-    l.have(
-        elem(G0[y1], image(G0, Y, X)),
-        by=[image.defn, zf.elem_sep, maps_to.defn(G0, Y, X)],
-    )
+    l.have(elem(G0[y1], image(G0, Y, X)), by=[image.defn, zf.elem_sep, maps_to.defn(G0, Y, X)])
     l.have(
         Exists(x1, And(elem(x1, D), G0[F0[x1]] == G0[y1])),
         by=[exists_parent_origin_x(F0, G0, X, Y, G0[y1])],

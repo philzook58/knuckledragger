@@ -8,19 +8,7 @@ as `⋃{y | (x, y) ∈ f}` (Isabelle/ZF's `apply`); off the domain it is junk.
 from kdrag import Theorem, define, prove
 from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, Lambda, Not
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import (
-    ZFSet,
-    bigunion,
-    elem,
-    le,
-    pair,
-    pow,
-    prod,
-    ran,
-    sep,
-    sing,
-    upair,
-)
+from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, pair, pow, prod, ran, sep, sing, upair
 
 A, B, X, Y, f, p, x, y, z = Consts("A B X Y f p x y z", ZFSet)
 F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
@@ -42,9 +30,7 @@ def bigunion_sing(l):
     l.auto(by=[zf.bigunion_ax(sing(y), z), zf.elem_sing])
 
 
-@Theorem(
-    ForAll([x, y, A, B], elem(pair(x, y), prod(A, B)) == And(elem(x, A), elem(y, B)))
-)
+@Theorem(ForAll([x, y, A, B], elem(pair(x, y), prod(A, B)) == And(elem(x, A), elem(y, B))))
 def pair_elem_prod(l):
     x, y, A, B = l.fixes()
     l.rw(zf.elem_prod_def)
@@ -62,14 +48,10 @@ def pair_elem_prod(l):
 
 # Choice-free intersection, as in Mathlib's ZFSet.sInter. The intersection in
 # theories.zf separates from `pick(a)`, which uses global choice.
-sinter = define(
-    "sinter", [A], sep(bigunion(A), Lambda(x, ForAll(B, elem(B, A), elem(x, B))))
-)
+sinter = define("sinter", [A], sep(bigunion(A), Lambda(x, ForAll(B, elem(B, A), elem(x, B)))))
 
 
-@Theorem(
-    ForAll([A, x], A != zf.emp, elem(x, sinter(A)) == ForAll(B, elem(B, A), elem(x, B)))
-)
+@Theorem(ForAll([A, x], A != zf.emp, elem(x, sinter(A)) == ForAll(B, elem(B, A), elem(x, B))))
 def elem_sinter(l):
     A, x = l.fixes()
     l.intro()
@@ -120,9 +102,7 @@ def app_eq_of_pair_elem(l):
     l.auto(by=[bigunion_sing(y)])
 
 
-@Theorem(
-    ForAll([f, X, Y, x], is_func(f, X, Y), elem(x, X), elem(pair(x, app(f, x)), f))
-)
+@Theorem(ForAll([f, X, Y, x], is_func(f, X, Y), elem(x, X), elem(pair(x, app(f, x)), f)))
 def pair_app_elem(l):
     f, X, Y, x = l.fixes()
     l.intros()
@@ -141,15 +121,9 @@ app_elem = prove(
 # A one-to-one correspondence (Halmos §8, §13) is `bij_on(F, A, B)`.
 
 maps_to = define("maps_to", [F, A, B], ForAll(x, elem(x, A), elem(F[x], B)))
-inj_on = define(
-    "inj_on", [F, A], ForAll([x, y], elem(x, A), elem(y, A), F[x] == F[y], x == y)
-)
-surj_on = define(
-    "surj_on", [F, A, B], ForAll(y, elem(y, B), Exists(x, And(elem(x, A), F[x] == y)))
-)
-bij_on = define(
-    "bij_on", [F, A, B], And(maps_to(F, A, B), inj_on(F, A), surj_on(F, A, B))
-)
+inj_on = define("inj_on", [F, A], ForAll([x, y], elem(x, A), elem(y, A), F[x] == F[y], x == y))
+surj_on = define("surj_on", [F, A, B], ForAll(y, elem(y, B), Exists(x, And(elem(x, A), F[x] == y))))
+bij_on = define("bij_on", [F, A, B], And(maps_to(F, A, B), inj_on(F, A), surj_on(F, A, B)))
 
 
 # Mathlib's Equiv.mk: maps that are inverse to each other are bijections. This
@@ -224,11 +198,7 @@ def psnd_pair(l):
     l.have(pfst(p) == x, by=[pfst_pair])
     l.have(
         elem(y, bigunion(p)),
-        by=[
-            zf.bigunion_ax(p, y),
-            zf.elem_pair(x, y, upair(x, y)),
-            zf.elem_upair(x, y, y),
-        ],
+        by=[zf.bigunion_ax(p, y), zf.elem_pair(x, y, upair(x, y)), zf.elem_upair(x, y, y)],
     )
     l.auto(by=[zf.pair_inj, zf.elem_sing(z0, y)])
     l.auto(by=[bigunion_sing(y)])
@@ -240,8 +210,7 @@ graph = define("graph", [F, A, B], sep(prod(A, B), Lambda(z, psnd(z) == F[pfst(z
 
 @Theorem(
     ForAll(
-        [F, A, B, x, y],
-        elem(pair(x, y), graph(F, A, B)) == And(elem(x, A), elem(y, B), y == F[x]),
+        [F, A, B, x, y], elem(pair(x, y), graph(F, A, B)) == And(elem(x, A), elem(y, B), y == F[x])
     )
 )
 def pair_elem_graph(l):
@@ -266,9 +235,7 @@ def is_func_graph(l):
     l.auto(by=[pair_elem_graph])
 
 
-@Theorem(
-    ForAll([F, A, B, x], maps_to(F, A, B), elem(x, A), app(graph(F, A, B), x) == F[x])
-)
+@Theorem(ForAll([F, A, B, x], maps_to(F, A, B), elem(x, A), app(graph(F, A, B), x) == F[x]))
 def app_graph(l):
     F, A, B, x = l.fixes()
     l.intros()
@@ -296,18 +263,12 @@ def eq_graph(l):
     # z ∈ f is (x, y) in X × Y with y = f(x).
     l.intro()
     l.have(elem(z0, prod(X, Y)), by=[is_func.defn(f, X, Y), le.defn(f, prod(X, Y))])
-    l.have(
-        Exists([x, y], And(z0 == pair(x, y), elem(x, X), elem(y, Y))),
-        by=[zf.elem_prod_def],
-    )
+    l.have(Exists([x, y], And(z0 == pair(x, y), elem(x, X), elem(y, Y))), by=[zf.elem_prod_def])
     (x0, y0), _ = l.obtain(-1)
     l.auto(by=[app_eq_of_pair_elem(f, X, Y, x0, y0), pair_elem_graph(F, X, Y, x0, y0)])
     l.intro()
     l.have(elem(z0, prod(X, Y)), by=[graph.defn, zf.elem_sep])
-    l.have(
-        Exists([x, y], And(z0 == pair(x, y), elem(x, X), elem(y, Y))),
-        by=[zf.elem_prod_def],
-    )
+    l.have(Exists([x, y], And(z0 == pair(x, y), elem(x, X), elem(y, Y))), by=[zf.elem_prod_def])
     (x0, y0), _ = l.obtain(-1)
     l.auto(by=[pair_app_elem(f, X, Y, x0), pair_elem_graph(F, X, Y, x0, y0)])
 
@@ -315,8 +276,7 @@ def eq_graph(l):
 @Theorem(
     ForAll(
         [A, B, p],
-        elem(p, prod(A, B))
-        == And(elem(pfst(p), A), elem(psnd(p), B), p == pair(pfst(p), psnd(p))),
+        elem(p, prod(A, B)) == And(elem(pfst(p), A), elem(psnd(p), B), p == pair(pfst(p), psnd(p))),
     )
 )
 def elem_prod_iff(l):

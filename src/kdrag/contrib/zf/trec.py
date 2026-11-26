@@ -10,17 +10,7 @@ recursion theorem on ω. No Replacement is needed.
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolSort,
-    Consts,
-    Exists,
-    ForAll,
-    Implies,
-    Lambda,
-    Not,
-)
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Implies, Lambda, Not
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, pow, prod, sep, sing
 from kdrag.contrib.zf.fun import (
@@ -40,9 +30,7 @@ F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
 
 # Halmos' U^a: the restriction of a relation to a set of first coordinates.
 restrict = define(
-    "restrict",
-    [A, S],
-    sep(A, Lambda(p, Exists([x, y], And(elem(x, S), p == pair(x, y))))),
+    "restrict", [A, S], sep(A, Lambda(p, Exists([x, y], And(elem(x, S), p == pair(x, y)))))
 )
 
 # F is a sequence function of type W in X.
@@ -56,14 +44,10 @@ is_seq_fn = define(
 trec_closed = define(
     "trec_closed",
     [A, F, R, W, X],
-    ForAll(
-        [a, t], elem(a, W), is_func(t, seg(R, W, a), X), t <= A, elem(pair(a, F[t]), A)
-    ),
+    ForAll([a, t], elem(a, W), is_func(t, seg(R, W, a), X), t <= A, elem(pair(a, F[t]), A)),
 )
 trec = define(
-    "trec",
-    [F, R, W, X],
-    sinter(sep(pow(prod(W, X)), Lambda(A, trec_closed(A, F, R, W, X)))),
+    "trec", [F, R, W, X], sinter(sep(pow(prod(W, X)), Lambda(A, trec_closed(A, F, R, W, X))))
 )
 
 
@@ -96,8 +80,7 @@ def elem_trec(l):
     l.unfold(trec)
     fam = sep(pow(prod(W, X)), Lambda(A, trec_closed(A, F, R, W, X)))
     l.have(
-        elem(prod(W, X), fam),
-        by=[zf.elem_sep, zf.elem_pow, le.defn, trec_closed_prod(F, R, W, X)],
+        elem(prod(W, X), fam), by=[zf.elem_sep, zf.elem_pow, le.defn, trec_closed_prod(F, R, W, X)]
     )
     l.have(fam != zf.emp, by=[zf.elem_emp])
     l.auto(by=[elem_sinter(fam, p), zf.elem_sep, zf.elem_pow])
@@ -127,9 +110,7 @@ trec_le_prod = prove(
 )
 
 
-@Theorem(
-    ForAll([F, R, W, X], *_hyps(F, R, W, X), trec_closed(trec(F, R, W, X), F, R, W, X))
-)
+@Theorem(ForAll([F, R, W, X], *_hyps(F, R, W, X), trec_closed(trec(F, R, W, X), F, R, W, X)))
 def trec_closed_trec(l):
     """U is f-closed: a function t ⊆ U lies inside every f-closed A."""
     F, R, W, X = l.fixes()
@@ -172,15 +153,10 @@ def not_elem_trec_of_sub_sing(l):
 T1, T2 = Consts("T1 T2", ZFSet)
 
 elem_restrict_pair = prove(
-    ForAll(
-        [A, S, x, y],
-        elem(pair(x, y), restrict(A, S)) == And(elem(pair(x, y), A), elem(x, S)),
-    ),
+    ForAll([A, S, x, y], elem(pair(x, y), restrict(A, S)) == And(elem(pair(x, y), A), elem(x, S))),
     by=[restrict.defn, zf.elem_sep, zf.pair_inj],
 )
-restrict_le = prove(
-    ForAll([A, S], restrict(A, S) <= A), by=[restrict.defn, zf.elem_sep, le.defn]
-)
+restrict_le = prove(ForAll([A, S], restrict(A, S) <= A), by=[restrict.defn, zf.elem_sep, le.defn])
 
 
 @Theorem(
@@ -204,10 +180,7 @@ def func_eq_of_le(l):
     # at x lies in A too, so it is y.
     l.have(
         ForAll(
-            T1,
-            is_func(T1, S, X),
-            elem(p0, T1),
-            Exists([x, y], And(elem(x, S), p0 == pair(x, y))),
+            T1, is_func(T1, S, X), elem(p0, T1), Exists([x, y], And(elem(x, S), p0 == pair(x, y)))
         ),
         by=[is_func.defn, le.defn, zf.elem_prod_def],
     )
@@ -241,9 +214,7 @@ def trec_unique_value_step(l):
     sa = seg(R, W, a0)
     T = restrict(U, sa)
     # By hypothesis U has at most one value at each b < a.
-    l.have(
-        ForAll([x, y, z], elem(x, sa), elem(pair(x, y), U), elem(pair(x, z), U), y == z)
-    )
+    l.have(ForAll([x, y, z], elem(x, sa), elem(pair(x, y), U), elem(pair(x, z), U), y == z))
     x0, y0, z0 = l.fixes()
     l.intros()
     l.auto()
@@ -273,8 +244,7 @@ def trec_unique_value_step(l):
     l.auto(by=[elem_restrict_pair])
     # ... so (a, F(U^a)) ∈ U, since U is f-closed.
     l.have(
-        elem(pair(a0, F[T]), U),
-        by=[trec_closed_trec(F, R, W, X), trec_closed.defn(U, F, R, W, X)],
+        elem(pair(a0, F[T]), U), by=[trec_closed_trec(F, R, W, X), trec_closed.defn(U, F, R, W, X)]
     )
     l.exists(F[T])
     l.split()
@@ -291,8 +261,7 @@ def trec_unique_value_step(l):
     l.intros()
     l.have(t0 <= U, by=[le.defn, elem_sub])
     l.have(
-        elem(pair(b0, F[t0]), U),
-        by=[trec_closed_trec(F, R, W, X), trec_closed.defn(U, F, R, W, X)],
+        elem(pair(b0, F[t0]), U), by=[trec_closed_trec(F, R, W, X), trec_closed.defn(U, F, R, W, X)]
     )
     l.have(Implies(b0 == a0, t0 == T), by=[func_eq_of_le(t0, T, U, sa, X)])
     l.auto(by=[elem_sub, zf.elem_sing, zf.pair_inj])
@@ -301,9 +270,7 @@ def trec_unique_value_step(l):
 
 @Theorem(
     ForAll(
-        [F, R, W, X],
-        *_hyps(F, R, W, X),
-        ForAll(a, elem(a, W), unique_value(trec(F, R, W, X), a)),
+        [F, R, W, X], *_hyps(F, R, W, X), ForAll(a, elem(a, W), unique_value(trec(F, R, W, X), a))
     )
 )
 def trec_unique_value(l):
@@ -357,7 +324,6 @@ def trec_eq(l):
         ],
     )
     l.have(
-        elem(pair(a0, F[T]), U),
-        by=[trec_closed_trec(F, R, W, X), trec_closed.defn(U, F, R, W, X)],
+        elem(pair(a0, F[T]), U), by=[trec_closed_trec(F, R, W, X), trec_closed.defn(U, F, R, W, X)]
     )
     l.auto(by=[app_eq_of_pair_elem(U, W, X, a0, F[T])])

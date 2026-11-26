@@ -15,18 +15,7 @@ by applying this to the collection of its chains.
 """
 
 from kdrag import Theorem, define
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolSort,
-    Consts,
-    Exists,
-    ForAll,
-    If,
-    Lambda,
-    Not,
-    Or,
-)
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, If, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, pow, sep, sing
 from kdrag.contrib.zf.choice import exists_choice_on, is_choice_on
@@ -44,9 +33,7 @@ A, B, C, K, T, X, f, x, y = Consts("A B C K T X f x y", ZFSet)
 emp = zf.emp
 
 # C is a chain under inclusion.
-is_chain = define(
-    "is_chain", [C], ForAll([A, B], elem(A, C), elem(B, C), Or(A <= B, B <= A))
-)
+is_chain = define("is_chain", [C], ForAll([A, B], elem(A, C), elem(B, C), Or(A <= B, B <= A)))
 
 # Halmos' hypotheses on K: subsets of X, nonempty, closed under subsets, and
 # containing the union of each chain.
@@ -67,9 +54,7 @@ hat, elem_hat = define_sep("hat", [K, X, A], X, x, elem(A | sing(x), K))
 
 # Halmos' g: add the chosen new point of Â, if there is one.
 nxt = define(
-    "nxt",
-    [f, K, X, A],
-    If(hat(K, X, A) - A == emp, A, A | sing(app(f, hat(K, X, A) - A))),
+    "nxt", [f, K, X, A], If(hat(K, X, A) - A == emp, A, A | sing(app(f, hat(K, X, A) - A)))
 )
 
 
@@ -147,10 +132,7 @@ def eq_of_nxt_eq(l):
     l.have(D != emp, by=[zf.elem_emp(x0)])
     l.have(D <= X, by=[le.defn, elem_sub, elem_hat])
     l.have(elem(app(f, D), D), by=[is_choice_on.defn(f, X)])
-    l.have(
-        elem(app(f, D), nxt(f, K, X, A)),
-        by=[nxt.defn(f, K, X, A), zf.elem_union, zf.elem_sing],
-    )
+    l.have(elem(app(f, D), nxt(f, K, X, A)), by=[nxt.defn(f, K, X, A), zf.elem_union, zf.elem_sing])
     l.auto(by=[elem_sub(app(f, D), hat(K, X, A), A)])
     l.intro()
     l.auto(by=[le.defn(A, B)])
@@ -209,24 +191,14 @@ def tower0_tower(l):
     l.auto(by=[elem_tower0(f, K, X, emp), is_tower.defn])
     A0 = l.fix()
     l.intro()
-    l.auto(
-        by=[
-            elem_tower0(f, K, X, A0),
-            elem_tower0(f, K, X, nxt(f, K, X, A0)),
-            is_tower.defn,
-        ]
-    )
+    l.auto(by=[elem_tower0(f, K, X, A0), elem_tower0(f, K, X, nxt(f, K, X, A0)), is_tower.defn])
     C0 = l.fix()
     l.intros()
     l.have(ForAll(T, is_tower(T, f, K, X), C0 <= T), by=[le.defn, elem_tower0])
     l.auto(by=[elem_tower0(f, K, X, bigunion(C0)), is_tower.defn])
 
 
-@Theorem(
-    ForAll(
-        [f, K, X, T], is_tower(T, f, K, X), T <= tower0(f, K, X), T == tower0(f, K, X)
-    )
-)
+@Theorem(ForAll([f, K, X, T], is_tower(T, f, K, X), T <= tower0(f, K, X), T == tower0(f, K, X)))
 def eq_tower0(l):
     """A tower inside T₀ is T₀."""
     f, K, X, T = l.fixes()
@@ -236,9 +208,7 @@ def eq_tower0(l):
 
 # C is comparable: every member of T₀ is inside it or contains it.
 comparable_t0 = define(
-    "comparable_t0",
-    [f, K, X, C],
-    ForAll(A, elem(A, tower0(f, K, X)), Or(A <= C, C <= A)),
+    "comparable_t0", [f, K, X, C], ForAll(A, elem(A, tower0(f, K, X)), Or(A <= C, C <= A))
 )
 
 
@@ -266,9 +236,7 @@ def nxt_le_of_ssubset(l):
     # x ∈ g(A) − C and y ∈ C − A are both new points of g(A).
     l.have(Exists(x, And(elem(x, gA), Not(elem(x, C)))), by=[le.defn(gA, C)])
     x0, _ = l.obtain(-1)
-    l.have(
-        Exists(y, And(elem(y, C), Not(elem(y, A)))), by=[zf.ext_ax(A, C), le.defn(A, C)]
-    )
+    l.have(Exists(y, And(elem(y, C), Not(elem(y, A)))), by=[zf.ext_ax(A, C), le.defn(A, C)])
     y0, _ = l.obtain(-1)
     l.auto(by=[le.defn(A, C), le.defn(C, gA), nxt_sub_subsingleton(f, K, X, A, x0, y0)])
 
@@ -299,14 +267,7 @@ def ubar_tower(l):
     l.unfold(is_tower)
     l.split()
     l.auto(by=[le.defn, elem_ubar, is_tower.defn(T0, f, K, X)])
-    l.auto(
-        by=[
-            elem_ubar(f, K, X, C, emp),
-            is_tower.defn(T0, f, K, X),
-            le.defn,
-            zf.elem_emp,
-        ]
-    )
+    l.auto(by=[elem_ubar(f, K, X, C, emp), is_tower.defn(T0, f, K, X), le.defn, zf.elem_emp])
     # A ∈ U gives g(A) ∈ U: A ⊊ C, A = C, or g(C) ⊆ A ⊆ g(A).
     A0 = l.fix()
     l.intro()
@@ -363,9 +324,7 @@ def comparable_nxt(l):
     l.unfold(comparable_t0)
     A0 = l.fix()
     l.intro()
-    l.auto(
-        by=[elem_ubar(f, K, X, C, A0), le.defn(A0, C), le.defn(C, gC), le.defn(A0, gC)]
-    )
+    l.auto(by=[elem_ubar(f, K, X, C, A0), le.defn(A0, C), le.defn(C, gC), le.defn(A0, gC)])
 
 
 comparables, elem_comparables = define_sep(
@@ -419,9 +378,7 @@ def tower0_chain(l):
     l.cases(ForAll(B, elem(B, C1), B <= A0), Exists(B, And(elem(B, C1), Not(B <= A0))))
     l.auto(by=[le.defn, zf.bigunion_ax])
     B0, _ = l.obtain(-1)
-    l.have(
-        comparable_t0(f, K, X, B0), by=[le.defn(C1, Cm), elem_comparables(f, K, X, B0)]
-    )
+    l.have(comparable_t0(f, K, X, B0), by=[le.defn(C1, Cm), elem_comparables(f, K, X, B0)])
     l.have(A0 <= B0, by=[comparable_t0.defn(f, K, X, B0)])
     l.have(B0 <= V, by=[le.defn, zf.bigunion_ax])
     l.auto(by=[le.defn(A0, B0), le.defn(B0, V), le.defn(A0, V)])
@@ -436,9 +393,7 @@ def tower0_chain(l):
 
 @Theorem(
     ForAll(
-        [K, X],
-        is_tukey(K, X),
-        Exists(A, And(elem(A, K), ForAll(B, elem(B, K), A <= B, B == A))),
+        [K, X], is_tukey(K, X), Exists(A, And(elem(A, K), ForAll(B, elem(B, K), A <= B, B == A)))
     )
 )
 def exists_maximal_of_tukey(l):
@@ -493,10 +448,7 @@ def chains_tukey(l):
     l.unfold(is_tukey)
     l.split()
     l.auto(by=[le.defn, elem_chains, zf.elem_pow])
-    l.have(
-        elem(emp, Ch),
-        by=[elem_chains(R, X, emp), le.defn, zf.elem_emp, is_chain_of.defn],
-    )
+    l.have(elem(emp, Ch), by=[elem_chains(R, X, emp), le.defn, zf.elem_emp, is_chain_of.defn])
     l.auto(by=[zf.elem_emp(emp)])
     A0, B0 = l.fixes()
     l.intros()
@@ -542,10 +494,7 @@ def chains_tukey(l):
         [R, X],
         is_partial_order(R, X),
         ForAll(
-            E,
-            E <= X,
-            is_chain_of(R, E),
-            Exists(u, And(elem(u, X), ForAll(x, elem(x, E), R[x, u]))),
+            E, E <= X, is_chain_of(R, E), Exists(u, And(elem(u, X), ForAll(x, elem(x, E), R[x, u])))
         ),
         Exists(m, And(elem(m, X), ForAll(x, elem(x, X), R[m, x], x == m))),
     )
@@ -589,9 +538,7 @@ def zorn(l):
             partial_order_refl(R, X, x0),
         ]
     )
-    l.have(
-        elem(M1, Ch), by=[elem_chains(R, X, M1), le.defn, zf.elem_union, zf.elem_sing]
-    )
+    l.have(elem(M1, Ch), by=[elem_chains(R, X, M1), le.defn, zf.elem_union, zf.elem_sing])
     l.have(M1 == M, by=[le.defn(M, M1), zf.elem_union])
     l.have(elem(x0, M), by=[zf.elem_union, zf.elem_sing, zf.ext_ax(M1, M)])
     l.auto(by=[partial_order_antisymm(R, X, x0, u0)])

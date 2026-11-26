@@ -21,19 +21,7 @@ from kdrag.smt import (
     Or,
 )
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import (
-    ZFSet,
-    bigunion,
-    elem,
-    le,
-    pair,
-    pow,
-    prod,
-    sep,
-    sing,
-    succ,
-    zero,
-)
+from kdrag.theories.zf.zf import ZFSet, bigunion, elem, le, pair, pow, prod, sep, sing, succ, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of
 from kdrag.contrib.zf.ordinal import (
     is_ordinal,
@@ -148,8 +136,7 @@ injs = define(
         [A, B, g],
         elem(g, injs(A, B))
         == And(
-            is_func(g, A, B),
-            ForAll([x, y], elem(x, A), elem(y, A), app(g, x) == app(g, y), x == y),
+            is_func(g, A, B), ForAll([x, y], elem(x, A), elem(y, A), app(g, x) == app(g, y), x == y)
         ),
     )
 )
@@ -178,9 +165,7 @@ def injs_ne_emp(l):
 holders, elem_holders = define_sep("holders", [C, x], C, A, elem(x, A))
 
 
-@Theorem(
-    ForAll(C, countable(C), ForAll(A, elem(A, C), countable(A)), countable(bigunion(C)))
-)
+@Theorem(ForAll(C, countable(C), ForAll(A, elem(A, C), countable(A)), countable(bigunion(C))))
 def countable_bigunion(l):
     """Halmos §23: a countable union of countable sets is countable. Choose a
     member s(x) of C holding each x, and a one-to-one h(A) : A → ω for each
@@ -294,10 +279,7 @@ def exists_card_of(l):
     l.have(Exists(R, is_well_order(R, X)), by=[exists_well_order(X)])
     R0, _ = l.obtain(-1)
     a0 = ord_of(R0, X)
-    l.have(
-        And(is_ordinal(a0), similar(R0, X, nat_le_rel, a0)),
-        by=[counting_theorem(R0, X)],
-    )
+    l.have(And(is_ordinal(a0), similar(R0, X, nat_le_rel, a0)), by=[counting_theorem(R0, X)])
     l.have(Exists(F, is_similarity(F, R0, X, nat_le_rel, a0)), by=[similar.defn])
     g0, _ = l.obtain(-1)
     l.have(equivalent(X, a0), by=[equivalent.defn, is_similarity.defn])
@@ -323,8 +305,7 @@ def exists_card_of(l):
     l.have(is_ordinal(k0), by=[is_ordinal_of_elem(S, k0)])
     l.have(elem(b0, S), by=[le.defn(k0, S)])
     l.have(
-        Not(elem(k0, b0)),
-        by=[ordinal_le_of_elem(k0, b0), le.defn, ordinal_not_elem_self(S, k0)],
+        Not(elem(k0, b0)), by=[ordinal_le_of_elem(k0, b0), le.defn, ordinal_not_elem_self(S, k0)]
     )
     l.auto(
         by=[
@@ -372,13 +353,7 @@ def card_eq(l):
     l.have(is_card_of(card(Y), Y), by=[card_spec])
     l.split()
     l.intro()
-    l.auto(
-        by=[
-            is_card_of.defn,
-            equivalent_symm(Y, card(Y)),
-            equivalent_trans(X, card(X), Y),
-        ]
-    )
+    l.auto(by=[is_card_of.defn, equivalent_symm(Y, card(Y)), equivalent_trans(X, card(X), Y)])
     # card(Y) is a cardinal number of X as well.
     l.intro()
     l.have(is_card_of(card(Y), X))
@@ -388,13 +363,7 @@ def card_eq(l):
     l.auto(by=[is_card_of.defn, equivalent_trans(X, Y, card(Y))])
     b0 = l.fix()
     l.intros()
-    l.auto(
-        by=[
-            is_card_of.defn(card(Y), Y),
-            equivalent_symm(X, Y),
-            equivalent_trans(Y, X, b0),
-        ]
-    )
+    l.auto(by=[is_card_of.defn(card(Y), Y), equivalent_symm(X, Y), equivalent_trans(Y, X, b0)])
     l.auto(by=[card_eq_of(X, card(Y))])
 
 
@@ -440,11 +409,7 @@ def dominated_of_card_le(l):
     l.have(equivalent(cY, Y), by=[card_spec(Y), is_card_of.defn, equivalent_symm])
     l.have(
         dominated(X, cY),
-        by=[
-            dominated_of_equivalent(X, cX),
-            dominated_of_le(cY, cX),
-            dominated_trans(X, cX, cY),
-        ],
+        by=[dominated_of_equivalent(X, cX), dominated_of_le(cY, cX), dominated_trans(X, cX, cY)],
     )
     l.auto(by=[dominated_of_equivalent(cY, Y), dominated_trans(X, cY, Y)])
 
@@ -460,10 +425,7 @@ def card_le_iff(l):
     l.contra()
     l.have(is_ordinal(cX), by=[card_spec(X), is_card_of.defn])
     l.have(is_ordinal(cY), by=[card_spec(Y), is_card_of.defn])
-    l.have(
-        elem(cY, cX),
-        by=[ordinal_comparable(cX, cY), ordinal_le_of_elem(cY, cX), le.defn],
-    )
+    l.have(elem(cY, cX), by=[ordinal_comparable(cX, cY), ordinal_le_of_elem(cY, cX), le.defn])
     l.have(dominated(Y, X), by=[dominated_of_card_le(Y, X), ordinal_le_of_elem(cX, cY)])
     l.have(cX == cY, by=[schroeder_bernstein(X, Y), card_eq(X, Y)])
     l.auto(by=[ordinal_not_elem_self(cX, cY)])
@@ -503,10 +465,7 @@ def exists_equivalent_ssubset_of_infinite(l):
     Img = image(e0, omega, X)
     # The image of e is the e(n), and I recovers n.
     l.have(
-        ForAll(
-            x,
-            elem(x, Img) == And(elem(x, X), Exists(n, And(elem(n, omega), e0[n] == x))),
-        ),
+        ForAll(x, elem(x, Img) == And(elem(x, X), Exists(n, And(elem(n, omega), e0[n] == x)))),
         by=[image.defn, zf.elem_sep],
     )
     l.have(ForAll(x, elem(x, Img), And(elem(I[x], omega), e0[I[x]] == x)))
@@ -556,9 +515,7 @@ def exists_equivalent_ssubset_of_infinite(l):
     k1, k2 = I[x1], I[x2]
     l.have(Implies(elem(x1, Img), elem(e0[succ(k1)], Img)), by=[omega_succ(k1)])
     l.have(Implies(elem(x2, Img), elem(e0[succ(k2)], Img)), by=[omega_succ(k2)])
-    l.auto(
-        by=[omega_succ(k1), omega_succ(k2), inj_on.defn(e0, omega), succ_inj(k1, k2)]
-    )
+    l.auto(by=[omega_succ(k1), omega_succ(k2), inj_on.defn(e0, omega), succ_inj(k1, k2)])
     # Onto: y = e(k) with k ≠ 0 is S(e(j)) for k = j + 1; other y are fixed.
     l.unfold(surj_on)
     y0 = l.fix()
@@ -566,10 +523,7 @@ def exists_equivalent_ssubset_of_infinite(l):
     l.cases(elem(y0, Img), Not(elem(y0, Img)))
     k0 = I[y0]
     l.have(k0 != zero, by=[elem_sub, zf.elem_sing])
-    l.have(
-        Exists(n, And(elem(n, omega), k0 == succ(n))),
-        by=[exists_eq_succ_of_ne_zero(k0)],
-    )
+    l.have(Exists(n, And(elem(n, omega), k0 == succ(n))), by=[exists_eq_succ_of_ne_zero(k0)])
     j0, _ = l.obtain(-1)
     l.exists(e0[j0])
     l.simp()
@@ -579,9 +533,7 @@ def exists_equivalent_ssubset_of_infinite(l):
     l.auto(by=[elem_sub])
 
 
-@Theorem(
-    ForAll(X, Eq(Not(finite(X)), Exists(Y, And(Y <= X, Y != X, equivalent(X, Y)))))
-)
+@Theorem(ForAll(X, Eq(Not(finite(X)), Exists(Y, And(Y <= X, Y != X, equivalent(X, Y))))))
 def infinite_iff_equivalent_ssubset(l):
     """Halmos §24: a set is infinite iff it is equivalent to a proper subset."""
     X = l.fix()

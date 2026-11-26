@@ -16,18 +16,7 @@ some classes are not sets.
 """
 
 from kdrag import Theorem, define, define_const
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolVal,
-    Consts,
-    Eq,
-    Exists,
-    ForAll,
-    Lambda,
-    Not,
-    Or,
-)
+from kdrag.smt import And, ArraySort, BoolVal, Consts, Eq, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import (
     Class,

@@ -12,15 +12,7 @@ from kdrag.smt import And, Consts, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
-from kdrag.contrib.zf.fun import (
-    bij_on,
-    elem_sub,
-    inj_on,
-    maps_to,
-    pfst,
-    pfst_pair,
-    surj_on,
-)
+from kdrag.contrib.zf.fun import bij_on, elem_sub, inj_on, maps_to, pfst, pfst_pair, surj_on
 from kdrag.contrib.zf.oarith import (
     oadd,
     oadd_spec,
@@ -112,8 +104,7 @@ def osub_spec(l):
             p,
             elem(p, X),
             Or(
-                And(elem(pfst(p), A), p == inl(pfst(p))),
-                And(elem(pfst(p), Dif), p == inr(pfst(p))),
+                And(elem(pfst(p), A), p == inl(pfst(p))), And(elem(pfst(p), Dif), p == inr(pfst(p)))
             ),
         ),
         by=[elem_osum_set],
@@ -182,26 +173,18 @@ def oadd_osub_cancel_of_le(l):
     l.have(
         similar(oplus, X, oplus, Y),
         by=[
-            similar_osum(
-                nat_le_rel, A, nat_le_rel, A, nat_le_rel, G, nat_le_rel, B - A
-            ),
+            similar_osum(nat_le_rel, A, nat_le_rel, A, nat_le_rel, G, nat_le_rel, B - A),
             similar_refl(nat_le_rel, A),
             similar_symm(nat_le_rel, B - A, nat_le_rel, G),
         ],
     )
-    l.have(
-        similar(oplus, X, nat_le_rel, B),
-        by=[similar_trans(oplus, X, oplus, Y, nat_le_rel, B)],
-    )
+    l.have(similar(oplus, X, nat_le_rel, B), by=[similar_trans(oplus, X, oplus, Y, nat_le_rel, B)])
     l.auto(by=[oadd.defn(A, G), ord_of_eq(oplus, X, B)])
 
 
 @Theorem(
     ForAll(
-        [A, C, D],
-        is_ordinal(D),
-        elem(C, D),
-        seg(oplus, osum_set(A, D), inr(C)) == osum_set(A, C),
+        [A, C, D], is_ordinal(D), elem(C, D), seg(oplus, osum_set(A, D), inr(C)) == osum_set(A, C)
     )
 )
 def seg_osum_inr(l):
@@ -226,26 +209,12 @@ def seg_osum_inr(l):
     l.have(p0 != inl(x0), by=[zf.pair_inj, zero_ne_one])
     # γ ∉ γ, and x ∈ γ ⊆ δ.
     l.have(elem(x0, C) == And(elem(x0, D), elem(x0, C)), by=[le.defn(C, D)])
-    l.auto(
-        by=[
-            elem_osum_set(A, D, p0),
-            elem_osum_set(A, C, p0),
-            ordinal_not_elem_self(D, C),
-        ]
-    )
+    l.auto(by=[elem_osum_set(A, D, p0), elem_osum_set(A, C, p0), ordinal_not_elem_self(D, C)])
     # Anything else is in neither side.
     l.auto(by=tags)
 
 
-@Theorem(
-    ForAll(
-        [A, C, D],
-        is_ordinal(A),
-        is_ordinal(D),
-        elem(C, D),
-        elem(oadd(A, C), oadd(A, D)),
-    )
-)
+@Theorem(ForAll([A, C, D], is_ordinal(A), is_ordinal(D), elem(C, D), elem(oadd(A, C), oadd(A, D))))
 def oadd_elem_oadd(l):
     """Halmos: γ < δ implies α + γ < α + δ. A similarity h of α ⊕ δ onto α + δ
     carries the initial segment α ⊕ γ onto the initial segment before h(γ, 1),
@@ -255,9 +224,7 @@ def oadd_elem_oadd(l):
     AD = oadd(A, D)
     Y = osum_set(A, D)
     l.have(And(is_ordinal(AD), similar(nat_le_rel, AD, oplus, Y)), by=[oadd_spec(A, D)])
-    l.have(
-        similar(oplus, Y, nat_le_rel, AD), by=[similar_symm(nat_le_rel, AD, oplus, Y)]
-    )
+    l.have(similar(oplus, Y, nat_le_rel, AD), by=[similar_symm(nat_le_rel, AD, oplus, Y)])
     l.unfold(similar, at=-1)
     h, _ = l.obtain(-1)
     t = inr(C)
@@ -287,14 +254,7 @@ def oadd_elem_oadd(l):
 
 
 @Theorem(
-    ForAll(
-        [A, C, D],
-        is_ordinal(A),
-        is_ordinal(C),
-        is_ordinal(D),
-        oadd(A, C) == oadd(A, D),
-        C == D,
-    )
+    ForAll([A, C, D], is_ordinal(A), is_ordinal(C), is_ordinal(D), oadd(A, C) == oadd(A, D), C == D)
 )
 def oadd_left_cancel(l):
     """Halmos: α + γ = α + δ implies γ = δ, so β − α is the unique solution."""

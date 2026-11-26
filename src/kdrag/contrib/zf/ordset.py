@@ -45,8 +45,7 @@ ordinal_well_order = prove(
     ForAll(A, is_ordinal(A), is_well_order(nat_le_rel, A)), by=[is_ordinal_iff]
 )
 ordinal_le_of_elem = prove(
-    ForAll([A, x], is_ordinal(A), elem(x, A), x <= A),
-    by=[is_ordinal_iff, is_transitive.defn],
+    ForAll([A, x], is_ordinal(A), elem(x, A), x <= A), by=[is_ordinal_iff, is_transitive.defn]
 )
 ordinal_not_elem_self = prove(
     ForAll([A, x], is_ordinal(A), elem(x, A), Not(elem(x, x))), by=[is_ordinal_iff]
@@ -72,23 +71,13 @@ def eq_of_similarity(l):
     ]
     l.have(maps_to(f, A, B), by=sim_defs)
     l.have(bij_on(f, A, B), by=sim_defs)
-    l.have(
-        ForAll([a, b], elem(a, A), elem(b, A), nat_le(a, b) == nat_le(f[a], f[b])),
-        by=sim_defs,
-    )
+    l.have(ForAll([a, b], elem(a, A), elem(b, A), nat_le(a, b) == nat_le(f[a], f[b])), by=sim_defs)
     # Keep only the extracted facts: the similarity hypothesis carries the lambda
     # order and slows later steps down (see the issue tracker).
     l.clear(is_similarity(f, nat_le_rel, A, nat_le_rel, B))
     # By transfinite induction f is the identity: f(ξ) = {f(η) | η < ξ} = {η | η < ξ} = ξ.
     l.have(ForAll(a, elem(a, A), f[a] == a))
-    l.have(
-        ForAll(
-            a,
-            elem(a, A),
-            ForAll(b, elem(b, seg(nat_le_rel, A, a)), f[b] == b),
-            f[a] == a,
-        )
-    )
+    l.have(ForAll(a, elem(a, A), ForAll(b, elem(b, seg(nat_le_rel, A, a)), f[b] == b), f[a] == a))
     a0 = l.fix()
     l.intros()
     l.rw(zf.ext_ax)
@@ -98,19 +87,13 @@ def eq_of_similarity(l):
     l.intro()
     l.have(elem(f[a0], B), by=[maps_to.defn(f, A, B)])
     l.have(elem(y0, B), by=[ordinal_le_of_elem(B, f[a0]), le.defn])
-    l.have(
-        Exists(x, And(elem(x, A), f[x] == y0)),
-        by=[bij_on.defn(f, A, B), surj_on.defn(f, A, B)],
-    )
+    l.have(Exists(x, And(elem(x, A), f[x] == y0)), by=[bij_on.defn(f, A, B), surj_on.defn(f, A, B)])
     z0, _ = l.obtain(-1)
     l.auto(by=[nat_le.defn, elem_seg(A, a0, z0), ordinal_not_elem_self(B, f[a0])])
     # η ∈ ξ: η < ξ, so f(η) = η ≤ f(ξ), and f(η) = f(ξ) would give η = ξ ∈ ξ.
     l.intro()
     l.have(elem(y0, A), by=[ordinal_le_of_elem(A, a0), le.defn])
-    l.have(
-        elem(y0, seg(nat_le_rel, A, a0)),
-        by=[elem_seg(A, a0, y0), ordinal_not_elem_self(A, a0)],
-    )
+    l.have(elem(y0, seg(nat_le_rel, A, a0)), by=[elem_seg(A, a0, y0), ordinal_not_elem_self(A, a0)])
     l.have(f[y0] == y0)
     l.auto()
     l.have(nat_le(f[y0], f[a0]), by=[nat_le.defn(y0, a0)])
@@ -122,12 +105,7 @@ def eq_of_similarity(l):
             ordinal_not_elem_self(A, a0),
         ]
     )
-    l.auto(
-        by=[
-            well_order_induction(nat_le_rel, A, Lambda(x, f[x] == x)),
-            ordinal_well_order(A),
-        ]
-    )
+    l.auto(by=[well_order_induction(nat_le_rel, A, Lambda(x, f[x] == x)), ordinal_well_order(A)])
     # So α = f[α] = β.
     l.rw(zf.ext_ax)
     l.fix()
@@ -141,36 +119,18 @@ def is_ordinal_inter(l):
     l.rw(is_ordinal_iff)
     l.split()
     l.auto(
-        by=[
-            well_order_subset(nat_le_rel, A, A & B),
-            ordinal_well_order(A),
-            le.defn,
-            zf.elem_inter,
-        ]
+        by=[well_order_subset(nat_le_rel, A, A & B), ordinal_well_order(A), le.defn, zf.elem_inter]
     )
     # Elements of α ∩ β are subsets of both.
     l.unfold(is_transitive)
     x0 = l.fix()
     l.intro()
-    l.auto(
-        by=[
-            ordinal_le_of_elem(A, x0),
-            ordinal_le_of_elem(B, x0),
-            zf.elem_inter,
-            le.defn,
-        ]
-    )
+    l.auto(by=[ordinal_le_of_elem(A, x0), ordinal_le_of_elem(B, x0), zf.elem_inter, le.defn])
     l.auto(by=[ordinal_not_elem_self, zf.elem_inter])
 
 
 @Theorem(
-    ForAll(
-        [A, x, y],
-        is_ordinal(A),
-        elem(x, A),
-        elem(y, A),
-        Or(elem(x, y), x == y, elem(y, x)),
-    )
+    ForAll([A, x, y], is_ordinal(A), elem(x, A), elem(y, A), Or(elem(x, y), x == y, elem(y, x)))
 )
 def ordinal_total(l):
     """Elements of an ordinal are comparable: its well order is total."""
@@ -180,10 +140,7 @@ def ordinal_total(l):
         is_total_order(nat_le_rel, A),
         by=[total_order_of_well_order(nat_le_rel, A), ordinal_well_order(A)],
     )
-    l.have(
-        Or(nat_le_rel[x0, y0], nat_le_rel[y0, x0]),
-        by=[is_total_order.defn(nat_le_rel, A)],
-    )
+    l.have(Or(nat_le_rel[x0, y0], nat_le_rel[y0, x0]), by=[is_total_order.defn(nat_le_rel, A)])
     l.simp(at=-1)
     l.auto(by=[nat_le.defn(x0, y0), nat_le.defn(y0, x0)])
 
@@ -202,10 +159,7 @@ def elem_of_transitive_ssubset(l):
         by=[exists_least(nat_le_rel, A, D), ordinal_well_order(A)],
     )
     c0, _ = l.obtain(-1)
-    l.have(
-        And(elem(c0, A), Not(elem(c0, B))),
-        by=[is_least.defn(nat_le_rel, D, c0), elem_sub],
-    )
+    l.have(And(elem(c0, A), Not(elem(c0, B))), by=[is_least.defn(nat_le_rel, D, c0), elem_sub])
     # ξ = β: below ξ everything is in β, and an element of β above ξ would put ξ in β.
     l.have(c0 == B)
     l.rw(zf.ext_ax)
@@ -229,20 +183,11 @@ def elem_of_transitive_ssubset(l):
         ]
     )
     l.intro()
-    l.auto(
-        by=[
-            le.defn(B, A),
-            ordinal_total(A, y0, c0),
-            is_transitive.defn(B),
-            le.defn(y0, B),
-        ]
-    )
+    l.auto(by=[le.defn(B, A), ordinal_total(A, y0, c0), is_transitive.defn(B), le.defn(y0, B)])
     l.auto()
 
 
-@Theorem(
-    ForAll([A, B], is_ordinal(A), is_ordinal(B), Or(elem(A, B), A == B, elem(B, A)))
-)
+@Theorem(ForAll([A, B], is_ordinal(A), is_ordinal(B), Or(elem(A, B), A == B, elem(B, A))))
 def ordinal_comparable(l):
     """Halmos §20: any two ordinal numbers are comparable."""
     A, B = l.fixes()
@@ -254,10 +199,7 @@ def ordinal_comparable(l):
     # α ∩ β is α, or β, or an element of both; the last would put it in itself.
     l.have(Or(C == A, elem(C, A)), by=[elem_of_transitive_ssubset(A, C)])
     l.have(Or(C == B, elem(C, B)), by=[elem_of_transitive_ssubset(B, C)])
-    l.have(
-        Not(And(elem(C, A), elem(C, B))),
-        by=[zf.elem_inter, ordinal_not_elem_self(A, C)],
-    )
+    l.have(Not(And(elem(C, A), elem(C, B))), by=[zf.elem_inter, ordinal_not_elem_self(A, C)])
     l.auto(by=[zf.ext_ax(A, B), le.defn, zf.elem_inter])
 
 
@@ -306,17 +248,13 @@ def exists_least_of_ordinals(l):
         by=[exists_least(nat_le_rel, e0, D), ordinal_well_order(e0)],
     )
     m0, _ = l.obtain(-1)
-    l.have(
-        And(elem(m0, e0), elem(m0, E)),
-        by=[is_least.defn(nat_le_rel, D, m0), zf.elem_inter],
-    )
+    l.have(And(elem(m0, e0), elem(m0, E)), by=[is_least.defn(nat_le_rel, D, m0), zf.elem_inter])
     l.exists(m0)
     l.have(ForAll(x, elem(x, E), nat_le(m0, x)))
     x1 = l.fix()
     l.intro()
     l.have(
-        Implies(elem(x1, m0), elem(x1, D)),
-        by=[ordinal_le_of_elem(e0, m0), le.defn, zf.elem_inter],
+        Implies(elem(x1, m0), elem(x1, D)), by=[ordinal_le_of_elem(e0, m0), le.defn, zf.elem_inter]
     )
     l.have(Implies(elem(x1, D), nat_le(m0, x1)), by=[is_least.defn(nat_le_rel, D, m0)])
     l.auto(
@@ -332,9 +270,7 @@ def exists_least_of_ordinals(l):
     l.auto(by=[is_least.defn(nat_le_rel, E, m0)])
 
 
-@Theorem(
-    ForAll(A, is_transitive(A), ForAll(x, elem(x, A), is_ordinal(x)), is_ordinal(A))
-)
+@Theorem(ForAll(A, is_transitive(A), ForAll(x, elem(x, A), is_ordinal(x)), is_ordinal(A)))
 def is_ordinal_of_transitive(l):
     """A transitive set of ordinal numbers is an ordinal number."""
     A = l.fix()
@@ -349,14 +285,7 @@ def is_ordinal_of_transitive(l):
     # x ∈ y ∈ x would put y in itself.
     x0, y0 = l.fixes()
     l.intros()
-    l.auto(
-        by=[
-            nat_le.defn,
-            ordinal_le_of_elem(y0, x0),
-            le.defn,
-            ordinal_not_elem_self(y0, y0),
-        ]
-    )
+    l.auto(by=[nat_le.defn, ordinal_le_of_elem(y0, x0), le.defn, ordinal_not_elem_self(y0, y0)])
     # x ∈ y ∈ z gives x ∈ z, as z is transitive.
     x1, y1, z1 = l.fixes()
     l.intros()
@@ -399,18 +328,13 @@ def is_ordinal_bigunion(l):
     l.auto(by=[is_ordinal_of_transitive(U)])
 
 
-le_bigunion = prove(
-    ForAll([C, x], elem(x, C), x <= bigunion(C)), by=[le.defn, zf.bigunion_ax]
-)
+le_bigunion = prove(ForAll([C, x], elem(x, C), x <= bigunion(C)), by=[le.defn, zf.bigunion_ax])
 bigunion_le = prove(
-    ForAll([C, B], ForAll(x, elem(x, C), x <= B), bigunion(C) <= B),
-    by=[le.defn, zf.bigunion_ax],
+    ForAll([C, B], ForAll(x, elem(x, C), x <= B), bigunion(C) <= B), by=[le.defn, zf.bigunion_ax]
 )
 
 
-@Theorem(
-    ForAll([A, B], is_ordinal(A), is_ordinal(B), elem(B, A) == And(B <= A, B != A))
-)
+@Theorem(ForAll([A, B], is_ordinal(A), is_ordinal(B), elem(B, A) == And(B <= A, B != A)))
 def ordinal_elem_iff_ssubset(l):
     """Halmos: for distinct ordinals, β ∈ α iff β ⊆ α."""
     A, B = l.fixes()

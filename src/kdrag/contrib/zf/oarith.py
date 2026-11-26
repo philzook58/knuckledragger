@@ -9,19 +9,7 @@ which avoids the solver problems recorded in the issue tracker.
 """
 
 from kdrag import Theorem, define, define_const, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolSort,
-    Consts,
-    Exists,
-    ForAll,
-    If,
-    Lambda,
-    Not,
-    Or,
-    Select,
-)
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, If, Lambda, Not, Or, Select
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, succ, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
@@ -43,11 +31,7 @@ from kdrag.contrib.zf.nat import (
 )
 from kdrag.contrib.zf.order import comparable, comparable_zero, nat_le, succ_elem_succ
 from kdrag.contrib.zf.ordinal import is_ordinal, is_ordinal_succ, omega_is_ordinal
-from kdrag.contrib.zf.ordset import (
-    ordinal_le_of_elem,
-    ordinal_not_elem_self,
-    ordinal_well_order,
-)
+from kdrag.contrib.zf.ordset import ordinal_le_of_elem, ordinal_not_elem_self, ordinal_well_order
 from kdrag.contrib.zf.poset import (
     exists_least,
     is_least,
@@ -160,12 +144,8 @@ def osum_partial_order(l):
 
 # The parts of E ⊆ A ⊕ B coming from A and from B, named to keep lambdas out
 # of later goals.
-left_part, elem_left_part = define_sep(
-    "left_part", [E, A], A, x, elem(pair(x, zero), E)
-)
-right_part, elem_right_part = define_sep(
-    "right_part", [E, B], B, x, elem(pair(x, one), E)
-)
+left_part, elem_left_part = define_sep("left_part", [E, A], A, x, elem(pair(x, zero), E))
+right_part, elem_right_part = define_sep("right_part", [E, B], B, x, elem(pair(x, one), E))
 
 
 @Theorem(
@@ -265,36 +245,20 @@ def osum_well_order(l):
 
 # The order of the sum on tagged elements, as in Mathlib's Sum.lex_inl_inl etc.
 _tags = [osum_rel_apply, osum_le.defn, pfst_pair, zf.pair_inj, zero_ne_one]
-osum_rel_inl_inl = prove(
-    ForAll([R, S, x, y], osum_rel(R, S)[inl(x), inl(y)] == R[x, y]), by=_tags
-)
-osum_rel_inr_inr = prove(
-    ForAll([R, S, x, y], osum_rel(R, S)[inr(x), inr(y)] == S[x, y]), by=_tags
-)
+osum_rel_inl_inl = prove(ForAll([R, S, x, y], osum_rel(R, S)[inl(x), inl(y)] == R[x, y]), by=_tags)
+osum_rel_inr_inr = prove(ForAll([R, S, x, y], osum_rel(R, S)[inr(x), inr(y)] == S[x, y]), by=_tags)
 osum_rel_inl_inr = prove(ForAll([R, S, x, y], osum_rel(R, S)[inl(x), inr(y)]), by=_tags)
-not_osum_rel_inr_inl = prove(
-    ForAll([R, S, x, y], Not(osum_rel(R, S)[inr(x), inl(y)])), by=_tags
-)
-osum_rel_pairs = [
-    osum_rel_inl_inl,
-    osum_rel_inr_inr,
-    osum_rel_inl_inr,
-    not_osum_rel_inr_inl,
-]
+not_osum_rel_inr_inl = prove(ForAll([R, S, x, y], Not(osum_rel(R, S)[inr(x), inl(y)])), by=_tags)
+osum_rel_pairs = [osum_rel_inl_inl, osum_rel_inr_inr, osum_rel_inl_inr, not_osum_rel_inr_inl]
 
 # Similarities f: A → A' and g: B → B' act on the two parts of A ⊕ B.
 osum_map = define(
-    "osum_map",
-    [f, g],
-    Lambda(p, If(p == inl(pfst(p)), inl(f[pfst(p)]), inr(g[pfst(p)]))),
+    "osum_map", [f, g], Lambda(p, If(p == inl(pfst(p)), inl(f[pfst(p)]), inr(g[pfst(p)])))
 )
 
 
 @Theorem(
-    ForAll(
-        [f, g, x],
-        And(osum_map(f, g)[inl(x)] == inl(f[x]), osum_map(f, g)[inr(x)] == inr(g[x])),
-    )
+    ForAll([f, g, x], And(osum_map(f, g)[inl(x)] == inl(f[x]), osum_map(f, g)[inr(x)] == inr(g[x])))
 )
 def osum_map_apply(l):
     l.fixes()
@@ -309,11 +273,7 @@ def osum_map_apply(l):
         is_similarity(f, R, A, R2, A2),
         is_similarity(g, S, B, S2, B2),
         is_similarity(
-            osum_map(f, g),
-            osum_rel(R, S),
-            osum_set(A, B),
-            osum_rel(R2, S2),
-            osum_set(A2, B2),
+            osum_map(f, g), osum_rel(R, S), osum_set(A, B), osum_rel(R2, S2), osum_set(A2, B2)
         ),
     )
 )
@@ -335,10 +295,7 @@ def similarity_osum(l):
         ForAll(
             p,
             elem(p, X),
-            Or(
-                And(elem(pfst(p), A), p == inl(pfst(p))),
-                And(elem(pfst(p), B), p == inr(pfst(p))),
-            ),
+            Or(And(elem(pfst(p), A), p == inl(pfst(p))), And(elem(pfst(p), B), p == inr(pfst(p)))),
         ),
         by=[elem_osum_set],
     )
@@ -361,10 +318,7 @@ def similarity_osum(l):
     # The order is compared part by part.
     p1, q1 = l.fixes()
     l.intros()
-    l.auto(
-        by=[osum_map_apply(f, g, pfst(p1)), osum_map_apply(f, g, pfst(q1))]
-        + osum_rel_pairs
-    )
+    l.auto(by=[osum_map_apply(f, g, pfst(p1)), osum_map_apply(f, g, pfst(q1))] + osum_rel_pairs)
     l.unfold(bij_on)
     l.split()
     l.unfold(maps_to)
@@ -396,8 +350,7 @@ def similarity_osum(l):
         by=[elem_osum_set(A2, B2, y0)],
     )
     l.cases(
-        And(elem(pfst(y0), A2), y0 == inl(pfst(y0))),
-        And(elem(pfst(y0), B2), y0 == inr(pfst(y0))),
+        And(elem(pfst(y0), A2), y0 == inl(pfst(y0))), And(elem(pfst(y0), B2), y0 == inr(pfst(y0)))
     )
     l.have(
         Exists(x, And(elem(x, A), f[x] == pfst(y0))),
@@ -427,16 +380,8 @@ oadd = define("oadd", [A, B], ord_of(oplus, osum_set(A, B)))
         elem(q, osum_set(A, B)),
         oplus[p, q]
         == Or(
-            And(
-                p == pair(pfst(p), zero),
-                q == pair(pfst(q), zero),
-                nat_le(pfst(p), pfst(q)),
-            ),
-            And(
-                p == pair(pfst(p), one),
-                q == pair(pfst(q), one),
-                nat_le(pfst(p), pfst(q)),
-            ),
+            And(p == pair(pfst(p), zero), q == pair(pfst(q), zero), nat_le(pfst(p), pfst(q))),
+            And(p == pair(pfst(p), one), q == pair(pfst(q), one), nat_le(pfst(p), pfst(q))),
             And(p == pair(pfst(p), zero), q == pair(pfst(q), one)),
         ),
     )
@@ -494,9 +439,7 @@ def oadd_one(l):
     l.have(ForAll(x, elem(x, A), x <= A), by=[ordinal_le_of_elem])
     # Elements of α ⊕ 1 are (x, 0) with x ∈ α, and (0, 1).
     l.have(
-        ForAll(
-            p, elem(p, X), Or(And(elem(pfst(p), A), p == pair(pfst(p), zero)), p == top)
-        ),
+        ForAll(p, elem(p, X), Or(And(elem(pfst(p), A), p == pair(pfst(p), zero)), p == top)),
         by=[elem_osum_set, elem_one],
     )
     l.have(ForAll(x, top != pair(x, zero)), by=[zf.pair_inj, zero_ne_one])
@@ -515,14 +458,7 @@ def oadd_one(l):
     l.intros()
     l.simp()
     l.auto(
-        by=[
-            oplus_apply(A, one, p1, q1),
-            nat_le.defn,
-            zf.pair_inj,
-            zero_ne_one,
-            pfst_pair,
-            le.defn,
-        ]
+        by=[oplus_apply(A, one, p1, q1), nat_le.defn, zf.pair_inj, zero_ne_one, pfst_pair, le.defn]
     )
     l.unfold(bij_on)
     l.split()
@@ -556,11 +492,7 @@ def oadd_one(l):
     )
 
 
-@Theorem(
-    ForAll(
-        [x, y], elem(x, omega), elem(y, omega), nat_le(x, y) == nat_le(succ(x), succ(y))
-    )
-)
+@Theorem(ForAll([x, y], elem(x, omega), elem(y, omega), nat_le(x, y) == nat_le(succ(x), succ(y))))
 def nat_le_succ_succ(l):
     """Successor preserves and reflects ≤ on ω."""
     m0, n0 = l.fixes()
@@ -589,11 +521,7 @@ def one_oadd_omega(l):
     f = Lambda(p, If(p == bot, zero, succ(pfst(p))))
     # Elements of 1 ⊕ ω are (0, 0) and (n, 1) with n ∈ ω.
     l.have(
-        ForAll(
-            p,
-            elem(p, X),
-            Or(p == bot, And(elem(pfst(p), omega), p == pair(pfst(p), one))),
-        ),
+        ForAll(p, elem(p, X), Or(p == bot, And(elem(pfst(p), omega), p == pair(pfst(p), one)))),
         by=[elem_osum_set, elem_one],
     )
     l.have(ForAll(x, bot != pair(x, one)), by=[zf.pair_inj, zero_ne_one])
@@ -647,21 +575,14 @@ def one_oadd_omega(l):
     l.exists(bot)
     l.simp()
     l.auto(by=[elem_osum_set(one, omega, bot), pfst_pair, elem_one])
-    l.have(
-        Exists(x, And(elem(x, omega), k0 == succ(x))),
-        by=[exists_eq_succ_of_ne_zero(k0)],
-    )
+    l.have(Exists(x, And(elem(x, omega), k0 == succ(x))), by=[exists_eq_succ_of_ne_zero(k0)])
     m0, _ = l.obtain(-1)
     l.exists(pair(m0, one))
     l.simp()
     l.auto(by=[elem_osum_set(one, omega, pair(m0, one)), pfst_pair])
     l.unfold(oadd)
     l.auto(
-        by=[
-            ord_of_eq(oplus, X, omega),
-            similar.defn(oplus, X, nat_le_rel, omega),
-            omega_is_ordinal,
-        ]
+        by=[ord_of_eq(oplus, X, omega), similar.defn(oplus, X, nat_le_rel, omega), omega_is_ordinal]
     )
 
 
@@ -737,11 +658,7 @@ osum_assoc_map = define_const(
         If(
             p == inr(pfst(p)),
             inr(inr(pfst(p))),
-            If(
-                pfst(p) == inl(pfst(pfst(p))),
-                inl(pfst(pfst(p))),
-                inr(inl(pfst(pfst(p)))),
-            ),
+            If(pfst(p) == inl(pfst(pfst(p))), inl(pfst(pfst(p))), inr(inl(pfst(pfst(p))))),
         ),
     ),
 )
@@ -870,10 +787,7 @@ def similarity_osum_assoc(l):
         [A, B],
         is_ordinal(A),
         is_ordinal(B),
-        And(
-            is_ordinal(oadd(A, B)),
-            similar(nat_le_rel, oadd(A, B), oplus, osum_set(A, B)),
-        ),
+        And(is_ordinal(oadd(A, B)), similar(nat_le_rel, oadd(A, B), oplus, osum_set(A, B))),
     )
 )
 def oadd_spec(l):
@@ -890,12 +804,7 @@ def oadd_spec(l):
         ],
     )
     l.unfold(oadd)
-    l.auto(
-        by=[
-            counting_theorem(oplus, X),
-            similar_symm(oplus, X, nat_le_rel, ord_of(oplus, X)),
-        ]
-    )
+    l.auto(by=[counting_theorem(oplus, X), similar_symm(oplus, X, nat_le_rel, ord_of(oplus, X))])
 
 
 @Theorem(
@@ -913,12 +822,10 @@ def oadd_assoc(l):
     l.intros()
     AB, BC = oadd(A, B), oadd(B, C)
     l.have(
-        And(is_ordinal(AB), similar(nat_le_rel, AB, oplus, osum_set(A, B))),
-        by=[oadd_spec(A, B)],
+        And(is_ordinal(AB), similar(nat_le_rel, AB, oplus, osum_set(A, B))), by=[oadd_spec(A, B)]
     )
     l.have(
-        And(is_ordinal(BC), similar(nat_le_rel, BC, oplus, osum_set(B, C))),
-        by=[oadd_spec(B, C)],
+        And(is_ordinal(BC), similar(nat_le_rel, BC, oplus, osum_set(B, C))), by=[oadd_spec(B, C)]
     )
     l.have(is_ordinal(oadd(A, BC)), by=[oadd_spec(A, BC)])
     # (α + β) ⊕ γ ≅ (α ⊕ β) ⊕ γ ≅ α ⊕ (β ⊕ γ) ≅ α ⊕ (β + γ) ≅ α + (β + γ).
@@ -931,9 +838,7 @@ def oadd_assoc(l):
     l.have(
         similar(oplus, X1, R2, X2),
         by=[
-            similar_osum(
-                nat_le_rel, AB, oplus, osum_set(A, B), nat_le_rel, C, nat_le_rel, C
-            ),
+            similar_osum(nat_le_rel, AB, oplus, osum_set(A, B), nat_le_rel, C, nat_le_rel, C),
             similar_refl(nat_le_rel, C),
         ],
     )
@@ -947,9 +852,7 @@ def oadd_assoc(l):
     l.have(
         similar(R3, X3, oplus, X4),
         by=[
-            similar_osum(
-                nat_le_rel, A, nat_le_rel, A, oplus, osum_set(B, C), nat_le_rel, BC
-            ),
+            similar_osum(nat_le_rel, A, nat_le_rel, A, oplus, osum_set(B, C), nat_le_rel, BC),
             similar_refl(nat_le_rel, A),
             similar_symm(nat_le_rel, BC, oplus, osum_set(B, C)),
         ],
@@ -959,9 +862,7 @@ def oadd_assoc(l):
         by=[oadd_spec(A, BC), similar_symm(nat_le_rel, oadd(A, BC), oplus, X4)],
     )
     l.have(similar(oplus, X1, R3, X3), by=[similar_trans(oplus, X1, R2, X2, R3, X3)])
-    l.have(
-        similar(oplus, X1, oplus, X4), by=[similar_trans(oplus, X1, R3, X3, oplus, X4)]
-    )
+    l.have(similar(oplus, X1, oplus, X4), by=[similar_trans(oplus, X1, R3, X3, oplus, X4)])
     l.have(
         similar(oplus, X1, nat_le_rel, oadd(A, BC)),
         by=[similar_trans(oplus, X1, oplus, X4, nat_le_rel, oadd(A, BC))],

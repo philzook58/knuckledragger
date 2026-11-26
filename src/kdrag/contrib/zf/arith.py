@@ -22,8 +22,7 @@ maps_to_succ = prove(maps_to(succ_fn, omega, omega), by=[maps_to.defn, omega_suc
 add = define("add", [m, n], app(nat_rec(omega, m, succ_fn), n))
 
 add_zero = prove(
-    ForAll(m, elem(m, omega), add(m, zero) == m),
-    by=[add.defn, nat_rec_zero, maps_to_succ],
+    ForAll(m, elem(m, omega), add(m, zero) == m), by=[add.defn, nat_rec_zero, maps_to_succ]
 )
 add_succ = prove(
     ForAll([m, n], elem(m, omega), elem(n, omega), add(m, succ(n)) == succ(add(m, n))),
@@ -46,9 +45,7 @@ def zero_add(l):
     l.auto(by=[add_succ(zero, k), omega_zero])
 
 
-@Theorem(
-    ForAll([m, n], elem(m, omega), elem(n, omega), add(succ(m), n) == succ(add(m, n)))
-)
+@Theorem(ForAll([m, n], elem(m, omega), elem(n, omega), add(succ(m), n) == succ(add(m, n))))
 def succ_add(l):
     m, n = l.fixes()
     l.intros()
@@ -86,14 +83,7 @@ def add_assoc(l):
     l.auto(by=[add_zero, add_elem_omega])
     # (m + n) + k⁺ = ((m + n) + k)⁺ = (m + (n + k))⁺ = m + (n + k)⁺ = m + (n + k⁺)
     k = l.fix()
-    l.auto(
-        by=[
-            add_succ(add(m, n), k),
-            add_succ(n, k),
-            add_succ(m, add(n, k)),
-            add_elem_omega,
-        ]
-    )
+    l.auto(by=[add_succ(add(m, n), k), add_succ(n, k), add_succ(m, add(n, k)), add_elem_omega])
 
 
 # Multiplication
@@ -110,9 +100,7 @@ mul_zero = prove(
     by=[mul.defn, nat_rec_zero, maps_to_add, omega_zero],
 )
 mul_succ = prove(
-    ForAll(
-        [m, n], elem(m, omega), elem(n, omega), mul(m, succ(n)) == add(mul(m, n), m)
-    ),
+    ForAll([m, n], elem(m, omega), elem(n, omega), mul(m, succ(n)) == add(mul(m, n), m)),
     by=[mul.defn, nat_rec_succ, maps_to_add, omega_zero],
 )
 mul_elem_omega = prove(
@@ -161,9 +149,7 @@ def zero_mul(l):
     l.auto(by=[mul_succ(zero, k), add_zero, omega_zero])
 
 
-@Theorem(
-    ForAll([m, n], elem(m, omega), elem(n, omega), mul(succ(m), n) == add(mul(m, n), n))
-)
+@Theorem(ForAll([m, n], elem(m, omega), elem(n, omega), mul(succ(m), n) == add(mul(m, n), n)))
 def succ_mul(l):
     m, n = l.fixes()
     l.intros()
@@ -213,11 +199,4 @@ def mul_assoc(l):
     l.auto(by=[mul_zero, mul_elem_omega])
     # (m·n)·k⁺ = (m·n)·k + m·n = m·(n·k) + m·n = m·(n·k + n) = m·(n·k⁺)
     k = l.fix()
-    l.auto(
-        by=[
-            mul_succ(mul(m, n), k),
-            mul_succ(n, k),
-            mul_add(m, mul(n, k), n),
-            mul_elem_omega,
-        ]
-    )
+    l.auto(by=[mul_succ(mul(m, n), k), mul_succ(n, k), mul_add(m, mul(n, k), n), mul_elem_omega])

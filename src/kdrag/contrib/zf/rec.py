@@ -11,27 +11,8 @@ smallest set of pairs containing `(0, a)` and closed under
 from kdrag import Theorem, define, prove
 from kdrag.smt import And, ArraySort, Const, Consts, Exists, ForAll, Lambda, Not
 import kdrag.theories.zf.zf as zf
-from kdrag.theories.zf.zf import (
-    ZFSet,
-    elem,
-    emp,
-    le,
-    pair,
-    pow,
-    prod,
-    sep,
-    sing,
-    succ,
-    zero,
-)
-from kdrag.contrib.zf.nat import (
-    induct_omega,
-    omega,
-    omega_succ,
-    omega_zero,
-    succ_inj,
-    succ_ne_zero,
-)
+from kdrag.theories.zf.zf import ZFSet, elem, emp, le, pair, pow, prod, sep, sing, succ, zero
+from kdrag.contrib.zf.nat import induct_omega, omega, omega_succ, omega_zero, succ_inj, succ_ne_zero
 from kdrag.contrib.zf.fun import (
     app,
     app_eq_of_pair_elem,
@@ -50,10 +31,7 @@ F = Const("F", ArraySort(ZFSet, ZFSet))
 rec_closed = define(
     "rec_closed",
     [A, a, F],
-    And(
-        elem(pair(zero, a), A),
-        ForAll([n, x], elem(pair(n, x), A), elem(pair(succ(n), F[x]), A)),
-    ),
+    And(elem(pair(zero, a), A), ForAll([n, x], elem(pair(n, x), A), elem(pair(succ(n), F[x]), A))),
 )
 
 # Halmos' 𝒞: the closed subsets of ω × X. Its intersection is the recursive function.
@@ -65,8 +43,7 @@ nat_rec = define("nat_rec", [X, a, F], sinter(rec_family(X, a, F)))
 
 @Theorem(
     ForAll(
-        [A, X, a, F],
-        elem(A, rec_family(X, a, F)) == And(A <= prod(omega, X), rec_closed(A, a, F)),
+        [A, X, a, F], elem(A, rec_family(X, a, F)) == And(A <= prod(omega, X), rec_closed(A, a, F))
     )
 )
 def elem_rec_family(l):
@@ -77,9 +54,7 @@ def elem_rec_family(l):
     l.auto()
 
 
-@Theorem(
-    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), rec_closed(prod(omega, X), a, F))
-)
+@Theorem(ForAll([X, a, F], elem(a, X), maps_to(F, X, X), rec_closed(prod(omega, X), a, F)))
 def rec_closed_prod(l):
     """ω × X itself is closed, so 𝒞 is nonempty."""
     X, a, F = l.fixes()
@@ -89,12 +64,7 @@ def rec_closed_prod(l):
 
 
 prod_elem_rec_family = prove(
-    ForAll(
-        [X, a, F],
-        elem(a, X),
-        maps_to(F, X, X),
-        elem(prod(omega, X), rec_family(X, a, F)),
-    ),
+    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), elem(prod(omega, X), rec_family(X, a, F))),
     by=[elem_rec_family, rec_closed_prod, le.defn],
 )
 
@@ -104,8 +74,7 @@ prod_elem_rec_family = prove(
         [X, a, F, x],
         elem(a, X),
         maps_to(F, X, X),
-        elem(x, nat_rec(X, a, F))
-        == ForAll(A, elem(A, rec_family(X, a, F)), elem(x, A)),
+        elem(x, nat_rec(X, a, F)) == ForAll(A, elem(A, rec_family(X, a, F)), elem(x, A)),
     )
 )
 def elem_nat_rec(l):
@@ -142,9 +111,7 @@ nat_rec_le_prod = prove(
 )
 
 
-@Theorem(
-    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), rec_closed(nat_rec(X, a, F), a, F))
-)
+@Theorem(ForAll([X, a, F], elem(a, X), maps_to(F, X, X), rec_closed(nat_rec(X, a, F), a, F)))
 def nat_rec_closed(l):
     """nat_rec is closed: every closed set contains (0, a) and is closed under the step."""
     X, a, F = l.fixes()
@@ -179,11 +146,7 @@ def rec_closed_sub_sing(l):
         elem(a, X),
         maps_to(F, X, X),
         pair(zero, a) != p,
-        ForAll(
-            [m, t],
-            elem(pair(m, t), nat_rec(X, a, F) - sing(p)),
-            pair(succ(m), F[t]) != p,
-        ),
+        ForAll([m, t], elem(pair(m, t), nat_rec(X, a, F) - sing(p)), pair(succ(m), F[t]) != p),
         Not(elem(p, nat_rec(X, a, F))),
     )
 )
@@ -197,12 +160,9 @@ def not_elem_nat_rec_of_sub_sing(l):
     l.intros()
     l.intro()
     l.have(
-        rec_closed(u - sing(p), a, F),
-        by=[rec_closed_sub_sing(u, a, F, p), nat_rec_closed(X, a, F)],
+        rec_closed(u - sing(p), a, F), by=[rec_closed_sub_sing(u, a, F, p), nat_rec_closed(X, a, F)]
     )
-    l.have(
-        u - sing(p) <= prod(omega, X), by=[nat_rec_le_prod(X, a, F), le.defn, elem_sub]
-    )
+    l.have(u - sing(p) <= prod(omega, X), by=[nat_rec_le_prod(X, a, F), le.defn, elem_sub])
     l.have(u <= u - sing(p), by=[nat_rec_le_of_closed(X, a, F, u - sing(p))])
     # But p ∈ u and p ∉ u - {p}.
     l.auto(by=[le.defn(u, u - sing(p)), elem_sub, zf.elem_sing])
@@ -216,11 +176,7 @@ def not_elem_nat_rec_of_sub_sing(l):
         elem(k, omega),
         ForAll(y, elem(pair(k, y), nat_rec(X, a, F)), y == x),
         c != F[x],
-        ForAll(
-            [m, t],
-            elem(pair(m, t), nat_rec(X, a, F)),
-            pair(succ(m), F[t]) != pair(succ(k), c),
-        ),
+        ForAll([m, t], elem(pair(m, t), nat_rec(X, a, F)), pair(succ(m), F[t]) != pair(succ(k), c)),
     )
 )
 def nat_rec_step_ne(l):
@@ -300,9 +256,7 @@ def nat_rec_unique_value(l):
     l.auto(by=[not_elem_nat_rec_of_sub_sing(X, a, F, p1)])
 
 
-@Theorem(
-    ForAll([X, a, F], elem(a, X), maps_to(F, X, X), is_func(nat_rec(X, a, F), omega, X))
-)
+@Theorem(ForAll([X, a, F], elem(a, X), maps_to(F, X, X), is_func(nat_rec(X, a, F), omega, X)))
 def nat_rec_is_func(l):
     X, a, F = l.fixes()
     u = nat_rec(X, a, F)
@@ -337,7 +291,6 @@ def nat_rec_succ(l):
     # (n, u(n)) ∈ u, so closure puts (n⁺, F(u(n))) ∈ u.
     l.have(elem(pair(n, app(u, n)), u), by=[pair_app_elem(u, omega, X, n)])
     l.have(
-        elem(pair(succ(n), F[app(u, n)]), u),
-        by=[nat_rec_closed(X, a, F), rec_closed.defn(u, a, F)],
+        elem(pair(succ(n), F[app(u, n)]), u), by=[nat_rec_closed(X, a, F), rec_closed.defn(u, a, F)]
     )
     l.auto(by=[app_eq_of_pair_elem(u, omega, X, succ(n), F[app(u, n)])])
