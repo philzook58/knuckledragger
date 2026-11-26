@@ -59,15 +59,7 @@ def _hyps(f, X):
     return [is_choice_on(f, X)]
 
 
-@Theorem(
-    ForAll(
-        [f, X, A],
-        is_choice_on(f, X),
-        elem(A, pow(X)),
-        nxt(f, pow(X), X, A) == A,
-        A == X,
-    )
-)
+@Theorem(ForAll([f, X, A], is_choice_on(f, X), elem(A, pow(X)), nxt(f, pow(X), X, A) == A, A == X))
 def eq_of_nxt_eq_pow(l):
     """In P(X), g(A) = A only for A = X."""
     f, X, A = l.fixes()
@@ -79,10 +71,7 @@ def eq_of_nxt_eq_pow(l):
 
 @Theorem(
     ForAll(
-        [f, X, A],
-        is_choice_on(f, X),
-        elem(A, tower0(f, pow(X), X)),
-        comparable_t0(f, pow(X), X, A),
+        [f, X, A], is_choice_on(f, X), elem(A, tower0(f, pow(X), X)), comparable_t0(f, pow(X), X, A)
     )
 )
 def comparable_of_elem_tower0(l):
@@ -96,11 +85,7 @@ def comparable_of_elem_tower0(l):
 
 # The members of T₀ that miss E.
 missing, elem_missing = define_sep(
-    "missing",
-    [f, X, E],
-    tower0(f, pow(X), X),
-    A,
-    ForAll(x, elem(x, E), Not(elem(x, A))),
+    "missing", [f, X, E], tower0(f, pow(X), X), A, ForAll(x, elem(x, E), Not(elem(x, A)))
 )
 
 
@@ -138,10 +123,7 @@ def exists_first(l):
     l.exists(A0)
     gA = nxt(f, P, X, A0)
     l.have(elem(gA, T0), by=[is_tower.defn(T0, f, P, X)])
-    l.cases(
-        ForAll(x, elem(x, E), Not(elem(x, gA))),
-        Exists(x, And(elem(x, E), elem(x, gA))),
-    )
+    l.cases(ForAll(x, elem(x, E), Not(elem(x, gA))), Exists(x, And(elem(x, E), elem(x, gA))))
     # Then g(A) ∈ M, so g(A) ⊆ A and A = X.
     l.have(elem(gA, M), by=[elem_missing(f, X, E, gA)])
     l.have(gA <= A0, by=[le.defn, zf.bigunion_ax])
@@ -165,10 +147,7 @@ wo_rel = define(
 @Theorem(
     ForAll(
         [f, X, x, y],
-        Eq(
-            wo_rel(f, X)[x, y],
-            ForAll(A, elem(A, tower0(f, pow(X), X)), elem(y, A), elem(x, A)),
-        ),
+        Eq(wo_rel(f, X)[x, y], ForAll(A, elem(A, tower0(f, pow(X), X)), elem(y, A), elem(x, A))),
     )
 )
 def wo_rel_apply(l):
@@ -179,13 +158,7 @@ def wo_rel_apply(l):
 
 
 @Theorem(
-    ForAll(
-        [f, X, E],
-        is_choice_on(f, X),
-        E <= X,
-        E != emp,
-        Exists(x, is_least(wo_rel(f, X), E, x)),
-    )
+    ForAll([f, X, E], is_choice_on(f, X), E <= X, E != emp, Exists(x, is_least(wo_rel(f, X), E, x)))
 )
 def exists_least_wo_rel(l):
     """The point x of E added by g(A) is least: a member B of T₀ containing
@@ -222,9 +195,7 @@ def exists_least_wo_rel(l):
     l.have(A0 <= B0, by=[comparable_t0.defn(f, P, X, B0), le.defn(B0, A0)])
     l.have(A0 != B0)
     l.auto()
-    l.have(
-        nxt(f, P, X, A0) <= B0, by=[nxt_le_of_ssubset(f, P, X, B0, A0), pow_tukey(X)]
-    )
+    l.have(nxt(f, P, X, A0) <= B0, by=[nxt_le_of_ssubset(f, P, X, B0, A0), pow_tukey(X)])
     l.auto(by=[le.defn(nxt(f, P, X, A0), B0)])
 
 

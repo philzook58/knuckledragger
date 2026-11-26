@@ -58,16 +58,10 @@ def equivalent_of_inverse(l):
 
 
 bij_on_id = prove(
-    ForAll(A, bij_on(Lambda(x, x), A, A)),
-    by=[bij_on.defn, maps_to.defn, inj_on.defn, surj_on.defn],
+    ForAll(A, bij_on(Lambda(x, x), A, A)), by=[bij_on.defn, maps_to.defn, inj_on.defn, surj_on.defn]
 )
 bij_on_comp = prove(
-    ForAll(
-        [F, G, A, B, C],
-        bij_on(F, A, B),
-        bij_on(G, B, C),
-        bij_on(Lambda(x, G[F[x]]), A, C),
-    ),
+    ForAll([F, G, A, B, C], bij_on(F, A, B), bij_on(G, B, C), bij_on(Lambda(x, G[F[x]]), A, C)),
     by=[bij_on.defn, maps_to.defn, inj_on.defn, surj_on.defn],
 )
 
@@ -94,10 +88,7 @@ def inv_apply(l):
 
 @Theorem(
     ForAll(
-        [F, A, B, y],
-        bij_on(F, A, B),
-        elem(y, B),
-        And(elem(inv(F, A)[y], A), F[inv(F, A)[y]] == y),
+        [F, A, B, y], bij_on(F, A, B), elem(y, B), And(elem(inv(F, A)[y], A), F[inv(F, A)[y]] == y)
     )
 )
 def inv_elem(l):
@@ -117,8 +108,7 @@ bij_on_inv = prove(
 
 equivalent_refl = prove(ForAll(A, equivalent(A, A)), by=[equivalent.defn, bij_on_id])
 equivalent_symm = prove(
-    ForAll([A, B], equivalent(A, B), equivalent(B, A)),
-    by=[equivalent.defn, bij_on_inv],
+    ForAll([A, B], equivalent(A, B), equivalent(B, A)), by=[equivalent.defn, bij_on_inv]
 )
 
 
@@ -161,12 +151,7 @@ bij_on_swap = prove(
     by=[swap.defn, bij_on.defn, maps_to.defn, inj_on.defn, surj_on.defn],
 )
 bij_on_sub_sing = prove(
-    ForAll(
-        [F, A, B, a],
-        bij_on(F, A, B),
-        elem(a, A),
-        bij_on(F, A - sing(a), B - sing(F[a])),
-    ),
+    ForAll([F, A, B, a], bij_on(F, A, B), elem(a, A), bij_on(F, A - sing(a), B - sing(F[a]))),
     by=[bij_on.defn, maps_to.defn, inj_on.defn, surj_on.defn, elem_sub, zf.elem_sing],
 )
 
@@ -261,30 +246,16 @@ def nat_eq_of_equivalent(l):
 
 
 finite_card_unique = prove(
-    ForAll(
-        [A, m, n],
-        elem(m, omega),
-        elem(n, omega),
-        equivalent(A, m),
-        equivalent(A, n),
-        m == n,
-    ),
+    ForAll([A, m, n], elem(m, omega), elem(n, omega), equivalent(A, m), equivalent(A, n), m == n),
     by=[equivalent_symm, equivalent_trans, nat_eq_of_equivalent],
 )
 
 
 # The image of A under F, inside a known codomain B.
-image = define(
-    "image", [F, A, B], sep(B, Lambda(y, Exists(x, And(elem(x, A), F[x] == y))))
-)
+image = define("image", [F, A, B], sep(B, Lambda(y, Exists(x, And(elem(x, A), F[x] == y)))))
 
 bij_on_image = prove(
-    ForAll(
-        [F, A, B],
-        maps_to(F, A, B),
-        inj_on(F, A),
-        bij_on(F, A, image(F, A, B)),
-    ),
+    ForAll([F, A, B], maps_to(F, A, B), inj_on(F, A), bij_on(F, A, image(F, A, B))),
     by=[image.defn, zf.elem_sep, bij_on.defn, maps_to.defn, surj_on.defn],
 )
 
@@ -299,26 +270,15 @@ def omega_infinite(l):
     F0, _ = l.obtain(-1)
     # F restricted to n⁺ ⊆ ω is one-to-one into n, so n⁺ ~ F[n⁺] ⊆ n ⊆ n⁺.
     img = image(F0, succ(n0), n0)
-    l.have(
-        succ(n0) <= omega,
-        by=[le.defn, elem_succ, omega_is_transitive, is_transitive.defn],
-    )
+    l.have(succ(n0) <= omega, by=[le.defn, elem_succ, omega_is_transitive, is_transitive.defn])
     l.have(maps_to(F0, succ(n0), n0), by=[maps_to.defn, bij_on.defn, le.defn])
     l.have(inj_on(F0, succ(n0)), by=[inj_on.defn, bij_on.defn, le.defn])
     l.have(bij_on(F0, succ(n0), img), by=[bij_on_image])
     l.have(img <= succ(n0), by=[le.defn, image.defn, zf.elem_sep, elem_succ])
-    l.have(
-        img == succ(n0),
-        by=[nat_eq_of_equivalent_le(succ(n0)), equivalent.defn, omega_succ],
-    )
+    l.have(img == succ(n0), by=[nat_eq_of_equivalent_le(succ(n0)), equivalent.defn, omega_succ])
     # But n ∈ n⁺ = F[n⁺] ⊆ n, and n ∉ n.
     l.auto(
-        by=[
-            elem_succ_self(n0),
-            image.defn(F0, succ(n0), n0),
-            zf.elem_sep,
-            nat_not_elem_self(n0),
-        ]
+        by=[elem_succ_self(n0), image.defn(F0, succ(n0), n0), zf.elem_sep, nat_not_elem_self(n0)]
     )
 
 
@@ -338,11 +298,7 @@ def eq_of_equivalent_le_of_finite(l):
     l.have(equivalent(Y, img), by=[bij_on_image(g0, Y, n0), equivalent.defn])
     l.have(
         equivalent(n0, img),
-        by=[
-            equivalent_symm(X, n0),
-            equivalent_trans(n0, X, Y),
-            equivalent_trans(n0, Y, img),
-        ],
+        by=[equivalent_symm(X, n0), equivalent_trans(n0, X, Y), equivalent_trans(n0, Y, img)],
     )
     l.have(img <= n0, by=[le.defn, image.defn, zf.elem_sep])
     l.have(img == n0, by=[nat_eq_of_equivalent_le(n0)])

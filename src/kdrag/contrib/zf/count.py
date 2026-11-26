@@ -9,17 +9,7 @@ ordinal similar to X; transfinite induction then covers every s(a), and X.
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolSort,
-    Consts,
-    Exists,
-    ForAll,
-    Implies,
-    Lambda,
-    Or,
-)
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Implies, Lambda, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le
 from kdrag.contrib.zf.finite import inv as inverse
@@ -69,11 +59,7 @@ R = Consts("R", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
 f, g, h = Consts("f g h", ArraySort(ZFSet, ZFSet))
 
 # The ordinal similar to X, when there is one.
-ord_of = define(
-    "ord_of",
-    [R, X],
-    the(Lambda(a, And(is_ordinal(a), similar(R, X, nat_le_rel, a)))),
-)
+ord_of = define("ord_of", [R, X], the(Lambda(a, And(is_ordinal(a), similar(R, X, nat_le_rel, a)))))
 
 
 @Theorem(
@@ -107,14 +93,7 @@ def ordinal_similar_unique(l):
     l.auto(by=[eq_of_similarity(hg, A, B)])
 
 
-@Theorem(
-    ForAll(
-        [R, X, A],
-        is_ordinal(A),
-        similar(R, X, nat_le_rel, A),
-        ord_of(R, X) == A,
-    )
-)
+@Theorem(ForAll([R, X, A], is_ordinal(A), similar(R, X, nat_le_rel, A), ord_of(R, X) == A))
 def ord_of_eq(l):
     """If X is similar to the ordinal α, then ord_of(R, X) is α."""
     R, X, A = l.fixes()
@@ -133,8 +112,7 @@ def ord_of_eq(l):
 
 
 seg_ordinal = prove(
-    ForAll([A, x], is_ordinal(A), elem(x, A), seg(nat_le_rel, A, x) == x),
-    by=[is_ordinal.defn],
+    ForAll([A, x], is_ordinal(A), elem(x, A), seg(nat_le_rel, A, x) == x), by=[is_ordinal.defn]
 )
 
 
@@ -144,11 +122,7 @@ ord_seg = define("ord_seg", [R, X, x], ord_of(R, seg(R, X, x)))
 segs_similar_ordinal = define(
     "segs_similar_ordinal",
     [R, X],
-    ForAll(
-        x,
-        elem(x, X),
-        Exists(a, And(is_ordinal(a), similar(R, seg(R, X, x), nat_le_rel, a))),
-    ),
+    ForAll(x, elem(x, X), Exists(a, And(is_ordinal(a), similar(R, seg(R, X, x), nat_le_rel, a)))),
 )
 
 
@@ -157,10 +131,7 @@ segs_similar_ordinal = define(
         [R, X, x],
         segs_similar_ordinal(R, X),
         elem(x, X),
-        And(
-            is_ordinal(ord_seg(R, X, x)),
-            similar(R, seg(R, X, x), nat_le_rel, ord_seg(R, X, x)),
-        ),
+        And(is_ordinal(ord_seg(R, X, x)), similar(R, seg(R, X, x), nat_le_rel, ord_seg(R, X, x))),
     )
 )
 def ord_seg_spec(l):
@@ -193,10 +164,7 @@ def ord_seg_eq_apply(l):
     sy, Fy = seg(R, X, y0), ord_seg(R, X, y0)
     l.have(is_ordinal(Fy), by=[ord_seg_spec(R, X, y0)])
     gx = g0[x0]
-    l.have(
-        elem(gx, Fy),
-        by=[is_similarity.defn, is_order_embedding.defn, maps_to.defn(g0, sy, Fy)],
-    )
+    l.have(elem(gx, Fy), by=[is_similarity.defn, is_order_embedding.defn, maps_to.defn(g0, sy, Fy)])
     l.have(is_ordinal(gx), by=[is_ordinal_of_elem(Fy, gx)])
     l.have(
         is_similarity(g0, R, seg(R, sy, x0), nat_le_rel, seg(nat_le_rel, Fy, gx)),
@@ -233,8 +201,7 @@ def ord_seg_elem(l):
     sy, Fy = seg(R, X, y0), ord_seg(R, X, y0)
     l.have(similar(R, sy, nat_le_rel, Fy), by=[ord_seg_spec(R, X, y0)])
     l.have(
-        Exists(g, is_similarity(g, R, sy, nat_le_rel, Fy)),
-        by=[similar.defn(R, sy, nat_le_rel, Fy)],
+        Exists(g, is_similarity(g, R, sy, nat_le_rel, Fy)), by=[similar.defn(R, sy, nat_le_rel, Fy)]
     )
     g0, _ = l.obtain(-1)
     l.have(elem(x0, sy), by=[elem_seg_iff(R, X, y0, x0)])
@@ -247,10 +214,7 @@ ord_segs = define("ord_segs", [R, X], repl(Lambda(x, ord_seg(R, X, x)), X))
 
 
 @Theorem(
-    ForAll(
-        [R, X, y],
-        elem(y, ord_segs(R, X)) == Exists(x, And(elem(x, X), ord_seg(R, X, x) == y)),
-    )
+    ForAll([R, X, y], elem(y, ord_segs(R, X)) == Exists(x, And(elem(x, X), ord_seg(R, X, x) == y)))
 )
 def elem_ord_segs(l):
     R, X, y0 = l.fixes()
@@ -261,12 +225,7 @@ def elem_ord_segs(l):
 
 
 @Theorem(
-    ForAll(
-        [R, X],
-        is_well_order(R, X),
-        segs_similar_ordinal(R, X),
-        is_ordinal(ord_segs(R, X)),
-    )
+    ForAll([R, X], is_well_order(R, X), segs_similar_ordinal(R, X), is_ordinal(ord_segs(R, X)))
 )
 def is_ordinal_ord_segs(l):
     """The collected ordinals form a transitive set of ordinals, hence an ordinal."""
@@ -276,9 +235,7 @@ def is_ordinal_ord_segs(l):
     l.have(ForAll(a, elem(a, B), is_ordinal(a)))
     a0 = l.fix()
     l.intro()
-    l.have(
-        Exists(x, And(elem(x, X), ord_seg(R, X, x) == a0)), by=[elem_ord_segs(R, X, a0)]
-    )
+    l.have(Exists(x, And(elem(x, X), ord_seg(R, X, x) == a0)), by=[elem_ord_segs(R, X, a0)])
     x0, _ = l.obtain(-1)
     l.auto(by=[ord_seg_spec(R, X, x0)])
     # ζ ∈ ord(s(y)) is g(η) for a similarity g of s(y), and g(η) = ord(s(η)) ∈ B.
@@ -289,15 +246,12 @@ def is_ordinal_ord_segs(l):
     l.unfold(le)
     z0 = l.fix()
     l.intro()
-    l.have(
-        Exists(y, And(elem(y, X), ord_seg(R, X, y) == b0)), by=[elem_ord_segs(R, X, b0)]
-    )
+    l.have(Exists(y, And(elem(y, X), ord_seg(R, X, y) == b0)), by=[elem_ord_segs(R, X, b0)])
     y0, _ = l.obtain(-1)
     sy, Fy = seg(R, X, y0), ord_seg(R, X, y0)
     l.have(similar(R, sy, nat_le_rel, Fy), by=[ord_seg_spec(R, X, y0)])
     l.have(
-        Exists(g, is_similarity(g, R, sy, nat_le_rel, Fy)),
-        by=[similar.defn(R, sy, nat_le_rel, Fy)],
+        Exists(g, is_similarity(g, R, sy, nat_le_rel, Fy)), by=[similar.defn(R, sy, nat_le_rel, Fy)]
     )
     g0, _ = l.obtain(-1)
     l.have(
@@ -335,21 +289,14 @@ def similarity_ord_segs(l):
     # totality and that ordinals are not members of themselves.
     l.have(
         ForAll(
-            [x, y],
-            elem(x, X),
-            elem(y, X),
-            R[x, y] == nat_le(ord_seg(R, X, x), ord_seg(R, X, y)),
+            [x, y], elem(x, X), elem(y, X), R[x, y] == nat_le(ord_seg(R, X, x), ord_seg(R, X, y))
         )
     )
     x0, y0 = l.fixes()
     l.intros()
     Fx, Fy = ord_seg(R, X, x0), ord_seg(R, X, y0)
-    l.have(
-        Implies(And(R[x0, y0], x0 != y0), elem(Fx, Fy)), by=[ord_seg_elem(R, X, x0, y0)]
-    )
-    l.have(
-        Implies(And(R[y0, x0], y0 != x0), elem(Fy, Fx)), by=[ord_seg_elem(R, X, y0, x0)]
-    )
+    l.have(Implies(And(R[x0, y0], x0 != y0), elem(Fx, Fy)), by=[ord_seg_elem(R, X, x0, y0)])
+    l.have(Implies(And(R[y0, x0], y0 != x0), elem(Fy, Fx)), by=[ord_seg_elem(R, X, y0, x0)])
     l.have(is_ordinal(Fy), by=[ord_seg_spec(R, X, y0)])
     l.have(is_ordinal(Fx), by=[ord_seg_spec(R, X, x0)])
     l.auto(
@@ -418,9 +365,7 @@ def counting_theorem(l):
     ord_of(R, X) (unique by `ordinal_similar_unique`)."""
     R, X = l.fixes()
     l.intro()
-    P = Lambda(
-        a, Exists(b, And(is_ordinal(b), similar(R, seg(R, X, a), nat_le_rel, b)))
-    )
+    P = Lambda(a, Exists(b, And(is_ordinal(b), similar(R, seg(R, X, a), nat_le_rel, b))))
     # By transfinite induction every s(a) is similar to an ordinal: the segments of
     # s(a) are segments s(x) of X, so the step is the case X := s(a) of the
     # collection argument.
@@ -429,10 +374,7 @@ def counting_theorem(l):
     a0 = l.fix()
     l.intros()
     sa = seg(R, X, a0)
-    l.have(
-        is_well_order(R, sa),
-        by=[well_order_subset(R, X, sa), seg.defn, zf.elem_sep, le.defn],
-    )
+    l.have(is_well_order(R, sa), by=[well_order_subset(R, X, sa), seg.defn, zf.elem_sep, le.defn])
     l.have(segs_similar_ordinal(R, sa))
     l.unfold(segs_similar_ordinal)
     x0 = l.fix()

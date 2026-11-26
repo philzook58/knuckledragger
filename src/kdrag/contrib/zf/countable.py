@@ -11,26 +11,10 @@ in `cardinal` uses it.
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolSort,
-    Consts,
-    Exists,
-    ForAll,
-    If,
-    Lambda,
-    Not,
-    Or,
-)
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, If, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, succ, zero
-from kdrag.contrib.zf.card import (
-    dominated,
-    dominated_of_le,
-    dominated_trans,
-    schroeder_bernstein,
-)
+from kdrag.contrib.zf.card import dominated, dominated_of_le, dominated_trans, schroeder_bernstein
 from kdrag.contrib.zf.count import counting_theorem, ord_of
 from kdrag.contrib.zf.finite import (
     bij_on_image,
@@ -41,11 +25,7 @@ from kdrag.contrib.zf.finite import (
     image,
     inv,
 )
-from kdrag.contrib.zf.ordinal import (
-    is_ordinal,
-    omega_is_ordinal,
-    well_order_subset,
-)
+from kdrag.contrib.zf.ordinal import is_ordinal, omega_is_ordinal, well_order_subset
 from kdrag.contrib.zf.ordset import ordinal_comparable, ordinal_le_of_elem
 from kdrag.contrib.zf.poset import is_well_order, nat_le_rel, omega_well_order
 from kdrag.contrib.zf.sim import is_similarity, similar
@@ -69,16 +49,10 @@ from kdrag.contrib.zf.nat import (
     one,
     zero_ne_one,
 )
-from kdrag.contrib.zf.order import (
-    bit,
-    bit_elem_omega,
-    bit_inj,
-)
+from kdrag.contrib.zf.order import bit, bit_elem_omega, bit_inj
 from kdrag.contrib.zf.rec import nat_rec, nat_rec_succ, nat_rec_zero
 
-A, B, C, X, Y, Z, a, k, m, m1, n, n1, p, q = Consts(
-    "A B C X Y Z a k m m1 n n1 p q", ZFSet
-)
+A, B, C, X, Y, Z, a, k, m, m1, n, n1, p, q = Consts("A B C X Y Z a k m m1 n n1 p q", ZFSet)
 F, G = Consts("F G", ArraySort(ZFSet, ZFSet))
 R = Consts("R", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
 
@@ -101,12 +75,7 @@ code_zero = prove(
     by=[code.defn, nat_rec_zero, maps_to_odd, bit_elem_omega],
 )
 code_succ = prove(
-    ForAll(
-        [m, n],
-        elem(m, omega),
-        elem(n, omega),
-        code(succ(m), n) == bit(one, code(m, n)),
-    ),
+    ForAll([m, n], elem(m, omega), elem(n, omega), code(succ(m), n) == bit(one, code(m, n))),
     by=[code.defn, nat_rec_succ, maps_to_odd, bit_elem_omega],
 )
 
@@ -144,10 +113,7 @@ def bit_eq_code(l):
     l.intros()
     l.cases(m1 == zero, m1 != zero)
     l.auto(by=[code_zero(n1), bit_inj(a, zero, n, n1), zero_ne_one])
-    l.have(
-        Exists(k, And(elem(k, omega), m1 == succ(k))),
-        by=[exists_eq_succ_of_ne_zero(m1)],
-    )
+    l.have(Exists(k, And(elem(k, omega), m1 == succ(k))), by=[exists_eq_succ_of_ne_zero(m1)])
     k0, _ = l.obtain(-1)
     c = code(k0, n1)
     l.have(code(m1, n1) == bit(one, c), by=[code_succ(k0, n1)])
@@ -217,11 +183,7 @@ def prod_omega_equivalent(l):
     l.intros()
     l.simp(at=-1)
     l.auto(
-        by=[
-            elem_prod_iff(omega, omega, p0),
-            elem_prod_iff(omega, omega, q0),
-            code_inj(pfst(p0)),
-        ]
+        by=[elem_prod_iff(omega, omega, p0), elem_prod_iff(omega, omega, q0), code_inj(pfst(p0))]
     )
     l.have(dominated(omega, W))
     l.unfold(dominated)
@@ -240,9 +202,7 @@ def omega_dominated_of_well_order(l):
     R, X = l.fixes()
     l.intros()
     a0 = ord_of(R, X)
-    l.have(
-        And(is_ordinal(a0), similar(R, X, nat_le_rel, a0)), by=[counting_theorem(R, X)]
-    )
+    l.have(And(is_ordinal(a0), similar(R, X, nat_le_rel, a0)), by=[counting_theorem(R, X)])
     l.have(Exists(G, is_similarity(G, R, X, nat_le_rel, a0)), by=[similar.defn])
     g0, _ = l.obtain(-1)
     l.have(bij_on(g0, X, a0), by=[is_similarity.defn])
@@ -269,8 +229,7 @@ def finite_or_equivalent_omega(l):
     X = l.fix()
     l.intro()
     l.have(
-        is_well_order(nat_le_rel, X),
-        by=[well_order_subset(nat_le_rel, omega, X), omega_well_order],
+        is_well_order(nat_le_rel, X), by=[well_order_subset(nat_le_rel, omega, X), omega_well_order]
     )
     l.cases(finite(X), Not(finite(X)))
     l.auto()

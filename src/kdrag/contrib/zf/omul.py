@@ -7,18 +7,7 @@ second ones agree. αβ is the ordinal of the ordinal product of α and β.
 """
 
 from kdrag import Theorem, define, define_const, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolSort,
-    Consts,
-    Exists,
-    ForAll,
-    If,
-    Lambda,
-    Or,
-    Select,
-)
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, If, Lambda, Or, Select
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, prod, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
@@ -107,10 +96,7 @@ f, g = Consts("f g", ArraySort(ZFSet, ZFSet))
 oprod_le = define(
     "oprod_le",
     [R, S, p, q],
-    Or(
-        And(S[psnd(p), psnd(q)], psnd(p) != psnd(q)),
-        And(psnd(p) == psnd(q), R[pfst(p), pfst(q)]),
-    ),
+    Or(And(S[psnd(p), psnd(q)], psnd(p) != psnd(q)), And(psnd(p) == psnd(q), R[pfst(p), pfst(q)])),
 )
 oprod_rel = define("oprod_rel", [R, S], Lambda([p, q], oprod_le(R, S, p, q)))
 
@@ -118,8 +104,7 @@ oprod_rel = define("oprod_rel", [R, S], Lambda([p, q], oprod_le(R, S, p, q)))
 @Theorem(
     ForAll(
         [R, S, a, b, c, d],
-        oprod_rel(R, S)[pair(a, b), pair(c, d)]
-        == Or(And(S[b, d], b != d), And(b == d, R[a, c])),
+        oprod_rel(R, S)[pair(a, b), pair(c, d)] == Or(And(S[b, d], b != d), And(b == d, R[a, c])),
     )
 )
 def oprod_rel_pair(l):
@@ -149,13 +134,7 @@ def oprod_partial_order(l):
     l.split()
     p0 = l.fix()
     l.intro()
-    l.auto(
-        by=[
-            elem_prod_iff(A, B, p0),
-            rel(p0, p0),
-            partial_order_refl(R, A, pfst(p0)),
-        ]
-    )
+    l.auto(by=[elem_prod_iff(A, B, p0), rel(p0, p0), partial_order_refl(R, A, pfst(p0))])
     p1, q1 = l.fixes()
     l.intros()
     l.auto(
@@ -225,10 +204,7 @@ def oprod_well_order(l):
     # The least second coordinate b0.
     Bs = snds(E0, B)
     l.have(Bs <= B, by=[le.defn, elem_snds])
-    l.have(
-        elem(psnd(e0), Bs),
-        by=[elem_snds(E0, B, psnd(e0)), elem_prod_iff(A, B, e0)],
-    )
+    l.have(elem(psnd(e0), Bs), by=[elem_snds(E0, B, psnd(e0)), elem_prod_iff(A, B, e0)])
     l.have(Bs != zf.emp, by=[zf.elem_emp(psnd(e0))])
     l.have(Exists(b, is_least(S, Bs, b)), by=[exists_least(S, B, Bs)])
     b0, _ = l.obtain(-1)
@@ -239,12 +215,7 @@ def oprod_well_order(l):
     As = fiber(E0, A, b0)
     l.have(As <= A, by=[le.defn, elem_fiber])
     l.have(
-        elem(a1, As),
-        by=[
-            elem_fiber(E0, A, b0, a1),
-            le.defn(E0, X),
-            pair_elem_prod(a1, b0, A, B),
-        ],
+        elem(a1, As), by=[elem_fiber(E0, A, b0, a1), le.defn(E0, X), pair_elem_prod(a1, b0, A, B)]
     )
     l.have(As != zf.emp, by=[zf.elem_emp(a1)])
     l.have(Exists(a, is_least(R, As, a)), by=[exists_least(R, A, As)])
@@ -278,10 +249,7 @@ omul = define("omul", [A, B], ord_of(otimes, prod(A, B)))
         [A, B],
         is_ordinal(A),
         is_ordinal(B),
-        And(
-            is_ordinal(omul(A, B)),
-            similar(nat_le_rel, omul(A, B), otimes, prod(A, B)),
-        ),
+        And(is_ordinal(omul(A, B)), similar(nat_le_rel, omul(A, B), otimes, prod(A, B))),
     )
 )
 def omul_spec(l):
@@ -298,12 +266,7 @@ def omul_spec(l):
         ],
     )
     l.unfold(omul)
-    l.auto(
-        by=[
-            counting_theorem(otimes, X),
-            similar_symm(otimes, X, nat_le_rel, ord_of(otimes, X)),
-        ]
-    )
+    l.auto(by=[counting_theorem(otimes, X), similar_symm(otimes, X, nat_le_rel, ord_of(otimes, X))])
 
 
 @Theorem(ForAll(R, ord_of(R, zf.emp) == zero))
@@ -327,33 +290,15 @@ def prod_zero(l):
     l.split()
     l.rw(zf.ext_ax)
     p0 = l.fix()
-    l.auto(
-        by=[
-            elem_prod_iff(A, zero, p0),
-            zf.elem_emp(psnd(p0)),
-            zf.elem_emp(p0),
-            zero.defn,
-        ]
-    )
+    l.auto(by=[elem_prod_iff(A, zero, p0), zf.elem_emp(psnd(p0)), zf.elem_emp(p0), zero.defn])
     l.rw(zf.ext_ax)
     p1 = l.fix()
-    l.auto(
-        by=[
-            elem_prod_iff(zero, A, p1),
-            zf.elem_emp(pfst(p1)),
-            zf.elem_emp(p1),
-            zero.defn,
-        ]
-    )
+    l.auto(by=[elem_prod_iff(zero, A, p1), zf.elem_emp(pfst(p1)), zf.elem_emp(p1), zero.defn])
 
 
 # Halmos: α0 = 0α = 0.
-omul_zero = prove(
-    ForAll(A, omul(A, zero) == zero), by=[omul.defn, prod_zero, ord_of_emp]
-)
-zero_omul = prove(
-    ForAll(A, omul(zero, A) == zero), by=[omul.defn, prod_zero, ord_of_emp]
-)
+omul_zero = prove(ForAll(A, omul(A, zero) == zero), by=[omul.defn, prod_zero, ord_of_emp])
+zero_omul = prove(ForAll(A, omul(zero, A) == zero), by=[omul.defn, prod_zero, ord_of_emp])
 
 
 @Theorem(ForAll(A, is_ordinal(A), omul(A, one) == A))
@@ -375,12 +320,7 @@ def omul_one(l):
     p0, q0 = l.fixes()
     l.intros()
     l.simp()
-    l.auto(
-        by=[
-            oprod_rel_pair(nat_le_rel, nat_le_rel, pfst(p0), zero, pfst(q0), zero),
-            nat_le.defn,
-        ]
-    )
+    l.auto(by=[oprod_rel_pair(nat_le_rel, nat_le_rel, pfst(p0), zero, pfst(q0), zero), nat_le.defn])
     # The inverse is x ↦ (x, 0).
     g = Lambda(x, pair(x, zero))
     l.have(maps_to(g, A, X), by=[maps_to.defn, pair_elem_prod, elem_one])
@@ -411,12 +351,7 @@ def one_omul(l):
     p0, q0 = l.fixes()
     l.intros()
     l.simp()
-    l.auto(
-        by=[
-            oprod_rel_pair(nat_le_rel, nat_le_rel, zero, psnd(p0), zero, psnd(q0)),
-            nat_le.defn,
-        ]
-    )
+    l.auto(by=[oprod_rel_pair(nat_le_rel, nat_le_rel, zero, psnd(p0), zero, psnd(q0)), nat_le.defn])
     # The inverse is x ↦ (0, x).
     g = Lambda(x, pair(zero, x))
     l.have(maps_to(g, A, X), by=[maps_to.defn, pair_elem_prod, elem_one])
@@ -463,9 +398,7 @@ def omul_two(l):
             elem_prod_iff(A, two, q0),
             elem_two(psnd(p0)),
             elem_two(psnd(q0)),
-            oprod_rel_pair(
-                nat_le_rel, nat_le_rel, pfst(p0), psnd(p0), pfst(q0), psnd(q0)
-            ),
+            oprod_rel_pair(nat_le_rel, nat_le_rel, pfst(p0), psnd(p0), pfst(q0), psnd(q0)),
             oplus_apply(A, A, p0, q0),
             nat_le.defn,
             zf.pair_inj,
@@ -477,8 +410,7 @@ def omul_two(l):
     )
     l.auto(by=[maps_to.defn, inj_on.defn, surj_on.defn])
     l.have(
-        And(is_ordinal(oadd(A, A)), similar(nat_le_rel, oadd(A, A), oplus, Y)),
-        by=[oadd_spec(A, A)],
+        And(is_ordinal(oadd(A, A)), similar(nat_le_rel, oadd(A, A), oplus, Y)), by=[oadd_spec(A, A)]
     )
     l.have(
         similar(otimes, X, nat_le_rel, oadd(A, A)),
@@ -502,11 +434,7 @@ oprod_map = define("oprod_map", [f, g], Lambda(p, pair(f[pfst(p)], g[psnd(p)])))
         is_similarity(f, R, A, R2, A2),
         is_similarity(g, S, B, S2, B2),
         is_similarity(
-            oprod_map(f, g),
-            oprod_rel(R, S),
-            prod(A, B),
-            oprod_rel(R2, S2),
-            prod(A2, B2),
+            oprod_map(f, g), oprod_rel(R, S), prod(A, B), oprod_rel(R2, S2), prod(A2, B2)
         ),
     )
 )
@@ -682,14 +610,8 @@ def similarity_odist(l):
             And(
                 elem(pfst(p), A),
                 Or(
-                    And(
-                        elem(pfst(psnd(p)), B),
-                        p == pair(pfst(p), inl(pfst(psnd(p)))),
-                    ),
-                    And(
-                        elem(pfst(psnd(p)), C),
-                        p == pair(pfst(p), inr(pfst(psnd(p)))),
-                    ),
+                    And(elem(pfst(psnd(p)), B), p == pair(pfst(p), inl(pfst(psnd(p))))),
+                    And(elem(pfst(psnd(p)), C), p == pair(pfst(p), inr(pfst(psnd(p))))),
                 ),
             ),
         ),
@@ -736,16 +658,8 @@ def similarity_odist(l):
     y1 = pfst(y0)
     l.have(
         Or(
-            And(
-                elem(pfst(y1), A),
-                elem(psnd(y1), B),
-                y0 == inl(pair(pfst(y1), psnd(y1))),
-            ),
-            And(
-                elem(pfst(y1), A),
-                elem(psnd(y1), C),
-                y0 == inr(pair(pfst(y1), psnd(y1))),
-            ),
+            And(elem(pfst(y1), A), elem(psnd(y1), B), y0 == inl(pair(pfst(y1), psnd(y1)))),
+            And(elem(pfst(y1), A), elem(psnd(y1), C), y0 == inr(pair(pfst(y1), psnd(y1)))),
         ),
         by=[
             elem_osum_set(prod(A, B), prod(A, C), y0),
@@ -783,12 +697,7 @@ oprod_assoc_map = define_const(
 )
 
 
-@Theorem(
-    ForAll(
-        [a, b, c],
-        Select(oprod_assoc_map, pair(pair(a, b), c)) == pair(a, pair(b, c)),
-    )
-)
+@Theorem(ForAll([a, b, c], Select(oprod_assoc_map, pair(pair(a, b), c)) == pair(a, pair(b, c))))
 def oprod_assoc_map_apply(l):
     l.fixes()
     l.unfold(oprod_assoc_map)
@@ -827,13 +736,7 @@ def similarity_oprod_assoc(l):
         by=[elem_prod_iff],
     )
     l.have(
-        ForAll(
-            [a, b, c],
-            elem(a, A),
-            elem(b, B),
-            elem(c, C),
-            elem(pair(a, pair(b, c)), Y),
-        ),
+        ForAll([a, b, c], elem(a, A), elem(b, B), elem(c, C), elem(pair(a, pair(b, c)), Y)),
         by=[pair_elem_prod],
     )
 
@@ -906,21 +809,11 @@ def omul_oadd(l):
     l.intros()
     BC, AB, AC = oadd(B, C), omul(A, B), omul(A, C)
     le_ = nat_le_rel
-    l.have(
-        And(is_ordinal(BC), similar(le_, BC, oplus, osum_set(B, C))),
-        by=[oadd_spec(B, C)],
-    )
-    l.have(
-        And(is_ordinal(AB), similar(le_, AB, otimes, prod(A, B))), by=[omul_spec(A, B)]
-    )
-    l.have(
-        And(is_ordinal(AC), similar(le_, AC, otimes, prod(A, C))), by=[omul_spec(A, C)]
-    )
+    l.have(And(is_ordinal(BC), similar(le_, BC, oplus, osum_set(B, C))), by=[oadd_spec(B, C)])
+    l.have(And(is_ordinal(AB), similar(le_, AB, otimes, prod(A, B))), by=[omul_spec(A, B)])
+    l.have(And(is_ordinal(AC), similar(le_, AC, otimes, prod(A, C))), by=[omul_spec(A, C)])
     D = oadd(AB, AC)
-    l.have(
-        And(is_ordinal(D), similar(le_, D, oplus, osum_set(AB, AC))),
-        by=[oadd_spec(AB, AC)],
-    )
+    l.have(And(is_ordinal(D), similar(le_, D, oplus, osum_set(AB, AC))), by=[oadd_spec(AB, AC)])
     # α × (β + γ) ≅ α × (β ⊕ γ) ≅ (α × β) ⊕ (α × γ) ≅ αβ ⊕ αγ ≅ αβ + αγ.
     X1 = prod(A, BC)
     X2 = prod(A, osum_set(B, C))
@@ -930,10 +823,7 @@ def omul_oadd(l):
     R3 = osum_rel(otimes, otimes)
     l.have(
         similar(otimes, X1, R2, X2),
-        by=[
-            similar_oprod(le_, A, le_, A, le_, BC, oplus, osum_set(B, C)),
-            similar_refl(le_, A),
-        ],
+        by=[similar_oprod(le_, A, le_, A, le_, BC, oplus, osum_set(B, C)), similar_refl(le_, A)],
     )
     l.have(
         similar(R2, X2, R3, X3),
@@ -949,13 +839,8 @@ def omul_oadd(l):
     )
     l.have(similar(oplus, X4, le_, D), by=[similar_symm(le_, D, oplus, X4)])
     l.have(similar(otimes, X1, R3, X3), by=[similar_trans(otimes, X1, R2, X2, R3, X3)])
-    l.have(
-        similar(otimes, X1, oplus, X4),
-        by=[similar_trans(otimes, X1, R3, X3, oplus, X4)],
-    )
-    l.have(
-        similar(otimes, X1, le_, D), by=[similar_trans(otimes, X1, oplus, X4, le_, D)]
-    )
+    l.have(similar(otimes, X1, oplus, X4), by=[similar_trans(otimes, X1, R3, X3, oplus, X4)])
+    l.have(similar(otimes, X1, le_, D), by=[similar_trans(otimes, X1, oplus, X4, le_, D)])
     l.auto(by=[omul.defn(A, BC), ord_of_eq(otimes, X1, D)])
 
 
@@ -974,16 +859,10 @@ def omul_assoc(l):
     l.intros()
     AB, BC = omul(A, B), omul(B, C)
     le_ = nat_le_rel
-    l.have(
-        And(is_ordinal(AB), similar(le_, AB, otimes, prod(A, B))), by=[omul_spec(A, B)]
-    )
-    l.have(
-        And(is_ordinal(BC), similar(le_, BC, otimes, prod(B, C))), by=[omul_spec(B, C)]
-    )
+    l.have(And(is_ordinal(AB), similar(le_, AB, otimes, prod(A, B))), by=[omul_spec(A, B)])
+    l.have(And(is_ordinal(BC), similar(le_, BC, otimes, prod(B, C))), by=[omul_spec(B, C)])
     D = omul(A, BC)
-    l.have(
-        And(is_ordinal(D), similar(le_, D, otimes, prod(A, BC))), by=[omul_spec(A, BC)]
-    )
+    l.have(And(is_ordinal(D), similar(le_, D, otimes, prod(A, BC))), by=[omul_spec(A, BC)])
     # αβ × γ ≅ (α × β) × γ ≅ α × (β × γ) ≅ α × βγ ≅ α(βγ).
     X1 = prod(AB, C)
     X2 = prod(prod(A, B), C)
@@ -993,17 +872,11 @@ def omul_assoc(l):
     R3 = oprod_rel(le_, otimes)
     l.have(
         similar(otimes, X1, R2, X2),
-        by=[
-            similar_oprod(le_, AB, otimes, prod(A, B), le_, C, le_, C),
-            similar_refl(le_, C),
-        ],
+        by=[similar_oprod(le_, AB, otimes, prod(A, B), le_, C, le_, C), similar_refl(le_, C)],
     )
     l.have(
         similar(R2, X2, R3, X3),
-        by=[
-            similar.defn(R2, X2, R3, X3),
-            similarity_oprod_assoc(le_, le_, le_, A, B, C),
-        ],
+        by=[similar.defn(R2, X2, R3, X3), similarity_oprod_assoc(le_, le_, le_, A, B, C)],
     )
     l.have(
         similar(R3, X3, otimes, X4),
@@ -1015,13 +888,8 @@ def omul_assoc(l):
     )
     l.have(similar(otimes, X4, le_, D), by=[similar_symm(le_, D, otimes, X4)])
     l.have(similar(otimes, X1, R3, X3), by=[similar_trans(otimes, X1, R2, X2, R3, X3)])
-    l.have(
-        similar(otimes, X1, otimes, X4),
-        by=[similar_trans(otimes, X1, R3, X3, otimes, X4)],
-    )
-    l.have(
-        similar(otimes, X1, le_, D), by=[similar_trans(otimes, X1, otimes, X4, le_, D)]
-    )
+    l.have(similar(otimes, X1, otimes, X4), by=[similar_trans(otimes, X1, R3, X3, otimes, X4)])
+    l.have(similar(otimes, X1, le_, D), by=[similar_trans(otimes, X1, otimes, X4, le_, D)])
     l.auto(by=[omul.defn(AB, C), ord_of_eq(otimes, X1, D)])
 
 
@@ -1138,11 +1006,7 @@ def two_omul_omega(l):
 
 @Theorem(
     is_similarity(
-        Lambda(x, inl(x)),
-        nat_le_rel,
-        omega,
-        oplus,
-        seg(oplus, osum_set(omega, omega), inr(zero)),
+        Lambda(x, inl(x)), nat_le_rel, omega, oplus, seg(oplus, osum_set(omega, omega), inr(zero))
     )
 )
 def similarity_seg_inr_zero(l):
@@ -1188,17 +1052,11 @@ def similarity_seg_inr_zero(l):
     y0 = l.fix()
     l.intro()
     x0 = pfst(y0)
-    l.have(
-        And(elem(y0, Y), oplus[y0, top], y0 != top),
-        by=[elem_seg_iff(oplus, Y, top, y0)],
-    )
+    l.have(And(elem(y0, Y), oplus[y0, top], y0 != top), by=[elem_seg_iff(oplus, Y, top, y0)])
     for h in hyps:
         l.clear(h)
     l.have(
-        Or(
-            And(elem(x0, omega), y0 == inl(x0)),
-            And(elem(x0, omega), y0 == inr(x0)),
-        ),
+        Or(And(elem(x0, omega), y0 == inl(x0)), And(elem(x0, omega), y0 == inr(x0))),
         by=[elem_osum_set(omega, omega, y0)],
     )
     l.have(y0 == inl(x0))
@@ -1251,32 +1109,16 @@ def oadd_omega_omega_ne(l):
     g = Lambda(x, inl(x))
     l.have(
         is_similarity(
-            Lambda(x, h[g[x]]),
-            nat_le_rel,
-            omega,
-            nat_le_rel,
-            seg(nat_le_rel, omega, n0),
+            Lambda(x, h[g[x]]), nat_le_rel, omega, nat_le_rel, seg(nat_le_rel, omega, n0)
         ),
         by=[
             similarity_seg_inr_zero,
             similarity_comp(
-                g,
-                h,
-                nat_le_rel,
-                omega,
-                oplus,
-                S,
-                nat_le_rel,
-                seg(nat_le_rel, omega, n0),
+                g, h, nat_le_rel, omega, oplus, S, nat_le_rel, seg(nat_le_rel, omega, n0)
             ),
         ],
     )
-    l.auto(
-        by=[
-            not_similarity_seg(Lambda(x, h[g[x]]), nat_le_rel, omega, n0),
-            omega_well_order,
-        ]
-    )
+    l.auto(by=[not_similarity_seg(Lambda(x, h[g[x]]), nat_le_rel, omega, n0), omega_well_order])
 
 
 # Halmos: ω2 = ω + ω ≠ ω = 2ω.

@@ -17,16 +17,7 @@ earlier values as a set of pairs:
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    Consts,
-    Exists,
-    ForAll,
-    Lambda,
-    Not,
-    Or,
-)
+from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, ran, sing, succ
 from kdrag.contrib.zf.fun import (
@@ -99,13 +90,7 @@ pair_app_elem_of_fn_on = prove(
 
 
 fn_on_single = prove(
-    ForAll(
-        [g, D, x, y, z],
-        fn_on(g, D),
-        elem(pair(x, y), g),
-        elem(pair(x, z), g),
-        y == z,
-    ),
+    ForAll([g, D, x, y, z], fn_on(g, D), elem(pair(x, y), g), elem(pair(x, z), g), y == z),
     by=[fn_on.defn],
 )
 
@@ -114,21 +99,14 @@ fn_on_single = prove(
 def elem_of_pair_elem_fn_on(l):
     g, D, x0, y0 = l.fixes()
     l.intros()
-    l.have(
-        Exists([x, y], And(elem(x, D), pair(x0, y0) == pair(x, y))),
-        by=[fn_on.defn(g, D)],
-    )
+    l.have(Exists([x, y], And(elem(x, D), pair(x0, y0) == pair(x, y))), by=[fn_on.defn(g, D)])
     (x1, y1), _ = l.obtain(-1)
     l.auto(by=[zf.pair_inj])
 
 
 @Theorem(
     ForAll(
-        [g, h, D],
-        fn_on(g, D),
-        fn_on(h, D),
-        ForAll(x, elem(x, D), app(g, x) == app(h, x)),
-        g == h,
+        [g, h, D], fn_on(g, D), fn_on(h, D), ForAll(x, elem(x, D), app(g, x) == app(h, x)), g == h
     )
 )
 def fn_on_ext(l):
@@ -139,17 +117,10 @@ def fn_on_ext(l):
     p0 = l.fix()
     # p ∈ g is (x, g x) with x ∈ D, and (x, h x) ∈ h; the other way round too.
     l.have(
-        ForAll(
-            g,
-            fn_on(g, D),
-            elem(p0, g),
-            Exists([x, y], And(elem(x, D), p0 == pair(x, y))),
-        ),
+        ForAll(g, fn_on(g, D), elem(p0, g), Exists([x, y], And(elem(x, D), p0 == pair(x, y)))),
         by=[fn_on.defn],
     )
-    l.auto(
-        by=[app_eq_of_fn_on, pair_app_elem_of_fn_on],
-    )
+    l.auto(by=[app_eq_of_fn_on, pair_app_elem_of_fn_on])
 
 
 @Theorem(
@@ -157,10 +128,7 @@ def fn_on_ext(l):
         [g, D, E],
         fn_on(g, D),
         E <= D,
-        And(
-            fn_on(restrict(g, E), E),
-            ForAll(x, elem(x, E), app(restrict(g, E), x) == app(g, x)),
-        ),
+        And(fn_on(restrict(g, E), E), ForAll(x, elem(x, E), app(restrict(g, E), x) == app(g, x))),
     )
 )
 def fn_on_restrict(l):
@@ -186,11 +154,7 @@ def fn_on_restrict(l):
     x1, y1, z1 = l.fixes()
     l.intros()
     l.auto(
-        by=[
-            elem_restrict_pair(g, E, x1, y1),
-            elem_restrict_pair(g, E, x1, z1),
-            fn_on.defn(g, D),
-        ]
+        by=[elem_restrict_pair(g, E, x1, y1), elem_restrict_pair(g, E, x1, z1), fn_on.defn(g, D)]
     )
     l.split()
     l.auto()
@@ -210,21 +174,12 @@ def fn_on_restrict(l):
 is_rec_on = define(
     "is_rec_on",
     [G, g, D],
-    And(
-        fn_on(g, D),
-        ForAll(x, elem(x, D), app(g, x) == G[x, restrict(g, x)]),
-    ),
+    And(fn_on(g, D), ForAll(x, elem(x, D), app(g, x) == G[x, restrict(g, x)])),
 )
 
 
 @Theorem(
-    ForAll(
-        [g, D, E, x],
-        fn_on(g, D),
-        E <= D,
-        x <= E,
-        restrict(restrict(g, E), x) == restrict(g, x),
-    )
+    ForAll([g, D, E, x], fn_on(g, D), E <= D, x <= E, restrict(restrict(g, E), x) == restrict(g, x))
 )
 def restrict_restrict(l):
     g, D, E, x0 = l.fixes()
@@ -259,10 +214,7 @@ def is_rec_on_restrict(l):
     l.intros()
     l.have(fn_on(g, D), by=[is_rec_on.defn(G, g, D)])
     l.have(
-        And(
-            fn_on(restrict(g, E), E),
-            ForAll(x, elem(x, E), app(restrict(g, E), x) == app(g, x)),
-        ),
+        And(fn_on(restrict(g, E), E), ForAll(x, elem(x, E), app(restrict(g, E), x) == app(g, x))),
         by=[fn_on_restrict(g, D, E)],
     )
     l.unfold(is_rec_on)
@@ -280,15 +232,7 @@ def is_rec_on_restrict(l):
     )
 
 
-@Theorem(
-    ForAll(
-        [G, g, h, D],
-        is_ordinal(D),
-        is_rec_on(G, g, D),
-        is_rec_on(G, h, D),
-        g == h,
-    )
-)
+@Theorem(ForAll([G, g, h, D], is_ordinal(D), is_rec_on(G, g, D), is_rec_on(G, h, D), g == h))
 def is_rec_on_unique(l):
     """Halmos: two attempts on δ agree, by transfinite induction on δ."""
     G, g, h, D = l.fixes()
@@ -328,13 +272,7 @@ def restrict_self(l):
     l.auto(by=[restrict.defn(g, D), zf.elem_sep, fn_on.defn(g, D)])
 
 
-@Theorem(
-    ForAll(
-        [g, a, b, x],
-        Not(elem(a, x)),
-        restrict(g | sing(pair(a, b)), x) == restrict(g, x),
-    )
-)
+@Theorem(ForAll([g, a, b, x], Not(elem(a, x)), restrict(g | sing(pair(a, b)), x) == restrict(g, x)))
 def restrict_union_sing(l):
     """Adding a pair outside x does not change the restriction to x."""
     g, a, b, x0 = l.fixes()
@@ -431,19 +369,10 @@ def is_rec_on_succ(l):
 # extensions below δ.
 orec = define("orec", [G, D], the(Lambda(g, is_rec_on(G, g, D))))
 orec_ext = define("orec_ext", [G, D], orec(G, D) | sing(pair(D, G[D, orec(G, D)])))
-orec_union = define(
-    "orec_union", [G, D], zf.bigunion(repl(Lambda(x, orec_ext(G, x)), D))
-)
+orec_union = define("orec_union", [G, D], zf.bigunion(repl(Lambda(x, orec_ext(G, x)), D)))
 
 
-@Theorem(
-    ForAll(
-        [G, D],
-        is_ordinal(D),
-        Exists(g, is_rec_on(G, g, D)),
-        is_rec_on(G, orec(G, D), D),
-    )
-)
+@Theorem(ForAll([G, D], is_ordinal(D), Exists(g, is_rec_on(G, g, D)), is_rec_on(G, orec(G, D), D)))
 def orec_spec(l):
     G, D = l.fixes()
     l.intros()
@@ -475,9 +404,7 @@ def elem_repl_orec_ext(l):
 
 @Theorem(
     ForAll(
-        [G, D, p],
-        elem(p, orec_union(G, D))
-        == Exists(x, And(elem(x, D), elem(p, orec_ext(G, x)))),
+        [G, D, p], elem(p, orec_union(G, D)) == Exists(x, And(elem(x, D), elem(p, orec_ext(G, x))))
     )
 )
 def elem_orec_union(l):
@@ -495,10 +422,7 @@ def elem_orec_union(l):
     l.auto(by=[elem_repl_orec_ext(G, D, orec_ext(G, x1))])
     l.intro()
     B0, _ = l.obtain(-1)
-    l.have(
-        Exists(x, And(elem(x, D), B0 == orec_ext(G, x))),
-        by=[elem_repl_orec_ext(G, D, B0)],
-    )
+    l.have(Exists(x, And(elem(x, D), B0 == orec_ext(G, x))), by=[elem_repl_orec_ext(G, D, B0)])
     x0, _ = l.obtain(-1)
     l.exists(x0)
     l.auto()
@@ -506,12 +430,7 @@ def elem_orec_union(l):
 
 @Theorem(
     ForAll(
-        [g, h, D, E, x],
-        fn_on(g, D),
-        fn_on(h, E),
-        h <= g,
-        x <= E,
-        restrict(g, x) == restrict(h, x),
+        [g, h, D, E, x], fn_on(g, D), fn_on(h, E), h <= g, x <= E, restrict(g, x) == restrict(h, x)
     )
 )
 def restrict_eq_of_le(l):
@@ -530,10 +449,7 @@ def restrict_eq_of_le(l):
     l.split(at=-1)
     (c0, d0), _ = l.obtain(4)
     # (c, h c) ∈ h ⊆ g, and g has one value at c.
-    l.have(
-        elem(pair(c0, app(h, c0)), h),
-        by=[pair_app_elem_of_fn_on(h, E, c0), le.defn(x0, E)],
-    )
+    l.have(elem(pair(c0, app(h, c0)), h), by=[pair_app_elem_of_fn_on(h, E, c0), le.defn(x0, E)])
     l.auto(by=[le.defn(h, g), fn_on_single(g, D, c0, d0, app(h, c0))])
     l.intro()
     l.auto(by=[le.defn(h, g)])
@@ -541,22 +457,13 @@ def restrict_eq_of_le(l):
 
 @Theorem(
     ForAll(
-        [G, D],
-        is_ordinal(D),
-        Exists(g, is_rec_on(G, g, D)),
-        is_rec_on(G, orec_ext(G, D), succ(D)),
+        [G, D], is_ordinal(D), Exists(g, is_rec_on(G, g, D)), is_rec_on(G, orec_ext(G, D), succ(D))
     )
 )
 def orec_ext_rec_on(l):
     G, D = l.fixes()
     l.intros()
-    l.auto(
-        by=[
-            orec_spec(G, D),
-            is_rec_on_succ(G, orec(G, D), D),
-            orec_ext.defn(G, D),
-        ]
-    )
+    l.auto(by=[orec_spec(G, D), is_rec_on_succ(G, orec(G, D), D), orec_ext.defn(G, D)])
 
 
 @Theorem(
@@ -580,8 +487,7 @@ def orec_ext_le(l):
     l.have(succ(x0) <= Sy, by=[ordinal_le_of_elem(Sy, x0), le.defn, elem_succ])
     ey = orec_ext(G, y0)
     l.have(
-        is_rec_on(G, restrict(ey, succ(x0)), succ(x0)),
-        by=[is_rec_on_restrict(G, ey, Sy, succ(x0))],
+        is_rec_on(G, restrict(ey, succ(x0)), succ(x0)), by=[is_rec_on_restrict(G, ey, Sy, succ(x0))]
     )
     l.have(
         restrict(ey, succ(x0)) == orec_ext(G, x0),
@@ -613,19 +519,9 @@ def orec_union_rec_on(l):
         by=[orec_ext_rec_on, is_ordinal_of_elem],
     )
     l.have(ForAll(x, elem(x, D), fn_on(Ex(x), succ(x))), by=[is_rec_on.defn])
-    l.have(
-        ForAll(x, elem(x, D), succ(x) <= D),
-        by=[ordinal_le_of_elem, le.defn, elem_succ],
-    )
+    l.have(ForAll(x, elem(x, D), succ(x) <= D), by=[ordinal_le_of_elem, le.defn, elem_succ])
     # Any two extensions are nested, as ordinals are comparable.
-    l.have(
-        ForAll(
-            [x, y],
-            elem(x, D),
-            elem(y, D),
-            Or(Ex(x) <= Ex(y), Ex(y) <= Ex(x)),
-        )
-    )
+    l.have(ForAll([x, y], elem(x, D), elem(y, D), Or(Ex(x) <= Ex(y), Ex(y) <= Ex(x))))
     x1, y1 = l.fixes()
     l.intros()
     l.auto(
@@ -648,8 +544,7 @@ def orec_union_rec_on(l):
     l.have(Exists(x, And(elem(x, D), elem(p0, Ex(x)))), by=[elem_orec_union(G, D, p0)])
     x2, _ = l.obtain(-1)
     l.have(
-        Exists([x, y], And(elem(x, succ(x2)), p0 == pair(x, y))),
-        by=[fn_on.defn(Ex(x2), succ(x2))],
+        Exists([x, y], And(elem(x, succ(x2)), p0 == pair(x, y))), by=[fn_on.defn(Ex(x2), succ(x2))]
     )
     (a2, b2), _ = l.obtain(-1)
     l.exists(a2, b2)
@@ -658,11 +553,7 @@ def orec_union_rec_on(l):
     l.intro()
     l.exists(app(Ex(a3), a3))
     l.auto(
-        by=[
-            pair_app_elem_of_fn_on(Ex(a3), succ(a3), a3),
-            elem_succ_self(a3),
-            le.defn(Ex(a3), U),
-        ]
+        by=[pair_app_elem_of_fn_on(Ex(a3), succ(a3), a3), elem_succ_self(a3), le.defn(Ex(a3), U)]
     )
     a4, b4, c4 = l.fixes()
     l.intros()
@@ -696,10 +587,7 @@ def orec_union_rec_on(l):
             app_eq_of_fn_on(U, D, a5, app(E5, a5)),
         ],
     )
-    l.have(
-        restrict(U, a5) == restrict(E5, a5),
-        by=[restrict_eq_of_le(U, E5, D, succ(a5), a5)],
-    )
+    l.have(restrict(U, a5) == restrict(E5, a5), by=[restrict_eq_of_le(U, E5, D, succ(a5), a5)])
     l.auto(by=[is_rec_on.defn(G, E5, succ(a5))])
 
 
@@ -728,26 +616,17 @@ def exists_rec_on(l):
 
 
 orec_rec_on = prove(
-    ForAll([G, D], is_ordinal(D), is_rec_on(G, orec(G, D), D)),
-    by=[orec_spec, exists_rec_on],
+    ForAll([G, D], is_ordinal(D), is_rec_on(G, orec(G, D), D)), by=[orec_spec, exists_rec_on]
 )
 fn_on_orec = prove(
-    ForAll([G, D], is_ordinal(D), fn_on(orec(G, D), D)),
-    by=[orec_rec_on, is_rec_on.defn],
+    ForAll([G, D], is_ordinal(D), fn_on(orec(G, D), D)), by=[orec_rec_on, is_rec_on.defn]
 )
 
 # The value at δ, computed from the earlier values.
 oval = define("oval", [G, D], G[D, orec(G, D)])
 
 
-@Theorem(
-    ForAll(
-        [G, D, x],
-        is_ordinal(D),
-        elem(x, D),
-        restrict(orec(G, D), x) == orec(G, x),
-    )
-)
+@Theorem(ForAll([G, D, x], is_ordinal(D), elem(x, D), restrict(orec(G, D), x) == orec(G, x)))
 def restrict_orec(l):
     G, D, x0 = l.fixes()
     l.intros()
@@ -755,28 +634,12 @@ def restrict_orec(l):
     l.have(is_ordinal(x0), by=[is_ordinal_of_elem(D, x0)])
     l.have(
         is_rec_on(G, restrict(g0, x0), x0),
-        by=[
-            is_rec_on_restrict(G, g0, D, x0),
-            orec_rec_on(G, D),
-            ordinal_le_of_elem(D, x0),
-        ],
+        by=[is_rec_on_restrict(G, g0, D, x0), orec_rec_on(G, D), ordinal_le_of_elem(D, x0)],
     )
-    l.auto(
-        by=[
-            is_rec_on_unique(G, restrict(g0, x0), orec(G, x0), x0),
-            orec_rec_on(G, x0),
-        ]
-    )
+    l.auto(by=[is_rec_on_unique(G, restrict(g0, x0), orec(G, x0), x0), orec_rec_on(G, x0)])
 
 
-@Theorem(
-    ForAll(
-        [G, D, x],
-        is_ordinal(D),
-        elem(x, D),
-        app(orec(G, D), x) == oval(G, x),
-    )
-)
+@Theorem(ForAll([G, D, x], is_ordinal(D), elem(x, D), app(orec(G, D), x) == oval(G, x)))
 def app_orec(l):
     """Halmos §18 without a codomain: the sequence on δ has the value G(ξ, earlier
     values) at each ξ < δ."""

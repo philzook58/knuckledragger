@@ -11,14 +11,7 @@ from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Lambda, 
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, sep
 from kdrag.contrib.zf.fun import bij_on, bij_on_of_inverse, inj_on, maps_to, surj_on
-from kdrag.contrib.zf.finite import (
-    bij_on_comp,
-    bij_on_id,
-    bij_on_inv,
-    equivalent,
-    inv,
-    inv_elem,
-)
+from kdrag.contrib.zf.finite import bij_on_comp, bij_on_id, bij_on_inv, equivalent, inv, inv_elem
 from kdrag.contrib.zf.poset import (
     exists_least,
     is_least,
@@ -40,15 +33,10 @@ f, g, h = Consts("f g h", ArraySort(ZFSet, ZFSet))
 is_order_embedding = define(
     "is_order_embedding",
     [f, R, X, S, Y],
-    And(
-        maps_to(f, X, Y),
-        ForAll([a, b], elem(a, X), elem(b, X), R[a, b] == S[f[a], f[b]]),
-    ),
+    And(maps_to(f, X, Y), ForAll([a, b], elem(a, X), elem(b, X), R[a, b] == S[f[a], f[b]])),
 )
 is_similarity = define(
-    "is_similarity",
-    [f, R, X, S, Y],
-    And(is_order_embedding(f, R, X, S, Y), bij_on(f, X, Y)),
+    "is_similarity", [f, R, X, S, Y], And(is_order_embedding(f, R, X, S, Y), bij_on(f, X, Y))
 )
 similar = define("similar", [R, X, S, Y], Exists(f, is_similarity(f, R, X, S, Y)))
 
@@ -124,9 +112,7 @@ def le_apply_of_order_embedding(l):
     l.intro()
     l.have(R[f[fb], fb])
     l.auto()
-    l.have(
-        f[fb] == fb, by=[partial_order_antisymm(R, X, f[fb], fb), maps_to.defn(f, X, X)]
-    )
+    l.have(f[fb] == fb, by=[partial_order_antisymm(R, X, f[fb], fb), maps_to.defn(f, X, X)])
     l.auto(by=[partial_order_antisymm(R, X, fb, b0)])
     l.have(elem(fb, E))
     l.rw(zf.elem_sep)
@@ -144,13 +130,7 @@ def _sims(g, h, R, X, S, Y):
     ]
 
 
-@Theorem(
-    ForAll(
-        [g, h, R, X, S, Y],
-        *_sims(g, h, R, X, S, Y),
-        ForAll(a, elem(a, X), S[g[a], h[a]]),
-    )
-)
+@Theorem(ForAll([g, h, R, X, S, Y], *_sims(g, h, R, X, S, Y), ForAll(a, elem(a, X), S[g[a], h[a]])))
 def le_of_similarities(l):
     """Halmos: g⁻¹h is a similarity of X into itself, so a ≤ g⁻¹(h(a)), and g(a) ≤ h(a)."""
     g, h, R, X, S, Y = l.fixes()
@@ -158,14 +138,8 @@ def le_of_similarities(l):
     gi = inv(g, X)
     k = Lambda(x, gi[h[x]])
     l.have(bij_on(g, X, Y), by=[is_similarity.defn(g, R, X, S, Y)])
-    l.have(
-        ForAll(y, elem(y, Y), And(elem(gi[y], X), g[gi[y]] == y)),
-        by=[inv_elem],
-    )
-    l.have(
-        maps_to(h, X, Y),
-        by=[is_similarity.defn(h, R, X, S, Y), is_order_embedding.defn],
-    )
+    l.have(ForAll(y, elem(y, Y), And(elem(gi[y], X), g[gi[y]] == y)), by=[inv_elem])
+    l.have(maps_to(h, X, Y), by=[is_similarity.defn(h, R, X, S, Y), is_order_embedding.defn])
     l.have(is_order_embedding(k, R, X, R, X))
     l.unfold(is_order_embedding)
     l.split()
@@ -194,13 +168,7 @@ def le_of_similarities(l):
     )
 
 
-@Theorem(
-    ForAll(
-        [g, h, R, X, S, Y],
-        *_sims(g, h, R, X, S, Y),
-        ForAll(a, elem(a, X), g[a] == h[a]),
-    )
-)
+@Theorem(ForAll([g, h, R, X, S, Y], *_sims(g, h, R, X, S, Y), ForAll(a, elem(a, X), g[a] == h[a])))
 def similarity_unique(l):
     """Halmos: two well ordered sets have at most one similarity between them."""
     g, h, R, X, S, Y = l.fixes()
@@ -223,10 +191,7 @@ def similarity_unique(l):
 
 @Theorem(
     ForAll(
-        [f, R, X, a],
-        is_well_order(R, X),
-        elem(a, X),
-        Not(is_similarity(f, R, X, R, seg(R, X, a))),
+        [f, R, X, a], is_well_order(R, X), elem(a, X), Not(is_similarity(f, R, X, R, seg(R, X, a)))
     )
 )
 def not_similarity_seg(l):
@@ -261,9 +226,7 @@ def not_similarity_seg(l):
     l.rw(zf.elem_sep, at=-1)
     l.simp(at=-1)
     l.auto()
-    l.auto(
-        by=[partial_order_antisymm(R, X, a0, f[a0]), partial_order_of_well_order(R, X)]
-    )
+    l.auto(by=[partial_order_antisymm(R, X, a0, f[a0]), partial_order_of_well_order(R, X)])
 
 
 T = Consts("T", ArraySort(ZFSet, ZFSet, BoolSort()))[0]
@@ -271,11 +234,7 @@ Z = Consts("Z", ZFSet)[0]
 
 
 @Theorem(
-    ForAll(
-        [g, R, X, S, Y],
-        is_similarity(g, R, X, S, Y),
-        is_similarity(inv(g, X), S, Y, R, X),
-    )
+    ForAll([g, R, X, S, Y], is_similarity(g, R, X, S, Y), is_similarity(inv(g, X), S, Y, R, X))
 )
 def similarity_inv(l):
     """Halmos: the inverse of a similarity is a similarity."""
@@ -376,18 +335,13 @@ def similarity_seg(l):
             inj_on.defn(g, X),
         ]
     )
-    l.auto(
-        by=[inj_on.defn(g, X), inj_on.defn(g, sa), bij_on.defn(g, X, Y), elem_seg_iff]
-    )
+    l.auto(by=[inj_on.defn(g, X), inj_on.defn(g, sa), bij_on.defn(g, X, Y), elem_seg_iff])
     # ζ < g(a) in Y is g(η) for some η ∈ X, and then η < a.
     l.unfold(surj_on)
     z0 = l.fix()
     l.intro()
     l.have(elem(z0, Y), by=[elem_seg_iff(S, Y, g[a0], z0)])
-    l.have(
-        Exists(x, And(elem(x, X), g[x] == z0)),
-        by=[bij_on.defn(g, X, Y), surj_on.defn(g, X, Y)],
-    )
+    l.have(Exists(x, And(elem(x, X), g[x] == z0)), by=[bij_on.defn(g, X, Y), surj_on.defn(g, X, Y)])
     x0, _ = l.obtain(-1)
     l.exists(x0)
     l.auto(by=[elem_seg_iff(R, X, a0, x0), elem_seg_iff(S, Y, g[a0], z0)])
@@ -417,14 +371,7 @@ def similar_symm(l):
     l.auto(by=[similarity_inv(g0, R, X, S, Y)])
 
 
-@Theorem(
-    ForAll(
-        [R, X, S, Y, T, Z],
-        similar(R, X, S, Y),
-        similar(S, Y, T, Z),
-        similar(R, X, T, Z),
-    )
-)
+@Theorem(ForAll([R, X, S, Y, T, Z], similar(R, X, S, Y), similar(S, Y, T, Z), similar(R, X, T, Z)))
 def similar_trans(l):
     R, X, S, Y, T, Z = l.fixes()
     l.intros()

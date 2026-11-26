@@ -15,17 +15,7 @@ one.
 
 import kdrag as kd
 from kdrag import Theorem, define
-from kdrag.smt import (
-    And,
-    Consts,
-    Exists,
-    ForAll,
-    Function,
-    If,
-    Implies,
-    Ints,
-    IntSort,
-)
+from kdrag.smt import And, Consts, Exists, ForAll, Function, If, Implies, Ints, IntSort
 import kdrag.theories.int as int_
 from kdrag.theories.zf.zf import ZFSet, elem, succ, zero
 from kdrag.contrib.zf.nat import (
@@ -57,9 +47,7 @@ def induct_int(i: kd.smt.ExprRef, P: kd.smt.QuantifierRef) -> kd.Proof:
     no fresh axiom per use, and beta-reduced as `nat.induct_omega` is."""
     n = kd.smt.FreshConst(kd.smt.IntSort(), prefix="n")
     thm = kd.rewrite.beta(
-        Implies(
-            And(P[0], ForAll(n, Implies(And(n >= 0, P[n]), P[n + 1])), i >= 0), P[i]
-        )
+        Implies(And(P[0], ForAll(n, Implies(And(n >= 0, P[n]), P[n + 1])), i >= 0), P[i])
     )
     assert isinstance(thm, kd.smt.BoolRef)
     return kd.prove(thm, by=[int_.induct_nat_ax(P)])
@@ -117,8 +105,7 @@ def from_int_inj_at(l):
 
 
 from_int_inj = kd.prove(
-    ForAll([i, j], i >= 0, j >= 0, from_int(i) == from_int(j), i == j),
-    by=[from_int_inj_at],
+    ForAll([i, j], i >= 0, j >= 0, from_int(i) == from_int(j), i == j), by=[from_int_inj_at]
 )
 
 
@@ -139,17 +126,14 @@ def exists_has_int(l):
 
 
 has_int_unique = kd.prove(
-    ForAll([x, i, j], has_int(x, i), has_int(x, j), i == j),
-    by=[has_int.defn, from_int_inj],
+    ForAll([x, i, j], has_int(x, i), has_int(x, j), i == j), by=[has_int.defn, from_int_inj]
 )
 has_int_elem_omega = kd.prove(
-    ForAll([x, i], has_int(x, i), elem(x, omega)),
-    by=[has_int.defn, from_int_elem_omega],
+    ForAll([x, i], has_int(x, i), elem(x, omega)), by=[has_int.defn, from_int_elem_omega]
 )
 has_int_zero = kd.prove(has_int(zero, 0), by=[has_int.defn, from_int_zero])
 has_int_succ = kd.prove(
-    ForAll([x, i], has_int(x, i), has_int(succ(x), i + 1)),
-    by=[has_int.defn, from_int_succ],
+    ForAll([x, i], has_int(x, i), has_int(succ(x), i + 1)), by=[has_int.defn, from_int_succ]
 )
 
 
@@ -161,9 +145,7 @@ def has_int_add(l):
     l.have(elem(x, omega), by=[has_int_elem_omega(x, i)])
     l.have(y == from_int(j), by=[has_int.defn])
     l.have(j >= 0, by=[has_int.defn])
-    l.have(
-        ForAll(j, j >= 0, has_int(add(x, from_int(j)), i + j)),
-    )
+    l.have(ForAll(j, j >= 0, has_int(add(x, from_int(j)), i + j)))
     j1 = l.fix()
     l.intro()
     l.induct(j1, using=induct_int)

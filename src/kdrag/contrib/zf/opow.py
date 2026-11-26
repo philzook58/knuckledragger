@@ -31,11 +31,7 @@ from kdrag.contrib.zf.ordinal import (
     omega_is_ordinal,
     repl,
 )
-from kdrag.contrib.zf.ordset import (
-    ordinal_le_of_elem,
-    ordinal_not_elem_self,
-    ordinal_well_order,
-)
+from kdrag.contrib.zf.ordset import ordinal_le_of_elem, ordinal_not_elem_self, ordinal_well_order
 from kdrag.contrib.zf.poset import nat_le_rel, seg, well_order_induction
 from kdrag.contrib.zf.orec import app_orec, orec, oval
 
@@ -63,12 +59,7 @@ def bigunion_succ(l):
 vals = define("vals", [t, d], repl(Lambda(y, app(t, y)), d))
 
 
-@Theorem(
-    ForAll(
-        [t, d, x],
-        elem(x, vals(t, d)) == Exists(y, And(elem(y, d), app(t, y) == x)),
-    )
-)
+@Theorem(ForAll([t, d, x], elem(x, vals(t, d)) == Exists(y, And(elem(y, d), app(t, y) == x))))
 def elem_vals(l):
     t, d, x0 = l.fixes()
     l.unfold(vals)
@@ -81,11 +72,7 @@ opow_step = define(
     If(
         d == zero,
         one,
-        If(
-            d == succ(bigunion(d)),
-            omul(app(t, bigunion(d)), A),
-            bigunion(vals(t, d)),
-        ),
+        If(d == succ(bigunion(d)), omul(app(t, bigunion(d)), A), bigunion(vals(t, d))),
     ),
 )
 G = Consts("G", ArraySort(ZFSet, ZFSet, ZFSet))[0]
@@ -152,12 +139,7 @@ def elem_opow_limit(l):
     t0 = orec(Gr, L)
     l.have(
         opow(A, L) == bigunion(vals(t0, L)),
-        by=[
-            opow.defn(A, L),
-            oval.defn(Gr, L),
-            opow_rec_apply(A, L, t0),
-            opow_step.defn(A, L, t0),
-        ],
+        by=[opow.defn(A, L), oval.defn(Gr, L), opow_rec_apply(A, L, t0), opow_step.defn(A, L, t0)],
     )
     l.have(ForAll(y, elem(y, L), app(t0, y) == opow(A, y)), by=[app_orec, opow.defn])
     l.rw(-2)
@@ -181,15 +163,7 @@ def opow_one(l):
     """α^1 = α^0·α = 1·α = α."""
     A = l.fix()
     l.intro()
-    l.auto(
-        by=[
-            opow_succ(A, zero),
-            opow_zero(A),
-            one_omul(A),
-            nat_is_ordinal(zero),
-            omega_zero,
-        ]
-    )
+    l.auto(by=[opow_succ(A, zero), opow_zero(A), one_omul(A), nat_is_ordinal(zero), omega_zero])
 
 
 @Theorem(And(omega != zero, omega != succ(bigunion(omega))))
@@ -205,10 +179,7 @@ def omega_limit(l):
 
 
 elem_opow_omega = prove(
-    ForAll(
-        [A, x],
-        elem(x, opow(A, omega)) == Exists(y, And(elem(y, omega), elem(x, opow(A, y)))),
-    ),
+    ForAll([A, x], elem(x, opow(A, omega)) == Exists(y, And(elem(y, omega), elem(x, opow(A, y))))),
     by=[elem_opow_limit, omega_limit, omega_is_ordinal],
 )
 
@@ -236,21 +207,12 @@ def one_opow(l):
     # 1^(γ+1) = 1^γ·1 = 1·1 = 1, with γ = ⋃δ < δ.
     l.have(elem(u, a0), by=[elem_succ_self(u)])
     l.have(is_ordinal(u), by=[is_ordinal_of_elem(a0, u)])
-    l.auto(
-        by=[
-            opow_succ(one, u),
-            one_omul(one),
-            nat_is_ordinal(one),
-            omega_succ(zero),
-            omega_zero,
-        ]
-    )
+    l.auto(by=[opow_succ(one, u), one_omul(one), nat_is_ordinal(one), omega_succ(zero), omega_zero])
     # At a limit, 1^λ is the union of copies of 1 below λ, and λ ≠ 0.
     l.rw(zf.ext_ax)
     x0 = l.fix()
     l.have(
-        elem(x0, opow(one, a0))
-        == Exists(y, And(elem(y, a0), elem(x0, opow(one, y)))),
+        elem(x0, opow(one, a0)) == Exists(y, And(elem(y, a0), elem(x0, opow(one, y)))),
         by=[elem_opow_limit(one, a0, x0)],
     )
     l.have(Exists(y, elem(y, a0)), by=[zf.not_emp_exists_elem(a0), zero.defn])

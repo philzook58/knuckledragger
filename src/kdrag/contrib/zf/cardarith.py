@@ -34,11 +34,7 @@ from kdrag.contrib.zf.fun import (
     psnd_pair,
     surj_on,
 )
-from kdrag.contrib.zf.oarith import (
-    osum_assoc_map,
-    osum_rel,
-    similarity_osum_assoc,
-)
+from kdrag.contrib.zf.oarith import osum_assoc_map, osum_rel, similarity_osum_assoc
 from kdrag.contrib.zf.omul import (
     odist_map,
     oprod_assoc_map,
@@ -47,9 +43,7 @@ from kdrag.contrib.zf.omul import (
     similarity_oprod_assoc,
 )
 from kdrag.contrib.zf.poset import nat_le_rel
-from kdrag.contrib.zf.sim import (
-    equivalent_of_similarity,
-)
+from kdrag.contrib.zf.sim import equivalent_of_similarity
 from kdrag.contrib.zf.dsum import elem_osum_set, inl, inr, osum_set
 from kdrag.contrib.zf.nat import elem_two, one, two, zero_ne_one
 from kdrag.contrib.zf._sep import define_sep
@@ -60,12 +54,7 @@ R, S, T = Consts("R S T", ArraySort(ZFSet, ZFSet, BoolSort()))
 L = nat_le_rel  # any relation will do below
 
 
-@Theorem(
-    ForAll(
-        [A, B, C],
-        equivalent(osum_set(osum_set(A, B), C), osum_set(A, osum_set(B, C))),
-    )
-)
+@Theorem(ForAll([A, B, C], equivalent(osum_set(osum_set(A, B), C), osum_set(A, osum_set(B, C)))))
 def sum_assoc_equivalent(l):
     """(a + b) + c = a + (b + c)."""
     A, B, C = l.fixes()
@@ -101,12 +90,7 @@ def prod_assoc_equivalent(l):
     )
 
 
-@Theorem(
-    ForAll(
-        [A, B, C],
-        equivalent(prod(A, osum_set(B, C)), osum_set(prod(A, B), prod(A, C))),
-    )
-)
+@Theorem(ForAll([A, B, C], equivalent(prod(A, osum_set(B, C)), osum_set(prod(A, B), prod(A, C)))))
 def prod_sum_distrib_equivalent(l):
     """a(b + c) = ab + ac."""
     A, B, C = l.fixes()
@@ -136,10 +120,7 @@ def sum_comm_equivalent(l):
     _tags = [elem_osum_set, pfst_pair, zero_ne_one, zf.pair_inj]
     l.have(maps_to(swap_tag, osum_set(A, B), osum_set(B, A)), by=[maps_to.defn] + _tags)
     l.have(maps_to(swap_tag, osum_set(B, A), osum_set(A, B)), by=[maps_to.defn] + _tags)
-    l.auto(
-        by=[equivalent_of_inverse(swap_tag, swap_tag, osum_set(A, B), osum_set(B, A))]
-        + _tags
-    )
+    l.auto(by=[equivalent_of_inverse(swap_tag, swap_tag, osum_set(A, B), osum_set(B, A))] + _tags)
 
 
 @Theorem(ForAll([A, B], equivalent(prod(A, B), prod(B, A))))
@@ -221,13 +202,7 @@ def is_func_chi(l):
     l.auto(by=[chi.defn, is_func_graph(chi_fn(A), X, two)])
 
 
-@Theorem(
-    ForAll(
-        [A, X, x],
-        elem(x, X),
-        app(chi(A, X), x) == If(elem(x, A), one, zero),
-    )
-)
+@Theorem(ForAll([A, X, x], elem(x, X), app(chi(A, X), x) == If(elem(x, A), one, zero)))
 def app_chi(l):
     A, X, x0 = l.fixes()
     l.intro()
@@ -295,9 +270,7 @@ def func_ext(l):
 app_inl = define("app_inl", [f], Lambda(x, app(f, inl(x))))
 app_inr = define("app_inr", [f], Lambda(x, app(f, inr(x))))
 cases_fn = define(
-    "cases_fn",
-    [f, g],
-    Lambda(p, If(p == inl(pfst(p)), app(f, pfst(p)), app(g, pfst(p)))),
+    "cases_fn", [f, g], Lambda(p, If(p == inl(pfst(p)), app(f, pfst(p)), app(g, pfst(p))))
 )
 
 
@@ -338,12 +311,7 @@ def maps_to_app_inl_inr(l):
     )
 
 
-@Theorem(
-    ForAll(
-        [X, Z, Y],
-        equivalent(funs(osum_set(X, Z), Y), prod(funs(X, Y), funs(Z, Y))),
-    )
-)
+@Theorem(ForAll([X, Z, Y], equivalent(funs(osum_set(X, Z), Y), prod(funs(X, Y), funs(Z, Y)))))
 def power_add_equivalent(l):
     """Halmos §24: a^(b + c) = a^b · a^c."""
     X, Z, Y = l.fixes()
@@ -454,13 +422,7 @@ def power_add_equivalent(l):
             zero_ne_one,
         ]
     )
-    l.auto(
-        by=[
-            elem_funs,
-            eq_graph(g1, app_inl(f1), X, Y),
-            eq_graph(h1, app_inr(f1), Z, Y),
-        ]
-    )
+    l.auto(by=[elem_funs, eq_graph(g1, app_inl(f1), X, Y), eq_graph(h1, app_inr(f1), Z, Y)])
 
 
 # (ab)^c = a^c · b^c: f ↦ (pfst ∘ f, psnd ∘ f), with inverse x ↦ (g x, h x).
@@ -487,12 +449,7 @@ def maps_to_app_fst_snd(l):
     l.auto(by=[app_fst.defn, app_snd.defn, elem_prod_iff])
 
 
-@Theorem(
-    ForAll(
-        [X, Y, Z],
-        equivalent(funs(X, prod(Y, Z)), prod(funs(X, Y), funs(X, Z))),
-    )
-)
+@Theorem(ForAll([X, Y, Z], equivalent(funs(X, prod(Y, Z)), prod(funs(X, Y), funs(X, Z)))))
 def mul_power_equivalent(l):
     """Halmos §24: (ab)^c = a^c · b^c."""
     X, Y, Z = l.fixes()
@@ -563,10 +520,7 @@ def mul_power_equivalent(l):
         by=[elem_prod_iff(funs(X, Y), funs(X, Z), q0), elem_funs],
     )
     K = pair_fn(g1, h1)
-    l.have(
-        maps_to(K, X, P),
-        by=[maps_to.defn, pair_fn.defn, app_elem, pair_elem_prod],
-    )
+    l.have(maps_to(K, X, P), by=[maps_to.defn, pair_fn.defn, app_elem, pair_elem_prod])
     f1 = graph(K, X, P)
     l.have(is_func(f1, X, P), by=[is_func_graph(K, X, P)])
     l.exists(f1)
@@ -579,21 +533,9 @@ def mul_power_equivalent(l):
     x1 = l.fix()
     l.intro()
     l.auto(by=[app_graph(K, X, P, x1), pair_fn.defn])
-    l.have(
-        ForAll(x, elem(x, X), app(g1, x) == app_fst(f1)[x]),
-        by=[app_fst.defn, pfst_pair],
-    )
-    l.have(
-        ForAll(x, elem(x, X), app(h1, x) == app_snd(f1)[x]),
-        by=[app_snd.defn, psnd_pair],
-    )
-    l.auto(
-        by=[
-            elem_funs,
-            eq_graph(g1, app_fst(f1), X, Y),
-            eq_graph(h1, app_snd(f1), X, Z),
-        ]
-    )
+    l.have(ForAll(x, elem(x, X), app(g1, x) == app_fst(f1)[x]), by=[app_fst.defn, pfst_pair])
+    l.have(ForAll(x, elem(x, X), app(h1, x) == app_snd(f1)[x]), by=[app_snd.defn, psnd_pair])
+    l.auto(by=[elem_funs, eq_graph(g1, app_fst(f1), X, Y), eq_graph(h1, app_snd(f1), X, Z)])
 
 
 # (a^b)^c = a^(bc): h ↦ ((x, z) ↦ h(z)(x)), with inverse z ↦ (x ↦ k(x, z)).
@@ -602,13 +544,7 @@ slice_fn = define("slice_fn", [f, y], Lambda(x, app(f, pair(x, y))))
 curry = define("curry", [f, X, Y], Lambda(y, graph(slice_fn(f, y), X, Y)))
 
 
-@Theorem(
-    ForAll(
-        [f, X, Y, Z],
-        is_func(f, Z, funs(X, Y)),
-        maps_to(uncurry(f), prod(X, Z), Y),
-    )
-)
+@Theorem(ForAll([f, X, Y, Z], is_func(f, Z, funs(X, Y)), maps_to(uncurry(f), prod(X, Z), Y)))
 def maps_to_uncurry(l):
     f, X, Y, Z = l.fixes()
     l.intro()
@@ -617,16 +553,10 @@ def maps_to_uncurry(l):
     l.intro()
     z0 = psnd(p0)
     l.have(
-        elem(app(f, z0), funs(X, Y)),
-        by=[elem_prod_iff(X, Z, p0), app_elem(f, Z, funs(X, Y), z0)],
+        elem(app(f, z0), funs(X, Y)), by=[elem_prod_iff(X, Z, p0), app_elem(f, Z, funs(X, Y), z0)]
     )
     l.auto(
-        by=[
-            uncurry.defn,
-            elem_funs,
-            elem_prod_iff(X, Z, p0),
-            app_elem(app(f, z0), X, Y, pfst(p0)),
-        ]
+        by=[uncurry.defn, elem_funs, elem_prod_iff(X, Z, p0), app_elem(app(f, z0), X, Y, pfst(p0))]
     )
 
 
@@ -637,10 +567,7 @@ def maps_to_uncurry(l):
         ForAll(
             y,
             elem(y, Z),
-            And(
-                maps_to(slice_fn(f, y), X, Y),
-                is_func(graph(slice_fn(f, y), X, Y), X, Y),
-            ),
+            And(maps_to(slice_fn(f, y), X, Y), is_func(graph(slice_fn(f, y), X, Y), X, Y)),
         ),
     )
 )
@@ -650,18 +577,12 @@ def is_func_slice(l):
     z0 = l.fix()
     l.intro()
     l.have(
-        maps_to(slice_fn(f, z0), X, Y),
-        by=[maps_to.defn, slice_fn.defn, app_elem, pair_elem_prod],
+        maps_to(slice_fn(f, z0), X, Y), by=[maps_to.defn, slice_fn.defn, app_elem, pair_elem_prod]
     )
     l.auto(by=[is_func_graph(slice_fn(f, z0), X, Y)])
 
 
-@Theorem(
-    ForAll(
-        [X, Y, Z],
-        equivalent(funs(Z, funs(X, Y)), funs(prod(X, Z), Y)),
-    )
-)
+@Theorem(ForAll([X, Y, Z], equivalent(funs(Z, funs(X, Y)), funs(prod(X, Z), Y))))
 def power_mul_equivalent(l):
     """Halmos §24: (a^b)^c = a^(bc)."""
     X, Y, Z = l.fixes()
@@ -675,9 +596,7 @@ def power_mul_equivalent(l):
     f0 = l.fix()
     l.intro()
     l.simp()
-    l.auto(
-        by=[elem_funs, maps_to_uncurry(f0, X, Y, Z), is_func_graph(uncurry(f0), W, Y)]
-    )
+    l.auto(by=[elem_funs, maps_to_uncurry(f0, X, Y, Z), is_func_graph(uncurry(f0), W, Y)])
     # Equal uncurried graphs: h₁(z)(x) = h₂(z)(x) for all x, z.
     l.unfold(inj_on)
     f0, g0 = l.fixes()
@@ -719,10 +638,7 @@ def power_mul_equivalent(l):
     l.intro()
     l.have(is_func(k0, W, Y), by=[elem_funs])
     C = curry(k0, X, Y)
-    l.have(
-        maps_to(C, Z, FXY),
-        by=[maps_to.defn, curry.defn, elem_funs, is_func_slice(k0, X, Y, Z)],
-    )
+    l.have(maps_to(C, Z, FXY), by=[maps_to.defn, curry.defn, elem_funs, is_func_slice(k0, X, Y, Z)])
     h1 = graph(C, Z, FXY)
     l.have(is_func(h1, Z, FXY), by=[is_func_graph(C, Z, FXY)])
     l.exists(h1)
@@ -732,20 +648,11 @@ def power_mul_equivalent(l):
     p1 = l.fix()
     l.intro()
     x1, z1 = pfst(p1), psnd(p1)
-    l.have(
-        And(elem(x1, X), elem(z1, Z), p1 == pair(x1, z1)), by=[elem_prod_iff(X, Z, p1)]
-    )
-    l.have(
-        app(h1, z1) == graph(slice_fn(k0, z1), X, Y),
-        by=[app_graph(C, Z, FXY, z1), curry.defn],
-    )
+    l.have(And(elem(x1, X), elem(z1, Z), p1 == pair(x1, z1)), by=[elem_prod_iff(X, Z, p1)])
+    l.have(app(h1, z1) == graph(slice_fn(k0, z1), X, Y), by=[app_graph(C, Z, FXY, z1), curry.defn])
     l.have(
         app(graph(slice_fn(k0, z1), X, Y), x1) == app(k0, pair(x1, z1)),
-        by=[
-            is_func_slice(k0, X, Y, Z),
-            app_graph(slice_fn(k0, z1), X, Y, x1),
-            slice_fn.defn,
-        ],
+        by=[is_func_slice(k0, X, Y, Z), app_graph(slice_fn(k0, z1), X, Y, x1), slice_fn.defn],
     )
     l.auto(by=[uncurry.defn])
     l.auto(by=[elem_funs, eq_graph(k0, uncurry(h1), W, Y)])

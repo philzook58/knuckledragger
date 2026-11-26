@@ -8,17 +8,7 @@ same relation `nat_le` that orders ω.
 """
 
 from kdrag import Theorem, axiom, define, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    BoolSort,
-    Consts,
-    Exists,
-    ForAll,
-    Function,
-    Not,
-    Or,
-)
+from kdrag.smt import And, ArraySort, BoolSort, Consts, Exists, ForAll, Function, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, succ
 from kdrag.contrib.zf.fun import maps_to
@@ -46,9 +36,7 @@ F = Consts("F", ArraySort(ZFSet, ZFSet))[0]
 # Halmos' axiom of substitution, in HOL form: the image of a set under any
 # function is a set. This is the second axiom of contrib.zf, after infinity.
 repl = Function("repl", ArraySort(ZFSet, ZFSet), ZFSet, ZFSet)
-elem_repl = axiom(
-    ForAll([F, A, y], elem(y, repl(F, A)) == Exists(x, And(elem(x, A), F[x] == y)))
-)
+elem_repl = axiom(ForAll([F, A, y], elem(y, repl(F, A)) == Exists(x, And(elem(x, A), F[x] == y))))
 
 
 # Definite description, as Isabelle's THE: `the(P)` is the unique x with P x when
@@ -77,17 +65,12 @@ def image_eq_repl(l):
 is_ordinal = define(
     "is_ordinal",
     [A],
-    And(
-        is_well_order(nat_le_rel, A),
-        ForAll(x, elem(x, A), seg(nat_le_rel, A, x) == x),
-    ),
+    And(is_well_order(nat_le_rel, A), ForAll(x, elem(x, A), seg(nat_le_rel, A, x) == x)),
 )
 
 elem_seg = prove(
     ForAll(
-        [A, a, y],
-        elem(y, seg(nat_le_rel, A, a))
-        == And(elem(y, A), Or(elem(y, a), y == a), y != a),
+        [A, a, y], elem(y, seg(nat_le_rel, A, a)) == And(elem(y, A), Or(elem(y, a), y == a), y != a)
     ),
     by=[seg.defn, zf.elem_sep, nat_le.defn],
 )
@@ -98,9 +81,7 @@ elem_seg = prove(
         A,
         is_ordinal(A)
         == And(
-            is_well_order(nat_le_rel, A),
-            is_transitive(A),
-            ForAll(x, elem(x, A), Not(elem(x, x))),
+            is_well_order(nat_le_rel, A), is_transitive(A), ForAll(x, elem(x, A), Not(elem(x, x)))
         ),
     )
 )
@@ -134,9 +115,7 @@ def is_ordinal_iff(l):
     l.auto(by=[elem_seg(A, x2, y0), is_transitive.defn(A), le.defn])
 
 
-omega_is_ordinal = prove(
-    is_ordinal(omega), by=[is_ordinal.defn, omega_well_order, seg_nat]
-)
+omega_is_ordinal = prove(is_ordinal(omega), by=[is_ordinal.defn, omega_well_order, seg_nat])
 
 
 @Theorem(ForAll([R, A, B], is_well_order(R, A), B <= A, is_well_order(R, B)))
@@ -175,35 +154,19 @@ def is_ordinal_of_elem(l):
     l.have(elem(y0, A), by=[le.defn(a, A)])
     l.have(elem(z0, A), by=[is_transitive.defn(A), le.defn(y0, A)])
     l.have(is_partial_order(nat_le_rel, A), by=[partial_order_of_well_order])
-    l.have(
-        nat_le(z0, a),
-        by=[partial_order_trans(nat_le_rel, A, z0, y0, a), nat_le.defn],
-    )
-    l.auto(
-        by=[
-            nat_le.defn,
-            partial_order_antisymm(nat_le_rel, A, a, y0),
-        ]
-    )
+    l.have(nat_le(z0, a), by=[partial_order_trans(nat_le_rel, A, z0, y0, a), nat_le.defn])
+    l.auto(by=[nat_le.defn, partial_order_antisymm(nat_le_rel, A, a, y0)])
     l.auto(by=[le.defn])
 
 
 nat_is_ordinal = prove(
-    ForAll(a, elem(a, omega), is_ordinal(a)),
-    by=[is_ordinal_of_elem, omega_is_ordinal],
+    ForAll(a, elem(a, omega), is_ordinal(a)), by=[is_ordinal_of_elem, omega_is_ordinal]
 )
 
 
 # Stated on its own: inside `is_ordinal_succ` the unused hypothesis
 # is_well_order(λ, α) made this step seed-dependent (see the issue tracker).
-@Theorem(
-    ForAll(
-        [E, A],
-        E <= succ(A),
-        E & A == zf.emp,
-        ForAll(x, elem(x, E), x == A),
-    )
-)
+@Theorem(ForAll([E, A], E <= succ(A), E & A == zf.emp, ForAll(x, elem(x, E), x == A)))
 def eq_of_le_succ_of_inter_emp(l):
     E, A = l.fixes()
     l.intros()
@@ -272,10 +235,7 @@ def is_ordinal_succ(l):
     l.intros()
     l.cases(E0 & A != zf.emp, E0 & A == zf.emp)
     l.have(E0 & A <= A, by=[le.defn, zf.elem_inter])
-    l.have(
-        Exists(a, is_least(nat_le_rel, E0 & A, a)),
-        by=[exists_least(nat_le_rel, A, E0 & A)],
-    )
+    l.have(Exists(a, is_least(nat_le_rel, E0 & A, a)), by=[exists_least(nat_le_rel, A, E0 & A)])
     a0, _ = l.obtain(-1)
     l.exists(a0)
     l.auto(by=[is_least.defn, zf.elem_inter, le.defn, elem_succ, nat_le.defn])

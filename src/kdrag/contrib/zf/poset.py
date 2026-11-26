@@ -28,29 +28,20 @@ is_partial_order = define(
     And(
         ForAll(x, elem(x, X), R[x, x]),
         ForAll([x, y], elem(x, X), elem(y, X), R[x, y], R[y, x], x == y),
-        ForAll(
-            [x, y, z], elem(x, X), elem(y, X), elem(z, X), R[x, y], R[y, z], R[x, z]
-        ),
+        ForAll([x, y, z], elem(x, X), elem(y, X), elem(z, X), R[x, y], R[y, z], R[x, z]),
     ),
 )
 is_total_order = define(
     "is_total_order",
     [R, X],
-    And(
-        is_partial_order(R, X),
-        ForAll([x, y], elem(x, X), elem(y, X), Or(R[x, y], R[y, x])),
-    ),
+    And(is_partial_order(R, X), ForAll([x, y], elem(x, X), elem(y, X), Or(R[x, y], R[y, x]))),
 )
 
 # a is the least element of E: a ∈ E and a ≤ x for all x ∈ E.
-is_least = define(
-    "is_least", [R, E, a], And(elem(a, E), ForAll(x, elem(x, E), R[a, x]))
-)
+is_least = define("is_least", [R, E, a], And(elem(a, E), ForAll(x, elem(x, E), R[a, x])))
 # a is minimal in E: no element of E is strictly below a.
 is_minimal = define(
-    "is_minimal",
-    [R, E, a],
-    And(elem(a, E), ForAll(x, elem(x, E), R[x, a], x == a)),
+    "is_minimal", [R, E, a], And(elem(a, E), ForAll(x, elem(x, E), R[x, a], x == a))
 )
 
 # Halmos §17: a well ordering is a partial order in which every nonempty subset
@@ -58,31 +49,18 @@ is_minimal = define(
 is_well_order = define(
     "is_well_order",
     [R, X],
-    And(
-        is_partial_order(R, X),
-        ForAll(E, E <= X, E != zf.emp, Exists(a, is_least(R, E, a))),
-    ),
+    And(is_partial_order(R, X), ForAll(E, E <= X, E != zf.emp, Exists(a, is_least(R, E, a)))),
 )
 
 # The order laws one at a time, for instantiating in proofs.
 partial_order_of_well_order = prove(
-    ForAll([R, X], is_well_order(R, X), is_partial_order(R, X)),
-    by=[is_well_order.defn],
+    ForAll([R, X], is_well_order(R, X), is_partial_order(R, X)), by=[is_well_order.defn]
 )
 partial_order_refl = prove(
-    ForAll([R, X, x], is_partial_order(R, X), elem(x, X), R[x, x]),
-    by=[is_partial_order.defn],
+    ForAll([R, X, x], is_partial_order(R, X), elem(x, X), R[x, x]), by=[is_partial_order.defn]
 )
 partial_order_antisymm = prove(
-    ForAll(
-        [R, X, x, y],
-        is_partial_order(R, X),
-        elem(x, X),
-        elem(y, X),
-        R[x, y],
-        R[y, x],
-        x == y,
-    ),
+    ForAll([R, X, x, y], is_partial_order(R, X), elem(x, X), elem(y, X), R[x, y], R[y, x], x == y),
     by=[is_partial_order.defn],
 )
 partial_order_trans = prove(
@@ -99,13 +77,7 @@ partial_order_trans = prove(
     by=[is_partial_order.defn],
 )
 exists_least = prove(
-    ForAll(
-        [R, X, E],
-        is_well_order(R, X),
-        E <= X,
-        E != zf.emp,
-        Exists(a, is_least(R, E, a)),
-    ),
+    ForAll([R, X, E], is_well_order(R, X), E <= X, E != zf.emp, Exists(a, is_least(R, E, a))),
     by=[is_well_order.defn],
 )
 
@@ -143,13 +115,7 @@ least_unique = prove(
 
 # A least element is minimal; Halmos' nonempty subsets show the converse fails.
 minimal_of_least = prove(
-    ForAll(
-        [R, X, E, a],
-        is_partial_order(R, X),
-        E <= X,
-        is_least(R, E, a),
-        is_minimal(R, E, a),
-    ),
+    ForAll([R, X, E, a], is_partial_order(R, X), E <= X, is_least(R, E, a), is_minimal(R, E, a)),
     by=[is_partial_order.defn, is_least.defn, is_minimal.defn, le.defn],
 )
 
@@ -240,10 +206,7 @@ def well_order_induction(l):
     l.have(Bad != zf.emp, by=[elem_without(X, P, a0), zf.elem_emp(a0)])
     l.have(Exists(a, is_least(R, Bad, a)), by=[exists_least(R, X, Bad)])
     a1, _ = l.obtain(-1)
-    l.have(
-        And(elem(a1, X), Not(P[a1])),
-        by=[is_least.defn(R, Bad, a1), elem_without(X, P, a1)],
-    )
+    l.have(And(elem(a1, X), Not(P[a1])), by=[is_least.defn(R, Bad, a1), elem_without(X, P, a1)])
     # Every b < a has the property: otherwise b ∈ Bad and a ≤ b < a.
     l.have(ForAll(b, elem(b, seg(R, X, a1)), P[b]))
     b0 = l.fix()

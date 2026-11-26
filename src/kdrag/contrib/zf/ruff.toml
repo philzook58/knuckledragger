@@ -1,0 +1,8 @@
+# Formatting for contrib.zf, extending the repository settings.
+extend = "../../../../pyproject.toml"
+
+line-length = 100
+
+[format]
+# Join any list that fits on one line, even if it once ended in a trailing comma.
+skip-magic-trailing-comma = true
