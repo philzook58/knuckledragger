@@ -179,12 +179,7 @@ holders, elem_holders = define_sep("holders", [C, x], C, A, elem(x, A))
 
 
 @Theorem(
-    ForAll(
-        C,
-        countable(C),
-        ForAll(A, elem(A, C), countable(A)),
-        countable(bigunion(C)),
-    )
+    ForAll(C, countable(C), ForAll(A, elem(A, C), countable(A)), countable(bigunion(C)))
 )
 def countable_bigunion(l):
     """Halmos §23: a countable union of countable sets is countable. Choose a
@@ -285,11 +280,7 @@ def countable_bigunion(l):
 is_card_of = define(
     "is_card_of",
     [K, X],
-    And(
-        is_ordinal(K),
-        equivalent(X, K),
-        ForAll(B, elem(B, K), Not(equivalent(X, B))),
-    ),
+    And(is_ordinal(K), equivalent(X, K), ForAll(B, elem(B, K), Not(equivalent(X, B)))),
 )
 # The ordinals in A that are equivalent to X.
 equivs_in, elem_equivs_in = define_sep("equivs_in", [A, X], A, B, equivalent(X, B))
@@ -498,13 +489,7 @@ def embedding_total(l):
     )
 
 
-@Theorem(
-    ForAll(
-        X,
-        Not(finite(X)),
-        Exists(Y, And(Y <= X, Y != X, equivalent(X, Y))),
-    )
-)
+@Theorem(ForAll(X, Not(finite(X)), Exists(Y, And(Y <= X, Y != X, equivalent(X, Y)))))
 def exists_equivalent_ssubset_of_infinite(l):
     """Halmos §24: an infinite set is equivalent to a proper subset. With
     e : ω → X one-to-one, send each e(n) to e(n + 1) and fix the other points;
@@ -572,12 +557,7 @@ def exists_equivalent_ssubset_of_infinite(l):
     l.have(Implies(elem(x1, Img), elem(e0[succ(k1)], Img)), by=[omega_succ(k1)])
     l.have(Implies(elem(x2, Img), elem(e0[succ(k2)], Img)), by=[omega_succ(k2)])
     l.auto(
-        by=[
-            omega_succ(k1),
-            omega_succ(k2),
-            inj_on.defn(e0, omega),
-            succ_inj(k1, k2),
-        ]
+        by=[omega_succ(k1), omega_succ(k2), inj_on.defn(e0, omega), succ_inj(k1, k2)]
     )
     # Onto: y = e(k) with k ≠ 0 is S(e(j)) for k = j + 1; other y are fixed.
     l.unfold(surj_on)
@@ -600,10 +580,7 @@ def exists_equivalent_ssubset_of_infinite(l):
 
 
 @Theorem(
-    ForAll(
-        X,
-        Eq(Not(finite(X)), Exists(Y, And(Y <= X, Y != X, equivalent(X, Y)))),
-    )
+    ForAll(X, Eq(Not(finite(X)), Exists(Y, And(Y <= X, Y != X, equivalent(X, Y)))))
 )
 def infinite_iff_equivalent_ssubset(l):
     """Halmos §24: a set is infinite iff it is equivalent to a proper subset."""

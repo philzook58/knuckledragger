@@ -17,16 +17,7 @@ earlier values as a set of pairs:
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    Consts,
-    Exists,
-    ForAll,
-    Lambda,
-    Not,
-    Or,
-)
+from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, Lambda, Not, Or
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, ran, sing, succ
 from kdrag.contrib.zf.fun import (
@@ -100,11 +91,7 @@ pair_app_elem_of_fn_on = prove(
 
 fn_on_single = prove(
     ForAll(
-        [g, D, x, y, z],
-        fn_on(g, D),
-        elem(pair(x, y), g),
-        elem(pair(x, z), g),
-        y == z,
+        [g, D, x, y, z], fn_on(g, D), elem(pair(x, y), g), elem(pair(x, z), g), y == z
     ),
     by=[fn_on.defn],
 )
@@ -147,9 +134,7 @@ def fn_on_ext(l):
         ),
         by=[fn_on.defn],
     )
-    l.auto(
-        by=[app_eq_of_fn_on, pair_app_elem_of_fn_on],
-    )
+    l.auto(by=[app_eq_of_fn_on, pair_app_elem_of_fn_on])
 
 
 @Theorem(
@@ -210,10 +195,7 @@ def fn_on_restrict(l):
 is_rec_on = define(
     "is_rec_on",
     [G, g, D],
-    And(
-        fn_on(g, D),
-        ForAll(x, elem(x, D), app(g, x) == G[x, restrict(g, x)]),
-    ),
+    And(fn_on(g, D), ForAll(x, elem(x, D), app(g, x) == G[x, restrict(g, x)])),
 )
 
 
@@ -281,13 +263,7 @@ def is_rec_on_restrict(l):
 
 
 @Theorem(
-    ForAll(
-        [G, g, h, D],
-        is_ordinal(D),
-        is_rec_on(G, g, D),
-        is_rec_on(G, h, D),
-        g == h,
-    )
+    ForAll([G, g, h, D], is_ordinal(D), is_rec_on(G, g, D), is_rec_on(G, h, D), g == h)
 )
 def is_rec_on_unique(l):
     """Halmos: two attempts on δ agree, by transfinite induction on δ."""
@@ -550,13 +526,7 @@ def restrict_eq_of_le(l):
 def orec_ext_rec_on(l):
     G, D = l.fixes()
     l.intros()
-    l.auto(
-        by=[
-            orec_spec(G, D),
-            is_rec_on_succ(G, orec(G, D), D),
-            orec_ext.defn(G, D),
-        ]
-    )
+    l.auto(by=[orec_spec(G, D), is_rec_on_succ(G, orec(G, D), D), orec_ext.defn(G, D)])
 
 
 @Theorem(
@@ -614,18 +584,10 @@ def orec_union_rec_on(l):
     )
     l.have(ForAll(x, elem(x, D), fn_on(Ex(x), succ(x))), by=[is_rec_on.defn])
     l.have(
-        ForAll(x, elem(x, D), succ(x) <= D),
-        by=[ordinal_le_of_elem, le.defn, elem_succ],
+        ForAll(x, elem(x, D), succ(x) <= D), by=[ordinal_le_of_elem, le.defn, elem_succ]
     )
     # Any two extensions are nested, as ordinals are comparable.
-    l.have(
-        ForAll(
-            [x, y],
-            elem(x, D),
-            elem(y, D),
-            Or(Ex(x) <= Ex(y), Ex(y) <= Ex(x)),
-        )
-    )
+    l.have(ForAll([x, y], elem(x, D), elem(y, D), Or(Ex(x) <= Ex(y), Ex(y) <= Ex(x))))
     x1, y1 = l.fixes()
     l.intros()
     l.auto(
@@ -741,12 +703,7 @@ oval = define("oval", [G, D], G[D, orec(G, D)])
 
 
 @Theorem(
-    ForAll(
-        [G, D, x],
-        is_ordinal(D),
-        elem(x, D),
-        restrict(orec(G, D), x) == orec(G, x),
-    )
+    ForAll([G, D, x], is_ordinal(D), elem(x, D), restrict(orec(G, D), x) == orec(G, x))
 )
 def restrict_orec(l):
     G, D, x0 = l.fixes()
@@ -762,21 +719,11 @@ def restrict_orec(l):
         ],
     )
     l.auto(
-        by=[
-            is_rec_on_unique(G, restrict(g0, x0), orec(G, x0), x0),
-            orec_rec_on(G, x0),
-        ]
+        by=[is_rec_on_unique(G, restrict(g0, x0), orec(G, x0), x0), orec_rec_on(G, x0)]
     )
 
 
-@Theorem(
-    ForAll(
-        [G, D, x],
-        is_ordinal(D),
-        elem(x, D),
-        app(orec(G, D), x) == oval(G, x),
-    )
-)
+@Theorem(ForAll([G, D, x], is_ordinal(D), elem(x, D), app(orec(G, D), x) == oval(G, x)))
 def app_orec(l):
     """Halmos §18 without a codomain: the sequence on δ has the value G(ξ, earlier
     values) at each ξ < δ."""

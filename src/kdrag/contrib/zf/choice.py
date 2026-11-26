@@ -22,19 +22,14 @@ choice_ax = axiom(
         Not(elem(zf.emp, C)),
         Exists(
             f,
-            And(
-                is_func(f, C, bigunion(C)),
-                ForAll(A, elem(A, C), elem(app(f, A), A)),
-            ),
+            And(is_func(f, C, bigunion(C)), ForAll(A, elem(A, C), elem(app(f, A), A))),
         ),
     )
 )
 
 # f chooses an element from every nonempty subset of X.
 is_choice_on = define(
-    "is_choice_on",
-    [f, X],
-    ForAll(A, A <= X, A != zf.emp, elem(app(f, A), A)),
+    "is_choice_on", [f, X], ForAll(A, A <= X, A != zf.emp, elem(app(f, A), A))
 )
 
 
@@ -49,8 +44,7 @@ def exists_choice_on(l):
         Exists(
             f,
             And(
-                is_func(f, Cx, bigunion(Cx)),
-                ForAll(A, elem(A, Cx), elem(app(f, A), A)),
+                is_func(f, Cx, bigunion(Cx)), ForAll(A, elem(A, Cx), elem(app(f, A), A))
             ),
         ),
         by=[choice_ax(Cx)],

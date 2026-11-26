@@ -32,15 +32,10 @@ dominated = define("dominated", [X, Y], Exists(F, And(maps_to(F, X, Y), inj_on(F
 desc_closed = define(
     "desc_closed",
     [C, F, G, X, Y],
-    And(
-        X - image(G, Y, X) <= C,
-        ForAll(x, elem(x, C), elem(G[F[x]], C)),
-    ),
+    And(X - image(G, Y, X) <= C, ForAll(x, elem(x, C), elem(G[F[x]], C))),
 )
 origin_x = define(
-    "origin_x",
-    [F, G, X, Y],
-    sinter(sep(pow(X), Lambda(C, desc_closed(C, F, G, X, Y)))),
+    "origin_x", [F, G, X, Y], sinter(sep(pow(X), Lambda(C, desc_closed(C, F, G, X, Y))))
 )
 
 
@@ -104,9 +99,7 @@ origin_x_le = prove(
 
 @Theorem(
     ForAll(
-        [F, G, X, Y],
-        *_maps(F, G, X, Y),
-        desc_closed(origin_x(F, G, X, Y), F, G, X, Y),
+        [F, G, X, Y], *_maps(F, G, X, Y), desc_closed(origin_x(F, G, X, Y), F, G, X, Y)
     )
 )
 def origin_x_closed(l):
@@ -192,13 +185,7 @@ def schroeder_bernstein(l):
     l.unfold(inj_on)
     x1, x2 = l.fixes()
     l.intros()
-    l.auto(
-        by=[
-            inj_on.defn(F0, X),
-            desc_closed.defn(D, F0, G0, X, Y),
-            le.defn,
-        ]
-    )
+    l.auto(by=[inj_on.defn(F0, X), desc_closed.defn(D, F0, G0, X, Y), le.defn])
     # Onto: if G y ∈ X_X it is G(F x1) for some x1 ∈ X_X, so y = F x1;
     # otherwise y = G⁻¹(G y).
     l.unfold(surj_on)

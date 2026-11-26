@@ -74,13 +74,7 @@ def elem_of_not_elem(l):
     l.intros()
     l.have(is_ordinal(d), by=[is_ordinal_of_elem(B, d)])
     # d ∈ α is excluded; d = α contains a; α ∈ d gives a ∈ d by transitivity.
-    l.auto(
-        by=[
-            ordinal_comparable(A, d),
-            ordinal_le_of_elem(d, A),
-            le.defn(A, d),
-        ]
-    )
+    l.auto(by=[ordinal_comparable(A, d), ordinal_le_of_elem(d, A), le.defn(A, d)])
 
 
 @Theorem(
@@ -102,10 +96,7 @@ def osub_spec(l):
     l.intros()
     Dif = B - A
     X = osum_set(A, Dif)
-    l.have(
-        ForAll(x, elem(x, Dif) == And(elem(x, B), Not(elem(x, A)))),
-        by=[elem_sub],
-    )
+    l.have(ForAll(x, elem(x, Dif) == And(elem(x, B), Not(elem(x, A)))), by=[elem_sub])
     l.have(
         is_well_order(nat_le_rel, Dif),
         by=[well_order_subset(nat_le_rel, B, Dif), ordinal_well_order(B), le.defn],
@@ -171,15 +162,7 @@ def osub_spec(l):
     l.auto(by=[similar.defn(oplus, X, nat_le_rel, B)])
 
 
-@Theorem(
-    ForAll(
-        [A, B],
-        is_ordinal(A),
-        is_ordinal(B),
-        A <= B,
-        oadd(A, osub(B, A)) == B,
-    )
-)
+@Theorem(ForAll([A, B], is_ordinal(A), is_ordinal(B), A <= B, oadd(A, osub(B, A)) == B))
 def oadd_osub_cancel_of_le(l):
     """Halmos: if α ≤ β then α + (β − α) = β."""
     A, B = l.fixes()
@@ -271,10 +254,7 @@ def oadd_elem_oadd(l):
     l.intros()
     AD = oadd(A, D)
     Y = osum_set(A, D)
-    l.have(
-        And(is_ordinal(AD), similar(nat_le_rel, AD, oplus, Y)),
-        by=[oadd_spec(A, D)],
-    )
+    l.have(And(is_ordinal(AD), similar(nat_le_rel, AD, oplus, Y)), by=[oadd_spec(A, D)])
     l.have(
         similar(oplus, Y, nat_le_rel, AD), by=[similar_symm(nat_le_rel, AD, oplus, Y)]
     )
@@ -346,9 +326,4 @@ def oadd_eq_iff_eq_osub(l):
     A, B, C = l.fixes()
     l.intros()
     l.have(is_ordinal(osub(B, A)), by=[osub_spec(A, B)])
-    l.auto(
-        by=[
-            oadd_osub_cancel_of_le(A, B),
-            oadd_left_cancel(A, C, osub(B, A)),
-        ]
-    )
+    l.auto(by=[oadd_osub_cancel_of_le(A, B), oadd_left_cancel(A, C, osub(B, A))])

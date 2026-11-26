@@ -25,14 +25,7 @@ from kdrag.smt import (
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import ZFSet, elem, le, pair, succ, zero
 from kdrag.contrib.zf.count import counting_theorem, ord_of, ord_of_eq
-from kdrag.contrib.zf.fun import (
-    bij_on,
-    inj_on,
-    maps_to,
-    pfst,
-    pfst_pair,
-    surj_on,
-)
+from kdrag.contrib.zf.fun import bij_on, inj_on, maps_to, pfst, pfst_pair, surj_on
 from kdrag.contrib.zf.nat import (
     elem_one,
     elem_succ,
@@ -502,9 +495,7 @@ def oadd_one(l):
     # Elements of α ⊕ 1 are (x, 0) with x ∈ α, and (0, 1).
     l.have(
         ForAll(
-            p,
-            elem(p, X),
-            Or(And(elem(pfst(p), A), p == pair(pfst(p), zero)), p == top),
+            p, elem(p, X), Or(And(elem(pfst(p), A), p == pair(pfst(p), zero)), p == top)
         ),
         by=[elem_osum_set, elem_one],
     )
@@ -567,10 +558,7 @@ def oadd_one(l):
 
 @Theorem(
     ForAll(
-        [x, y],
-        elem(x, omega),
-        elem(y, omega),
-        nat_le(x, y) == nat_le(succ(x), succ(y)),
+        [x, y], elem(x, omega), elem(y, omega), nat_le(x, y) == nat_le(succ(x), succ(y))
     )
 )
 def nat_le_succ_succ(l):
@@ -810,18 +798,9 @@ def similarity_osum_assoc(l):
         by=[elem_osum_set],
     )
     tags = [zf.pair_inj, zero_ne_one, pfst_pair]
-    l.have(
-        ForAll(x, elem(x, A), elem(inl(x), Y)),
-        by=[elem_osum_set] + tags,
-    )
-    l.have(
-        ForAll(x, elem(x, B), elem(inr(inl(x)), Y)),
-        by=[elem_osum_set] + tags,
-    )
-    l.have(
-        ForAll(x, elem(x, C), elem(inr(inr(x)), Y)),
-        by=[elem_osum_set] + tags,
-    )
+    l.have(ForAll(x, elem(x, A), elem(inl(x), Y)), by=[elem_osum_set] + tags)
+    l.have(ForAll(x, elem(x, B), elem(inr(inl(x)), Y)), by=[elem_osum_set] + tags)
+    l.have(ForAll(x, elem(x, C), elem(inr(inr(x)), Y)), by=[elem_osum_set] + tags)
     l.unfold(is_similarity)
     l.unfold(is_order_embedding)
     l.split()
@@ -977,10 +956,7 @@ def oadd_assoc(l):
     )
     l.have(
         similar(oplus, X4, nat_le_rel, oadd(A, BC)),
-        by=[
-            oadd_spec(A, BC),
-            similar_symm(nat_le_rel, oadd(A, BC), oplus, X4),
-        ],
+        by=[oadd_spec(A, BC), similar_symm(nat_le_rel, oadd(A, BC), oplus, X4)],
     )
     l.have(similar(oplus, X1, R3, X3), by=[similar_trans(oplus, X1, R2, X2, R3, X3)])
     l.have(

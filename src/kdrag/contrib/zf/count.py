@@ -70,9 +70,7 @@ f, g, h = Consts("f g h", ArraySort(ZFSet, ZFSet))
 
 # The ordinal similar to X, when there is one.
 ord_of = define(
-    "ord_of",
-    [R, X],
-    the(Lambda(a, And(is_ordinal(a), similar(R, X, nat_le_rel, a)))),
+    "ord_of", [R, X], the(Lambda(a, And(is_ordinal(a), similar(R, X, nat_le_rel, a))))
 )
 
 
@@ -108,12 +106,7 @@ def ordinal_similar_unique(l):
 
 
 @Theorem(
-    ForAll(
-        [R, X, A],
-        is_ordinal(A),
-        similar(R, X, nat_le_rel, A),
-        ord_of(R, X) == A,
-    )
+    ForAll([R, X, A], is_ordinal(A), similar(R, X, nat_le_rel, A), ord_of(R, X) == A)
 )
 def ord_of_eq(l):
     """If X is similar to the ordinal α, then ord_of(R, X) is α."""

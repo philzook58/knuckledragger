@@ -58,9 +58,7 @@ rec_closed = define(
 
 # Halmos' 𝒞: the closed subsets of ω × X. Its intersection is the recursive function.
 rec_family = define(
-    "rec_family",
-    [X, a, F],
-    sep(pow(prod(omega, X)), Lambda(A, rec_closed(A, a, F))),
+    "rec_family", [X, a, F], sep(pow(prod(omega, X)), Lambda(A, rec_closed(A, a, F)))
 )
 nat_rec = define("nat_rec", [X, a, F], sinter(rec_family(X, a, F)))
 
@@ -318,12 +316,7 @@ def nat_rec_is_func(l):
 
 nat_rec_zero = prove(
     ForAll([X, a, F], elem(a, X), maps_to(F, X, X), app(nat_rec(X, a, F), zero) == a),
-    by=[
-        app_eq_of_pair_elem,
-        nat_rec_is_func,
-        nat_rec_closed,
-        rec_closed.defn,
-    ],
+    by=[app_eq_of_pair_elem, nat_rec_is_func, nat_rec_closed, rec_closed.defn],
 )
 
 

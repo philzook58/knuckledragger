@@ -57,11 +57,7 @@ trec_closed = define(
     "trec_closed",
     [A, F, R, W, X],
     ForAll(
-        [a, t],
-        elem(a, W),
-        is_func(t, seg(R, W, a), X),
-        t <= A,
-        elem(pair(a, F[t]), A),
+        [a, t], elem(a, W), is_func(t, seg(R, W, a), X), t <= A, elem(pair(a, F[t]), A)
     ),
 )
 trec = define(
@@ -132,11 +128,7 @@ trec_le_prod = prove(
 
 
 @Theorem(
-    ForAll(
-        [F, R, W, X],
-        *_hyps(F, R, W, X),
-        trec_closed(trec(F, R, W, X), F, R, W, X),
-    )
+    ForAll([F, R, W, X], *_hyps(F, R, W, X), trec_closed(trec(F, R, W, X), F, R, W, X))
 )
 def trec_closed_trec(l):
     """U is f-closed: a function t ⊆ U lies inside every f-closed A."""
@@ -302,10 +294,7 @@ def trec_unique_value_step(l):
         elem(pair(b0, F[t0]), U),
         by=[trec_closed_trec(F, R, W, X), trec_closed.defn(U, F, R, W, X)],
     )
-    l.have(
-        Implies(b0 == a0, t0 == T),
-        by=[func_eq_of_le(t0, T, U, sa, X)],
-    )
+    l.have(Implies(b0 == a0, t0 == T), by=[func_eq_of_le(t0, T, U, sa, X)])
     l.auto(by=[elem_sub, zf.elem_sing, zf.pair_inj])
     l.auto(by=[not_elem_trec_of_sub_sing(F, R, W, X, p1)])
 

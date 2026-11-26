@@ -117,8 +117,7 @@ bij_on_inv = prove(
 
 equivalent_refl = prove(ForAll(A, equivalent(A, A)), by=[equivalent.defn, bij_on_id])
 equivalent_symm = prove(
-    ForAll([A, B], equivalent(A, B), equivalent(B, A)),
-    by=[equivalent.defn, bij_on_inv],
+    ForAll([A, B], equivalent(A, B), equivalent(B, A)), by=[equivalent.defn, bij_on_inv]
 )
 
 
@@ -279,12 +278,7 @@ image = define(
 )
 
 bij_on_image = prove(
-    ForAll(
-        [F, A, B],
-        maps_to(F, A, B),
-        inj_on(F, A),
-        bij_on(F, A, image(F, A, B)),
-    ),
+    ForAll([F, A, B], maps_to(F, A, B), inj_on(F, A), bij_on(F, A, image(F, A, B))),
     by=[image.defn, zf.elem_sep, bij_on.defn, maps_to.defn, surj_on.defn],
 )
 

@@ -139,8 +139,7 @@ def exists_first(l):
     gA = nxt(f, P, X, A0)
     l.have(elem(gA, T0), by=[is_tower.defn(T0, f, P, X)])
     l.cases(
-        ForAll(x, elem(x, E), Not(elem(x, gA))),
-        Exists(x, And(elem(x, E), elem(x, gA))),
+        ForAll(x, elem(x, E), Not(elem(x, gA))), Exists(x, And(elem(x, E), elem(x, gA)))
     )
     # Then g(A) ∈ M, so g(A) ⊆ A and A = X.
     l.have(elem(gA, M), by=[elem_missing(f, X, E, gA)])

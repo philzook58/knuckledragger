@@ -10,12 +10,7 @@ from kdrag.smt import Consts, ForAll, Lambda
 from kdrag.theories.zf.zf import ZFSet, elem, succ, zero
 from kdrag.contrib.zf.nat import induct_omega, omega, omega_succ, omega_zero
 from kdrag.contrib.zf.fun import app, app_elem, maps_to
-from kdrag.contrib.zf.rec import (
-    nat_rec,
-    nat_rec_is_func,
-    nat_rec_succ,
-    nat_rec_zero,
-)
+from kdrag.contrib.zf.rec import nat_rec, nat_rec_is_func, nat_rec_succ, nat_rec_zero
 
 k, m, n, p = Consts("k m n p", ZFSet)
 

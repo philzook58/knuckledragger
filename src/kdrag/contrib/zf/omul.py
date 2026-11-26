@@ -150,11 +150,7 @@ def oprod_partial_order(l):
     p0 = l.fix()
     l.intro()
     l.auto(
-        by=[
-            elem_prod_iff(A, B, p0),
-            rel(p0, p0),
-            partial_order_refl(R, A, pfst(p0)),
-        ]
+        by=[elem_prod_iff(A, B, p0), rel(p0, p0), partial_order_refl(R, A, pfst(p0))]
     )
     p1, q1 = l.fixes()
     l.intros()
@@ -225,10 +221,7 @@ def oprod_well_order(l):
     # The least second coordinate b0.
     Bs = snds(E0, B)
     l.have(Bs <= B, by=[le.defn, elem_snds])
-    l.have(
-        elem(psnd(e0), Bs),
-        by=[elem_snds(E0, B, psnd(e0)), elem_prod_iff(A, B, e0)],
-    )
+    l.have(elem(psnd(e0), Bs), by=[elem_snds(E0, B, psnd(e0)), elem_prod_iff(A, B, e0)])
     l.have(Bs != zf.emp, by=[zf.elem_emp(psnd(e0))])
     l.have(Exists(b, is_least(S, Bs, b)), by=[exists_least(S, B, Bs)])
     b0, _ = l.obtain(-1)
@@ -240,11 +233,7 @@ def oprod_well_order(l):
     l.have(As <= A, by=[le.defn, elem_fiber])
     l.have(
         elem(a1, As),
-        by=[
-            elem_fiber(E0, A, b0, a1),
-            le.defn(E0, X),
-            pair_elem_prod(a1, b0, A, B),
-        ],
+        by=[elem_fiber(E0, A, b0, a1), le.defn(E0, X), pair_elem_prod(a1, b0, A, B)],
     )
     l.have(As != zf.emp, by=[zf.elem_emp(a1)])
     l.have(Exists(a, is_least(R, As, a)), by=[exists_least(R, A, As)])
@@ -279,8 +268,7 @@ omul = define("omul", [A, B], ord_of(otimes, prod(A, B)))
         is_ordinal(A),
         is_ordinal(B),
         And(
-            is_ordinal(omul(A, B)),
-            similar(nat_le_rel, omul(A, B), otimes, prod(A, B)),
+            is_ordinal(omul(A, B)), similar(nat_le_rel, omul(A, B), otimes, prod(A, B))
         ),
     )
 )
@@ -682,14 +670,8 @@ def similarity_odist(l):
             And(
                 elem(pfst(p), A),
                 Or(
-                    And(
-                        elem(pfst(psnd(p)), B),
-                        p == pair(pfst(p), inl(pfst(psnd(p)))),
-                    ),
-                    And(
-                        elem(pfst(psnd(p)), C),
-                        p == pair(pfst(p), inr(pfst(psnd(p)))),
-                    ),
+                    And(elem(pfst(psnd(p)), B), p == pair(pfst(p), inl(pfst(psnd(p))))),
+                    And(elem(pfst(psnd(p)), C), p == pair(pfst(p), inr(pfst(psnd(p))))),
                 ),
             ),
         ),
@@ -785,8 +767,7 @@ oprod_assoc_map = define_const(
 
 @Theorem(
     ForAll(
-        [a, b, c],
-        Select(oprod_assoc_map, pair(pair(a, b), c)) == pair(a, pair(b, c)),
+        [a, b, c], Select(oprod_assoc_map, pair(pair(a, b), c)) == pair(a, pair(b, c))
     )
 )
 def oprod_assoc_map_apply(l):
@@ -828,11 +809,7 @@ def similarity_oprod_assoc(l):
     )
     l.have(
         ForAll(
-            [a, b, c],
-            elem(a, A),
-            elem(b, B),
-            elem(c, C),
-            elem(pair(a, pair(b, c)), Y),
+            [a, b, c], elem(a, A), elem(b, B), elem(c, C), elem(pair(a, pair(b, c)), Y)
         ),
         by=[pair_elem_prod],
     )
@@ -1195,10 +1172,7 @@ def similarity_seg_inr_zero(l):
     for h in hyps:
         l.clear(h)
     l.have(
-        Or(
-            And(elem(x0, omega), y0 == inl(x0)),
-            And(elem(x0, omega), y0 == inr(x0)),
-        ),
+        Or(And(elem(x0, omega), y0 == inl(x0)), And(elem(x0, omega), y0 == inr(x0))),
         by=[elem_osum_set(omega, omega, y0)],
     )
     l.have(y0 == inl(x0))

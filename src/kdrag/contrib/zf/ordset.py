@@ -103,13 +103,7 @@ def eq_of_similarity(l):
         by=[bij_on.defn(f, A, B), surj_on.defn(f, A, B)],
     )
     z0, _ = l.obtain(-1)
-    l.auto(
-        by=[
-            nat_le.defn,
-            elem_seg(A, a0, z0),
-            ordinal_not_elem_self(B, f[a0]),
-        ]
-    )
+    l.auto(by=[nat_le.defn, elem_seg(A, a0, z0), ordinal_not_elem_self(B, f[a0])])
     # η ∈ ξ: η < ξ, so f(η) = η ≤ f(ξ), and f(η) = f(ξ) would give η = ξ ∈ ξ.
     l.intro()
     l.have(elem(y0, A), by=[ordinal_le_of_elem(A, a0), le.defn])
@@ -194,16 +188,7 @@ def ordinal_total(l):
     l.auto(by=[nat_le.defn(x0, y0), nat_le.defn(y0, x0)])
 
 
-@Theorem(
-    ForAll(
-        [A, B],
-        is_ordinal(A),
-        is_transitive(B),
-        B <= A,
-        B != A,
-        elem(B, A),
-    )
-)
+@Theorem(ForAll([A, B], is_ordinal(A), is_transitive(B), B <= A, B != A, elem(B, A)))
 def elem_of_transitive_ssubset(l):
     """A transitive proper subset of an ordinal is one of its elements: the least
     element of α - β."""
@@ -348,12 +333,7 @@ def exists_least_of_ordinals(l):
 
 
 @Theorem(
-    ForAll(
-        A,
-        is_transitive(A),
-        ForAll(x, elem(x, A), is_ordinal(x)),
-        is_ordinal(A),
-    )
+    ForAll(A, is_transitive(A), ForAll(x, elem(x, A), is_ordinal(x)), is_ordinal(A))
 )
 def is_ordinal_of_transitive(l):
     """A transitive set of ordinal numbers is an ordinal number."""
@@ -429,12 +409,7 @@ bigunion_le = prove(
 
 
 @Theorem(
-    ForAll(
-        [A, B],
-        is_ordinal(A),
-        is_ordinal(B),
-        elem(B, A) == And(B <= A, B != A),
-    )
+    ForAll([A, B], is_ordinal(A), is_ordinal(B), elem(B, A) == And(B <= A, B != A))
 )
 def ordinal_elem_iff_ssubset(l):
     """Halmos: for distinct ordinals, β ∈ α iff β ⊆ α."""
@@ -445,13 +420,7 @@ def ordinal_elem_iff_ssubset(l):
     l.auto(by=[ordinal_le_of_elem(A, B), ordinal_not_elem_self(A, B)])
     # Otherwise α ∈ β or α = β by comparability; α ∈ β ⊆ α would put α in α.
     l.intro()
-    l.auto(
-        by=[
-            ordinal_comparable(A, B),
-            le.defn(B, A),
-            ordinal_not_elem_self(B, A),
-        ]
-    )
+    l.auto(by=[ordinal_comparable(A, B), le.defn(B, A), ordinal_not_elem_self(B, A)])
 
 
 # The ordinals in a set, named so that later steps never see the predicate given

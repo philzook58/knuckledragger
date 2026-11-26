@@ -33,9 +33,7 @@ succ_ne_zero = prove(
 # ω, the smallest successor set
 
 is_inductive = define(
-    "is_inductive",
-    [A],
-    And(elem(zero, A), ForAll(x, elem(x, A), elem(succ(x), A))),
+    "is_inductive", [A], And(elem(zero, A), ForAll(x, elem(x, A), elem(succ(x), A)))
 )
 
 infinity_ax = axiom(Exists(A, is_inductive(A)))
@@ -94,10 +92,7 @@ def omega_induction(l):
     # Check the three hypotheses of `eq_omega_of_inductive` for S.
     l.have(S <= omega, by=[le.defn(S, omega), zf.elem_sep])
     l.have(elem(zero, S), by=[zf.elem_sep(P, omega, zero), omega_zero])
-    l.have(
-        ForAll(n, elem(n, S), elem(succ(n), S)),
-        by=[zf.elem_sep, omega_succ],
-    )
+    l.have(ForAll(n, elem(n, S), elem(succ(n), S)), by=[zf.elem_sep, omega_succ])
     l.have(S == omega, by=[eq_omega_of_inductive(S)])
     k = l.fix()
     l.auto(by=[zf.elem_sep(P, omega, k)])
@@ -108,11 +103,7 @@ omega_induction_at = prove(
     ForAll(
         [P, x],
         Implies(
-            And(
-                P[zero],
-                ForAll(n, elem(n, omega), P[n], P[succ(n)]),
-                elem(x, omega),
-            ),
+            And(P[zero], ForAll(n, elem(n, omega), P[n], P[succ(n)]), elem(x, omega)),
             P[x],
         ),
     ),
@@ -179,8 +170,7 @@ nat_not_elem_self = prove(
     ForAll(n, elem(n, omega), Not(elem(n, n))), by=[nat_not_le_of_elem, le.defn]
 )
 succ_ne_self = prove(
-    ForAll(n, elem(n, omega), succ(n) != n),
-    by=[nat_not_elem_self, elem_succ_self],
+    ForAll(n, elem(n, omega), succ(n) != n), by=[nat_not_elem_self, elem_succ_self]
 )
 
 

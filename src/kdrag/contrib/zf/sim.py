@@ -158,10 +158,7 @@ def le_of_similarities(l):
     gi = inv(g, X)
     k = Lambda(x, gi[h[x]])
     l.have(bij_on(g, X, Y), by=[is_similarity.defn(g, R, X, S, Y)])
-    l.have(
-        ForAll(y, elem(y, Y), And(elem(gi[y], X), g[gi[y]] == y)),
-        by=[inv_elem],
-    )
+    l.have(ForAll(y, elem(y, Y), And(elem(gi[y], X), g[gi[y]] == y)), by=[inv_elem])
     l.have(
         maps_to(h, X, Y),
         by=[is_similarity.defn(h, R, X, S, Y), is_order_embedding.defn],

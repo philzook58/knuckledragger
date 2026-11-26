@@ -6,15 +6,7 @@ as `⋃{y | (x, y) ∈ f}` (Isabelle/ZF's `apply`); off the domain it is junk.
 """
 
 from kdrag import Theorem, define, prove
-from kdrag.smt import (
-    And,
-    ArraySort,
-    Consts,
-    Exists,
-    ForAll,
-    Lambda,
-    Not,
-)
+from kdrag.smt import And, ArraySort, Consts, Exists, ForAll, Lambda, Not
 import kdrag.theories.zf.zf as zf
 from kdrag.theories.zf.zf import (
     ZFSet,
@@ -64,10 +56,7 @@ def pair_elem_prod(l):
     l.intro()
     l.have(sing(x) <= A | B, by=[le.defn, zf.elem_sing, zf.elem_union])
     l.have(upair(x, y) <= A | B, by=[le.defn, zf.elem_upair, zf.elem_union])
-    l.have(
-        elem(pair(x, y), pow(pow(A | B))),
-        by=[zf.elem_pow, le.defn, zf.elem_pair],
-    )
+    l.have(elem(pair(x, y), pow(pow(A | B))), by=[zf.elem_pow, le.defn, zf.elem_pair])
     l.auto()
 
 
@@ -79,11 +68,7 @@ sinter = define(
 
 
 @Theorem(
-    ForAll(
-        [A, x],
-        A != zf.emp,
-        elem(x, sinter(A)) == ForAll(B, elem(B, A), elem(x, B)),
-    )
+    ForAll([A, x], A != zf.emp, elem(x, sinter(A)) == ForAll(B, elem(B, A), elem(x, B)))
 )
 def elem_sinter(l):
     A, x = l.fixes()
@@ -160,9 +145,7 @@ inj_on = define(
     "inj_on", [F, A], ForAll([x, y], elem(x, A), elem(y, A), F[x] == F[y], x == y)
 )
 surj_on = define(
-    "surj_on",
-    [F, A, B],
-    ForAll(y, elem(y, B), Exists(x, And(elem(x, A), F[x] == y))),
+    "surj_on", [F, A, B], ForAll(y, elem(y, B), Exists(x, And(elem(x, A), F[x] == y)))
 )
 bij_on = define(
     "bij_on", [F, A, B], And(maps_to(F, A, B), inj_on(F, A), surj_on(F, A, B))

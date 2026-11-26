@@ -41,11 +41,7 @@ from kdrag.contrib.zf.finite import (
     image,
     inv,
 )
-from kdrag.contrib.zf.ordinal import (
-    is_ordinal,
-    omega_is_ordinal,
-    well_order_subset,
-)
+from kdrag.contrib.zf.ordinal import is_ordinal, omega_is_ordinal, well_order_subset
 from kdrag.contrib.zf.ordset import ordinal_comparable, ordinal_le_of_elem
 from kdrag.contrib.zf.poset import is_well_order, nat_le_rel, omega_well_order
 from kdrag.contrib.zf.sim import is_similarity, similar
@@ -69,11 +65,7 @@ from kdrag.contrib.zf.nat import (
     one,
     zero_ne_one,
 )
-from kdrag.contrib.zf.order import (
-    bit,
-    bit_elem_omega,
-    bit_inj,
-)
+from kdrag.contrib.zf.order import bit, bit_elem_omega, bit_inj
 from kdrag.contrib.zf.rec import nat_rec, nat_rec_succ, nat_rec_zero
 
 A, B, C, X, Y, Z, a, k, m, m1, n, n1, p, q = Consts(
@@ -102,10 +94,7 @@ code_zero = prove(
 )
 code_succ = prove(
     ForAll(
-        [m, n],
-        elem(m, omega),
-        elem(n, omega),
-        code(succ(m), n) == bit(one, code(m, n)),
+        [m, n], elem(m, omega), elem(n, omega), code(succ(m), n) == bit(one, code(m, n))
     ),
     by=[code.defn, nat_rec_succ, maps_to_odd, bit_elem_omega],
 )

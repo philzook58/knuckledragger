@@ -48,9 +48,7 @@ is_least = define(
 )
 # a is minimal in E: no element of E is strictly below a.
 is_minimal = define(
-    "is_minimal",
-    [R, E, a],
-    And(elem(a, E), ForAll(x, elem(x, E), R[x, a], x == a)),
+    "is_minimal", [R, E, a], And(elem(a, E), ForAll(x, elem(x, E), R[x, a], x == a))
 )
 
 # Halmos §17: a well ordering is a partial order in which every nonempty subset
@@ -66,8 +64,7 @@ is_well_order = define(
 
 # The order laws one at a time, for instantiating in proofs.
 partial_order_of_well_order = prove(
-    ForAll([R, X], is_well_order(R, X), is_partial_order(R, X)),
-    by=[is_well_order.defn],
+    ForAll([R, X], is_well_order(R, X), is_partial_order(R, X)), by=[is_well_order.defn]
 )
 partial_order_refl = prove(
     ForAll([R, X, x], is_partial_order(R, X), elem(x, X), R[x, x]),

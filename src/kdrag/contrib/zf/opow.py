@@ -64,10 +64,7 @@ vals = define("vals", [t, d], repl(Lambda(y, app(t, y)), d))
 
 
 @Theorem(
-    ForAll(
-        [t, d, x],
-        elem(x, vals(t, d)) == Exists(y, And(elem(y, d), app(t, y) == x)),
-    )
+    ForAll([t, d, x], elem(x, vals(t, d)) == Exists(y, And(elem(y, d), app(t, y) == x)))
 )
 def elem_vals(l):
     t, d, x0 = l.fixes()
@@ -81,11 +78,7 @@ opow_step = define(
     If(
         d == zero,
         one,
-        If(
-            d == succ(bigunion(d)),
-            omul(app(t, bigunion(d)), A),
-            bigunion(vals(t, d)),
-        ),
+        If(d == succ(bigunion(d)), omul(app(t, bigunion(d)), A), bigunion(vals(t, d))),
     ),
 )
 G = Consts("G", ArraySort(ZFSet, ZFSet, ZFSet))[0]

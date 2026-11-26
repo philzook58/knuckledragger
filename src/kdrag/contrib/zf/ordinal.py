@@ -78,8 +78,7 @@ is_ordinal = define(
     "is_ordinal",
     [A],
     And(
-        is_well_order(nat_le_rel, A),
-        ForAll(x, elem(x, A), seg(nat_le_rel, A, x) == x),
+        is_well_order(nat_le_rel, A), ForAll(x, elem(x, A), seg(nat_le_rel, A, x) == x)
     ),
 )
 
@@ -176,34 +175,20 @@ def is_ordinal_of_elem(l):
     l.have(elem(z0, A), by=[is_transitive.defn(A), le.defn(y0, A)])
     l.have(is_partial_order(nat_le_rel, A), by=[partial_order_of_well_order])
     l.have(
-        nat_le(z0, a),
-        by=[partial_order_trans(nat_le_rel, A, z0, y0, a), nat_le.defn],
+        nat_le(z0, a), by=[partial_order_trans(nat_le_rel, A, z0, y0, a), nat_le.defn]
     )
-    l.auto(
-        by=[
-            nat_le.defn,
-            partial_order_antisymm(nat_le_rel, A, a, y0),
-        ]
-    )
+    l.auto(by=[nat_le.defn, partial_order_antisymm(nat_le_rel, A, a, y0)])
     l.auto(by=[le.defn])
 
 
 nat_is_ordinal = prove(
-    ForAll(a, elem(a, omega), is_ordinal(a)),
-    by=[is_ordinal_of_elem, omega_is_ordinal],
+    ForAll(a, elem(a, omega), is_ordinal(a)), by=[is_ordinal_of_elem, omega_is_ordinal]
 )
 
 
 # Stated on its own: inside `is_ordinal_succ` the unused hypothesis
 # is_well_order(λ, α) made this step seed-dependent (see the issue tracker).
-@Theorem(
-    ForAll(
-        [E, A],
-        E <= succ(A),
-        E & A == zf.emp,
-        ForAll(x, elem(x, E), x == A),
-    )
-)
+@Theorem(ForAll([E, A], E <= succ(A), E & A == zf.emp, ForAll(x, elem(x, E), x == A)))
 def eq_of_le_succ_of_inter_emp(l):
     E, A = l.fixes()
     l.intros()
