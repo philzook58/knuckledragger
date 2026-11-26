@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `kd.Fun(thm, lambda x, y, goal: ...)`, a term-style ∀-introduction like Lean's `fun`: each parameter but the last opens one binder, the last receives the remaining goal, and the lambda returns its proof. It replaces the unexported `tactics.forallI`.
+- Add term-style methods on statements: `thm.by(l1, l2)` for `prove(thm, by=[l1, l2])`, `thm.exact(pf)` for `exact(thm, pf)`, and `thm.fun(cb)` for `Fun(thm, cb)`, also usable as a decorator.
 - Add `contrib.analysis` proofs of real function limit uniqueness and derivative rules for constants, identity, addition, scalar multiplication, continuity, and composition.
 - Add `contrib.analysis.rseq.lim_lemma` to compose sequence-limit rules, including arithmetic expressions in an index and the known limit of `1/n`.
 - Add `kdrag.contrib.analysis.integral`: the gauge (Henstock-Kurzweil) integral, Cousin's lemma, uniqueness of integrals, and the fundamental theorem of calculus in `kdrag.contrib.analysis.ftc`.

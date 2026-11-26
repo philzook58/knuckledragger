@@ -405,6 +405,27 @@ def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
     raise ValueError("Exact theorem mismatch. Expected:", thm, "Given:", pf.thm)
 
 
+
+def _by(thm: smt.BoolRef, *by: kd.kernel.Proof, **kwargs) -> kd.kernel.Proof:
+    """
+    Term-style proofs as methods on statements: `thm.by(l1, l2)` is
+    `prove(thm, by=[l1, l2])`, `thm.exact(pf)` is `exact(thm, pf)`, and
+    `thm.fun(cb)` is `Fun(thm, cb)`.
+
+    >>> x, y = smt.Ints("x y")
+    >>> add_comm = smt.ForAll([x, y], x + y == y + x).by()
+    >>> (smt.IntVal(3) + y == y + 3).exact(add_comm)
+    |= 3 + y == y + 3
+    >>> smt.ForAll([x], x + 1 > x).fun(lambda x, goal: goal.by(add_comm(x, 1)))
+    |= ForAll(x, x + 1 > x)
+    """
+    return prove(thm, by=list(by), **kwargs)
+
+
+smt.BoolRef.by = _by  # type: ignore[ty:missing-attribute]
+smt.BoolRef.exact = exact  # type: ignore[ty:missing-attribute]
+smt.QuantifierRef.fun = Fun  # type: ignore[ty:missing-attribute]
+
 def vprove(thm: smt.BoolRef, **kwargs) -> kd.kernel.Proof:
     """
     Prove a theorem using an egraph-based solver.

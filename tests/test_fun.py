@@ -53,3 +53,28 @@ def test_fun_rejects_star_args_and_defaults():
 def test_fun_rejects_a_proof_of_the_wrong_goal():
     with pytest.raises(ValueError, match="proof of its goal"):
         Fun(ForAll([x], x == x), lambda a, goal: prove(a + 0 == a))
+
+
+def test_by_method_takes_lemmas_variadically():
+    sq = kd.define("test_by_sq", [x], x * x)
+    sq_nonneg = ForAll([x], sq(x) >= 0).by(sq.defn)
+    pf = (sq(x) + sq(y) >= 0).by(sq_nonneg(x), sq_nonneg(y))
+    assert pf.thm.eq(sq(x) + sq(y) >= 0)
+
+
+def test_exact_method_infers_the_instance():
+    add_comm = ForAll([x, y], x + y == y + x).by()
+    assert (3 + y == y + 3).exact(add_comm).thm.eq(3 + y == y + 3)
+
+
+def test_fun_method_and_decorator():
+    add_comm = ForAll([x, y], x + y == y + x).by()
+    thm = ForAll([x], x + 1 == 1 + x)
+    assert thm.fun(lambda a, goal: goal.by(add_comm(a, 1))).thm.eq(thm)
+
+    @thm.fun
+    def succ_comm(a, goal):
+        h = add_comm(a, 1)
+        return goal.by(h)
+
+    assert succ_comm.thm.eq(thm)
