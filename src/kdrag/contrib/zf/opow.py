@@ -249,8 +249,7 @@ def one_opow(l):
     l.rw(zf.ext_ax)
     x0 = l.fix()
     l.have(
-        elem(x0, opow(one, a0))
-        == Exists(y, And(elem(y, a0), elem(x0, opow(one, y)))),
+        elem(x0, opow(one, a0)) == Exists(y, And(elem(y, a0), elem(x0, opow(one, y)))),
         by=[elem_opow_limit(one, a0, x0)],
     )
     l.have(Exists(y, elem(y, a0)), by=[zf.not_emp_exists_elem(a0), zero.defn])
