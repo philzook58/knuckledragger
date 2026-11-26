@@ -60,6 +60,8 @@ Operators naturally overload: `+`, `-`, `*`, `/`, `==`, `!=`, `<`, `>`, `<=`, `>
 - Use `by=[...]` to provide lemmas as assumptions
 - Throws `kd.kernel.LemmaError` if unprovable
 
+`kd.Fun(ForAll([x, y], ...), lambda x, y, goal: prove(goal, by=[lemma(x, y)]))` proves a ∀ from a proof of its body at fresh variables, so lemmas can be instantiated at exact terms without a proof state.
+
 ### Proof State Tactics (Preferred: `@Theorem` decorator)
 
 **Modern style** (preferred):
