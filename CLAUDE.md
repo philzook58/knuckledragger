@@ -60,6 +60,8 @@ Operators naturally overload: `+`, `-`, `*`, `/`, `==`, `!=`, `<`, `>`, `<=`, `>
 - Use `by=[...]` to provide lemmas as assumptions
 - Throws `kd.kernel.LemmaError` if unprovable
 
+Statements also have term-style methods, like Lean's `def name : thm := ...`: `thm.by(l1, l2)` is `prove(thm, by=[l1, l2])`, `thm.exact(pf)` checks `pf` against `thm` without a solver, and `ForAll([x, y], ...).fun(lambda x, y, goal: goal.by(lemma(x, y)))` (`kd.Fun`) proves a ∀ from its body at fresh variables, so lemmas can be instantiated at exact terms without a proof state. `@thm.fun` on a `def name(x, y, goal):` returning a proof names the result `name`.
+
 ### Proof State Tactics (Preferred: `@Theorem` decorator)
 
 **Modern style** (preferred):

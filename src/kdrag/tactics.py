@@ -14,6 +14,7 @@ import pprint
 from functools import cache, partial
 import traceback
 import linecache
+import inspect
 import time
 from dataclasses import dataclass
 import kdrag.parsers.microlean as microlean
@@ -69,22 +70,42 @@ def open_binder(pf: kd.kernel.Proof) -> tuple[list[smt.ExprRef], kd.kernel.Proof
     return vs, pf(*vs)
 
 
-def forallI(
-    e: smt.QuantifierRef, cb: Callable[[smt.BoolRef, smt.ExprRef], kd.kernel.Proof]
-) -> kd.kernel.Proof:
+def Fun(thm: smt.BoolRef, cb: Callable[..., kd.kernel.Proof]) -> kd.kernel.Proof:
     """
-    Open a forall quantifier but giving a new goal and fresh variables to a callback function.
+    Prove `∀xs. P(xs)` from `cb(*xs, goal)`, like Lean's `fun xs => ...`.
 
-    >>> x = smt.Int("x")
-    >>> forallI(smt.ForAll([x], x > x - 1), lambda goal, x1: kd.prove(goal))
-    |= ForAll(x, x > x - 1)
+    Each parameter of `cb` but the last opens one ∀ binder, named by the
+    parameter. The last receives the remaining goal, hypotheses included, and
+    `cb` returns its proof.
+
+    >>> x, y = smt.Ints("x y")
+    >>> Fun(smt.ForAll([x, y], y > 0, x + y > x), lambda x, y, goal: kd.prove(goal))
+    |= ForAll([x, y], Implies(y > 0, x + y > x))
     """
-    assert (
-        isinstance(e, smt.QuantifierRef) and e.is_forall()
-    ), "forallI only works on forall quantifiers"
-    vs, ab = kd.kernel.herb(e)
-    a = cb(ab.thm.arg(0), *vs)
-    return kd.kernel.modus(ab, a)
+    params = list(inspect.signature(cb).parameters.values())
+    if not params or any(
+        p.kind != p.POSITIONAL_OR_KEYWORD or p.default is not p.empty for p in params
+    ):
+        raise ValueError("Fun needs plain positional parameters ending in the goal")
+    vs: list[smt.ExprRef] = []
+
+    def go(goal: smt.BoolRef, names: list[str]) -> kd.kernel.Proof:
+        if not names:
+            pf = cb(*vs, goal)
+            if not (isinstance(pf, kd.kernel.Proof) and pf.thm.eq(goal)):
+                raise ValueError("Fun body must return a proof of its goal", goal, pf)
+            return pf
+        if not (isinstance(goal, smt.QuantifierRef) and goal.is_forall()):
+            raise ValueError(f"No ∀ left to bind {names}", goal)
+        k = goal.num_vars()
+        if k > len(names):
+            raise ValueError(f"Need {k} names for the binders of {goal}, got {names}")
+        # xs fresh, and |= P(xs) → ∀x. P(x)
+        xs, ab = kd.kernel.herb(goal, " ".join(names[:k]))
+        vs.extend(xs)
+        return kd.kernel.modus(ab, go(ab.thm.arg(0), names[k:]))
+
+    return go(thm, [p.name for p in params[:-1]])
 
 
 def skolem(pf: kd.kernel.Proof) -> tuple[list[smt.ExprRef], kd.kernel.Proof]:
@@ -383,6 +404,27 @@ def exact(thm: smt.BoolRef, pf: kd.kernel.Proof) -> kd.kernel.Proof:
                 return result
     raise ValueError("Exact theorem mismatch. Expected:", thm, "Given:", pf.thm)
 
+
+
+def _by(thm: smt.BoolRef, *by: kd.kernel.Proof, **kwargs) -> kd.kernel.Proof:
+    """
+    Term-style proofs as methods on statements: `thm.by(l1, l2)` is
+    `prove(thm, by=[l1, l2])`, `thm.exact(pf)` is `exact(thm, pf)`, and
+    `thm.fun(cb)` is `Fun(thm, cb)`.
+
+    >>> x, y = smt.Ints("x y")
+    >>> add_comm = smt.ForAll([x, y], x + y == y + x).by()
+    >>> (smt.IntVal(3) + y == y + 3).exact(add_comm)
+    |= 3 + y == y + 3
+    >>> smt.ForAll([x], x + 1 > x).fun(lambda x, goal: goal.by(add_comm(x, 1)))
+    |= ForAll(x, x + 1 > x)
+    """
+    return prove(thm, by=list(by), **kwargs)
+
+
+smt.BoolRef.by = _by  # type: ignore[ty:missing-attribute]
+smt.BoolRef.exact = exact  # type: ignore[ty:missing-attribute]
+smt.QuantifierRef.fun = Fun  # type: ignore[ty:missing-attribute]
 
 def vprove(thm: smt.BoolRef, **kwargs) -> kd.kernel.Proof:
     """

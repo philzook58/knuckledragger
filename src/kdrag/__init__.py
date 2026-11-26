@@ -88,6 +88,7 @@ Calc = tactics.Calc
 
 Lemma = tactics.Lemma
 Theorem = tactics.Theorem
+Fun = tactics.Fun
 PTheorem = tactics.PTheorem
 
 simp = rewrite.simp
@@ -618,6 +619,7 @@ __all__ = [
     "Calc",
     "Lemma",
     "Theorem",
+    "Fun",
     "PTheorem",
     "R",
     "Z",
