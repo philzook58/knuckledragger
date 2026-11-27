@@ -1,9 +1,18 @@
 """Exploratory real analysis awaiting manual review and promotion to theories.
 
-Modules: `cont` for limits and continuity, `deriv` for differentiation,
-`rseq` for sequence limits, `finsum` for finite sums, `integral` for the gauge
-integral, and `ftc` for the fundamental theorem. `_choice` supplies pointwise
-choice for gauges. Dependencies flow from these foundations towards `ftc`.
+Sequence limits, subsequences, and completeness live in `rseq`,
+`subsequence`, and `cauchy`. Finite sums and series live in `finsum` and
+`series`, with applications in `contraction` and `sine`.
+Uniform convergence of function sequences lives in `funseq`.
+
+Pointwise limits and continuity live in `cont`. Properties of real sets
+live in `topology`, `compact`, and `connected`. The connectedness proof of
+the intermediate value theorem lives in `connected`; the bisection proof
+lives in `ivt`.
+
+Derivative rules live in `deriv`, with interval theorems in `darboux` and
+`mvt` and quotient limits in `lhopital`. The gauge integral lives in
+`integral`, and `ftc` connects it to differentiation.
 
 Load the reviewed sequence and continuity foundations before exploratory proofs
 so their proof imports do not depend on the first exploratory module requested.

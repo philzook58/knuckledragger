@@ -59,6 +59,8 @@ def lhopital_zero_of_has_deriv_at(l):
     l.have(qf[z] == f[z] / (z - p), by=[])
     l.have(qg[z] == g[z] / (z - p), by=[])
     l.have(qf[z] / qg[z] == f[z] / g[z], by=[])
+    # Match the pointwise quotient in the last equality.
+    l.beta()
     l.auto()
 
 

@@ -1,7 +1,8 @@
 """Convergence and sums of real series."""
 
 from kdrag import Theorem
-from kdrag.contrib.analysis.finsum import finsum_geom
+from kdrag.contrib.analysis.cauchy import is_cauchy_iff_exists_has_lim
+from kdrag.contrib.analysis.finsum import abs_cumsum_sub_le, finsum_diff, finsum_geom
 from kdrag.contrib.analysis.rseq import (
     abs_sub_le_of_has_lim,
     has_lim_congr_nonneg,
@@ -10,10 +11,12 @@ from kdrag.contrib.analysis.rseq import (
 from kdrag.smt import (
     And,
     Consts,
+    Eq,
     Exists,
     ForAll,
     If,
     Int,
+    IntVal,
     Lambda,
     Real,
     RealVal,
@@ -25,24 +28,22 @@ from kdrag.theories.real import RSeq, rset
 from kdrag.theories.real.rseq import (
     abs as seq_abs,
     abs_ext,
-    add,
     cumsum,
-    cumsum_add,
-    cumsum_mono,
     cumsum_succ,
+    diff,
     eventually,
+    eventually_near,
     exists_has_lim_of_monotone_of_bdd_above,
     finsum,
     geom,
     has_lim,
-    eventually_near,
-    near,
-    has_lim_sub,
     has_sum,
+    is_cauchy,
     is_monotone,
     is_summable,
+    i,
+    near,
     range_nonneg,
-    sub,
 )
 
 r = Real("r")
@@ -140,6 +141,188 @@ m, start = Int("m"), Int("start")
 M, S = Real("M"), Real("S")
 
 
+eps = Real("eps")
+
+
+def _cauchy_tails(a):
+    return ForAll(
+        eps,
+        eps > 0,
+        Exists(
+            start,
+            start >= 0,
+            ForAll(
+                [m, n],
+                start <= m,
+                m <= n,
+                real.abs(cumsum(a)[n] - cumsum(a)[m]) < eps,
+            ),
+        ),
+    )
+
+
+@Theorem(ForAll(a, Eq(is_cauchy(cumsum(a)), _cauchy_tails(a))))
+def _is_cauchy_cumsum_iff_tails(l):
+    a = l.fix()
+    partial = cumsum(a)
+    l.unfold(is_cauchy)
+    l.split()
+
+    # Move the strict Cauchy cutoff to a nonnegative inclusive cutoff.
+    cauchy = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    N, close = l.obtain(l.specialize(cauchy, eps, positive))
+    l.exists(If(N < 0, IntVal(0), N + 1))
+    l.split()
+    l.auto()
+    m, n = l.fixes()
+    l.intros()
+    l.specialize(close, n, m)
+    l.auto()
+
+    # The unordered Cauchy condition follows by swapping the two endpoints.
+    tails = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    N, bound = l.obtain(l.specialize(tails, eps, positive))
+    _, small = l.andE(bound)
+    l.exists(N)
+    m, n = l.fixes()
+    l.intros()
+    l.cases(n <= m, m < n)
+    l.specialize(small, n, m)
+    l.auto()
+    l.specialize(small, m, n)
+    l.auto(by=[real.abs_neg(partial[n] - partial[m])])
+
+
+@Theorem(ForAll(a, Eq(is_summable(a), is_cauchy(cumsum(a)))))
+def is_summable_iff_is_cauchy_cumsum(l):
+    """A real series converges iff its partial sums form a Cauchy sequence."""
+    a = l.fix()
+    partial = cumsum(a)
+    l.split()
+    l.unfold(is_summable)
+    value, _ = l.obtain(l.intro())
+    l.have(has_lim(partial, value), by=[has_sum.defn(a, value)])
+    l.have(Exists(S, has_lim(partial, S)))
+    l.exists(value)
+    l.auto()
+    l.auto(by=[is_cauchy_iff_exists_has_lim(partial)])
+
+    l.intro()
+    converges = l.have(
+        Exists(S, has_lim(partial, S)), by=[is_cauchy_iff_exists_has_lim(partial)]
+    )
+    value, _ = l.obtain(converges)
+    l.unfold(is_summable)
+    l.exists(value)
+    l.auto(by=[has_sum.defn(a, value)])
+
+
+@Theorem(ForAll(a, is_cauchy(cumsum(diff(a))), is_cauchy(a)))
+def _is_cauchy_of_is_cauchy_cumsum_diff(l):
+    a = l.fix()
+    d = diff(a)
+    l.unfold(is_cauchy)
+    tails = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    N, close = l.obtain(l.specialize(tails, eps, positive))
+    l.exists(N)
+    j, k = l.fixes()
+    l.intros()
+    l.specialize(close, j, k)
+    # Telescoping cancels the common initial value a[0].
+    l.auto(
+        by=[finsum.defn(d, j), finsum_diff(a, j), finsum.defn(d, k), finsum_diff(a, k)]
+    )
+
+
+@Theorem(ForAll(a, is_summable(diff(a)), is_cauchy(a)))
+def is_cauchy_of_is_summable_diff(l):
+    """Summable successive differences make the sequence Cauchy."""
+    a = l.fix()
+    l.intro()
+    l.auto(
+        by=[
+            is_summable_iff_is_cauchy_cumsum(diff(a)),
+            _is_cauchy_of_is_cauchy_cumsum_diff(a),
+        ]
+    )
+
+
+@Theorem(ForAll(a, Eq(is_summable(a), _cauchy_tails(a))))
+def is_summable_iff_cauchy_tails(l):
+    """A real series converges iff every sufficiently late finite tail is small."""
+    a = l.fix()
+    l.auto(by=[is_summable_iff_is_cauchy_cumsum(a), _is_cauchy_cumsum_iff_tails(a)])
+
+
+@Theorem(
+    ForAll(
+        [a, b, start],
+        ForAll(n, n >= start, real.abs(a[n]) <= b[n]),
+        is_summable(b),
+        is_summable(a),
+    )
+)
+def is_summable_of_eventually_abs_le(l):
+    """A summable upper bound on the magnitudes controls every late tail."""
+    a, b, start = l.fixes()
+    dominates, _ = l.intros()
+    tails = l.have(_cauchy_tails(b), by=[is_summable_iff_cauchy_tails(b)])
+    l.rw(is_summable_iff_cauchy_tails(a))
+    eps = l.fix()
+    positive = l.intro()
+    N, bound = l.obtain(l.specialize(tails, eps, positive))
+    _, small = l.andE(bound)
+    l.exists(If(N < start, start, N))
+    l.split()
+    l.auto()
+    m, n = l.fixes()
+    l.intros()
+    within = l.have(ForAll(i, m <= i, i < m + (n - m), real.abs(a[i]) <= b[i]))
+    j = l.fix()
+    l.intros()
+    l.specialize(dominates, j)
+    l.auto()
+    l.specialize(small, m, n)
+    length_nonneg = l.have(n - m >= 0, by=[])
+    l.specialize(abs_cumsum_sub_le, a, b, m, n - m, length_nonneg, within)
+    l.auto(by=[real.abs.defn(cumsum(b)[n] - cumsum(b)[m])])
+
+
+@Theorem(
+    ForAll(
+        [a, b, start],
+        ForAll(n, n >= start, And(a[n] >= 0, a[n] <= b[n])),
+        is_summable(b),
+        is_summable(a),
+    )
+)
+def is_summable_of_nonneg_of_le(l):
+    """The comparison test for eventually nonnegative series."""
+    a, b, start = l.fixes()
+    compare, _ = l.intros()
+    l.have(ForAll(n, n >= start, real.abs(a[n]) <= b[n]))
+    j = l.fix()
+    l.intro()
+    l.specialize(compare, j)
+    l.auto(by=[real.abs_if_pos(a[j])])
+    l.auto(by=[is_summable_of_eventually_abs_le(a, b, start)])
+
+
+@Theorem(ForAll(a, is_summable(seq_abs(a)), is_summable(a)))
+def is_summable_of_abs(l):
+    """Absolute convergence implies convergence."""
+    a = l.fix()
+    l.intro()
+    l.have(ForAll(n, n >= 0, real.abs(a[n]) <= seq_abs(a)[n]), by=[abs_ext])
+    l.auto(by=[is_summable_of_eventually_abs_le(a, seq_abs(a), 0)])
+
+
 @Theorem(
     ForAll(
         [a, m, n],
@@ -202,45 +385,13 @@ def exists_has_sum_of_abs_prefix_bound(l):
     a, M = l.fixes()
     l.intro()
     magnitude = seq_abs(a)
-    positive = a + magnitude
-    h = l.have(
-        Exists(S, has_sum(magnitude, S)),
-        by=[exists_has_sum_of_nonneg_of_bounded(magnitude, M), abs_ext, real.abs_pos],
-    )
-    mag_sum, _ = l.obtain(h)
-    l.have(ForAll(n, positive[n] >= 0))
-    j = l.fix()
-    l.auto(by=[add.defn(a, magnitude), abs_ext(a, j), real.abs.defn(a[j])])
-    l.have(ForAll(n, n >= 0, cumsum(positive)[n] <= 2 * M))
-    j = l.fix()
-    l.intro()
-    l.have(
-        cumsum(a)[j] <= cumsum(magnitude)[j],
-        by=[cumsum_mono(a, magnitude, j), abs_ext, real.abs.defn],
-    )
-    l.auto(by=[cumsum_add(a, magnitude, j), add.defn(cumsum(a), cumsum(magnitude))])
-    h = l.have(
-        Exists(S, has_sum(positive, S)),
-        by=[exists_has_sum_of_nonneg_of_bounded(positive, 2 * M)],
-    )
-    pos_sum, _ = l.obtain(h)
-    l.exists(pos_sum - mag_sum)
-    l.have(cumsum(positive) - cumsum(magnitude) == cumsum(a))
-    l.ext()
-    j = l.fix()
+    l.have(is_summable(magnitude))
+    l.unfold(is_summable)
     l.auto(
-        by=[
-            cumsum_add(a, magnitude, j),
-            add.defn(cumsum(a), cumsum(magnitude)),
-            sub.defn(cumsum(positive), cumsum(magnitude)),
-        ]
+        by=[exists_has_sum_of_nonneg_of_bounded(magnitude, M), abs_ext, real.abs_pos]
     )
-    l.auto(
-        by=[
-            has_sum.defn,
-            has_lim_sub(cumsum(positive), cumsum(magnitude), pos_sum, mag_sum),
-        ]
-    )
+    l.have(is_summable(a), by=[is_summable_of_abs(a)])
+    l.auto(by=[is_summable.defn(a)])
 
 
 @Theorem(

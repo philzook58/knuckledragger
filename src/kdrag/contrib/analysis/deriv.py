@@ -7,14 +7,27 @@ Carathéodory's characterisation, which avoids dividing by f(x) - f(p).
 
 from kdrag import Theorem, define, prove
 import kdrag.smt as smt
-from kdrag.smt import Const, Consts, Eq, Exists, ForAll, Lambda, Reals, RealVal, Store
+from kdrag.smt import (
+    And,
+    Const,
+    Consts,
+    Eq,
+    Exists,
+    ForAll,
+    Lambda,
+    Or,
+    Reals,
+    RealVal,
+    Store,
+)
 
-from kdrag.theories.real import RFun, abs, abs_mul, cont_at, fmul, has_lim_at
+from kdrag.theories.real import RFun, abs, abs_mul, cont_at, fmul, has_lim_at, min
 from kdrag.contrib.analysis.cont import (
     cont_at_comp,
     has_lim_at_congr,
     has_lim_at_const,
     has_lim_at_id,
+    has_lim_at_unique,
 )
 from kdrag.theories.real.cont import (
     cont_at_update_of_has_lim_at,
@@ -27,6 +40,7 @@ f, g = Consts("f g", RFun)
 x, p, L, a, b, c = Reals("x p L a b c")
 F = Const("F", RFun)
 k, t, u, v, y, eps, delta = Reals("k t u v y eps delta")
+lo, hi = Reals("lo hi")
 
 
 # The single derivative predicate: derivative value first, then the base point.
@@ -40,6 +54,14 @@ has_deriv_at = define(
 def quot(f, p):
     """The difference quotient of f at p."""
     return Lambda(x, (f[x] - f[p]) / (x - p))
+
+
+@Theorem(ForAll([f, p, a, b], has_deriv_at(f, a, p), has_deriv_at(f, b, p), a == b))
+def has_deriv_at_unique(l):
+    """A function has at most one derivative value at a point."""
+    f, p, a, b = l.fixes()
+    l.unfold(has_deriv_at)
+    l.auto(by=[has_lim_at_unique(quot(f, p), p, a, b)])
 
 
 @Theorem(
@@ -113,6 +135,34 @@ def has_deriv_at_iff_remainder(l):
         by=[abs_mul(quot(f, p)[z] - a, z - p)],
     )
     l.auto(by=[abs.defn(z - p)])
+
+
+@Theorem(
+    ForAll(
+        [f, a, p, c],
+        has_deriv_at(f, a, p),
+        has_deriv_at(Lambda(x, f[x] - c * x), a - c, p),
+    )
+)
+def has_deriv_at_sub_linear(l):
+    """Subtracting x ↦ c*x subtracts c from the derivative."""
+    f, a, p, c = l.fixes()
+    l.rw(has_deriv_at_iff_remainder(f, a, p))
+    l.rw(has_deriv_at_iff_remainder(Lambda(x, f[x] - c * x), a - c, p))
+    differentiable = l.intro()
+    eps = l.fix()
+    positive = l.intro()
+    radius, witness = l.obtain(l.specialize(differentiable, eps, positive))
+    _, estimate = l.andE(witness)
+    # Subtracting a line leaves the linear remainder unchanged.
+    l.exists(radius)
+    l.split()
+    l.auto()
+    point = l.fix()
+    l.intro()
+    l.specialize(estimate, point)
+    l.beta()
+    l.auto()
 
 
 @Theorem(ForAll([c, p], has_deriv_at(Lambda(x, c), 0, p)))
@@ -336,6 +386,69 @@ def straddle_of_has_deriv_at(l):
             abs.defn(F[v] - F[t] - k * (v - t)),
         ]
     )
+
+
+@Theorem(
+    ForAll(
+        [f, a, p, lo, hi],
+        lo < p,
+        p < hi,
+        has_deriv_at(f, a, p),
+        Or(
+            ForAll(x, lo < x, x < hi, f[x] <= f[p]),
+            ForAll(x, lo < x, x < hi, f[p] <= f[x]),
+        ),
+        a == 0,
+    )
+)
+def deriv_eq_zero_of_interior_extremum(l):
+    """Abbott 5.2.6, the interior extremum theorem."""
+    f, a, p, lo, hi = l.fixes()
+    l.rw(has_deriv_at_iff_remainder(f, a, p))
+    _, _, differentiable, extremum = l.intros()
+    l.contra()
+    error = abs(a) / 2
+    positive = l.have(error > 0, by=[abs.defn(a)])
+    radius, witness = l.obtain(l.specialize(differentiable, error, positive))
+    _, estimate = l.andE(witness)
+
+    # Test the remainder estimate at one point on each side of p.
+    left_step, right_step = min(radius, p - lo) / 2, min(radius, hi - p) / 2
+    left, right = p - left_step, p + right_step
+    nearby = l.have(
+        Exists(
+            [u, v],
+            And(lo < u, u < p, p < v, v < hi, abs(u - p) < radius, abs(v - p) < radius),
+        )
+    )
+    l.exists(left, right)
+    l.auto(
+        by=[
+            min.defn(radius, p - lo),
+            min.defn(radius, hi - p),
+            abs.defn(left - p),
+            abs.defn(right - p),
+        ]
+    )
+    (left, right), _ = l.obtain(nearby)
+    l.specialize(estimate, left, keep=True)
+    l.specialize(estimate, right)
+
+    # Either extremum would contradict the estimate if a were nonzero.
+    maximum, minimum = extremum.children()
+    l.cases(maximum, minimum)
+    for bound in (maximum, minimum):
+        l.specialize(bound, left, keep=True)
+        l.specialize(bound, right)
+        l.auto(
+            by=[
+                abs.defn(a),
+                abs.defn(left - p),
+                abs.defn(right - p),
+                abs.defn(f[left] - f[p] - a * (left - p)),
+                abs.defn(f[right] - f[p] - a * (right - p)),
+            ]
+        )
 
 
 @Theorem(ForAll(x, has_deriv_at(Lambda(t, t * t), 2 * x, x)))
