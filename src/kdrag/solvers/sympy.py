@@ -1,9 +1,18 @@
-# import kdrag.theories.real as real
-import kdrag.reflect
+"""Export expressions for exploration with SymPy, without producing proofs.
+
+SymPy's domains, branches, and treatment of undefined operations can differ from
+Knuckledragger's. Legacy reverse translation helpers remain below for compatibility.
+"""
+
+import sys
+from typing import Callable, cast
+
+from z3 import z3consts
+
+import kdrag
 import kdrag.smt as smt
 
 import sympy
-import sympy.abc
 
 R = smt.RealSort()
 RFun = smt.ArraySort(R, R)
@@ -23,103 +32,194 @@ pi = smt.Const("pi", R)
 ln = smt.Function("ln", R, R)
 
 
-def shim_ho(f):
-    def res(e: kdrag.reflect.KnuckleClosure):
-        x = sympy.symbols("x", real=True)
-        return f(e(x), x)  # wrong
-
-    return res
-
-
-def fresh_symbol() -> sympy.Symbol:
-    """
-    Create a fresh symbol for use in sympy expressions.
-    >>> x = fresh_symbol()
-    >>> y = fresh_symbol()
-    >>> x != y
-    True
-    """
-    return sympy.Symbol(
-        smt.FreshConst(smt.RealSort()).decl().name().replace("!", "__"), real=True
-    )
-
-
-def diff_shim(e: kdrag.reflect.KnuckleClosure) -> sympy.Basic:
-    assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
-    x = fresh_symbol()
-    e.locals[x.name] = x
-    return sympy.Lambda(x, sympy.diff(e(x), x, evaluate=False))
-
-
-def integ_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Basic:
-    assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
-    x = fresh_symbol()
-    e.locals[x.name] = x
-    return sympy.integrate(e(x), (x, a, b))
-
-
-def sum_shim(e: kdrag.reflect.KnuckleClosure, a, b) -> sympy.Basic:
-    assert e.lam.num_vars() == 1 and e.lam.var_sort(0) == smt.RealSort()
-    x = fresh_symbol()
-    e.locals[x.name] = x
-    return sympy.summation(e(x), (x, a, b))
-
-
-sympy_env = {
-    **sympy.__dict__,
-    **sympy.abc.__dict__,
-    "=": sympy.Eq,
-    "exp": lambda x: sympy.E**x,
-    "deriv": diff_shim,
-    "integrate": integ_shim,
-    "summation": sum_shim,
-}
-
-
 def sympy_const(e: smt.ExprRef) -> sympy.Expr:
     """
     >>> x = smt.FreshReal("x")
     >>> sympy_const(x)
     x!...
     """
-    assert e.sort() == smt.RealSort() and smt.is_const(e)
+    if not smt.is_const(e):
+        raise ValueError(f"Expected a real or integer constant, got {e}")
     name = e.decl().name()
-    return sympy.Symbol(name, real=True)
+    if smt.is_real(e):
+        return sympy.Symbol(name, real=True)
+    if smt.is_int(e):
+        return sympy.Symbol(name, integer=True)
+    raise ValueError(f"Expected a real or integer constant, got {e}: {e.sort()}")
 
 
-def sympify(e: smt.ExprRef, locals=None) -> sympy.Expr:
+def sympify(e: smt.ExprRef, locals=None) -> sympy.Basic:
     """
-    Convert a z3 expression into a sympy expression.
+    Export an expression to SymPy. Results are suggestions, not proofs.
+
+    ``locals`` maps free constant or function names to SymPy objects. Bound
+    variables are scoped independently. Calculus operators stay unevaluated;
+    use native SymPy methods such as ``doit``, ``integrate``, and ``dsolve``.
+    Sequence ``has_sum(a, L)`` becomes ``Eq(Sum(a(n), (n, 0, oo)), L)``.
+
     >>> x = smt.Real("x")
     >>> sympify(x + 1)
     x + 1
     >>> sympify(smt.RatVal(1,3))
-    Fraction(1, 3)
-    >>> sympify(deriv(smt.Lambda([x], cos(sin(x)))))(sympy.abc.x)
-    Derivative(cos(sin(x)), x)
-    >>> sympify(integrate_(smt.Lambda([x], sin(x)), 0,x))
-    1 - cos(x)
-    >>> sympify(smt.Lambda([x], x + 1))
-    Lambda(X__..., X__... + 1)
+    1/3
+    >>> from kdrag.theories import real
+    >>> sx = sympify(x)
+    >>> sympy.integrate(sympify(x * real.exp(x)), sx)
+    (x - 1)*exp(x)
+    >>> y = smt.Const("y", real.RFun)
+    >>> ode = sympify(real.deriv(y)[x] == y[x])
+    >>> sympy.dsolve(ode, sympify(y[x]))
+    Eq(y(x), C1*exp(x))
     """
+    from kdrag.theories import real
+
+    # Sequence expressions already require this theory; do not load its proofs
+    # merely to export scalar arithmetic.
+    seq = sys.modules.get("kdrag.theories.real.seq")
     if locals is None:
         locals = {}
-    res = kdrag.reflect.eval_(e, globals=sympy_env, locals=locals)
-    if isinstance(res, kdrag.reflect.KnuckleClosure):
-        vs, body = kdrag.utils.open_binder(res.lam)
-        vs1 = []
-        for v in vs:
-            v1 = sympy.Symbol(
-                v.decl().name().replace("!", "__"), real=True
-            )  # was this necessary?
-            vs1.append(v1)
-            locals[v.decl().name()] = v1
-        return sympy.Lambda(
-            tuple(vs1),
-            sympify(body, locals=locals),
-        )
-    else:
-        return res
+
+    functions = {
+        # Keep the legacy helpers' unprefixed declarations working too.
+        sin: sympy.sin,
+        cos: sympy.cos,
+        tan: sympy.tan,
+        asin: sympy.asin,
+        acos: sympy.acos,
+        exp: sympy.exp,
+        ln: sympy.log,
+        real.add: sympy.Add,
+        real.sub: lambda x, y: x - y,
+        real.mul: sympy.Mul,
+        real.pow: sympy.Pow,
+        real.sqr: lambda x: x**2,
+        real.sqrt: sympy.sqrt,
+        real.abs: sympy.Abs,
+        real.sgn: sympy.sign,
+        real.ln: sympy.log,
+        real.exp: sympy.exp,
+        real.sin: sympy.sin,
+        real.cos: sympy.cos,
+        real.tan: sympy.tan,
+        real.asin: sympy.asin,
+        real.acos: sympy.acos,
+        real.atan: sympy.atan,
+    }
+    operators = {
+        z3consts.Z3_OP_ADD: sympy.Add,
+        z3consts.Z3_OP_SUB: lambda x, y: x - y,
+        z3consts.Z3_OP_UMINUS: lambda x: -x,
+        z3consts.Z3_OP_MUL: sympy.Mul,
+        z3consts.Z3_OP_DIV: lambda x, y: x / y,
+        z3consts.Z3_OP_POWER: sympy.Pow,
+        z3consts.Z3_OP_TO_REAL: lambda x: x,
+        z3consts.Z3_OP_EQ: lambda x, y: sympy.Eq(x, y, evaluate=False),
+        z3consts.Z3_OP_LE: sympy.Le,
+        z3consts.Z3_OP_LT: sympy.Lt,
+        z3consts.Z3_OP_GE: sympy.Ge,
+        z3consts.Z3_OP_GT: sympy.Gt,
+        z3consts.Z3_OP_AND: sympy.And,
+        z3consts.Z3_OP_OR: sympy.Or,
+        z3consts.Z3_OP_NOT: sympy.Not,
+        z3consts.Z3_OP_IMPLIES: sympy.Implies,
+        z3consts.Z3_OP_ITE: lambda c, t, f: sympy.Piecewise((t, c), (f, True)),
+        z3consts.Z3_OP_SELECT: lambda f, *xs: f(*xs),
+    }
+
+    def unsupported(t):
+        raise ValueError(f"Cannot export to SymPy: {t} (sort {t.sort()})")
+
+    def bound_symbol(name, sort):
+        if sort == smt.RealSort():
+            return sympy.Dummy(str(name), real=True)
+        if sort == smt.IntSort():
+            return sympy.Dummy(str(name), integer=True)
+        return unsupported(smt.Const(str(name), sort))
+
+    def worker(t, bound=()):
+        if smt.is_var(t):
+            index = smt.get_var_index(t)
+            if index >= len(bound):
+                return unsupported(t)
+            return bound[index]
+        if isinstance(t, smt.QuantifierRef):
+            if not t.is_lambda():
+                return unsupported(t)
+            vs = [
+                bound_symbol(t.var_name(i), t.var_sort(i)) for i in range(t.num_vars())
+            ]
+            return sympy.Lambda(
+                tuple(vs), worker(t.body(), tuple(reversed(vs)) + bound)
+            )
+        if smt.is_int_value(t):
+            return sympy.Integer(t.as_long())
+        if smt.is_rational_value(t):
+            return sympy.Rational(t.numerator_as_long(), t.denominator_as_long())
+        if smt.is_true(t):
+            return sympy.true
+        if smt.is_false(t):
+            return sympy.false
+        if not smt.is_app(t):
+            return unsupported(t)
+        decl = t.decl()
+        args = [worker(c, bound) for c in t.children()]
+        if decl.kind() == z3consts.Z3_OP_UNINTERPRETED and decl.name() in locals:
+            value = locals[decl.name()]
+            return sympy.sympify(value(*args) if args else value)
+        if decl in functions:
+            return functions[decl](*args)
+        if decl == real.pi.decl():
+            return sympy.pi
+        if smt.is_distinct(t) and len(args) == 2:
+            return sympy.Ne(*args, evaluate=False)
+        if decl.kind() in operators:
+            return operators[decl.kind()](*args)
+        if decl == cast(smt.ExprRef, real.ident).decl():
+            x = sympy.Dummy("x", real=True)
+            return sympy.Lambda(x, x)
+        if decl == real.const:
+            return sympy.Lambda(sympy.Dummy("x", real=True), args[0])
+        if decl == real.has_lim_at:
+            x = sympy.Dummy("x", real=True)
+            limit = sympy.Limit(args[0](x), x, args[1], dir="+-")
+            return sympy.Eq(limit, args[2], evaluate=False)
+        if seq is not None and decl == seq.has_lim:
+            n = sympy.Dummy("n", integer=True)
+            limit = sympy.Limit(args[0](n), n, sympy.oo)
+            return sympy.Eq(limit, args[1], evaluate=False)
+        if seq is not None and decl == seq.has_sum:
+            n = sympy.Dummy("n", integer=True)
+            total = sympy.Sum(args[0](n), (n, 0, sympy.oo))
+            return sympy.Eq(total, args[1], evaluate=False)
+        if decl in (real.deriv, deriv, real.integrate, real.lim, real.summation):
+            x = sympy.Dummy("x", real=True)
+            body = args[0](x)
+            if decl in (real.deriv, deriv):
+                return sympy.Lambda(x, sympy.Derivative(body, x, evaluate=False))
+            if decl == real.integrate:
+                return sympy.Integral(body, (x, *args[1:]))
+            if decl == real.lim:
+                return sympy.Limit(body, x, args[1], dir="+-")
+            return sympy.Sum(body, (x, *args[1:]))
+        if smt.is_const_array(t) and t.sort() in (real.RFun, real.RSeq):
+            return sympy.Lambda(bound_symbol("x", t.sort().domain()), args[0])
+        if decl.kind() == z3consts.Z3_OP_UNINTERPRETED:
+            if not args and (smt.is_real(t) or smt.is_int(t)):
+                return sympy_const(t)
+            if not args and t.sort() in (real.RFun, real.RSeq):
+                x = bound_symbol("x", t.sort().domain())
+                f = cast(
+                    Callable[..., sympy.Expr], sympy.Function(decl.name(), real=True)
+                )
+                return sympy.Lambda(x, f(x))
+            if decl.arity() == 1 and decl.domain(0) == R and decl.range() == R:
+                f = cast(
+                    Callable[..., sympy.Expr], sympy.Function(decl.name(), real=True)
+                )
+                return f(*args)
+        return unsupported(t)
+
+    return worker(e)
 
 
 def _sympy_mangle(expr: sympy.Basic) -> sympy.Basic:
@@ -300,7 +400,7 @@ def series(e, x=None, x0=0, n=6, dir="+"):
     x + Order(x**2)
     """
     if x is not None:
-        x = sympy.symbols(x.decl().name())
+        x = sympify(x)
     return kdify(sympy.series(sympify(e), x, x0, n, dir))
 
 
@@ -313,7 +413,7 @@ def limit(e, x, x0):
     >>> limit(1/x, x, 0) # TODO: What to do about this one?
     inf
     """
-    x = sympy.symbols(x.decl().name())
+    x = sympify(x)
     return kdify(sympy.limit(sympify(e), x, x0))
 
 
@@ -325,92 +425,11 @@ def solve(
     >>> x,y,z = smt.Reals("x y z")
     >>> solve([x + y == 1, x - z == 2], [x, y, z])
     [{x: z + 2, y: -z - 1}]
-    >>> solve([cos(x) == 3], [x]) # Note that does not return all possible solutions.
-    [{x: 2*pi - acos(3)}, {x: acos(3)}]
+    >>> solve([cos(x) == 3], [x])  # No real solutions.
+    []
     """
     assert isinstance(vs, list) and isinstance(constrs, list)
     sols = sympy.solve(
         [sympify(constr) for constr in constrs], [sympify(v) for v in vs], dict=True
     )
     return [{kdify(v): kdify(t) for v, t in sol.items()} for sol in sols]
-
-
-"""
-# Old Style. Remove?
-
-a, b = smt.Reals("a b")
-sympy_decls = {
-    real.sqrt: sympy.sqrt,
-    real.sqr: lambda x: x**2,
-    real.exp: sympy.exp,
-    real.ln: sympy.ln,
-    real.sin: sympy.sin,
-    real.cos: sympy.cos,
-    real.tan: sympy.tan,
-    real.atan: sympy.atan,
-    real.pi.decl(): sympy.pi,
-    (a + b).decl(): sympy.Add,
-    (a * b).decl(): sympy.Mul,
-    (a / b).decl(): op.truediv,
-    (a - b).decl(): op.sub,
-    (a**b).decl(): sympy.Pow,
-    (a == b).decl(): sympy.Eq,
-}
-sympy_consts = {
-    real.pi: sympy.pi,
-}
-rev_sympy_decls = {v: k for k, v in sympy_decls.items()}
-rev_sympy_consts = {v: k for k, v in sympy_consts.items()}
-
-
-def interp_sympy(e: smt.ExprRef, env: dict[smt.ExprRef, sympy.Expr] = {}) -> sympy.Expr:
-    if e in env:
-        return env[e]
-    elif e in sympy_consts:
-        return sympy_consts[e]
-    elif smt.is_rational_value(e) and isinstance(e, smt.RatNumRef):
-        return sympy.Rational(e.numerator_as_long(), e.denominator_as_long())
-    elif smt.is_select(e) and e.arg(0) in sympy_decls:
-        return sympy_decls[e.arg(0)](
-            *[interp_sympy(arg, env) for arg in e.children()[1:]]
-        )
-    elif smt.is_app(e) and e.decl() in sympy_decls:
-        decl = e.decl()
-        return sympy_decls[decl](*[interp_sympy(arg, env) for arg in e.children()])
-    else:
-        raise ValueError(f"Can't interpret {e} into sympy")
-
-
-def z3_of_sympy(x: sympy.Basic, env: dict[sympy.Expr, smt.ExprRef] = {}) -> smt.ExprRef:
-    if x in env:
-        return env[x]
-    elif x in rev_sympy_consts:
-        return rev_sympy_consts[x]
-    elif x.is_constant() and x.is_rational:  # type: ignore
-        num, denom = x.as_numer_denom()  # type: ignore
-        return smt.RatVal(int(num), int(denom))
-    elif x.func in rev_sympy_decls:
-        decl = rev_sympy_decls[x.func]
-        return decl(*[z3_of_sympy(arg, env) for arg in x.args])
-    else:
-        raise ValueError("Can't interpret", x, "from sympy into z3")
-
-
-def wrap_sympy(f):
-    def wrapped(vs, e: smt.ExprRef, **kwargs):
-        env1 = {e: sympy.symbols(e.decl().name()) for e in vs}
-        env2 = {v: k for k, v in env1.items()}
-        e_sym = interp_sympy(e, env1)
-        t = z3_of_sympy(f(e_sym, **kwargs), env2)
-        return t
-
-    return wrapped
-
-
-
-factor = wrap_sympy(sympy.factor)
-expand = wrap_sympy(sympy.expand)
-simplify = wrap_sympy(sympy.simplify)
-expand_trig = wrap_sympy(sympy.expand_trig)
-collect = wrap_sympy(sympy.collect)
-"""
