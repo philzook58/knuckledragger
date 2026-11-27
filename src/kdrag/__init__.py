@@ -17,6 +17,14 @@ from . import rewrite
 from . import contracts
 from . import tactics
 from . import reflect
+from .inductive import (
+    IndRel,
+    indrel,
+    define_least,
+    relation_operator,
+    least_induct,
+    least_unfold,
+)
 import functools
 from .parsers import microlean
 from .printers.pretty import pretty_expr, register_infix
@@ -605,6 +613,12 @@ __all__ = [
     "exact",
     "axiom",
     "define",
+    "IndRel",
+    "indrel",
+    "define_least",
+    "relation_operator",
+    "least_induct",
+    "least_unfold",
     "Proof",
     "FreshVar",
     "FreshVars",
