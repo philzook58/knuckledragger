@@ -85,3 +85,15 @@ def test_scope_can_reconstruct_an_assumption_proof():
         l.intro()
         l.assumption()
     assert l.qed().thm.eq(target)
+
+
+def test_ptheorem_shows_the_goal_left_open_inside_focus(capsys):
+    p, q = Bool("p"), Bool("q")
+
+    @kd.tactics.PTheorem(And(Implies(p, p), q))
+    def unfinished(l):
+        l.split()
+        with l:
+            l.intro()
+
+    assert capsys.readouterr().out == "0: p\n────\n⊢ p\n"

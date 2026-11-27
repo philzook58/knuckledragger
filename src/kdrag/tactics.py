@@ -587,6 +587,14 @@ class _AutoFailure(ValueError):
         )
 
 
+class _UnfinishedFocus(ValueError):
+    """A `with l:` block that ended with its goal still open."""
+
+    def __init__(self, goal: Goal):
+        super().__init__("Unfinished focused proof", goal)
+        self.goal = goal
+
+
 @cache
 def _iff_intro() -> kd.kernel.Proof:
     """Assemble an equivalence without searching inside its quantified operands."""
@@ -2060,7 +2068,7 @@ class ProofState:
                 return
             goal = self.top_goal()
             if self._scope.has_pending_work():
-                raise ValueError("Unfinished focused proof", goal)
+                raise _UnfinishedFocus(goal)
             proof = self.qed()
         finally:
             self._scopes.pop()
@@ -2415,6 +2423,10 @@ def PTheorem(
                     source,
                 )
             )
+            return
+        except _UnfinishedFocus as unfinished:
+            # Stopping inside `with l:` while developing shows its open goal.
+            print(pretty_goal(unfinished.goal))
             return
         if not l._scope.has_pending_work():
             l.qed()
