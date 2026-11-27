@@ -41,12 +41,12 @@ def test_coverage_must_hold_in_context():
 def test_failed_coverage_leaves_state_unchanged():
     n = smt.Int("n")
     l = kd.Lemma(smt.BoolVal(True))
-    goals = list(l.goals)
+    goals = list(l._scope.goals)
     lemmas = [dict(scope) for scope in l.lemmas]
     with pytest.raises(kd.kernel.SolverFailure):
         l.cases(n < 0, n > 0)
-    assert all(a is b for a, b in zip(l.goals, goals))
-    assert len(l.goals) == len(goals)
+    assert all(a is b for a, b in zip(l._scope.goals, goals))
+    assert len(l._scope.goals) == len(goals)
     assert l.lemmas == lemmas
     l.auto()
     l.qed()
@@ -64,7 +64,7 @@ def test_invalid_multiple_cases_leave_state_unchanged():
 def test_coverage_timeout_leaves_state_unchanged(monkeypatch):
     p = smt.Bool("p")
     l = kd.Lemma(p)
-    goals = list(l.goals)
+    goals = list(l._scope.goals)
     lemmas = [dict(scope) for scope in l.lemmas]
 
     def timeout(*args, **kwargs):
@@ -74,8 +74,8 @@ def test_coverage_timeout_leaves_state_unchanged(monkeypatch):
     monkeypatch.setattr(kd, "prove", timeout)
     with pytest.raises(TimeoutError, match="coverage timed out"):
         l.cases(p, smt.Not(p), timeout=17)
-    assert len(l.goals) == len(goals)
-    assert all(a is b for a, b in zip(l.goals, goals))
+    assert len(l._scope.goals) == len(goals)
+    assert all(a is b for a, b in zip(l._scope.goals, goals))
     assert l.lemmas == lemmas
 
 

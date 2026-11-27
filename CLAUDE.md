@@ -120,7 +120,7 @@ Tactics are methods on `ProofState` (returned by `kd.Lemma` or passed to `@Theor
 **Advanced:**
 
 - `l.specialize(n, *ts)` - instantiate universal in hypothesis `n` with terms
-- `with l.sub() as l1: ...` - create subgoal
+- `with l: ...` - focus the current goal; the block must close it. After `l.cases(p, q)`, `with l.case(p): ...` labels each branch.
 
 **Finish:**
 
